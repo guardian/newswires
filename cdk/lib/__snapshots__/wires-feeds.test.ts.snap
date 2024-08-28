@@ -232,10 +232,9 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
-    "fingerpostqueueF09A4E0A": {
+    "fingerpostqueueDeadLetterQueueTESTC46C734A": {
       "DeletionPolicy": "Delete",
       "Properties": {
-        "MessageRetentionPeriod": 1209600,
         "Tags": [
           {
             "Key": "App",
@@ -258,6 +257,47 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
         ],
+        "VisibilityTimeout": 300,
+      },
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "fingerpostqueueF09A4E0A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "MessageRetentionPeriod": 1209600,
+        "RedrivePolicy": {
+          "deadLetterTargetArn": {
+            "Fn::GetAtt": [
+              "fingerpostqueueDeadLetterQueueTESTC46C734A",
+              "Arn",
+            ],
+          },
+          "maxReceiveCount": 3,
+        },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VisibilityTimeout": 300,
       },
       "Type": "AWS::SQS::Queue",
       "UpdateReplacePolicy": "Delete",
@@ -407,6 +447,15 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
       "DeletionPolicy": "Delete",
       "Properties": {
         "MessageRetentionPeriod": 1209600,
+        "RedrivePolicy": {
+          "deadLetterTargetArn": {
+            "Fn::GetAtt": [
+              "sourcequeueDeadLetterQueueTEST4E4374EA",
+              "Arn",
+            ],
+          },
+          "maxReceiveCount": 3,
+        },
         "Tags": [
           {
             "Key": "App",
@@ -429,6 +478,37 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
         ],
+        "VisibilityTimeout": 300,
+      },
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "sourcequeueDeadLetterQueueTEST4E4374EA": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VisibilityTimeout": 300,
       },
       "Type": "AWS::SQS::Queue",
       "UpdateReplacePolicy": "Delete",

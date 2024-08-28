@@ -41,10 +41,28 @@ export class WiresFeeds extends GuStack {
 			});
 			topic.grantPublish(new ArnPrincipal(user.userArn));
 
-			const queue = new Queue(this, `${topicType}-queue`, {
+			const queueName = `${topicType}-queue`;
+			const visibilityTimeout = Duration.minutes(5);
+
+			const deadLetterQueue = new Queue(
+				this,
+				`${queueName}DeadLetterQueue-${props.stage}`,
+				{ visibilityTimeout },
+			);
+
+			const queue = new Queue(this, queueName, {
 				enforceSSL: true,
 				retentionPeriod: Duration.days(14),
+				// We are using this queue in conjunction with a lambda SqsEventSource
+				// visibilityTimeout is set by default to 5 minutes to ensure that the lambda has
+				// enough time to process the message before it becomes visible again.
+				visibilityTimeout: Duration.minutes(5),
+				deadLetterQueue: {
+					queue: deadLetterQueue,
+					maxReceiveCount: 3,
+				},
 			});
+
 			topic.addSubscription(
 				new SqsSubscription(queue, { rawMessageDelivery: true }),
 			);
