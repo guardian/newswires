@@ -220,6 +220,22 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 ],
               },
             },
+            {
+              "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:GetQueueUrl",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "fingerpostqueueF09A4E0A",
+                  "Arn",
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -231,6 +247,23 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "IngestionLambdaTESTSqsEventSourceWiresFeedsfingerpostqueue1E7A0992E56554E5": {
+      "Properties": {
+        "EventSourceArn": {
+          "Fn::GetAtt": [
+            "fingerpostqueueF09A4E0A",
+            "Arn",
+          ],
+        },
+        "FunctionName": {
+          "Ref": "IngestionLambdaTESTC02B3E43",
+        },
+        "FunctionResponseTypes": [
+          "ReportBatchItemFailures",
+        ],
+      },
+      "Type": "AWS::Lambda::EventSourceMapping",
     },
     "fingerpostqueueDeadLetterQueueTESTC46C734A": {
       "DeletionPolicy": "Delete",

@@ -5,6 +5,7 @@ import type { App } from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
 import { ArnPrincipal, User } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
@@ -33,10 +34,8 @@ export class WiresFeeds extends GuStack {
 			fingerpostPublishingUserArn,
 		);
 
-		const topicPairs = ['fingerpost', 'source'];
-
-		for (const topicType of topicPairs) {
-			const topic = new Topic(this, `${topicType}-topic`, {
+		function createTopicQueue(scope: GuStack, topicType: string) {
+			const topic = new Topic(scope, `${topicType}-topic`, {
 				enforceSSL: true,
 			});
 			topic.grantPublish(new ArnPrincipal(user.userArn));
@@ -45,12 +44,12 @@ export class WiresFeeds extends GuStack {
 			const visibilityTimeout = Duration.minutes(5);
 
 			const deadLetterQueue = new Queue(
-				this,
+				scope,
 				`${queueName}DeadLetterQueue-${props.stage}`,
 				{ visibilityTimeout },
 			);
 
-			const queue = new Queue(this, queueName, {
+			const queue = new Queue(scope, queueName, {
 				enforceSSL: true,
 				retentionPeriod: Duration.days(14),
 				// We are using this queue in conjunction with a lambda SqsEventSource
@@ -66,13 +65,41 @@ export class WiresFeeds extends GuStack {
 			topic.addSubscription(
 				new SqsSubscription(queue, { rawMessageDelivery: true }),
 			);
+
+			return queue;
 		}
 
-		new GuLambdaFunction(this, `IngestionLambda-${this.stage}`, {
-			app: 'ingestion-lambda',
-			runtime: Runtime.NODEJS_20_X,
-			handler: 'handler.main',
-			fileName: 'ingestion-lambda.zip',
+		/** A topic and queue for the 'raw' wires feed.
+		 * Not receiving data yet so we aren't currently doing anything more with it.
+		 */
+		createTopicQueue(this, 'source');
+
+		const fingerPostQueue = createTopicQueue(this, 'fingerpost');
+
+		const ingestionLambda = new GuLambdaFunction(
+			this,
+			`IngestionLambda-${this.stage}`,
+			{
+				app: 'ingestion-lambda',
+				runtime: Runtime.NODEJS_20_X,
+				handler: 'handler.main',
+				fileName: 'ingestion-lambda.zip',
+			},
+		);
+
+		const eventSource = new SqsEventSource(fingerPostQueue, {
+			/**
+			 * This is required to allow us to deal with failures of particular
+			 * records handed to a lambda by an SQS queue. Without this, the
+			 * lambda will retry the entire batch of records, which is not what
+			 * we want.
+			 *
+			 * See https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#services-sqs-batchfailurereporting
+			 *
+			 */
+			reportBatchItemFailures: true,
 		});
+
+		ingestionLambda.addEventSource(eventSource);
 	}
 }
