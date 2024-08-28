@@ -14,14 +14,14 @@ export class WiresFeeds extends GuStack {
 	constructor(scope: App, id: string, props: WiresFeedsProps) {
 		super(scope, id, { ...props, app });
 
-		const stackStageApp = `${this.stage}/${this.stack}/${app}`;
+		const stageStackApp = `${this.stage}/${this.stack}/${app}`;
 
 		const fingerpostPublishingUserArn = new GuStringParameter(
 			this,
 			'fingerpost-publishing-user-arn',
 			{
 				fromSSM: true,
-				default: `/${stackStageApp}/fingerpost-publishing-user-arn`,
+				default: `/${stageStackApp}/fingerpost-publishing-user-arn`,
 			},
 		).valueAsString;
 
