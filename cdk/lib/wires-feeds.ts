@@ -1,6 +1,7 @@
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { GuStack, GuStringParameter } from '@guardian/cdk/lib/constructs/core';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
+import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
 import { ArnPrincipal, User } from 'aws-cdk-lib/aws-iam';
@@ -101,5 +102,11 @@ export class WiresFeeds extends GuStack {
 		});
 
 		ingestionLambda.addEventSource(eventSource);
+
+		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
+			app,
+		});
+
+		feedsBucket.grantWrite(ingestionLambda);
 	}
 }

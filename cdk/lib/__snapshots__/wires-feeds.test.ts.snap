@@ -7,6 +7,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
       "GuStringParameter",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
+      "GuS3Bucket",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -236,6 +237,40 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 ],
               },
             },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "feedsbucketTESTWiresfeeds5E0415F0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "feedsbucketTESTWiresfeeds5E0415F0",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -264,6 +299,41 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::Lambda::EventSourceMapping",
+    },
+    "feedsbucketTESTWiresfeeds5E0415F0": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
     },
     "fingerpostqueueDeadLetterQueueTESTC46C734A": {
       "DeletionPolicy": "Delete",
