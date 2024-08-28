@@ -32,13 +32,22 @@ jobs:
           cache-dependency-path: "./package-lock.json"
           node-version-file: ".nvmrc"
 
-      - name: Build CDK
-        working-directory: cdk
+      - name: Lint and test
         run: |
           npm ci
           npm run lint
           npm test
+
+      - name: Build CDK
+        working-directory: cdk
+        run: |
           npm run synth
+
+      - name: Build ingestion-lambda
+        working-directory: ingestion-lambda
+        run: |
+          npm run build
+          zip -FSjr "dist/ingestion-lambda.zip" "dist/handler.js"
 
       - name: Upload to Riff-Raff
         uses: guardian/actions-riff-raff@v4
@@ -50,3 +59,5 @@ jobs:
           contentDirectories: |
             cdk.out:
               - cdk/cdk.out
+            ingestion-lambda:
+              - ingestion-lambda/dist/ingestion-lambda.zip

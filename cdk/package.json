@@ -7,8 +7,6 @@
 		"build": "tsc",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects cdk",
 		"test-update": "jest -u",
-		"format": "prettier --write \"{lib,bin}/**/*.ts\"",
-		"lint": "eslint lib/** bin/** --ext .ts --no-error-on-unmatched-pattern",
 		"synth": "cdk synth --path-metadata false --version-reporting false",
 		"diff": "cdk diff --path-metadata false --version-reporting false"
 	},
@@ -16,6 +14,7 @@
 		"@guardian/cdk": "59.3.0",
 		"aws-cdk": "2.153.0",
 		"aws-cdk-lib": "2.153.0",
-		"constructs": "10.3.0"
+		"constructs": "10.3.0",
+		"source-map-support": "0.5.20"
 	}
 }
