@@ -77,6 +77,10 @@ export class WiresFeeds extends GuStack {
 
 		const fingerPostQueue = createTopicQueue(this, 'fingerpost');
 
+		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
+			app,
+		});
+
 		const ingestionLambda = new GuLambdaFunction(
 			this,
 			`IngestionLambda-${this.stage}`,
@@ -85,6 +89,9 @@ export class WiresFeeds extends GuStack {
 				runtime: Runtime.NODEJS_20_X,
 				handler: 'handler.main',
 				fileName: 'ingestion-lambda.zip',
+				environment: {
+					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+				},
 			},
 		);
 
@@ -102,10 +109,6 @@ export class WiresFeeds extends GuStack {
 		});
 
 		ingestionLambda.addEventSource(eventSource);
-
-		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
-			app,
-		});
 
 		feedsBucket.grantWrite(ingestionLambda);
 	}

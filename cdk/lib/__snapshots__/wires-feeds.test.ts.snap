@@ -5,9 +5,9 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
   "Metadata": {
     "gu:cdk:constructs": [
       "GuStringParameter",
+      "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
-      "GuS3Bucket",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -38,6 +38,9 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
         "Environment": {
           "Variables": {
             "APP": "ingestion-lambda",
+            "FEEDS_BUCKET_NAME": {
+              "Ref": "feedsbucketTESTWiresfeeds5E0415F0",
+            },
             "STACK": "editorial-feeds",
             "STAGE": "TEST",
           },
