@@ -28,9 +28,9 @@ jobs:
       - name: Setup node for CDK
         uses: actions/setup-node@v4
         with:
-          cache: 'npm'
-          cache-dependency-path: 'cdk/package-lock.json'
-          node-version-file: '.nvmrc'
+          cache: "npm"
+          cache-dependency-path: "./package-lock.json"
+          node-version-file: ".nvmrc"
 
       - name: Build CDK
         working-directory: cdk
@@ -45,7 +45,7 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          projectName: 'Editorial Tools::News Wires'
+          projectName: "Editorial Tools::News Wires"
           configPath: cdk/cdk.out/riff-raff.yaml
           contentDirectories: |
             cdk.out:

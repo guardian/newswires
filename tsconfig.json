@@ -1,0 +1,8 @@
+{
+	"extends": "@guardian/tsconfig/tsconfig.json",
+	"compilerOptions": {
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"esModuleInterop": true
+	}
+}
