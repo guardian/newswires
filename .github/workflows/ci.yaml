@@ -1,0 +1,52 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and upload to riffraff
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node for CDK
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+          cache-dependency-path: 'cdk/package-lock.json'
+          node-version-file: '.nvmrc'
+
+      - name: Build CDK
+        working-directory: cdk
+        run: |
+          npm ci
+          npm run lint
+          npm test
+          npm run synth
+
+      - name: Upload to Riff-Raff
+        uses: guardian/actions-riff-raff@v4
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+          projectName: 'Editorial Tools::News Wires'
+          configPath: cdk/cdk.out/riff-raff.yaml
+          contentDirectories: |
+            cdk.out:
+              - cdk/cdk.out
