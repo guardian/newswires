@@ -4,12 +4,14 @@ import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
+import { InstanceClass, InstanceSize, InstanceType } from 'aws-cdk-lib/aws-ec2';
 import { ArnPrincipal, User } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
+import { GuDatabase } from './constructs/database';
 
 export type WiresFeedsProps = GuStackProps;
 const app = 'wires-feeds';
@@ -111,5 +113,16 @@ export class WiresFeeds extends GuStack {
 		ingestionLambda.addEventSource(eventSource);
 
 		feedsBucket.grantWrite(ingestionLambda);
+
+		const database = new GuDatabase(this, 'NewswiresDB', {
+			app,
+			instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.SMALL),
+			allowExternalConnection: true,
+			databaseName: 'newswires',
+			multiAz: false,
+			devxBackups: true,
+		});
+
+		database.grantConnect(ingestionLambda);
 	}
 }
