@@ -2,12 +2,14 @@
 	"name": "ingestion-lambda",
 	"version": "1.0.0",
 	"description": "",
-	"devDependencies": {},
 	"scripts": {
 		"dev": "tsx watch src/handler.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:aws-sdk --platform=node",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects ingestion-lambda"
 	},
-	"dependencies": {}
+	"devDependencies": {
+		"@aws-sdk/client-s3": "3.637.0",
+		"@types/aws-lambda": "8.10.145"
+	}
 }
