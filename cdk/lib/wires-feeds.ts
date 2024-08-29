@@ -79,6 +79,7 @@ export class WiresFeeds extends GuStack {
 
 		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
 			app,
+			versioned: true,
 		});
 
 		const ingestionLambda = new GuLambdaFunction(

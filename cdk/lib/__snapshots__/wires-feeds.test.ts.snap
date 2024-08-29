@@ -334,6 +334,9 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
         ],
+        "VersioningConfiguration": {
+          "Status": "Enabled",
+        },
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
