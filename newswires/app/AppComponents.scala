@@ -8,7 +8,6 @@ import play.filters.HttpFiltersComponents
 import play.filters.gzip.GzipFilter
 import router.Routes
 
-
 class AppComponents(context: Context)
     extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
