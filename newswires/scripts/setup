@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR=${DIR}/..
+
+setup_config() {
+  echo "Getting config"
+  mkdir -p ~/.gu
+
+  cat > ~/.gu/newswires.conf <<EOF
+host=newswires.local.dev-gutools.co.uk
+
+pan-domain-settings-bucket="pan-domain-auth-settings"
+pandomain.domain = "local.dev-gutools.co.uk"
+pandomain.settingsFileKey = "local.dev-gutools.co.uk.settings"
+
+
+EOF
+}
+
+setup_nginx() {
+  echo "Configuring nginx"
+
+  dev-nginx setup-app "$ROOT_DIR"/nginx/nginx-mapping.yaml
+  dev-nginx restart-nginx
+}
+
+#setup_nginx
+setup_config
+

@@ -4,7 +4,10 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index()
+GET     /                           controllers.ViteController.index()
+GET     /api/                       controllers.HomeController.index()
 
+GET     /oauthCallback              controllers.AuthController.oauthCallback()
+ 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file               controllers.ViteController.asset(file)

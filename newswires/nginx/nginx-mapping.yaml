@@ -1,0 +1,7 @@
+name: newswires
+mappings:
+  - prefix: newswires
+    port: 9000
+  - prefix: hmr.newswires
+    port: 5173
+    websocket: /assets
