@@ -18,3 +18,15 @@ export const awsOptions = isRunningLocally
 			},
 		}
 	: {};
+
+export const BUCKET_NAME: string = isRunningLocally
+	? 'local-feeds-bucket'
+	: getFromEnv('FEEDS_BUCKET_NAME');
+
+function getFromEnv(key: string): string {
+	const value = process.env[key];
+	if (!value) {
+		throw new Error(`Missing required environment variable ${key}`);
+	}
+	return value;
+}

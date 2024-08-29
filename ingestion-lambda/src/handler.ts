@@ -3,8 +3,6 @@ import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { BUCKET_NAME } from './config';
 import { s3Client } from './s3';
 
-const BUCKET_NAME = process.env.FEEDS_BUCKET_NAME ?? 'local-feeds-bucket';
-
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 	const records = event.Records;
 
