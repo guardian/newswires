@@ -1,8 +1,10 @@
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { GuStack, GuStringParameter } from '@guardian/cdk/lib/constructs/core';
+import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import type { App } from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
 import { ArnPrincipal, User } from 'aws-cdk-lib/aws-iam';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
@@ -47,5 +49,12 @@ export class WiresFeeds extends GuStack {
 				new SqsSubscription(queue, { rawMessageDelivery: true }),
 			);
 		}
+
+		new GuLambdaFunction(this, `IngestionLambda-${this.stage}`, {
+			app: 'ingestion-lambda',
+			runtime: Runtime.NODEJS_20_X,
+			handler: 'handler.main',
+			fileName: 'ingestion-lambda.zip',
+		});
 	}
 }
