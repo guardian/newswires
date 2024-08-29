@@ -23,12 +23,6 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 	const responses = await Promise.all(
 		eventBodies.map(
 			({ sqsMessageId: messageId, messageAttributes, snsMessageContent }) => {
-				console.log(
-					'Processing message:',
-					messageId,
-					messageAttributes,
-					snsMessageContent,
-				);
 				const fingerpostMessageId =
 					messageAttributes['Message-Id']?.stringValue;
 
