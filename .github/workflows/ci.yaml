@@ -49,6 +49,17 @@ jobs:
           npm run build
           zip -FSjr "dist/ingestion-lambda.zip" "dist/handler.js"
 
+      - name: Build Newswires app and UI
+        working-directory: newswires
+        run: |
+          pushd client
+          npm ci
+          npm run lint:ci
+          npm run format:ci
+          popd
+
+          sbt clean scalafmtCheckAll compile test Debian/packageName normalisePackageName
+
       - name: Upload to Riff-Raff
         uses: guardian/actions-riff-raff@v4
         with:
@@ -61,3 +72,5 @@ jobs:
               - cdk/cdk.out
             ingestion-lambda:
               - ingestion-lambda/dist/ingestion-lambda.zip
+            newswires:
+              - newswires/target/newswires.deb
