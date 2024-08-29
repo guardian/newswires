@@ -37,8 +37,8 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 				);
 				return resp
 					.then(() => ({ status: 'resolved', messageId }))
-					.catch(() => {
-						console.error(`Failed to put ${messageId} to S3`);
+					.catch((reason) => {
+						console.error(`Failed to put ${messageId} to S3: ${reason}`);
 						return { status: 'rejected', messageId };
 					});
 			},
