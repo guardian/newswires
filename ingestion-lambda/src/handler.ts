@@ -1,10 +1,6 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import type {
-	SNSMessage,
-	SQSBatchResponse,
-	SQSEvent,
-	SQSRecord,
-} from 'aws-lambda';
+import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
+import { BUCKET_NAME } from './config';
 import { s3Client } from './s3';
 
 const BUCKET_NAME = process.env.FEEDS_BUCKET_NAME ?? 'local-feeds-bucket';
