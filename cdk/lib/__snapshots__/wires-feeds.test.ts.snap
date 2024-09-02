@@ -1952,7 +1952,7 @@ aws s3 cp 's3://",
                     "Ref": "DistributionBucketName",
                   },
                   "/editorial-feeds/TEST/wires-feeds/newswires.deb' '/wires-feeds/newswires.deb'
-dpkg -i /newswires/newswires.deb",
+dpkg -i /wires-feeds/newswires.deb",
                 ],
               ],
             },

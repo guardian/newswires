@@ -197,7 +197,7 @@ export class WiresFeeds extends GuStack {
 			userData: {
 				distributable: {
 					fileName: `${nwApp}.deb`,
-					executionStatement: `dpkg -i /${nwApp}/${nwApp}.deb`,
+					executionStatement: `dpkg -i /${app}/${nwApp}.deb`, // TODO fix pls
 				},
 			},
 			scaling,
