@@ -33,6 +33,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
       "GuHttpsApplicationListener",
       "GuAlb5xxPercentageAlarm",
       "GuUnhealthyInstancesAlarm",
+      "GuCname",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -283,6 +284,23 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "DnsRecord": {
+      "Properties": {
+        "Name": "newswires.TEST.dev-gutools.co.uk",
+        "RecordType": "CNAME",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "LoadBalancerWiresfeedsEA936B0F",
+              "DNSName",
+            ],
+          },
+        ],
+        "Stage": "TEST",
+        "TTL": 60,
+      },
+      "Type": "Guardian::DNS::RecordSet",
     },
     "GetDistributablePolicyWiresfeeds7A9B054A": {
       "Properties": {

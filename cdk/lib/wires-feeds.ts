@@ -1,4 +1,5 @@
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
+import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import {
 	GuParameter,
 	GuStack,
@@ -182,7 +183,7 @@ export class WiresFeeds extends GuStack {
 				}
 			: { noMonitoring: true };
 
-    const nwApp = "newswires";
+		const nwApp = 'newswires';
 
 		const newswiresApp = new GuPlayApp(this, {
 			app,
@@ -209,6 +210,14 @@ export class WiresFeeds extends GuStack {
 					}),
 				],
 			},
+		});
+
+		// Add the domain name
+		new GuCname(this, 'DnsRecord', {
+			app: nwApp,
+			domainName: domainName,
+			ttl: Duration.minutes(1),
+			resourceRecord: newswiresApp.loadBalancer.loadBalancerDnsName,
 		});
 
 		database.grantConnect(newswiresApp.autoScalingGroup);
