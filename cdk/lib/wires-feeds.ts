@@ -1,5 +1,9 @@
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
-import { GuStack, GuStringParameter } from '@guardian/cdk/lib/constructs/core';
+import {
+	GuParameter,
+	GuStack,
+	GuStringParameter,
+} from '@guardian/cdk/lib/constructs/core';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
@@ -12,13 +16,28 @@ import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { GuDatabase } from './constructs/database';
+import { Alarms, GuPlayApp } from '@guardian/cdk';
+import { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
+import { AccessScope } from '@guardian/cdk/lib/constants';
+import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
+import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
 
-export type WiresFeedsProps = GuStackProps;
+export type WiresFeedsProps = GuStackProps & {
+	domainName: string;
+	enableMonitoring: boolean;
+};
 const app = 'wires-feeds';
 
 export class WiresFeeds extends GuStack {
 	constructor(scope: App, id: string, props: WiresFeedsProps) {
 		super(scope, id, { ...props, app });
+
+		const { domainName, enableMonitoring } = props;
+
+		const privateSubnets = GuVpc.subnetsFromParameter(this, {
+			type: SubnetType.PRIVATE,
+			app,
+		});
 
 		const stageStackApp = `${this.stage}/${this.stack}/${app}`;
 
@@ -81,6 +100,9 @@ export class WiresFeeds extends GuStack {
 			databaseName,
 			multiAz: false,
 			devxBackups: true,
+			vpcSubnets: {
+				subnets: privateSubnets,
+			},
 		});
 
 		/** A topic and queue for the 'raw' wires feed.
@@ -130,5 +152,63 @@ export class WiresFeeds extends GuStack {
 		feedsBucket.grantWrite(ingestionLambda);
 
 		database.grantConnect(ingestionLambda);
+
+		const panDomainSettingsBucket = new GuParameter(
+			this,
+			'PanDomainSettingsBucket',
+			{
+				description: 'Bucket name for pan-domain auth settings',
+				fromSSM: true,
+				default: `/${stageStackApp}/pan-domain-settings-bucket`,
+				type: 'String',
+			},
+		);
+
+		const alarmSnsTopic = new Topic(this, `${app}-email-alarm-topic`);
+
+		const scaling = {
+			minimumInstances: 1,
+			maximumInstances: 2,
+		};
+
+		const monitoringConfiguration: Alarms | NoMonitoring = enableMonitoring
+			? {
+					snsTopicName: alarmSnsTopic.topicName,
+					unhealthyInstancesAlarm: true,
+					http5xxAlarm: {
+						tolerated5xxPercentage: 10,
+						numberOfMinutesAboveThresholdBeforeAlarm: 1,
+					},
+				}
+			: { noMonitoring: true };
+
+		const newswiresApp = new GuPlayApp(this, {
+			app,
+			access: { scope: AccessScope.PUBLIC },
+			privateSubnets,
+			instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.SMALL),
+			certificateProps: {
+				domainName,
+			},
+			monitoringConfiguration,
+			userData: {
+				distributable: {
+					fileName: `${app}.deb`,
+					executionStatement: `dpkg -i /${app}/${app}.deb`,
+				},
+			},
+			scaling,
+			applicationLogging: { enabled: true, systemdUnitName: app },
+			imageRecipe: 'editorial-tools-focal-java17-ARM-WITH-cdk-base',
+			roleConfiguration: {
+				additionalPolicies: [
+					new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
+						bucketName: panDomainSettingsBucket.valueAsString,
+					}),
+				],
+			},
+		});
+
+		database.grantConnect(newswiresApp.autoScalingGroup);
 	}
 }
