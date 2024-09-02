@@ -32,6 +32,13 @@ jobs:
           cache-dependency-path: "./package-lock.json"
           node-version-file: ".nvmrc"
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version-file: ".java-version"
+          distribution: "corretto"
+          cache: "sbt"
+
       - name: Lint and test
         run: |
           npm ci
