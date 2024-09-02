@@ -150,7 +150,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
           {
             "Key": "SystemdUnit",
             "PropagateAtLaunch": true,
-            "Value": "wires-feeds.service",
+            "Value": "newswires.service",
           },
         ],
         "TargetGroupARNs": [
@@ -1880,13 +1880,13 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 "",
                 [
                   "#!/bin/bash
-mkdir -p $(dirname '/wires-feeds/wires-feeds.deb')
+mkdir -p $(dirname '/wires-feeds/newswires.deb')
 aws s3 cp 's3://",
                   {
                     "Ref": "DistributionBucketName",
                   },
-                  "/editorial-feeds/TEST/wires-feeds/wires-feeds.deb' '/wires-feeds/wires-feeds.deb'
-dpkg -i /wires-feeds/wires-feeds.deb",
+                  "/editorial-feeds/TEST/wires-feeds/newswires.deb' '/wires-feeds/newswires.deb'
+dpkg -i /newswires/newswires.deb",
                 ],
               ],
             },

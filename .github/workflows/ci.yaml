@@ -79,5 +79,5 @@ jobs:
               - cdk/cdk.out
             ingestion-lambda:
               - ingestion-lambda/dist/ingestion-lambda.zip
-            newswires:
+            wires-feeds:
               - newswires/target/newswires.deb

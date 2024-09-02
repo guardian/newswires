@@ -182,6 +182,8 @@ export class WiresFeeds extends GuStack {
 				}
 			: { noMonitoring: true };
 
+    const nwApp = "newswires";
+
 		const newswiresApp = new GuPlayApp(this, {
 			app,
 			access: { scope: AccessScope.PUBLIC },
@@ -193,12 +195,12 @@ export class WiresFeeds extends GuStack {
 			monitoringConfiguration,
 			userData: {
 				distributable: {
-					fileName: `${app}.deb`,
-					executionStatement: `dpkg -i /${app}/${app}.deb`,
+					fileName: `${nwApp}.deb`,
+					executionStatement: `dpkg -i /${nwApp}/${nwApp}.deb`,
 				},
 			},
 			scaling,
-			applicationLogging: { enabled: true, systemdUnitName: app },
+			applicationLogging: { enabled: true, systemdUnitName: nwApp },
 			imageRecipe: 'editorial-tools-focal-java17-ARM-WITH-cdk-base',
 			roleConfiguration: {
 				additionalPolicies: [
