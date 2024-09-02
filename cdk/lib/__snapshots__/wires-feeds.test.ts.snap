@@ -13,6 +13,8 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
       "GuParameter",
+      "GuParameter",
+      "GuGetS3ObjectsPolicy",
       "GuGetS3ObjectsPolicy",
       "GuSubnetListParameter",
       "GuPlayApp",
@@ -66,6 +68,11 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
     "PanDomainSettingsBucket": {
       "Default": "/TEST/editorial-feeds/wires-feeds/pan-domain-settings-bucket",
       "Description": "Bucket name for pan-domain auth settings",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "PermissionsBucket": {
+      "Default": "/TEST/editorial-feeds/wires-feeds/permissions-bucket",
+      "Description": "Bucket name for permissions data",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "VpcId": {
@@ -1547,6 +1554,38 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
           "Version": "2012-10-17",
         },
         "PolicyName": "parameter-store-read-policy",
+        "Roles": [
+          {
+            "Ref": "InstanceRoleWiresfeeds49C69F29",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "PermissionsCachePolicyEB49F1A4": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "PermissionsBucket",
+                    },
+                    "/TEST/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "PermissionsCachePolicyEB49F1A4",
         "Roles": [
           {
             "Ref": "InstanceRoleWiresfeeds49C69F29",

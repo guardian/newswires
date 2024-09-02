@@ -165,6 +165,13 @@ export class WiresFeeds extends GuStack {
 			},
 		);
 
+		const permissionsBucketName = new GuParameter(this, 'PermissionsBucket', {
+			description: 'Bucket name for permissions data',
+			fromSSM: true,
+			default: `/${stageStackApp}/permissions-bucket`,
+			type: 'String',
+		});
+
 		const alarmSnsTopic = new Topic(this, `${app}-email-alarm-topic`);
 
 		const scaling = {
@@ -207,6 +214,10 @@ export class WiresFeeds extends GuStack {
 				additionalPolicies: [
 					new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
 						bucketName: panDomainSettingsBucket.valueAsString,
+					}),
+					new GuGetS3ObjectsPolicy(this, 'PermissionsCachePolicy', {
+						bucketName: permissionsBucketName.valueAsString,
+						paths: [`${this.stage}/*`],
 					}),
 				],
 			},
