@@ -38,7 +38,6 @@ class AppComponents(context: Context)
     .withCredentials(awsV1Credentials)
     .build()
 
-
   val panDomainSettings = new PanDomainAuthSettingsRefresher(
     domain = configuration.get[String]("pandomain.domain"),
     settingsFileKey = configuration.get[String]("pandomain.settingsFileKey"),
@@ -46,7 +45,6 @@ class AppComponents(context: Context)
     bucketName = configuration.get[String]("pan-domain-settings-bucket"),
     s3Client = s3v1Client
   )
-
 
   private val permissionsProvider = {
     val stage = configuration.get[String]("stage")
@@ -56,10 +54,13 @@ class AppComponents(context: Context)
       case _ => stage
     }
     PermissionsProvider(
-      PermissionsConfig(stage = permissionsStage, region.getName(), awsV1Credentials)
+      PermissionsConfig(
+        stage = permissionsStage,
+        region.getName(),
+        awsV1Credentials
+      )
     )
   }
-
 
   val homeController = new HomeController(controllerComponents)
 
@@ -87,7 +88,7 @@ class AppComponents(context: Context)
     errorHandler = httpErrorHandler,
     viteController,
     homeController,
-    authController,
+    authController
   )
 
 }
