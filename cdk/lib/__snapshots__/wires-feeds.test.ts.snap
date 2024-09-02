@@ -259,6 +259,27 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "DefaultSecurityGroupWiresfeedsfromWiresFeedsLoadBalancerWiresfeedsSecurityGroupC137B44F90003C91387F": {
+      "Properties": {
+        "Description": "Load balancer to target",
+        "FromPort": 9000,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupWiresfeeds6083E1BA",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "LoadBalancerWiresfeedsSecurityGroup512E18E9",
+            "GroupId",
+          ],
+        },
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
     "DescribeEC2PolicyFF5F9295": {
       "Properties": {
         "PolicyDocument": {
@@ -1110,6 +1131,27 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
+    "LoadBalancerWiresfeedsSecurityGrouptoWiresFeedsDefaultSecurityGroupWiresfeedsE562FA6E900013AB5AD3": {
+      "Properties": {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupWiresfeeds6083E1BA",
+            "GroupId",
+          ],
+        },
+        "FromPort": 9000,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "LoadBalancerWiresfeedsSecurityGroup512E18E9",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
     "LoadBalancerWiresfeedsSecurityGrouptoWiresFeedsGuHttpsEgressSecurityGroupWiresfeedsC3D209689000D37834EF": {
       "Properties": {
         "Description": "Load balancer to target",
@@ -1828,6 +1870,12 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
             {
               "Fn::GetAtt": [
                 "WazuhSecurityGroup",
+                "GroupId",
+              ],
+            },
+            {
+              "Fn::GetAtt": [
+                "DefaultSecurityGroupWiresfeeds6083E1BA",
                 "GroupId",
               ],
             },

@@ -221,5 +221,8 @@ export class WiresFeeds extends GuStack {
 		});
 
 		database.grantConnect(newswiresApp.autoScalingGroup);
+		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
+			database.accessSecurityGroup,
+		);
 	}
 }
