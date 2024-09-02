@@ -18,6 +18,7 @@ import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionsConfig
 import com.amazonaws.regions.Regions
 import controllers.AuthController
+import controllers.ManagementController
 
 class AppComponents(context: Context)
     extends BuiltInComponentsFromContext(context)
@@ -84,11 +85,14 @@ class AppComponents(context: Context)
     permissionsProvider = permissionsProvider
   )
 
+  val managementController = new ManagementController(controllerComponents)
+
   def router: Router = new Routes(
     errorHandler = httpErrorHandler,
     viteController,
     homeController,
-    authController
+    authController,
+    managementController
   )
 
 }
