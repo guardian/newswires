@@ -209,7 +209,7 @@ export class WiresFeeds extends GuStack {
 			},
 			scaling,
 			applicationLogging: { enabled: true, systemdUnitName: nwApp },
-			imageRecipe: 'editorial-tools-focal-java17-ARM-WITH-cdk-base',
+			imageRecipe: 'editorial-tools-focal-java17',
 			roleConfiguration: {
 				additionalPolicies: [
 					new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
