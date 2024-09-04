@@ -78,8 +78,8 @@ object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
         sqls"$headline OR $subhead OR $byline OR $keywords OR $bodyText"
 
       sql"""| SELECT ${FingerpostMessage.syn.result.*}
-          | FROM ${FingerpostMessage as syn}
-          | WHERE $filters""".stripMargin
+            | FROM ${FingerpostMessage as syn}
+            | WHERE $filters""".stripMargin
         .map(FingerpostMessage(syn.resultName))
         .list()
         .apply()
