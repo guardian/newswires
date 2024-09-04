@@ -12,6 +12,10 @@ class ManagementController(
     with Logging {
 
   def healthcheck() = Action {
+    Ok("ok")
+  }
+
+  def dbCheck() = Action {
     if (Database.healthcheck == 1)
       Ok("ok")
     else InternalServerError("database fell over :(")

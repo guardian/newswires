@@ -8,8 +8,9 @@ GET     /                           controllers.ViteController.index()
 GET     /api/                       controllers.HomeController.index()
 
 GET     /oauthCallback              controllers.AuthController.oauthCallback()
- 
-GET     /healthcheck                controllers.ManagementController.healthcheck
+
+GET     /dbcheck                    controllers.ManagementController.dbCheck()
+GET     /healthcheck                controllers.ManagementController.healthcheck()
 GET     /_prout                     controllers.ManagementController.gitHash()
 
 
