@@ -12,13 +12,11 @@ class ManagementController(
     with Logging {
 
   def healthcheck() = Action {
-    Ok("ok")
-  }
-
-  def dbCheck() = Action {
-    if (Database.healthcheck == 1)
+    if (Database.healthcheck == 1) {
       Ok("ok")
-    else InternalServerError("database fell over :(")
+    } else {
+      InternalServerError("database returned non-1 from healthcheck")
+    }
   }
 
   def gitHash() = Action {
