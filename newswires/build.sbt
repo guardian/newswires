@@ -15,6 +15,9 @@ libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "1.6.4"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "4.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "2.15"
+libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
+libraryDependencies += "org.postgresql" % "postgresql" % "42.7.4"
+libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
 
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test
 
