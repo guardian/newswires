@@ -1,6 +1,11 @@
-import controllers.AssetsComponents
-import controllers.HomeController
-import controllers.ViteController
+import controllers.{
+  AssetsComponents,
+  AuthController,
+  HomeController,
+  ManagementController,
+  QueryController,
+  ViteController
+}
 import play.api.ApplicationLoader.Context
 import play.api.mvc.EssentialFilter
 import play.api.routing.Router
@@ -18,8 +23,6 @@ import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionsConfig
 import com.amazonaws.regions.Regions
 import conf.Database
-import controllers.AuthController
-import controllers.ManagementController
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
@@ -110,10 +113,19 @@ class AppComponents(context: Context)
     controllerComponents
   )
 
+  private val queryController = new QueryController(
+    controllerComponents = controllerComponents,
+    configuration = configuration,
+    wsClient = wsClient,
+    permissionsProvider = permissionsProvider,
+    panDomainSettings = panDomainSettings
+  )
+
   def router: Router = new Routes(
     errorHandler = httpErrorHandler,
     viteController,
     homeController,
+    queryController,
     authController,
     managementController
   )
