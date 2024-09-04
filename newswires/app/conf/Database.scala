@@ -46,6 +46,33 @@ object Database extends Logging {
   //   )
   // }
 
+  def configureDeployedDb(
+      configuration: Configuration
+  ): Unit = {
+    logger.info(
+      "building DB config to connect to a production DB (CODE or PROD)"
+    )
+
+    val username = configuration.get[String]("database.username")
+    val port = configuration.get[String]("database.port")
+    val address = configuration.get[String]("database.endpoint-address")
+    val databaseName = configuration.get[String]("database.database-name")
+
+    val ds = new AwsWrapperDataSource
+    ds.setJdbcProtocol("jdbc:postgresql:")
+    ds.setServerName(address)
+    ds.setDatabase(databaseName)
+    ds.setServerPort(port)
+    ds.setTargetDataSourceClassName("org.postgresql.ds.PGSimpleDataSource")
+    ds.setTargetDataSourceProperties(new Properties() {
+      setProperty("wrapperPlugins", "iam")
+      setProperty("iamRegion", "eu-west-1")
+      setProperty("user", username)
+    })
+
+    ConnectionPool.singleton(new DataSourceConnectionPool(ds))
+  }
+
   def configureRemoteDevDb(
       ssm: SsmClient
   ): Unit = {

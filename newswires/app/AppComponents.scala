@@ -42,7 +42,12 @@ class AppComponents(context: Context)
     .region(v2Region)
     .build()
 
-  Database.configureRemoteDevDb(ssmClient)
+  if (context.environment.mode == Mode.Dev) {
+    // TODO run against a local DB?
+    Database.configureRemoteDevDb(ssmClient)
+  } else if (context.environment.mode == Mode.Prod) {
+    Database.configureDeployedDb(configuration)
+  }
 
   private val awsV1Credentials = new AWSCredentialsProviderChain(
     new ProfileCredentialsProvider("editorial-feeds"),
