@@ -17,10 +17,16 @@ class QueryController(
 ) extends BaseController
     with Logging
     with AppAuthActions {
-  def query(): Action[AnyContent] = AuthAction {
-    val all = FingerpostMessage.getAll()
-    if (all.nonEmpty) {
-      Ok(Json.toJson(all))
+
+  def query(q: Option[String]): Action[AnyContent] = AuthAction {
+    val results = q match {
+      case None        => FingerpostMessage.getAll()
+      case Some(query) => FingerpostMessage.query(query)
+    }
+
+    if (results.nonEmpty) {
+      Ok(Json.toJson(results))
     } else NotFound
   }
+
 }
