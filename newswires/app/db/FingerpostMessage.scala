@@ -46,11 +46,20 @@ object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
       Json.parse(rs.string(fm.column("message_content"))).as[TheWire]
     )
 
-  def getAll(implicit
-      DBSession: DBSession = AutoSession
-  ): Seq[FingerpostMessage] =
-    sql"SELECT ${FingerpostMessage.syn.result.*} from ${FingerpostMessage as syn} limit 250 "
-      .map(FingerpostMessage(syn.resultName))
-      .list()
-      .apply()
+  private def clamp(low: Int, x: Int, high: Int): Int =
+    math.min(math.max(x, low), high)
+
+  def getAll(page: Int = 0, pageSize: Int = 250): List[FingerpostMessage] =
+    DB readOnly { implicit session =>
+      val effectivePage = clamp(0, page, 10)
+      val effectivePageSize = clamp(0, pageSize, 250)
+      val position = effectivePage * effectivePageSize
+      sql"""| SELECT ${FingerpostMessage.syn.result.*}
+            | FROM ${FingerpostMessage as syn}
+            | LIMIT $effectivePageSize
+            | OFFSET $position """.stripMargin
+        .map(FingerpostMessage(syn.resultName))
+        .list()
+        .apply()
+    }
 }

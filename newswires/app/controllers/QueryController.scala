@@ -18,7 +18,7 @@ class QueryController(
     with Logging
     with AppAuthActions {
   def query(): Action[AnyContent] = AuthAction {
-    val all = FingerpostMessage.getAll
+    val all = FingerpostMessage.getAll()
     if (all.nonEmpty) {
       Ok(Json.toJson(all))
     } else NotFound
