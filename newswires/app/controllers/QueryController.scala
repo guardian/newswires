@@ -24,9 +24,7 @@ class QueryController(
       case Some(query) => FingerpostMessage.query(query)
     }
 
-    if (results.nonEmpty) {
-      Ok(Json.toJson(results))
-    } else NotFound
+    Ok(Json.toJson(results))
   }
 
 }
