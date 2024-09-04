@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import './App.css';
 
@@ -10,6 +10,9 @@ type WireData = {
 		uri: string;
 		usn: string;
 		version: string;
+		firstVersion: string; // date
+		versionCreated: string; // date
+		dateTimeSent: string; //date
 		headline: string;
 		subhead: string;
 		byline: string;
@@ -22,8 +25,32 @@ type WireData = {
 
 type PageStage = { loading: true } | { error: string } | WireData[];
 
+const querify = (query: string): string => {
+	if (query.trim().length <= 0) return '';
+	const params = new URLSearchParams();
+	params.set('q', query.trim());
+	return '?' + params.toString();
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- suitably generic function
+const debounce = <F extends (...args: any[]) => void>(
+	f: F,
+	delay: number,
+): ((...args: Parameters<F>) => void) => {
+	let waiting: ReturnType<typeof setTimeout> | undefined;
+
+	return (...args: Parameters<F>) => {
+		if (waiting !== undefined) {
+			clearTimeout(waiting);
+		}
+		waiting = setTimeout(() => f(...args), delay);
+	};
+};
+
 export function App() {
 	const [pageState, setPageState] = useState<PageStage>({ loading: true });
+
+	const [query, setQuery] = useState<string>('');
 
 	const [selected, setSelected] = useState<WireData | undefined>(undefined);
 
@@ -33,8 +60,11 @@ export function App() {
 			: undefined;
 	}, [selected]);
 
+	const updateQuery = useMemo(() => debounce(setQuery, 750), []);
+
 	useEffect(() => {
-		fetch('/api/search')
+		const quer = querify(query);
+		fetch('/api/search' + quer)
 			.then((res) => res.json())
 			.then((j) => setPageState(j as WireData[]))
 			.catch((e) =>
@@ -47,7 +77,7 @@ export function App() {
 								: 'unknown error',
 				}),
 			);
-	}, []);
+	}, [query]);
 
 	return (
 		<div
@@ -57,15 +87,33 @@ export function App() {
 				height: 100%;
 			`}
 		>
-			<h1
+			<div
 				css={css`
-					height: fit-content;
-					margin: 0;
-					border: 1px solid black;
+					display: flex;
+					flex-direction: row;
+					justify-content: space-between;
 				`}
 			>
-				Newswires
-			</h1>
+				<h1
+					css={css`
+						height: fit-content;
+						margin: 0;
+						border: 1px solid black;
+					`}
+				>
+					Newswires
+				</h1>
+				<span
+					css={css`
+						display: flex;
+						flex-direction: row;
+						gap: 4px;
+					`}
+				>
+					<label>Search</label>
+					<input type="text" onChange={(e) => updateQuery(e.target.value)} />
+				</span>
+			</div>
 			<div
 				css={css`
 					border: 1px solid black;

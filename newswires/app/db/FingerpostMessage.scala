@@ -9,9 +9,9 @@ case class TheWire(
     uri: Option[String],
     usn: Option[String],
     version: Option[String],
-//  firstVersion: Option[ZonedDateTime],
-//  versionCreated: Option[ZonedDateTime],
-//  dateTimeSent: Option[ZonedDateTime],
+    firstVersion: Option[ZonedDateTime],
+    versionCreated: Option[ZonedDateTime],
+    dateTimeSent: Option[ZonedDateTime],
     headline: Option[String],
     subhead: Option[String],
     byline: Option[String],
@@ -62,4 +62,27 @@ object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
         .list()
         .apply()
     }
+
+  def query(query: String): List[FingerpostMessage] = DB readOnly {
+    implicit session =>
+      def filterElement(fieldName: String) =
+        sqls"$query <% (${FingerpostMessage.syn.column("message_content")}->>$fieldName)"
+
+      val headline = filterElement("headline")
+      val subhead = filterElement("subhead")
+      val byline = filterElement("byline")
+      val keywords = filterElement("keywords")
+      val bodyText = filterElement("body_text")
+
+      val filters =
+        sqls"$headline OR $subhead OR $byline OR $keywords OR $bodyText"
+
+      sql"""| SELECT ${FingerpostMessage.syn.result.*}
+          | FROM ${FingerpostMessage as syn}
+          | WHERE $filters""".stripMargin
+        .map(FingerpostMessage(syn.resultName))
+        .list()
+        .apply()
+
+  }
 }
