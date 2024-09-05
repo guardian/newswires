@@ -5,12 +5,18 @@ import { tableName } from './database';
 import { createDbConnection } from './rds';
 import { s3Client } from './s3';
 
-type OperationOutcome = 'success' | 'failure';
-
-interface OperationResult {
+interface OperationFailure {
 	sqsMessageId: string;
-	status: OperationOutcome;
+	status: 'failure';
+	reason?: string;
 }
+
+interface OperationSuccess {
+	sqsMessageId: string;
+	status: 'success';
+}
+
+type OperationResult = OperationFailure | OperationSuccess;
 
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 	const records = event.Records;
@@ -50,6 +56,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- seems like postgres.js requires this format? https://github.com/porsager/postgres/issues/587#issuecomment-1563262612
 						const snsMessageContent = JSON.parse(body);
+
 						await sql`
 						INSERT INTO ${sql(tableName)}
 							(external_id, content)
@@ -57,15 +64,18 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							(${fingerpostMessageId ?? null}, ${snsMessageContent})
 						RETURNING id`.then((res) => {
 							if (res.length === 0) {
-								return 'failure';
+								throw new Error('Failed to insert record into DB');
 							}
-							return 'success';
 						});
-					} catch {
-						return Promise.resolve({
+					} catch (e) {
+						console.log(e);
+						console.log('^');
+						const reason = e instanceof Error ? e.message : 'Unknown error';
+						return {
 							status: 'failure',
+							reason,
 							sqsMessageId,
-						});
+						};
 					}
 
 					return { sqsMessageId, status: 'success' };
@@ -73,8 +83,15 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 			),
 		);
 		const batchItemFailures = results
-			.filter(({ status }) => status === 'failure')
-			.map(({ sqsMessageId }) => ({ itemIdentifier: sqsMessageId }));
+			.filter(
+				(result): result is OperationFailure => result.status === 'failure',
+			)
+			.map(({ sqsMessageId, reason }) => {
+				console.error(
+					`Failed to process message for ${sqsMessageId}: ${reason}`,
+				);
+				return { itemIdentifier: sqsMessageId };
+			});
 		console.log(
 			`Processed ${records.length} messages with ${batchItemFailures.length} failures`,
 		);
