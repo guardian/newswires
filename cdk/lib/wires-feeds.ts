@@ -72,6 +72,17 @@ export class WiresFeeds extends GuStack {
 			return queue;
 		}
 
+		const databaseName = 'newswires';
+
+		const database = new GuDatabase(this, 'NewswiresDB', {
+			app,
+			instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.SMALL),
+			allowExternalConnection: true,
+			databaseName,
+			multiAz: false,
+			devxBackups: true,
+		});
+
 		/** A topic and queue for the 'raw' wires feed.
 		 * Not receiving data yet so we aren't currently doing anything more with it.
 		 */
@@ -94,6 +105,9 @@ export class WiresFeeds extends GuStack {
 				fileName: 'ingestion-lambda.zip',
 				environment: {
 					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+					DATABASE_PORT: database.dbInstanceEndpointPort,
+					DATABASE_NAME: databaseName,
 				},
 			},
 		);
@@ -114,15 +128,6 @@ export class WiresFeeds extends GuStack {
 		ingestionLambda.addEventSource(eventSource);
 
 		feedsBucket.grantWrite(ingestionLambda);
-
-		const database = new GuDatabase(this, 'NewswiresDB', {
-			app,
-			instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.SMALL),
-			allowExternalConnection: true,
-			databaseName: 'newswires',
-			multiAz: false,
-			devxBackups: true,
-		});
 
 		database.grantConnect(ingestionLambda);
 	}

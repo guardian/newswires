@@ -1,5 +1,9 @@
 {
 	"extends": "../tsconfig.json",
 	"include": ["lib/**/*", "bin/**/*"],
-	"exclude": ["node_modules", "cdk.out", "lib/**/__snapshots__/**", "dist"]
+	"exclude": ["node_modules", "cdk.out", "lib/**/__snapshots__/**", "dist"],
+	"compilerOptions": {
+		"module": "ES2020",
+		"moduleResolution": "node"
+	}
 }
