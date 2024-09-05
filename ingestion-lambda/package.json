@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"dev": "tsx watch src/handler.ts",
+		"dev": "tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:aws-sdk --platform=node",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects ingestion-lambda"
@@ -11,5 +11,11 @@
 	"devDependencies": {
 		"@aws-sdk/client-s3": "3.637.0",
 		"@types/aws-lambda": "8.10.145"
+	},
+	"devDependencies": {
+		"@aws-sdk/client-rds": "3.637.0",
+		"@aws-sdk/rds-signer": "3.637.0",
+		"lorem-ipsum": "2.0.8",
+		"postgres": "3.4.4"
 	}
 }

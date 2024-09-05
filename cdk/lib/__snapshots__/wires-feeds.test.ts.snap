@@ -5,13 +5,13 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
   "Metadata": {
     "gu:cdk:constructs": [
       "GuStringParameter",
-      "GuS3Bucket",
-      "GuDistributionBucketParameter",
-      "GuLambdaFunction",
       "GuVpcParameter",
       "GuSubnetListParameter",
       "GuSecurityGroup",
       "GuDatabase",
+      "GuS3Bucket",
+      "GuDistributionBucketParameter",
+      "GuLambdaFunction",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -111,6 +111,19 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
         "Environment": {
           "Variables": {
             "APP": "ingestion-lambda",
+            "DATABASE_ENDPOINT_ADDRESS": {
+              "Fn::GetAtt": [
+                "NewswiresDBWiresfeedsD8F9D0F3",
+                "Endpoint.Address",
+              ],
+            },
+            "DATABASE_NAME": "newswires",
+            "DATABASE_PORT": {
+              "Fn::GetAtt": [
+                "NewswiresDBWiresfeedsD8F9D0F3",
+                "Endpoint.Port",
+              ],
+            },
             "FEEDS_BUCKET_NAME": {
               "Ref": "feedsbucketTESTWiresfeeds5E0415F0",
             },

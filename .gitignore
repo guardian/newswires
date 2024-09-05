@@ -5,6 +5,8 @@
 *.d.ts
 node_modules
 dist
+.idea
+
 
 # CDK asset staging directory
 .cdk.staging

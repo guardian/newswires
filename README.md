@@ -2,4 +2,12 @@
 
 # newswires
 
-Coming soon ...
+## Running locally
+
+
+### Ingestion Lambda
+
+```sh
+docker compose up
+npm run dev -w ingestion-lambda
+```
