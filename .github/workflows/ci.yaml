@@ -32,6 +32,13 @@ jobs:
           cache-dependency-path: "./package-lock.json"
           node-version-file: ".nvmrc"
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version-file: ".java-version"
+          distribution: "corretto"
+          cache: "sbt"
+
       - name: Lint and test
         run: |
           npm ci
@@ -49,6 +56,17 @@ jobs:
           npm run build
           zip -FSjr "dist/ingestion-lambda.zip" "dist/handler.js"
 
+      - name: Build Newswires app and UI
+        working-directory: newswires
+        run: |
+          pushd client
+          npm ci
+          npm run lint:ci
+          npm run format:ci
+          popd
+
+          sbt clean scalafmtCheckAll compile test Debian/packageBin normalisePackageName
+
       - name: Upload to Riff-Raff
         uses: guardian/actions-riff-raff@v4
         with:
@@ -61,3 +79,5 @@ jobs:
               - cdk/cdk.out
             ingestion-lambda:
               - ingestion-lambda/dist/ingestion-lambda.zip
+            wires-feeds:
+              - newswires/target/newswires.deb

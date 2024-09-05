@@ -5,9 +5,11 @@
 *.d.ts
 node_modules
 dist
-.idea
 
+.idea
 
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+*.tsbuildinfo

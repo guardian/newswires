@@ -4,6 +4,7 @@
 	"exclude": ["node_modules", "cdk.out", "lib/**/__snapshots__/**", "dist"],
 	"compilerOptions": {
 		"module": "ES2020",
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"noEmit": true
 	}
 }
