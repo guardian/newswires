@@ -1,5 +1,3 @@
-import { tableName } from './database';
-
 /**
  * Is this application running locally, or in AWS?
  * LAMBDA_TASK_ROOT & AWS_EXECUTION_ENV are set when running in AWS
