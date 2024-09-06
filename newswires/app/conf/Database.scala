@@ -83,16 +83,21 @@ object Database extends Logging {
     val app = "wires-feeds"
     val ssa = s"/$stage/$stack/$app"
 
-    def getParamDirectly(name: String): String = {
-      val request = GetParameterRequest.builder().name(s"$ssa/$name").build()
-      val respo = ssm.getParameter(request)
-      respo.parameter().value()
-    }
+//    def getParamDirectly(name: String): String = {
+//      val request = GetParameterRequest.builder().name(s"$ssa/$name").build()
+//      val respo = ssm.getParameter(request)
+//      respo.parameter().value()
+//    }
+//
+//    val username = getParamDirectly("database/username")
+//    val port = getParamDirectly("database/port")
+//    val address = getParamDirectly("database/endpoint-address")
+//    val databaseName = getParamDirectly("database/database-name")
 
-    val username = getParamDirectly("database/username")
-    val port = getParamDirectly("database/port")
-    val address = getParamDirectly("database/endpoint-address")
-    val databaseName = getParamDirectly("database/database-name")
+    val username = "postgres"
+    val port = "5432"
+    val address = "localhost"
+    val databaseName = "newswires"
 
     val ds = new AwsWrapperDataSource()
     ds.setJdbcProtocol("jdbc:postgresql:")
@@ -100,13 +105,15 @@ object Database extends Logging {
     ds.setDatabase(databaseName)
     ds.setServerPort(port)
     ds.setTargetDataSourceClassName("org.postgresql.ds.PGSimpleDataSource")
-    ds.setTargetDataSourceProperties(new Properties() {
-      setProperty("wrapperPlugins", "iam")
-      setProperty("iamRegion", "eu-west-1")
-      setProperty("iamHost", address)
-      setProperty("user", username)
-      setProperty("awsProfile", "editorial-feeds")
-    })
+    ds.setPassword("postgres")
+    ds.setUser("postgres")
+//    ds.setTargetDataSourceProperties(new Properties() {
+//      setProperty("wrapperPlugins", "iam")
+//      setProperty("iamRegion", "eu-west-1")
+//      setProperty("iamHost", address)
+//      setProperty("user", username)
+//      setProperty("awsProfile", "editorial-feeds")
+//    })
 
     ConnectionPool.singleton(new DataSourceConnectionPool(ds))
   }

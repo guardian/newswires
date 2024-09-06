@@ -1,4 +1,4 @@
-export const tableName = 'fingerpost_wire_entry';
+export const tableName = 'fingerpost_message';
 
 export interface WireEntry {
 	external_id: string;

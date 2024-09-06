@@ -26,15 +26,15 @@ object TheWire {
 
 case class FingerpostMessage(
     id: Long,
-    sqsMessageId: String,
-    wire: TheWire
+    externalId: String,
+    content: TheWire
 )
 
 object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
   implicit val format: OFormat[FingerpostMessage] =
     Json.format[FingerpostMessage]
 
-  override val columns = Seq("id", "sqs_message_id", "message_content")
+  override val columns = Seq("id", "external_id", "content")
   val syn = this.syntax("fm")
 
   def apply(
@@ -42,8 +42,8 @@ object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
   )(rs: WrappedResultSet): FingerpostMessage =
     FingerpostMessage(
       rs.long(fm.id),
-      rs.string(fm.sqsMessageId),
-      Json.parse(rs.string(fm.column("message_content"))).as[TheWire]
+      rs.string(fm.externalId),
+      Json.parse(rs.string(fm.column("content"))).as[TheWire]
     )
 
   private def clamp(low: Int, x: Int, high: Int): Int =
@@ -66,7 +66,7 @@ object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
   def query(query: String): List[FingerpostMessage] = DB readOnly {
     implicit session =>
       def filterElement(fieldName: String) =
-        sqls"$query <% (${FingerpostMessage.syn.column("message_content")}->>$fieldName)"
+        sqls"$query <% (${FingerpostMessage.syn.column("content")}->>$fieldName)"
 
       val headline = filterElement("headline")
       val subhead = filterElement("subhead")
