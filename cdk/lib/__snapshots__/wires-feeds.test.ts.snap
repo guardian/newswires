@@ -2110,7 +2110,7 @@ dpkg -i /wires-feeds/newswires.deb",
       "UpdateReplacePolicy": "Delete",
     },
     "fingerpostqueueF09A4E0A": {
-      "DeletionPolicy": "Delete",
+      "DeletionPolicy": "RetainExceptOnCreate",
       "Properties": {
         "MessageRetentionPeriod": 1209600,
         "RedrivePolicy": {
@@ -2147,7 +2147,7 @@ dpkg -i /wires-feeds/newswires.deb",
         "VisibilityTimeout": 300,
       },
       "Type": "AWS::SQS::Queue",
-      "UpdateReplacePolicy": "Delete",
+      "UpdateReplacePolicy": "Retain",
     },
     "fingerpostqueuePolicy8A8FE8AE": {
       "Properties": {
@@ -2222,6 +2222,7 @@ dpkg -i /wires-feeds/newswires.deb",
       "Type": "AWS::SNS::Subscription",
     },
     "fingerposttopic0A8134FC": {
+      "DeletionPolicy": "RetainExceptOnCreate",
       "Properties": {
         "Tags": [
           {
@@ -2247,6 +2248,7 @@ dpkg -i /wires-feeds/newswires.deb",
         ],
       },
       "Type": "AWS::SNS::Topic",
+      "UpdateReplacePolicy": "Retain",
     },
     "fingerposttopicPolicy93AB9BE9": {
       "Properties": {
@@ -2291,7 +2293,7 @@ dpkg -i /wires-feeds/newswires.deb",
       "Type": "AWS::SNS::TopicPolicy",
     },
     "sourcequeue87B8A558": {
-      "DeletionPolicy": "Delete",
+      "DeletionPolicy": "RetainExceptOnCreate",
       "Properties": {
         "MessageRetentionPeriod": 1209600,
         "RedrivePolicy": {
@@ -2328,7 +2330,7 @@ dpkg -i /wires-feeds/newswires.deb",
         "VisibilityTimeout": 300,
       },
       "Type": "AWS::SQS::Queue",
-      "UpdateReplacePolicy": "Delete",
+      "UpdateReplacePolicy": "Retain",
     },
     "sourcequeueDeadLetterQueueTEST4E4374EA": {
       "DeletionPolicy": "Delete",
@@ -2433,6 +2435,7 @@ dpkg -i /wires-feeds/newswires.deb",
       "Type": "AWS::SNS::Subscription",
     },
     "sourcetopic7C3DC892": {
+      "DeletionPolicy": "RetainExceptOnCreate",
       "Properties": {
         "Tags": [
           {
@@ -2458,6 +2461,7 @@ dpkg -i /wires-feeds/newswires.deb",
         ],
       },
       "Type": "AWS::SNS::Topic",
+      "UpdateReplacePolicy": "Retain",
     },
     "sourcetopicPolicy693F1C42": {
       "Properties": {

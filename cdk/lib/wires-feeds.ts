@@ -8,7 +8,7 @@ import {
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
-import { Duration } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { InstanceClass, InstanceSize, InstanceType } from 'aws-cdk-lib/aws-ec2';
 import { ArnPrincipal, User } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -61,6 +61,7 @@ export class WiresFeeds extends GuStack {
 			const topic = new Topic(scope, `${topicType}-topic`, {
 				enforceSSL: true,
 			});
+			topic.applyRemovalPolicy(RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE);
 			topic.grantPublish(new ArnPrincipal(user.userArn));
 
 			const queueName = `${topicType}-queue`;
@@ -83,6 +84,7 @@ export class WiresFeeds extends GuStack {
 					queue: deadLetterQueue,
 					maxReceiveCount: 3,
 				},
+				removalPolicy: RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
 			});
 
 			topic.addSubscription(
