@@ -5,7 +5,7 @@ import scalikejdbc._
 
 import java.time.ZonedDateTime
 
-case class TheWire(
+case class FingerpostWire(
     uri: Option[String],
     usn: Option[String],
     version: Option[String],
@@ -20,53 +20,55 @@ case class TheWire(
     location: Option[String],
     body_text: Option[String]
 )
-object TheWire {
-  implicit val format: OFormat[TheWire] = Json.format[TheWire]
+object FingerpostWire {
+  implicit val format: OFormat[FingerpostWire] = Json.format[FingerpostWire]
 }
 
-case class FingerpostMessage(
+case class FingerpostWireEntry(
     id: Long,
-    sqsMessageId: String,
-    wire: TheWire
+    externalId: String,
+    ingestedAt: ZonedDateTime,
+    content: FingerpostWire
 )
 
-object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
-  implicit val format: OFormat[FingerpostMessage] =
-    Json.format[FingerpostMessage]
+object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
+  implicit val format: OFormat[FingerpostWireEntry] =
+    Json.format[FingerpostWireEntry]
 
-  override val columns = Seq("id", "sqs_message_id", "message_content")
+  override val columns = Seq("id", "external_id", "ingested_at", "content")
   val syn = this.syntax("fm")
 
   def apply(
-      fm: ResultName[FingerpostMessage]
-  )(rs: WrappedResultSet): FingerpostMessage =
-    FingerpostMessage(
+      fm: ResultName[FingerpostWireEntry]
+  )(rs: WrappedResultSet): FingerpostWireEntry =
+    FingerpostWireEntry(
       rs.long(fm.id),
-      rs.string(fm.sqsMessageId),
-      Json.parse(rs.string(fm.column("message_content"))).as[TheWire]
+      rs.string(fm.externalId),
+      rs.zonedDateTime(fm.ingestedAt),
+      Json.parse(rs.string(fm.column("content"))).as[FingerpostWire]
     )
 
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
 
-  def getAll(page: Int = 0, pageSize: Int = 250): List[FingerpostMessage] =
+  def getAll(page: Int = 0, pageSize: Int = 250): List[FingerpostWireEntry] =
     DB readOnly { implicit session =>
       val effectivePage = clamp(0, page, 10)
       val effectivePageSize = clamp(0, pageSize, 250)
       val position = effectivePage * effectivePageSize
-      sql"""| SELECT ${FingerpostMessage.syn.result.*}
-            | FROM ${FingerpostMessage as syn}
+      sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+            | FROM ${FingerpostWireEntry as syn}
             | LIMIT $effectivePageSize
             | OFFSET $position """.stripMargin
-        .map(FingerpostMessage(syn.resultName))
+        .map(FingerpostWireEntry(syn.resultName))
         .list()
         .apply()
     }
 
-  def query(query: String): List[FingerpostMessage] = DB readOnly {
+  def query(query: String): List[FingerpostWireEntry] = DB readOnly {
     implicit session =>
       def filterElement(fieldName: String) =
-        sqls"$query <% (${FingerpostMessage.syn.column("message_content")}->>$fieldName)"
+        sqls"$query <% (${FingerpostWireEntry.syn.column("content")}->>$fieldName)"
 
       val headline = filterElement("headline")
       val subhead = filterElement("subhead")
@@ -77,10 +79,10 @@ object FingerpostMessage extends SQLSyntaxSupport[FingerpostMessage] {
       val filters =
         sqls"$headline OR $subhead OR $byline OR $keywords OR $bodyText"
 
-      sql"""| SELECT ${FingerpostMessage.syn.result.*}
-            | FROM ${FingerpostMessage as syn}
+      sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+            | FROM ${FingerpostWireEntry as syn}
             | WHERE $filters""".stripMargin
-        .map(FingerpostMessage(syn.resultName))
+        .map(FingerpostWireEntry(syn.resultName))
         .list()
         .apply()
 

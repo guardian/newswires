@@ -2,7 +2,7 @@ package controllers
 
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.PermissionsProvider
-import db.FingerpostMessage
+import db.FingerpostWireEntry
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
@@ -20,8 +20,8 @@ class QueryController(
 
   def query(q: Option[String]): Action[AnyContent] = AuthAction {
     val results = q match {
-      case None        => FingerpostMessage.getAll()
-      case Some(query) => FingerpostMessage.query(query)
+      case None        => FingerpostWireEntry.getAll()
+      case Some(query) => FingerpostWireEntry.query(query)
     }
 
     Ok(Json.toJson(results))

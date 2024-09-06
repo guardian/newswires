@@ -80,7 +80,7 @@ object Database extends Logging {
 
     val stack = "editorial-feeds"
     val stage = "CODE"
-    val app = "wires-feeds"
+    val app = "newswires"
     val ssa = s"/$stage/$stack/$app"
 
     def getParamDirectly(name: String): String = {

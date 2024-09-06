@@ -5,8 +5,9 @@ import './App.css';
 
 type WireData = {
 	id: number;
-	sqsMessageId: string;
-	wire: Partial<{
+	externalId: string;
+	ingestedAt: string;
+	content: Partial<{
 		uri: string;
 		usn: string;
 		version: string;
@@ -55,8 +56,8 @@ export function App() {
 	const [selected, setSelected] = useState<WireData | undefined>(undefined);
 
 	const safeBodyText = useMemo(() => {
-		return selected?.wire.body_text
-			? sanitizeHtml(selected.wire.body_text)
+		return selected?.content.body_text
+			? sanitizeHtml(selected.content.body_text)
 			: undefined;
 	}, [selected]);
 
@@ -150,7 +151,7 @@ export function App() {
 								key={item.id}
 								onClick={() => setSelected(item)}
 							>
-								{item.wire.headline ?? '<missing headline>'}
+								{item.content.headline ?? '<missing headline>'}
 							</li>
 						))}
 					</ul>
@@ -167,17 +168,17 @@ export function App() {
 				>
 					<button onClick={() => setSelected(undefined)}>X</button>
 					<article>
-						{selected.wire.headline && <h2>{selected.wire.headline}</h2>}
-						{selected.wire.subhead &&
-							selected.wire.subhead !== selected.wire.headline && (
-								<h3>{selected.wire.subhead}</h3>
+						{selected.content.headline && <h2>{selected.content.headline}</h2>}
+						{selected.content.subhead &&
+							selected.content.subhead !== selected.content.headline && (
+								<h3>{selected.content.subhead}</h3>
 							)}
-						{selected.wire.byline && (
+						{selected.content.byline && (
 							<p>
-								By: <address>{selected.wire.byline}</address>
+								By: <address>{selected.content.byline}</address>
 							</p>
 						)}
-						{selected.wire.keywords && (
+						{selected.content.keywords && (
 							<p>
 								<span
 									css={css`
@@ -186,10 +187,10 @@ export function App() {
 								>
 									Keywords:{' '}
 								</span>
-								{selected.wire.keywords}
+								{selected.content.keywords}
 							</p>
 						)}
-						{selected.wire.usage && (
+						{selected.content.usage && (
 							<p>
 								<span
 									css={css`
@@ -203,18 +204,18 @@ export function App() {
 										font-weight: bold;
 									`}
 								>
-									{selected.wire.usage}
+									{selected.content.usage}
 								</span>
 							</p>
 						)}
 						<hr />
-						{selected.wire.location && (
+						{selected.content.location && (
 							<p
 								css={css`
 									font-weight: bold;
 								`}
 							>
-								{selected.wire.location}
+								{selected.content.location}
 							</p>
 						)}
 						{safeBodyText && (
