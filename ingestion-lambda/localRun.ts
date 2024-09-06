@@ -13,7 +13,7 @@ void (async () => {
 	await sql`CREATE TABLE IF NOT EXISTS ${sql(tableName)} (
 	    id BIGSERIAL PRIMARY KEY,
 	    external_id TEXT,
-	    ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	    ingested_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 	    content JSONB NOT NULL
 	)`;
 
