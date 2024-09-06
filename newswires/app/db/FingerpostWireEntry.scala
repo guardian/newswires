@@ -1,5 +1,6 @@
 package db
 
+import org.postgresql.util.PSQLException
 import play.api.libs.json.{Json, OFormat}
 import scalikejdbc._
 
@@ -58,8 +59,10 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       val position = effectivePage * effectivePageSize
       sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
             | FROM ${FingerpostWireEntry as syn}
+            | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
             | LIMIT $effectivePageSize
-            | OFFSET $position """.stripMargin
+            | OFFSET $position
+            |""".stripMargin
         .map(FingerpostWireEntry(syn.resultName))
         .list()
         .apply()
@@ -81,7 +84,10 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
 
       sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
             | FROM ${FingerpostWireEntry as syn}
-            | WHERE $filters""".stripMargin
+            | WHERE $filters
+            | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+            | LIMIT 250
+            | """.stripMargin
         .map(FingerpostWireEntry(syn.resultName))
         .list()
         .apply()
