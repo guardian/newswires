@@ -1,11 +1,16 @@
-import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
+import { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import { GuParameter, GuStack } from '@guardian/cdk/lib/constructs/core';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
-import { InstanceClass, InstanceSize, InstanceType } from 'aws-cdk-lib/aws-ec2';
+import {
+	InstanceClass,
+	InstanceSize,
+	InstanceType,
+	Port,
+} from 'aws-cdk-lib/aws-ec2';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Topic } from 'aws-cdk-lib/aws-sns';
@@ -30,6 +35,8 @@ export class Newswires extends GuStack {
 		super(scope, id, { ...props, app });
 
 		const { domainName, enableMonitoring } = props;
+
+		const vpc = GuVpc.fromIdParameter(this, 'VPC');
 
 		const privateSubnets = GuVpc.subnetsFromParameter(this, {
 			type: SubnetType.PRIVATE,
@@ -71,8 +78,14 @@ export class Newswires extends GuStack {
 					DATABASE_PORT: database.dbInstanceEndpointPort,
 					DATABASE_NAME: databaseName,
 				},
+				vpc,
+				vpcSubnets: {
+					subnets: privateSubnets,
+				},
 			},
 		);
+
+		ingestionLambda.connections.allowTo(database, Port.tcp(5432));
 
 		const eventSource = new SqsEventSource(props.fingerpostQueue, {
 			/**
