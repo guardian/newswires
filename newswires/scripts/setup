@@ -27,6 +27,6 @@ setup_nginx() {
   dev-nginx restart-nginx
 }
 
-#setup_nginx
+setup_nginx
 setup_config
 

@@ -11,3 +11,16 @@
 docker compose up
 npm run dev -w ingestion-lambda
 ```
+
+### Newswires (API and UI)
+
+```sh
+pushd newswires
+pushd client
+npm i
+popd
+./scripts/setup
+# setup the DB tunnel; TODO make this optional and offer a way to connect to a local DB
+ssm ssh -t newswires,CODE -p editorial-feeds -x --newest --rds-tunnel 5432:newswires,CODE
+sbt run
+```
