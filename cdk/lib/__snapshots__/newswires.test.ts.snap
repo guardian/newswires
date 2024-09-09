@@ -4,8 +4,8 @@ exports[`The Newswires stack matches the snapshot 1`] = `
 {
   "Metadata": {
     "gu:cdk:constructs": [
-      "GuSubnetListParameter",
       "GuVpcParameter",
+      "GuSubnetListParameter",
       "GuSecurityGroup",
       "GuDatabase",
       "GuS3Bucket",
@@ -254,6 +254,27 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "SourceSecurityGroupId": {
           "Fn::GetAtt": [
             "DefaultSecurityGroupNewswires91CCC0BF",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "DefaultSecurityGroupNewswiresfromNewswiresIngestionLambdaTESTSecurityGroup0E7FFFB65432CB5D2591": {
+      "Properties": {
+        "Description": "from NewswiresIngestionLambdaTESTSecurityGroup0E7FFFB6:5432",
+        "FromPort": 5432,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupNewswires91CCC0BF",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "IngestionLambdaTESTSecurityGroup5E6CBDBD",
             "GroupId",
           ],
         },
@@ -664,8 +685,59 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "Timeout": 30,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "IngestionLambdaTESTSecurityGroup5E6CBDBD",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": {
+            "Ref": "newswiresPrivateSubnets",
+          },
+        },
       },
       "Type": "AWS::Lambda::Function",
+    },
+    "IngestionLambdaTESTSecurityGroup5E6CBDBD": {
+      "Properties": {
+        "GroupDescription": "Automatic security group for Lambda Function NewswiresIngestionLambdaTESTD558924B",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "ingestion-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VpcId": {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
     },
     "IngestionLambdaTESTServiceRole62DE083D": {
       "Properties": {
@@ -691,6 +763,18 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                   "Ref": "AWS::Partition",
                 },
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
           },
