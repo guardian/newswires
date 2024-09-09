@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import './App.css';
 
