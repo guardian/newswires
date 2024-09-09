@@ -8,8 +8,6 @@ describe('The WiresFeeds stack', () => {
 		const stack = new WiresFeeds(app, 'WiresFeeds', {
 			stack: 'editorial-feeds',
 			stage: 'TEST',
-			domainName: 'newswires.TEST.dev-gutools.co.uk',
-			enableMonitoring: true,
 		});
 		const template = Template.fromStack(stack);
 		expect(template.toJSON()).toMatchSnapshot();
