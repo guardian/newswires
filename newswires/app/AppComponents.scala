@@ -1,6 +1,11 @@
-import controllers.AssetsComponents
-import controllers.HomeController
-import controllers.ViteController
+import controllers.{
+  AssetsComponents,
+  AuthController,
+  HomeController,
+  ManagementController,
+  QueryController,
+  ViteController
+}
 import play.api.ApplicationLoader.Context
 import play.api.mvc.EssentialFilter
 import play.api.routing.Router
@@ -12,13 +17,15 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import com.amazonaws.auth.AWSCredentialsProviderChain
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionsConfig
 import com.amazonaws.regions.Regions
-import controllers.AuthController
-import controllers.ManagementController
+import conf.Database
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.ssm.SsmClient
 
 class AppComponents(context: Context)
     extends BuiltInComponentsFromContext(context)
@@ -27,19 +34,36 @@ class AppComponents(context: Context)
     with AhcWSComponents
     with Logging {
 
-  val region = Regions.EU_WEST_1
+  private val v1Region = Regions.EU_WEST_1
+  private val v2Region = Region.EU_WEST_1
 
-  val awsV1Credentials = new AWSCredentialsProviderChain(
+  private val awsV2Credentials =
+    DefaultCredentialsProvider.builder().profileName("editorial-feeds").build()
+  private val ssmClient = SsmClient
+    .builder()
+    .credentialsProvider(awsV2Credentials)
+    .region(v2Region)
+    .build()
+
+  if (context.environment.mode == Mode.Dev) {
+    // TODO run against a local DB?
+    Database.configureRemoteDevDb(ssmClient)
+  } else if (context.environment.mode == Mode.Prod) {
+    Database.configureDeployedDb(configuration)
+  }
+
+  private val awsV1Credentials = new AWSCredentialsProviderChain(
     new ProfileCredentialsProvider("editorial-feeds"),
     DefaultAWSCredentialsProviderChain.getInstance()
   )
-  val s3v1Client = AmazonS3ClientBuilder
+
+  private val s3v1Client = AmazonS3ClientBuilder
     .standard()
-    .withRegion(region.getName())
+    .withRegion(v1Region.getName)
     .withCredentials(awsV1Credentials)
     .build()
 
-  val panDomainSettings = new PanDomainAuthSettingsRefresher(
+  private val panDomainSettings = new PanDomainAuthSettingsRefresher(
     domain = configuration.get[String]("pandomain.domain"),
     settingsFileKey = configuration.get[String]("pandomain.settingsFileKey"),
     system = "newswires",
@@ -57,13 +81,13 @@ class AppComponents(context: Context)
     PermissionsProvider(
       PermissionsConfig(
         stage = permissionsStage,
-        region.getName(),
-        awsV1Credentials
+        region = v1Region.getName,
+        awsCredentials = awsV1Credentials
       )
     )
   }
 
-  val homeController = new HomeController(controllerComponents)
+  private val homeController = new HomeController(controllerComponents)
 
   private val authController = new AuthController(
     controllerComponents,
@@ -73,7 +97,7 @@ class AppComponents(context: Context)
     permissionsProvider
   )
 
-  val viteController = new ViteController(
+  private val viteController = new ViteController(
     controllerComponents = controllerComponents,
     configuration = configuration,
     wsClient = wsClient,
@@ -85,12 +109,23 @@ class AppComponents(context: Context)
     permissionsProvider = permissionsProvider
   )
 
-  val managementController = new ManagementController(controllerComponents)
+  private val managementController = new ManagementController(
+    controllerComponents
+  )
+
+  private val queryController = new QueryController(
+    controllerComponents = controllerComponents,
+    configuration = configuration,
+    wsClient = wsClient,
+    permissionsProvider = permissionsProvider,
+    panDomainSettings = panDomainSettings
+  )
 
   def router: Router = new Routes(
     errorHandler = httpErrorHandler,
     viteController,
     homeController,
+    queryController,
     authController,
     managementController
   )

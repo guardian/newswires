@@ -6,10 +6,11 @@
 # An example controller showing a sample home page
 GET     /                           controllers.ViteController.index()
 GET     /api/                       controllers.HomeController.index()
+GET     /api/search                 controllers.QueryController.query(q: Option[String])
 
 GET     /oauthCallback              controllers.AuthController.oauthCallback()
- 
-GET     /healthcheck                controllers.ManagementController.healthcheck
+
+GET     /healthcheck                controllers.ManagementController.healthcheck()
 GET     /_prout                     controllers.ManagementController.gitHash()
 
 

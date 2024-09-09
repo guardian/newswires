@@ -1,4 +1,5 @@
 package controllers
+import conf.Database
 import play.api.Logging
 import play.api.mvc.{BaseController, ControllerComponents}
 
@@ -11,7 +12,11 @@ class ManagementController(
     with Logging {
 
   def healthcheck() = Action {
-    Ok("ok")
+    if (Database.healthcheck == 1) {
+      Ok("ok")
+    } else {
+      InternalServerError("database returned non-1 from healthcheck")
+    }
   }
 
   def gitHash() = Action {
