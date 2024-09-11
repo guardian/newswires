@@ -46,8 +46,11 @@ class AppComponents(context: Context)
     .build()
 
   if (context.environment.mode == Mode.Dev) {
-    // TODO run against a local DB?
-    Database.configureRemoteDevDb(ssmClient)
+    if (sys.env.contains("USE_CODE_DB")) {
+      Database.configureRemoteDevDb(ssmClient)
+    } else {
+      Database.configureLocalDevDB()
+    }
   } else if (context.environment.mode == Mode.Prod) {
     Database.configureDeployedDb(configuration)
   }

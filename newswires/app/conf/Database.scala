@@ -110,4 +110,25 @@ object Database extends Logging {
 
     ConnectionPool.singleton(new DataSourceConnectionPool(ds))
   }
+
+  def configureLocalDevDB(): Unit = {
+    logger.info("building DB config for connecting to CODE DB from local")
+
+    val username = "postgres"
+    val port = "5432"
+    val address = "localhost"
+    val databaseName = "newswires"
+
+    val ds = new AwsWrapperDataSource()
+    ds.setJdbcProtocol("jdbc:postgresql:")
+    ds.setServerName(address)
+    ds.setDatabase(databaseName)
+    ds.setServerPort(port)
+    ds.setTargetDataSourceClassName("org.postgresql.ds.PGSimpleDataSource")
+    ds.setPassword("postgres")
+    ds.setUser(username)
+
+    ConnectionPool.singleton(new DataSourceConnectionPool(ds))
+  }
+
 }
