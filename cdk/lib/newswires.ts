@@ -1,6 +1,12 @@
-import { GuStackProps } from '@guardian/cdk/lib/constructs/core';
-import { GuCname } from '@guardian/cdk/lib/constructs/dns';
+import type { Alarms } from '@guardian/cdk';
+import { GuPlayApp } from '@guardian/cdk';
+import { AccessScope } from '@guardian/cdk/lib/constants';
+import type { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
 import { GuParameter, GuStack } from '@guardian/cdk/lib/constructs/core';
+import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
+import { GuCname } from '@guardian/cdk/lib/constructs/dns';
+import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
+import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
@@ -13,14 +19,13 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import {
+	DatabaseInstanceEngine,
+	PostgresEngineVersion,
+} from 'aws-cdk-lib/aws-rds';
 import { Topic } from 'aws-cdk-lib/aws-sns';
-import { Queue } from 'aws-cdk-lib/aws-sqs';
+import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { GuDatabase } from './constructs/database';
-import { Alarms, GuPlayApp } from '@guardian/cdk';
-import { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
-import { AccessScope } from '@guardian/cdk/lib/constants';
-import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
-import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
 
 export type NewswiresProps = GuStackProps & {
 	fingerpostQueue: Queue;
@@ -57,6 +62,9 @@ export class Newswires extends GuStack {
 			vpcSubnets: {
 				subnets: privateSubnets,
 			},
+			engine: DatabaseInstanceEngine.postgres({
+				version: PostgresEngineVersion.of('16.4', '16'),
+			}),
 		});
 
 		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
