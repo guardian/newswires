@@ -18,7 +18,6 @@ ROOT_DIR=${DIR}/..
 # copied over from the Grid. Not 100% sure of the rationale, but perhaps: https://stackoverflow.com/questions/56520354/getting-an-amazonkinesisexception-status-code-502-when-using-localstack-from-ja
 export AWS_CBOR_DISABLE=true
 
-LOCAL_AUTH=false
 for arg in "$@"; do
   if [ "$arg" == "--debug" ]; then
     IS_DEBUG=true
@@ -35,10 +34,6 @@ isInstalled() {
 }
 
 hasCredentials() {
-  if [[ $LOCAL_AUTH == true ]]; then
-    return
-  fi
-
   STATUS=$(aws sts get-caller-identity --profile ${AWS_PROFILE} 2>&1 || true)
   if [[ ${STATUS} =~ (ExpiredToken) ]]; then
     echo -e "${red}Credentials for the ${AWS_PROFILE} profile are expired. Please fetch new credentials and run this again.${plain}"
@@ -79,8 +74,6 @@ tunnelToAwsDb() {
     if [[ -n $EXISTING_TUNNELS ]]; then
       echo "RE-USING EXISTING TUNNEL TO CODE POSTGRES (on port ${POSTGRES_PORT})"
     else
-      # todo: Grid script uses the following options, do we need any of these?
-      #  TUNNEL_OPTS="-o ExitOnForwardFailure=yes -o ServerAliveInterval=10 -o ServerAliveCountMax=2"
       ssm ssh -t ${APP_NAME},CODE -p ${AWS_PROFILE} -x --newest --rds-tunnel 5432:${APP_NAME},CODE
       echo "TUNNEL ESTABLISHED TO CODE POSTGRES (on port ${POSTGRES_PORT})"
     fi
