@@ -1278,6 +1278,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "DeletionPolicy": "Snapshot",
       "Properties": {
         "AllocatedStorage": "100",
+        "AutoMinorVersionUpgrade": true,
         "CACertificateIdentifier": "rds-ca-rsa2048-g1",
         "CopyTagsToSnapshot": true,
         "DBInstanceClass": "db.t4g.small",
@@ -1288,7 +1289,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "DeletionProtection": true,
         "EnableIAMDatabaseAuthentication": true,
         "Engine": "postgres",
-        "EngineVersion": "16.4",
+        "EngineVersion": "16",
         "MasterUserPassword": {
           "Fn::Join": [
             "",
