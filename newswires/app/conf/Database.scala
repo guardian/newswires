@@ -112,7 +112,7 @@ object Database extends Logging {
   }
 
   def configureLocalDevDB(): Unit = {
-    logger.info("building DB config for connecting to CODE DB from local")
+    logger.info("building DB config for connecting to local DB")
 
     val username = "postgres"
     val port = "5432"
