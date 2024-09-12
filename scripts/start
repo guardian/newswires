@@ -145,7 +145,7 @@ main() {
     hasCredentials
     checkRequirements
     checkNodeVersion
-    if [ $USE_CODE == true ]; then
+    if [ "$USE_CODE" == "true" ]; then
         echo "Using CODE. Starting play app with tunnel to AWS DB."
         tunnelToAwsDb && USE_CODE_DB=true startPlayApp
     else
