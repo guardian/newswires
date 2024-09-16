@@ -41,6 +41,11 @@ function createDummyFeedEntry() {
 
 	const externalId = `APBIZWIR/${usn}/${dateTimeSent}/0`;
 
+	const keywords = new Array(Math.floor(Math.random() * 5) + 2) // 2-7 keywords
+		.fill(0)
+		.map(() => lorem.generateWords(Math.floor(Math.random() * 3) + 1)) // 1-3 words per keyword
+		.join('+'); // not sure why keywords are separated by + (rather than it being a json array), but that's what the example does
+
 	return {
 		externalId: externalId,
 		body: {
@@ -64,7 +69,7 @@ function createDummyFeedEntry() {
 				code: '',
 			},
 			mediaCatCodes: 'f',
-			keywords: 'Electric vehicles+Sports+Parasports',
+			keywords,
 			organisation: {
 				symbols: '',
 			},
