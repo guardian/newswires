@@ -74,14 +74,13 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         sqls"$query <% (${FingerpostWireEntry.syn.column("content")}->>$fieldName)"
 
       val headline = filterElement("headline")
-//      val subhead = filterElement("subhead")
-//      val byline = filterElement("byline")
-//      val keywords = filterElement("keywords")
-//      val bodyText = filterElement("body_text")
+      val subhead = filterElement("subhead")
+      val byline = filterElement("byline")
+      val keywords = filterElement("keywords")
+      val bodyText = filterElement("body_text")
 
       val filters =
-        sqls"$headline"
-//      sqls"$headline OR $subhead OR $byline OR $keywords OR $bodyText"
+        sqls"$headline OR $subhead OR $byline OR $keywords OR $bodyText"
 
       sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
             | FROM ${FingerpostWireEntry as syn}
