@@ -1,3 +1,6 @@
+/* eslint @typescript-eslint/no-unsafe-call: 0 -- EUI icon imports don't get on with Vite */
+/* eslint @typescript-eslint/no-unsafe-assignment: 0 -- EUI icon imports don't get on with Vite */
+
 import { icon as arrowDown } from '@elastic/eui/es/components/icon/assets/arrow_down';
 import { icon as arrowLeft } from '@elastic/eui/es/components/icon/assets/arrow_left';
 import { icon as arrowRight } from '@elastic/eui/es/components/icon/assets/arrow_right';
