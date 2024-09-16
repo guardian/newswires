@@ -27,4 +27,9 @@ class QueryController(
     Ok(Json.toJson(results))
   }
 
+  def keywords: Action[AnyContent] = AuthAction {
+    val results = FingerpostWireEntry.getKeywords()
+    Ok(Json.toJson(results))
+  }
+
 }

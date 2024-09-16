@@ -93,4 +93,20 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .apply()
 
   }
+
+  def getKeywords()  = DB readOnly {
+    implicit session =>
+      sql"""| SELECT distinct keyword, count(*)
+            | FROM (
+            |     SELECT unnest(string_to_array(content ->> 'keywords', '+')) as keyword
+            |     FROM fingerpost_wire_entry
+            | ) as all_keywords
+            | GROUP BY keyword
+            | """.stripMargin
+        .map(rs => rs.string("keyword") -> rs.int("count"))
+        .list()
+        .apply()
+        .toMap // TODO would a list be better?
+  }
+
 }
