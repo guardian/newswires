@@ -14,10 +14,12 @@ import { querify } from './querify';
 import type { WireData } from './sharedTypes';
 import { WireCardList } from './WiresCards';
 
-type PageStage = { loading: true } | { error: string } | WireData[];
+type SearchState = { loading: true } | { error: string } | WireData[];
 
 export function App() {
-	const [pageState, setPageState] = useState<PageStage>({ loading: true });
+	const [searchState, setSearchState] = useState<SearchState>({
+		loading: true,
+	});
 
 	const [query, setQuery] = useState<string>('');
 
@@ -27,9 +29,9 @@ export function App() {
 		const quer = querify(query);
 		fetch('/api/search' + quer)
 			.then((res) => res.json())
-			.then((j) => setPageState(j as WireData[]))
+			.then((j) => setSearchState(j as WireData[]))
 			.catch((e) =>
-				setPageState({
+				setSearchState({
 					error:
 						e instanceof Error
 							? e.message
@@ -54,18 +56,18 @@ export function App() {
 					</EuiHeaderSectionItem>
 				</EuiHeader>
 				<EuiPageTemplate.Section>
-					{'error' in pageState && (
+					{'error' in searchState && (
 						<EuiPageTemplate.EmptyPrompt>
-							<p>Sorry, failed to load because of {pageState.error}</p>
+							<p>Sorry, failed to load because of {searchState.error}</p>
 						</EuiPageTemplate.EmptyPrompt>
 					)}
-					{'loading' in pageState && (
+					{'loading' in searchState && (
 						<EuiPageTemplate.EmptyPrompt
 							icon={<EuiLoadingLogo logo="clock" size="xl" />}
 							title={<h2>Loading Wires</h2>}
 						/>
 					)}
-					{Array.isArray(pageState) && <WireCardList wires={pageState} />}
+					{Array.isArray(searchState) && <WireCardList wires={searchState} />}
 				</EuiPageTemplate.Section>
 			</EuiPageTemplate>
 		</EuiProvider>
