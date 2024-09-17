@@ -9,32 +9,12 @@ import {
 } from '@elastic/eui';
 import { useEffect, useMemo, useState } from 'react';
 import '@elastic/eui/dist/eui_theme_light.css';
+import { debounce } from './debounce';
+import { querify } from './querify';
 import type { WireData } from './sharedTypes';
 import { WireCardList } from './WiresCards';
 
 type PageStage = { loading: true } | { error: string } | WireData[];
-
-const querify = (query: string): string => {
-	if (query.trim().length <= 0) return '';
-	const params = new URLSearchParams();
-	params.set('q', query.trim());
-	return '?' + params.toString();
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- suitably generic function
-const debounce = <F extends (...args: any[]) => void>(
-	f: F,
-	delay: number,
-): ((...args: Parameters<F>) => void) => {
-	let waiting: ReturnType<typeof setTimeout> | undefined;
-
-	return (...args: Parameters<F>) => {
-		if (waiting !== undefined) {
-			clearTimeout(waiting);
-		}
-		waiting = setTimeout(() => f(...args), delay);
-	};
-};
 
 export function App() {
 	const [pageState, setPageState] = useState<PageStage>({ loading: true });
