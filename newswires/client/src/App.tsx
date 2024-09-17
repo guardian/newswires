@@ -1,9 +1,17 @@
-import { css } from '@emotion/react';
+import {
+	EuiFieldSearch,
+	EuiHeader,
+	EuiHeaderSectionItem,
+	EuiLoadingLogo,
+	EuiPageTemplate,
+	EuiProvider,
+	EuiTitle,
+} from '@elastic/eui';
 import { useEffect, useMemo, useState } from 'react';
-import sanitizeHtml from 'sanitize-html';
-import './App.css';
+import '@elastic/eui/dist/eui_theme_light.css';
+import { WireCardList } from './WiresCards';
 
-type WireData = {
+export type WireData = {
 	id: number;
 	externalId: string;
 	ingestedAt: string;
@@ -53,14 +61,6 @@ export function App() {
 
 	const [query, setQuery] = useState<string>('');
 
-	const [selected, setSelected] = useState<WireData | undefined>(undefined);
-
-	const safeBodyText = useMemo(() => {
-		return selected?.content.body_text
-			? sanitizeHtml(selected.content.body_text)
-			: undefined;
-	}, [selected]);
-
 	const updateQuery = useMemo(() => debounce(setQuery, 750), []);
 
 	useEffect(() => {
@@ -81,149 +81,33 @@ export function App() {
 	}, [query]);
 
 	return (
-		<div
-			css={css`
-				display: flex;
-				flex-direction: column;
-				height: 100%;
-			`}
-		>
-			<div
-				css={css`
-					display: flex;
-					flex-direction: row;
-					justify-content: space-between;
-				`}
-			>
-				<h1
-					css={css`
-						height: fit-content;
-						margin: 0;
-						border: 1px solid black;
-					`}
-				>
-					Newswires
-				</h1>
-				<span
-					css={css`
-						display: flex;
-						flex-direction: row;
-						gap: 4px;
-					`}
-				>
-					<label>Search</label>
-					<input type="text" onChange={(e) => updateQuery(e.target.value)} />
-				</span>
-			</div>
-			<div
-				css={css`
-					border: 1px solid black;
-					min-height: 25vh;
-					flex-grow: 1;
-					overflow-y: scroll;
-				`}
-			>
-				{'error' in pageState && (
-					<p>Sorry, failed to load because of {pageState.error}</p>
-				)}
-				{'loading' in pageState && <p>Loading, please wait...</p>}
-				{Array.isArray(pageState) && (
-					<ul
-						css={css`
-							padding: 0;
-							margin: 0;
-						`}
-					>
-						{pageState.map((item) => (
-							<li
-								css={css`
-									list-style: none;
-									user-select: none;
-									cursor: pointer;
-									margin: 10px;
-									padding: 10px;
-									border-radius: 5px;
-									background-color: #dcdcdc;
-									&:nth-child(even) {
-										background-color: #c0c0c0;
-									}
-								`}
-								key={item.id}
-								onClick={() => setSelected(item)}
-							>
-								{item.content.headline ?? '<missing headline>'}
-							</li>
-						))}
-					</ul>
-				)}
-			</div>
-			{selected && (
-				<div
-					css={css`
-						border: 1px solid black;
-						flex-grow: 1;
-						overflow-y: scroll;
-						padding: 10px;
-					`}
-				>
-					<button onClick={() => setSelected(undefined)}>X</button>
-					<article>
-						{selected.content.headline && <h2>{selected.content.headline}</h2>}
-						{selected.content.subhead &&
-							selected.content.subhead !== selected.content.headline && (
-								<h3>{selected.content.subhead}</h3>
-							)}
-						{selected.content.byline && (
-							<p>
-								By: <address>{selected.content.byline}</address>
-							</p>
-						)}
-						{selected.content.keywords && (
-							<p>
-								<span
-									css={css`
-										font-style: italic;
-									`}
-								>
-									Keywords:{' '}
-								</span>
-								{selected.content.keywords}
-							</p>
-						)}
-						{selected.content.usage && (
-							<p>
-								<span
-									css={css`
-										font-style: italic;
-									`}
-								>
-									Usage restrictions:
-								</span>{' '}
-								<span
-									css={css`
-										font-weight: bold;
-									`}
-								>
-									{selected.content.usage}
-								</span>
-							</p>
-						)}
-						<hr />
-						{selected.content.location && (
-							<p
-								css={css`
-									font-weight: bold;
-								`}
-							>
-								{selected.content.location}
-							</p>
-						)}
-						{safeBodyText && (
-							<article dangerouslySetInnerHTML={{ __html: safeBodyText }} />
-						)}
-					</article>
-				</div>
-			)}
-		</div>
+		<EuiProvider colorMode="light">
+			<EuiPageTemplate>
+				<EuiHeader position="fixed">
+					<EuiHeaderSectionItem>
+						<EuiTitle size={'s'}>
+							<h1>Newswires</h1>
+						</EuiTitle>
+					</EuiHeaderSectionItem>
+					<EuiHeaderSectionItem>
+						<EuiFieldSearch onChange={(e) => updateQuery(e.target.value)} />
+					</EuiHeaderSectionItem>
+				</EuiHeader>
+				<EuiPageTemplate.Section>
+					{'error' in pageState && (
+						<EuiPageTemplate.EmptyPrompt>
+							<p>Sorry, failed to load because of {pageState.error}</p>
+						</EuiPageTemplate.EmptyPrompt>
+					)}
+					{'loading' in pageState && (
+						<EuiPageTemplate.EmptyPrompt
+							icon={<EuiLoadingLogo logo="clock" size="xl" />}
+							title={<h2>Loading Wires</h2>}
+						/>
+					)}
+					{Array.isArray(pageState) && <WireCardList wires={pageState} />}
+				</EuiPageTemplate.Section>
+			</EuiPageTemplate>
+		</EuiProvider>
 	);
 }
