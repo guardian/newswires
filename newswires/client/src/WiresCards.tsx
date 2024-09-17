@@ -17,7 +17,7 @@ import {
 import { css } from '@emotion/react';
 import { useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
-import type { WireData } from './App';
+import type { WireData } from './sharedTypes';
 
 export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 	const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);

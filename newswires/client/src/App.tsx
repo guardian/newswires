@@ -9,28 +9,8 @@ import {
 } from '@elastic/eui';
 import { useEffect, useMemo, useState } from 'react';
 import '@elastic/eui/dist/eui_theme_light.css';
+import type { WireData } from './sharedTypes';
 import { WireCardList } from './WiresCards';
-
-export type WireData = {
-	id: number;
-	externalId: string;
-	ingestedAt: string;
-	content: Partial<{
-		uri: string;
-		usn: string;
-		version: string;
-		firstVersion: string; // date
-		versionCreated: string; // date
-		dateTimeSent: string; //date
-		headline: string;
-		subhead: string;
-		byline: string;
-		keywords: string;
-		usage: string;
-		location: string;
-		body_text: string;
-	}>;
-};
 
 type PageStage = { loading: true } | { error: string } | WireData[];
 
