@@ -8,7 +8,7 @@ GET     /                           controllers.ViteController.index()
 GET     /feed                           controllers.ViteController.index()
 GET     /api/                       controllers.HomeController.index()
 GET     /api/search                 controllers.QueryController.query(q: Option[String])
-GET     /api/keywords               controllers.QueryController.keywords
+GET     /api/keywords               controllers.QueryController.keywords(inLastHours: Option[Int], limit:Option[Int])
 
 GET     /oauthCallback              controllers.AuthController.oauthCallback()
 

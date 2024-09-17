@@ -94,19 +94,31 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
 
   }
 
-  def getKeywords()  = DB readOnly {
-    implicit session =>
+  def getKeywords(maybeInLastHours: Option[Int], maybeLimit: Option[Int]) =
+    DB readOnly { implicit session =>
+      val innerWhereClause = maybeInLastHours
+        .fold(sqls"")(inLastHours =>
+          sqls"WHERE ingested_at > now() - ($inLastHours::text || ' hours')::interval"
+        )
+      println(innerWhereClause)
+      val limitClause = maybeLimit
+        .map(limit => sqls"LIMIT $limit")
+        .orElse(maybeInLastHours.map(_ => sqls"LIMIT 10"))
+        .getOrElse(sqls"")
       sql"""| SELECT distinct keyword, count(*)
             | FROM (
             |     SELECT unnest(string_to_array(content ->> 'keywords', '+')) as keyword
             |     FROM fingerpost_wire_entry
+            |     $innerWhereClause
             | ) as all_keywords
             | GROUP BY keyword
+            | ORDER BY "count" DESC
+            | $limitClause
             | """.stripMargin
         .map(rs => rs.string("keyword") -> rs.int("count"))
         .list()
         .apply()
         .toMap // TODO would a list be better?
-  }
+    }
 
 }
