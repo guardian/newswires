@@ -1,4 +1,4 @@
-import { EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
+import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
 import { useEffect, useState } from 'react';
 import { querify } from './querify';
 import type { WireData } from './sharedTypes';
@@ -41,7 +41,18 @@ export const Feed = ({ searchQuery }: { searchQuery: string }) => {
 					title={<h2>Loading Wires</h2>}
 				/>
 			)}
-			{Array.isArray(searchState) && <WireCardList wires={searchState} />}
+			{Array.isArray(searchState) && searchState.length === 0 && (
+				<EuiEmptyPrompt
+					body={<p>Try a different search term</p>}
+					color="subdued"
+					layout="horizontal"
+					title={<h2>No results match your search criteria</h2>}
+					titleSize="s"
+				/>
+			)}
+			{Array.isArray(searchState) && searchState.length > 0 && (
+				<WireCardList wires={searchState} />
+			)}
 		</EuiPageTemplate.Section>
 	);
 };
