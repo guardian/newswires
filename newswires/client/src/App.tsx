@@ -1,46 +1,22 @@
 import {
-	EuiFieldSearch,
+	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSectionItem,
-	EuiLoadingLogo,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiTitle,
 } from '@elastic/eui';
-import { useEffect, useMemo, useState } from 'react';
 import '@elastic/eui/dist/eui_theme_light.css';
-import { debounce } from './debounce';
-import { querify } from './querify';
-import type { WireData } from './sharedTypes';
-import { WireCardList } from './WiresCards';
-
-type SearchState = { loading: true } | { error: string } | WireData[];
+import { Feed } from './Feed';
+import { SearchBox } from './SearchBox';
+import { useHistory } from './urlState';
 
 export function App() {
-	const [searchState, setSearchState] = useState<SearchState>({
-		loading: true,
-	});
+	const { currentState, pushState } = useHistory();
 
-	const [query, setQuery] = useState<string>('');
-
-	const updateQuery = useMemo(() => debounce(setQuery, 750), []);
-
-	useEffect(() => {
-		const quer = querify(query);
-		fetch('/api/search' + quer)
-			.then((res) => res.json())
-			.then((j) => setSearchState(j as WireData[]))
-			.catch((e) =>
-				setSearchState({
-					error:
-						e instanceof Error
-							? e.message
-							: typeof e === 'string'
-								? e
-								: 'unknown error',
-				}),
-			);
-	}, [query]);
+	const updateQuery = (newQuery: string) => {
+		pushState({ location: 'feed', params: { q: newQuery } });
+	};
 
 	return (
 		<EuiProvider colorMode="light">
@@ -51,24 +27,30 @@ export function App() {
 							<h1>Newswires</h1>
 						</EuiTitle>
 					</EuiHeaderSectionItem>
-					<EuiHeaderSectionItem>
-						<EuiFieldSearch onChange={(e) => updateQuery(e.target.value)} />
-					</EuiHeaderSectionItem>
+					{currentState.location !== '' && (
+						<EuiHeaderSectionItem>
+							<SearchBox
+								initialQuery={currentState.params?.q ?? ''}
+								update={updateQuery}
+								incremental={true}
+							/>
+						</EuiHeaderSectionItem>
+					)}
 				</EuiHeader>
-				<EuiPageTemplate.Section>
-					{'error' in searchState && (
-						<EuiPageTemplate.EmptyPrompt>
-							<p>Sorry, failed to load because of {searchState.error}</p>
-						</EuiPageTemplate.EmptyPrompt>
-					)}
-					{'loading' in searchState && (
-						<EuiPageTemplate.EmptyPrompt
-							icon={<EuiLoadingLogo logo="clock" size="xl" />}
-							title={<h2>Loading Wires</h2>}
-						/>
-					)}
-					{Array.isArray(searchState) && <WireCardList wires={searchState} />}
-				</EuiPageTemplate.Section>
+				{currentState.location === 'feed' && (
+					<Feed searchQuery={currentState.params?.q ?? ''} />
+				)}
+				{currentState.location === '' && (
+					<EuiEmptyPrompt
+						title={<h2>Search wires</h2>}
+						body={
+							<SearchBox
+								initialQuery={currentState.params?.q ?? ''}
+								update={updateQuery}
+							/>
+						}
+					/>
+				)}
 			</EuiPageTemplate>
 		</EuiProvider>
 	);
