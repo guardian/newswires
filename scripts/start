@@ -65,6 +65,7 @@ checkRequirements() {
   # other
   checkRequirement nginx
   checkRequirement aws
+  checkRequirement flyway
 }
 
 tunnelToAwsDb() {
@@ -85,7 +86,11 @@ startDockerContainers() {
     # shellcheck disable=SC2046
     kill $(echo "${EXISTING_TUNNELS}" | awk '{print $2}')
   fi
-  docker compose up -d
+  docker compose up -d --wait
+  echo "Applying database migrations if necessary..."
+  pushd "$ROOT_DIR/db"
+  flyway migrate
+  popd
 }
 
 startIngestionLambda() {

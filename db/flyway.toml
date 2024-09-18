@@ -1,0 +1,7 @@
+[flyway]
+locations = ["filesystem:migrations"]
+
+[environments.default]
+url = "jdbc:postgresql://localhost:5432/newswires"
+user = "postgres"
+password = "postgres"
