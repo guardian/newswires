@@ -149,7 +149,8 @@ main() {
     else
       echo "Using the local stack. Starting Docker, Ingestion Lambda and Play App."
       # run all three, and terminate together when the user presses `ctrl+c`: https://stackoverflow.com/a/52033580
-      (trap 'kill 0' SIGINT; startDockerContainers && startIngestionLambda & startPlayApp & wait)
+      startDockerContainers
+      (trap 'kill 0' SIGINT; startIngestionLambda & startPlayApp & wait)
     fi
 
 }
