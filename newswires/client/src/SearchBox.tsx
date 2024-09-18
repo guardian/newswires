@@ -1,6 +1,7 @@
 import type { QueryType } from '@elastic/eui';
 import { EuiCallOut, EuiSearchBar } from '@elastic/eui';
-import { Fragment, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
+import { debounce } from './debounce';
 
 export function SearchBox({
 	initialQuery,
@@ -14,6 +15,8 @@ export function SearchBox({
 	const [query, setQuery] = useState<QueryType>(initialQuery);
 	const [error, setError] = useState<null | Error>(null);
 
+	const debouncedUpdate = useMemo(() => debounce(update, 750), [update]);
+
 	return (
 		<Fragment>
 			<EuiSearchBar
@@ -24,7 +27,11 @@ export function SearchBox({
 					} else {
 						setError(null);
 						setQuery(query);
-						update(query.text);
+						if (incremental) {
+							debouncedUpdate(query.text);
+						} else {
+							update(query.text);
+						}
 					}
 				}}
 				box={{ incremental }}
