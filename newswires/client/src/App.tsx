@@ -7,16 +7,24 @@ import {
 	EuiTitle,
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
+import { useMemo } from 'react';
 import { Feed } from './Feed';
 import { SearchBox } from './SearchBox';
 import { useHistory } from './urlState';
+import { useSearch } from './useSearch';
 
 export function App() {
-	const { currentState, pushState } = useHistory();
+	const { searchHistory, updateSearchQuery } = useSearch();
+	const { currentState } = useHistory();
 
-	const updateQuery = (newQuery: string) => {
-		pushState({ location: 'feed', params: { q: newQuery } });
-	};
+	const page = useMemo(() => {
+		switch (currentState.location) {
+			case 'feed':
+				return 'feed';
+			default:
+				return 'home';
+		}
+	}, [currentState.location]);
 
 	return (
 		<EuiProvider colorMode="light">
@@ -27,26 +35,26 @@ export function App() {
 							<h1>Newswires</h1>
 						</EuiTitle>
 					</EuiHeaderSectionItem>
-					{currentState.location !== '' && (
+					{page !== 'home' && (
 						<EuiHeaderSectionItem>
 							<SearchBox
 								initialQuery={currentState.params?.q ?? ''}
-								update={updateQuery}
+								update={updateSearchQuery}
+								searchHistory={searchHistory}
 								incremental={true}
 							/>
 						</EuiHeaderSectionItem>
 					)}
 				</EuiHeader>
-				{currentState.location === 'feed' && (
-					<Feed searchQuery={currentState.params?.q ?? ''} />
-				)}
-				{currentState.location === '' && (
+				{page === 'feed' && <Feed searchState={searchHistory[0]} />}
+				{page === 'home' && (
 					<EuiEmptyPrompt
 						title={<h2>Search wires</h2>}
 						body={
 							<SearchBox
 								initialQuery={currentState.params?.q ?? ''}
-								update={updateQuery}
+								searchHistory={searchHistory}
+								update={updateSearchQuery}
 							/>
 						}
 					/>

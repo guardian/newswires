@@ -10,7 +10,7 @@ import {
 export const paths = ['', 'feed'] as const;
 export type HistoryState = Readonly<{
 	location: (typeof paths)[number];
-	params?: Partial<Record<string, string>>;
+	params?: Record<string, string>;
 }>;
 
 const defaultState = Object.freeze({
@@ -44,10 +44,7 @@ const readUrl = (locationString?: string): HistoryState => {
 	if (page === 'feed') {
 		const urlSearchParams = new URLSearchParams(location.search);
 		const queryString = urlSearchParams.get('q');
-		const params: Record<string, string> = {};
-		if (typeof queryString === 'string') {
-			params['q'] = queryString;
-		}
+		const params: Record<string, string> = { q: queryString ?? '' };
 		return { location: page, params };
 	} else {
 		return defaultState;
