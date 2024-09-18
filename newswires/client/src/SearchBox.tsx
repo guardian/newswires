@@ -5,6 +5,7 @@ import {
 	EuiCallOut,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiLink,
 	EuiSearchBar,
 } from '@elastic/eui';
 import { Fragment, useMemo, useState } from 'react';
@@ -46,15 +47,19 @@ export function SearchBox({
 					.slice(0, 3)
 					.map(([query, resultsCount]) => (
 						<EuiFlexItem grow={false} key={query}>
+							{/* nb. EuiButton with a `href` attribute should be rendered as an `<a>` */}
 							<EuiButton
+								href={`/feed?q=${query}`}
 								size="s"
-								onClick={() => {
-									setQuery(query);
-									update(query);
-								}}
+								color={resultsCount > 0 ? 'success' : 'text'}
 							>
 								{query.length > 15 ? `${query.slice(0, 8)}...` : query}{' '}
-								<EuiBadge color={'success'}>{resultsCount}</EuiBadge>
+								<EuiBadge
+									color={resultsCount > 0 ? 'success' : 'text'}
+									aria-label={`${resultsCount} results`}
+								>
+									{resultsCount}
+								</EuiBadge>
 							</EuiButton>
 						</EuiFlexItem>
 					))}

@@ -27,14 +27,26 @@ function decideInitialQuery({
 	}
 }
 
+function fetchStoredHistory() {
+	const storedHistory = localStorage.getItem('feed-searchHistory');
+	if (storedHistory) {
+		return JSON.parse(storedHistory) as SearchState[];
+	} else {
+		return [];
+	}
+}
+
 export function useSearch() {
 	const { currentState, pushState } = useHistory();
-	const initialSearchState: SearchState | undefined = decideInitialQuery({
+	const maybeSearchStateFromUrl: SearchState | undefined = decideInitialQuery({
 		location: currentState.location,
 		params: currentState.params,
 	});
+	const searchStateFromStorage = fetchStoredHistory();
 	const [searchHistory, setSearchHistory] = useState<SearchState[]>(
-		initialSearchState ? [initialSearchState] : [],
+		maybeSearchStateFromUrl
+			? [maybeSearchStateFromUrl, ...searchStateFromStorage]
+			: searchStateFromStorage,
 	);
 
 	const searchQuery = useMemo(
@@ -48,6 +60,10 @@ export function useSearch() {
 
 	const pushSearchState = (state: SearchState) => {
 		setSearchHistory((prev) => [state, ...prev]);
+		localStorage.setItem(
+			'feed-searchHistory',
+			JSON.stringify([state, ...searchHistory]),
+		);
 	};
 
 	const updateSearchQuery = (query: string) => {
