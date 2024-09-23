@@ -1,84 +1,22 @@
 import {
-	EuiFieldSearch,
+	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSectionItem,
-	EuiLoadingLogo,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiTitle,
 } from '@elastic/eui';
-import { useEffect, useMemo, useState } from 'react';
 import '@elastic/eui/dist/eui_theme_light.css';
-import { WireCardList } from './WiresCards';
-
-export type WireData = {
-	id: number;
-	externalId: string;
-	ingestedAt: string;
-	content: Partial<{
-		uri: string;
-		usn: string;
-		version: string;
-		firstVersion: string; // date
-		versionCreated: string; // date
-		dateTimeSent: string; //date
-		headline: string;
-		subhead: string;
-		byline: string;
-		keywords: string;
-		usage: string;
-		location: string;
-		body_text: string;
-	}>;
-};
-
-type PageStage = { loading: true } | { error: string } | WireData[];
-
-const querify = (query: string): string => {
-	if (query.trim().length <= 0) return '';
-	const params = new URLSearchParams();
-	params.set('q', query.trim());
-	return '?' + params.toString();
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- suitably generic function
-const debounce = <F extends (...args: any[]) => void>(
-	f: F,
-	delay: number,
-): ((...args: Parameters<F>) => void) => {
-	let waiting: ReturnType<typeof setTimeout> | undefined;
-
-	return (...args: Parameters<F>) => {
-		if (waiting !== undefined) {
-			clearTimeout(waiting);
-		}
-		waiting = setTimeout(() => f(...args), delay);
-	};
-};
+import { Feed } from './Feed';
+import { SearchBox } from './SearchBox';
+import { useHistory } from './urlState';
 
 export function App() {
-	const [pageState, setPageState] = useState<PageStage>({ loading: true });
+	const { currentState, pushState } = useHistory();
 
-	const [query, setQuery] = useState<string>('');
-
-	const updateQuery = useMemo(() => debounce(setQuery, 750), []);
-
-	useEffect(() => {
-		const quer = querify(query);
-		fetch('/api/search' + quer)
-			.then((res) => res.json())
-			.then((j) => setPageState(j as WireData[]))
-			.catch((e) =>
-				setPageState({
-					error:
-						e instanceof Error
-							? e.message
-							: typeof e === 'string'
-								? e
-								: 'unknown error',
-				}),
-			);
-	}, [query]);
+	const updateQuery = (newQuery: string) => {
+		pushState({ location: 'feed', params: { q: newQuery } });
+	};
 
 	return (
 		<EuiProvider colorMode="light">
@@ -89,24 +27,30 @@ export function App() {
 							<h1>Newswires</h1>
 						</EuiTitle>
 					</EuiHeaderSectionItem>
-					<EuiHeaderSectionItem>
-						<EuiFieldSearch onChange={(e) => updateQuery(e.target.value)} />
-					</EuiHeaderSectionItem>
+					{currentState.location !== '' && (
+						<EuiHeaderSectionItem>
+							<SearchBox
+								initialQuery={currentState.params?.q ?? ''}
+								update={updateQuery}
+								incremental={true}
+							/>
+						</EuiHeaderSectionItem>
+					)}
 				</EuiHeader>
-				<EuiPageTemplate.Section>
-					{'error' in pageState && (
-						<EuiPageTemplate.EmptyPrompt>
-							<p>Sorry, failed to load because of {pageState.error}</p>
-						</EuiPageTemplate.EmptyPrompt>
-					)}
-					{'loading' in pageState && (
-						<EuiPageTemplate.EmptyPrompt
-							icon={<EuiLoadingLogo logo="clock" size="xl" />}
-							title={<h2>Loading Wires</h2>}
-						/>
-					)}
-					{Array.isArray(pageState) && <WireCardList wires={pageState} />}
-				</EuiPageTemplate.Section>
+				{currentState.location === 'feed' && (
+					<Feed searchQuery={currentState.params?.q ?? ''} />
+				)}
+				{currentState.location === '' && (
+					<EuiEmptyPrompt
+						title={<h2>Search wires</h2>}
+						body={
+							<SearchBox
+								initialQuery={currentState.params?.q ?? ''}
+								update={updateQuery}
+							/>
+						}
+					/>
+				)}
 			</EuiPageTemplate>
 		</EuiProvider>
 	);
