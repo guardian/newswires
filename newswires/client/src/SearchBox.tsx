@@ -5,7 +5,6 @@ import {
 	EuiCallOut,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiLink,
 	EuiSearchBar,
 } from '@elastic/eui';
 import { Fragment, useMemo, useState } from 'react';
