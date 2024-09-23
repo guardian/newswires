@@ -67,6 +67,17 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .apply()
     }
 
+  def get(id: String): Option[FingerpostWireEntry] = DB readOnly {
+    implicit session =>
+      sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+            | FROM ${FingerpostWireEntry as syn}
+            | WHERE ${FingerpostWireEntry.syn.externalId} = $id
+            |""".stripMargin
+        .map(FingerpostWireEntry(syn.resultName))
+        .single()
+        .apply()
+  }
+
   def query(query: String): List[FingerpostWireEntry] = DB readOnly {
     implicit session =>
       def filterElement(fieldName: String) =
