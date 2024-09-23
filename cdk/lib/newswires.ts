@@ -63,9 +63,10 @@ export class Newswires extends GuStack {
 				subnets: privateSubnets,
 			},
 			engine: DatabaseInstanceEngine.postgres({
-				version: PostgresEngineVersion.VER_16,
+				version: PostgresEngineVersion.of("16.4", "16"),
+				// version: PostgresEngineVersion.VER_16, // FIXME temporary, until VER_16 defaults to 16.4
 			}),
-			autoMinorVersionUpgrade: true,
+			autoMinorVersionUpgrade: false, // FIXME temporary, until rds defaults version 16 to 16.4
 		});
 
 		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
