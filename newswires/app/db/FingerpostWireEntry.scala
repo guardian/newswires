@@ -35,7 +35,8 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   implicit val format: OFormat[FingerpostWireEntry] =
     Json.format[FingerpostWireEntry]
 
-  override val columns = Seq("id", "external_id", "ingested_at", "content")
+  override val columns =
+    Seq("id", "external_id", "ingested_at", "content", "combined_textsearch")
   val syn = this.syntax("fm")
 
   def apply(
@@ -100,7 +101,8 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
 
     sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
             | FROM ${FingerpostWireEntry as syn}
-            | WHERE $filters
+            | WHERE phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn
+             .column("combined_textsearch")}
             | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
             | LIMIT $effectivePageSize
             | OFFSET $position
