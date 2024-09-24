@@ -1,24 +1,12 @@
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
 import { LoremIpsum } from 'lorem-ipsum';
-import { tableName } from './src/database';
 import { main } from './src/handler';
-import { createDbConnection } from './src/rds';
 
 const lorem = new LoremIpsum({});
 
 const loremHtml = new LoremIpsum({}, 'html');
 
-void (async () => {
-	const sql = await createDbConnection();
-	await sql`CREATE TABLE IF NOT EXISTS ${sql(tableName)} (
-	    id BIGSERIAL PRIMARY KEY,
-	    external_id TEXT,
-	    ingested_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-	    content JSONB NOT NULL
-	)`;
-
-	recursivelyScheduleEvent();
-})();
+recursivelyScheduleEvent();
 
 function recursivelyScheduleEvent() {
 	setTimeout(

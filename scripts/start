@@ -65,6 +65,7 @@ checkRequirements() {
   # other
   checkRequirement nginx
   checkRequirement aws
+  checkRequirement flyway
 }
 
 tunnelToAwsDb() {
@@ -85,7 +86,10 @@ startDockerContainers() {
     # shellcheck disable=SC2046
     kill $(echo "${EXISTING_TUNNELS}" | awk '{print $2}')
   fi
-  docker compose up -d
+  docker compose up -d --wait
+  echo "Applying database migrations if necessary..."
+
+  yes | ./db/flyway.sc migrate local
 }
 
 startIngestionLambda() {
@@ -144,9 +148,9 @@ main() {
     else
       echo "Using the local stack. Starting Docker, Ingestion Lambda and Play App."
       # run all three, and terminate together when the user presses `ctrl+c`: https://stackoverflow.com/a/52033580
-      (trap 'kill 0' SIGINT; startDockerContainers && startIngestionLambda & startPlayApp & wait)
+      startDockerContainers
+      (trap 'kill 0' SIGINT; startIngestionLambda & startPlayApp & wait)
     fi
-
 }
 
 main
