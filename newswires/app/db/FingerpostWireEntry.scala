@@ -116,7 +116,13 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .map(rs => rs.string("keyword") -> rs.int("count"))
         .list()
         .apply()
-        .toMap // TODO would a list be better?
+        .map { case (keyword, count) => KeywordCount(keyword, count) }
     }
 
+}
+
+case class KeywordCount(keyword: String, count: Int)
+
+object KeywordCount {
+  implicit val format: OFormat[KeywordCount] = Json.format[KeywordCount]
 }
