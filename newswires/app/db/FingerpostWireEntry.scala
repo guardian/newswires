@@ -1,6 +1,5 @@
 package db
 
-import org.postgresql.util.PSQLException
 import play.api.libs.json.{Json, OFormat}
 import scalikejdbc._
 
@@ -16,7 +15,7 @@ case class FingerpostWire(
     headline: Option[String],
     subhead: Option[String],
     byline: Option[String],
-    keywords: Option[String],
+    keywords: Option[List[String]],
     usage: Option[String],
     location: Option[String],
     body_text: Option[String]
@@ -107,7 +106,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .getOrElse(sqls"")
       sql"""| SELECT distinct keyword, count(*)
             | FROM (
-            |     SELECT unnest(string_to_array(content ->> 'keywords', '+')) as keyword
+            |     SELECT jsonb_array_elements(content -> 'keywords') as keyword
             |     FROM fingerpost_wire_entry
             |     $innerWhereClause
             | ) as all_keywords

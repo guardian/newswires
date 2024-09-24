@@ -12,7 +12,7 @@ export type WireData = {
 		headline: string;
 		subhead: string;
 		byline: string;
-		keywords: string;
+		keywords: string[];
 		usage: string;
 		location: string;
 		body_text: string;
