@@ -1,8 +1,6 @@
 import {
-	EuiBadge,
 	EuiButton,
 	EuiCard,
-	EuiDescriptionList,
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiFlyout,
@@ -16,8 +14,8 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useMemo, useState } from 'react';
-import sanitizeHtml from 'sanitize-html';
 import type { WireData } from './sharedTypes';
+import { WireDetail } from './WireDetail';
 
 export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 	const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
@@ -28,11 +26,6 @@ export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 		() => wires.find((wire) => wire.id == selectedWireId),
 		[wires, selectedWireId],
 	);
-	const safeBodyText = useMemo(() => {
-		return selectedWire?.content.body_text
-			? sanitizeHtml(selectedWire.content.body_text)
-			: undefined;
-	}, [selectedWire]);
 	const pushedFlyoutTitleId = useGeneratedHtmlId({
 		prefix: 'pushedFlyoutTitle',
 	});
@@ -49,38 +42,6 @@ export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 	};
 
 	if (isFlyoutVisible && !!selectedWire) {
-		const { byline, keywords, usage } = selectedWire.content;
-		const listItems = [
-			{
-				title: 'Byline',
-				description: byline ?? 'Not found',
-			},
-			{
-				title: 'Keywords',
-				description: (
-					<EuiFlexGroup wrap responsive={false} gutterSize="xs">
-						{keywords?.map((keyword) => (
-							<EuiFlexItem key={keyword} grow={false}>
-								<EuiBadge color="primary">{keyword}</EuiBadge>
-							</EuiFlexItem>
-						))}
-					</EuiFlexGroup>
-				),
-			},
-			{
-				title: 'Usage restrictions',
-				description: usage ?? 'Not found',
-			},
-			{
-				title: 'Body text',
-				description: safeBodyText ? (
-					<article dangerouslySetInnerHTML={{ __html: safeBodyText }} />
-				) : (
-					'Not found'
-				),
-			},
-		];
-
 		flyout = (
 			<EuiFlyout
 				type="push"
@@ -93,18 +54,7 @@ export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 						<h2 id={pushedFlyoutTitleId}>{selectedWire.content.headline}</h2>
 					</EuiTitle>
 					<EuiSpacer size="xs" />
-
-					<h3
-						css={css`
-							font-weight: 300;
-						`}
-					>
-						{selectedWire.content.subhead}
-					</h3>
-
-					<EuiSpacer size="m" />
-
-					<EuiDescriptionList listItems={listItems} />
+					<WireDetail wire={selectedWire} />
 				</EuiFlyoutBody>
 				<EuiFlyoutFooter>
 					<EuiButton onClick={() => setIsFlyoutVisible(false)}>Close</EuiButton>
