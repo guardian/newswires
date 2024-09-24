@@ -6,6 +6,7 @@
 //> using dep org.postgresql:postgresql:42.7.4
 //> using dep software.amazon.awssdk:rds:2.28.6
 //> using dep software.amazon.awssdk:secretsmanager:2.28.6
+import java.nio.file.Path
 import software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequest
 import software.amazon.awssdk.services.rds.RdsClient
 
@@ -91,6 +92,8 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
 
 def localFlyway: Flyway = buildFlyway("postgres")
 
+val location = Path.of(scriptPath).getParent().resolve("migrations").toString()
+
 def buildFlyway(password: String) =
   Flyway
     .configure()
@@ -99,7 +102,7 @@ def buildFlyway(password: String) =
       "postgres",
       password
     )
-    .locations("filesystem:migrations")
+    .locations(s"filesystem:$location")
     .load()
 
 def codeFlyway: Flyway = {

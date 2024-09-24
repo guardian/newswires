@@ -88,9 +88,8 @@ startDockerContainers() {
   fi
   docker compose up -d --wait
   echo "Applying database migrations if necessary..."
-  pushd "$ROOT_DIR/db"
-  flyway migrate
-  popd
+
+  yes | ./db/flyway.sc migrate local
 }
 
 startIngestionLambda() {
@@ -152,7 +151,6 @@ main() {
       startDockerContainers
       (trap 'kill 0' SIGINT; startIngestionLambda & startPlayApp & wait)
     fi
-
 }
 
 main
