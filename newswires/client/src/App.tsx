@@ -24,7 +24,9 @@ export function App() {
 				<EuiHeader position="fixed">
 					<EuiHeaderSectionItem>
 						<EuiTitle size={'s'}>
-							<h1>Newswires</h1>
+							<a href="/">
+								<h1>Newswires</h1>
+							</a>
 						</EuiTitle>
 					</EuiHeaderSectionItem>
 					{currentState.location !== '' && (
