@@ -6,9 +6,7 @@ const lorem = new LoremIpsum({});
 
 const loremHtml = new LoremIpsum({}, 'html');
 
-void (async () => {
-	recursivelyScheduleEvent();
-})();
+recursivelyScheduleEvent();
 
 function recursivelyScheduleEvent() {
 	setTimeout(
