@@ -11,6 +11,7 @@ import {
 import { css } from '@emotion/react';
 import { useMemo } from 'react';
 import type { WireData } from './sharedTypes';
+import { formatTimestamp } from './timestamp';
 import { isItemPath, useHistory } from './urlState';
 
 export const WireCardList = ({ wires }: { wires: WireData[] }) => {
@@ -62,9 +63,20 @@ const WirePanel = ({
 			<EuiFlexItem key={wire.id}>
 				<EuiCard
 					title={
-						<EuiTitle size="xxs">
-							<h2>{wire.content.headline ?? '<missing headline>'}</h2>
-						</EuiTitle>
+						<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
+							<EuiFlexItem grow={false}>
+								<EuiTitle size="xxs">
+									<h2>{wire.content.headline ?? '<missing headline>'}</h2>
+								</EuiTitle>
+							</EuiFlexItem>
+							{wire.content.versionCreated && (
+								<EuiFlexItem grow={false}>
+									<EuiText size="xs">
+										{formatTimestamp(wire.content.versionCreated)}
+									</EuiText>
+								</EuiFlexItem>
+							)}
+						</EuiFlexGroup>
 					}
 					layout="horizontal"
 					display={'primary'}
