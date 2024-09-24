@@ -99,7 +99,6 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .fold(sqls"")(inLastHours =>
           sqls"WHERE ingested_at > now() - ($inLastHours::text || ' hours')::interval"
         )
-      println(innerWhereClause)
       val limitClause = maybeLimit
         .map(limit => sqls"LIMIT $limit")
         .orElse(maybeInLastHours.map(_ => sqls"LIMIT 10"))
@@ -117,7 +116,13 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .map(rs => rs.string("keyword") -> rs.int("count"))
         .list()
         .apply()
-        .toMap // TODO would a list be better?
+        .map { case (keyword, count) => KeywordCount(keyword, count) }
     }
 
+}
+
+case class KeywordCount(keyword: String, count: Int)
+
+object KeywordCount {
+  implicit val format: OFormat[KeywordCount] = Json.format[KeywordCount]
 }
