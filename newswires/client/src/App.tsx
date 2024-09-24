@@ -8,6 +8,7 @@ import {
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
 import { Feed } from './Feed';
+import { Home } from './Home';
 import { SearchBox } from './SearchBox';
 import { useHistory } from './urlState';
 
@@ -42,17 +43,7 @@ export function App() {
 				{currentState.location === 'feed' && (
 					<Feed searchQuery={currentState.params?.q ?? ''} />
 				)}
-				{currentState.location === '' && (
-					<EuiEmptyPrompt
-						title={<h2>Search wires</h2>}
-						body={
-							<SearchBox
-								initialQuery={currentState.params?.q ?? ''}
-								update={updateQuery}
-							/>
-						}
-					/>
-				)}
+				{currentState.location === '' && <Home updateQuery={updateQuery} />}
 			</EuiPageTemplate>
 		</EuiProvider>
 	);
