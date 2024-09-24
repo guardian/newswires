@@ -8,8 +8,9 @@ import {
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
 import { Feed } from './Feed';
+import { Item } from './Item';
 import { SearchBox } from './SearchBox';
-import { useHistory } from './urlState';
+import { isItemPath, useHistory } from './urlState';
 
 export function App() {
 	const { currentState, pushState } = useHistory();
@@ -40,6 +41,7 @@ export function App() {
 				{currentState.location === 'feed' && (
 					<Feed searchQuery={currentState.params?.q ?? ''} />
 				)}
+				{isItemPath(currentState.location) && <Item />}
 				{currentState.location === '' && (
 					<EuiEmptyPrompt
 						title={<h2>Search wires</h2>}

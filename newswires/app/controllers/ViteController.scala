@@ -45,6 +45,7 @@ class ViteController(
       .replaceAll("@csrf\\.value", csrf.value)
   }
 
+  def item(id: String): Action[AnyContent] = index
   def index: Action[AnyContent] = addToken(
     authAction.async { implicit request =>
       if (mode == Mode.Dev) {
