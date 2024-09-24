@@ -27,6 +27,11 @@ setup_nginx() {
   dev-nginx restart-nginx
 }
 
+setup_dependencies() {
+  hash "scala-cli" 2>/dev/null || brew install Virtuslab/scala-cli/scala-cli
+}
+
 setup_nginx
 setup_config
+setup_dependencies
 

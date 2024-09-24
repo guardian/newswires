@@ -1,5 +1,7 @@
 #!/usr/bin/env -S scala-cli shebang -S 3.3
 
+//> using jvm corretto:17
+
 //> using dep com.lihaoyi::ujson:3.3.1
 //> using dep org.flywaydb:flyway-core:10.18.0
 //> using dep org.flywaydb:flyway-database-postgresql:10.18.0

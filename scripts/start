@@ -65,7 +65,7 @@ checkRequirements() {
   # other
   checkRequirement nginx
   checkRequirement aws
-  checkRequirement flyway
+  checkRequirement scala-cli
 }
 
 tunnelToAwsDb() {
