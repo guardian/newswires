@@ -1,5 +1,4 @@
 import {
-	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSectionItem,
 	EuiPageTemplate,

@@ -24,3 +24,12 @@ export const WireDataSchema = z.object({
 });
 
 export type WireData = z.infer<typeof WireDataSchema>;
+
+const KeywordCountSchema = z.object({
+	keyword: z.string(),
+	count: z.number(),
+});
+
+export const KeywordCountsSchema = z.array(KeywordCountSchema);
+
+export type KeywordCounts = z.infer<typeof KeywordCountsSchema>;
