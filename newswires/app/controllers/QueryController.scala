@@ -35,7 +35,7 @@ class QueryController(
     Ok(Json.toJson(results))
   }
 
-  def item(id: String): Action[AnyContent] = AuthAction {
+  def item(id: Int): Action[AnyContent] = AuthAction {
     FingerpostWireEntry.get(id) match {
       case Some(entry) => Ok(Json.toJson(entry))
       case None        => NotFound

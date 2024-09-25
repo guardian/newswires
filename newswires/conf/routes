@@ -10,7 +10,7 @@ GET     /item/*id                   controllers.ViteController.item(id: String)
 GET     /api/                       controllers.HomeController.index()
 GET     /api/search                 controllers.QueryController.query(q: Option[String])
 GET     /api/keywords               controllers.QueryController.keywords(inLastHours: Option[Int], limit:Option[Int])
-GET     /api/item/*id               controllers.QueryController.item(id: String)
+GET     /api/item/*id               controllers.QueryController.item(id: Int)
 
 GET     /oauthCallback              controllers.AuthController.oauthCallback()
 
