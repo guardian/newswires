@@ -7,12 +7,12 @@ export const Feed = ({ searchState }: { searchState: SearchState }) => {
 
 	return (
 		<EuiPageTemplate.Section>
-			{'error' in searchState && (
+			{searchState.state == 'error' && (
 				<EuiPageTemplate.EmptyPrompt>
 					<p>Sorry, failed to load because of {searchState.error}</p>
 				</EuiPageTemplate.EmptyPrompt>
 			)}
-			{'loading' in searchState && (
+			{searchState.state == 'loading' && (
 				<EuiPageTemplate.EmptyPrompt
 					icon={<EuiLoadingLogo logo="clock" size="xl" />}
 					title={<h2>Loading Wires</h2>}
