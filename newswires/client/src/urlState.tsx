@@ -22,7 +22,7 @@ function isPath(p: string): p is Path {
 
 export type HistoryState = Readonly<{
 	location: Path;
-	params?: Partial<Record<string, string>>;
+	params?: Record<string, string>;
 }>;
 
 const defaultState = Object.freeze({

@@ -11,9 +11,11 @@ import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
 import { isItemPath, useHistory } from './urlState';
+import { useSearch } from './useSearch';
 
 export function App() {
 	const { currentState, pushState } = useHistory();
+	const { searchHistory, updateSearchQuery } = useSearch();
 
 	const updateQuery = (newQuery: string) => {
 		pushState({ location: 'feed', params: { q: newQuery } });
@@ -32,14 +34,14 @@ export function App() {
 						<EuiHeaderSectionItem>
 							<SearchBox
 								initialQuery={currentState.params?.q ?? ''}
-								update={updateQuery}
+								update={updateSearchQuery}
 								incremental={true}
 							/>
 						</EuiHeaderSectionItem>
 					)}
 				</EuiHeader>
 				{currentState.location === 'feed' && (
-					<Feed searchQuery={currentState.params?.q ?? ''} />
+					<Feed searchState={searchHistory[0]} />
 				)}
 				{isItemPath(currentState.location) && <Item />}
 				{currentState.location === '' && (
