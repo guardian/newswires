@@ -39,7 +39,7 @@ class TrendingSpec extends AnyFlatSpec with Matchers {
         window = 1.second,
         timePeriodStart = ZonedDateTime.parse("2021-01-01T00:00:00Z"),
         timePeriodEnd = ZonedDateTime.parse("2021-01-01T00:00:04Z")
-      ) == List(2, 1, 0, 1)
+      ) == List(1, 0, 1, 2)
     )
   }
 
@@ -56,7 +56,7 @@ class TrendingSpec extends AnyFlatSpec with Matchers {
         window = 1.second,
         timePeriodStart = ZonedDateTime.parse("2021-01-01T00:00:00Z"),
         timePeriodEnd = ZonedDateTime.parse("2021-01-01T00:00:04Z")
-      ) == List(2, 1, 0, 1)
+      ) == List(1, 0, 1, 2)
     )
   }
 
@@ -73,7 +73,7 @@ class TrendingSpec extends AnyFlatSpec with Matchers {
         window = 1.second,
         timePeriodStart = ZonedDateTime.parse("2020-12-31T23:59:59Z"),
         timePeriodEnd = ZonedDateTime.parse("2021-01-01T00:00:05Z")
-      ) == List(0, 2, 1, 0, 1, 0)
+      ) == List(0, 1, 0, 1, 2, 0)
     )
   }
 
