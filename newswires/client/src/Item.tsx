@@ -69,6 +69,10 @@ export const Item = () => {
 					onClose={() =>
 						pushState({ location: 'feed', params: currentState.params })
 					}
+					closeButtonProps={{
+						'aria-label': 'Close wire detail',
+						autoFocus: true,
+					}}
 					aria-labelledby={pushedFlyoutTitleId}
 				>
 					<EuiFlyoutBody>

@@ -153,5 +153,9 @@ export function useSearch() {
 			);
 	}, [searchQuery, pushSearchState]);
 
-	return { searchHistory, updateSearchQuery };
+	const currentSearchState = useMemo(() => {
+		return searchHistory[0];
+	}, [searchHistory]);
+
+	return { searchHistory, currentSearchState, updateSearchQuery };
 }
