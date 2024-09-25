@@ -53,7 +53,7 @@ const readUrl = (locationString?: string): HistoryState => {
 		? new URL(locationString, window.location.href)
 		: window.location;
 	const page = location.pathname.slice(1);
-	if (page === 'feed') {
+	if (page === 'feed' || isItemPath(page)) {
 		const urlSearchParams = new URLSearchParams(location.search);
 		const queryString = urlSearchParams.get('q');
 		const params: Record<string, string> = {};
@@ -61,8 +61,6 @@ const readUrl = (locationString?: string): HistoryState => {
 			params['q'] = queryString;
 		}
 		return { location: page, params };
-	} else if (isItemPath(page)) {
-		return { location: page, params: {} };
 	} else {
 		return defaultState;
 	}

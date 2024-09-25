@@ -5,11 +5,6 @@ import { type WireData } from './sharedTypes';
 import { WireDataArraySchema } from './sharedTypes';
 import { useHistory } from './urlState';
 
-const statuses = ['loading', 'error', 'data'] as const;
-
-const StateSchema = z.enum(statuses);
-type State = z.infer<typeof StateSchema>;
-
 const SearchStateSchema = z.discriminatedUnion('state', [
 	z.object({
 		query: z.string(),
@@ -25,6 +20,9 @@ const SearchStateSchema = z.discriminatedUnion('state', [
 		state: z.literal('data'),
 		data: WireDataArraySchema,
 	}),
+	z.object({
+		state: z.literal('initialised'),
+	}),
 ]);
 
 export type SearchState = z.infer<typeof SearchStateSchema>;
@@ -37,7 +35,7 @@ function decideInitialQuery({
 }: {
 	location: string;
 	params?: Record<string, string>;
-}) {
+}): SearchState {
 	const maybeQueryFromUrl = params?.q;
 	switch (location) {
 		case 'feed':
@@ -48,7 +46,7 @@ function decideInitialQuery({
 		default:
 			return maybeQueryFromUrl
 				? ({ state: 'loading', query: maybeQueryFromUrl } as SearchState)
-				: undefined;
+				: ({ state: 'initialised' } as SearchState);
 	}
 }
 
@@ -79,11 +77,10 @@ export function useSearch() {
 		params: currentState.params,
 	});
 	const searchStateFromStorage = fetchStoredHistory();
-	const [searchHistory, setSearchHistory] = useState<SearchState[]>(
-		maybeSearchStateFromUrl
-			? [maybeSearchStateFromUrl, ...searchStateFromStorage]
-			: searchStateFromStorage,
-	);
+	const [searchHistory, setSearchHistory] = useState<SearchState[]>([
+		maybeSearchStateFromUrl,
+		...searchStateFromStorage,
+	]);
 
 	const searchQuery = useMemo(
 		() => currentState.params?.q,
@@ -153,7 +150,7 @@ export function useSearch() {
 			);
 	}, [searchQuery, pushSearchState]);
 
-	const currentSearchState = useMemo(() => {
+	const currentSearchState: SearchState = useMemo(() => {
 		return searchHistory[0];
 	}, [searchHistory]);
 
