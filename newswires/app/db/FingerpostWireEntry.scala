@@ -99,7 +99,6 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .fold(sqls"")(inLastHours =>
           sqls"WHERE ingested_at > now() - ($inLastHours::text || ' hours')::interval"
         )
-      println(innerWhereClause)
       val limitClause = maybeLimit
         .map(limit => sqls"LIMIT $limit")
         .orElse(maybeInLastHours.map(_ => sqls"LIMIT 10"))
