@@ -84,7 +84,7 @@ export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 		flyout = (
 			<EuiFlyout
 				type="push"
-				size="s"
+				size="m"
 				onClose={() => setIsFlyoutVisible(false)}
 				aria-labelledby={pushedFlyoutTitleId}
 			>
