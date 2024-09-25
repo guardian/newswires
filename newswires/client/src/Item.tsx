@@ -1,13 +1,26 @@
-import { EuiPageTemplate, EuiTitle } from '@elastic/eui';
-import { Fragment, useEffect, useState } from 'react';
+import {
+	EuiButton,
+	EuiFlyout,
+	EuiFlyoutBody,
+	EuiFlyoutFooter,
+	EuiPageTemplate,
+	EuiSpacer,
+	EuiTitle,
+	useGeneratedHtmlId,
+} from '@elastic/eui';
+import { useEffect, useState } from 'react';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { useHistory } from './urlState';
 import { WireDetail } from './WireDetail';
 
 export const Item = () => {
-	const { currentState } = useHistory();
+	const { currentState, pushState } = useHistory();
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
+
+	const pushedFlyoutTitleId = useGeneratedHtmlId({
+		prefix: 'pushedFlyoutTitle',
+	});
 
 	useEffect(() => {
 		// fetch item data from /api/item/:id
@@ -24,6 +37,7 @@ export const Item = () => {
 			.then((data) => {
 				const maybeWireData = WireDataSchema.safeParse(data);
 				if (maybeWireData.success) {
+					setError(undefined);
 					setItemData(maybeWireData.data);
 				} else {
 					setError('Invalid data received');
@@ -49,12 +63,31 @@ export const Item = () => {
 				</EuiPageTemplate.EmptyPrompt>
 			)}
 			{itemData && (
-				<Fragment>
-					<EuiTitle size="s">
-						<h2>{itemData.content.headline}</h2>
-					</EuiTitle>
-					<WireDetail wire={itemData} />
-				</Fragment>
+				<EuiFlyout
+					type="push"
+					size="m"
+					onClose={() =>
+						pushState({ location: 'feed', params: currentState.params })
+					}
+					aria-labelledby={pushedFlyoutTitleId}
+				>
+					<EuiFlyoutBody>
+						<EuiTitle size="s">
+							<h2 id={pushedFlyoutTitleId}>{itemData.content.headline}</h2>
+						</EuiTitle>
+						<EuiSpacer size="xs" />
+						<WireDetail wire={itemData} />
+					</EuiFlyoutBody>
+					<EuiFlyoutFooter>
+						<EuiButton
+							onClick={() =>
+								pushState({ location: 'feed', params: currentState.params })
+							}
+						>
+							Close
+						</EuiButton>
+					</EuiFlyoutFooter>
+				</EuiFlyout>
 			)}
 		</EuiPageTemplate.Section>
 	);

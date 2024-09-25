@@ -1,36 +1,33 @@
-import { error } from 'console';
-import { stat } from 'fs';
-import type { QueryType } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiButton,
 	EuiButtonEmpty,
-	EuiCallOut,
 	EuiFieldSearch,
 	EuiListGroup,
 	EuiPopover,
-	EuiSearchBar,
 	EuiText,
 } from '@elastic/eui';
 import { Fragment, useMemo, useState } from 'react';
 import { debounce } from './debounce';
-import { useSearch } from './useSearch';
+import type { SearchState } from './useSearch';
 
 export function SearchBox({
 	initialQuery,
 	update,
+	searchHistory,
 	incremental = false,
 }: {
 	initialQuery: string;
 	update: (newQuery: string) => void;
+	searchHistory: SearchState[];
 	incremental?: boolean;
 }) {
 	const [query, setQuery] = useState<string>(initialQuery);
 	const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-	const { searchHistory } = useSearch();
 
 	const dedupedSearchHistory = useMemo(() => {
 		const successfulSearchesWithResultsCount = searchHistory
+			.reverse()
 			.filter((search) => 'data' in search)
 			.filter((search) => search.query !== '') // todo -- combine this with the above filter (ts type inference needs wrangling)
 			.reduce((acc, search) => {
@@ -47,7 +44,12 @@ export function SearchBox({
 	const debouncedUpdate = useMemo(() => debounce(update, 750), [update]);
 
 	return (
-		<Fragment>
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				update(query);
+			}}
+		>
 			<EuiFieldSearch
 				value={query}
 				onChange={(e) => {
@@ -55,8 +57,6 @@ export function SearchBox({
 					setQuery(newQuery);
 					if (incremental) {
 						debouncedUpdate(newQuery);
-					} else {
-						update(newQuery);
 					}
 				}}
 				aria-label="search wires"
@@ -73,28 +73,32 @@ export function SearchBox({
 						isOpen={isPopoverOpen}
 						closePopover={closePopover}
 					>
-						<EuiListGroup>
-							{dedupedSearchHistory.map(([query, resultsCount]) => (
-								<EuiButton
-									onClick={() => {
-										update(query);
-										closePopover();
-									}}
-									key={query}
-								>
-									{query}{' '}
-									<EuiBadge
-										color={resultsCount > 0 ? 'success' : 'text'}
-										aria-label={`${resultsCount} results`}
+						{dedupedSearchHistory.length === 0 ? (
+							<EuiText color="subdued">No search history</EuiText>
+						) : (
+							<EuiListGroup>
+								{dedupedSearchHistory.map(([query, resultsCount]) => (
+									<EuiButton
+										onClick={() => {
+											update(query);
+											closePopover();
+										}}
+										key={query}
 									>
-										{resultsCount}
-									</EuiBadge>
-								</EuiButton>
-							))}
-						</EuiListGroup>
+										{query}{' '}
+										<EuiBadge
+											color={resultsCount > 0 ? 'success' : 'text'}
+											aria-label={`${resultsCount} results`}
+										>
+											{resultsCount}
+										</EuiBadge>
+									</EuiButton>
+								))}
+							</EuiListGroup>
+						)}
 					</EuiPopover>
 				}
 			/>
-		</Fragment>
+		</form>
 	);
 }

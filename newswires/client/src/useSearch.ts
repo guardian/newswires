@@ -98,8 +98,11 @@ export function useSearch() {
 		(state: SearchState) => {
 			setSearchHistory((prev) => {
 				const newStack = [state, ...prev];
-				localStorage.setItem('feed-searchHistory', JSON.stringify(newStack));
-				return newStack;
+				localStorage.setItem(
+					'feed-searchHistory',
+					JSON.stringify(newStack.filter((s) => s.state == 'data').slice(0, 6)),
+				);
+				return newStack.slice(0, 20);
 			});
 		},
 		[setSearchHistory],

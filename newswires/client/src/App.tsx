@@ -19,6 +19,7 @@ export function App() {
 
 	const updateQuery = (newQuery: string) => {
 		pushState({ location: 'feed', params: { q: newQuery } });
+		updateSearchQuery(newQuery);
 	};
 
 	return (
@@ -34,13 +35,15 @@ export function App() {
 						<EuiHeaderSectionItem>
 							<SearchBox
 								initialQuery={currentState.params?.q ?? ''}
+								searchHistory={searchHistory}
 								update={updateSearchQuery}
 								incremental={true}
 							/>
 						</EuiHeaderSectionItem>
 					)}
 				</EuiHeader>
-				{currentState.location === 'feed' && (
+				{(currentState.location === 'feed' ||
+					isItemPath(currentState.location)) && (
 					<Feed searchState={searchHistory[0]} />
 				)}
 				{isItemPath(currentState.location) && <Item />}
@@ -50,6 +53,7 @@ export function App() {
 						body={
 							<SearchBox
 								initialQuery={currentState.params?.q ?? ''}
+								searchHistory={searchHistory}
 								update={updateQuery}
 							/>
 						}
