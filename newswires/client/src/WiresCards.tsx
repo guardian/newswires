@@ -59,7 +59,7 @@ export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 				title: 'Keywords',
 				description: (
 					<EuiFlexGroup wrap responsive={false} gutterSize="xs">
-						{keywords?.split('+').map((keyword) => (
+						{keywords?.map((keyword) => (
 							<EuiFlexItem key={keyword} grow={false}>
 								<EuiBadge color="primary">{keyword}</EuiBadge>
 							</EuiFlexItem>

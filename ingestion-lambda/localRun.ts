@@ -41,6 +41,10 @@ function createDummyFeedEntry() {
 
 	const externalId = `APBIZWIR/${usn}/${dateTimeSent}/0`;
 
+	const keywords = new Array(Math.floor(Math.random() * 5) + 2) // 2-7 keywords
+		.fill(0)
+		.map(() => lorem.generateWords(Math.floor(Math.random() * 3) + 1)); // 1-3 words per keyword
+
 	return {
 		externalId: externalId,
 		body: {
@@ -64,7 +68,7 @@ function createDummyFeedEntry() {
 				code: '',
 			},
 			mediaCatCodes: 'f',
-			keywords: 'Electric vehicles+Sports+Parasports',
+			keywords,
 			organisation: {
 				symbols: '',
 			},

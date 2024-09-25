@@ -1,6 +1,5 @@
 package db
 
-import org.postgresql.util.PSQLException
 import play.api.libs.json.{Json, OFormat}
 import scalikejdbc._
 
@@ -16,7 +15,7 @@ case class FingerpostWire(
     headline: Option[String],
     subhead: Option[String],
     byline: Option[String],
-    keywords: Option[String],
+    keywords: Option[List[String]],
     usage: Option[String],
     location: Option[String],
     body_text: Option[String]
@@ -93,4 +92,31 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .apply()
 
   }
+
+  def getKeywords(maybeInLastHours: Option[Int], maybeLimit: Option[Int]) =
+    DB readOnly { implicit session =>
+      val innerWhereClause = maybeInLastHours
+        .fold(sqls"")(inLastHours =>
+          sqls"WHERE ingested_at > now() - ($inLastHours::text || ' hours')::interval"
+        )
+      val limitClause = maybeLimit
+        .map(limit => sqls"LIMIT $limit")
+        .orElse(maybeInLastHours.map(_ => sqls"LIMIT 10"))
+        .getOrElse(sqls"")
+      sql"""| SELECT distinct keyword, count(*)
+            | FROM (
+            |     SELECT jsonb_array_elements(content -> 'keywords') as keyword
+            |     FROM fingerpost_wire_entry
+            |     $innerWhereClause
+            | ) as all_keywords
+            | GROUP BY keyword
+            | ORDER BY "count" DESC
+            | $limitClause
+            | """.stripMargin
+        .map(rs => rs.string("keyword") -> rs.int("count"))
+        .list()
+        .apply()
+        .toMap // TODO would a list be better?
+    }
+
 }
