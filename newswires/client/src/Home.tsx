@@ -19,6 +19,7 @@ export function Home({
 }) {
 	const { currentState } = useHistory();
 	const [keywords, setKeywords] = useState<KeywordCounts>([]);
+	const [trendingKeywords, setTrendingKeywords] = useState<KeywordCounts>([]);
 
 	useEffect(() => {
 		fetch('api/keywords?limit=5')
@@ -38,6 +39,26 @@ export function Home({
 			.catch((error) => {
 				console.error('Error fetching keywords:', error);
 			});
+		fetch('api/keywords/trending?limit=5')
+			.then((response) => {
+				if (response.ok) {
+					return response.json();
+				}
+			})
+			.then((data) => {
+				const maybeKeywords = KeywordCountsSchema.safeParse(data);
+				if (maybeKeywords.success) {
+					setTrendingKeywords(maybeKeywords.data);
+				} else {
+					console.error(
+						'Error parsing trending keywords:',
+						maybeKeywords.error,
+					);
+				}
+			})
+			.catch((error) => {
+				console.error('Error fetching trending keywords:', error);
+			});
 	});
 
 	const body = (
@@ -46,7 +67,20 @@ export function Home({
 				initialQuery={currentState.params?.q ?? ''}
 				update={updateQuery}
 			/>
-			{keywords.length > 0 && <KeywordsList keywords={keywords} />}
+			<EuiFlexGroup>
+				{keywords.length > 0 && (
+					<EuiFlexItem>
+						<h3>Top keywords</h3>
+						<KeywordsList keywords={keywords} />
+					</EuiFlexItem>
+				)}
+				{trendingKeywords.length > 0 && (
+					<EuiFlexItem>
+						<h3>Trending keywords</h3>
+						<KeywordsList keywords={trendingKeywords} />
+					</EuiFlexItem>
+				)}
+			</EuiFlexGroup>
 		</EuiFlexGroup>
 	);
 

@@ -119,7 +119,21 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .map { case (keyword, count) => KeywordCount(keyword, count) }
     }
 
+  def getKeywordsWithTimestamps(inLastHours: Int) =
+    DB readOnly { implicit session =>
+      sql"""| SELECT jsonb_array_elements(content -> 'keywords') as keyword, ingested_at
+            | FROM fingerpost_wire_entry
+            | WHERE ingested_at > now() - ($inLastHours::text || ' hours')::interval
+            | """.stripMargin
+        .map(rs => rs.string("keyword") -> rs.zonedDateTime("ingested_at"))
+        .list()
+        .apply()
+        .map { case (keyword, timestamp) => KeywordUsage(keyword, timestamp) }
+    }
+
 }
+
+case class KeywordUsage(keyword: String, timestamp: ZonedDateTime)
 
 case class KeywordCount(keyword: String, count: Int)
 
