@@ -1,47 +1,24 @@
 import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
-import { useEffect, useState } from 'react';
-import { querify } from './querify';
-import type { WireData } from './sharedTypes';
+import type { SearchState } from './useSearch';
 import { WireCardList } from './WiresCards';
 
-type SearchState = { loading: true } | { error: string } | WireData[];
-
-export const Feed = ({ searchQuery }: { searchQuery: string }) => {
-	const [searchState, setSearchState] = useState<SearchState>({
-		loading: true,
-	});
-
-	useEffect(() => {
-		const quer = querify(searchQuery);
-		fetch('/api/search' + quer)
-			.then((res) => res.json())
-			.then((j) => setSearchState(j as WireData[]))
-			.catch((e) =>
-				setSearchState({
-					error:
-						e instanceof Error
-							? e.message
-							: typeof e === 'string'
-								? e
-								: 'unknown error',
-				}),
-			);
-	}, [searchQuery]);
+export const Feed = ({ searchState }: { searchState: SearchState }) => {
+	const data = 'data' in searchState ? searchState.data : undefined;
 
 	return (
 		<EuiPageTemplate.Section>
-			{'error' in searchState && (
+			{searchState.state == 'error' && (
 				<EuiPageTemplate.EmptyPrompt>
 					<p>Sorry, failed to load because of {searchState.error}</p>
 				</EuiPageTemplate.EmptyPrompt>
 			)}
-			{'loading' in searchState && (
+			{searchState.state == 'loading' && (
 				<EuiPageTemplate.EmptyPrompt
 					icon={<EuiLoadingLogo logo="clock" size="xl" />}
 					title={<h2>Loading Wires</h2>}
 				/>
 			)}
-			{Array.isArray(searchState) && searchState.length === 0 && (
+			{data && data.length === 0 && (
 				<EuiEmptyPrompt
 					body={<p>Try a different search term</p>}
 					color="subdued"
@@ -50,9 +27,7 @@ export const Feed = ({ searchQuery }: { searchQuery: string }) => {
 					titleSize="s"
 				/>
 			)}
-			{Array.isArray(searchState) && searchState.length > 0 && (
-				<WireCardList wires={searchState} />
-			)}
+			{data && data.length > 0 && <WireCardList wires={data} />}
 		</EuiPageTemplate.Section>
 	);
 };

@@ -78,29 +78,36 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .apply()
   }
 
-  def query(query: String): List[FingerpostWireEntry] = DB readOnly {
-    implicit session =>
-      def filterElement(fieldName: String) =
-        sqls"$query <% (${FingerpostWireEntry.syn.column("content")}->>$fieldName)"
+  def query(
+      query: String,
+      page: Int = 0,
+      pageSize: Int = 250
+  ): List[FingerpostWireEntry] = DB readOnly { implicit session =>
+    def filterElement(fieldName: String) =
+      sqls"$query <% (${FingerpostWireEntry.syn.column("content")}->>$fieldName)"
 
-      val headline = filterElement("headline")
-      val subhead = filterElement("subhead")
-      val byline = filterElement("byline")
-      val keywords = filterElement("keywords")
-      val bodyText = filterElement("body_text")
+    val headline = filterElement("headline")
+    val subhead = filterElement("subhead")
+    val byline = filterElement("byline")
+    val keywords = filterElement("keywords")
+    val bodyText = filterElement("body_text")
 
-      val filters =
-        sqls"$headline OR $subhead OR $byline OR $keywords OR $bodyText"
+    val filters =
+      sqls"$headline OR $subhead OR $byline OR $keywords OR $bodyText"
+    val effectivePage = clamp(0, page, 10)
+    val effectivePageSize = clamp(0, pageSize, 250)
+    val position = effectivePage * effectivePageSize
 
-      sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+    sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
             | FROM ${FingerpostWireEntry as syn}
             | WHERE $filters
             | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
-            | LIMIT 250
+            | LIMIT $effectivePageSize
+            | OFFSET $position
             | """.stripMargin
-        .map(FingerpostWireEntry(syn.resultName))
-        .list()
-        .apply()
+      .map(FingerpostWireEntry(syn.resultName))
+      .list()
+      .apply()
 
   }
 

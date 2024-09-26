@@ -20,8 +20,8 @@ class QueryController(
 
   def query(q: Option[String]): Action[AnyContent] = AuthAction {
     val results = q match {
-      case None        => FingerpostWireEntry.getAll()
-      case Some(query) => FingerpostWireEntry.query(query)
+      case None        => FingerpostWireEntry.getAll(pageSize = 30)
+      case Some(query) => FingerpostWireEntry.query(query, pageSize = 30)
     }
 
     Ok(Json.toJson(results))

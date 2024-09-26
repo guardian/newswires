@@ -7,21 +7,96 @@ import {
 	EuiTitle,
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
+import { useMemo } from 'react';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
 import { isItemPath, useHistory } from './urlState';
+import { useSearch } from './useSearch';
 
 export function App() {
 	const { currentState, pushState } = useHistory();
+	const { searchHistory, currentSearchState, updateSearchQuery } = useSearch();
 
 	const updateQuery = (newQuery: string) => {
 		pushState({ location: 'feed', params: { q: newQuery } });
+		updateSearchQuery(newQuery);
 	};
+
+	const maybeSelectedWireId = useMemo(
+		() =>
+			isItemPath(currentState.location)
+				? currentState.location.replace('item/', '')
+				: undefined,
+		[currentState.location],
+	);
+
+	const nextWireId = useMemo(() => {
+		if (currentSearchState.state === 'data') {
+			const currentIndex = currentSearchState.data.findIndex(
+				(wire) => wire.id.toString() === maybeSelectedWireId,
+			);
+			if (currentIndex === -1) {
+				return undefined;
+			}
+			const nextIndex = currentIndex + 1;
+			if (nextIndex >= currentSearchState.data.length) {
+				return undefined;
+			}
+			return currentSearchState.data[nextIndex].id.toString();
+		}
+		return undefined;
+	}, [currentSearchState, maybeSelectedWireId]);
+
+	const previousWireId = useMemo(() => {
+		if (currentSearchState.state === 'data') {
+			const currentIndex = currentSearchState.data.findIndex(
+				(wire) => wire.id.toString() === maybeSelectedWireId,
+			);
+			if (currentIndex === -1) {
+				return undefined;
+			}
+			const previousIndex = currentIndex - 1;
+			if (previousIndex < 0) {
+				return undefined;
+			}
+			return currentSearchState.data[previousIndex].id.toString();
+		}
+		return undefined;
+	}, [currentSearchState, maybeSelectedWireId]);
 
 	return (
 		<EuiProvider colorMode="light">
-			<EuiPageTemplate>
+			<EuiPageTemplate
+				onKeyUp={(e) => {
+					if (
+						isItemPath(currentState.location) &&
+						currentSearchState.state === 'data'
+					) {
+						switch (e.key) {
+							case 'Escape':
+								pushState({ location: 'feed', params: currentState.params });
+								break;
+							case 'ArrowLeft':
+								if (previousWireId !== undefined) {
+									pushState({
+										location: `item/${previousWireId}`,
+										params: currentState.params,
+									});
+								}
+								break;
+							case 'ArrowRight':
+								if (nextWireId !== undefined) {
+									pushState({
+										location: `item/${nextWireId}`,
+										params: currentState.params,
+									});
+								}
+								break;
+						}
+					}
+				}}
+			>
 				<EuiHeader position="fixed">
 					<EuiHeaderSectionItem>
 						<EuiTitle size={'s'}>
@@ -32,14 +107,16 @@ export function App() {
 						<EuiHeaderSectionItem>
 							<SearchBox
 								initialQuery={currentState.params?.q ?? ''}
-								update={updateQuery}
+								searchHistory={searchHistory}
+								update={updateSearchQuery}
 								incremental={true}
 							/>
 						</EuiHeaderSectionItem>
 					)}
 				</EuiHeader>
-				{currentState.location === 'feed' && (
-					<Feed searchQuery={currentState.params?.q ?? ''} />
+				{(currentState.location === 'feed' ||
+					isItemPath(currentState.location)) && (
+					<Feed searchState={currentSearchState} />
 				)}
 				{isItemPath(currentState.location) && <Item />}
 				{currentState.location === '' && (
@@ -48,6 +125,7 @@ export function App() {
 						body={
 							<SearchBox
 								initialQuery={currentState.params?.q ?? ''}
+								searchHistory={searchHistory}
 								update={updateQuery}
 							/>
 						}

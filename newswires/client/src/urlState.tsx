@@ -22,7 +22,7 @@ function isPath(p: string): p is Path {
 
 export type HistoryState = Readonly<{
 	location: Path;
-	params?: Partial<Record<string, string>>;
+	params?: Record<string, string>;
 }>;
 
 const defaultState = Object.freeze({
@@ -53,7 +53,7 @@ const readUrl = (locationString?: string): HistoryState => {
 		? new URL(locationString, window.location.href)
 		: window.location;
 	const page = location.pathname.slice(1);
-	if (page === 'feed') {
+	if (page === 'feed' || isItemPath(page)) {
 		const urlSearchParams = new URLSearchParams(location.search);
 		const queryString = urlSearchParams.get('q');
 		const params: Record<string, string> = {};
@@ -61,8 +61,6 @@ const readUrl = (locationString?: string): HistoryState => {
 			params['q'] = queryString;
 		}
 		return { location: page, params };
-	} else if (isItemPath(page)) {
-		return { location: page, params: {} };
 	} else {
 		return defaultState;
 	}

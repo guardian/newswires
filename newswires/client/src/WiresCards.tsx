@@ -1,67 +1,25 @@
 import {
-	EuiButton,
 	EuiCard,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiFlyout,
-	EuiFlyoutBody,
-	EuiFlyoutFooter,
 	EuiPanel,
-	EuiSpacer,
 	EuiText,
 	EuiTitle,
-	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { WireData } from './sharedTypes';
-import { WireDetail } from './WireDetail';
+import { isItemPath, useHistory } from './urlState';
 
 export const WireCardList = ({ wires }: { wires: WireData[] }) => {
-	const [isFlyoutVisible, setIsFlyoutVisible] = useState(false);
-	const [selectedWireId, setSelectedWireId] = useState<number | undefined>(
-		undefined,
+	const { currentState, pushState } = useHistory();
+	const selectedWireId = useMemo(
+		() =>
+			isItemPath(currentState.location)
+				? currentState.location.replace('item/', '')
+				: undefined,
+		[currentState.location],
 	);
-	const selectedWire = useMemo(
-		() => wires.find((wire) => wire.id == selectedWireId),
-		[wires, selectedWireId],
-	);
-	const pushedFlyoutTitleId = useGeneratedHtmlId({
-		prefix: 'pushedFlyoutTitle',
-	});
-
-	let flyout;
-
-	const toggleVisibilityFor = (id: number) => {
-		if (id == selectedWireId) {
-			setIsFlyoutVisible(!isFlyoutVisible);
-		} else {
-			setIsFlyoutVisible(true);
-		}
-		setSelectedWireId(id);
-	};
-
-	if (isFlyoutVisible && !!selectedWire) {
-		flyout = (
-			<EuiFlyout
-				type="push"
-				size="s"
-				onClose={() => setIsFlyoutVisible(false)}
-				aria-labelledby={pushedFlyoutTitleId}
-			>
-				<EuiFlyoutBody>
-					<EuiTitle size="s">
-						<h2 id={pushedFlyoutTitleId}>{selectedWire.content.headline}</h2>
-					</EuiTitle>
-					<EuiSpacer size="xs" />
-					<WireDetail wire={selectedWire} />
-				</EuiFlyoutBody>
-				<EuiFlyoutFooter>
-					<EuiButton onClick={() => setIsFlyoutVisible(false)}>Close</EuiButton>
-				</EuiFlyoutFooter>
-			</EuiFlyout>
-		);
-	}
 
 	return (
 		<div>
@@ -70,12 +28,16 @@ export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 					<WirePanel
 						wire={wire}
 						key={wire.id}
-						onClick={() => toggleVisibilityFor(wire.id)}
-						selected={selectedWireId == wire.id}
+						onClick={() =>
+							pushState({
+								location: `item/${wire.id}`,
+								params: currentState.params,
+							})
+						}
+						selected={selectedWireId == wire.id.toString()}
 					/>
 				))}
 			</EuiFlexGroup>
-			{flyout}
 		</div>
 	);
 };
