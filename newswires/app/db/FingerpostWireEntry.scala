@@ -82,6 +82,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[List[String]],
       maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int],
       pageSize: Int = 250
   ): QueryResponse = DB readOnly { implicit session =>
     val effectivePageSize = clamp(0, pageSize, 250)
@@ -100,6 +101,9 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
     val dataOnlyWhereClauses = List(
       maybeBeforeId.map(beforeId =>
         sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+      ),
+      maybeSinceId.map(sinceId =>
+        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
       )
     ).flatten
 
