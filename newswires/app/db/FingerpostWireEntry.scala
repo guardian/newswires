@@ -79,6 +79,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
 
   def query(
       maybeFreeTextQuery: Option[String],
+      maybeKeywords: Option[List[String]],
       page: Int = 0,
       pageSize: Int = 250
   ): QueryResponse = DB readOnly { implicit session =>
@@ -87,6 +88,11 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
     val position = effectivePage * effectivePageSize
 
     val whereClause = List(
+      maybeKeywords.map(keywords =>
+        sqls"""(${FingerpostWireEntry.syn.column(
+            "content"
+          )} -> 'keywords') @> ${Json.toJson(keywords).toString()}::jsonb"""
+      ),
       maybeFreeTextQuery.map(query =>
         sqls"phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       )
