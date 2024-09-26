@@ -35,8 +35,16 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   implicit val format: OFormat[FingerpostWireEntry] =
     Json.format[FingerpostWireEntry]
 
-  override val columns = Seq("id", "external_id", "ingested_at", "content")
+  override val columns =
+    Seq("id", "external_id", "ingested_at", "content", "combined_textsearch")
   val syn = this.syntax("fm")
+
+  private val selectAllStatement = sqls"""
+    |   ${FingerpostWireEntry.syn.result.id},
+    |   ${FingerpostWireEntry.syn.result.externalId},
+    |   ${FingerpostWireEntry.syn.result.ingestedAt},
+    |   ${FingerpostWireEntry.syn.result.content}
+    |""".stripMargin
 
   def apply(
       fm: ResultName[FingerpostWireEntry]
@@ -56,7 +64,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       val effectivePage = clamp(0, page, 10)
       val effectivePageSize = clamp(0, pageSize, 250)
       val position = effectivePage * effectivePageSize
-      sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+      sql"""| SELECT $selectAllStatement
             | FROM ${FingerpostWireEntry as syn}
             | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
             | LIMIT $effectivePageSize
@@ -98,9 +106,10 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
     val effectivePageSize = clamp(0, pageSize, 250)
     val position = effectivePage * effectivePageSize
 
-    sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+    sql"""| SELECT $selectAllStatement
             | FROM ${FingerpostWireEntry as syn}
-            | WHERE $filters
+            | WHERE phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn
+           .column("combined_textsearch")}
             | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
             | LIMIT $effectivePageSize
             | OFFSET $position
