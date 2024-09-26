@@ -55,16 +55,15 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						);
 
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- seems like postgres.js requires this format? https://github.com/porsager/postgres/issues/587#issuecomment-1563262612
-						const snsMessageContent: { keywords?: string } = JSON.parse(body);
+						const snsMessageContent: { keywords?: string | string[] } =
+							JSON.parse(body);
 
-						const finalContent =
-							!snsMessageContent.keywords ||
-							Array.isArray(snsMessageContent.keywords)
-								? snsMessageContent
-								: {
-										...snsMessageContent,
-										keywords: snsMessageContent.keywords.split('+'), // re-write the keywords field as an array
-									};
+						const finalContent = Array.isArray(snsMessageContent.keywords)
+							? snsMessageContent
+							: {
+									...snsMessageContent,
+									keywords: snsMessageContent.keywords?.split('+') ?? [], // re-write the keywords field as an array
+								};
 
 						await sql`
 						INSERT INTO ${sql(tableName)}
