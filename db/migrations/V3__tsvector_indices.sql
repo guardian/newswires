@@ -4,7 +4,9 @@ ALTER TABLE fingerpost_wire_entry
         coalesce(content->>'headline', '') || ' ' ||
         coalesce(content->>'subhead', '') || ' ' ||
         coalesce(content->>'keywords', '') || ' ' ||
-        coalesce(content->>'body_text', '')
+        coalesce(content->>'body_text', '') || ' ' ||
+        coalesce(content->>'byline', '') || ' ' ||
+        coalesce(content->>'abstract', '')
     )) STORED;
 
 CREATE INDEX combined_textsearch_idx ON fingerpost_wire_entry
