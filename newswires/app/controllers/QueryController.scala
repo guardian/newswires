@@ -20,13 +20,15 @@ class QueryController(
 
   def query(
       maybeFreeTextQuery: Option[String],
-      maybeKeywords: Option[String]
+      maybeKeywords: Option[String],
+      maybeBeforeId: Option[Int]
   ): Action[AnyContent] = AuthAction {
     Ok(
       Json.toJson(
         FingerpostWireEntry.query(
           maybeFreeTextQuery,
           maybeKeywords.map(_.split(',').toList),
+          maybeBeforeId,
           pageSize = 30
         )
       )
