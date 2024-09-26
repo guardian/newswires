@@ -71,7 +71,8 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   }
 
   case class QueryResponse(
-      results: List[FingerpostWireEntry]
+      results: List[FingerpostWireEntry],
+      keywordCounts: Map[String, Int]
   )
   private object QueryResponse {
     implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
@@ -87,7 +88,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
     val effectivePageSize = clamp(0, pageSize, 250)
     val position = effectivePage * effectivePageSize
 
-    val whereClause = List(
+    val whereClauses = List(
       maybeKeywords.map(keywords =>
         sqls"""(${FingerpostWireEntry.syn.column(
             "content"
@@ -96,7 +97,9 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       maybeFreeTextQuery.map(query =>
         sqls"phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       )
-    ).flatten match {
+    ).flatten
+
+    val whereClause = whereClauses match {
       case Nil        => sqls""
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
@@ -112,23 +115,37 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       .list()
       .apply()
 
-    QueryResponse(results)
+    val keywordCounts = getKeywords(additionalWhereClauses =
+      whereClauses
+    ) // TODO do this in parallel
+
+    QueryResponse(results, keywordCounts)
   }
 
-  def getKeywords(maybeInLastHours: Option[Int], maybeLimit: Option[Int]) =
+  def getKeywords(
+      maybeInLastHours: Option[Int] = None,
+      maybeLimit: Option[Int] = None,
+      additionalWhereClauses: List[SQLSyntax] = Nil
+  ) =
     DB readOnly { implicit session =>
-      val innerWhereClause = maybeInLastHours
-        .fold(sqls"")(inLastHours =>
-          sqls"WHERE ingested_at > now() - ($inLastHours::text || ' hours')::interval"
-        )
+      val innerWhereClause = additionalWhereClauses ++ maybeInLastHours
+        .map(inLastHours =>
+          sqls"ingested_at > now() - ($inLastHours::text || ' hours')::interval"
+        ) match {
+        case Nil        => sqls""
+        case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
+      }
+
       val limitClause = maybeLimit
         .map(limit => sqls"LIMIT $limit")
         .orElse(maybeInLastHours.map(_ => sqls"LIMIT 10"))
         .getOrElse(sqls"")
       sql"""| SELECT distinct keyword, count(*)
             | FROM (
-            |     SELECT jsonb_array_elements(content -> 'keywords') as keyword
-            |     FROM fingerpost_wire_entry
+            |     SELECT jsonb_array_elements(${FingerpostWireEntry.syn.column(
+             "content"
+           )} -> 'keywords') as keyword
+            |     FROM ${FingerpostWireEntry as syn}
             |     $innerWhereClause
             | ) as all_keywords
             | GROUP BY keyword
