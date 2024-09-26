@@ -7,9 +7,21 @@ import {
 	useState,
 } from 'react';
 
-export const paths = ['', 'feed'] as const;
+export const simplePaths = ['', 'feed'] as const;
+type ItemPath = `item/${string}`;
+type Path = (typeof simplePaths)[number] | ItemPath;
+
+export function isItemPath(p: string): p is ItemPath {
+	return p.startsWith('item/');
+}
+
+function isPath(p: string): p is Path {
+	// @ts-expect-error - this is a type guard
+	return simplePaths.includes(p) || isItemPath(p);
+}
+
 export type HistoryState = Readonly<{
-	location: (typeof paths)[number];
+	location: Path;
 	params?: Partial<Record<string, string>>;
 }>;
 
@@ -23,8 +35,8 @@ const isHistoryState = (s: unknown): s is HistoryState => {
 	if (s === null) return false;
 
 	if (!('location' in s) || typeof s.location !== 'string') return false;
-	const location = s.location as (typeof paths)[number];
-	if (!paths.includes(location)) return false;
+	const location = s.location as (typeof simplePaths)[number];
+	if (!isPath(location)) return false;
 
 	if ('params' in s) {
 		if (typeof s.params !== 'object' || s.params === null) return false;
@@ -49,6 +61,8 @@ const readUrl = (locationString?: string): HistoryState => {
 			params['q'] = queryString;
 		}
 		return { location: page, params };
+	} else if (isItemPath(page)) {
+		return { location: page, params: {} };
 	} else {
 		return defaultState;
 	}
