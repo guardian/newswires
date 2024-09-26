@@ -1,5 +1,4 @@
 import {
-	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSectionItem,
 	EuiPageTemplate,
@@ -8,6 +7,7 @@ import {
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
 import { Feed } from './Feed';
+import { Home } from './Home';
 import { SearchBox } from './SearchBox';
 import { useHistory } from './urlState';
 
@@ -24,7 +24,9 @@ export function App() {
 				<EuiHeader position="fixed">
 					<EuiHeaderSectionItem>
 						<EuiTitle size={'s'}>
-							<h1>Newswires</h1>
+							<a href="/">
+								<h1>Newswires</h1>
+							</a>
 						</EuiTitle>
 					</EuiHeaderSectionItem>
 					{currentState.location !== '' && (
@@ -40,17 +42,7 @@ export function App() {
 				{currentState.location === 'feed' && (
 					<Feed searchQuery={currentState.params?.q ?? ''} />
 				)}
-				{currentState.location === '' && (
-					<EuiEmptyPrompt
-						title={<h2>Search wires</h2>}
-						body={
-							<SearchBox
-								initialQuery={currentState.params?.q ?? ''}
-								update={updateQuery}
-							/>
-						}
-					/>
-				)}
+				{currentState.location === '' && <Home updateQuery={updateQuery} />}
 			</EuiPageTemplate>
 		</EuiProvider>
 	);
