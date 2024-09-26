@@ -18,7 +18,7 @@ export const Feed = ({ searchState }: { searchState: SearchState }) => {
 					title={<h2>Loading Wires</h2>}
 				/>
 			)}
-			{data && data.length === 0 && (
+			{data && data.results.length === 0 && (
 				<EuiEmptyPrompt
 					body={<p>Try a different search term</p>}
 					color="subdued"
@@ -27,7 +27,7 @@ export const Feed = ({ searchState }: { searchState: SearchState }) => {
 					titleSize="s"
 				/>
 			)}
-			{data && data.length > 0 && <WireCardList wires={data} />}
+			{data && data.results.length > 0 && <WireCardList wires={data.results} />}
 		</EuiPageTemplate.Section>
 	);
 };

@@ -25,4 +25,8 @@ export const WireDataSchema = z.object({
 
 export type WireData = z.infer<typeof WireDataSchema>;
 
-export const WireDataArraySchema = z.array(WireDataSchema);
+export const WiresQueryResponseSchema = z.object({
+	results: z.array(WireDataSchema),
+});
+
+export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;

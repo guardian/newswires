@@ -19,12 +19,11 @@ class QueryController(
     with AppAuthActions {
 
   def query(q: Option[String]): Action[AnyContent] = AuthAction {
-    val results = q match {
-      case None        => FingerpostWireEntry.getAll(pageSize = 30)
-      case Some(query) => FingerpostWireEntry.query(query, pageSize = 30)
-    }
-
-    Ok(Json.toJson(results))
+    Ok(
+      Json.toJson(
+        FingerpostWireEntry.query(q, pageSize = 30)
+      )
+    )
   }
 
   def keywords(

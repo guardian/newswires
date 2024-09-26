@@ -1,6 +1,6 @@
 package db
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, OWrites}
 import scalikejdbc._
 
 import java.time.ZonedDateTime
@@ -59,22 +59,6 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
 
-  def getAll(page: Int = 0, pageSize: Int = 250): List[FingerpostWireEntry] =
-    DB readOnly { implicit session =>
-      val effectivePage = clamp(0, page, 10)
-      val effectivePageSize = clamp(0, pageSize, 250)
-      val position = effectivePage * effectivePageSize
-      sql"""| SELECT $selectAllStatement
-            | FROM ${FingerpostWireEntry as syn}
-            | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
-            | LIMIT $effectivePageSize
-            | OFFSET $position
-            |""".stripMargin
-        .map(FingerpostWireEntry(syn.resultName))
-        .list()
-        .apply()
-    }
-
   def get(id: Int): Option[FingerpostWireEntry] = DB readOnly {
     implicit session =>
       sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
@@ -86,28 +70,43 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .apply()
   }
 
+  case class QueryResponse(
+      results: List[FingerpostWireEntry]
+  )
+  private object QueryResponse {
+    implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
+  }
+
   def query(
-      query: String,
+      maybeFreeTextQuery: Option[String],
       page: Int = 0,
       pageSize: Int = 250
-  ): List[FingerpostWireEntry] = DB readOnly { implicit session =>
-
+  ): QueryResponse = DB readOnly { implicit session =>
     val effectivePage = clamp(0, page, 10)
     val effectivePageSize = clamp(0, pageSize, 250)
     val position = effectivePage * effectivePageSize
 
-    sql"""| SELECT $selectAllStatement
-            | FROM ${FingerpostWireEntry as syn}
-            | WHERE phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn
-           .column("combined_textsearch")}
-            | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
-            | LIMIT $effectivePageSize
-            | OFFSET $position
-            | """.stripMargin
+    val whereClause = List(
+      maybeFreeTextQuery.map(query =>
+        sqls"phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+      )
+    ).flatten match {
+      case Nil        => sqls""
+      case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
+    }
+
+    val results = sql"""| SELECT $selectAllStatement
+                        | FROM ${FingerpostWireEntry as syn}
+                        | $whereClause
+                        | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+                        | LIMIT $effectivePageSize
+                        | OFFSET $position
+                        | """.stripMargin
       .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()
 
+    QueryResponse(results)
   }
 
   def getKeywords(maybeInLastHours: Option[Int], maybeLimit: Option[Int]) =
