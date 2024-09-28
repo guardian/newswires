@@ -5,8 +5,10 @@ import {
 	EuiPageTemplate,
 	EuiProvider,
 	EuiTitle,
+	useEuiBackgroundColor,
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
+import { css } from '@emotion/react';
 import { useMemo } from 'react';
 import { Feed } from './Feed';
 import { Item } from './Item';
@@ -66,7 +68,19 @@ export function App() {
 	}, [currentSearchState, maybeSelectedWireId]);
 
 	return (
-		<EuiProvider colorMode="light">
+		<EuiProvider
+			colorMode="light"
+			modify={{
+				colors: {
+					LIGHT: {
+						// primary: '#17cea0',
+						primary: '#ffabdb',
+						primaryText: '#670056',
+						accent: '#003b38',
+					},
+				},
+			}}
+		>
 			<EuiPageTemplate
 				onKeyUp={(e) => {
 					if (

@@ -2,9 +2,13 @@ import {
 	EuiCard,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiIcon,
 	EuiPanel,
 	EuiText,
+	EuiThemeProvider,
 	EuiTitle,
+	useEuiBackgroundColor,
+	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useMemo } from 'react';
@@ -51,32 +55,35 @@ const WirePanel = ({
 	onClick: () => void;
 	selected?: boolean;
 }) => {
+	const { euiTheme } = useEuiTheme();
+	const primaryBgColor = useEuiBackgroundColor('primary');
+	const accentBgColor = useEuiBackgroundColor('accent');
+
 	return (
-		<EuiFlexItem key={wire.id}>
-			<EuiCard
-				paddingSize="xs"
-				title={
-					<EuiTitle size="xxs">
-						<h2>{wire.content.headline ?? '<missing headline>'}</h2>
-					</EuiTitle>
-				}
-				icon={
-					<EuiPanel
-						css={css`
-							background-color: rgba(255, 0, 0, 0.5);
-							font-size: 0.75rem;
-						`}
-						paddingSize="s"
-					>
-						PA
-					</EuiPanel>
-				}
-				layout="horizontal"
-				display={selected ? 'primary' : 'plain'}
-				onClick={onClick}
-			>
-				<EuiText size="xs">{wire.content.subhead ?? ''}</EuiText>
-			</EuiCard>
-		</EuiFlexItem>
+		<EuiThemeProvider>
+			<EuiFlexItem key={wire.id}>
+				<EuiCard
+					title={
+						<EuiTitle size="xxs">
+							<h2>{wire.content.headline ?? '<missing headline>'}</h2>
+						</EuiTitle>
+					}
+					layout="horizontal"
+					display={'primary'}
+					onClick={onClick}
+					css={css`
+						padding: ${euiTheme.size.xs} ${euiTheme.size.s};
+						background-color: ${selected ? primaryBgColor : 'inherit'};
+						&:hover {
+							box-shadow: none;
+							transform: none;
+							background-color: ${accentBgColor};
+						}
+					`}
+				>
+					<EuiText size="xs">{wire.content.subhead ?? ''}</EuiText>
+				</EuiCard>
+			</EuiFlexItem>
+		</EuiThemeProvider>
 	);
 };
