@@ -21,7 +21,8 @@ class QueryController(
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[String],
-      maybeBeforeId: Option[Int]
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int]
   ): Action[AnyContent] = AuthAction {
     Ok(
       Json.toJson(
@@ -29,6 +30,7 @@ class QueryController(
           maybeFreeTextQuery,
           maybeKeywords.map(_.split(',').toList),
           maybeBeforeId,
+          maybeSinceId,
           pageSize = 30
         )
       )
