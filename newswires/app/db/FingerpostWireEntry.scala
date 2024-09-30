@@ -149,9 +149,10 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
         .getOrElse(sqls"")
       sql"""| SELECT distinct keyword, count(*)
             | FROM (
-            |     SELECT jsonb_array_elements(${FingerpostWireEntry.syn.column(
-             "content"
-           )} -> 'keywords') as keyword
+            |     SELECT jsonb_array_elements_text(${FingerpostWireEntry.syn
+             .column(
+               "content"
+             )} -> 'keywords') as keyword
             |     FROM ${FingerpostWireEntry as syn}
             |     $innerWhereClause
             | ) as all_keywords
