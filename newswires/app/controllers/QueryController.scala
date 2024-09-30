@@ -18,10 +18,17 @@ class QueryController(
     with Logging
     with AppAuthActions {
 
-  def query(q: Option[String]): Action[AnyContent] = AuthAction {
+  def query(
+      maybeFreeTextQuery: Option[String],
+      maybeKeywords: Option[String]
+  ): Action[AnyContent] = AuthAction {
     Ok(
       Json.toJson(
-        FingerpostWireEntry.query(q, pageSize = 30)
+        FingerpostWireEntry.query(
+          maybeFreeTextQuery,
+          maybeKeywords.map(_.split(',').toList),
+          pageSize = 30
+        )
       )
     )
   }
