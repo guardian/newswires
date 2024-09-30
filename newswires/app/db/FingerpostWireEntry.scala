@@ -35,7 +35,8 @@ case class FingerpostWire(
     language: Option[String],
     usage: Option[String],
     location: Option[String],
-    bodyText: Option[String]
+    bodyText: Option[String],
+    mediaCatCodes: Option[List[String]],
 )
 object FingerpostWire {
   // rename a couple of fields
