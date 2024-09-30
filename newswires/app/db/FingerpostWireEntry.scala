@@ -81,14 +81,12 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[List[String]],
-      page: Int = 0,
+      maybeBeforeId: Option[Int],
       pageSize: Int = 250
   ): QueryResponse = DB readOnly { implicit session =>
-    val effectivePage = clamp(0, page, 10)
     val effectivePageSize = clamp(0, pageSize, 250)
-    val position = effectivePage * effectivePageSize
 
-    val whereClauses = List(
+    val commonWhereClauses = List(
       maybeKeywords.map(keywords =>
         sqls"""(${FingerpostWireEntry.syn.column(
             "content"
@@ -99,7 +97,13 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       )
     ).flatten
 
-    val whereClause = whereClauses match {
+    val dataOnlyWhereClauses = List(
+      maybeBeforeId.map(beforeId =>
+        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+      )
+    ).flatten
+
+    val whereClause = (dataOnlyWhereClauses ++ commonWhereClauses) match {
       case Nil        => sqls""
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
@@ -109,14 +113,13 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
                         | $whereClause
                         | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
                         | LIMIT $effectivePageSize
-                        | OFFSET $position
                         | """.stripMargin
       .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()
 
     val keywordCounts = getKeywords(additionalWhereClauses =
-      whereClauses
+      commonWhereClauses
     ) // TODO do this in parallel
 
     QueryResponse(results, keywordCounts)
