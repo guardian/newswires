@@ -18,7 +18,8 @@ case class FingerpostWire(
     keywords: Option[List[String]],
     usage: Option[String],
     location: Option[String],
-    body_text: Option[String]
+    body_text: Option[String],
+    mediaCatCodes: Option[List[String]],
 )
 object FingerpostWire {
   implicit val format: OFormat[FingerpostWire] = Json.format[FingerpostWire]
