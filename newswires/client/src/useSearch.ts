@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { querify } from './querify';
-import { type WireData } from './sharedTypes';
-import { WireDataArraySchema } from './sharedTypes';
+import { WiresQueryResponseSchema } from './sharedTypes';
+import type { WiresQueryResponse } from './sharedTypes';
 import { useHistory } from './urlState';
 
 const SearchStateSchema = z.discriminatedUnion('state', [
@@ -18,7 +18,7 @@ const SearchStateSchema = z.discriminatedUnion('state', [
 	z.object({
 		query: z.string(),
 		state: z.literal('data'),
-		data: WireDataArraySchema,
+		data: WiresQueryResponseSchema,
 	}),
 	z.object({
 		state: z.literal('initialised'),
@@ -116,12 +116,13 @@ export function useSearch() {
 		fetch('/api/search' + quer)
 			.then((res) => res.json())
 			.then((data) => {
-				const maybeData = WireDataArraySchema.safeParse(data);
-				if (maybeData.success) {
+				const queryResponseParseResult =
+					WiresQueryResponseSchema.safeParse(data);
+				if (queryResponseParseResult.success) {
 					pushSearchState({
 						state: 'data',
 						query: searchQuery,
-						data: maybeData.data,
+						data: queryResponseParseResult.data,
 					});
 				} else {
 					pushSearchState({
@@ -133,7 +134,7 @@ export function useSearch() {
 				pushSearchState({
 					state: 'data',
 					query: searchQuery,
-					data: data as WireData[],
+					data: data as WiresQueryResponse,
 				});
 			})
 			.catch((e) =>

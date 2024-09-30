@@ -7,7 +7,7 @@ import {
 	EuiPopover,
 	EuiText,
 } from '@elastic/eui';
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { debounce } from './debounce';
 import type { SearchState } from './useSearch';
 
@@ -31,7 +31,7 @@ export function SearchBox({
 			.filter((search) => 'data' in search)
 			.filter((search) => search.query !== '') // todo -- combine this with the above filter (ts type inference needs wrangling)
 			.reduce((acc, search) => {
-				acc.set(search.query, search.data.length);
+				acc.set(search.query, search.data.results.length);
 				return acc;
 			}, new Map<string, number>());
 		return Array.from(successfulSearchesWithResultsCount.entries());

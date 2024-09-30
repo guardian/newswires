@@ -33,24 +33,24 @@ export function App() {
 
 	const nextWireId = useMemo(() => {
 		if (currentSearchState.state === 'data') {
-			const currentIndex = currentSearchState.data.findIndex(
+			const currentIndex = currentSearchState.data.results.findIndex(
 				(wire) => wire.id.toString() === maybeSelectedWireId,
 			);
 			if (currentIndex === -1) {
 				return undefined;
 			}
 			const nextIndex = currentIndex + 1;
-			if (nextIndex >= currentSearchState.data.length) {
+			if (nextIndex >= currentSearchState.data.results.length) {
 				return undefined;
 			}
-			return currentSearchState.data[nextIndex].id.toString();
+			return currentSearchState.data.results[nextIndex].id.toString();
 		}
 		return undefined;
 	}, [currentSearchState, maybeSelectedWireId]);
 
 	const previousWireId = useMemo(() => {
 		if (currentSearchState.state === 'data') {
-			const currentIndex = currentSearchState.data.findIndex(
+			const currentIndex = currentSearchState.data.results.findIndex(
 				(wire) => wire.id.toString() === maybeSelectedWireId,
 			);
 			if (currentIndex === -1) {
@@ -60,7 +60,7 @@ export function App() {
 			if (previousIndex < 0) {
 				return undefined;
 			}
-			return currentSearchState.data[previousIndex].id.toString();
+			return currentSearchState.data.results[previousIndex].id.toString();
 		}
 		return undefined;
 	}, [currentSearchState, maybeSelectedWireId]);
