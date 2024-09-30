@@ -19,7 +19,7 @@ case class FingerpostWire(
     usage: Option[String],
     location: Option[String],
     body_text: Option[String],
-    mediaCatCodes: Option[List[String]],
+    mediaCatCodes: Option[List[String]]
 )
 object FingerpostWire {
   implicit val format: OFormat[FingerpostWire] = Json.format[FingerpostWire]
@@ -82,6 +82,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[List[String]],
+      maybeMediaCatCodes: Option[List[String]],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
@@ -92,8 +93,24 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       maybeKeywords.map(keywords =>
         sqls"""(${FingerpostWireEntry.syn.column(
             "content"
-          )} -> 'keywords') @> ${Json.toJson(keywords).toString()}::jsonb"""
+          )} -> 'keywords') @> ${ /* @> operator means ALL keywords must match */
+          Json
+            .toJson(keywords)
+            .toString()}::jsonb"""
       ),
+      maybeMediaCatCodes
+        .map(
+          _.map(mediaCatCode =>
+            sqls"""(${FingerpostWireEntry.syn.column(
+                "content"
+              )} -> 'mediaCatCodes') @> ${Json
+                .toJson(List(mediaCatCode))
+                .toString()}::jsonb"""
+          )
+        )
+        .map(
+          sqls.joinWithOr // jsonb_path_ops (used in the index) only supports the @> operator, so we need to manually OR together
+        ),
       maybeFreeTextQuery.map(query =>
         sqls"phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       )
