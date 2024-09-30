@@ -5,10 +5,8 @@ import {
 	EuiPageTemplate,
 	EuiProvider,
 	EuiTitle,
-	useEuiBackgroundColor,
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
-import { css } from '@emotion/react';
 import { useMemo } from 'react';
 import { Feed } from './Feed';
 import { Item } from './Item';

@@ -2,8 +2,6 @@ import {
 	EuiCard,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiIcon,
-	EuiPanel,
 	EuiText,
 	EuiThemeProvider,
 	EuiTitle,
