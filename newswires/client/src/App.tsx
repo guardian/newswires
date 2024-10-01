@@ -2,6 +2,7 @@ import {
 	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSectionItem,
+	EuiLoadingLogo,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiTitle,
@@ -63,13 +64,23 @@ export function App() {
 						</EuiHeaderSectionItem>
 					)}
 				</EuiHeader>
-				{currentSearchState.state !== 'initialised' && (
-					<Feed
-						searchState={currentSearchState}
-						selectedWireId={selectedItemId}
-						handleSelectItem={handleSelectItem}
-					/>
-				)}
+				{currentSearchState.state !== 'initialised' &&
+					(currentSearchState.state == 'error' ? (
+						<EuiPageTemplate.EmptyPrompt>
+							<p>Sorry, failed to load because of {currentSearchState.error}</p>
+						</EuiPageTemplate.EmptyPrompt>
+					) : currentSearchState.state == 'loading' ? (
+						<EuiPageTemplate.EmptyPrompt
+							icon={<EuiLoadingLogo logo="clock" size="xl" />}
+							title={<h2>Loading Wires</h2>}
+						/>
+					) : (
+						<Feed
+							searchState={currentSearchState}
+							selectedWireId={selectedItemId}
+							handleSelectItem={handleSelectItem}
+						/>
+					))}
 				{selectedItemId !== undefined && (
 					<Item id={selectedItemId} handleSelectItem={handleSelectItem} />
 				)}

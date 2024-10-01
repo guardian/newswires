@@ -1,4 +1,4 @@
-import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
+import { EuiEmptyPrompt, EuiPageTemplate } from '@elastic/eui';
 import type { SearchState } from './useSearch';
 import { WireItemTable } from './WireItemTable';
 
@@ -15,17 +15,6 @@ export const Feed = ({
 
 	return (
 		<EuiPageTemplate.Section>
-			{searchState.state == 'error' && (
-				<EuiPageTemplate.EmptyPrompt>
-					<p>Sorry, failed to load because of {searchState.error}</p>
-				</EuiPageTemplate.EmptyPrompt>
-			)}
-			{searchState.state == 'loading' && (
-				<EuiPageTemplate.EmptyPrompt
-					icon={<EuiLoadingLogo logo="clock" size="xl" />}
-					title={<h2>Loading Wires</h2>}
-				/>
-			)}
 			{data && data.results.length === 0 && (
 				<EuiEmptyPrompt
 					body={<p>Try a different search term</p>}
