@@ -1,6 +1,6 @@
 import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
 import type { SearchState } from './useSearch';
-import { WireCardList } from './WiresCards';
+import { WireCardTable } from './WiresCards';
 
 export const Feed = ({ searchState }: { searchState: SearchState }) => {
 	const data = 'data' in searchState ? searchState.data : undefined;
@@ -27,7 +27,9 @@ export const Feed = ({ searchState }: { searchState: SearchState }) => {
 					titleSize="s"
 				/>
 			)}
-			{data && data.results.length > 0 && <WireCardList wires={data.results} />}
+			{data && data.results.length > 0 && (
+				<WireCardTable wires={data.results} />
+			)}
 		</EuiPageTemplate.Section>
 	);
 };

@@ -1,18 +1,25 @@
 import {
-	EuiCard,
 	EuiFlexGroup,
-	EuiFlexItem,
-	EuiPanel,
+	euiScreenReaderOnly,
+	EuiTable,
+	EuiTableHeader,
+	EuiTableHeaderCell,
+	EuiTableRow,
+	EuiTableRowCell,
 	EuiText,
 	EuiTitle,
+	useEuiBackgroundColor,
+	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
+import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
 import { isItemPath, useHistory } from './urlState';
 
-export const WireCardList = ({ wires }: { wires: WireData[] }) => {
+export const WireCardTable = ({ wires }: { wires: WireData[] }) => {
 	const { currentState, pushState } = useHistory();
+
 	const selectedWireId = useMemo(
 		() =>
 			isItemPath(currentState.location)
@@ -21,62 +28,98 @@ export const WireCardList = ({ wires }: { wires: WireData[] }) => {
 		[currentState.location],
 	);
 
+	const handleSelect = useCallback(
+		(id: number) => {
+			pushState({ location: `item/${id}`, params: currentState.params });
+		},
+		[currentState.params, pushState],
+	);
+
 	return (
 		<div>
-			<EuiFlexGroup gutterSize="s" direction="column">
-				{wires.map((wire) => (
-					<WirePanel
-						wire={wire}
-						key={wire.id}
-						onClick={() =>
-							pushState({
-								location: `item/${wire.id}`,
-								params: currentState.params,
-							})
-						}
-						selected={selectedWireId == wire.id.toString()}
+			<EuiTable tableLayout="auto">
+				<EuiTableHeader
+					css={css`
+						${euiScreenReaderOnly()}
+					`}
+				>
+					<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
+					<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
+				</EuiTableHeader>
+				{wires.map(({ id, content }) => (
+					<WireDataRow
+						key={id}
+						id={id}
+						content={content}
+						selected={selectedWireId == id.toString()}
+						handleSelect={handleSelect}
 					/>
 				))}
-			</EuiFlexGroup>
+			</EuiTable>
 		</div>
 	);
 };
 
-const WirePanel = ({
-	wire,
-	onClick,
+const WireDataRow = ({
+	id,
+	content,
 	selected,
+	handleSelect,
 }: {
-	wire: WireData;
-	onClick: () => void;
-	selected?: boolean;
+	id: number;
+	content: WireData['content'];
+	selected: boolean;
+	handleSelect: (id: number) => void;
 }) => {
+	const theme = useEuiTheme();
+	const primaryBgColor = useEuiBackgroundColor('primary');
+	const accentBgColor = useEuiBackgroundColor('accent');
 	return (
-		<EuiFlexItem key={wire.id}>
-			<EuiCard
-				paddingSize="xs"
-				title={
+		<EuiTableRow
+			key={id}
+			onClick={() => {
+				handleSelect(id);
+			}}
+			color={selected ? accentBgColor : 'inherit'}
+			css={css`
+				&:hover {
+					background-color: ${primaryBgColor};
+				}
+				border-left: 4px solid
+					${selected ? theme.euiTheme.colors.primary : 'transparent'};
+				&:hover {
+					border-left: 4px solid ${theme.euiTheme.colors.accent};
+				}
+			`}
+		>
+			<EuiTableRowCell valign="baseline">
+				<EuiFlexGroup direction="column" gutterSize="xs">
 					<EuiTitle size="xxs">
-						<h2>{wire.content.headline ?? '<missing headline>'}</h2>
+						<h3>{content.headline ?? '<no headline>'}</h3>
 					</EuiTitle>
-				}
-				icon={
-					<EuiPanel
-						css={css`
-							background-color: rgba(255, 0, 0, 0.5);
-							font-size: 0.75rem;
-						`}
-						paddingSize="s"
-					>
-						PA
-					</EuiPanel>
-				}
-				layout="horizontal"
-				display={selected ? 'primary' : 'plain'}
-				onClick={onClick}
-			>
-				<EuiText size="xs">{wire.content.subhead ?? ''}</EuiText>
-			</EuiCard>
-		</EuiFlexItem>
+					<EuiText size="xs">
+						<p>{content.subhead}</p>
+					</EuiText>
+				</EuiFlexGroup>
+			</EuiTableRowCell>
+			<EuiTableRowCell align="right" valign="baseline">
+				{content.versionCreated
+					? formatTimestamp(content.versionCreated)
+							.split(', ')
+							.map((part) => (
+								<EuiText
+									size="xs"
+									css={css`
+										font-family: monospace;
+										white-space: pre;
+									`}
+									key={part}
+								>
+									{part}
+								</EuiText>
+							))
+					: ''}
+			</EuiTableRowCell>
+		</EuiTableRow>
 	);
 };
