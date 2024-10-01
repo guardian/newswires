@@ -71,7 +71,6 @@ export const Item = () => {
 					}
 					closeButtonProps={{
 						'aria-label': 'Close wire detail',
-						autoFocus: true,
 					}}
 					aria-labelledby={pushedFlyoutTitleId}
 				>
