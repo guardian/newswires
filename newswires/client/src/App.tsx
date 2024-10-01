@@ -11,6 +11,7 @@ import { useMemo } from 'react';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
+import { themeModifications } from './themeModifications';
 import { isItemPath, useHistory } from './urlState';
 import { useSearch } from './useSearch';
 
@@ -66,19 +67,7 @@ export function App() {
 	}, [currentSearchState, maybeSelectedWireId]);
 
 	return (
-		<EuiProvider
-			colorMode="light"
-			modify={{
-				colors: {
-					LIGHT: {
-						// primary: '#17cea0',
-						primary: '#ffabdb',
-						primaryText: '#670056',
-						accent: '#003b38',
-					},
-				},
-			}}
-		>
+		<EuiProvider colorMode="light" modify={themeModifications}>
 			<EuiPageTemplate
 				onKeyUp={(e) => {
 					if (
