@@ -7,7 +7,6 @@ import {
 	EuiTitle,
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
-import { useCallback, useMemo, useState } from 'react';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
@@ -16,83 +15,38 @@ import { useSearch } from './useSearch';
 
 export function App() {
 	const { currentState, pushState } = useHistory();
-	const { searchHistory, currentSearchState, updateSearchQuery } = useSearch();
-	const [selectedItemId, setSelectedItemId] = useState<string | undefined>(
-		isItemPath(currentState.location)
-			? currentState.location.replace('item/', '')
-			: undefined,
-	);
+	const {
+		searchHistory,
+		currentSearchState,
+		updateSearchQuery,
+		selectedItemId,
+		handleSelectItem,
+		nextWireId,
+		previousWireId,
+	} = useSearch();
 
 	const updateQuery = (newQuery: string) => {
 		pushState({ location: 'feed', params: { q: newQuery } });
 		updateSearchQuery(newQuery);
 	};
 
-	const handleSelectItem = useCallback(
-		(id: string | undefined) => {
-			setSelectedItemId(id);
-			pushState({
-				location: id ? `item/${id}` : 'feed',
-				params: currentState.params,
-			});
-		},
-		[currentState.params, pushState],
-	);
-
-	const nextWireId = useMemo(() => {
-		if (currentSearchState.state === 'data') {
-			const currentIndex = currentSearchState.data.results.findIndex(
-				(wire) => wire.id.toString() === selectedItemId,
-			);
-			if (currentIndex === -1) {
-				return undefined;
-			}
-			const nextIndex = currentIndex + 1;
-			if (nextIndex >= currentSearchState.data.results.length) {
-				return undefined;
-			}
-			return currentSearchState.data.results[nextIndex].id.toString();
-		}
-		return undefined;
-	}, [currentSearchState, selectedItemId]);
-
-	const previousWireId = useMemo(() => {
-		if (currentSearchState.state === 'data') {
-			const currentIndex = currentSearchState.data.results.findIndex(
-				(wire) => wire.id.toString() === selectedItemId,
-			);
-			if (currentIndex === -1) {
-				return undefined;
-			}
-			const previousIndex = currentIndex - 1;
-			if (previousIndex < 0) {
-				return undefined;
-			}
-			return currentSearchState.data.results[previousIndex].id.toString();
-		}
-		return undefined;
-	}, [currentSearchState, selectedItemId]);
-
 	return (
 		<EuiProvider colorMode="light">
 			<EuiPageTemplate
 				onKeyUp={(e) => {
-					if (
-						isItemPath(currentState.location) &&
-						currentSearchState.state === 'data'
-					) {
+					if (selectedItemId !== undefined) {
 						switch (e.key) {
 							case 'Escape':
-								pushState({ location: 'feed', params: currentState.params });
+								handleSelectItem(undefined);
 								break;
 							case 'ArrowLeft':
 								if (previousWireId !== undefined) {
-									setSelectedItemId(previousWireId);
+									handleSelectItem(previousWireId);
 								}
 								break;
 							case 'ArrowRight':
 								if (nextWireId !== undefined) {
-									setSelectedItemId(nextWireId);
+									handleSelectItem(nextWireId);
 								}
 								break;
 						}
