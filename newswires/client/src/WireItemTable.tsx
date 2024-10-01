@@ -12,12 +12,12 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
 import { isItemPath, useHistory } from './urlState';
 
-export const WireCardTable = ({ wires }: { wires: WireData[] }) => {
+export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 	const { currentState, pushState } = useHistory();
 
 	const selectedWireId = useMemo(
