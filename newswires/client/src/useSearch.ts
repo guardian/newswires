@@ -159,6 +159,7 @@ export function useSearch() {
 	const updateSearchQuery = (query: string) => {
 		pushSearchQuery(query);
 		pushSearchState({ query, state: 'loading' });
+		pushState({ location: 'feed', params: { q: query } });
 	};
 
 	useEffect(() => {

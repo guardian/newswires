@@ -10,11 +10,9 @@ import '@elastic/eui/dist/eui_theme_light.css';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
-import { isItemPath, useHistory } from './urlState';
 import { useSearch } from './useSearch';
 
 export function App() {
-	const { currentState, pushState } = useHistory();
 	const {
 		searchHistory,
 		currentSearchState,
@@ -24,11 +22,6 @@ export function App() {
 		nextWireId,
 		previousWireId,
 	} = useSearch();
-
-	const updateQuery = (newQuery: string) => {
-		pushState({ location: 'feed', params: { q: newQuery } });
-		updateSearchQuery(newQuery);
-	};
 
 	return (
 		<EuiProvider colorMode="light">
@@ -59,10 +52,10 @@ export function App() {
 							<h1>Newswires</h1>
 						</EuiTitle>
 					</EuiHeaderSectionItem>
-					{currentState.location !== '' && (
+					{currentSearchState.state !== 'initialised' && (
 						<EuiHeaderSectionItem>
 							<SearchBox
-								initialQuery={currentState.params?.q ?? ''}
+								initialQuery={currentSearchState.query}
 								searchHistory={searchHistory}
 								update={updateSearchQuery}
 								incremental={true}
@@ -70,8 +63,7 @@ export function App() {
 						</EuiHeaderSectionItem>
 					)}
 				</EuiHeader>
-				{(currentState.location === 'feed' ||
-					isItemPath(currentState.location)) && (
+				{currentSearchState.state !== 'initialised' && (
 					<Feed
 						searchState={currentSearchState}
 						selectedWireId={selectedItemId}
@@ -81,14 +73,14 @@ export function App() {
 				{selectedItemId !== undefined && (
 					<Item id={selectedItemId} handleSelectItem={handleSelectItem} />
 				)}
-				{currentState.location === '' && (
+				{currentSearchState.state === 'initialised' && (
 					<EuiEmptyPrompt
 						title={<h2>Search wires</h2>}
 						body={
 							<SearchBox
-								initialQuery={currentState.params?.q ?? ''}
+								initialQuery={''}
 								searchHistory={searchHistory}
-								update={updateQuery}
+								update={updateSearchQuery}
 							/>
 						}
 					/>
