@@ -7,7 +7,7 @@ import {
 	EuiTitle,
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
@@ -17,24 +17,32 @@ import { useSearch } from './useSearch';
 export function App() {
 	const { currentState, pushState } = useHistory();
 	const { searchHistory, currentSearchState, updateSearchQuery } = useSearch();
+	const [selectedItemId, setSelectedItemId] = useState<string | undefined>(
+		isItemPath(currentState.location)
+			? currentState.location.replace('item/', '')
+			: undefined,
+	);
 
 	const updateQuery = (newQuery: string) => {
 		pushState({ location: 'feed', params: { q: newQuery } });
 		updateSearchQuery(newQuery);
 	};
 
-	const maybeSelectedWireId = useMemo(
-		() =>
-			isItemPath(currentState.location)
-				? currentState.location.replace('item/', '')
-				: undefined,
-		[currentState.location],
+	const handleSelectItem = useCallback(
+		(id: string | undefined) => {
+			setSelectedItemId(id);
+			pushState({
+				location: id ? `item/${id}` : 'feed',
+				params: currentState.params,
+			});
+		},
+		[currentState.params, pushState],
 	);
 
 	const nextWireId = useMemo(() => {
 		if (currentSearchState.state === 'data') {
 			const currentIndex = currentSearchState.data.results.findIndex(
-				(wire) => wire.id.toString() === maybeSelectedWireId,
+				(wire) => wire.id.toString() === selectedItemId,
 			);
 			if (currentIndex === -1) {
 				return undefined;
@@ -46,12 +54,12 @@ export function App() {
 			return currentSearchState.data.results[nextIndex].id.toString();
 		}
 		return undefined;
-	}, [currentSearchState, maybeSelectedWireId]);
+	}, [currentSearchState, selectedItemId]);
 
 	const previousWireId = useMemo(() => {
 		if (currentSearchState.state === 'data') {
 			const currentIndex = currentSearchState.data.results.findIndex(
-				(wire) => wire.id.toString() === maybeSelectedWireId,
+				(wire) => wire.id.toString() === selectedItemId,
 			);
 			if (currentIndex === -1) {
 				return undefined;
@@ -63,7 +71,7 @@ export function App() {
 			return currentSearchState.data.results[previousIndex].id.toString();
 		}
 		return undefined;
-	}, [currentSearchState, maybeSelectedWireId]);
+	}, [currentSearchState, selectedItemId]);
 
 	return (
 		<EuiProvider colorMode="light">
@@ -79,18 +87,12 @@ export function App() {
 								break;
 							case 'ArrowLeft':
 								if (previousWireId !== undefined) {
-									pushState({
-										location: `item/${previousWireId}`,
-										params: currentState.params,
-									});
+									setSelectedItemId(previousWireId);
 								}
 								break;
 							case 'ArrowRight':
 								if (nextWireId !== undefined) {
-									pushState({
-										location: `item/${nextWireId}`,
-										params: currentState.params,
-									});
+									setSelectedItemId(nextWireId);
 								}
 								break;
 						}
@@ -116,9 +118,15 @@ export function App() {
 				</EuiHeader>
 				{(currentState.location === 'feed' ||
 					isItemPath(currentState.location)) && (
-					<Feed searchState={currentSearchState} />
+					<Feed
+						searchState={currentSearchState}
+						selectedWireId={selectedItemId}
+						handleSelectItem={handleSelectItem}
+					/>
 				)}
-				{isItemPath(currentState.location) && <Item />}
+				{selectedItemId !== undefined && (
+					<Item id={selectedItemId} handleSelectItem={handleSelectItem} />
+				)}
 				{currentState.location === '' && (
 					<EuiEmptyPrompt
 						title={<h2>Search wires</h2>}
