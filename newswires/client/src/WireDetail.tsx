@@ -3,6 +3,7 @@ import {
 	EuiDescriptionList,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiScreenReaderLive,
 	EuiSpacer,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -52,13 +53,15 @@ export const WireDetail = ({ wire }: { wire: WireData }) => {
 
 	return (
 		<Fragment>
-			<h3
-				css={css`
-					font-weight: 300;
-				`}
-			>
-				{wire.content.subhead}
-			</h3>
+			<EuiScreenReaderLive focusRegionOnTextChange>
+				<h3
+					css={css`
+						font-weight: 300;
+					`}
+				>
+					{wire.content.subhead}
+				</h3>
+			</EuiScreenReaderLive>
 
 			<EuiSpacer size="m" />
 
