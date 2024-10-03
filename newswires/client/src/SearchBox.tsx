@@ -9,7 +9,9 @@ import {
 } from '@elastic/eui';
 import { useMemo, useState } from 'react';
 import { debounce } from './debounce';
-import type { SearchState } from './useSearch';
+import { paramsToQuerystring } from './urlState';
+import type { Query } from './urlState';
+import type { SearchHistory } from './useSearch';
 
 export function SearchBox({
 	initialQuery,
@@ -17,25 +19,13 @@ export function SearchBox({
 	searchHistory,
 	incremental = false,
 }: {
-	initialQuery: string;
-	update: (newQuery: string) => void;
-	searchHistory: SearchState[];
+	initialQuery: Query;
+	update: (newQuery: Query) => void;
+	searchHistory: SearchHistory;
 	incremental?: boolean;
 }) {
-	const [query, setQuery] = useState<string>(initialQuery);
+	const [freeTextQuery, setFreeTextQuery] = useState<string>(initialQuery.q);
 	const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
-	const dedupedSearchHistory = useMemo(() => {
-		const successfulSearchesWithResultsCount = searchHistory
-			.reverse()
-			.filter((search) => 'data' in search)
-			.filter((search) => search.query !== '') // todo -- combine this with the above filter (ts type inference needs wrangling)
-			.reduce((acc, search) => {
-				acc.set(search.query, search.data.results.length);
-				return acc;
-			}, new Map<string, number>());
-		return Array.from(successfulSearchesWithResultsCount.entries());
-	}, [searchHistory]);
 
 	const onButtonClick = () =>
 		setIsPopoverOpen((isPopoverOpen) => !isPopoverOpen);
@@ -47,16 +37,16 @@ export function SearchBox({
 		<form
 			onSubmit={(e) => {
 				e.preventDefault();
-				update(query);
+				update({ q: freeTextQuery });
 			}}
 		>
 			<EuiFieldSearch
-				value={query}
+				value={freeTextQuery}
 				onChange={(e) => {
 					const newQuery = e.target.value;
-					setQuery(newQuery);
+					setFreeTextQuery(newQuery);
 					if (incremental) {
-						debouncedUpdate(newQuery);
+						debouncedUpdate({ q: newQuery });
 					}
 				}}
 				aria-label="search wires"
@@ -73,19 +63,19 @@ export function SearchBox({
 						isOpen={isPopoverOpen}
 						closePopover={closePopover}
 					>
-						{dedupedSearchHistory.length === 0 ? (
+						{searchHistory.length === 0 ? (
 							<EuiText color="subdued">No search history</EuiText>
 						) : (
 							<EuiListGroup>
-								{dedupedSearchHistory.map(([query, resultsCount]) => (
+								{searchHistory.map(({ query, resultsCount }) => (
 									<EuiButton
 										onClick={() => {
 											update(query);
 											closePopover();
 										}}
-										key={query}
+										key={paramsToQuerystring(query)}
 									>
-										{query}{' '}
+										{paramsToQuerystring(query)}{' '}
 										<EuiBadge
 											color={resultsCount > 0 ? 'success' : 'text'}
 											aria-label={`${resultsCount} results`}
