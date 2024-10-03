@@ -2,6 +2,7 @@ import {
 	EuiFlexGroup,
 	euiScreenReaderOnly,
 	EuiTable,
+	EuiTableBody,
 	EuiTableHeader,
 	EuiTableHeaderCell,
 	EuiTableRow,
@@ -46,15 +47,17 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 					<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
 					<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
 				</EuiTableHeader>
-				{wires.map(({ id, content }) => (
-					<WireDataRow
-						key={id}
-						id={id}
-						content={content}
-						selected={selectedWireId == id.toString()}
-						handleSelect={handleSelect}
-					/>
-				))}
+				<EuiTableBody>
+					{wires.map(({ id, content }) => (
+						<WireDataRow
+							key={id}
+							id={id}
+							content={content}
+							selected={selectedWireId == id.toString()}
+							handleSelect={handleSelect}
+						/>
+					))}
+				</EuiTableBody>
 			</EuiTable>
 		</div>
 	);
