@@ -23,6 +23,7 @@ import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionsConfig
 import com.amazonaws.regions.Regions
 import conf.Database
+import lib.RequestLoggingFilter
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
@@ -33,6 +34,9 @@ class AppComponents(context: Context)
     with AssetsComponents
     with AhcWSComponents
     with Logging {
+
+  override def httpFilters: Seq[EssentialFilter] =
+    super.httpFilters ++ Seq(new GzipFilter, new RequestLoggingFilter)
 
   private val v1Region = Regions.EU_WEST_1
   private val v2Region = Region.EU_WEST_1
