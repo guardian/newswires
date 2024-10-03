@@ -28,6 +28,17 @@ const safeBodyParse = (body: string): any => {
 	} catch (e) {
 		if (e instanceof SyntaxError && isCurlyQuoteFailure(e)) {
 			console.warn('Stripping badly escaped curly quote');
+			// näive regex to delete a backslash before a curly quote - isn't a fully correct solution.
+			// what if a string had 2 backslashes then a curly quote? that would be a correct string, that
+			// we'd make incorrect by deleting the second backslash. We could fix that, but then what about
+			// 3 backslashes then a curly quote? etc. infinitely
+			// Generally it seems pretty unlikely that text would include literal backslashes before curly quotes,
+			// if we start finding some then we should investigate improvements...
+			//
+			// I got to this monstrosity:
+			//   .replaceAll(/(?<![^\\]\\(?:\\\\)*)\\(?!["\\/bfnrt]|u[0-9A-Fa-f]{4})/g, '')
+			//
+			// which looks like it should delete all illegal backslashes in a JSON string, but haven't rigorously tested it...
 			return JSON.parse(body.replaceAll(/\\([“‘”’])/g, '$1'));
 		}
 		throw e;
