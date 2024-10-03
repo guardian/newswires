@@ -10,11 +10,15 @@ import {
 } from '@elastic/eui';
 import { useEffect, useState } from 'react';
 import { type WireData, WireDataSchema } from './sharedTypes';
-import { useHistory } from './urlState';
 import { WireDetail } from './WireDetail';
 
-export const Item = () => {
-	const { currentState, pushState } = useHistory();
+export const Item = ({
+	id,
+	handleSelectItem,
+}: {
+	id: string | undefined;
+	handleSelectItem: (id: string | undefined) => void;
+}) => {
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
 
@@ -24,7 +28,7 @@ export const Item = () => {
 
 	useEffect(() => {
 		// fetch item data from /api/item/:id
-		fetch(`/api/${currentState.location}`)
+		fetch(`/api/item/${id}`)
 			.then((res) => {
 				if (res.status === 404) {
 					throw new Error('Item not found');
@@ -53,7 +57,7 @@ export const Item = () => {
 							: 'unknown error',
 				);
 			});
-	}, [currentState.location]);
+	}, [id]);
 
 	return (
 		<EuiPageTemplate.Section>
@@ -66,9 +70,7 @@ export const Item = () => {
 				<EuiFlyout
 					type="push"
 					size="m"
-					onClose={() =>
-						pushState({ location: 'feed', params: currentState.params })
-					}
+					onClose={() => handleSelectItem(undefined)}
 					closeButtonProps={{
 						'aria-label': 'Close wire detail',
 						autoFocus: true,
@@ -83,11 +85,7 @@ export const Item = () => {
 						<WireDetail wire={itemData} />
 					</EuiFlyoutBody>
 					<EuiFlyoutFooter>
-						<EuiButton
-							onClick={() =>
-								pushState({ location: 'feed', params: currentState.params })
-							}
-						>
+						<EuiButton onClick={() => handleSelectItem(undefined)}>
 							Close
 						</EuiButton>
 					</EuiFlyoutFooter>

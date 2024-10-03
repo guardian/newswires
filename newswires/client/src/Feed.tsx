@@ -2,7 +2,15 @@ import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
 import type { SearchState } from './useSearch';
 import { WireItemTable } from './WireItemTable';
 
-export const Feed = ({ searchState }: { searchState: SearchState }) => {
+export const Feed = ({
+	searchState,
+	selectedWireId,
+	handleSelectItem,
+}: {
+	searchState: SearchState;
+	selectedWireId: string | undefined;
+	handleSelectItem: (id: string | undefined) => void;
+}) => {
 	const data = 'data' in searchState ? searchState.data : undefined;
 
 	return (
@@ -28,7 +36,11 @@ export const Feed = ({ searchState }: { searchState: SearchState }) => {
 				/>
 			)}
 			{data && data.results.length > 0 && (
-				<WireItemTable wires={data.results} />
+				<WireItemTable
+					wires={data.results}
+					selectedWireId={selectedWireId}
+					handleSelectItem={handleSelectItem}
+				/>
 			)}
 		</EuiPageTemplate.Section>
 	);

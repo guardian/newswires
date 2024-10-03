@@ -13,29 +13,18 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useCallback, useMemo } from 'react';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
-import { isItemPath, useHistory } from './urlState';
 
-export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
-	const { currentState, pushState } = useHistory();
-
-	const selectedWireId = useMemo(
-		() =>
-			isItemPath(currentState.location)
-				? currentState.location.replace('item/', '')
-				: undefined,
-		[currentState.location],
-	);
-
-	const handleSelect = useCallback(
-		(id: number) => {
-			pushState({ location: `item/${id}`, params: currentState.params });
-		},
-		[currentState.params, pushState],
-	);
-
+export const WireItemTable = ({
+	wires,
+	selectedWireId,
+	handleSelectItem,
+}: {
+	wires: WireData[];
+	selectedWireId: string | undefined;
+	handleSelectItem: (id: string | undefined) => void;
+}) => {
 	return (
 		<div>
 			<EuiTable tableLayout="auto">
@@ -54,7 +43,7 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 							id={id}
 							content={content}
 							selected={selectedWireId == id.toString()}
-							handleSelect={handleSelect}
+							handleSelect={handleSelectItem}
 						/>
 					))}
 				</EuiTableBody>
@@ -72,7 +61,7 @@ const WireDataRow = ({
 	id: number;
 	content: WireData['content'];
 	selected: boolean;
-	handleSelect: (id: number) => void;
+	handleSelect: (id: string | undefined) => void;
 }) => {
 	const theme = useEuiTheme();
 	const primaryBgColor = useEuiBackgroundColor('primary');
@@ -81,7 +70,7 @@ const WireDataRow = ({
 		<EuiTableRow
 			key={id}
 			onClick={() => {
-				handleSelect(id);
+				handleSelect(id.toString());
 			}}
 			color={selected ? accentBgColor : 'inherit'}
 			css={css`
