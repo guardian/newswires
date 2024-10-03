@@ -14,6 +14,7 @@ import { icon as doubleArrowLeft } from '@elastic/eui/es/components/icon/assets/
 import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
 import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
+import { icon as refresh } from '@elastic/eui/es/components/icon/assets/refresh';
 import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return_key';
 import { icon as search } from '@elastic/eui/es/components/icon/assets/search';
 import { icon as warning } from '@elastic/eui/es/components/icon/assets/warning';
@@ -37,4 +38,5 @@ appendIconComponentCache({
 	empty,
 	returnKey,
 	check,
+	refresh,
 });

@@ -2,12 +2,12 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import './icons';
-import { HistoryContextProvider } from './urlState.tsx';
+import { SearchContextProvider } from './useSearch.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<HistoryContextProvider>
+		<SearchContextProvider>
 			<App />
-		</HistoryContextProvider>
+		</SearchContextProvider>
 	</StrictMode>,
 );

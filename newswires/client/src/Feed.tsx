@@ -1,21 +1,11 @@
 import { EuiEmptyPrompt, EuiPageTemplate } from '@elastic/eui';
-import type { SearchState } from './useSearch';
+import type { WireData } from './sharedTypes';
 import { WireItemTable } from './WireItemTable';
 
-export const Feed = ({
-	searchState,
-	selectedWireId,
-	handleSelectItem,
-}: {
-	searchState: SearchState;
-	selectedWireId: string | undefined;
-	handleSelectItem: (id: string | undefined) => void;
-}) => {
-	const data = 'data' in searchState ? searchState.data : undefined;
-
+export const Feed = ({ items }: { items: WireData[] }) => {
 	return (
 		<EuiPageTemplate.Section>
-			{data && data.results.length === 0 && (
+			{items.length === 0 && (
 				<EuiEmptyPrompt
 					body={<p>Try a different search term</p>}
 					color="subdued"
@@ -24,13 +14,8 @@ export const Feed = ({
 					titleSize="s"
 				/>
 			)}
-			{data && data.results.length > 0 && (
-				<WireItemTable
-					wires={data.results}
-					selectedWireId={selectedWireId}
-					handleSelectItem={handleSelectItem}
-				/>
-			)}
+
+			{items.length > 0 && <WireItemTable wires={items} />}
 		</EuiPageTemplate.Section>
 	);
 };

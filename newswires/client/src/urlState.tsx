@@ -1,76 +1,64 @@
-import type { Context, MouseEventHandler, PropsWithChildren } from 'react';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useState,
-} from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { z } from 'zod';
 
-export const simplePaths = ['', 'feed'] as const;
-type ItemPath = `item/${string}`;
-type Path = (typeof simplePaths)[number] | ItemPath;
-
-export function isItemPath(p: string): p is ItemPath {
-	return p.startsWith('item/');
-}
-
-function isPath(p: string): p is Path {
-	// @ts-expect-error - this is a type guard
-	return simplePaths.includes(p) || isItemPath(p);
-}
-
-export type HistoryState = Readonly<{
-	location: Path;
-	params?: Record<string, string>;
-}>;
-
-const defaultState = Object.freeze({
-	location: '' as const,
-	params: {},
+export const QuerySchema = z.object({
+	q: z.string(),
 });
 
-const isHistoryState = (s: unknown): s is HistoryState => {
-	if (typeof s !== 'object') return false;
-	if (s === null) return false;
+export type Query = z.infer<typeof QuerySchema>;
 
-	if (!('location' in s) || typeof s.location !== 'string') return false;
-	const location = s.location as (typeof simplePaths)[number];
-	if (!isPath(location)) return false;
+const ConfigSchema = z.discriminatedUnion('view', [
+	z.object({
+		view: z.literal('feed'),
+		query: QuerySchema,
+		itemId: z.undefined(),
+	}),
+	z.object({
+		view: z.literal('item'),
+		query: QuerySchema,
+		itemId: z.string(),
+	}),
+]);
 
-	if ('params' in s) {
-		if (typeof s.params !== 'object' || s.params === null) return false;
-		for (const [k, v] of Object.entries(s.params)) {
-			if (typeof k !== 'string' || typeof v !== 'string') return false;
-		}
-	}
+export type Config = z.infer<typeof ConfigSchema>;
 
-	return true;
-};
+const defaultConfig: Config = Object.freeze({
+	view: 'feed',
+	query: { q: '' },
+});
 
-const readUrl = (locationString?: string): HistoryState => {
-	const location = locationString
-		? new URL(locationString, window.location.href)
-		: window.location;
+function urlToConfig(location: { pathname: string; search: string }): Config {
 	const page = location.pathname.slice(1);
-	if (page === 'feed' || isItemPath(page)) {
-		const urlSearchParams = new URLSearchParams(location.search);
-		const queryString = urlSearchParams.get('q');
-		const params: Record<string, string> = {};
-		if (typeof queryString === 'string') {
-			params['q'] = queryString;
-		}
-		return { location: page, params };
+	const urlSearchParams = new URLSearchParams(location.search);
+	const queryString = urlSearchParams.get('q');
+	const query: Query = {
+		q:
+			typeof queryString === 'string' || typeof queryString === 'number'
+				? queryString.toString()
+				: '',
+	};
+
+	if (page === 'feed') {
+		return { view: 'feed', query };
+	} else if (page.startsWith('item/') && page.split('/').length === 2) {
+		return { view: 'item', itemId: page.split('/')[1], query };
 	} else {
-		return defaultState;
+		console.warn(`Page not found: "${page}", so using defaultConfig`);
+		return defaultConfig;
 	}
+}
+
+const configToUrl = (config: Config): string => {
+	const querystring = paramsToQuerystring(config.query);
+	const pathParts = config.view === 'feed' ? ['feed'] : ['item', config.itemId];
+	return `/${pathParts.join('/')}${querystring.length !== 0 ? '?' : ''}${querystring}`;
 };
 
-const paramsToQuerystring = (p: HistoryState['params']): string => {
+export const paramsToQuerystring = (config: Query): string => {
 	const params = Object.fromEntries(
-		Object.entries(p ?? {}).reduce<Array<[string, string]>>((acc, [k, v]) => {
-			if (typeof v === 'string') {
-				return [...acc, [k, v]];
+		Object.entries(config).reduce<Array<[string, string]>>((acc, [k, v]) => {
+			if (typeof v === 'string' && v.trim().length > 0) {
+				return [...acc, [k, v.trim()]];
 			} else {
 				return acc;
 			}
@@ -80,96 +68,59 @@ const paramsToQuerystring = (p: HistoryState['params']): string => {
 	return querystring;
 };
 
-const location = (state: HistoryState): string => {
-	const querystring = paramsToQuerystring(state.params);
-	return `/${state.location}${
-		querystring.length !== 0 ? '?' : ''
-	}${querystring}`;
-};
-
-type HistoryContextShape = {
-	currentState: HistoryState;
-	pushState: (state: HistoryState) => void;
-	replaceState: (state: HistoryState) => void;
-};
-const HistoryContext: Context<HistoryContextShape | null> =
-	createContext<HistoryContextShape | null>(null);
-
-export const HistoryContextProvider = ({ children }: PropsWithChildren) => {
-	const [currentState, setState] = useState<HistoryState>(readUrl());
-
-	const pushState = useCallback(
-		(state: HistoryState) => {
-			history.pushState(state, '', location(state));
-			setState(state);
-		},
-		[setState],
+export const useUrlConfig = () => {
+	const [currentConfig, setConfig] = useState<Config>(
+		urlToConfig(window.location),
 	);
 
-	const replaceState = useCallback(
-		(state: HistoryState) => {
-			history.replaceState(state, '', location(state));
-			setState(state);
+	const pushConfigState = useCallback(
+		(config: Config) => {
+			history.pushState(config, '', configToUrl(config));
+			setConfig(config);
 		},
-		[setState],
+		[setConfig],
 	);
 
-	const popStateCallback = useCallback(
+	const replaceConfigState = useCallback(
+		(config: Config) => {
+			history.replaceState(config, '', configToUrl(config));
+			setConfig(config);
+		},
+		[setConfig],
+	);
+
+	const popConfigStateCallback = useCallback(
 		(e: PopStateEvent) => {
-			if (isHistoryState(e.state)) {
-				setState(e.state);
+			const configParseResult = ConfigSchema.safeParse(e.state);
+			if (configParseResult.success) {
+				setConfig(configParseResult.data);
 			} else {
-				setState(defaultState);
+				setConfig(defaultConfig);
 			}
 		},
-		[setState],
+		[setConfig],
 	);
 
 	useEffect(() => {
 		if (window.history.state === null) {
-			window.history.replaceState(currentState, '', location(currentState));
+			window.history.replaceState(
+				currentConfig,
+				'',
+				configToUrl(currentConfig),
+			);
 		}
-	}, [currentState]);
+	}, [currentConfig]);
 
 	useEffect(() => {
-		window.addEventListener('popstate', popStateCallback);
-		return () => window.removeEventListener('popstate', popStateCallback);
-	}, [popStateCallback]);
+		window.addEventListener('popstate', popConfigStateCallback);
+		return () => window.removeEventListener('popstate', popConfigStateCallback);
+	}, [popConfigStateCallback]);
 
-	return (
-		<HistoryContext.Provider value={{ currentState, pushState, replaceState }}>
-			{children}
-		</HistoryContext.Provider>
-	);
+	return { currentConfig, pushConfigState, replaceConfigState };
 };
 
-export const useHistory = () => {
-	const historyContext = useContext(HistoryContext);
-	if (historyContext === null) {
-		throw new Error('useHistory must be used within a HistoryContextProvider');
-	}
-	return historyContext;
-};
-
-export const Link = ({
-	children,
-	href,
-}: PropsWithChildren<{ href: string }>) => {
-	const { pushState } = useHistory();
-
-	const onClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
-		(e) => {
-			if (!(e.getModifierState('Meta') || e.getModifierState('Control'))) {
-				e.preventDefault();
-				pushState(readUrl(href));
-			}
-		},
-		[href, pushState],
-	);
-
-	return (
-		<a href={href} onClick={onClick}>
-			{children}
-		</a>
-	);
+export const exportedForTestingOnly = {
+	urlToConfig,
+	configToUrl,
+	defaultConfig,
 };
