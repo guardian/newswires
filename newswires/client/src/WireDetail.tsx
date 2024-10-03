@@ -1,6 +1,8 @@
 import {
 	EuiBadge,
 	EuiDescriptionList,
+	EuiDescriptionListDescription,
+	EuiDescriptionListTitle,
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiScreenReaderLive,
@@ -20,36 +22,10 @@ export const WireDetail = ({ wire }: { wire: WireData }) => {
 			: undefined;
 	}, [wire]);
 
-	const listItems = [
-		{
-			title: 'Byline',
-			description: byline ?? 'Not found',
-		},
-		{
-			title: 'Keywords',
-			description: (
-				<EuiFlexGroup wrap responsive={false} gutterSize="xs">
-					{keywords?.map((keyword) => (
-						<EuiFlexItem key={keyword} grow={false}>
-							<EuiBadge color="primary">{keyword}</EuiBadge>
-						</EuiFlexItem>
-					))}
-				</EuiFlexGroup>
-			),
-		},
-		{
-			title: 'Usage restrictions',
-			description: usage ?? 'Not found',
-		},
-		{
-			title: 'Body text',
-			description: safeBodyText ? (
-				<article dangerouslySetInnerHTML={{ __html: safeBodyText }} />
-			) : (
-				'Not found'
-			),
-		},
-	];
+	const nonEmptyKeywords = useMemo(
+		() => keywords?.filter((keyword) => keyword.trim().length > 0) ?? [],
+		[keywords],
+	);
 
 	return (
 		<Fragment>
@@ -65,7 +41,48 @@ export const WireDetail = ({ wire }: { wire: WireData }) => {
 
 			<EuiSpacer size="m" />
 
-			<EuiDescriptionList listItems={listItems} />
+			<EuiDescriptionList>
+				{byline && (
+					<>
+						<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
+						<EuiDescriptionListDescription>
+							{byline}
+						</EuiDescriptionListDescription>
+					</>
+				)}
+				{nonEmptyKeywords.length > 0 && (
+					<>
+						<EuiDescriptionListTitle>Keywords</EuiDescriptionListTitle>
+						<EuiDescriptionListDescription>
+							<EuiFlexGroup wrap responsive={false} gutterSize="xs">
+								{nonEmptyKeywords.map((keyword) => (
+									<EuiFlexItem key={keyword} grow={false}>
+										<EuiBadge color="primary">{keyword}</EuiBadge>
+									</EuiFlexItem>
+								))}
+							</EuiFlexGroup>
+						</EuiDescriptionListDescription>
+					</>
+				)}
+				{usage && (
+					<>
+						<EuiDescriptionListTitle>
+							Usage restrictions
+						</EuiDescriptionListTitle>
+						<EuiDescriptionListDescription>
+							{usage}
+						</EuiDescriptionListDescription>
+					</>
+				)}
+				{safeBodyText && (
+					<>
+						<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
+						<EuiDescriptionListDescription>
+							<article dangerouslySetInnerHTML={{ __html: safeBodyText }} />
+						</EuiDescriptionListDescription>
+					</>
+				)}
+			</EuiDescriptionList>
 		</Fragment>
 	);
 };
