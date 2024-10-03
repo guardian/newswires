@@ -45,6 +45,17 @@ const safeBodyParse = (body: string): any => {
 	}
 };
 
+export const processKeywords = (keywords: string | undefined): string[] => {
+	if (keywords === undefined) {
+		return [];
+	}
+	const keywordsArray = keywords
+		.split('+')
+		.map((keyword) => keyword.trim())
+		.filter((keyword) => keyword.length > 0);
+	return [...new Set(keywordsArray)]; // remove duplicates
+};
+
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 	const records = event.Records;
 
@@ -89,7 +100,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							? snsMessageContent
 							: {
 									...snsMessageContent,
-									keywords: snsMessageContent.keywords?.split('+') ?? [], // re-write the keywords field as an array
+									keywords: processKeywords(snsMessageContent.keywords), // re-write the keywords field as an array
 								};
 
 						await sql`
