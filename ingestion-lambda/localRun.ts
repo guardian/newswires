@@ -33,6 +33,30 @@ function recursivelyScheduleEvent() {
 	);
 }
 
+const KNOWN_MEDIA_CAT_CODES = [
+	'a', // Domestic general news items, including local Washington news of national interest.
+	'c', // Not applicable (N/A)
+	'd', // Food, diet. For use primarily on standing advance features on food, recipes and the like. Frequently used with stories in the Lifestyles package.
+	'e', // Entertainment, television and culture news and features.
+	'f', // News copy, regardless of dateline, designed primarily for use on financial pages.
+	'g', // N/A
+	'h', // N/A
+	'i', // International items, including stories from the United Nations, U.S. possessions, and undated roundups keyed to foreign events.
+	'j', // Lottery results only. (Stories about lotteries or lottery winners carry standard news category codes.)
+	'k', // Commentary. Material designed primarily for editorial and op-ed pages. (Not used on national DataStream services.)
+	'l', // Lifestyles package.
+	'm', // N/A
+	'n', // Stories of state or regional interest under domestic datelines, including general news stories with Washington or international datelines. If a regional item is designed primarily for financial pages, the f category is used, and if it is designed primarily for the sports pages, the s category is used.
+	'o', // Weather tables and forecast fixtures. Do not use on weather stories.
+	'p', // National political copy. Generally used in months before an election.
+	'q', // Used only for result or period score of a single sports event. The code is designed to help newspaper computer systems build a list of scores or ignore individual scores and wait for transmissions that group them.
+	'r', // Race wire
+	's', // Sports stories, standings and results of more than one event.
+	't', // Travel copy.
+	'v', // Advisories about stories that may carry any of the category letters. This code is also used for news digests and news advisories.
+	'w', // Washington-datelined stories handled by the Washington national news desk. The category code is changed to a or i if a subsequent lead shifts to a different city.
+];
+
 function createDummyFeedEntry() {
 	const usn = Math.random().toString(36).substring(7);
 	const firstVersion = new Date().toISOString();
@@ -43,7 +67,19 @@ function createDummyFeedEntry() {
 
 	const keywords = new Array(Math.floor(Math.random() * 5) + 2) // 2-7 keywords
 		.fill(0)
-		.map(() => lorem.generateWords(Math.floor(Math.random() * 3) + 1)); // 1-3 words per keyword
+		.map(() => lorem.generateWords(Math.floor(Math.random() * 4))) // 0-3 words per keyword
+		.join('+'); // to exercise splitting logic elsewhere
+
+	const mediaCatCodes = Array.from(
+		new Set([
+			KNOWN_MEDIA_CAT_CODES[
+				Math.floor(Math.random() * KNOWN_MEDIA_CAT_CODES.length)
+			],
+			KNOWN_MEDIA_CAT_CODES[
+				Math.floor(Math.random() * KNOWN_MEDIA_CAT_CODES.length)
+			],
+		]),
+	).join('+'); // to exercise splitting logic elsewhere
 
 	return {
 		externalId: externalId,
@@ -67,7 +103,7 @@ function createDummyFeedEntry() {
 			subjects: {
 				code: '',
 			},
-			mediaCatCodes: 'f',
+			mediaCatCodes,
 			keywords,
 			organisation: {
 				symbols: '',

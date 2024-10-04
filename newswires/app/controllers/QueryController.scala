@@ -21,6 +21,7 @@ class QueryController(
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[String],
+      maybeMediaCatCodes: Option[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = AuthAction {
@@ -29,6 +30,7 @@ class QueryController(
         FingerpostWireEntry.query(
           maybeFreeTextQuery,
           maybeKeywords.map(_.split(',').toList),
+          maybeMediaCatCodes.map(_.split(',').toList),
           maybeBeforeId,
           maybeSinceId,
           pageSize = 30
