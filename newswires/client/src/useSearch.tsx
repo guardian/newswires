@@ -1,10 +1,9 @@
 import type { Context, PropsWithChildren } from 'react';
 import { createContext, useContext, useEffect, useReducer } from 'react';
 import { z } from 'zod';
-import type { WiresQueryResponse } from './sharedTypes';
-import { WiresQueryResponseSchema } from './sharedTypes';
-import type { Config, Query } from './urlState';
-import { paramsToQuerystring, QuerySchema, useUrlConfig } from './urlState';
+import type { Config, Query, WiresQueryResponse } from './sharedTypes';
+import { QuerySchema, WiresQueryResponseSchema } from './sharedTypes';
+import { paramsToQuerystring, useUrlConfig } from './urlState';
 
 const SearchHistorySchema = z.array(
 	z.object({
@@ -18,21 +17,27 @@ export type SearchHistory = z.infer<typeof SearchHistorySchema>;
 // State Schema
 const StateSchema = z.discriminatedUnion('status', [
 	z.object({
+		status: z.literal('initialised'),
 		error: z.string().optional(),
 		queryData: WiresQueryResponseSchema.optional(),
-		status: z.literal('loading'),
 		successfulQueryHistory: SearchHistorySchema,
 	}),
 	z.object({
+		status: z.literal('loading'),
+		error: z.string().optional(),
+		queryData: WiresQueryResponseSchema.optional(),
+		successfulQueryHistory: SearchHistorySchema,
+	}),
+	z.object({
+		status: z.literal('success'),
 		error: z.string().optional(),
 		queryData: WiresQueryResponseSchema,
 		successfulQueryHistory: SearchHistorySchema,
-		status: z.literal('success'),
 	}),
 	z.object({
+		status: z.literal('error'),
 		error: z.string(),
 		queryData: WiresQueryResponseSchema.optional(),
-		status: z.literal('error'),
 		successfulQueryHistory: SearchHistorySchema,
 	}),
 ]);
