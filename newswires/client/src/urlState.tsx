@@ -1,30 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { z } from 'zod';
+import type { Config, Query } from './sharedTypes';
+import { ConfigSchema } from './sharedTypes';
 
-export const QuerySchema = z.object({
-	q: z.string(),
-});
-
-export type Query = z.infer<typeof QuerySchema>;
-
-const ConfigSchema = z.discriminatedUnion('view', [
-	z.object({
-		view: z.literal('feed'),
-		query: QuerySchema,
-		itemId: z.undefined(),
-	}),
-	z.object({
-		view: z.literal('item'),
-		query: QuerySchema,
-		itemId: z.string(),
-	}),
-]);
-
-export type Config = z.infer<typeof ConfigSchema>;
+const defaultQuery: Query = { q: '' };
 
 const defaultConfig: Config = Object.freeze({
-	view: 'feed',
-	query: { q: '' },
+	view: 'home',
+	query: defaultQuery,
+	itemId: undefined,
 });
 
 function urlToConfig(location: { pathname: string; search: string }): Config {
@@ -49,9 +32,15 @@ function urlToConfig(location: { pathname: string; search: string }): Config {
 }
 
 const configToUrl = (config: Config): string => {
-	const querystring = paramsToQuerystring(config.query);
-	const pathParts = config.view === 'feed' ? ['feed'] : ['item', config.itemId];
-	return `/${pathParts.join('/')}${querystring.length !== 0 ? '?' : ''}${querystring}`;
+	const { view, query, itemId } = config;
+	switch (view) {
+		case 'feed':
+			return `/feed${paramsToQuerystring(query)}`;
+		case 'item':
+			return `/item/${itemId}${paramsToQuerystring(query)}`;
+		default:
+			return '/';
+	}
 };
 
 export const paramsToQuerystring = (config: Query): string => {
@@ -65,7 +54,7 @@ export const paramsToQuerystring = (config: Query): string => {
 		}, []),
 	);
 	const querystring = new URLSearchParams(params).toString();
-	return querystring;
+	return querystring.length !== 0 ? `?${querystring}` : '';
 };
 
 export const useUrlConfig = () => {
@@ -123,4 +112,5 @@ export const exportedForTestingOnly = {
 	urlToConfig,
 	configToUrl,
 	defaultConfig,
+	defaultQuery,
 };

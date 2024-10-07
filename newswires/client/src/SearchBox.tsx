@@ -9,8 +9,8 @@ import {
 } from '@elastic/eui';
 import { useMemo, useState } from 'react';
 import { debounce } from './debounce';
+import type { Query } from './sharedTypes';
 import { paramsToQuerystring } from './urlState';
-import type { Query } from './urlState';
 import type { SearchHistory } from './useSearch';
 
 export function SearchBox({
