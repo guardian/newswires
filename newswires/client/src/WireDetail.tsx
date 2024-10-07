@@ -17,8 +17,8 @@ export const WireDetail = ({ wire }: { wire: WireData }) => {
 	const { byline, keywords, usage } = wire.content;
 
 	const safeBodyText = useMemo(() => {
-		return wire.content.body_text
-			? sanitizeHtml(wire.content.body_text)
+		return wire.content.bodyText
+			? sanitizeHtml(wire.content.bodyText)
 			: undefined;
 	}, [wire]);
 

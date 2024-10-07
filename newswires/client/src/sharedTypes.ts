@@ -1,26 +1,36 @@
 import { z } from 'zod';
 
-const FingerpostContentSchema = z.object({
-	uri: z.string(),
-	usn: z.string(),
-	version: z.string(),
-	firstVersion: z.string(),
-	versionCreated: z.string(),
-	dateTimeSent: z.string(),
-	headline: z.string(),
-	subhead: z.string(),
-	byline: z.string(),
-	keywords: z.array(z.string()),
-	usage: z.string(),
-	location: z.string(),
-	body_text: z.string(),
-});
+const FingerpostContentSchema = z
+	.object({
+		uri: z.string(),
+		sourceFeed: z.string(),
+		usn: z.string(),
+		version: z.string(),
+		status: z.string(),
+		firstVersion: z.string(),
+		versionCreated: z.string(),
+		dateTimeSent: z.string(),
+		slug: z.string(),
+		headline: z.string(),
+		subhead: z.string(),
+		byline: z.string(),
+		priority: z.string(),
+		subjects: z.object({
+			code: z.array(z.string()),
+		}),
+		keywords: z.array(z.string()),
+		language: z.string(),
+		usage: z.string(),
+		location: z.string(),
+		bodyText: z.string(),
+	})
+	.partial();
 
 export const WireDataSchema = z.object({
 	id: z.number(),
 	externalId: z.string(),
 	ingestedAt: z.string(),
-	content: FingerpostContentSchema.partial(),
+	content: FingerpostContentSchema,
 });
 
 export type WireData = z.infer<typeof WireDataSchema>;
