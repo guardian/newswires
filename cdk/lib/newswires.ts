@@ -81,6 +81,10 @@ export class Newswires extends GuStack {
 				app: 'ingestion-lambda',
 				runtime: Runtime.NODEJS_20_X,
 				handler: 'handler.main',
+				// each execution can handle up to 10 messages, so this is up
+				// to 100 messages in flight; should be more than powerful enough
+				// in high news events
+				reservedConcurrentExecutions: 10,
 				fileName: 'ingestion-lambda.zip',
 				environment: {
 					FEEDS_BUCKET_NAME: feedsBucket.bucketName,

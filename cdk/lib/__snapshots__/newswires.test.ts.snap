@@ -655,6 +655,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           "LogFormat": "JSON",
         },
         "MemorySize": 512,
+        "ReservedConcurrentExecutions": 10,
         "Role": {
           "Fn::GetAtt": [
             "IngestionLambdaTESTServiceRole62DE083D",
