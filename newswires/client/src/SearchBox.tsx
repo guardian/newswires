@@ -1,13 +1,22 @@
+import type { EuiContextMenuPanelItemDescriptor } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiButton,
 	EuiButtonEmpty,
+	EuiContextMenu,
 	EuiFieldSearch,
+	EuiFormRow,
+	EuiIcon,
 	EuiListGroup,
 	EuiPopover,
+	EuiScreenReaderOnly,
+	EuiSpacer,
+	EuiSwitch,
 	EuiText,
+	Search,
+	useGeneratedHtmlId,
 } from '@elastic/eui';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { debounce } from './debounce';
 import type { Query } from './sharedTypes';
 import { paramsToQuerystring } from './urlState';
@@ -51,44 +60,174 @@ export function SearchBox({
 				}}
 				aria-label="search wires"
 				append={
-					<EuiPopover
-						button={
-							<EuiButtonEmpty
-								iconType="clock"
-								iconSide="right"
-								onClick={onButtonClick}
-								aria-label="search history"
-							/>
-						}
-						isOpen={isPopoverOpen}
-						closePopover={closePopover}
-					>
-						{searchHistory.length === 0 ? (
-							<EuiText color="subdued">No search history</EuiText>
-						) : (
-							<EuiListGroup>
-								{searchHistory.map(({ query, resultsCount }) => (
-									<EuiButton
-										onClick={() => {
-											update(query);
-											closePopover();
-										}}
-										key={paramsToQuerystring(query)}
-									>
-										{paramsToQuerystring(query)}{' '}
-										<EuiBadge
-											color={resultsCount > 0 ? 'success' : 'text'}
-											aria-label={`${resultsCount} results`}
-										>
-											{resultsCount}
-										</EuiBadge>
-									</EuiButton>
-								))}
-							</EuiListGroup>
-						)}
-					</EuiPopover>
+					<NestedDropdown searchHistory={searchHistory} update={update} />
+					// <EuiPopover
+					// 	button={
+					// 		<EuiButtonEmpty
+					// 			iconType="clock"
+					// 			iconSide="right"
+					// 			onClick={onButtonClick}
+					// 			aria-label="search history"
+					// 		/>
+					// 	}
+					// 	isOpen={isPopoverOpen}
+					// 	closePopover={closePopover}
+					// >
+					// 	{searchHistory.length === 0 ? (
+					// 		<EuiText color="subdued">No search history</EuiText>
+					// 	) : (
+					// 		<EuiListGroup>
+					// 			{searchHistory.map(({ query, resultsCount }) => (
+					// 				<EuiButton
+					// 					onClick={() => {
+					// 						update(query);
+					// 						closePopover();
+					// 					}}
+					// 					key={paramsToQuerystring(query)}
+					// 				>
+					// 					{paramsToQuerystring(query)}{' '}
+					// 					<EuiBadge
+					// 						color={resultsCount > 0 ? 'success' : 'text'}
+					// 						aria-label={`${resultsCount} results`}
+					// 					>
+					// 						{resultsCount}
+					// 					</EuiBadge>
+					// 				</EuiButton>
+					// 			))}
+					// 		</EuiListGroup>
+					// 	)}
+					// </EuiPopover>
 				}
 			/>
 		</form>
 	);
 }
+
+const NestedDropdown = ({
+	searchHistory,
+	update,
+}: {
+	searchHistory: SearchHistory;
+	update: (newQuery: Query) => void;
+}) => {
+	const [isPopoverOpen, setPopover] = useState(false);
+	const contextMenuPopoverId = useGeneratedHtmlId({
+		prefix: 'contextMenuPopover',
+	});
+	const onButtonClick = () => {
+		setPopover(!isPopoverOpen);
+	};
+	const closePopover = () => {
+		setPopover(false);
+	};
+
+	const panels = [
+		{
+			id: 0,
+			title: 'Navigation',
+			items: [
+				{
+					name: 'Agencies',
+					icon: 'list',
+					panel: 1,
+				},
+				{
+					name: 'Saved feeds',
+					icon: 'save',
+					panel: 2,
+				},
+				{
+					name: 'Search history',
+					icon: 'clock',
+					panel: 3,
+				},
+			],
+		},
+		{
+			id: 1,
+			title: 'Agencies',
+			items: [
+				{ name: 'All', onClick: closePopover },
+				{
+					name: 'Reuters',
+					onClick: closePopover,
+				},
+				{
+					name: 'AP',
+					onClick: closePopover,
+				},
+				{
+					name: 'AFP',
+					onClick: closePopover,
+				},
+			],
+		},
+		{
+			id: 2,
+			title: 'Saved feeds',
+			items: [
+				{
+					name: 'Feed 1',
+					onClick: closePopover,
+				},
+				{
+					name: 'Feed 2',
+					onClick: closePopover,
+				},
+				{
+					name: 'Feed 3',
+					onClick: closePopover,
+				},
+			],
+		},
+		{
+			id: 3,
+			title: 'Search history',
+			content: (
+				<EuiListGroup>
+					{searchHistory
+						.filter(
+							({ query }) =>
+								Object.keys(query).length == 1 && query.q.length == 0,
+						)
+						.map(({ query, resultsCount }) => (
+							<EuiButton
+								onClick={() => {
+									update(query);
+									closePopover();
+								}}
+								key={paramsToQuerystring(query)}
+							>
+								{paramsToQuerystring(query)}{' '}
+								<EuiBadge
+									color={resultsCount > 0 ? 'success' : 'text'}
+									aria-label={`${resultsCount} results`}
+								>
+									{resultsCount}
+								</EuiBadge>
+							</EuiButton>
+						))}
+				</EuiListGroup>
+			),
+		},
+	];
+	const button = (
+		<EuiButton iconType="menu" iconSide="right" onClick={onButtonClick}>
+			<EuiScreenReaderOnly>
+				<span>Menu</span>
+			</EuiScreenReaderOnly>
+		</EuiButton>
+	);
+	return (
+		<EuiPopover
+			id={contextMenuPopoverId}
+			button={button}
+			isOpen={isPopoverOpen}
+			closePopover={closePopover}
+			panelPaddingSize="none"
+			anchorPosition="downLeft"
+		>
+			<EuiContextMenu initialPanelId={0} panels={panels} />
+		</EuiPopover>
+	);
+};
