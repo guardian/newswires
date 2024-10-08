@@ -10,15 +10,12 @@ import {
 } from '@elastic/eui';
 import { useEffect, useState } from 'react';
 import { type WireData, WireDataSchema } from './sharedTypes';
+import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
 
-export const Item = ({
-	id,
-	handleSelectItem,
-}: {
-	id: string | undefined;
-	handleSelectItem: (id: string | undefined) => void;
-}) => {
+export const Item = ({ id }: { id: string }) => {
+	const { handleDeselectItem } = useSearch();
+
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
 
@@ -70,7 +67,7 @@ export const Item = ({
 				<EuiFlyout
 					type="push"
 					size="m"
-					onClose={() => handleSelectItem(undefined)}
+					onClose={() => handleDeselectItem()}
 					closeButtonProps={{
 						'aria-label': 'Close wire detail',
 						autoFocus: true,
@@ -85,9 +82,7 @@ export const Item = ({
 						<WireDetail wire={itemData} />
 					</EuiFlyoutBody>
 					<EuiFlyoutFooter>
-						<EuiButton onClick={() => handleSelectItem(undefined)}>
-							Close
-						</EuiButton>
+						<EuiButton onClick={() => handleDeselectItem()}>Close</EuiButton>
 					</EuiFlyoutFooter>
 				</EuiFlyout>
 			)}

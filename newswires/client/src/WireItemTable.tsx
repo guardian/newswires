@@ -15,16 +15,13 @@ import {
 import { css } from '@emotion/react';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
+import { useSearch } from './useSearch';
 
-export const WireItemTable = ({
-	wires,
-	selectedWireId,
-	handleSelectItem,
-}: {
-	wires: WireData[];
-	selectedWireId: string | undefined;
-	handleSelectItem: (id: string | undefined) => void;
-}) => {
+export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
+	const { config, handleSelectItem } = useSearch();
+
+	const selectedWireId = config.itemId;
+
 	return (
 		<div>
 			<EuiTable tableLayout="auto">
@@ -61,7 +58,7 @@ const WireDataRow = ({
 	id: number;
 	content: WireData['content'];
 	selected: boolean;
-	handleSelect: (id: string | undefined) => void;
+	handleSelect: (id: string) => void;
 }) => {
 	const theme = useEuiTheme();
 	const primaryBgColor = useEuiBackgroundColor('primary');

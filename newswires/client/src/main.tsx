@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import './icons';
-import { HistoryContextProvider } from './urlState.tsx';
+import { SearchContextProvider } from './useSearch.tsx';
 
 const toolsDomain = window.location.hostname.substring(
 	window.location.hostname.indexOf('.'),
@@ -13,8 +13,8 @@ document.head.appendChild(script);
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<HistoryContextProvider>
+		<SearchContextProvider>
 			<App />
-		</HistoryContextProvider>
+		</SearchContextProvider>
 	</StrictMode>,
 );
