@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Config, Query } from './sharedTypes';
 import { ConfigSchema } from './sharedTypes';
 
-const defaultQuery: Query = { q: '' };
+export const defaultQuery: Query = Object.freeze({ q: '' });
 
 const defaultConfig: Config = Object.freeze({
 	view: 'home',

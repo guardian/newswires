@@ -2,15 +2,19 @@ import {
 	EuiButton,
 	EuiEmptyPrompt,
 	EuiHeader,
+	EuiHeaderSection,
 	EuiHeaderSectionItem,
 	EuiLoadingLogo,
 	EuiPageTemplate,
 	EuiProvider,
+	EuiSpacer,
 	EuiTitle,
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
+import { css } from '@emotion/react';
 import { Feed } from './Feed';
 import { Item } from './Item';
+import { Nav } from './Nav';
 import { SearchBox } from './SearchBox';
 import { useSearch } from './useSearch';
 
@@ -48,19 +52,31 @@ export function App() {
 				}}
 			>
 				<EuiHeader position="fixed">
-					<EuiHeaderSectionItem>
-						<EuiTitle size={'s'}>
-							<h1>Newswires</h1>
-						</EuiTitle>
-					</EuiHeaderSectionItem>
-					<EuiHeaderSectionItem>
-						<SearchBox
-							initialQuery={query}
-							searchHistory={successfulQueryHistory}
-							update={handleEnterQuery}
-							incremental={true}
+					<EuiHeaderSection>
+						<EuiHeaderSectionItem>
+							<Nav />
+						</EuiHeaderSectionItem>
+						<div
+							css={css`
+								min-width: 5px;
+							`}
 						/>
-					</EuiHeaderSectionItem>
+						<EuiHeaderSectionItem>
+							<EuiTitle size={'s'}>
+								<h1>Newswires</h1>
+							</EuiTitle>
+						</EuiHeaderSectionItem>
+					</EuiHeaderSection>
+					<EuiHeaderSection>
+						<EuiHeaderSectionItem>
+							<SearchBox
+								initialQuery={query}
+								searchHistory={successfulQueryHistory}
+								update={handleEnterQuery}
+								incremental={true}
+							/>
+						</EuiHeaderSectionItem>
+					</EuiHeaderSection>
 				</EuiHeader>
 				{status == 'error' && (
 					<EuiEmptyPrompt

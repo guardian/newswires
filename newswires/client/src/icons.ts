@@ -14,7 +14,11 @@ import { icon as doubleArrowLeft } from '@elastic/eui/es/components/icon/assets/
 import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
 import { icon as list } from '@elastic/eui/es/components/icon/assets/list';
+import { icon as logoElastic } from '@elastic/eui/es/components/icon/assets/logo_elastic';
+import { icon as logoGCPMono } from '@elastic/eui/es/components/icon/assets/logo_gcp_mono';
+import { icon as logoKibana } from '@elastic/eui/es/components/icon/assets/logo_kibana';
 import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
+import { icon as pinFilled } from '@elastic/eui/es/components/icon/assets/pin_filled';
 import { icon as refresh } from '@elastic/eui/es/components/icon/assets/refresh';
 import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return_key';
 import { icon as save } from '@elastic/eui/es/components/icon/assets/save';
@@ -43,4 +47,8 @@ appendIconComponentCache({
 	refresh,
 	save,
 	list,
+	logoKibana,
+	logoElastic,
+	logoGCPMono,
+	pinFilled,
 });

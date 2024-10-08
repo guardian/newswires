@@ -1,22 +1,14 @@
-import type { EuiContextMenuPanelItemDescriptor } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiButton,
-	EuiButtonEmpty,
 	EuiContextMenu,
 	EuiFieldSearch,
-	EuiFormRow,
-	EuiIcon,
 	EuiListGroup,
 	EuiPopover,
 	EuiScreenReaderOnly,
-	EuiSpacer,
-	EuiSwitch,
-	EuiText,
-	Search,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { debounce } from './debounce';
 import type { Query } from './sharedTypes';
 import { paramsToQuerystring } from './urlState';
