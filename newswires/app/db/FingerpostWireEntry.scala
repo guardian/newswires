@@ -44,14 +44,6 @@ object FingerpostWire {
         case other                  => other
       })
     }
-  //// more play-jsony alternative:
-  // import play.api.libs.functional.syntax._
-  // import play.api.libs.json.Reads._
-  // private val reads: Reads[FingerpostWire] =
-  //   Json.reads[FingerpostWire].composeWith(__.json.update(
-  //     ((__ \ "sourceFeed").json.copyFrom((__ \ "source-feed").json.pick) and
-  //       (__ \ "bodyText").json.copyFrom((__ \ "body_text").json.pick)).reduce
-  //   ))
   private val writes = Json.writes[FingerpostWire]
   implicit val format: Format[FingerpostWire] = Format(reads, writes)
 }
