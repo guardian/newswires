@@ -1,3 +1,4 @@
+import { isEqual as deepIsEqual } from 'lodash';
 import type { Context, PropsWithChildren } from 'react';
 import {
 	createContext,
@@ -17,6 +18,7 @@ import {
 import {
 	configToUrl,
 	defaultConfig,
+	defaultQuery,
 	paramsToQuerystring,
 	urlToConfig,
 } from './urlState';
@@ -102,6 +104,26 @@ function mergeQueryData(
 	};
 }
 
+function getUpdatedHistory(
+	previousHistory: SearchHistory,
+	newQuery: Query,
+	newResultsCount: number,
+): SearchHistory {
+	if (deepIsEqual(newQuery, defaultQuery)) {
+		return previousHistory;
+	}
+	if (Object.keys(newQuery).length === 1 && newQuery.q.length === 0) {
+		return previousHistory;
+	}
+	const previousHistoryWithoutMatchingQueries = previousHistory.filter(
+		({ query }) => !deepIsEqual(query, newQuery),
+	);
+	return [
+		{ query: newQuery, resultsCount: newResultsCount },
+		...previousHistoryWithoutMatchingQueries,
+	];
+}
+
 function reducer(state: State, action: Action): State {
 	switch (state.status) {
 		case 'loading':
@@ -110,13 +132,15 @@ function reducer(state: State, action: Action): State {
 					return {
 						...state,
 						queryData: action.data,
-						successfulQueryHistory: [
-							{ query: action.query, resultsCount: action.data.results.length },
-							...state.successfulQueryHistory,
-						],
+						successfulQueryHistory: getUpdatedHistory(
+							state.successfulQueryHistory,
+							action.query,
+							action.data.results.length,
+						),
 						status: 'success',
 						error: undefined,
 					};
+
 				case 'FETCH_ERROR':
 					return {
 						...state,
