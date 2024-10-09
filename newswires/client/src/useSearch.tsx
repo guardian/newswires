@@ -298,9 +298,9 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 }
 
 export const useSearch = () => {
-	const historyContext = useContext(SearchContext);
-	if (historyContext === null) {
-		throw new Error('useHistory must be used within a HistoryContextProvider');
+	const searchContext = useContext(SearchContext);
+	if (searchContext === null) {
+		throw new Error('useSearch must be used within a SearchContextProvider');
 	}
-	return historyContext;
+	return searchContext;
 };
