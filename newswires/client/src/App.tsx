@@ -1,7 +1,9 @@
 import {
+	EuiButton,
 	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSectionItem,
+	EuiLoadingLogo,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiTitle,
@@ -14,33 +16,32 @@ import { useSearch } from './useSearch';
 
 export function App() {
 	const {
-		searchHistory,
-		currentSearchState,
-		updateSearchQuery,
-		selectedItemId,
-		handleSelectItem,
-		nextWireId,
-		previousWireId,
+		config,
+		state,
+		handleEnterQuery,
+		handleRetry,
+		handleDeselectItem,
+		handleNextItem,
+		handlePreviousItem,
 	} = useSearch();
+
+	const { view, query, itemId: selectedItemId } = config;
+	const { successfulQueryHistory, status, queryData } = state;
 
 	return (
 		<EuiProvider colorMode="light">
 			<EuiPageTemplate
 				onKeyUp={(e) => {
-					if (selectedItemId !== undefined) {
+					if (view == 'item') {
 						switch (e.key) {
 							case 'Escape':
-								handleSelectItem(undefined);
+								handleDeselectItem();
 								break;
 							case 'ArrowLeft':
-								if (previousWireId !== undefined) {
-									handleSelectItem(previousWireId);
-								}
+								handlePreviousItem();
 								break;
 							case 'ArrowRight':
-								if (nextWireId !== undefined) {
-									handleSelectItem(nextWireId);
-								}
+								handleNextItem();
 								break;
 						}
 					}
@@ -52,39 +53,41 @@ export function App() {
 							<h1>Newswires</h1>
 						</EuiTitle>
 					</EuiHeaderSectionItem>
-					{currentSearchState.state !== 'initialised' && (
-						<EuiHeaderSectionItem>
-							<SearchBox
-								initialQuery={currentSearchState.query}
-								searchHistory={searchHistory}
-								update={updateSearchQuery}
-								incremental={true}
-							/>
-						</EuiHeaderSectionItem>
-					)}
+					<EuiHeaderSectionItem>
+						<SearchBox
+							initialQuery={query}
+							searchHistory={successfulQueryHistory}
+							update={handleEnterQuery}
+							incremental={true}
+						/>
+					</EuiHeaderSectionItem>
 				</EuiHeader>
-				{currentSearchState.state !== 'initialised' && (
-					<Feed
-						searchState={currentSearchState}
-						selectedWireId={selectedItemId}
-						handleSelectItem={handleSelectItem}
-					/>
-				)}
-				{selectedItemId !== undefined && (
-					<Item id={selectedItemId} handleSelectItem={handleSelectItem} />
-				)}
-				{currentSearchState.state === 'initialised' && (
+				{status == 'error' && (
 					<EuiEmptyPrompt
-						title={<h2>Search wires</h2>}
-						body={
-							<SearchBox
-								initialQuery={''}
-								searchHistory={searchHistory}
-								update={updateSearchQuery}
-							/>
-						}
+						actions={[
+							<EuiButton onClick={handleRetry} key="retry" iconType={'refresh'}>
+								Retry
+							</EuiButton>,
+							<EuiButton
+								onClick={() => handleEnterQuery({ q: '' })}
+								key="clear"
+								iconType={'cross'}
+							>
+								Clear
+							</EuiButton>,
+						]}
+						body={<p>Sorry, failed to load because of {state.error}</p>}
+						hasBorder={true}
 					/>
 				)}
+				{status == 'loading' && (
+					<EuiEmptyPrompt
+						icon={<EuiLoadingLogo logo="clock" size="l" />}
+						title={<h2>Loading Wires</h2>}
+					/>
+				)}{' '}
+				{status == 'success' && <Feed items={queryData.results} />}
+				{view == 'item' && <Item id={selectedItemId} />}
 			</EuiPageTemplate>
 		</EuiProvider>
 	);
