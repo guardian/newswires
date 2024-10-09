@@ -1,9 +1,25 @@
 import type { Context, PropsWithChildren } from 'react';
-import { createContext, useContext, useEffect, useReducer } from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useReducer,
+	useState,
+} from 'react';
 import { z } from 'zod';
 import type { Config, Query, WiresQueryResponse } from './sharedTypes';
-import { QuerySchema, WiresQueryResponseSchema } from './sharedTypes';
-import { paramsToQuerystring, useUrlConfig } from './urlState';
+import {
+	ConfigSchema,
+	QuerySchema,
+	WiresQueryResponseSchema,
+} from './sharedTypes';
+import {
+	configToUrl,
+	defaultConfig,
+	paramsToQuerystring,
+	urlToConfig,
+} from './urlState';
 
 const SearchHistorySchema = z.array(
 	z.object({
@@ -166,13 +182,50 @@ export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
 
 export function SearchContextProvider({ children }: PropsWithChildren) {
-	const { currentConfig, pushConfigState } = useUrlConfig();
+	const [currentConfig, setConfig] = useState<Config>(
+		urlToConfig(window.location),
+	);
 	const [state, dispatch] = useReducer(reducer, {
 		error: undefined,
 		queryData: undefined,
 		successfulQueryHistory: [],
 		status: 'loading',
 	});
+
+	const pushConfigState = useCallback(
+		(config: Config) => {
+			history.pushState(config, '', configToUrl(config));
+			setConfig(config);
+		},
+		[setConfig],
+	);
+
+	const popConfigStateCallback = useCallback(
+		(e: PopStateEvent) => {
+			const configParseResult = ConfigSchema.safeParse(e.state);
+			if (configParseResult.success) {
+				setConfig(configParseResult.data);
+			} else {
+				setConfig(defaultConfig);
+			}
+		},
+		[setConfig],
+	);
+
+	useEffect(() => {
+		if (window.history.state === null) {
+			window.history.replaceState(
+				currentConfig,
+				'',
+				configToUrl(currentConfig),
+			);
+		}
+	}, [currentConfig]);
+
+	useEffect(() => {
+		window.addEventListener('popstate', popConfigStateCallback);
+		return () => window.removeEventListener('popstate', popConfigStateCallback);
+	}, [popConfigStateCallback]);
 
 	useEffect(() => {
 		let pollingInterval: NodeJS.Timeout | undefined;

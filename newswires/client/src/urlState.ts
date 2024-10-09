@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
 import type { Config, Query } from './sharedTypes';
-import { ConfigSchema } from './sharedTypes';
 
 const defaultQuery: Query = { q: '' };
 
-const defaultConfig: Config = Object.freeze({
+export const defaultConfig: Config = Object.freeze({
 	view: 'home',
 	query: defaultQuery,
 	itemId: undefined,
 });
 
-function urlToConfig(location: { pathname: string; search: string }): Config {
+export function urlToConfig(location: {
+	pathname: string;
+	search: string;
+}): Config {
 	const page = location.pathname.slice(1);
 	const urlSearchParams = new URLSearchParams(location.search);
 	const queryString = urlSearchParams.get('q');
@@ -31,7 +32,7 @@ function urlToConfig(location: { pathname: string; search: string }): Config {
 	}
 }
 
-const configToUrl = (config: Config): string => {
+export const configToUrl = (config: Config): string => {
 	const { view, query, itemId } = config;
 	switch (view) {
 		case 'feed':
@@ -55,57 +56,6 @@ export const paramsToQuerystring = (config: Query): string => {
 	);
 	const querystring = new URLSearchParams(params).toString();
 	return querystring.length !== 0 ? `?${querystring}` : '';
-};
-
-export const useUrlConfig = () => {
-	const [currentConfig, setConfig] = useState<Config>(
-		urlToConfig(window.location),
-	);
-
-	const pushConfigState = useCallback(
-		(config: Config) => {
-			history.pushState(config, '', configToUrl(config));
-			setConfig(config);
-		},
-		[setConfig],
-	);
-
-	const replaceConfigState = useCallback(
-		(config: Config) => {
-			history.replaceState(config, '', configToUrl(config));
-			setConfig(config);
-		},
-		[setConfig],
-	);
-
-	const popConfigStateCallback = useCallback(
-		(e: PopStateEvent) => {
-			const configParseResult = ConfigSchema.safeParse(e.state);
-			if (configParseResult.success) {
-				setConfig(configParseResult.data);
-			} else {
-				setConfig(defaultConfig);
-			}
-		},
-		[setConfig],
-	);
-
-	useEffect(() => {
-		if (window.history.state === null) {
-			window.history.replaceState(
-				currentConfig,
-				'',
-				configToUrl(currentConfig),
-			);
-		}
-	}, [currentConfig]);
-
-	useEffect(() => {
-		window.addEventListener('popstate', popConfigStateCallback);
-		return () => window.removeEventListener('popstate', popConfigStateCallback);
-	}, [popConfigStateCallback]);
-
-	return { currentConfig, pushConfigState, replaceConfigState };
 };
 
 export const exportedForTestingOnly = {
