@@ -1,3 +1,4 @@
+import { isEqual as deepIsEqual } from 'lodash';
 import type { Context, PropsWithChildren } from 'react';
 import {
 	createContext,
@@ -17,6 +18,7 @@ import {
 import {
 	configToUrl,
 	defaultConfig,
+	defaultQuery,
 	paramsToQuerystring,
 	urlToConfig,
 } from './urlState';
@@ -102,6 +104,26 @@ function mergeQueryData(
 	};
 }
 
+function getUpdatedHistory(
+	previousHistory: SearchHistory,
+	newQuery: Query,
+	newResultsCount: number,
+): SearchHistory {
+	if (deepIsEqual(newQuery, defaultQuery)) {
+		return previousHistory;
+	}
+	if (Object.keys(newQuery).length === 1 && newQuery.q.length === 0) {
+		return previousHistory;
+	}
+	const previousHistoryWithoutMatchingQueries = previousHistory.filter(
+		({ query }) => !deepIsEqual(query, newQuery),
+	);
+	return [
+		{ query: newQuery, resultsCount: newResultsCount },
+		...previousHistoryWithoutMatchingQueries,
+	];
+}
+
 function reducer(state: State, action: Action): State {
 	switch (state.status) {
 		case 'loading':
@@ -110,13 +132,15 @@ function reducer(state: State, action: Action): State {
 					return {
 						...state,
 						queryData: action.data,
-						successfulQueryHistory: [
-							{ query: action.query, resultsCount: action.data.results.length },
-							...state.successfulQueryHistory,
-						],
+						successfulQueryHistory: getUpdatedHistory(
+							state.successfulQueryHistory,
+							action.query,
+							action.data.results.length,
+						),
 						status: 'success',
 						error: undefined,
 					};
+
 				case 'FETCH_ERROR':
 					return {
 						...state,
@@ -163,9 +187,30 @@ function reducer(state: State, action: Action): State {
 
 async function fetchResults(query: Query): Promise<WiresQueryResponse> {
 	const queryString = paramsToQuerystring(query);
-	const response = await fetch(`/api/search?${queryString}`);
-	const data = (await response.json()) as unknown;
-	return WiresQueryResponseSchema.parse(data);
+	const response = await fetch(`/api/search${queryString}`, {
+		headers: {
+			Accept: 'application/json',
+		},
+	});
+	try {
+		const data = (await response.json()) as unknown;
+		if (!response.ok) {
+			throw new Error(
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- this is the expected shape from Play but you never know
+				(data as { error: { exception: { description: string } } }).error
+					.exception.description ?? 'Unknown error',
+			);
+		}
+		const parseResult = WiresQueryResponseSchema.safeParse(data);
+		if (parseResult.success) {
+			return parseResult.data;
+		}
+		throw new Error(
+			`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
+		);
+	} catch (e) {
+		throw new Error(e instanceof Error ? e.message : 'Unknown error');
+	}
 }
 
 export type SearchContextShape = {

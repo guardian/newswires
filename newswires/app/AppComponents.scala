@@ -23,6 +23,7 @@ import com.gu.permissions.PermissionsProvider
 import com.gu.permissions.PermissionsConfig
 import com.amazonaws.regions.Regions
 import conf.Database
+import play.api.http.JsonHttpErrorHandler
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
@@ -123,6 +124,8 @@ class AppComponents(context: Context)
     permissionsProvider = permissionsProvider,
     panDomainSettings = panDomainSettings
   )
+
+  override lazy val httpErrorHandler = new JsonHttpErrorHandler(environment)
 
   def router: Router = new Routes(
     errorHandler = httpErrorHandler,
