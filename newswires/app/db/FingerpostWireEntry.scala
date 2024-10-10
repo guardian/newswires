@@ -59,25 +59,25 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   implicit val format: OFormat[FingerpostWireEntry] =
     Json.format[FingerpostWireEntry]
 
-  override val columns =
+  override val columns: Seq[String] =
     Seq("id", "external_id", "ingested_at", "content", "combined_textsearch")
-  val syn = this.syntax("fm")
+  private val syn = this.syntax("wire_entry")
 
   private val selectAllStatement = sqls"""
-    |   ${FingerpostWireEntry.syn.result.id},
-    |   ${FingerpostWireEntry.syn.result.externalId},
-    |   ${FingerpostWireEntry.syn.result.ingestedAt},
-    |   ${FingerpostWireEntry.syn.result.content}
+    |   ${syn.result.id},
+    |   ${syn.result.externalId},
+    |   ${syn.result.ingestedAt},
+    |   ${syn.result.content}
     |""".stripMargin
 
   def apply(
-      fm: ResultName[FingerpostWireEntry]
+      wireEntry: ResultName[FingerpostWireEntry]
   )(rs: WrappedResultSet): FingerpostWireEntry =
     FingerpostWireEntry(
-      rs.long(fm.id),
-      rs.string(fm.externalId),
-      rs.zonedDateTime(fm.ingestedAt),
-      Json.parse(rs.string(fm.column("content"))).as[FingerpostWire]
+      rs.long(wireEntry.id),
+      rs.string(wireEntry.externalId),
+      rs.zonedDateTime(wireEntry.ingestedAt),
+      Json.parse(rs.string(wireEntry.column("content"))).as[FingerpostWire]
     )
 
   private def clamp(low: Int, x: Int, high: Int): Int =
@@ -85,9 +85,9 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
 
   def get(id: Int): Option[FingerpostWireEntry] = DB readOnly {
     implicit session =>
-      sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+      sql"""| SELECT ${syn.result.*}
             | FROM ${FingerpostWireEntry as syn}
-            | WHERE ${FingerpostWireEntry.syn.id} = $id
+            | WHERE ${syn.id} = $id
             |""".stripMargin
         .map(FingerpostWireEntry(syn.resultName))
         .single()
@@ -105,6 +105,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[List[String]],
+      maybeSupplier: Option[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
@@ -113,41 +114,48 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
 
     val commonWhereClauses = List(
       maybeKeywords.map(keywords =>
-        sqls"""(${FingerpostWireEntry.syn.column(
+        sqls"""(${syn.column(
             "content"
           )} -> 'keywords') @> ${Json.toJson(keywords).toString()}::jsonb"""
       ),
       maybeFreeTextQuery.map(query =>
-        sqls"phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+        sqls"phraseto_tsquery($query) @@ ${syn.column("combined_textsearch")}"
+      ),
+      maybeSupplier.map(supplierName =>
+        sqls"${SourceFeedToSupplier.syn.supplier} = $supplierName"
       )
     ).flatten
 
     val dataOnlyWhereClauses = List(
-      maybeBeforeId.map(beforeId =>
-        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-      ),
-      maybeSinceId.map(sinceId =>
-        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-      )
+      maybeBeforeId.map(beforeId => sqls"${syn.id} < $beforeId"),
+      maybeSinceId.map(sinceId => sqls"${syn.id} > $sinceId")
     ).flatten
 
-    val whereClause = (dataOnlyWhereClauses ++ commonWhereClauses) match {
+    val whereClause = dataOnlyWhereClauses ++ commonWhereClauses match {
       case Nil        => sqls""
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
 
+    val joinClause = if (maybeSupplier.isDefined) {
+      sqls"LEFT OUTER JOIN ${SourceFeedToSupplier as SourceFeedToSupplier.syn} ON ${syn.column("content")}->>'source-feed' = ${SourceFeedToSupplier.syn.sourceFeed}"
+    } else {
+      sqls""
+    }
+
     val results = sql"""| SELECT $selectAllStatement
                         | FROM ${FingerpostWireEntry as syn}
+                        | $joinClause
                         | $whereClause
-                        | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+                        | ORDER BY ${syn.ingestedAt} DESC
                         | LIMIT $effectivePageSize
                         | """.stripMargin
       .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()
 
-    val keywordCounts = getKeywords(additionalWhereClauses =
-      commonWhereClauses
+    val keywordCounts = getKeywords(
+      additionalWhereClauses = commonWhereClauses,
+      joinClause = joinClause
     ) // TODO do this in parallel
 
     QueryResponse(results, keywordCounts)
@@ -156,7 +164,8 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   def getKeywords(
       maybeInLastHours: Option[Int] = None,
       maybeLimit: Option[Int] = None,
-      additionalWhereClauses: List[SQLSyntax] = Nil
+      additionalWhereClauses: List[SQLSyntax] = Nil,
+      joinClause: SQLSyntax = sqls""
   ) =
     DB readOnly { implicit session =>
       val innerWhereClause = additionalWhereClauses ++ maybeInLastHours
@@ -178,6 +187,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
                "content"
              )} -> 'keywords') as keyword
             |     FROM ${FingerpostWireEntry as syn}
+            |     $joinClause
             |     $innerWhereClause
             | ) as all_keywords
             | GROUP BY keyword
