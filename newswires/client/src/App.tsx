@@ -3,15 +3,18 @@ import {
 	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSectionItem,
-	EuiLoadingLogo,
 	EuiPageTemplate,
 	EuiProvider,
+	EuiResizableContainer,
+	EuiShowFor,
+	EuiSpacer,
 	EuiTitle,
 } from '@elastic/eui';
-import '@elastic/eui/dist/eui_theme_light.css';
+import { css } from '@emotion/react';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
+import { SideNav } from './SideNav';
 import { useSearch } from './useSearch';
 
 export function App() {
@@ -26,7 +29,7 @@ export function App() {
 	} = useSearch();
 
 	const { view, query, itemId: selectedItemId } = config;
-	const { successfulQueryHistory, status, queryData } = state;
+	const { successfulQueryHistory, status } = state;
 
 	return (
 		<EuiProvider colorMode="light">
@@ -46,12 +49,17 @@ export function App() {
 						}
 					}
 				}}
+				css={css`
+					max-height: 100vh;
+				`}
 			>
 				<EuiHeader position="fixed">
 					<EuiHeaderSectionItem>
 						<EuiTitle size={'s'}>
 							<h1>Newswires</h1>
 						</EuiTitle>
+						<EuiSpacer size={'s'} />
+						<SideNav />
 					</EuiHeaderSectionItem>
 					<EuiHeaderSectionItem>
 						<SearchBox
@@ -62,6 +70,49 @@ export function App() {
 						/>
 					</EuiHeaderSectionItem>
 				</EuiHeader>
+				{status !== 'error' && (
+					<>
+						<EuiShowFor sizes={['xs', 's']}>
+							{view !== 'item' && status == 'success' && <Feed />}
+							{view == 'item' && <Item id={selectedItemId} />}
+							{view !== 'item' && status == 'loading' && (
+								<EuiEmptyPrompt
+									body={<p>Loading</p>}
+									iconType={'clock'}
+									color="subdued"
+									layout="horizontal"
+									titleSize="s"
+								/>
+							)}
+						</EuiShowFor>
+						<EuiShowFor sizes={['m', 'l', 'xl']}>
+							{view !== 'item' && <Feed />}
+							{view == 'item' && (
+								<EuiResizableContainer className="eui-fullHeight">
+									{(EuiResizablePanel, EuiResizableButton) => (
+										<>
+											<EuiResizablePanel
+												minSize="25%"
+												initialSize={100}
+												className="eui-yScroll"
+											>
+												<Feed />
+											</EuiResizablePanel>
+											<EuiResizableButton />
+											<EuiResizablePanel
+												minSize="30%"
+												initialSize={100}
+												className="eui-yScroll"
+											>
+												<Item id={selectedItemId} />
+											</EuiResizablePanel>
+										</>
+									)}
+								</EuiResizableContainer>
+							)}
+						</EuiShowFor>
+					</>
+				)}
 				{status == 'error' && (
 					<EuiEmptyPrompt
 						actions={[
@@ -80,14 +131,6 @@ export function App() {
 						hasBorder={true}
 					/>
 				)}
-				{status == 'loading' && (
-					<EuiEmptyPrompt
-						icon={<EuiLoadingLogo logo="clock" size="l" />}
-						title={<h2>Loading Wires</h2>}
-					/>
-				)}{' '}
-				{status == 'success' && <Feed items={queryData.results} />}
-				{view == 'item' && <Item id={selectedItemId} />}
 			</EuiPageTemplate>
 		</EuiProvider>
 	);
