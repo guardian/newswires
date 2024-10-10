@@ -1,29 +1,24 @@
-import controllers.{
-  AssetsComponents,
-  AuthController,
-  HomeController,
-  ManagementController,
-  QueryController,
-  ViteController
+import com.amazonaws.auth.{
+  AWSCredentialsProviderChain,
+  DefaultAWSCredentialsProviderChain
 }
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
+import conf.Database
+import controllers._
+import lib.RequestLoggingFilter
 import play.api.ApplicationLoader.Context
+import play.api.http.JsonHttpErrorHandler
+import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
 import play.api.routing.Router
 import play.api.{BuiltInComponentsFromContext, Logging, Mode}
 import play.filters.HttpFiltersComponents
 import play.filters.gzip.GzipFilter
 import router.Routes
-import play.api.libs.ws.ahc.AhcWSComponents
-import com.amazonaws.auth.AWSCredentialsProviderChain
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
-import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
-import com.gu.permissions.PermissionsProvider
-import com.gu.permissions.PermissionsConfig
-import com.amazonaws.regions.Regions
-import conf.Database
-import lib.RequestLoggingFilter
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
@@ -127,6 +122,8 @@ class AppComponents(context: Context)
     permissionsProvider = permissionsProvider,
     panDomainSettings = panDomainSettings
   )
+
+  override lazy val httpErrorHandler = new JsonHttpErrorHandler(environment)
 
   def router: Router = new Routes(
     errorHandler = httpErrorHandler,
