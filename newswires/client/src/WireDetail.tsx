@@ -13,7 +13,13 @@ import { Fragment, useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import type { WireData } from './sharedTypes';
 
-export const WireDetail = ({ wire }: { wire: WireData }) => {
+export const WireDetail = ({
+	wire,
+	isShowingJson,
+}: {
+	wire: WireData;
+	isShowingJson: boolean;
+}) => {
 	const { byline, keywords, usage } = wire.content;
 
 	const safeBodyText = useMemo(() => {
@@ -29,60 +35,74 @@ export const WireDetail = ({ wire }: { wire: WireData }) => {
 
 	return (
 		<Fragment>
-			<EuiScreenReaderLive focusRegionOnTextChange>
-				<h3
+			{isShowingJson ? (
+				<div
 					css={css`
-						font-weight: 300;
+						white-space: pre;
+						font-family: monospace;
+						overflow-x: auto;
 					`}
 				>
-					{wire.content.subhead}
-				</h3>
-			</EuiScreenReaderLive>
+					{JSON.stringify(wire.content, null, 2)}
+				</div>
+			) : (
+				<>
+					<EuiScreenReaderLive focusRegionOnTextChange>
+						<h3
+							css={css`
+								font-weight: 300;
+							`}
+						>
+							{wire.content.subhead}
+						</h3>
+					</EuiScreenReaderLive>
 
-			<EuiSpacer size="m" />
+					<EuiSpacer size="m" />
 
-			<EuiDescriptionList>
-				{byline && (
-					<>
-						<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
-						<EuiDescriptionListDescription>
-							{byline}
-						</EuiDescriptionListDescription>
-					</>
-				)}
-				{nonEmptyKeywords.length > 0 && (
-					<>
-						<EuiDescriptionListTitle>Keywords</EuiDescriptionListTitle>
-						<EuiDescriptionListDescription>
-							<EuiFlexGroup wrap responsive={false} gutterSize="xs">
-								{nonEmptyKeywords.map((keyword) => (
-									<EuiFlexItem key={keyword} grow={false}>
-										<EuiBadge color="primary">{keyword}</EuiBadge>
-									</EuiFlexItem>
-								))}
-							</EuiFlexGroup>
-						</EuiDescriptionListDescription>
-					</>
-				)}
-				{usage && (
-					<>
-						<EuiDescriptionListTitle>
-							Usage restrictions
-						</EuiDescriptionListTitle>
-						<EuiDescriptionListDescription>
-							{usage}
-						</EuiDescriptionListDescription>
-					</>
-				)}
-				{safeBodyText && (
-					<>
-						<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
-						<EuiDescriptionListDescription>
-							<article dangerouslySetInnerHTML={{ __html: safeBodyText }} />
-						</EuiDescriptionListDescription>
-					</>
-				)}
-			</EuiDescriptionList>
+					<EuiDescriptionList>
+						{byline && (
+							<>
+								<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
+								<EuiDescriptionListDescription>
+									{byline}
+								</EuiDescriptionListDescription>
+							</>
+						)}
+						{nonEmptyKeywords.length > 0 && (
+							<>
+								<EuiDescriptionListTitle>Keywords</EuiDescriptionListTitle>
+								<EuiDescriptionListDescription>
+									<EuiFlexGroup wrap responsive={false} gutterSize="xs">
+										{nonEmptyKeywords.map((keyword) => (
+											<EuiFlexItem key={keyword} grow={false}>
+												<EuiBadge color="primary">{keyword}</EuiBadge>
+											</EuiFlexItem>
+										))}
+									</EuiFlexGroup>
+								</EuiDescriptionListDescription>
+							</>
+						)}
+						{usage && (
+							<>
+								<EuiDescriptionListTitle>
+									Usage restrictions
+								</EuiDescriptionListTitle>
+								<EuiDescriptionListDescription>
+									{usage}
+								</EuiDescriptionListDescription>
+							</>
+						)}
+						{safeBodyText && (
+							<>
+								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
+								<EuiDescriptionListDescription>
+									<article dangerouslySetInnerHTML={{ __html: safeBodyText }} />
+								</EuiDescriptionListDescription>
+							</>
+						)}
+					</EuiDescriptionList>
+				</>
+			)}
 		</Fragment>
 	);
 };
