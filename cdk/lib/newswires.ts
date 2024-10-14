@@ -63,7 +63,7 @@ export class Newswires extends GuStack {
 				subnets: privateSubnets,
 			},
 			engine: DatabaseInstanceEngine.postgres({
-				version: PostgresEngineVersion.of("16.4", "16"),
+				version: PostgresEngineVersion.of('16.4', '16'),
 				// version: PostgresEngineVersion.VER_16, // FIXME temporary, until VER_16 defaults to 16.4
 			}),
 			autoMinorVersionUpgrade: false, // FIXME temporary, until rds defaults version 16 to 16.4
@@ -169,7 +169,7 @@ export class Newswires extends GuStack {
 			},
 			scaling,
 			applicationLogging: { enabled: true, systemdUnitName: app },
-			imageRecipe: 'editorial-tools-focal-java17',
+			imageRecipe: 'editorial-tools-jammy-java17',
 			roleConfiguration: {
 				additionalPolicies: [
 					new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
