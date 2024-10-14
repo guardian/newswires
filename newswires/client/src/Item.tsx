@@ -5,9 +5,11 @@ import {
 	EuiFlyoutFooter,
 	EuiPageTemplate,
 	EuiSpacer,
+	EuiSwitch,
 	EuiTitle,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { useSearch } from './useSearch';
@@ -18,6 +20,7 @@ export const Item = ({ id }: { id: string }) => {
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
+	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 
 	const pushedFlyoutTitleId = useGeneratedHtmlId({
 		prefix: 'pushedFlyoutTitle',
@@ -79,10 +82,20 @@ export const Item = ({ id }: { id: string }) => {
 							<h2 id={pushedFlyoutTitleId}>{itemData.content.headline}</h2>
 						</EuiTitle>
 						<EuiSpacer size="xs" />
-						<WireDetail wire={itemData} />
+						<WireDetail wire={itemData} isShowingJson={isShowingJson} />
 					</EuiFlyoutBody>
-					<EuiFlyoutFooter>
+					<EuiFlyoutFooter
+						css={css`
+							display: flex;
+							justify-content: space-between;
+						`}
+					>
 						<EuiButton onClick={() => handleDeselectItem()}>Close</EuiButton>
+						<EuiSwitch
+							label="Show JSON"
+							checked={isShowingJson}
+							onChange={() => setIsShowingJson(!isShowingJson)}
+						/>
 					</EuiFlyoutFooter>
 				</EuiFlyout>
 			)}
