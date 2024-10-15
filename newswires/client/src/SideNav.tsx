@@ -4,20 +4,27 @@ import {
 	EuiHeaderSectionItemButton,
 	EuiIcon,
 	EuiListGroup,
+	EuiListGroupItem,
 } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { useMemo, useState } from 'react';
+import { AFPBrand, APBrand, reutersBrand } from './sharedStyles';
 import type { Query } from './sharedTypes';
 import { useSearch } from './useSearch';
 
 interface MenuItem {
 	label: string;
 	query: Query;
+	isActive?: boolean;
+	colour?: string;
 }
 
 export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
 
-	const { state } = useSearch();
+	const { state, config } = useSearch();
+
+	const suppliers = config.query.supplier ?? [];
 
 	const searchHistory = state.successfulQueryHistory;
 
@@ -31,10 +38,28 @@ export const SideNav = () => {
 	);
 
 	const agencies: MenuItem[] = [
-		{ label: 'All', query: { q: '' } },
-		{ label: 'Reuters', query: { q: 'sourceFeed:Reuters' } },
-		{ label: 'AP', query: { q: 'sourceFeed:AP' } },
-		{ label: 'AFP', query: { q: 'sourceFeed:AFP' } },
+		{ label: 'All', query: { q: '' }, isActive: suppliers.length === 0 },
+		{
+			label: 'Reuters',
+			query: {
+				q: '',
+				supplier: ['Reuters'],
+			},
+			colour: reutersBrand,
+			isActive: suppliers.includes('Reuters'),
+		},
+		{
+			label: 'AP',
+			query: { q: '', supplier: ['AP'] },
+			colour: APBrand,
+			isActive: suppliers.includes('AP'),
+		},
+		{
+			label: 'AFP',
+			query: { q: '', supplier: ['AFP'] },
+			colour: AFPBrand,
+			isActive: suppliers.includes('AFP'),
+		},
 	];
 
 	const savedSearches: MenuItem[] = [
@@ -82,24 +107,42 @@ const SearchGroup = ({
 	isEmptyMessage?: string;
 }) => {
 	const { handleEnterQuery } = useSearch();
-
-	const listItems =
-		items.length > 0
-			? items.map(({ label, query }) => ({
-					label: label,
-					onClick: () => handleEnterQuery(query),
-				}))
-			: [{ label: isEmptyMessage ?? 'No items available' }];
+	const isEmpty = items.length === 0;
 
 	return (
 		<EuiCollapsibleNavGroup title={title}>
-			<EuiListGroup
-				listItems={listItems}
-				maxWidth="none"
-				color="subdued"
-				gutterSize="none"
-				size="s"
-			/>
+			{isEmpty ? (
+				<EuiListGroupItem label={isEmptyMessage} />
+			) : (
+				<EuiListGroup
+					maxWidth="none"
+					color="subdued"
+					gutterSize="none"
+					size="s"
+				>
+					{items.map(({ label, query, colour, isActive }) => {
+						return (
+							<EuiListGroupItem
+								key={label}
+								label={label}
+								onClick={() => handleEnterQuery(query)}
+								icon={
+									<div
+										css={css`
+											width: 0.5rem;
+											height: 1.5rem;
+											background-color: ${isActive
+												? (colour ?? 'black')
+												: 'transparent'};
+										`}
+									/>
+								}
+								aria-current={isActive ? 'page' : undefined}
+							/>
+						);
+					})}
+				</EuiListGroup>
+			)}
 		</EuiCollapsibleNavGroup>
 	);
 };

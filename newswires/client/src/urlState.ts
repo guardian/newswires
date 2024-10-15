@@ -1,4 +1,4 @@
-import type { Config, Query } from './sharedTypes';
+import { type Config, type Query, QuerySchema } from './sharedTypes';
 
 export const defaultQuery: Query = { q: '' };
 
@@ -13,14 +13,17 @@ export function urlToConfig(location: {
 	search: string;
 }): Config {
 	const page = location.pathname.slice(1);
-	const urlSearchParams = new URLSearchParams(location.search);
-	const queryString = urlSearchParams.get('q');
-	const query: Query = {
-		q:
-			typeof queryString === 'string' || typeof queryString === 'number'
-				? queryString.toString()
-				: '',
-	};
+	const urlSearchParams = Object.fromEntries(
+		new URLSearchParams(location.search).entries(),
+	);
+
+	/** nb. Zod's safeParse will strip out any unknown keys, which means that
+		the URL will be rewritten if it contains any unknown keys. If we decide we don't
+		want this behaviour, we can use 'passthrough': https://zod.dev/?id=passthrough. */
+	const queryParseResults = QuerySchema.safeParse(urlSearchParams);
+	const query: Query = queryParseResults.success
+		? queryParseResults.data
+		: defaultQuery;
 
 	if (page === 'feed') {
 		return { view: 'feed', query };
@@ -49,6 +52,8 @@ export const paramsToQuerystring = (config: Query): string => {
 		Object.entries(config).reduce<Array<[string, string]>>((acc, [k, v]) => {
 			if (typeof v === 'string' && v.trim().length > 0) {
 				return [...acc, [k, v.trim()]];
+			} else if (Array.isArray(v) && v.length > 0) {
+				return [...acc, [k, v.join(',')]];
 			} else {
 				return acc;
 			}

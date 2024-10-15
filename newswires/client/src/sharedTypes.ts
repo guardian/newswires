@@ -42,8 +42,19 @@ export const WiresQueryResponseSchema = z.object({
 
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
 
+const ArrayFromCommaSeparatedStringSchema = z.string().transform((s) => {
+	return s.split(',');
+});
+
+const ArrayParamsSchema = z.union([
+	z.array(z.string()),
+	ArrayFromCommaSeparatedStringSchema,
+]);
+
 export const QuerySchema = z.object({
-	q: z.string(),
+	q: z.string().default(''),
+	supplier: ArrayParamsSchema.optional(),
+	subject: z.array(z.string()).optional(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;
