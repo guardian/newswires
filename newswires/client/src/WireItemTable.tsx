@@ -63,6 +63,9 @@ const WireDataRow = ({
 	const theme = useEuiTheme();
 	const primaryBgColor = useEuiBackgroundColor('primary');
 	const accentBgColor = useEuiBackgroundColor('accent');
+
+	const hasSlug = content.slug && content.slug.length > 0;
+
 	return (
 		<EuiTableRow
 			key={id}
@@ -84,11 +87,16 @@ const WireDataRow = ({
 			<EuiTableRowCell valign="baseline">
 				<EuiFlexGroup direction="column" gutterSize="xs">
 					<EuiTitle size="xxs">
-						<h3>{content.headline ?? '<no headline>'}</h3>
+						<h3>
+							{hasSlug && content.slug}
+							{!hasSlug && (content.headline ?? 'No headline')}
+						</h3>
 					</EuiTitle>
-					<EuiText size="xs">
-						<p>{content.subhead}</p>
-					</EuiText>
+					{hasSlug && (
+						<EuiText size="s">
+							<p>{content.headline}</p>
+						</EuiText>
+					)}
 				</EuiFlexGroup>
 			</EuiTableRowCell>
 			<EuiTableRowCell align="right" valign="baseline">
