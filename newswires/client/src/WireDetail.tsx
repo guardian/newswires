@@ -1,5 +1,6 @@
 import {
 	EuiBadge,
+	EuiCodeBlock,
 	EuiDescriptionList,
 	EuiDescriptionListDescription,
 	EuiDescriptionListTitle,
@@ -36,15 +37,9 @@ export const WireDetail = ({
 	return (
 		<Fragment>
 			{isShowingJson ? (
-				<div
-					css={css`
-						white-space: pre;
-						font-family: monospace;
-						overflow-x: auto;
-					`}
-				>
+				<EuiCodeBlock language="json">
 					{JSON.stringify(wire.content, null, 2)}
-				</div>
+				</EuiCodeBlock>
 			) : (
 				<>
 					<EuiScreenReaderLive focusRegionOnTextChange>
