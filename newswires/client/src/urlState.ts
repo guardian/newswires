@@ -25,6 +25,8 @@ export function urlToConfig(location: {
 		? queryParseResults.data
 		: defaultQuery;
 
+	console.log('urlToConfig', queryParseResults.data);
+
 	if (page === 'feed') {
 		return { view: 'feed', query };
 	} else if (page.startsWith('item/') && page.split('/').length === 2) {

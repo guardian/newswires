@@ -54,7 +54,7 @@ const ArrayParamsSchema = z.union([
 export const QuerySchema = z.object({
 	q: z.string().default(''),
 	supplier: ArrayParamsSchema.optional(),
-	subject: z.array(z.string()).optional(),
+	subject: ArrayParamsSchema.optional(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;

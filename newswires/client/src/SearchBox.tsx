@@ -20,7 +20,7 @@ export function SearchBox({
 	incremental = false,
 }: {
 	initialQuery: Query;
-	update: (newQuery: Query) => void;
+	update: (q: string) => void;
 	searchHistory: SearchHistory;
 	incremental?: boolean;
 }) {
@@ -37,7 +37,7 @@ export function SearchBox({
 		<form
 			onSubmit={(e) => {
 				e.preventDefault();
-				update({ q: freeTextQuery });
+				update(freeTextQuery);
 			}}
 		>
 			<EuiFieldSearch
@@ -46,7 +46,7 @@ export function SearchBox({
 					const newQuery = e.target.value;
 					setFreeTextQuery(newQuery);
 					if (incremental) {
-						debouncedUpdate({ q: newQuery });
+						debouncedUpdate(newQuery);
 					}
 				}}
 				aria-label="search wires"
@@ -70,7 +70,7 @@ export function SearchBox({
 								{searchHistory.map(({ query, resultsCount }) => (
 									<EuiButton
 										onClick={() => {
-											update(query);
+											update(query.q);
 											closePopover();
 										}}
 										key={paramsToQuerystring(query)}

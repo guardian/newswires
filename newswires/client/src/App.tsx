@@ -11,6 +11,7 @@ import {
 	EuiTitle,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useCallback } from 'react';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
@@ -30,6 +31,11 @@ export function App() {
 
 	const { view, query, itemId: selectedItemId } = config;
 	const { successfulQueryHistory, status } = state;
+
+	const updateFreeTextQueryOnly = useCallback(
+		(q: string) => handleEnterQuery({ ...query, q }),
+		[handleEnterQuery, query],
+	);
 
 	return (
 		<EuiProvider colorMode="light">
@@ -65,7 +71,7 @@ export function App() {
 						<SearchBox
 							initialQuery={query}
 							searchHistory={successfulQueryHistory}
-							update={handleEnterQuery}
+							update={updateFreeTextQueryOnly}
 							incremental={true}
 						/>
 					</EuiHeaderSectionItem>
