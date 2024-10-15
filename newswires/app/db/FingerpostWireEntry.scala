@@ -105,21 +105,37 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[List[String]],
+      sourceFeeds: List[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
   ): QueryResponse = DB readOnly { implicit session =>
     val effectivePageSize = clamp(0, pageSize, 250)
 
+    val contentCol = FingerpostWireEntry.syn.column("content")
+
+    val sourceFeedsQuery = sourceFeeds match {
+      case Nil => None
+      case sourceFeeds =>
+        Some(
+          sqls.joinWithOr(
+            sourceFeeds.map(sourceFeed =>
+              sqls"($contentCol->>'source-feed') = $sourceFeed"
+            ): _*
+          )
+        )
+    }
+
     val commonWhereClauses = List(
       maybeKeywords.map(keywords =>
-        sqls"""(${FingerpostWireEntry.syn.column(
-            "content"
-          )} -> 'keywords') @> ${Json.toJson(keywords).toString()}::jsonb"""
+        sqls"""($contentCol -> 'keywords') @> ${Json
+            .toJson(keywords)
+            .toString()}::jsonb"""
       ),
       maybeFreeTextQuery.map(query =>
         sqls"phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-      )
+      ),
+      sourceFeedsQuery
     ).flatten
 
     val dataOnlyWhereClauses = List(
@@ -157,7 +173,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       maybeInLastHours: Option[Int] = None,
       maybeLimit: Option[Int] = None,
       additionalWhereClauses: List[SQLSyntax] = Nil
-  ) =
+  ): Map[String, Int] =
     DB readOnly { implicit session =>
       val innerWhereClause = additionalWhereClauses ++ maybeInLastHours
         .map(inLastHours =>

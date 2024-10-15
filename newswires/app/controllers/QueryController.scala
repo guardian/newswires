@@ -2,6 +2,7 @@ package controllers
 
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.PermissionsProvider
+import conf.SourceFeedSupplierMapping.sourceFeedsFromSupplier
 import db.FingerpostWireEntry
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -21,14 +22,19 @@ class QueryController(
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[String],
+      suppliers: List[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = AuthAction {
+    val sourceFeeds =
+      suppliers.flatMap(sourceFeedsFromSupplier(_).getOrElse(Nil))
+
     Ok(
       Json.toJson(
         FingerpostWireEntry.query(
           maybeFreeTextQuery,
           maybeKeywords.map(_.split(',').toList),
+          sourceFeeds,
           maybeBeforeId,
           maybeSinceId,
           pageSize = 30
