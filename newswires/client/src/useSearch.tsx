@@ -325,12 +325,13 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'ENTER_QUERY' });
 		if (currentConfig.view === 'item') {
 			pushConfigState({
-				view: 'feed',
+				...currentConfig,
 				query,
 			});
 			return;
 		}
 		pushConfigState({
+			...currentConfig,
 			view: 'feed',
 			query,
 		});

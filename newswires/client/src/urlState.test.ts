@@ -1,7 +1,6 @@
-import { exportedForTestingOnly } from './urlState';
+import { defaultQuery, exportedForTestingOnly } from './urlState';
 
-const { urlToConfig, configToUrl, defaultConfig, defaultQuery } =
-	exportedForTestingOnly;
+const { urlToConfig, configToUrl, defaultConfig } = exportedForTestingOnly;
 
 function makeFakeLocation(url: string): { pathname: string; search: string } {
 	const urlObject = new URL(url, 'https://example.com');
@@ -31,12 +30,12 @@ describe('urlToConfig', () => {
 	});
 
 	it('parses item path into config', () => {
-		const url = makeFakeLocation('/item/123?q=abc');
+		const url = makeFakeLocation('/item/123?q=abc&supplier=AP');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'item',
 			itemId: '123',
-			query: { ...defaultQuery, q: 'abc' },
+			query: { ...defaultQuery, supplier: ['AP'], q: 'abc' },
 		});
 	});
 
@@ -45,7 +44,16 @@ describe('urlToConfig', () => {
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
-			query: { q: 'abc', supplier: ['AP', 'PA'] },
+			query: { ...defaultQuery, q: 'abc', supplier: ['AP', 'PA'] },
+		});
+	});
+
+	it('defaults to using "all" suppliers', () => {
+		const url = makeFakeLocation('/feed?q=abc');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: { ...defaultQuery, q: 'abc', supplier: [] },
 		});
 	});
 });
@@ -54,7 +62,11 @@ describe('configToUrl', () => {
 	it('converts config to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', supplier: ['REUTERS'] },
+			query: {
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+			},
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&supplier=REUTERS');
@@ -69,7 +81,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['REUTERS'] },
+			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/item/123?q=abc&supplier=REUTERS');
@@ -79,7 +91,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: [] },
+			query: { q: 'abc', supplier: [], subject: [] },
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/item/123?q=abc');
@@ -89,7 +101,11 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['AP', 'PA', 'REUTERS'] },
+			query: {
+				q: 'abc',
+				supplier: ['AP' as const, 'PA' as const, 'REUTERS' as const],
+				subject: [],
+			},
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
