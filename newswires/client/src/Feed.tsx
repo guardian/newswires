@@ -1,11 +1,21 @@
-import { EuiEmptyPrompt, EuiPageTemplate } from '@elastic/eui';
-import type { WireData } from './sharedTypes';
+import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
+import { useSearch } from './useSearch';
 import { WireItemTable } from './WireItemTable';
 
-export const Feed = ({ items }: { items: WireData[] }) => {
+export const Feed = () => {
+	const { state } = useSearch();
+
+	const { status, queryData } = state;
+
 	return (
 		<EuiPageTemplate.Section>
-			{items.length === 0 && (
+			{status == 'loading' && (
+				<EuiEmptyPrompt
+					icon={<EuiLoadingLogo logo="clock" size="l" />}
+					title={<h2>Loading Wires</h2>}
+				/>
+			)}
+			{status == 'success' && queryData.results.length === 0 && (
 				<EuiEmptyPrompt
 					body={<p>Try a different search term</p>}
 					color="subdued"
@@ -14,8 +24,9 @@ export const Feed = ({ items }: { items: WireData[] }) => {
 					titleSize="s"
 				/>
 			)}
-
-			{items.length > 0 && <WireItemTable wires={items} />}
+			{status == 'success' && queryData.results.length > 0 && (
+				<WireItemTable wires={queryData.results} />
+			)}
 		</EuiPageTemplate.Section>
 	);
 };
