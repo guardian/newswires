@@ -1,5 +1,6 @@
 package db
 
+import conf.SourceFeedSupplierMapping.sourceFeedsFromSupplier
 import play.api.libs.json._
 import scalikejdbc._
 
@@ -105,7 +106,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[List[String]],
-      sourceFeeds: List[String],
+      suppliers: List[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
@@ -114,13 +115,16 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
 
     val contentCol = FingerpostWireEntry.syn.column("content")
 
+    val sourceFeeds =
+      suppliers.flatMap(sourceFeedsFromSupplier(_).getOrElse(Nil))
+
     val sourceFeedsQuery = sourceFeeds match {
       case Nil => None
       case sourceFeeds =>
         Some(
           sqls.joinWithOr(
             sourceFeeds.map(sourceFeed =>
-              sqls"($contentCol->>'source-feed') = $sourceFeed"
+              sqls"upper($contentCol->>'source-feed') = upper($sourceFeed)"
             ): _*
           )
         )
