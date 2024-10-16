@@ -40,9 +40,12 @@ describe('urlToConfig', () => {
 
 describe('configToUrl', () => {
 	it('converts config to querystring', () => {
-		const config = { view: 'feed', query: { q: 'abc' } } as const;
+		const config = {
+			view: 'feed' as const,
+			query: { q: 'abc', supplier: ['REUTERS'] },
+		};
 		const url = configToUrl(config);
-		expect(url).toBe('/feed?q=abc');
+		expect(url).toBe('/feed?q=abc&supplier=REUTERS');
 	});
 
 	it('converts default query config to empty querystring', () => {
@@ -52,11 +55,32 @@ describe('configToUrl', () => {
 
 	it('converts item config to querystring', () => {
 		const config = {
-			view: 'item',
+			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc' },
-		} as const;
+			query: { q: 'abc', supplier: ['REUTERS'] },
+		};
+		const url = configToUrl(config);
+		expect(url).toBe('/item/123?q=abc&supplier=REUTERS');
+	});
+
+	it('converts config with no supplier to querystring', () => {
+		const config = {
+			view: 'item' as const,
+			itemId: '123',
+			query: { q: 'abc', supplier: [] },
+		};
 		const url = configToUrl(config);
 		expect(url).toBe('/item/123?q=abc');
+	});
+	it('converts config with many suppliers to querystring', () => {
+		const config = {
+			view: 'item' as const,
+			itemId: '123',
+			query: { q: 'abc', supplier: ['AP', 'PA', 'REUTERS'] },
+		};
+		const url = configToUrl(config);
+		expect(url).toBe(
+			'/item/123?q=abc&supplier=AP&supplier=PA&supplier=REUTERS',
+		);
 	});
 });

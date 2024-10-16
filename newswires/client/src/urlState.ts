@@ -1,6 +1,6 @@
 import type { Config, Query } from './sharedTypes';
 
-export const defaultQuery: Query = { q: '' };
+export const defaultQuery: Query = { q: '', supplier: [] };
 
 export const defaultConfig: Config = Object.freeze({
 	view: 'home',
@@ -15,11 +15,13 @@ export function urlToConfig(location: {
 	const page = location.pathname.slice(1);
 	const urlSearchParams = new URLSearchParams(location.search);
 	const queryString = urlSearchParams.get('q');
+	const supplier = urlSearchParams.getAll('supplier');
 	const query: Query = {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
 				? queryString.toString()
 				: '',
+		supplier,
 	};
 
 	if (page === 'feed') {
@@ -49,6 +51,11 @@ export const paramsToQuerystring = (config: Query): string => {
 		Object.entries(config).reduce<Array<[string, string]>>((acc, [k, v]) => {
 			if (typeof v === 'string' && v.trim().length > 0) {
 				return [...acc, [k, v.trim()]];
+			} else if (Array.isArray(v)) {
+				const items: Array<[string, string]> = v
+					.filter((i) => typeof i === 'string' && i.trim().length > 0)
+					.map((i) => [k, i.trim()]);
+				return [...acc, ...items];
 			} else {
 				return acc;
 			}
