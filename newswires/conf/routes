@@ -8,7 +8,7 @@ GET     /                           controllers.ViteController.index()
 GET     /feed                       controllers.ViteController.index()
 GET     /item/*id                   controllers.ViteController.item(id: String)
 GET     /api/                       controllers.HomeController.index()
-GET     /api/search                 controllers.QueryController.query(q: Option[String], keywords: Option[String], beforeId: Option[Int], sinceId: Option[Int])
+GET     /api/search                 controllers.QueryController.query(q: Option[String], keywords: Option[String], supplier: List[String], beforeId: Option[Int], sinceId: Option[Int])
 GET     /api/keywords               controllers.QueryController.keywords(inLastHours: Option[Int], limit:Option[Int])
 GET     /api/item/*id               controllers.QueryController.item(id: Int)
 
