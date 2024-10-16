@@ -32,9 +32,10 @@ export const SideNav = () => {
 
 	const agencies: MenuItem[] = [
 		{ label: 'All', query: { q: '' } },
-		{ label: 'Reuters', query: { q: 'sourceFeed:Reuters' } },
-		{ label: 'AP', query: { q: 'sourceFeed:AP' } },
-		{ label: 'AFP', query: { q: 'sourceFeed:AFP' } },
+		{ label: 'Reuters', query: { q: '', supplier: ['REUTERS'] } },
+		{ label: 'AP', query: { q: '', supplier: ['AP'] } },
+		{ label: 'PA', query: { q: '', supplier: ['PA'] } },
+		{ label: 'AAP', query: { q: '', supplier: ['AAP'] } },
 	];
 
 	const savedSearches: MenuItem[] = [

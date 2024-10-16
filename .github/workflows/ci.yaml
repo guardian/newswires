@@ -63,6 +63,7 @@ jobs:
           npm ci
           npm run lint:ci
           npm run format:ci
+          npm test
           popd
 
           sbt clean scalafmtCheckAll compile test Debian/packageBin normalisePackageName
