@@ -60,10 +60,8 @@ jobs:
         working-directory: newswires
         run: |
           pushd client
-          npm ci
-          npm run lint:ci
           npm run format:ci
-          npm test
+          npm run build
           popd
 
           sbt clean scalafmtCheckAll compile test Debian/packageBin normalisePackageName

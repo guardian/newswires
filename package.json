@@ -4,7 +4,8 @@
 	"description": "Newswires feed app",
 	"workspaces": [
 		"cdk",
-		"ingestion-lambda"
+		"ingestion-lambda",
+		"newswires/client"
 	],
 	"scripts": {
 		"test": "npm run test --workspaces --if-present",
