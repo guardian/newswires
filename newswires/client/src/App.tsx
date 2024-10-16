@@ -73,21 +73,10 @@ export function App() {
 				{status !== 'error' && (
 					<>
 						<EuiShowFor sizes={['xs', 's']}>
-							{view !== 'item' && status == 'success' && <Feed />}
-							{view == 'item' && <Item id={selectedItemId} />}
-							{view !== 'item' && status == 'loading' && (
-								<EuiEmptyPrompt
-									body={<p>Loading</p>}
-									iconType={'clock'}
-									color="subdued"
-									layout="horizontal"
-									titleSize="s"
-								/>
-							)}
+							{view === 'item' ? <Item id={selectedItemId} /> : <Feed />}
 						</EuiShowFor>
 						<EuiShowFor sizes={['m', 'l', 'xl']}>
-							{view !== 'item' && <Feed />}
-							{view == 'item' && (
+							{view === 'item' ? (
 								<EuiResizableContainer className="eui-fullHeight">
 									{(EuiResizablePanel, EuiResizableButton) => (
 										<>
@@ -109,6 +98,8 @@ export function App() {
 										</>
 									)}
 								</EuiResizableContainer>
+							) : (
+								<Feed />
 							)}
 						</EuiShowFor>
 					</>
