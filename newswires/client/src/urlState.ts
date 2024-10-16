@@ -47,8 +47,8 @@ export const configToUrl = (config: Config): string => {
 };
 
 export const paramsToQuerystring = (config: Query): string => {
-	const params = Object.fromEntries(
-		Object.entries(config).reduce<Array<[string, string]>>((acc, [k, v]) => {
+	const params = Object.entries(config).reduce<Array<[string, string]>>(
+		(acc, [k, v]) => {
 			if (typeof v === 'string' && v.trim().length > 0) {
 				return [...acc, [k, v.trim()]];
 			} else if (Array.isArray(v)) {
@@ -59,7 +59,8 @@ export const paramsToQuerystring = (config: Query): string => {
 			} else {
 				return acc;
 			}
-		}, []),
+		},
+		[],
 	);
 	const querystring = new URLSearchParams(params).toString();
 	return querystring.length !== 0 ? `?${querystring}` : '';
