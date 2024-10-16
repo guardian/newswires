@@ -88,8 +88,7 @@ const WireDataRow = ({
 				<EuiFlexGroup direction="column" gutterSize="xs">
 					<EuiTitle size="xxs">
 						<h3>
-							{hasSlug && content.slug}
-							{!hasSlug && (content.headline ?? 'No headline')}
+							{hasSlug ? content.slug : (content.headline ?? 'No headline')}
 						</h3>
 					</EuiTitle>
 					{hasSlug && (
