@@ -12,7 +12,7 @@ import {
 	EuiTitle,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
@@ -23,7 +23,7 @@ export const Item = ({ id }: { id: string }) => {
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
 
-	const currentUrl = useMemo(() => window.location.href, []);
+	const currentUrl = window.location.href;
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 
 	const pushedFlyoutTitleId = useGeneratedHtmlId({
