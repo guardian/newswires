@@ -34,6 +34,14 @@ module.exports = {
 		],
 		'prettier/prettier': 'warn',
 		'react/no-unknown-property': ['error', { ignore: ['css'] }],
+		'no-restricted-syntax': [
+			'error',
+			{
+				message:
+					"Don't use `fetch` directly, please use the `pandaFetch` abstraction, to get automatic session refreshes",
+				selector: "CallExpression[callee.name='fetch']",
+			},
+		],
 	},
 	settings: {
 		react: {

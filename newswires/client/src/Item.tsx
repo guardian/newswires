@@ -13,6 +13,7 @@ import {
 	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { useEffect, useState } from 'react';
+import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
@@ -32,7 +33,7 @@ export const Item = ({ id }: { id: string }) => {
 
 	useEffect(() => {
 		// fetch item data from /api/item/:id
-		fetch(`/api/item/${id}`)
+		pandaFetch(`/api/item/${id}`)
 			.then((res) => {
 				if (res.status === 404) {
 					throw new Error('Item not found');
