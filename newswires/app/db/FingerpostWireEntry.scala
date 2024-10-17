@@ -96,8 +96,8 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   }
 
   case class QueryResponse(
-      results: List[FingerpostWireEntry],
-      keywordCounts: Map[String, Int]
+      results: List[FingerpostWireEntry]
+//      keywordCounts: Map[String, Int]
   )
   private object QueryResponse {
     implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
@@ -166,11 +166,11 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       .list()
       .apply()
 
-    val keywordCounts = getKeywords(additionalWhereClauses =
-      commonWhereClauses
-    ) // TODO do this in parallel
+//    val keywordCounts = getKeywords(additionalWhereClauses =
+//      commonWhereClauses
+//    ) // TODO do this in parallel
 
-    QueryResponse(results, keywordCounts)
+    QueryResponse(results /*, keywordCounts*/ )
   }
 
   def getKeywords(
