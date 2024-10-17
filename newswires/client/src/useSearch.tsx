@@ -9,6 +9,7 @@ import {
 	useState,
 } from 'react';
 import { z } from 'zod';
+import { pandaFetch } from './panda-session';
 import type { Config, Query, WiresQueryResponse } from './sharedTypes';
 import {
 	ConfigSchema,
@@ -187,7 +188,7 @@ function reducer(state: State, action: Action): State {
 
 async function fetchResults(query: Query): Promise<WiresQueryResponse> {
 	const queryString = paramsToQuerystring(query);
-	const response = await fetch(`/api/search${queryString}`, {
+	const response = await pandaFetch(`/api/search${queryString}`, {
 		headers: {
 			Accept: 'application/json',
 		},

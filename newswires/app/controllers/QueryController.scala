@@ -24,7 +24,7 @@ class QueryController(
       suppliers: List[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
-  ): Action[AnyContent] = AuthAction {
+  ): Action[AnyContent] = apiAuthAction {
 
     Ok(
       Json.toJson(
@@ -43,7 +43,7 @@ class QueryController(
   def keywords(
       maybeInLastHours: Option[Int],
       maybeLimit: Option[Int]
-  ): Action[AnyContent] = AuthAction {
+  ): Action[AnyContent] = apiAuthAction {
     val results = FingerpostWireEntry.getKeywords(maybeInLastHours, maybeLimit)
     Ok(Json.toJson(results))
   }
