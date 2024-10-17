@@ -37,7 +37,7 @@ export type WireData = z.infer<typeof WireDataSchema>;
 
 export const WiresQueryResponseSchema = z.object({
 	results: z.array(WireDataSchema),
-	keywordCounts: z.record(z.string(), z.number()),
+	// keywordCounts: z.record(z.string(), z.number()),
 });
 
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
