@@ -1319,7 +1319,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Port": "5432",
         "PubliclyAccessible": false,
         "StorageEncrypted": true,
-        "StorageType": "gp2",
+        "StorageType": "gp3",
         "Tags": [
           {
             "Key": "App",
