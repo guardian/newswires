@@ -1,0 +1,19 @@
+name: Snyk
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  security:
+    uses: guardian/.github/.github/workflows/sbt-node-snyk.yml@main
+    defaults:
+      run:
+        working-directory: newswires
+    with:
+      ORG: guardian
+      SKIP_NODE: false
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
