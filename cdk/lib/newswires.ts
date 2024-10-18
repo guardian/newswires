@@ -22,6 +22,7 @@ import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import {
 	DatabaseInstanceEngine,
 	PostgresEngineVersion,
+	StorageType,
 } from 'aws-cdk-lib/aws-rds';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
@@ -66,6 +67,9 @@ export class Newswires extends GuStack {
 				version: PostgresEngineVersion.of('16.4', '16'),
 				// version: PostgresEngineVersion.VER_16, // FIXME temporary, until VER_16 defaults to 16.4
 			}),
+			storageType: StorageType.GP3,
+			iops: 3000, // the default for gp3 - not required but nice to declare
+			storageThroughput: 125, // the default for gp3
 			autoMinorVersionUpgrade: false, // FIXME temporary, until rds defaults version 16 to 16.4
 		});
 
