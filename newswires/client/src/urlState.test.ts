@@ -44,7 +44,13 @@ describe('urlToConfig', () => {
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
-			query: { ...defaultQuery, q: 'abc', supplier: ['AP', 'PA'] },
+			query: {
+				q: 'abc',
+				supplier: ['AP', 'PA'],
+				supplierExcl: [],
+				keywords: undefined,
+				keywordsExcl: undefined,
+			},
 		});
 	});
 
@@ -54,6 +60,45 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: { ...defaultQuery, q: 'abc', supplier: [] },
+		});
+	});
+
+	it('can exclude multiple suppliers', () => {
+		const url = makeFakeLocation('/feed?q=abc&supplierExcl=PA');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				supplierExcl: ['PA'],
+			},
+		});
+	});
+
+	it('can pass keywords', () => {
+		const url = makeFakeLocation('/feed?q=abc&keywords=Sports%2CPolitics');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				keywords: 'Sports,Politics',
+			},
+		});
+	});
+
+	it('can exclude keywords', () => {
+		const url = makeFakeLocation('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				keywordsExcl: 'Sports,Politics',
+			},
 		});
 	});
 });
@@ -111,5 +156,34 @@ describe('configToUrl', () => {
 		expect(url).toBe(
 			'/item/123?q=abc&supplier=AP&supplier=PA&supplier=REUTERS',
 		);
+	});
+
+	it('converts config with many excluded suppliers to querystring', () => {
+		const config = {
+			view: 'feed' as const,
+			query: { q: 'abc', supplierExcl: ['AP', 'PA', 'REUTERS'] },
+		};
+		const url = configToUrl(config);
+		expect(url).toBe(
+			'/feed?q=abc&supplierExcl=AP&supplierExcl=PA&supplierExcl=REUTERS',
+		);
+	});
+
+	it('converts config with many keywords to querystring', () => {
+		const config = {
+			view: 'feed' as const,
+			query: { q: 'abc', keywords: 'Sports,Politics' },
+		};
+		const url = configToUrl(config);
+		expect(url).toBe('/feed?q=abc&keywords=Sports%2CPolitics');
+	});
+
+	it('converts config with many excluded keywords to querystring', () => {
+		const config = {
+			view: 'feed' as const,
+			query: { q: 'abc', keywordsExcl: 'Sports,Politics' },
+		};
+		const url = configToUrl(config);
+		expect(url).toBe('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
 	});
 });
