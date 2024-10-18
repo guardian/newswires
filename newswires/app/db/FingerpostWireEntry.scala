@@ -137,7 +137,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
             .toString()}::jsonb"""
       ),
       maybeFreeTextQuery.map(query =>
-        sqls"phraseto_tsquery($query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+        sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
       sourceFeedsQuery
     ).flatten
