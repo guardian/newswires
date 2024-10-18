@@ -1,8 +1,9 @@
 package controllers
 
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
-import db.FingerpostWireEntry
+import db.{FingerpostWireEntry, SearchParams}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
@@ -23,15 +24,24 @@ class QueryController(
       maybeKeywords: Option[String],
       suppliers: List[String],
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
-  ): Action[AnyContent] = apiAuthAction {
+      maybeSinceId: Option[Int],
+  ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
+    val queryParams = SearchParams(
+      text = maybeFreeTextQuery,
+      keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
+      keywordExcl = request
+        .getQueryString("keywordsExcl")
+        .map(_.split(",").toList)
+        .getOrElse(Nil),
+      suppliersIncl = suppliers,
+      suppliersExcl =
+        request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil)
+    )
 
     Ok(
       Json.toJson(
         FingerpostWireEntry.query(
-          maybeFreeTextQuery,
-          maybeKeywords.map(_.split(',').toList),
-          suppliers,
+          queryParams,
           maybeBeforeId,
           maybeSinceId,
           pageSize = 30
