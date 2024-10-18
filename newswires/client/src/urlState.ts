@@ -1,6 +1,12 @@
 import type { Config, Query } from './sharedTypes';
 
-export const defaultQuery: Query = { q: '', supplier: [], supplierExcl: [] };
+export const defaultQuery: Query = {
+	q: '',
+	supplier: [],
+	supplierExcl: [],
+	keywords: undefined,
+	keywordsExcl: undefined,
+};
 
 export const defaultConfig: Config = Object.freeze({
 	view: 'home',
