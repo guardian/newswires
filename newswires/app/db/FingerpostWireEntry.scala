@@ -1,6 +1,8 @@
 package db
 
 import conf.SourceFeedSupplierMapping.sourceFeedsFromSupplier
+import db.CustomMappers.textArray
+import play.api.Logging
 import play.api.libs.json._
 import scalikejdbc._
 
@@ -56,7 +58,10 @@ case class FingerpostWireEntry(
     content: FingerpostWire
 )
 
-object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
+object FingerpostWireEntry
+    extends SQLSyntaxSupport[FingerpostWireEntry]
+    with Logging {
+
   implicit val format: OFormat[FingerpostWireEntry] =
     Json.format[FingerpostWireEntry]
 
@@ -78,7 +83,7 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       rs.long(fm.id),
       rs.string(fm.externalId),
       rs.zonedDateTime(fm.ingestedAt),
-      Json.parse(rs.string(fm.column("content"))).as[FingerpostWire]
+      Json.parse(rs.string(fm.content)).as[FingerpostWire]
     )
 
   private def clamp(low: Int, x: Int, high: Int): Int =
@@ -104,42 +109,113 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
   }
 
   def query(
-      maybeFreeTextQuery: Option[String],
-      maybeKeywords: Option[List[String]],
-      suppliers: List[String],
+      search: SearchParams,
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
   ): QueryResponse = DB readOnly { implicit session =>
     val effectivePageSize = clamp(0, pageSize, 250)
 
-    val contentCol = FingerpostWireEntry.syn.column("content")
-
     val sourceFeeds =
-      suppliers.flatMap(sourceFeedsFromSupplier(_).getOrElse(Nil))
+      search.suppliersIncl.flatMap(sourceFeedsFromSupplier(_).getOrElse(Nil))
+
+    val sourceFeedsExcl =
+      search.suppliersExcl.flatMap(sourceFeedsFromSupplier(_).getOrElse(Nil))
 
     val sourceFeedsQuery = sourceFeeds match {
       case Nil => None
-      case sourceFeeds =>
+      case _ =>
         Some(
-          sqls.joinWithOr(
-            sourceFeeds.map(sourceFeed =>
-              sqls"upper($contentCol->>'source-feed') = upper($sourceFeed)"
-            ): _*
+          sqls.in(
+            sqls"upper(${syn.content}->>'source-feed')",
+            sourceFeeds.map(feed => sqls"upper($feed)")
           )
         )
     }
 
+    val sourceFeedsExclQuery = sourceFeedsExcl match {
+      case Nil => None
+      case _ =>
+        val se = this.syntax("sourceFeedsExcl")
+        val doesContainFeeds = sqls.in(
+          sqls"upper(${se.content}->>'source-feed')",
+          sourceFeedsExcl.map(feed => sqls"upper($feed)")
+        )
+        // unpleasant, but the sort of trick you need to pull
+        // because "NOT IN (...)" doesn't hit an index.
+        // https://stackoverflow.com/a/19364694
+        Some(
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as se}
+                 |  WHERE ${syn.id} = ${se.id}
+                 |    AND $doesContainFeeds
+                 |)""".stripMargin
+        )
+    }
+
+    val keywordsQuery = search.keywordIncl match {
+      case Nil => None
+      case keywords =>
+        val keywordsJsonb = Json.toJson(keywords).toString()
+        Some(
+          sqls"""(${syn.content} -> 'keywords') @> $keywordsJsonb::jsonb"""
+        )
+    }
+
+    val keywordsExclQuery = search.keywordExcl match {
+      case Nil => None
+      case keywords =>
+        val ke = this.syntax("keywordsExcl")
+        // "??|" is actually the "?|" operator - doubled to prevent the
+        // SQL driver from treating it as a placeholder for a parameter
+        // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
+        val doesContainKeywords =
+          sqls"(${ke.content}->'keywords') ??| ${textArray(keywords)}"
+        // unpleasant, but the kind of trick you need to pull because
+        // NOT [row] ?| [list] won't use the index.
+        // https://stackoverflow.com/a/19364694
+        Some(
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as ke}
+                 |  WHERE ${syn.id} = ${ke.id}
+                 |    AND $doesContainKeywords
+                 |)""".stripMargin
+        )
+    }
+
+    val subjectsQuery = search.subjectsIncl match {
+      case Nil => None
+      case subjects =>
+        Some(
+          sqls"(${syn.content} -> 'subjects' -> 'code') ??& ${textArray(subjects)}"
+        )
+    }
+
+    val subjectsExclQuery = search.subjectsExcl match {
+      case Nil => None
+      case subjects =>
+        val se = this.syntax("subjectsExcl")
+        val doesContainSubjects =
+          sqls"(${se.content}->'subjects'->'code') ??| ${textArray(subjects)}"
+        Some(
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as se}
+                 |  WHERE ${syn.id} = ${se.id}
+                 |    AND $doesContainSubjects
+                 |)""".stripMargin
+        )
+    }
+
     val commonWhereClauses = List(
-      maybeKeywords.map(keywords =>
-        sqls"""($contentCol -> 'keywords') @> ${Json
-            .toJson(keywords)
-            .toString()}::jsonb"""
-      ),
-      maybeFreeTextQuery.map(query =>
+      keywordsQuery,
+      keywordsExclQuery,
+      search.text.map(query =>
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
-      sourceFeedsQuery
+      sourceFeedsQuery,
+      sourceFeedsExclQuery,
+      subjectsQuery,
+      subjectsExclQuery
     ).flatten
 
     val dataOnlyWhereClauses = List(
@@ -156,12 +232,16 @@ object FingerpostWireEntry extends SQLSyntaxSupport[FingerpostWireEntry] {
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
 
-    val results = sql"""| SELECT $selectAllStatement
-                        | FROM ${FingerpostWireEntry as syn}
-                        | $whereClause
-                        | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
-                        | LIMIT $effectivePageSize
-                        | """.stripMargin
+    val query = sql"""| SELECT $selectAllStatement
+                      | FROM ${FingerpostWireEntry as syn}
+                      | $whereClause
+                      | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+                      | LIMIT $effectivePageSize
+                      | """.stripMargin
+
+//    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
+
+    val results = query
       .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()

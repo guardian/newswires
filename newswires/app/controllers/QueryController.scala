@@ -1,11 +1,18 @@
 package controllers
 
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
-import db.FingerpostWireEntry
+import db.{FingerpostWireEntry, SearchParams}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{
+  Action,
+  AnyContent,
+  BaseController,
+  ControllerComponents,
+  Request
+}
 import play.api.{Configuration, Logging}
 
 class QueryController(
@@ -17,6 +24,11 @@ class QueryController(
 ) extends BaseController
     with Logging
     with AppAuthActions {
+  private def paramToList[T](
+      request: Request[T],
+      paramName: String
+  ): List[String] =
+    request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
 
   def query(
       maybeFreeTextQuery: Option[String],
@@ -24,14 +36,22 @@ class QueryController(
       suppliers: List[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
-  ): Action[AnyContent] = apiAuthAction {
+  ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
+    val queryParams = SearchParams(
+      text = maybeFreeTextQuery,
+      keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
+      keywordExcl = paramToList(request, "keywordsExcl"),
+      suppliersIncl = suppliers,
+      suppliersExcl =
+        request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil),
+      subjectsIncl = paramToList(request, "subjects"),
+      subjectsExcl = paramToList(request, "subjectsExcl")
+    )
 
     Ok(
       Json.toJson(
         FingerpostWireEntry.query(
-          maybeFreeTextQuery,
-          maybeKeywords.map(_.split(',').toList),
-          suppliers,
+          queryParams,
           maybeBeforeId,
           maybeSinceId,
           pageSize = 30
