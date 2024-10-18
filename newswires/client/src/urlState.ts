@@ -17,8 +17,8 @@ export function urlToConfig(location: {
 	const queryString = urlSearchParams.get('q');
 	const supplier = urlSearchParams.getAll('supplier');
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
-	const keywords = urlSearchParams.get("keywords") ?? undefined;
-	const keywordsExcl = urlSearchParams.get("keywordsExcl") ?? undefined;
+	const keywords = urlSearchParams.get('keywords') ?? undefined;
+	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
 	const query: Query = {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
