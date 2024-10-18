@@ -45,11 +45,9 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
+				...defaultQuery,
 				q: 'abc',
 				supplier: ['AP', 'PA'],
-				supplierExcl: [],
-				keywords: undefined,
-				keywordsExcl: undefined,
 			},
 		});
 	});
@@ -98,6 +96,36 @@ describe('urlToConfig', () => {
 				...defaultQuery,
 				q: 'abc',
 				keywordsExcl: 'Sports,Politics',
+			},
+		});
+	});
+
+	it('can pass subjects', () => {
+		const url = makeFakeLocation(
+			'/feed?q=abc&subjects=medtop%3A08000000%2Cmedtop%3A20001340',
+		);
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				subjects: 'medtop:08000000,medtop:20001340',
+			},
+		});
+	});
+
+	it('can exclude subjects', () => {
+		const url = makeFakeLocation(
+			'/feed?q=abc&subjectsExcl=medtop%3A08000000%2Cmedtop%3A20001340',
+		);
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				subjectsExcl: 'medtop:08000000,medtop:20001340',
 			},
 		});
 	});
@@ -185,5 +213,27 @@ describe('configToUrl', () => {
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
+	});
+
+	it('converts config with many subjects to querystring', () => {
+		const config = {
+			view: 'feed' as const,
+			query: { q: 'abc', subjects: 'medtop:08000000,medtop:20001340' },
+		};
+		const url = configToUrl(config);
+		expect(url).toBe(
+			'/feed?q=abc&subjects=medtop%3A08000000%2Cmedtop%3A20001340',
+		);
+	});
+
+	it('converts config with many excluded subjects to querystring', () => {
+		const config = {
+			view: 'feed' as const,
+			query: { q: 'abc', subjectsExcl: 'medtop:08000000,medtop:20001340' },
+		};
+		const url = configToUrl(config);
+		expect(url).toBe(
+			'/feed?q=abc&subjectsExcl=medtop%3A08000000%2Cmedtop%3A20001340',
+		);
 	});
 });

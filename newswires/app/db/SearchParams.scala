@@ -5,5 +5,7 @@ case class SearchParams(
     keywordIncl: List[String] = Nil,
     keywordExcl: List[String] = Nil,
     suppliersIncl: List[String] = Nil,
-    suppliersExcl: List[String] = Nil
+    suppliersExcl: List[String] = Nil,
+    subjectsIncl: List[String] = Nil,
+    subjectsExcl: List[String] = Nil
 )
