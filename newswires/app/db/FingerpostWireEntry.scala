@@ -136,7 +136,7 @@ object FingerpostWireEntry
     val sourceFeedsExclQuery = sourceFeedsExcl match {
       case Nil => None
       case _ =>
-        val se = this.syntax("se")
+        val se = this.syntax("sourceFeedsExcl")
         val doesContainFeeds = sqls.in(
           sqls"upper(${se.content}->>'source-feed')",
           sourceFeedsExcl.map(feed => sqls"upper($feed)")
@@ -165,7 +165,7 @@ object FingerpostWireEntry
     val keywordsExclQuery = search.keywordExcl match {
       case Nil => None
       case keywords =>
-        val ke = this.syntax("ke")
+        val ke = this.syntax("keywordsExcl")
         // "??|" is actually the "?|" operator - doubled to prevent the
         // SQL driver from treating it as a placeholder for a parameter
         // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
@@ -183,6 +183,29 @@ object FingerpostWireEntry
         )
     }
 
+    val subjectsQuery = search.subjectsIncl match {
+      case Nil => None
+      case subjects =>
+        Some(
+          sqls"(${syn.content} -> 'subjects' -> 'code') ??& ${textArray(subjects)}"
+        )
+    }
+
+    val subjectsExclQuery = search.subjectsExcl match {
+      case Nil => None
+      case subjects =>
+        val se = this.syntax("subjectsExcl")
+        val doesContainSubjects =
+          sqls"(${se.content}->'subjects'->'code') ??| ${textArray(subjects)}"
+        Some(
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as se}
+                 |  WHERE ${syn.id} = ${se.id}
+                 |    AND $doesContainSubjects
+                 |)""".stripMargin
+        )
+    }
+
     val commonWhereClauses = List(
       keywordsQuery,
       keywordsExclQuery,
@@ -190,7 +213,9 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
       sourceFeedsQuery,
-      sourceFeedsExclQuery
+      sourceFeedsExclQuery,
+      subjectsQuery,
+      subjectsExclQuery
     ).flatten
 
     val dataOnlyWhereClauses = List(

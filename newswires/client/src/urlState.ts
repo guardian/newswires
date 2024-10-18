@@ -6,6 +6,8 @@ export const defaultQuery: Query = {
 	supplierExcl: [],
 	keywords: undefined,
 	keywordsExcl: undefined,
+	subjects: undefined,
+	subjectsExcl: undefined,
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -25,6 +27,8 @@ export function urlToConfig(location: {
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
 	const keywords = urlSearchParams.get('keywords') ?? undefined;
 	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
+	const subjects = urlSearchParams.get('subjects') ?? undefined;
+	const subjectsExcl = urlSearchParams.get('subjectsExcl') ?? undefined;
 	const query: Query = {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
@@ -34,6 +38,8 @@ export function urlToConfig(location: {
 		supplierExcl,
 		keywords,
 		keywordsExcl,
+		subjects,
+		subjectsExcl,
 	};
 
 	if (page === 'feed') {

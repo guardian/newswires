@@ -6,7 +6,13 @@ import com.gu.permissions.PermissionsProvider
 import db.{FingerpostWireEntry, SearchParams}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{
+  Action,
+  AnyContent,
+  BaseController,
+  ControllerComponents,
+  Request
+}
 import play.api.{Configuration, Logging}
 
 class QueryController(
@@ -18,6 +24,11 @@ class QueryController(
 ) extends BaseController
     with Logging
     with AppAuthActions {
+  private def paramToList[T](
+      request: Request[T],
+      paramName: String
+  ): List[String] =
+    request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
 
   def query(
       maybeFreeTextQuery: Option[String],
@@ -29,13 +40,12 @@ class QueryController(
     val queryParams = SearchParams(
       text = maybeFreeTextQuery,
       keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
-      keywordExcl = request
-        .getQueryString("keywordsExcl")
-        .map(_.split(",").toList)
-        .getOrElse(Nil),
+      keywordExcl = paramToList(request, "keywordsExcl"),
       suppliersIncl = suppliers,
       suppliersExcl =
-        request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil)
+        request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil),
+      subjectsIncl = paramToList(request, "subjects"),
+      subjectsExcl = paramToList(request, "subjectsExcl")
     )
 
     Ok(
