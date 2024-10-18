@@ -24,7 +24,7 @@ class QueryController(
       maybeKeywords: Option[String],
       suppliers: List[String],
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int],
+      maybeSinceId: Option[Int]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val queryParams = SearchParams(
       text = maybeFreeTextQuery,

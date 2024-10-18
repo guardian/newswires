@@ -1,6 +1,7 @@
 package db
 
 import conf.SourceFeedSupplierMapping.sourceFeedsFromSupplier
+import db.CustomMappers.textArray
 import play.api.Logging
 import play.api.libs.json._
 import scalikejdbc._
@@ -60,6 +61,7 @@ case class FingerpostWireEntry(
 object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
+
   implicit val format: OFormat[FingerpostWireEntry] =
     Json.format[FingerpostWireEntry]
 
@@ -164,11 +166,13 @@ object FingerpostWireEntry
       case Nil => None
       case keywords =>
         val ke = this.syntax("ke")
-        val keywordsJsonb = Json.toJson(keywords).toString()
+        // "??|" is actually the "?|" operator - doubled to prevent the
+        // SQL driver from treating it as a placeholder for a parameter
+        // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
         val doesContainKeywords =
-          sqls"(${ke.content}->'keywords') @> $keywordsJsonb::jsonb"
+          sqls"(${ke.content}->'keywords') ??| ${textArray(keywords)}"
         // unpleasant, but the kind of trick you need to pull because
-        // NOT [row] @> [list] won't use the index.
+        // NOT [row] ?| [list] won't use the index.
         // https://stackoverflow.com/a/19364694
         Some(
           sqls"""|NOT EXISTS (
@@ -203,12 +207,16 @@ object FingerpostWireEntry
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
 
-    val results = sql"""| SELECT $selectAllStatement
-                        | FROM ${FingerpostWireEntry as syn}
-                        | $whereClause
-                        | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
-                        | LIMIT $effectivePageSize
-                        | """.stripMargin
+    val query = sql"""| SELECT $selectAllStatement
+                      | FROM ${FingerpostWireEntry as syn}
+                      | $whereClause
+                      | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+                      | LIMIT $effectivePageSize
+                      | """.stripMargin
+
+//    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
+
+    val results = query
       .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()
