@@ -84,7 +84,9 @@ object SourceFeedSupplierMapping {
       "PA ROYAL ACADEMY OF ENGINEERING",
       "PA SNAP",
       "PA THE TRUSSELL TRUST",
-      "PA UK GOVERNMENT AND PUBLIC SECTOR"
+      "PA UK GOVERNMENT AND PUBLIC SECTOR",
+      "PA HSL",
+      "PA JUST GROUP"
     )
   )
 }
