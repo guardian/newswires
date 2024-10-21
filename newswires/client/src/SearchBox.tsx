@@ -1,29 +1,22 @@
-import { EuiFieldSearch } from '@elastic/eui';
+import { EuiFieldSearch, EuiForm } from '@elastic/eui';
 import { useMemo, useState } from 'react';
 import { debounce } from './debounce';
-import type { Query } from './sharedTypes';
-import { type SearchHistory, useSearch } from './useSearch';
+import { useSearch } from './useSearch';
 
-export function SearchBox({
-	initialQuery,
-	update,
-	incremental = false,
-}: {
-	initialQuery: Query;
-	update: (query: Query) => void;
-	searchHistory: SearchHistory;
-	incremental?: boolean;
-}) {
-	const { config } = useSearch();
-	const [freeTextQuery, setFreeTextQuery] = useState<string>(initialQuery.q);
+export function SearchBox({ incremental = false }: { incremental?: boolean }) {
+	const { config, handleEnterQuery } = useSearch();
+	const [freeTextQuery, setFreeTextQuery] = useState<string>(config.query.q);
 
-	const debouncedUpdate = useMemo(() => debounce(update, 750), [update]);
+	const debouncedUpdate = useMemo(
+		() => debounce(handleEnterQuery, 750),
+		[handleEnterQuery],
+	);
 
 	return (
-		<form
+		<EuiForm
 			onSubmit={(e) => {
 				e.preventDefault();
-				update({ ...config.query, q: freeTextQuery });
+				handleEnterQuery({ ...config.query, q: freeTextQuery });
 			}}
 		>
 			<EuiFieldSearch
@@ -36,7 +29,8 @@ export function SearchBox({
 					}
 				}}
 				aria-label="search wires"
+				style={{ borderRadius: '0', border: 'none' }}
 			/>
-		</form>
+		</EuiForm>
 	);
 }

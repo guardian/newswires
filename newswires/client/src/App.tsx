@@ -13,7 +13,6 @@ import {
 import { css } from '@emotion/react';
 import { Feed } from './Feed';
 import { Item } from './Item';
-import { SearchBox } from './SearchBox';
 import { SideNav } from './SideNav';
 import { defaultQuery } from './urlState';
 import { useSearch } from './useSearch';
@@ -29,8 +28,8 @@ export function App() {
 		handlePreviousItem,
 	} = useSearch();
 
-	const { view, query, itemId: selectedItemId } = config;
-	const { successfulQueryHistory, status } = state;
+	const { view, itemId: selectedItemId } = config;
+	const { status } = state;
 
 	const isPoppedOut = !!window.opener;
 
@@ -64,14 +63,6 @@ export function App() {
 							</EuiTitle>
 							<EuiSpacer size={'s'} />
 							<SideNav />
-						</EuiHeaderSectionItem>
-						<EuiHeaderSectionItem>
-							<SearchBox
-								initialQuery={query}
-								searchHistory={successfulQueryHistory}
-								update={handleEnterQuery}
-								incremental={true}
-							/>
 						</EuiHeaderSectionItem>
 					</EuiHeader>
 				)}
