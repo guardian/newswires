@@ -19,6 +19,7 @@ const FingerpostContentSchema = z
 			code: z.array(z.string()),
 		}),
 		keywords: z.array(z.string()),
+		mediaCatCodes: z.array(z.string()),
 		language: z.string(),
 		usage: z.string(),
 		location: z.string(),
@@ -50,6 +51,8 @@ export const QuerySchema = z.object({
 	keywordsExcl: z.ostring(),
 	subjects: z.ostring(),
 	subjectsExcl: z.ostring(),
+	mediaCatCodes: z.ostring(),
+	mediaCatCodesExcl: z.ostring(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;

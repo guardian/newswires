@@ -32,19 +32,28 @@ case class FingerpostWire(
     priority: Option[String],
     subjects: Option[FingerpostWireSubjects],
     keywords: Option[List[String]],
+    mediaCatCodes: Option[List[String]],
     language: Option[String],
     usage: Option[String],
     location: Option[String],
-    bodyText: Option[String],
-    mediaCatCodes: Option[List[String]],
+    bodyText: Option[String]
 )
 object FingerpostWire {
   // rename a couple of fields
+  private val normaliseSubjects: JsValue => JsValue = {
+    case JsObject(obj) =>
+      JsObject(obj.map {
+        case ("code", JsString("")) => ("code", JsArray(Seq.empty))
+        case other                  => other
+      })
+    case other => other
+  }
   private val reads: Reads[FingerpostWire] =
     Json.reads[FingerpostWire].preprocess { case JsObject(obj) =>
       JsObject(obj.map {
         case ("source-feed", value) => ("sourceFeed", value)
         case ("body_text", value)   => ("bodyText", value)
+        case ("subjects", value)    => ("subjects", normaliseSubjects(value))
         case other                  => other
       })
     }
@@ -159,7 +168,7 @@ object FingerpostWireEntry
       case keywords =>
         val keywordsJsonb = Json.toJson(keywords).toString()
         Some(
-          sqls"""(${syn.content} -> 'keywords') @> $keywordsJsonb::jsonb"""
+          sqls"""(${syn.content}->'keywords') @> $keywordsJsonb::jsonb"""
         )
     }
 
@@ -188,7 +197,7 @@ object FingerpostWireEntry
       case Nil => None
       case subjects =>
         Some(
-          sqls"(${syn.content} -> 'subjects' -> 'code') ??& ${textArray(subjects)}"
+          sqls"(${syn.content}->'subjects'->'code') ??& ${textArray(subjects)}"
         )
     }
 
@@ -207,6 +216,29 @@ object FingerpostWireEntry
         )
     }
 
+    val mediaCatCodesQuery = search.mediaCatCodesIncl match {
+      case Nil => None
+      case mediaCatCodes =>
+        Some(
+          sqls"(${syn.content}->'mediaCatCodes') ??& ${textArray(mediaCatCodes)}"
+        )
+    }
+
+    val mediaCatCodesExclQuery = search.mediaCatCodesExcl match {
+      case Nil => None
+      case mediaCatCodes =>
+        val mcce = this.syntax("mediaCatCodesExcl")
+        val doesContainCodes =
+          sqls"(${mcce.content}->'mediaCatCodes') ??| ${textArray(mediaCatCodes)}"
+        Some(
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as mcce}
+                 |  WHERE ${syn.id} = ${mcce.id}
+                 |    AND $doesContainCodes
+                 |)""".stripMargin
+        )
+    }
+
     val commonWhereClauses = List(
       keywordsQuery,
       keywordsExclQuery,
@@ -216,7 +248,9 @@ object FingerpostWireEntry
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       subjectsQuery,
-      subjectsExclQuery
+      subjectsExclQuery,
+      mediaCatCodesQuery,
+      mediaCatCodesExclQuery
     ).flatten
 
     val dataOnlyWhereClauses = List(

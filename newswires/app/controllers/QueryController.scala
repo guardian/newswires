@@ -45,7 +45,9 @@ class QueryController(
       suppliersExcl =
         request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil),
       subjectsIncl = paramToList(request, "subjects"),
-      subjectsExcl = paramToList(request, "subjectsExcl")
+      subjectsExcl = paramToList(request, "subjectsExcl"),
+      mediaCatCodesIncl = paramToList(request, "mediaCatCodes"),
+      mediaCatCodesExcl = paramToList(request, "mediaCatCodesExcl")
     )
 
     Ok(
