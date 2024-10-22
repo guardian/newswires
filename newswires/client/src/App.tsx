@@ -32,6 +32,8 @@ export function App() {
 	const { view, query, itemId: selectedItemId } = config;
 	const { successfulQueryHistory, status } = state;
 
+	const isPoppedOut = !!window.opener;
+
 	return (
 		<EuiProvider colorMode="light">
 			<EuiPageTemplate
@@ -54,23 +56,25 @@ export function App() {
 					max-height: 100vh;
 				`}
 			>
-				<EuiHeader position="fixed">
-					<EuiHeaderSectionItem>
-						<EuiTitle size={'s'}>
-							<h1>Newswires</h1>
-						</EuiTitle>
-						<EuiSpacer size={'s'} />
-						<SideNav />
-					</EuiHeaderSectionItem>
-					<EuiHeaderSectionItem>
-						<SearchBox
-							initialQuery={query}
-							searchHistory={successfulQueryHistory}
-							update={handleEnterQuery}
-							incremental={true}
-						/>
-					</EuiHeaderSectionItem>
-				</EuiHeader>
+				{!isPoppedOut && (
+					<EuiHeader position="fixed">
+						<EuiHeaderSectionItem>
+							<EuiTitle size={'s'}>
+								<h1>Newswires</h1>
+							</EuiTitle>
+							<EuiSpacer size={'s'} />
+							<SideNav />
+						</EuiHeaderSectionItem>
+						<EuiHeaderSectionItem>
+							<SearchBox
+								initialQuery={query}
+								searchHistory={successfulQueryHistory}
+								update={handleEnterQuery}
+								incremental={true}
+							/>
+						</EuiHeaderSectionItem>
+					</EuiHeader>
+				)}
 				{status !== 'error' && (
 					<>
 						<EuiShowFor sizes={['xs', 's']}>
