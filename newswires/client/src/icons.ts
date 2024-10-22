@@ -22,6 +22,7 @@ import { icon as link } from '@elastic/eui/es/components/icon/assets/link';
 import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
 import { icon as menuLeft } from '@elastic/eui/es/components/icon/assets/menuLeft';
 import { icon as menuRight } from '@elastic/eui/es/components/icon/assets/menuRight';
+import { icon as popout } from '@elastic/eui/es/components/icon/assets/popout';
 import { icon as refresh } from '@elastic/eui/es/components/icon/assets/refresh';
 import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return_key';
 import { icon as search } from '@elastic/eui/es/components/icon/assets/search';
@@ -55,4 +56,5 @@ appendIconComponentCache({
 	heart,
 	link,
 	copyClipboard,
+	popout,
 });

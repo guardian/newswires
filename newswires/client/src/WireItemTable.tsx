@@ -1,6 +1,8 @@
 import {
+	EuiButton,
 	EuiFlexGroup,
 	euiScreenReaderOnly,
+	EuiSpacer,
 	EuiTable,
 	EuiTableBody,
 	EuiTableHeader,
@@ -22,8 +24,33 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 
 	const selectedWireId = config.itemId;
 
+	const isPoppedOut = !!window.opener;
+
 	return (
 		<div>
+			<EuiFlexGroup
+				justifyContent={'center'}
+				css={css`
+					position: sticky;
+					top: 45px;
+				`}
+			>
+				{!isPoppedOut && (
+					<EuiButton
+						iconType={'popout'}
+						onClick={() =>
+							window.open(
+								window.location.href,
+								'_blank',
+								'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+							)
+						}
+					>
+						Popout as ticker
+					</EuiButton>
+				)}
+			</EuiFlexGroup>
+			<EuiSpacer size="l" />
 			<EuiTable tableLayout="auto">
 				<EuiTableHeader
 					css={css`
