@@ -1,8 +1,6 @@
 import {
-	EuiButton,
 	EuiFlexGroup,
 	euiScreenReaderOnly,
-	EuiSpacer,
 	EuiTable,
 	EuiTableBody,
 	EuiTableHeader,
@@ -19,60 +17,46 @@ import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
 import { useSearch } from './useSearch';
 
+const fadeOutBackground = css`
+	animation: fadeOut ease-out 15s;
+	@keyframes fadeOut {
+		from {
+			background-color: aliceblue;
+		}
+		to {
+			background-color: white;
+		}
+	}
+`;
+
 export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 	const { config, handleSelectItem } = useSearch();
 
 	const selectedWireId = config.itemId;
 
-	const isPoppedOut = !!window.opener;
-
 	return (
-		<div>
-			<EuiFlexGroup
-				justifyContent={'center'}
+		<EuiTable tableLayout="auto">
+			<EuiTableHeader
 				css={css`
-					position: sticky;
-					top: 45px;
+					${euiScreenReaderOnly()}
 				`}
 			>
-				{!isPoppedOut && (
-					<EuiButton
-						iconType={'popout'}
-						onClick={() =>
-							window.open(
-								window.location.href,
-								'_blank',
-								'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-							)
-						}
-					>
-						Popout as ticker
-					</EuiButton>
-				)}
-			</EuiFlexGroup>
-			<EuiSpacer size="l" />
-			<EuiTable tableLayout="auto">
-				<EuiTableHeader
-					css={css`
-						${euiScreenReaderOnly()}
-					`}
-				>
-					<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
-					<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
-				</EuiTableHeader>
-				<EuiTableBody>
-					{wires.map(({ id, content }) => (
-						<WireDataRow
-							key={id}
-							id={id}
-							content={content}
-							selected={selectedWireId == id.toString()}
-							handleSelect={handleSelectItem}
-						/>
-					))}
-				</EuiTableBody>
-			</EuiTable>
-		</div>
+				<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
+				<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
+			</EuiTableHeader>
+			<EuiTableBody>
+				{wires.map(({ id, content, isFromRefresh }) => (
+					<WireDataRow
+						key={id}
+						id={id}
+						content={content}
+						isFromRefresh={isFromRefresh}
+						selected={selectedWireId == id.toString()}
+						handleSelect={handleSelectItem}
+					/>
+				))}
+			</EuiTableBody>
+		</EuiTable>
 	);
 };
 
@@ -80,11 +64,13 @@ const WireDataRow = ({
 	id,
 	content,
 	selected,
+	isFromRefresh,
 	handleSelect,
 }: {
 	id: number;
 	content: WireData['content'];
 	selected: boolean;
+	isFromRefresh: boolean;
 	handleSelect: (id: string) => void;
 }) => {
 	const theme = useEuiTheme();
@@ -103,12 +89,11 @@ const WireDataRow = ({
 			css={css`
 				&:hover {
 					background-color: ${primaryBgColor};
+					border-left: 4px solid ${theme.euiTheme.colors.accent};
 				}
 				border-left: 4px solid
 					${selected ? theme.euiTheme.colors.primary : 'transparent'};
-				&:hover {
-					border-left: 4px solid ${theme.euiTheme.colors.accent};
-				}
+				${isFromRefresh ? fadeOutBackground : ''}
 			`}
 		>
 			<EuiTableRowCell valign="baseline">

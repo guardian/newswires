@@ -40,24 +40,28 @@ const StateSchema = z.discriminatedUnion('status', [
 		error: z.string().optional(),
 		queryData: WiresQueryResponseSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
+		autoUpdate: z.boolean().default(true),
 	}),
 	z.object({
 		status: z.literal('loading'),
 		error: z.string().optional(),
 		queryData: WiresQueryResponseSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
+		autoUpdate: z.boolean().default(true),
 	}),
 	z.object({
 		status: z.literal('success'),
 		error: z.string().optional(),
 		queryData: WiresQueryResponseSchema,
 		successfulQueryHistory: SearchHistorySchema,
+		autoUpdate: z.boolean().default(true),
 	}),
 	z.object({
 		status: z.literal('error'),
 		error: z.string(),
 		queryData: WiresQueryResponseSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
+		autoUpdate: z.boolean().default(true),
 	}),
 ]);
 
@@ -79,6 +83,7 @@ const ActionSchema = z.discriminatedUnion('type', [
 		type: z.literal('UPDATE_RESULTS'),
 		data: WiresQueryResponseSchema,
 	}),
+	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
 ]);
 
 // Infer Action Type
@@ -90,13 +95,17 @@ function mergeQueryData(
 ): WiresQueryResponse {
 	const mergedResults = existing
 		? [
-				...newData.results.filter(
-					(newItem) =>
-						!existing.results
-							.map((existing) => existing.id)
-							.includes(newItem.id),
-				),
-				...existing.results,
+				...newData.results
+					.filter(
+						(newItem) =>
+							!existing.results
+								.map((existing) => existing.id)
+								.includes(newItem.id),
+					)
+					.map((newItem) => ({ ...newItem, isFromRefresh: true })),
+				...existing.results.map((existingItem) => ({
+					...existingItem,
+				})),
 			]
 		: newData.results;
 	return {
@@ -162,6 +171,11 @@ function reducer(state: State, action: Action): State {
 					return {
 						...state,
 						status: 'loading',
+					};
+				case 'TOGGLE_AUTO_UPDATE':
+					return {
+						...state,
+						autoUpdate: !state.autoUpdate,
 					};
 				default:
 					return state;
@@ -229,6 +243,7 @@ export type SearchContextShape = {
 	handleDeselectItem: () => void;
 	handleNextItem: () => void;
 	handlePreviousItem: () => void;
+	toggleAutoUpdate: () => void;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -242,6 +257,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		queryData: undefined,
 		successfulQueryHistory: [],
 		status: 'loading',
+		autoUpdate: true,
 	});
 
 	const pushConfigState = useCallback(
@@ -296,21 +312,22 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 		if (state.status === 'success') {
 			pollingInterval = setInterval(() => {
-				// Poll for updated results
-				fetchResults(
-					currentConfig.query,
-					Math.max(
-						...state.queryData.results.map((wire) => wire.id),
-					).toString(),
-				)
-					.then((data) => {
-						dispatch({ type: 'UPDATE_RESULTS', data });
-					})
-					.catch((error) => {
-						const errorMessage =
-							error instanceof Error ? error.message : 'unknown error';
-						dispatch({ type: 'FETCH_ERROR', error: errorMessage });
-					});
+				if (state.autoUpdate) {
+					fetchResults(
+						currentConfig.query,
+						Math.max(
+							...state.queryData.results.map((wire) => wire.id),
+						).toString(),
+					)
+						.then((data) => {
+							dispatch({ type: 'UPDATE_RESULTS', data });
+						})
+						.catch((error) => {
+							const errorMessage =
+								error instanceof Error ? error.message : 'unknown error';
+							dispatch({ type: 'FETCH_ERROR', error: errorMessage });
+						});
+				}
 			}, 6000);
 		}
 
@@ -319,7 +336,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				clearInterval(pollingInterval);
 			}
 		};
-	}, [state.status, currentConfig.query, state.queryData?.results]);
+	}, [
+		state.status,
+		state.autoUpdate,
+		currentConfig.query,
+		state.queryData?.results,
+	]);
 
 	const handleEnterQuery = (query: Query) => {
 		dispatch({ type: 'ENTER_QUERY' });
@@ -390,6 +412,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		handleSelectItem(results[previousIndex].id.toString());
 	};
 
+	const toggleAutoUpdate = () => {
+		dispatch({ type: 'TOGGLE_AUTO_UPDATE' });
+	};
+
 	return (
 		<SearchContext.Provider
 			value={{
@@ -401,6 +427,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				handleDeselectItem,
 				handleNextItem,
 				handlePreviousItem,
+				toggleAutoUpdate,
 			}}
 		>
 			{children}

@@ -31,6 +31,7 @@ export const WireDataSchema = z.object({
 	externalId: z.string(),
 	ingestedAt: z.string(),
 	content: FingerpostContentSchema,
+	isFromRefresh: z.boolean().default(false),
 });
 
 export type WireData = z.infer<typeof WireDataSchema>;
