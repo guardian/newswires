@@ -186,8 +186,14 @@ function reducer(state: State, action: Action): State {
 	}
 }
 
-async function fetchResults(query: Query): Promise<WiresQueryResponse> {
-	const queryString = paramsToQuerystring(query);
+async function fetchResults(
+	query: Query,
+	sinceId: string | undefined = undefined,
+): Promise<WiresQueryResponse> {
+	const queryToSerialise = sinceId
+		? { ...query, sinceId: sinceId.toString() }
+		: query;
+	const queryString = paramsToQuerystring(queryToSerialise);
 	const response = await pandaFetch(`/api/search${queryString}`, {
 		headers: {
 			Accept: 'application/json',
@@ -291,7 +297,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		if (state.status === 'success') {
 			pollingInterval = setInterval(() => {
 				// Poll for updated results
-				fetchResults(currentConfig.query)
+				fetchResults(
+					currentConfig.query,
+					Math.max(
+						...state.queryData.results.map((wire) => wire.id),
+					).toString(),
+				)
 					.then((data) => {
 						dispatch({ type: 'UPDATE_RESULTS', data });
 					})
@@ -300,7 +311,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 							error instanceof Error ? error.message : 'unknown error';
 						dispatch({ type: 'FETCH_ERROR', error: errorMessage });
 					});
-			}, 30000);
+			}, 6000);
 		}
 
 		return () => {
@@ -308,7 +319,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				clearInterval(pollingInterval);
 			}
 		};
-	}, [state.status, currentConfig.query]);
+	}, [state.status, currentConfig.query, state.queryData?.results]);
 
 	const handleEnterQuery = (query: Query) => {
 		dispatch({ type: 'ENTER_QUERY' });
