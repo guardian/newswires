@@ -18,6 +18,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { SearchBox } from './SearchBox';
 import { brandColours } from './sharedStyles';
 import type { Query } from './sharedTypes';
+import { useSaved } from './useFavourites';
 import { useSearch } from './useSearch';
 
 function decideLabelForQueryBadge(query: Query): string {
@@ -44,7 +45,14 @@ export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
 	const theme = useEuiTheme();
 
-	const { state, config, handleEnterQuery, toggleAutoUpdate } = useSearch();
+	const {
+		state,
+		config,
+		handleEnterQuery,
+		handleSelectItem,
+		toggleAutoUpdate,
+	} = useSearch();
+	const { saved } = useSaved();
 
 	const searchHistory = state.successfulQueryHistory;
 	const activeSuppliers = useMemo(
@@ -204,29 +212,59 @@ export const SideNav = () => {
 							})}
 						</EuiListGroup>
 					</EuiCollapsibleNavGroup>
-					<EuiCollapsibleNavGroup title={'Search history'}>
+					<EuiCollapsibleNavGroup
+						title={'Search history'}
+						css={css`
+							min-height: 20%;
+							max-height: 30%;
+							overflow-y: auto;
+						`}
+					>
 						{searchHistoryItems.length === 0 ? (
 							<EuiText size="s">{'No history yet'}</EuiText>
 						) : (
 							<EuiBadgeGroup color="subdued" gutterSize="s">
-								{searchHistoryItems.map(({ label, query, resultsCount }) => {
-									return (
-										<EuiBadge
-											key={label}
-											color="secondary"
-											onClick={() => {
-												handleEnterQuery(query);
-											}}
-											onClickAriaLabel="Apply filters"
-										>
-											{label}{' '}
-											<EuiBadge color="hollow">
-												{resultsCount === 30 ? '30+' : resultsCount}
+								{searchHistoryItems
+									.slice(0, 6)
+									.map(({ label, query, resultsCount }) => {
+										return (
+											<EuiBadge
+												key={label}
+												color="secondary"
+												onClick={() => {
+													handleEnterQuery(query);
+												}}
+												onClickAriaLabel="Apply filters"
+											>
+												{label}{' '}
+												<EuiBadge color="hollow">
+													{resultsCount === 30 ? '30+' : resultsCount}
+												</EuiBadge>
 											</EuiBadge>
-										</EuiBadge>
-									);
-								})}
+										);
+									})}
 							</EuiBadgeGroup>
+						)}
+					</EuiCollapsibleNavGroup>
+					<EuiCollapsibleNavGroup
+						title={'Saved items'}
+						css={css`
+							overflow-y: auto;
+						`}
+					>
+						{saved.length === 0 ? (
+							<EuiText size="s">{'No saved items'}</EuiText>
+						) : (
+							<EuiListGroup>
+								{saved.map((item) => (
+									<EuiListGroupItem
+										key={item.id}
+										label={item.headline}
+										onClick={() => handleSelectItem(item.id.toString())}
+										size="s"
+									/>
+								))}
+							</EuiListGroup>
 						)}
 					</EuiCollapsibleNavGroup>
 				</div>

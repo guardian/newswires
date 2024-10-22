@@ -16,13 +16,19 @@ import { useEffect, useMemo, useState } from 'react';
 import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { paramsToQuerystring } from './urlState';
+import { useSaved } from './useFavourites';
 import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
 
 export const Item = ({ id }: { id: string }) => {
 	const { handleDeselectItem, config } = useSearch();
+	const { saved, addSaved, removeSaved } = useSaved();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
+	const isSaved = useMemo(
+		() => saved.map((s) => s.id).includes(id),
+		[saved, id],
+	);
 	const [error, setError] = useState<string | undefined>(undefined);
 
 	const currentUrl = window.location.href;
@@ -94,7 +100,37 @@ export const Item = ({ id }: { id: string }) => {
 									aria-label="send to composer"
 									size="s"
 								/>
-								<EuiButtonIcon iconType={'heart'} aria-label="save" size="s" />
+								{isSaved ? (
+									<EuiButtonIcon
+										iconType={'starFilled'}
+										aria-label="remove from favourites"
+										size="s"
+										onClick={() =>
+											removeSaved({
+												id: id,
+												headline:
+													itemData.content.headline ??
+													itemData.content.slug ??
+													'',
+											})
+										}
+									/>
+								) : (
+									<EuiButtonIcon
+										iconType={'starEmpty'}
+										aria-label="save"
+										size="s"
+										onClick={() =>
+											addSaved({
+												id: id,
+												headline:
+													itemData.content.headline ??
+													itemData.content.slug ??
+													'',
+											})
+										}
+									/>
+								)}
 								<CopyButton textToCopy={currentUrl} />
 							</EuiFlexGroup>
 						</EuiFlexGroup>

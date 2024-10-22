@@ -1,4 +1,5 @@
 import {
+	EuiButtonIcon,
 	EuiFlexGroup,
 	euiScreenReaderOnly,
 	EuiTable,
@@ -13,9 +14,11 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
+import { useSaved } from './useFavourites';
 import { useSearch } from './useSearch';
 
 const fadeOutBackground = css`
@@ -81,10 +84,16 @@ const WireDataRow = ({
 	handleSelect: (id: string) => void;
 }) => {
 	const theme = useEuiTheme();
+	const { saved, addSaved, removeSaved } = useSaved();
+
 	const primaryBgColor = useEuiBackgroundColor('primary');
 	const accentBgColor = useEuiBackgroundColor('accent');
 
 	const hasSlug = content.slug && content.slug.length > 0;
+	const isSaved = useMemo(
+		() => saved.map((s) => s.id).includes(id.toString()),
+		[saved, id],
+	);
 
 	return (
 		<EuiTableRow
@@ -146,6 +155,33 @@ const WireDataRow = ({
 								</EuiText>
 							))
 					: ''}
+			</EuiTableRowCell>
+			<EuiTableRowCell align="right" valign="baseline" hasActions={true}>
+				{isSaved ? (
+					<EuiButtonIcon
+						aria-label="Remove from favourites"
+						iconType="starFilled"
+						onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+							e.stopPropagation();
+							removeSaved({
+								id: id.toString(),
+								headline: content.slug ?? content.headline ?? '',
+							});
+						}}
+					/>
+				) : (
+					<EuiButtonIcon
+						aria-label="Add to favourites"
+						iconType="starEmpty"
+						onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+							e.stopPropagation();
+							addSaved({
+								id: id.toString(),
+								headline: content.slug ?? content.headline ?? '',
+							});
+						}}
+					/>
+				)}
 			</EuiTableRowCell>
 		</EuiTableRow>
 	);
