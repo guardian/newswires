@@ -12,12 +12,13 @@ case class FingerpostWireSubjects(
     code: List[String]
 )
 object FingerpostWireSubjects {
-  private val reads = Json.reads[FingerpostWireSubjects].preprocess { case JsObject(obj) =>
-    JsObject(obj.map {
-      case ("code", JsString("")) => ("code", JsArray.empty)
-      case other => other
-    })
-  }
+  private val reads =
+    Json.reads[FingerpostWireSubjects].preprocess { case JsObject(obj) =>
+      JsObject(obj.map {
+        case ("code", JsString("")) => ("code", JsArray.empty)
+        case other                  => other
+      })
+    }
   private val writes = Json.writes[FingerpostWireSubjects]
   implicit val format: Format[FingerpostWireSubjects] =
     Format(reads, writes)
@@ -161,7 +162,7 @@ object FingerpostWireEntry
     }
 
     val keywordsQuery = search.keywordIncl match {
-      case Nil => None
+      case Nil      => None
       case keywords =>
         // "??|" is actually the "?|" operator - doubled to prevent the
         // SQL driver from treating it as a placeholder for a parameter
@@ -215,17 +216,27 @@ object FingerpostWireEntry
         )
     }
 
+    // grr annoying but broadly I think subjects and keywords are the same "axis" to search on
+//    val keywordsOrSubjectsQuery = sqls.joinWithOr(List(keywordsQuery, subjectsQuery).flatten:_*)
+
+    val keywordsOrSubjectsQuery = (keywordsQuery, subjectsQuery) match {
+      case (Some(kwq), Some(subq)) => Some(sqls"$kwq OR $subq")
+      case (Some(kwq), None)       => Some(kwq)
+      case (None, Some(subq))      => Some(subq)
+      case _                       => None
+    }
     val commonWhereClauses = List(
-      keywordsQuery,
+      keywordsOrSubjectsQuery,
       keywordsExclQuery,
+      subjectsExclQuery,
       search.text.map(query =>
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
       sourceFeedsQuery,
-      sourceFeedsExclQuery,
-      subjectsQuery,
-      subjectsExclQuery
+      sourceFeedsExclQuery
     ).flatten
+
+    logger.info(s"$commonWhereClauses")
 
     val dataOnlyWhereClauses = List(
       maybeBeforeId.map(beforeId =>
@@ -248,7 +259,7 @@ object FingerpostWireEntry
                       | LIMIT $effectivePageSize
                       | """.stripMargin
 
-//    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
+    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
     val results = query
       .map(FingerpostWireEntry(syn.resultName))
