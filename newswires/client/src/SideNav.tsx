@@ -50,7 +50,7 @@ export const SideNav = () => {
 			if (activeSuppliers.length === 0) {
 				handleEnterQuery({
 					...config.query,
-					supplier: recognisedSuppliers.filter((s) => s !== supplier),
+					supplier: [supplier],
 				});
 				return;
 			}
