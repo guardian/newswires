@@ -8,6 +8,7 @@ import {
 	EuiFlexItem,
 	EuiScreenReaderLive,
 	EuiSpacer,
+	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { Fragment, useMemo } from 'react';
@@ -21,6 +22,7 @@ export const WireDetail = ({
 	wire: WireData;
 	isShowingJson: boolean;
 }) => {
+	const theme = useEuiTheme();
 	const { byline, keywords, usage } = wire.content;
 
 	const safeBodyText = useMemo(() => {
@@ -28,6 +30,14 @@ export const WireDetail = ({
 			? sanitizeHtml(wire.content.bodyText)
 			: undefined;
 	}, [wire]);
+
+	const safeHighlightText = useMemo(() => {
+		return wire.highlight.trim().length > 0
+			? sanitizeHtml(wire.highlight)
+			: undefined;
+	}, [wire]);
+
+	const bodyTextContent = safeHighlightText ?? safeBodyText;
 
 	const nonEmptyKeywords = useMemo(
 		() => keywords?.filter((keyword) => keyword.trim().length > 0) ?? [],
@@ -54,7 +64,16 @@ export const WireDetail = ({
 
 					<EuiSpacer size="m" />
 
-					<EuiDescriptionList>
+					<EuiDescriptionList
+						css={css`
+							& mark {
+								background-color: ${theme.euiTheme.colors.highlight};
+								font-weight: bold;
+								position: relative;
+								border: 3px solid ${theme.euiTheme.colors.highlight};
+							}
+						`}
+					>
 						{byline && (
 							<>
 								<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
@@ -87,12 +106,12 @@ export const WireDetail = ({
 								</EuiDescriptionListDescription>
 							</>
 						)}
-						{safeBodyText && (
+						{bodyTextContent && (
 							<>
 								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
 								<EuiDescriptionListDescription>
 									<article
-										dangerouslySetInnerHTML={{ __html: safeBodyText }}
+										dangerouslySetInnerHTML={{ __html: bodyTextContent }}
 										data-pinboard-selection-target
 									/>
 								</EuiDescriptionListDescription>
