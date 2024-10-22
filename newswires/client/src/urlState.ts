@@ -1,6 +1,11 @@
 import type { Config, Query } from './sharedTypes';
+import { QuerySchema } from './sharedTypes';
 
-export const defaultQuery: Query = { q: '', supplier: [] };
+export const defaultQuery: Query = {
+	q: '',
+	supplier: [],
+	subject: [],
+};
 
 export const defaultConfig: Config = Object.freeze({
 	view: 'home',
@@ -13,16 +18,14 @@ export function urlToConfig(location: {
 	search: string;
 }): Config {
 	const page = location.pathname.slice(1);
+
 	const urlSearchParams = new URLSearchParams(location.search);
-	const queryString = urlSearchParams.get('q');
-	const supplier = urlSearchParams.getAll('supplier');
-	const query: Query = {
-		q:
-			typeof queryString === 'string' || typeof queryString === 'number'
-				? queryString.toString()
-				: '',
-		supplier,
-	};
+
+	const query = QuerySchema.parse({
+		q: urlSearchParams.get('q') ?? '',
+		supplier: urlSearchParams.getAll('supplier'),
+		subject: urlSearchParams.getAll('subject'),
+	});
 
 	if (page === 'feed') {
 		return { view: 'feed', query };
@@ -58,10 +61,11 @@ export const paramsToQuerystring = (
 				const items: Array<[string, string]> = v
 					.filter((i) => typeof i === 'string' && i.trim().length > 0)
 					.map((i) => [k, i.trim()]);
-				return [...acc, ...items];
-			} else {
-				return acc;
+				if (items.length > 0) {
+					return [...acc, ...items];
+				}
 			}
+			return acc;
 		},
 		[],
 	);

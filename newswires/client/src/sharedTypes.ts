@@ -44,7 +44,8 @@ export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
 
 export const QuerySchema = z.object({
 	q: z.string(),
-	supplier: z.array(z.string()).optional(),
+	supplier: z.array(z.string()),
+	subject: z.array(z.string()),
 });
 
 export type Query = z.infer<typeof QuerySchema>;

@@ -15,6 +15,7 @@ import { Feed } from './Feed';
 import { Item } from './Item';
 import { SearchBox } from './SearchBox';
 import { SideNav } from './SideNav';
+import { defaultQuery } from './urlState';
 import { useSearch } from './useSearch';
 
 export function App() {
@@ -111,7 +112,7 @@ export function App() {
 								Retry
 							</EuiButton>,
 							<EuiButton
-								onClick={() => handleEnterQuery({ q: '' })}
+								onClick={() => handleEnterQuery(defaultQuery)}
 								key="clear"
 								iconType={'cross'}
 							>
