@@ -8,6 +8,7 @@ export const defaultQuery: Query = {
 	keywordsExcl: undefined,
 	subjects: undefined,
 	subjectsExcl: undefined,
+	buckets: undefined,
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -30,6 +31,7 @@ export function urlToConfig(location: {
 	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
 	const subjects = urlSearchParams.get('subjects') ?? undefined;
 	const subjectsExcl = urlSearchParams.get('subjectsExcl') ?? undefined;
+	const buckets = urlSearchParams.get('buckets') ?? undefined;
 	const query: Query = {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
@@ -41,6 +43,7 @@ export function urlToConfig(location: {
 		keywordsExcl,
 		subjects,
 		subjectsExcl,
+		buckets,
 	};
 
 	if (page === 'feed') {

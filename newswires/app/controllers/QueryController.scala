@@ -3,6 +3,7 @@ package controllers
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
+import conf.SearchBuckets
 import db.{FingerpostWireEntry, SearchParams}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -37,6 +38,8 @@ class QueryController(
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
+    val buckets = paramToList(request, "buckets").flatMap(SearchBuckets.get)
+
     val queryParams = SearchParams(
       text = maybeFreeTextQuery,
       keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
@@ -48,10 +51,12 @@ class QueryController(
       subjectsExcl = paramToList(request, "subjectsExcl")
     )
 
+    val mergedParams = (buckets :+ queryParams).reduce(_ merge _)
+
     Ok(
       Json.toJson(
         FingerpostWireEntry.query(
-          queryParams,
+          mergedParams,
           maybeBeforeId,
           maybeSinceId,
           pageSize = 30
