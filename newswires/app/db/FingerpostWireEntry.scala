@@ -12,8 +12,15 @@ case class FingerpostWireSubjects(
     code: List[String]
 )
 object FingerpostWireSubjects {
-  implicit val format: OFormat[FingerpostWireSubjects] =
-    Json.format[FingerpostWireSubjects]
+  private val reads = Json.reads[FingerpostWireSubjects].preprocess { case JsObject(obj) =>
+    JsObject(obj.map {
+      case ("code", JsString("")) => ("code", JsArray.empty)
+      case other => other
+    })
+  }
+  private val writes = Json.writes[FingerpostWireSubjects]
+  implicit val format: Format[FingerpostWireSubjects] =
+    Format(reads, writes)
 }
 
 case class FingerpostWire(
