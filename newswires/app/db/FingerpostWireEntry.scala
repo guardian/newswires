@@ -163,9 +163,11 @@ object FingerpostWireEntry
     val keywordsQuery = search.keywordIncl match {
       case Nil => None
       case keywords =>
-        val keywordsJsonb = Json.toJson(keywords).toString()
+        // "??|" is actually the "?|" operator - doubled to prevent the
+        // SQL driver from treating it as a placeholder for a parameter
+        // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
         Some(
-          sqls"""(${syn.content} -> 'keywords') @> $keywordsJsonb::jsonb"""
+          sqls"""(${syn.content} -> 'keywords') ??| ${textArray(keywords)}"""
         )
     }
 
@@ -194,7 +196,7 @@ object FingerpostWireEntry
       case Nil => None
       case subjects =>
         Some(
-          sqls"(${syn.content} -> 'subjects' -> 'code') ??& ${textArray(subjects)}"
+          sqls"(${syn.content} -> 'subjects' -> 'code') ??| ${textArray(subjects)}"
         )
     }
 
@@ -234,7 +236,7 @@ object FingerpostWireEntry
       )
     ).flatten
 
-    val whereClause = (dataOnlyWhereClauses ++ commonWhereClauses) match {
+    val whereClause = dataOnlyWhereClauses ++ commonWhereClauses match {
       case Nil        => sqls""
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
