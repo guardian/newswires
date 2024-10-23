@@ -50,7 +50,7 @@ export const QuerySchema = z.object({
 	keywordsExcl: z.ostring(),
 	subjects: z.ostring(),
 	subjectsExcl: z.ostring(),
-	buckets: z.ostring(),
+	bucket: z.ostring(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;

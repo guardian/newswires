@@ -38,7 +38,7 @@ class QueryController(
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
-    val buckets = paramToList(request, "buckets").flatMap(SearchBuckets.get)
+    val bucket = request.getQueryString("bucket").flatMap(SearchBuckets.get)
 
     val queryParams = SearchParams(
       text = maybeFreeTextQuery,
@@ -51,7 +51,7 @@ class QueryController(
       subjectsExcl = paramToList(request, "subjectsExcl")
     )
 
-    val mergedParams = (buckets :+ queryParams).reduce(_ merge _)
+    val mergedParams = bucket.map(_ merge queryParams).getOrElse(queryParams)
 
     Ok(
       Json.toJson(

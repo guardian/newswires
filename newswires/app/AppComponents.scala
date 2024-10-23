@@ -89,7 +89,6 @@ class AppComponents(context: Context)
     )
   }
 
-
   private val authController = new AuthController(
     controllerComponents,
     configuration,

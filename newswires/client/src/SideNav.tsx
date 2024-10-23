@@ -17,14 +17,24 @@ import type { Query } from './sharedTypes';
 import { useSearch } from './useSearch';
 
 function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q } = query;
+	const { supplier, q, bucket } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
-	const labels = [supplierLabel, qLabel];
+	const bucketLabel = bucket ? `[${bucketName(bucket)}]` : '';
+	const labels = [bucketLabel, supplierLabel, qLabel];
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
 const recognisedSuppliers = ['REUTERS', 'AP', 'AAP', 'PA'];
+const buckets = [
+	{ id: 'no-sports', name: 'No Sports' },
+	{ id: 'pa-home', name: 'PA Home' },
+	{ id: 'us-election', name: 'US Election' },
+	{ id: 'ap-world', name: 'AP World' },
+];
+function bucketName(bucketId: string): string | undefined {
+	return buckets.find((bucket) => bucket.id === bucketId)?.name;
+}
 
 export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
@@ -36,6 +46,8 @@ export const SideNav = () => {
 		() => config.query.supplier ?? [],
 		[config.query.supplier],
 	);
+
+	const activeBucket = config.query.bucket;
 
 	const searchHistoryItems = useMemo(
 		() =>
@@ -92,6 +104,21 @@ export const SideNav = () => {
 		[activeSuppliers, config.query, handleEnterQuery, toggleSupplier],
 	);
 
+	const bucketItems = useMemo(() => {
+		const toggleBucket = (bucket: string) =>
+			activeBucket === bucket ? undefined : bucket;
+
+		return [
+			...buckets.map(({ id: bucketId, name }) => ({
+				bucketId,
+				label: name,
+				isActive: activeBucket === bucketId,
+				onClick: () =>
+					handleEnterQuery({ ...config.query, bucket: toggleBucket(bucketId) }),
+			})),
+		];
+	}, [activeBucket, config.query, handleEnterQuery]);
+
 	return (
 		<>
 			<EuiCollapsibleNav
@@ -109,6 +136,37 @@ export const SideNav = () => {
 				onClose={() => setNavIsOpen(false)}
 			>
 				<SearchBox />
+				<EuiCollapsibleNavGroup title="Buckets">
+					<EuiListGroup
+						maxWidth="none"
+						color="subdued"
+						gutterSize="none"
+						size="s"
+					>
+						{bucketItems.map(({ bucketId, label, isActive, onClick }) => {
+							return (
+								<EuiListGroupItem
+									color={isActive ? 'primary' : 'subdued'}
+									label={label}
+									key={bucketId}
+									aria-current={isActive}
+									onClick={onClick}
+									icon={
+										<div
+											css={css`
+												width: 0.5rem;
+												height: 1.5rem;
+												background-color: ${isActive
+													? '#06eeff'
+													: 'transparent'};
+											`}
+										/>
+									}
+								/>
+							);
+						})}
+					</EuiListGroup>
+				</EuiCollapsibleNavGroup>
 				<EuiCollapsibleNavGroup title={'Suppliers'}>
 					<EuiListGroup
 						maxWidth="none"
@@ -119,6 +177,7 @@ export const SideNav = () => {
 						{supplierItems.map(({ label, colour, isActive, onClick }) => {
 							return (
 								<EuiListGroupItem
+									color={isActive ? 'primary' : 'subdued'}
 									key={label}
 									label={label}
 									onClick={onClick}

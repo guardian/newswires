@@ -12,6 +12,8 @@ case class FingerpostWireSubjects(
     code: List[String]
 )
 object FingerpostWireSubjects {
+  // some wires arrive with no code, but represent that by an empty string
+  // instead of an empty array :( preprocess them into an empty array
   private val reads =
     Json.reads[FingerpostWireSubjects].preprocess { case JsObject(obj) =>
       JsObject(obj.map {
@@ -217,13 +219,9 @@ object FingerpostWireEntry
     }
 
     // grr annoying but broadly I think subjects and keywords are the same "axis" to search on
-//    val keywordsOrSubjectsQuery = sqls.joinWithOr(List(keywordsQuery, subjectsQuery).flatten:_*)
-
     val keywordsOrSubjectsQuery = (keywordsQuery, subjectsQuery) match {
       case (Some(kwq), Some(subq)) => Some(sqls"$kwq OR $subq")
-      case (Some(kwq), None)       => Some(kwq)
-      case (None, Some(subq))      => Some(subq)
-      case _                       => None
+      case _                       => keywordsQuery orElse subjectsQuery
     }
     val commonWhereClauses = List(
       keywordsOrSubjectsQuery,
@@ -235,8 +233,6 @@ object FingerpostWireEntry
       sourceFeedsQuery,
       sourceFeedsExclQuery
     ).flatten
-
-    logger.info(s"$commonWhereClauses")
 
     val dataOnlyWhereClauses = List(
       maybeBeforeId.map(beforeId =>
@@ -259,7 +255,7 @@ object FingerpostWireEntry
                       | LIMIT $effectivePageSize
                       | """.stripMargin
 
-    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
+//    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
     val results = query
       .map(FingerpostWireEntry(syn.resultName))
