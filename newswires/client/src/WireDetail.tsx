@@ -91,7 +91,10 @@ export const WireDetail = ({
 							<>
 								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
 								<EuiDescriptionListDescription>
-									<article dangerouslySetInnerHTML={{ __html: safeBodyText }} />
+									<article
+										dangerouslySetInnerHTML={{ __html: safeBodyText }}
+										data-pinboard-selection-target
+									/>
 								</EuiDescriptionListDescription>
 							</>
 						)}
