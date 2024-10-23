@@ -7,10 +7,12 @@ import {
 	EuiIcon,
 	EuiListGroup,
 	EuiListGroupItem,
+	EuiScreenReaderOnly,
 	EuiText,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
+import { SearchBox } from './SearchBox';
 import { brandColours } from './sharedStyles';
 import type { Query } from './sharedTypes';
 import { useSearch } from './useSearch';
@@ -105,6 +107,7 @@ export const SideNav = () => {
 				}
 				onClose={() => setNavIsOpen(false)}
 			>
+				<SearchBox />
 				<EuiCollapsibleNavGroup title={'Suppliers'}>
 					<EuiListGroup
 						maxWidth="none"
