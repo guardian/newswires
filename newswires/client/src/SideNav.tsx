@@ -107,7 +107,7 @@ export const SideNav = () => {
 				}
 				onClose={() => setNavIsOpen(false)}
 			>
-				<SearchBox incremental={true} />
+				<SearchBox />
 				<EuiCollapsibleNavGroup title={'Suppliers'}>
 					<EuiListGroup
 						maxWidth="none"
