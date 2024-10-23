@@ -12,8 +12,18 @@ case class FingerpostWireSubjects(
     code: List[String]
 )
 object FingerpostWireSubjects {
-  implicit val format: OFormat[FingerpostWireSubjects] =
-    Json.format[FingerpostWireSubjects]
+  // some wires arrive with no code, but represent that by an empty string
+  // instead of an empty array :( preprocess them into an empty array
+  private val reads =
+    Json.reads[FingerpostWireSubjects].preprocess { case JsObject(obj) =>
+      JsObject(obj.map {
+        case ("code", JsString("")) => ("code", JsArray.empty)
+        case other                  => other
+      })
+    }
+  private val writes = Json.writes[FingerpostWireSubjects]
+  implicit val format: Format[FingerpostWireSubjects] =
+    Format(reads, writes)
 }
 
 case class FingerpostWire(
@@ -154,11 +164,13 @@ object FingerpostWireEntry
     }
 
     val keywordsQuery = search.keywordIncl match {
-      case Nil => None
+      case Nil      => None
       case keywords =>
-        val keywordsJsonb = Json.toJson(keywords).toString()
+        // "??|" is actually the "?|" operator - doubled to prevent the
+        // SQL driver from treating it as a placeholder for a parameter
+        // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
         Some(
-          sqls"""(${syn.content} -> 'keywords') @> $keywordsJsonb::jsonb"""
+          sqls"""(${syn.content} -> 'keywords') ??| ${textArray(keywords)}"""
         )
     }
 
@@ -187,7 +199,7 @@ object FingerpostWireEntry
       case Nil => None
       case subjects =>
         Some(
-          sqls"(${syn.content} -> 'subjects' -> 'code') ??& ${textArray(subjects)}"
+          sqls"(${syn.content} -> 'subjects' -> 'code') ??| ${textArray(subjects)}"
         )
     }
 
@@ -206,16 +218,20 @@ object FingerpostWireEntry
         )
     }
 
+    // grr annoying but broadly I think subjects and keywords are the same "axis" to search on
+    val keywordsOrSubjectsQuery = (keywordsQuery, subjectsQuery) match {
+      case (Some(kwq), Some(subq)) => Some(sqls"$kwq OR $subq")
+      case _                       => keywordsQuery orElse subjectsQuery
+    }
     val commonWhereClauses = List(
-      keywordsQuery,
+      keywordsOrSubjectsQuery,
       keywordsExclQuery,
+      subjectsExclQuery,
       search.text.map(query =>
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
       sourceFeedsQuery,
-      sourceFeedsExclQuery,
-      subjectsQuery,
-      subjectsExclQuery
+      sourceFeedsExclQuery
     ).flatten
 
     val dataOnlyWhereClauses = List(
@@ -227,7 +243,7 @@ object FingerpostWireEntry
       )
     ).flatten
 
-    val whereClause = (dataOnlyWhereClauses ++ commonWhereClauses) match {
+    val whereClause = dataOnlyWhereClauses ++ commonWhereClauses match {
       case Nil        => sqls""
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
