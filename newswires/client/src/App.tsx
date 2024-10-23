@@ -1,20 +1,24 @@
 import {
 	EuiButton,
 	EuiEmptyPrompt,
+	EuiFlexGroup,
+	EuiFlexItem,
 	EuiHeader,
+	EuiHeaderSection,
 	EuiHeaderSectionItem,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiResizableContainer,
 	EuiShowFor,
 	EuiSpacer,
+	EuiSwitch,
 	EuiTitle,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SideNav } from './SideNav';
-import { defaultQuery } from './urlState';
+import { configToUrl, defaultQuery } from './urlState';
 import { useSearch } from './useSearch';
 
 export function App() {
@@ -26,6 +30,7 @@ export function App() {
 		handleDeselectItem,
 		handleNextItem,
 		handlePreviousItem,
+		toggleAutoUpdate,
 	} = useSearch();
 
 	const { view, itemId: selectedItemId } = config;
@@ -57,12 +62,40 @@ export function App() {
 			>
 				{!isPoppedOut && (
 					<EuiHeader position="fixed">
+						<EuiHeaderSection>
+							<EuiHeaderSectionItem>
+								<EuiTitle
+									size={'s'}
+									css={css`
+										padding-bottom: 3px;
+									`}
+								>
+									<h1>Newswires</h1>
+								</EuiTitle>
+							</EuiHeaderSectionItem>
+							<EuiHeaderSectionItem>
+								<SideNav />
+							</EuiHeaderSectionItem>
+						</EuiHeaderSection>
 						<EuiHeaderSectionItem>
-							<EuiTitle size={'s'}>
-								<h1>Newswires</h1>
-							</EuiTitle>
-							<EuiSpacer size={'s'} />
-							<SideNav />
+							{
+								<EuiButton
+									iconType={'popout'}
+									onClick={() =>
+										window.open(
+											configToUrl({
+												...config,
+												view: 'feed',
+												itemId: undefined,
+											}),
+											'_blank',
+											'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+										)
+									}
+								>
+									New ticker
+								</EuiButton>
+							}
 						</EuiHeaderSectionItem>
 					</EuiHeader>
 				)}

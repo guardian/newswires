@@ -3,11 +3,15 @@ import {
 	EuiBadgeGroup,
 	EuiCollapsibleNav,
 	EuiCollapsibleNavGroup,
+	EuiFlexGroup,
+	EuiFlexItem,
 	EuiHeaderSectionItemButton,
 	EuiIcon,
 	EuiListGroup,
 	EuiListGroupItem,
+	EuiSwitch,
 	EuiText,
+	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
@@ -38,8 +42,9 @@ function bucketName(bucketId: string): string | undefined {
 
 export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
+	const theme = useEuiTheme();
 
-	const { state, config, handleEnterQuery } = useSearch();
+	const { state, config, handleEnterQuery, toggleAutoUpdate } = useSearch();
 
 	const searchHistory = state.successfulQueryHistory;
 	const activeSuppliers = useMemo(
@@ -124,7 +129,7 @@ export const SideNav = () => {
 			<EuiCollapsibleNav
 				isOpen={navIsOpen}
 				isDocked={true}
-				size={240}
+				size={300}
 				button={
 					<EuiHeaderSectionItemButton
 						aria-label="Toggle main navigation"
@@ -135,92 +140,104 @@ export const SideNav = () => {
 				}
 				onClose={() => setNavIsOpen(false)}
 			>
-				<SearchBox />
-				<EuiCollapsibleNavGroup title="Buckets">
-					<EuiListGroup
-						maxWidth="none"
-						color="subdued"
-						gutterSize="none"
-						size="s"
-					>
-						{bucketItems.map(({ bucketId, label, isActive, onClick }) => {
-							return (
-								<EuiListGroupItem
-									color={isActive ? 'primary' : 'subdued'}
-									label={label}
-									key={bucketId}
-									aria-current={isActive}
-									onClick={onClick}
-									icon={
-										<div
-											css={css`
-												width: 0.5rem;
-												height: 1.5rem;
-												background-color: ${isActive
-													? '#06eeff'
-													: 'transparent'};
-											`}
-										/>
-									}
-								/>
-							);
-						})}
-					</EuiListGroup>
-				</EuiCollapsibleNavGroup>
-				<EuiCollapsibleNavGroup title={'Suppliers'}>
-					<EuiListGroup
-						maxWidth="none"
-						color="subdued"
-						gutterSize="none"
-						size="s"
-					>
-						{supplierItems.map(({ label, colour, isActive, onClick }) => {
-							return (
-								<EuiListGroupItem
-									color={isActive ? 'primary' : 'subdued'}
-									key={label}
-									label={label}
-									onClick={onClick}
-									icon={
-										<div
-											css={css`
-												width: 0.5rem;
-												height: 1.5rem;
-												background-color: ${isActive ? colour : 'transparent'};
-											`}
-										/>
-									}
-									aria-current={isActive}
-								/>
-							);
-						})}
-					</EuiListGroup>
-				</EuiCollapsibleNavGroup>
-				<EuiCollapsibleNavGroup title={'Search history'}>
-					{searchHistoryItems.length === 0 ? (
-						<EuiText size="s">{'No history yet'}</EuiText>
-					) : (
-						<EuiBadgeGroup color="subdued" gutterSize="s">
-							{searchHistoryItems.map(({ label, query, resultsCount }) => {
+				<div style={{ height: '90%', overflowY: 'auto' }}>
+					<SearchBox />
+					<EuiCollapsibleNavGroup title="Buckets">
+						<EuiListGroup
+							maxWidth="none"
+							color="subdued"
+							gutterSize="none"
+							size="s"
+						>
+							{bucketItems.map(({ bucketId, label, isActive, onClick }) => {
 								return (
-									<EuiBadge
-										key={label}
-										color="secondary"
-										onClick={() => {
-											handleEnterQuery(query);
-										}}
-										onClickAriaLabel="Apply filters"
-									>
-										{label}{' '}
-										<EuiBadge color="hollow">
-											{resultsCount === 30 ? '30+' : resultsCount}
-										</EuiBadge>
-									</EuiBadge>
+									<EuiListGroupItem
+										color={isActive ? 'primary' : 'subdued'}
+										label={label}
+										key={bucketId}
+										aria-current={isActive}
+										onClick={onClick}
+										icon={
+											<div
+												css={css`
+													width: 0.5rem;
+													height: 1.5rem;
+													background-color: ${isActive
+														? theme.euiTheme.colors.primary
+														: 'transparent'};
+												`}
+											/>
+										}
+									/>
 								);
 							})}
-						</EuiBadgeGroup>
-					)}
-				</EuiCollapsibleNavGroup>
+						</EuiListGroup>
+					</EuiCollapsibleNavGroup>
+					<EuiCollapsibleNavGroup title={'Suppliers'}>
+						<EuiListGroup
+							maxWidth="none"
+							color="subdued"
+							gutterSize="none"
+							size="s"
+						>
+							{supplierItems.map(({ label, colour, isActive, onClick }) => {
+								return (
+									<EuiListGroupItem
+										color={isActive ? 'primary' : 'subdued'}
+										key={label}
+										label={label}
+										onClick={onClick}
+										icon={
+											<div
+												css={css`
+													width: 0.5rem;
+													height: 1.5rem;
+													background-color: ${isActive
+														? colour
+														: 'transparent'};
+												`}
+											/>
+										}
+										aria-current={isActive}
+									/>
+								);
+							})}
+						</EuiListGroup>
+					</EuiCollapsibleNavGroup>
+					<EuiCollapsibleNavGroup title={'Search history'}>
+						{searchHistoryItems.length === 0 ? (
+							<EuiText size="s">{'No history yet'}</EuiText>
+						) : (
+							<EuiBadgeGroup color="subdued" gutterSize="s">
+								{searchHistoryItems.map(({ label, query, resultsCount }) => {
+									return (
+										<EuiBadge
+											key={label}
+											color="secondary"
+											onClick={() => {
+												handleEnterQuery(query);
+											}}
+											onClickAriaLabel="Apply filters"
+										>
+											{label}{' '}
+											<EuiBadge color="hollow">
+												{resultsCount === 30 ? '30+' : resultsCount}
+											</EuiBadge>
+										</EuiBadge>
+									);
+								})}
+							</EuiBadgeGroup>
+						)}
+					</EuiCollapsibleNavGroup>
+				</div>
+
+				<div style={{ padding: '20px 10px' }}>
+					<EuiSwitch
+						label="Auto-update"
+						checked={state.autoUpdate}
+						onChange={toggleAutoUpdate}
+					/>
+				</div>
 			</EuiCollapsibleNav>
 		</>
 	);
