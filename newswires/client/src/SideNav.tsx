@@ -18,7 +18,7 @@ import { useSearch } from './useSearch';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q } = query;
-	const supplierLabel = supplier?.join(', ') ?? [];
+	const supplierLabel = supplier?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const labels = [supplierLabel, qLabel];
 	return labels.filter((label) => label.length > 0).join(' ');
