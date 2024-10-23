@@ -62,14 +62,14 @@ describe('urlToConfig', () => {
 	});
 
 	it('can exclude multiple suppliers', () => {
-		const url = makeFakeLocation('/feed?q=abc&supplierExcl=PA');
+		const url = makeFakeLocation('/feed?q=abc&supplierExcl=PA&supplierExcl=AP');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				supplierExcl: ['PA'],
+				supplierExcl: ['PA', 'AP'],
 			},
 		});
 	});
