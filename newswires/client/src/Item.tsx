@@ -16,18 +16,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { paramsToQuerystring } from './urlState';
-import { useSaved } from './useFavourites';
+import { useSavedItems } from './useSavedItemsList';
 import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
 
 export const Item = ({ id }: { id: string }) => {
 	const { handleDeselectItem, config } = useSearch();
-	const { saved, addSaved, removeSaved } = useSaved();
+	const { savedItems, addSaved, removeSaved } = useSavedItems();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const isSaved = useMemo(
-		() => saved.map((s) => s.id).includes(id),
-		[saved, id],
+		() => savedItems.map((s) => s.id).includes(id),
+		[savedItems, id],
 	);
 	const [error, setError] = useState<string | undefined>(undefined);
 

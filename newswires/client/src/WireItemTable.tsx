@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
-import { useSaved } from './useFavourites';
+import { useSavedItems } from './useSavedItemsList';
 import { useSearch } from './useSearch';
 
 const fadeOutBackground = css`
@@ -84,7 +84,7 @@ const WireDataRow = ({
 	handleSelect: (id: string) => void;
 }) => {
 	const theme = useEuiTheme();
-	const { saved, addSaved, removeSaved } = useSaved();
+	const { savedItems: saved, addSaved, removeSaved } = useSavedItems();
 
 	const primaryBgColor = useEuiBackgroundColor('primary');
 	const accentBgColor = useEuiBackgroundColor('accent');

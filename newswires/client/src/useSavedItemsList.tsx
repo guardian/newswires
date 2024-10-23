@@ -20,18 +20,22 @@ const loadSavedFromStorage = () => {
 
 const SavedContext = createContext<
 	| {
-			saved: Saved;
+			savedItems: Saved;
 			addSaved: (itemToAdd: SavedItem) => void;
 			removeSaved: (itemToRemove: SavedItem) => void;
 	  }
 	| undefined
 >(undefined);
 
-export const SavedContextProvider = ({ children }: { children: ReactNode }) => {
-	const [saved, setSaved] = useState<Saved>(loadSavedFromStorage());
+export const SavedItemsListContextProvider = ({
+	children,
+}: {
+	children: ReactNode;
+}) => {
+	const [savedItems, setSavedItems] = useState<Saved>(loadSavedFromStorage());
 
 	const addSaved = (itemToAdd: SavedItem) => {
-		setSaved((prev: Saved) => {
+		setSavedItems((prev: Saved) => {
 			const newSaved = [itemToAdd, ...prev];
 			localStorage.setItem('saved', JSON.stringify(newSaved));
 			return newSaved;
@@ -39,7 +43,7 @@ export const SavedContextProvider = ({ children }: { children: ReactNode }) => {
 	};
 
 	const removeSaved = (itemToRemove: SavedItem) => {
-		setSaved((prev) => {
+		setSavedItems((prev) => {
 			const newSaved = prev.filter((i) => i.id !== itemToRemove.id);
 			localStorage.setItem('saved', JSON.stringify(newSaved));
 			return newSaved;
@@ -47,14 +51,16 @@ export const SavedContextProvider = ({ children }: { children: ReactNode }) => {
 	};
 
 	return (
-		<SavedContext.Provider value={{ saved, addSaved, removeSaved }}>
+		<SavedContext.Provider
+			value={{ savedItems: savedItems, addSaved, removeSaved }}
+		>
 			{children}
 		</SavedContext.Provider>
 	);
 };
 
 // Custom hook to use the saved context
-export const useSaved = () => {
+export const useSavedItems = () => {
 	const context = useContext(SavedContext);
 	if (!context) {
 		throw new Error('useSaved must be used within a SavedContextProvider');

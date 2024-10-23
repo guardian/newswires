@@ -18,7 +18,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { SearchBox } from './SearchBox';
 import { brandColours } from './sharedStyles';
 import type { Query } from './sharedTypes';
-import { useSaved } from './useFavourites';
+import { useSavedItems } from './useSavedItemsList';
 import { useSearch } from './useSearch';
 
 function decideLabelForQueryBadge(query: Query): string {
@@ -52,7 +52,7 @@ export const SideNav = () => {
 		handleSelectItem,
 		toggleAutoUpdate,
 	} = useSearch();
-	const { saved } = useSaved();
+	const { savedItems: saved } = useSavedItems();
 
 	const searchHistory = state.successfulQueryHistory;
 	const activeSuppliers = useMemo(
