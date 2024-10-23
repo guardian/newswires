@@ -89,7 +89,6 @@ class AppComponents(context: Context)
     )
   }
 
-  private val homeController = new HomeController(controllerComponents)
 
   private val authController = new AuthController(
     controllerComponents,
@@ -128,7 +127,6 @@ class AppComponents(context: Context)
   def router: Router = new Routes(
     errorHandler = httpErrorHandler,
     viteController,
-    homeController,
     queryController,
     authController,
     managementController
