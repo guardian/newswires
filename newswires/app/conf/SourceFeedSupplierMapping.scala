@@ -86,7 +86,8 @@ object SourceFeedSupplierMapping {
       "PA THE TRUSSELL TRUST",
       "PA UK GOVERNMENT AND PUBLIC SECTOR",
       "PA HSL",
-      "PA JUST GROUP"
+      "PA JUST GROUP",
+      "PA BROOKE ACTION FOR WORKING HORSES AND DONKEYS"
     )
   )
 }
