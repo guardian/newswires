@@ -1,10 +1,13 @@
 import type { Config, Query } from './sharedTypes';
-import { QuerySchema } from './sharedTypes';
 
 export const defaultQuery: Query = {
 	q: '',
 	supplier: [],
-	subject: [],
+	supplierExcl: [],
+	keywords: undefined,
+	keywordsExcl: undefined,
+	subjects: undefined,
+	subjectsExcl: undefined,
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -20,12 +23,25 @@ export function urlToConfig(location: {
 	const page = location.pathname.slice(1);
 
 	const urlSearchParams = new URLSearchParams(location.search);
-
-	const query = QuerySchema.parse({
-		q: urlSearchParams.get('q') ?? '',
-		supplier: urlSearchParams.getAll('supplier'),
-		subject: urlSearchParams.getAll('subject'),
-	});
+	const queryString = urlSearchParams.get('q');
+	const supplier = urlSearchParams.getAll('supplier');
+	const supplierExcl = urlSearchParams.getAll('supplierExcl');
+	const keywords = urlSearchParams.get('keywords') ?? undefined;
+	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
+	const subjects = urlSearchParams.get('subjects') ?? undefined;
+	const subjectsExcl = urlSearchParams.get('subjectsExcl') ?? undefined;
+	const query: Query = {
+		q:
+			typeof queryString === 'string' || typeof queryString === 'number'
+				? queryString.toString()
+				: '',
+		supplier,
+		supplierExcl,
+		keywords,
+		keywordsExcl,
+		subjects,
+		subjectsExcl,
+	};
 
 	if (page === 'feed') {
 		return { view: 'feed', query };

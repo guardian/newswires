@@ -7,7 +7,6 @@ import {
 	EuiIcon,
 	EuiListGroup,
 	EuiListGroupItem,
-	EuiScreenReaderOnly,
 	EuiText,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -18,11 +17,10 @@ import type { Query } from './sharedTypes';
 import { useSearch } from './useSearch';
 
 function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q, subject } = query;
-	const supplierLabel = supplier.join(', ');
+	const { supplier, q } = query;
+	const supplierLabel = supplier?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
-	const subjectLabel = subject.join(', ');
-	const labels = [supplierLabel, qLabel, subjectLabel];
+	const labels = [supplierLabel, qLabel];
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
@@ -34,7 +32,10 @@ export const SideNav = () => {
 	const { state, config, handleEnterQuery } = useSearch();
 
 	const searchHistory = state.successfulQueryHistory;
-	const activeSuppliers = config.query.supplier;
+	const activeSuppliers = useMemo(
+		() => config.query.supplier ?? [],
+		[config.query.supplier],
+	);
 
 	const searchHistoryItems = useMemo(
 		() =>
