@@ -9,7 +9,9 @@ object Subjects {
     "a1312cat:s",
     "iptccat:GXX", // maybe, or maybe advertising "Tequila brand announces partnership with Fulham Football Club"
     "iptccat:RFC",
+    "iptccat:RRB",
     "iptccat:RRR",
+    "iptccat:RSF",
     "iptccat:RSR",
     "iptccat:SCN",
     "iptccat:SCR",
@@ -22,6 +24,8 @@ object Subjects {
     "iptccat:SFF",
     "iptccat:SJA",
     "iptccat:SJB",
+    "iptccat:SOD",
+    "iptccat:SOS",
     "iptccat:SRD",
     "iptccat:SRN",
     "iptccat:SRR",
@@ -34,6 +38,8 @@ object Subjects {
     "iptccat:SST",
     "iptccat:STA",
     "iptccat:STB",
+    "iptccat:STC",
+    "iptccat:STD",
     "iptccat:STR",
     "medtop:15000000"
   )
