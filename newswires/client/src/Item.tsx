@@ -12,14 +12,15 @@ import {
 	EuiTitle,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
+import { paramsToQuerystring } from './urlState';
 import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
 
 export const Item = ({ id }: { id: string }) => {
-	const { handleDeselectItem } = useSearch();
+	const { handleDeselectItem, config } = useSearch();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -31,9 +32,17 @@ export const Item = ({ id }: { id: string }) => {
 		prefix: 'pushedFlyoutTitle',
 	});
 
+	const maybeSearchParams = useMemo(() => {
+		const q = config.query.q;
+		if (q) {
+			return paramsToQuerystring({ q, supplier: [] });
+		}
+		return '';
+	}, [config.query.q]);
+
 	useEffect(() => {
 		// fetch item data from /api/item/:id
-		pandaFetch(`/api/item/${id}`)
+		pandaFetch(`/api/item/${id}${maybeSearchParams}`)
 			.then((res) => {
 				if (res.status === 404) {
 					throw new Error('Item not found');
