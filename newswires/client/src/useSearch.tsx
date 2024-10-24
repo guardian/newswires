@@ -1,5 +1,5 @@
 import { isEqual as deepIsEqual } from 'lodash';
-import type { Context, PropsWithChildren } from 'react';
+import type { Context, MouseEventHandler, PropsWithChildren } from 'react';
 import {
 	createContext,
 	useCallback,
@@ -105,6 +105,7 @@ function mergeQueryData(
 					.map((newItem) => ({ ...newItem, isFromRefresh: true })),
 				...existing.results.map((existingItem) => ({
 					...existingItem,
+					isFromRefresh: false,
 				})),
 			]
 		: newData.results;
@@ -239,11 +240,17 @@ export type SearchContextShape = {
 	state: State;
 	handleEnterQuery: (query: Query) => void;
 	handleRetry: () => void;
-	handleSelectItem: (item: string) => void;
 	handleDeselectItem: () => void;
 	handleNextItem: () => void;
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
+	Link: ({
+		children,
+		to,
+	}: {
+		children: React.ReactNode;
+		to: Config;
+	}) => JSX.Element;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -416,6 +423,32 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'TOGGLE_AUTO_UPDATE' });
 	};
 
+	const Link = ({
+		children,
+		to,
+	}: {
+		children: React.ReactNode;
+		to: Config;
+	}) => {
+		const href = configToUrl(to);
+
+		const onClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
+			(e) => {
+				if (!(e.getModifierState('Meta') || e.getModifierState('Control'))) {
+					e.preventDefault();
+					pushConfigState(to);
+				}
+			},
+			[to],
+		);
+
+		return (
+			<a href={href} onClick={onClick}>
+				{children}
+			</a>
+		);
+	};
+
 	return (
 		<SearchContext.Provider
 			value={{
@@ -423,11 +456,11 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				state,
 				handleEnterQuery,
 				handleRetry,
-				handleSelectItem,
 				handleDeselectItem,
 				handleNextItem,
 				handlePreviousItem,
 				toggleAutoUpdate,
+				Link,
 			}}
 		>
 			{children}
