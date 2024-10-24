@@ -94,6 +94,7 @@ export const WireDetail = ({
 									<article
 										dangerouslySetInnerHTML={{ __html: safeBodyText }}
 										data-pinboard-selection-target
+										data-usage-note={usage}
 									/>
 								</EuiDescriptionListDescription>
 							</>
