@@ -65,7 +65,8 @@ case class FingerpostWireEntry(
     id: Long,
     externalId: String,
     ingestedAt: ZonedDateTime,
-    content: FingerpostWire
+    content: FingerpostWire,
+    highlight: Option[String] = None
 )
 
 object FingerpostWireEntry
@@ -76,7 +77,14 @@ object FingerpostWireEntry
     Json.format[FingerpostWireEntry]
 
   override val columns =
-    Seq("id", "external_id", "ingested_at", "content", "combined_textsearch")
+    Seq(
+      "id",
+      "external_id",
+      "ingested_at",
+      "content",
+      "combined_textsearch",
+      "highlight"
+    )
   val syn = this.syntax("fm")
 
   private val selectAllStatement = sqls"""
@@ -93,15 +101,24 @@ object FingerpostWireEntry
       rs.long(fm.id),
       rs.string(fm.externalId),
       rs.zonedDateTime(fm.ingestedAt),
-      Json.parse(rs.string(fm.content)).as[FingerpostWire]
+      Json.parse(rs.string(fm.content)).as[FingerpostWire],
+      rs.stringOpt(fm.column("highlight"))
     )
 
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
 
-  def get(id: Int): Option[FingerpostWireEntry] = DB readOnly {
+  def get(
+      id: Int,
+      maybeFreeTextQuery: Option[String] = Some("alpaca")
+  ): Option[FingerpostWireEntry] = DB readOnly {
+    val highlightsClause = maybeFreeTextQuery match {
+      case Some(query) =>
+        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
+      case None => sqls", '' AS ${syn.resultName.highlight}"
+    }
     implicit session =>
-      sql"""| SELECT ${FingerpostWireEntry.syn.result.*}
+      sql"""| SELECT $selectAllStatement $highlightsClause
             | FROM ${FingerpostWireEntry as syn}
             | WHERE ${FingerpostWireEntry.syn.id} = $id
             |""".stripMargin
@@ -248,14 +265,20 @@ object FingerpostWireEntry
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
 
-    val query = sql"""| SELECT $selectAllStatement
+    val highlightsClause = search.text match {
+      case Some(query) =>
+        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query)) AS ${syn.resultName.highlight}"
+      case None => sqls", '' AS ${syn.resultName.highlight}"
+    }
+
+    val query = sql"""| SELECT $selectAllStatement $highlightsClause
                       | FROM ${FingerpostWireEntry as syn}
                       | $whereClause
                       | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
                       | LIMIT $effectivePageSize
                       | """.stripMargin
 
-//    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
+    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
     val results = query
       .map(FingerpostWireEntry(syn.resultName))

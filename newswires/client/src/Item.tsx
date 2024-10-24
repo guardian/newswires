@@ -12,16 +12,23 @@ import {
 	EuiTitle,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
+import { paramsToQuerystring } from './urlState';
+import { useSavedItems } from './useSavedItemsList';
 import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
 
 export const Item = ({ id }: { id: string }) => {
-	const { handleDeselectItem } = useSearch();
+	const { handleDeselectItem, config } = useSearch();
+	const { savedItems, addSaved, removeSaved } = useSavedItems();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
+	const isSaved = useMemo(
+		() => savedItems.map((s) => s.id).includes(id),
+		[savedItems, id],
+	);
 	const [error, setError] = useState<string | undefined>(undefined);
 
 	const currentUrl = window.location.href;
@@ -31,9 +38,17 @@ export const Item = ({ id }: { id: string }) => {
 		prefix: 'pushedFlyoutTitle',
 	});
 
+	const maybeSearchParams = useMemo(() => {
+		const q = config.query.q;
+		if (q) {
+			return paramsToQuerystring({ q, supplier: [] });
+		}
+		return '';
+	}, [config.query.q]);
+
 	useEffect(() => {
 		// fetch item data from /api/item/:id
-		pandaFetch(`/api/item/${id}`)
+		pandaFetch(`/api/item/${id}${maybeSearchParams}`)
 			.then((res) => {
 				if (res.status === 404) {
 					throw new Error('Item not found');
@@ -85,7 +100,37 @@ export const Item = ({ id }: { id: string }) => {
 									aria-label="send to composer"
 									size="s"
 								/>
-								<EuiButtonIcon iconType={'heart'} aria-label="save" size="s" />
+								{isSaved ? (
+									<EuiButtonIcon
+										iconType={'starFilled'}
+										aria-label="remove from favourites"
+										size="s"
+										onClick={() =>
+											removeSaved({
+												id: id,
+												headline:
+													itemData.content.headline ??
+													itemData.content.slug ??
+													'',
+											})
+										}
+									/>
+								) : (
+									<EuiButtonIcon
+										iconType={'starEmpty'}
+										aria-label="save"
+										size="s"
+										onClick={() =>
+											addSaved({
+												id: id,
+												headline:
+													itemData.content.headline ??
+													itemData.content.slug ??
+													'',
+											})
+										}
+									/>
+								)}
 								<CopyButton textToCopy={currentUrl} />
 							</EuiFlexGroup>
 						</EuiFlexGroup>

@@ -73,11 +73,12 @@ class QueryController(
     Ok(Json.toJson(results))
   }
 
-  def item(id: Int): Action[AnyContent] = AuthAction {
-    FingerpostWireEntry.get(id) match {
-      case Some(entry) => Ok(Json.toJson(entry))
-      case None        => NotFound
+  def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
+    AuthAction {
+      FingerpostWireEntry.get(id, maybeFreeTextQuery) match {
+        case Some(entry) => Ok(Json.toJson(entry))
+        case None        => NotFound
+      }
     }
-  }
 
 }
