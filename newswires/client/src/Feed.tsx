@@ -8,7 +8,7 @@ export const Feed = () => {
 	const { status, queryData } = state;
 
 	return (
-		<EuiPageTemplate.Section>
+		<EuiPageTemplate.Section paddingSize="none">
 			{status == 'loading' && (
 				<EuiEmptyPrompt
 					icon={<EuiLoadingLogo logo="clock" size="l" />}

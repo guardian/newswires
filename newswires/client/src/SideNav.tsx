@@ -1,13 +1,11 @@
 import {
 	EuiBadge,
 	EuiBadgeGroup,
+	EuiButtonIcon,
 	EuiCollapsibleNav,
 	EuiCollapsibleNavGroup,
-	EuiHeaderSectionItemButton,
-	EuiIcon,
 	EuiListGroup,
 	EuiListGroupItem,
-	EuiSwitch,
 	EuiText,
 	useEuiTheme,
 	useIsWithinMinBreakpoint,
@@ -39,7 +37,7 @@ function bucketName(bucketId: string): string | undefined {
 	return buckets.find((bucket) => bucket.id === bucketId)?.name;
 }
 
-export const SideNav = () => {
+export const SideNav = ({ dockedByDefault }: { dockedByDefault: boolean }) => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
 	const theme = useEuiTheme();
 	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
@@ -96,7 +94,7 @@ export const SideNav = () => {
 					activeSuppliers.length === 0 ||
 					activeSuppliers.length === recognisedSuppliers.length,
 				onClick: () => handleEnterQuery({ ...config.query, supplier: [] }),
-				colour: 'black',
+				colour: theme.colorMode === 'LIGHT' ? 'black' : 'white',
 			},
 			...recognisedSuppliers.map((supplier) => ({
 				label: supplier,
@@ -106,7 +104,13 @@ export const SideNav = () => {
 				onClick: () => toggleSupplier(supplier),
 			})),
 		],
-		[activeSuppliers, config.query, handleEnterQuery, toggleSupplier],
+		[
+			activeSuppliers,
+			config.query,
+			handleEnterQuery,
+			theme.colorMode,
+			toggleSupplier,
+		],
 	);
 
 	const bucketItems = useMemo(() => {
@@ -128,19 +132,21 @@ export const SideNav = () => {
 		<>
 			<EuiCollapsibleNav
 				isOpen={navIsOpen}
-				isDocked={isOnLargerScreen}
+				isDocked={dockedByDefault && isOnLargerScreen}
 				size={300}
 				button={
-					<EuiHeaderSectionItemButton
+					<EuiButtonIcon
 						aria-label="Toggle main navigation"
 						onClick={() => setNavIsOpen((isOpen) => !isOpen)}
-					>
-						<EuiIcon type={'menu'} size="m" aria-hidden="true" />
-					</EuiHeaderSectionItemButton>
+						color={'primary'}
+						display="base"
+						iconType={'menu'}
+					/>
 				}
+				closeButtonProps={{ color: 'warning' }}
 				onClose={() => setNavIsOpen(false)}
 			>
-				<div style={{ height: '90%', overflowY: 'auto' }}>
+				<div className="eui-yScroll">
 					<SearchBox />
 					<EuiCollapsibleNavGroup title="Buckets">
 						<EuiListGroup
@@ -195,6 +201,7 @@ export const SideNav = () => {
 													background-color: ${isActive
 														? colour
 														: 'transparent'};
+													opacity: 0.7;
 												`}
 											/>
 										}
@@ -229,14 +236,6 @@ export const SideNav = () => {
 							</EuiBadgeGroup>
 						)}
 					</EuiCollapsibleNavGroup>
-				</div>
-
-				<div style={{ padding: '20px 10px' }}>
-					<EuiSwitch
-						label="Auto-update"
-						checked={state.autoUpdate}
-						onChange={toggleAutoUpdate}
-					/>
 				</div>
 			</EuiCollapsibleNav>
 		</>

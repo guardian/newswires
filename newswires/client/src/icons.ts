@@ -16,6 +16,7 @@ import { icon as dot } from '@elastic/eui/es/components/icon/assets/dot';
 import { icon as doubleArrowLeft } from '@elastic/eui/es/components/icon/assets/doubleArrowLeft';
 import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
+import { icon as gear } from '@elastic/eui/es/components/icon/assets/gear';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
 import { icon as launch } from '@elastic/eui/es/components/icon/assets/launch';
 import { icon as link } from '@elastic/eui/es/components/icon/assets/link';
@@ -57,4 +58,5 @@ appendIconComponentCache({
 	link,
 	copyClipboard,
 	popout,
+	gear,
 });
