@@ -21,6 +21,7 @@ object Subjects {
     "iptccat:SCR",
     "iptccat:SST",
     "iptccat:RSR",
+    "iptccat:RRR",
     "iptccat:STA",
     "iptccat:STB",
     "iptccat:SJA",
