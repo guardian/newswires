@@ -3,8 +3,6 @@ import {
 	EuiBadgeGroup,
 	EuiCollapsibleNav,
 	EuiCollapsibleNavGroup,
-	EuiFlexGroup,
-	EuiFlexItem,
 	EuiHeaderSectionItemButton,
 	EuiIcon,
 	EuiListGroup,
@@ -12,6 +10,7 @@ import {
 	EuiSwitch,
 	EuiText,
 	useEuiTheme,
+	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
@@ -43,6 +42,7 @@ function bucketName(bucketId: string): string | undefined {
 export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
 	const theme = useEuiTheme();
+	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
 
 	const { state, config, handleEnterQuery, toggleAutoUpdate } = useSearch();
 
@@ -128,7 +128,7 @@ export const SideNav = () => {
 		<>
 			<EuiCollapsibleNav
 				isOpen={navIsOpen}
-				isDocked={true}
+				isDocked={isOnLargerScreen}
 				size={300}
 				button={
 					<EuiHeaderSectionItemButton
