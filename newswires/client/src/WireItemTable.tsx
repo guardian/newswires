@@ -1,4 +1,5 @@
 import {
+	EuiButtonIcon,
 	EuiFlexGroup,
 	euiScreenReaderOnly,
 	EuiTable,
@@ -13,8 +14,11 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useMemo } from 'react';
+import sanitizeHtml from 'sanitize-html';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
+import { useSavedItems } from './useSavedItemsList';
 import { useSearch } from './useSearch';
 
 const fadeOutBackground = css`
@@ -35,7 +39,10 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 	const selectedWireId = config.itemId;
 
 	return (
-		<EuiTable tableLayout="auto">
+		<EuiTable
+			tableLayout="auto"
+			responsiveBreakpoint={config.view === 'item' ? true : 'm'}
+		>
 			<EuiTableHeader
 				css={css`
 					${euiScreenReaderOnly()}
@@ -45,12 +52,13 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 				<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
 			</EuiTableHeader>
 			<EuiTableBody>
-				{wires.map(({ id, content, isFromRefresh }) => (
+				{wires.map(({ id, content, isFromRefresh, highlight }) => (
 					<WireDataRow
 						key={id}
 						id={id}
 						content={content}
 						isFromRefresh={isFromRefresh}
+						highlight={highlight}
 						selected={selectedWireId == id.toString()}
 						handleSelect={handleSelectItem}
 					/>
@@ -63,21 +71,29 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 const WireDataRow = ({
 	id,
 	content,
+	highlight,
 	selected,
 	isFromRefresh,
 	handleSelect,
 }: {
 	id: number;
 	content: WireData['content'];
+	highlight: string;
 	selected: boolean;
 	isFromRefresh: boolean;
 	handleSelect: (id: string) => void;
 }) => {
 	const theme = useEuiTheme();
+	const { savedItems: saved, addSaved, removeSaved } = useSavedItems();
+
 	const primaryBgColor = useEuiBackgroundColor('primary');
 	const accentBgColor = useEuiBackgroundColor('accent');
 
 	const hasSlug = content.slug && content.slug.length > 0;
+	const isSaved = useMemo(
+		() => saved.map((s) => s.id).includes(id.toString()),
+		[saved, id],
+	);
 
 	return (
 		<EuiTableRow
@@ -108,6 +124,19 @@ const WireDataRow = ({
 							<p>{content.headline}</p>
 						</EuiText>
 					)}
+					{highlight.trim().length > 0 && (
+						<EuiText
+							size="xs"
+							css={css`
+								padding-left: 5px;
+								background-color: ${theme.euiTheme.colors.highlight};
+							`}
+						>
+							<p
+								dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }}
+							/>
+						</EuiText>
+					)}
 				</EuiFlexGroup>
 			</EuiTableRowCell>
 			<EuiTableRowCell align="right" valign="baseline">
@@ -118,7 +147,6 @@ const WireDataRow = ({
 								<EuiText
 									size="xs"
 									css={css`
-										font-family: monospace;
 										white-space: pre;
 									`}
 									key={part}
@@ -127,6 +155,33 @@ const WireDataRow = ({
 								</EuiText>
 							))
 					: ''}
+			</EuiTableRowCell>
+			<EuiTableRowCell align="right" valign="baseline" hasActions={true}>
+				{isSaved ? (
+					<EuiButtonIcon
+						aria-label="Remove from favourites"
+						iconType="starFilled"
+						onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+							e.stopPropagation();
+							removeSaved({
+								id: id.toString(),
+								headline: content.slug ?? content.headline ?? '',
+							});
+						}}
+					/>
+				) : (
+					<EuiButtonIcon
+						aria-label="Add to favourites"
+						iconType="starEmpty"
+						onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+							e.stopPropagation();
+							addSaved({
+								id: id.toString(),
+								headline: content.slug ?? content.headline ?? '',
+							});
+						}}
+					/>
+				)}
 			</EuiTableRowCell>
 		</EuiTableRow>
 	);
