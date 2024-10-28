@@ -17,7 +17,6 @@ import {
 	InstanceType,
 	Port,
 } from 'aws-cdk-lib/aws-ec2';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import {
 	DatabaseInstanceEngine,
@@ -27,8 +26,12 @@ import {
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { GuDatabase } from './constructs/database';
+import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
+import { POLLERS_CONFIG } from '../../shared/pollers';
+import { PollerLambda } from './constructs/pollerLambda';
 
 export type NewswiresProps = GuStackProps & {
+	sourceQueue: Queue;
 	fingerpostQueue: Queue;
 	domainName: string;
 	enableMonitoring: boolean;
@@ -83,7 +86,8 @@ export class Newswires extends GuStack {
 			`IngestionLambda-${this.stage}`,
 			{
 				app: 'ingestion-lambda',
-				runtime: Runtime.NODEJS_20_X,
+				runtime: LAMBDA_RUNTIME,
+				architecture: LAMBDA_ARCHITECTURE,
 				handler: 'handler.main',
 				// each execution can handle up to 10 messages, so this is up
 				// to 100 messages in flight; should be more than powerful enough
@@ -105,7 +109,7 @@ export class Newswires extends GuStack {
 
 		ingestionLambda.connections.allowTo(database, Port.tcp(5432));
 
-		const eventSource = new SqsEventSource(props.fingerpostQueue, {
+		const eventSourceProps = {
 			/**
 			 * This is required to allow us to deal with failures of particular
 			 * records handed to a lambda by an SQS queue. Without this, the
@@ -116,9 +120,13 @@ export class Newswires extends GuStack {
 			 *
 			 */
 			reportBatchItemFailures: true,
-		});
-
-		ingestionLambda.addEventSource(eventSource);
+		};
+		ingestionLambda.addEventSource(
+			new SqsEventSource(props.sourceQueue, eventSourceProps),
+		);
+		ingestionLambda.addEventSource(
+			new SqsEventSource(props.fingerpostQueue, eventSourceProps),
+		);
 
 		feedsBucket.grantWrite(ingestionLambda);
 
@@ -159,6 +167,15 @@ export class Newswires extends GuStack {
 					},
 				}
 			: { noMonitoring: true };
+
+		Object.entries(POLLERS_CONFIG).map(
+			([pollerId, pollerConfig]) =>
+				new PollerLambda(this, {
+					pollerId,
+					pollerConfig,
+					ingestionLambdaQueue: props.sourceQueue,
+				}),
+		);
 
 		const newswiresApp = new GuPlayApp(this, {
 			app,
