@@ -30,6 +30,8 @@ object Subjects {
     "iptccat:SCN",
     "iptccat:GXX", // maybe, or maybe advertising "Tequila brand announces partnership with Fulham Football Club"
     "iptccat:RFC",
+    "ipccat:RDR",
+    "ipccat:RRR",
     "a1312cat:s",
     "MCC:SPO",
     "N2:TEN"
