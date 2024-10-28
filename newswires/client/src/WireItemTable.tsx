@@ -13,6 +13,7 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import sanitizeHtml from 'sanitize-html';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
 import { useSearch } from './useSearch';
@@ -35,7 +36,10 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 	const selectedWireId = config.itemId;
 
 	return (
-		<EuiTable tableLayout="auto">
+		<EuiTable
+			tableLayout="auto"
+			responsiveBreakpoint={config.view === 'item' ? true : 'm'}
+		>
 			<EuiTableHeader
 				css={css`
 					${euiScreenReaderOnly()}
@@ -45,12 +49,13 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 				<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
 			</EuiTableHeader>
 			<EuiTableBody>
-				{wires.map(({ id, content, isFromRefresh }) => (
+				{wires.map(({ id, content, isFromRefresh, highlight }) => (
 					<WireDataRow
 						key={id}
 						id={id}
 						content={content}
 						isFromRefresh={isFromRefresh}
+						highlight={highlight}
 						selected={selectedWireId == id.toString()}
 						handleSelect={handleSelectItem}
 					/>
@@ -63,12 +68,14 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 const WireDataRow = ({
 	id,
 	content,
+	highlight,
 	selected,
 	isFromRefresh,
 	handleSelect,
 }: {
 	id: number;
 	content: WireData['content'];
+	highlight: string;
 	selected: boolean;
 	isFromRefresh: boolean;
 	handleSelect: (id: string) => void;
@@ -108,6 +115,19 @@ const WireDataRow = ({
 							<p>{content.headline}</p>
 						</EuiText>
 					)}
+					{highlight.trim().length > 0 && (
+						<EuiText
+							size="xs"
+							css={css`
+								padding-left: 5px;
+								background-color: ${theme.euiTheme.colors.highlight};
+							`}
+						>
+							<p
+								dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }}
+							/>
+						</EuiText>
+					)}
 				</EuiFlexGroup>
 			</EuiTableRowCell>
 			<EuiTableRowCell align="right" valign="baseline">
@@ -118,7 +138,6 @@ const WireDataRow = ({
 								<EuiText
 									size="xs"
 									css={css`
-										font-family: monospace;
 										white-space: pre;
 									`}
 									key={part}
