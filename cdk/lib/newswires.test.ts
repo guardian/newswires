@@ -5,10 +5,12 @@ import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { GuStack, GuStackProps } from '@guardian/cdk/lib/constructs/core';
 
 class MockWiresFeedsStack extends GuStack {
+	public readonly mockSourceQueue: Queue;
 	public readonly mockFingerpostQueue: Queue;
 	constructor(scope: App, id: string, props: GuStackProps) {
 		super(scope, id, props);
-		this.mockFingerpostQueue = new Queue(this, 'mock-queue');
+		this.mockSourceQueue = new Queue(this, 'MockSourceQueue');
+		this.mockFingerpostQueue = new Queue(this, 'MockFingerpostQueue');
 	}
 }
 
@@ -16,7 +18,7 @@ describe('The Newswires stack', () => {
 	it('matches the snapshot', () => {
 		const app = new App();
 
-		const { mockFingerpostQueue } = new MockWiresFeedsStack(
+		const { mockFingerpostQueue, mockSourceQueue } = new MockWiresFeedsStack(
 			app,
 			'mockWiresFeeds',
 			{ stack: 'editorial-feeds', stage: 'TEST' },
@@ -28,6 +30,7 @@ describe('The Newswires stack', () => {
 			domainName: 'newswires.TEST.dev-gutools.co.uk',
 			enableMonitoring: true,
 			fingerpostQueue: mockFingerpostQueue,
+			sourceQueue: mockSourceQueue,
 		});
 		const template = Template.fromStack(stack);
 		expect(template.toJSON()).toMatchSnapshot();

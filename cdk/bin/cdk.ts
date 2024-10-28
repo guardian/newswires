@@ -31,6 +31,7 @@ new Newswires(app, 'Newswires-CODE', {
 	stage: 'CODE',
 	domainName: 'newswires.code.dev-gutools.co.uk',
 	enableMonitoring: false,
+	sourceQueue: codeWiresFeeds.sourceQueue,
 	fingerpostQueue: codeWiresFeeds.fingerpostQueue,
 }).addDependency(codeWiresFeeds);
 
@@ -40,6 +41,7 @@ new Newswires(app, 'Newswires-PROD', {
 	stage: 'PROD',
 	domainName: 'newswires.gutools.co.uk',
 	enableMonitoring: false,
+	sourceQueue: prodWiresFeeds.sourceQueue,
 	fingerpostQueue: prodWiresFeeds.fingerpostQueue,
 }).addDependency(prodWiresFeeds);
 
