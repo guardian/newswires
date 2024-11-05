@@ -65,6 +65,7 @@ deployments:
     dependencies:
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
       - asg-upload-eu-west-1-editorial-feeds-newswires
+      - cfn-eu-west-1-editorial-feeds-wires-feeds
   lambda-update-eu-west-1-editorial-feeds-ingestion-lambda:
     type: aws-lambda
     stacks:

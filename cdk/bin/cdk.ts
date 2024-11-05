@@ -32,7 +32,7 @@ new Newswires(app, 'Newswires-CODE', {
 	domainName: 'newswires.code.dev-gutools.co.uk',
 	enableMonitoring: false,
 	fingerpostQueue: codeWiresFeeds.fingerpostQueue,
-});
+}).addDependency(codeWiresFeeds);
 
 new Newswires(app, 'Newswires-PROD', {
 	env,
@@ -41,8 +41,7 @@ new Newswires(app, 'Newswires-PROD', {
 	domainName: 'newswires.gutools.co.uk',
 	enableMonitoring: false,
 	fingerpostQueue: prodWiresFeeds.fingerpostQueue,
-});
+}).addDependency(prodWiresFeeds);
 
 export const riffraff = new RiffRaffYamlFile(app);
-
 riffraff.synth();
