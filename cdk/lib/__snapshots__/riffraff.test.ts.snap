@@ -38,14 +38,11 @@ deployments:
     regions:
       - eu-west-1
     app: EXAMPLE_long_polling_poller_lambda
-    contentDirectory: EXAMPLE_long_polling_poller_lambda
+    contentDirectory: poller-lambdas
     parameters:
       bucketSsmLookup: true
-      prefixStackToKey: false
-      prefixAppToKey: false
-      prefixStageToKey: false
       lookupByTags: true
-      fileName: CODE/poller-lambdas.zip
+      fileName: poller-lambdas.zip
     actions:
       - uploadLambda
   lambda-upload-eu-west-1-editorial-feeds-EXAMPLE_fixed_frequency_poller_lambda:
@@ -55,14 +52,11 @@ deployments:
     regions:
       - eu-west-1
     app: EXAMPLE_fixed_frequency_poller_lambda
-    contentDirectory: EXAMPLE_fixed_frequency_poller_lambda
+    contentDirectory: poller-lambdas
     parameters:
       bucketSsmLookup: true
-      prefixStackToKey: false
-      prefixAppToKey: false
-      prefixStageToKey: false
       lookupByTags: true
-      fileName: CODE/poller-lambdas.zip
+      fileName: poller-lambdas.zip
     actions:
       - uploadLambda
   asg-upload-eu-west-1-editorial-feeds-newswires:
@@ -127,14 +121,11 @@ deployments:
     regions:
       - eu-west-1
     app: EXAMPLE_long_polling_poller_lambda
-    contentDirectory: EXAMPLE_long_polling_poller_lambda
+    contentDirectory: poller-lambdas
     parameters:
       bucketSsmLookup: true
-      prefixStackToKey: false
-      prefixAppToKey: false
-      prefixStageToKey: false
       lookupByTags: true
-      fileName: CODE/poller-lambdas.zip
+      fileName: poller-lambdas.zip
     actions:
       - updateLambda
     dependencies:
@@ -146,14 +137,11 @@ deployments:
     regions:
       - eu-west-1
     app: EXAMPLE_fixed_frequency_poller_lambda
-    contentDirectory: EXAMPLE_fixed_frequency_poller_lambda
+    contentDirectory: poller-lambdas
     parameters:
       bucketSsmLookup: true
-      prefixStackToKey: false
-      prefixAppToKey: false
-      prefixStageToKey: false
       lookupByTags: true
-      fileName: CODE/poller-lambdas.zip
+      fileName: poller-lambdas.zip
     actions:
       - updateLambda
     dependencies:

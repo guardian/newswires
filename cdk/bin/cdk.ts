@@ -3,6 +3,8 @@ import { WiresFeeds } from '../lib/wires-feeds';
 import { Newswires } from '../lib/newswires';
 import { App } from 'aws-cdk-lib';
 import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
+import { POLLERS_CONFIG } from '../../shared/pollers';
+import { POLLER_LAMBDA_APP_SUFFIX } from '../lib/constructs/pollerLambda';
 
 const app = new App();
 
@@ -46,4 +48,17 @@ new Newswires(app, 'Newswires-PROD', {
 }).addDependency(prodWiresFeeds);
 
 export const riffraff = new RiffRaffYamlFile(app);
+
+const pollerLambdaIds = Object.keys(POLLERS_CONFIG).map(
+	(pollerId) => `${pollerId}${POLLER_LAMBDA_APP_SUFFIX}`,
+);
+riffraff.riffRaffYaml.deployments.forEach((deployment, key) => {
+	if (
+		deployment.type === 'aws-lambda' &&
+		pollerLambdaIds.includes(deployment.app)
+	) {
+		deployment.contentDirectory = 'poller-lambdas';
+	}
+});
+
 riffraff.synth();
