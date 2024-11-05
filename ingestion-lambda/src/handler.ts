@@ -78,8 +78,19 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							messageAttributes['Message-Id']?.stringValue;
 
 						if (!fingerpostMessageId) {
-							console.warn(
-								`Message ${sqsMessageId} is missing Message-Id attribute`,
+							await s3Client.send(
+								new PutObjectCommand({
+									Bucket: BUCKET_NAME,
+									Key: `GuMissingExternalId/${sqsMessageId}.json`,
+									Body: JSON.stringify({
+										messageId,
+										messageAttributes,
+										body,
+									}),
+								}),
+							);
+							throw new Error(
+								`Message (sqsMessageId: ${sqsMessageId}) is missing fingerpost Message-Id attribute`,
 							);
 						}
 
@@ -107,15 +118,13 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						INSERT INTO ${sql(tableName)}
 							(external_id, content)
 						VALUES
-							(${fingerpostMessageId ?? null}, ${finalContent as never})
+							(${fingerpostMessageId}, ${finalContent as never})
 						RETURNING id`.then((res) => {
 							if (res.length === 0) {
 								throw new Error('Failed to insert record into DB');
 							}
 						});
 					} catch (e) {
-						console.log(e);
-						console.log('^');
 						const reason = e instanceof Error ? e.message : 'Unknown error';
 						return {
 							status: 'failure',
