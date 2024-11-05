@@ -361,7 +361,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "TEST/poller-lambdas.zip",
+          "S3Key": "editorial-feeds/TEST/EXAMPLE_fixed_frequency_poller_lambda/poller-lambdas.zip",
         },
         "Environment": {
           "Variables": {
@@ -540,7 +540,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/TEST/poller-lambdas.zip",
+                      "/editorial-feeds/TEST/EXAMPLE_fixed_frequency_poller_lambda/poller-lambdas.zip",
                     ],
                   ],
                 },
@@ -670,7 +670,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "TEST/poller-lambdas.zip",
+          "S3Key": "editorial-feeds/TEST/EXAMPLE_long_polling_poller_lambda/poller-lambdas.zip",
         },
         "Environment": {
           "Variables": {
@@ -796,7 +796,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/TEST/poller-lambdas.zip",
+                      "/editorial-feeds/TEST/EXAMPLE_long_polling_poller_lambda/poller-lambdas.zip",
                     ],
                   ],
                 },
