@@ -9,6 +9,8 @@ import {
 } from '../../../shared/pollers';
 import { RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
 
+export const POLLER_LAMBDA_APP_SUFFIX = '_poller_lambda';
+
 interface PollerLambdaProps {
 	pollerId: string;
 	pollerConfig: PollerConfig;
@@ -28,7 +30,7 @@ export class PollerLambda /*extends GuAppAwareConstruct*/ {
 			pollerConfig.overrideLambdaTimeoutSeconds || 60, // TODO consider also taking into account the 'idealFrequencyInSeconds' if specified
 		);
 
-		const lambdaAppName = `${pollerId}_poller_lambda`;
+		const lambdaAppName = `${pollerId}${POLLER_LAMBDA_APP_SUFFIX}`;
 
 		// we use queue here to allow lambda to call itself, but sometimes with a delay
 		const lambdaQueue = new aws_sqs.Queue(scope, `${pollerId}LambdaQueue`, {
@@ -52,8 +54,7 @@ export class PollerLambda /*extends GuAppAwareConstruct*/ {
 			memorySize: pollerConfig.overrideLambdaMemoryMB || 128,
 			timeout,
 			handler: `index.${pollerId}`, // see programmatically generated exports in poller-lambdas/src/index.ts
-			withoutFilePrefix: true, // avoids the `app` prefix in the zip file
-			fileName: `${scope.stage}/poller-lambdas.zip`, // shared zip for all the poller-lambdas
+			fileName: `poller-lambdas.zip`, // shared zip for all the poller-lambdas
 		});
 
 		// TODO grant lambda permission to read secret (at runtime)
