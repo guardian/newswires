@@ -1,10 +1,12 @@
 import 'source-map-support/register';
-import { GuRoot } from '@guardian/cdk/lib/constructs/root';
 import { WiresFeeds } from '../lib/wires-feeds';
 import { Newswires } from '../lib/newswires';
+import { App } from 'aws-cdk-lib';
+import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
 
-const app = new GuRoot();
+const app = new App();
 
+// FIXME we should probably have a dedicated stack for the Newswires app for e.g. cost explorer purposes (as the App tag needs to be different for riff-raff etc. to differentiate)
 const stack = 'editorial-feeds';
 
 const env = {
@@ -30,7 +32,7 @@ new Newswires(app, 'Newswires-CODE', {
 	domainName: 'newswires.code.dev-gutools.co.uk',
 	enableMonitoring: false,
 	fingerpostQueue: codeWiresFeeds.fingerpostQueue,
-});
+}).addDependency(codeWiresFeeds);
 
 new Newswires(app, 'Newswires-PROD', {
 	env,
@@ -39,4 +41,7 @@ new Newswires(app, 'Newswires-PROD', {
 	domainName: 'newswires.gutools.co.uk',
 	enableMonitoring: false,
 	fingerpostQueue: prodWiresFeeds.fingerpostQueue,
-});
+}).addDependency(prodWiresFeeds);
+
+export const riffraff = new RiffRaffYamlFile(app);
+riffraff.synth();
