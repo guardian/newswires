@@ -1,4 +1,8 @@
 import { SQSEvent } from 'aws-lambda';
+import {
+	SecretsManagerClient,
+	GetSecretValueCommand,
+} from '@aws-sdk/client-secrets-manager';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { POLLER_LAMBDA_ENV_VAR_KEYS, PollerId } from '../../shared/pollers';
 import { PollFunction } from './types';
@@ -9,7 +13,9 @@ const getEnvironmentVariableOrCrash = (
 	key: keyof typeof POLLER_LAMBDA_ENV_VAR_KEYS,
 ) => process.env[key]!;
 
-const sqs = new SQSClient({});
+const awsConfig = {};
+const sqs = new SQSClient(awsConfig);
+const secretsManager = new SecretsManagerClient(awsConfig);
 const ownQueueUrl = getEnvironmentVariableOrCrash(
 	POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
 );
@@ -29,7 +35,15 @@ const pollerWrapper =
 	(pollerFunction: PollFunction) =>
 	async ({ Records }: SQSEvent) => {
 		const startTimeEpochMillis = Date.now();
-		const secret = 'TODO'; //TODO get secret (using name from env var)
+		const secret = await secretsManager
+			.send(
+				new GetSecretValueCommand({
+					SecretId: getEnvironmentVariableOrCrash(
+						POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME,
+					),
+				}),
+			)
+			.then((_) => _.SecretString!);
 		if (Records.length != 1) {
 			console.warn('Expected exactly one SQS record, but got', Records.length);
 		}
