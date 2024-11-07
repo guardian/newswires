@@ -1,6 +1,7 @@
 export const POLLER_LAMBDA_ENV_VAR_KEYS = {
 	INGESTION_LAMBDA_QUEUE_URL: 'INGESTION_LAMBDA_QUEUE_URL',
 	OWN_QUEUE_URL: 'OWN_QUEUE_URL',
+	SECRET_NAME: 'SECRET_NAME',
 } as const;
 
 export interface PollerLambdaProps {
