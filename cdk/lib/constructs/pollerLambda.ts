@@ -8,6 +8,7 @@ import {
 	PollerConfig,
 } from '../../../shared/pollers';
 import { RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 export const POLLER_LAMBDA_APP_SUFFIX = '_poller_lambda';
 
@@ -17,20 +18,21 @@ interface PollerLambdaProps {
 	ingestionLambdaQueue: aws_sqs.Queue;
 }
 
-export class PollerLambda /*extends GuAppAwareConstruct*/ {
+export class PollerLambda {
 	constructor(
 		scope: GuStack,
 		{ pollerId, ingestionLambdaQueue, pollerConfig }: PollerLambdaProps,
 	) {
-		// super(scope, id);
+		const lambdaAppName = `${pollerId}${POLLER_LAMBDA_APP_SUFFIX}`;
 
-		// TODO secrets manager secret
+		const secret = new Secret(scope, `${pollerId}Secret`, {
+			secretName: `/${scope.stage}/${scope.stack}/newswires/${lambdaAppName}`,
+			description: `Secret for the ${pollerId} poller lambda`,
+		});
 
 		const timeout = Duration.seconds(
 			pollerConfig.overrideLambdaTimeoutSeconds || 60, // TODO consider also taking into account the 'idealFrequencyInSeconds' if specified
 		);
-
-		const lambdaAppName = `${pollerId}${POLLER_LAMBDA_APP_SUFFIX}`;
 
 		// we use queue here to allow lambda to call itself, but sometimes with a delay
 		const lambdaQueue = new aws_sqs.Queue(scope, `${pollerId}LambdaQueue`, {
@@ -49,7 +51,7 @@ export class PollerLambda /*extends GuAppAwareConstruct*/ {
 				[POLLER_LAMBDA_ENV_VAR_KEYS.INGESTION_LAMBDA_QUEUE_URL]:
 					ingestionLambdaQueue.queueUrl,
 				[POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL]: lambdaQueue.queueUrl,
-				// TODO pass the name of the secret in as environment variable
+				[POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME]: secret.secretName,
 			},
 			memorySize: pollerConfig.overrideLambdaMemoryMB || 128,
 			timeout,
@@ -57,7 +59,7 @@ export class PollerLambda /*extends GuAppAwareConstruct*/ {
 			fileName: `poller-lambdas.zip`, // shared zip for all the poller-lambdas
 		});
 
-		// TODO grant lambda permission to read secret (at runtime)
+		secret.grantRead(lambda);
 
 		// wire up lambda to process its own queue
 		lambda.addEventSource(new SqsEventSource(lambdaQueue, { batchSize: 1 }));

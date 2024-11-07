@@ -372,6 +372,59 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "OWN_QUEUE_URL": {
               "Ref": "EXAMPLEfixedfrequencyLambdaQueueF55F5480",
             },
+            "SECRET_NAME": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Fn::Select": [
+                      0,
+                      {
+                        "Fn::Split": [
+                          "-",
+                          {
+                            "Fn::Select": [
+                              6,
+                              {
+                                "Fn::Split": [
+                                  ":",
+                                  {
+                                    "Ref": "EXAMPLEfixedfrequencySecretCB2DCB8C",
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    "Fn::Select": [
+                      1,
+                      {
+                        "Fn::Split": [
+                          "-",
+                          {
+                            "Fn::Select": [
+                              6,
+                              {
+                                "Fn::Split": [
+                                  ":",
+                                  {
+                                    "Ref": "EXAMPLEfixedfrequencySecretCB2DCB8C",
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              ],
+            },
             "STACK": "editorial-feeds",
             "STAGE": "TEST",
           },
@@ -591,6 +644,16 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             },
             {
               "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "EXAMPLEfixedfrequencySecretCB2DCB8C",
+              },
+            },
+            {
+              "Action": [
                 "sqs:ReceiveMessage",
                 "sqs:ChangeMessageVisibility",
                 "sqs:GetQueueUrl",
@@ -657,6 +720,38 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
+    "EXAMPLEfixedfrequencySecretCB2DCB8C": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Description": "Secret for the EXAMPLE_fixed_frequency poller lambda",
+        "GenerateSecretString": {},
+        "Name": "/TEST/editorial-feeds/newswires/EXAMPLE_fixed_frequency_poller_lambda",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::SecretsManager::Secret",
+      "UpdateReplacePolicy": "Delete",
+    },
     "EXAMPLElongpollingLambdaDC443D98": {
       "DependsOn": [
         "EXAMPLElongpollingLambdaServiceRoleDefaultPolicy72E70E87",
@@ -680,6 +775,59 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             },
             "OWN_QUEUE_URL": {
               "Ref": "EXAMPLElongpollingLambdaQueue0E2C8DED",
+            },
+            "SECRET_NAME": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Fn::Select": [
+                      0,
+                      {
+                        "Fn::Split": [
+                          "-",
+                          {
+                            "Fn::Select": [
+                              6,
+                              {
+                                "Fn::Split": [
+                                  ":",
+                                  {
+                                    "Ref": "EXAMPLElongpollingSecret702B1E98",
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    "Fn::Select": [
+                      1,
+                      {
+                        "Fn::Split": [
+                          "-",
+                          {
+                            "Fn::Select": [
+                              6,
+                              {
+                                "Fn::Split": [
+                                  ":",
+                                  {
+                                    "Ref": "EXAMPLElongpollingSecret702B1E98",
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              ],
             },
             "STACK": "editorial-feeds",
             "STAGE": "TEST",
@@ -847,6 +995,16 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             },
             {
               "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "EXAMPLElongpollingSecret702B1E98",
+              },
+            },
+            {
+              "Action": [
                 "sqs:ReceiveMessage",
                 "sqs:ChangeMessageVisibility",
                 "sqs:GetQueueUrl",
@@ -965,6 +1123,38 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
       },
       "Type": "AWS::Lambda::EventSourceMapping",
+    },
+    "EXAMPLElongpollingSecret702B1E98": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Description": "Secret for the EXAMPLE_long_polling poller lambda",
+        "GenerateSecretString": {},
+        "Name": "/TEST/editorial-feeds/newswires/EXAMPLE_long_polling_poller_lambda",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::SecretsManager::Secret",
+      "UpdateReplacePolicy": "Delete",
     },
     "GetDistributablePolicyNewswires3D555C70": {
       "Properties": {
