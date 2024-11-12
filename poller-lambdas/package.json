@@ -9,7 +9,9 @@
 		"lint": "eslint src/** --ext .ts --no-error-on-unmatched-pattern --fix",
 		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"fast-xml-parser": "4.5.0"
+	},
 	"devDependencies": {
 		"@aws-sdk/client-secrets-manager": "^3.682.0",
 		"@aws-sdk/client-sqs": "^3.682.0",
