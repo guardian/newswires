@@ -1,5 +1,18 @@
 import { z } from 'zod';
 
+const OptionalStringOrArrayAsArrayOfStrings = z
+	.union([z.string(), z.array(z.string())])
+	.optional()
+	.transform((val) => {
+		if (Array.isArray(val)) {
+			return val;
+		}
+		if (val === undefined) {
+			return [];
+		}
+		return [val];
+	});
+
 const FingerpostFeedPayloadSchema = z.object({
 	uri: z.string().optional(),
 	'source-feed': z.string().optional(),
@@ -19,14 +32,14 @@ const FingerpostFeedPayloadSchema = z.object({
 	priority: z.string().optional(), // 1-5 in all records
 	subjects: z
 		.object({
-			code: z.string().optional(),
+			code: OptionalStringOrArrayAsArrayOfStrings,
 		})
 		.optional(),
 	mediaCatCodes: z.string().optional(),
-	keywords: z.union([z.string(), z.array(z.string())]).optional(),
+	keywords: OptionalStringOrArrayAsArrayOfStrings,
 	organisation: z
 		.object({
-			symbols: z.union([z.string(), z.array(z.string())]).optional(),
+			symbols: OptionalStringOrArrayAsArrayOfStrings,
 		})
 		.optional(), // {"symbols": ""} {"symbols": [""]} in all records
 	tabVtxt: z.string().optional(), // always 'X' or null

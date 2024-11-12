@@ -26,7 +26,7 @@ const isCurlyQuoteFailure = (e: SyntaxError): boolean => {
 
 const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
-		return IngestorInputBodySchema.parse(body);
+		return IngestorInputBodySchema.parse(JSON.parse(body));
 	} catch (e) {
 		if (e instanceof SyntaxError && isCurlyQuoteFailure(e)) {
 			console.warn('Stripping badly escaped curly quote');
@@ -42,7 +42,7 @@ const safeBodyParse = (body: string): IngestorInputBody => {
 			//
 			// which looks like it should delete all illegal backslashes in a JSON string, but haven't rigorously tested it...
 			return IngestorInputBodySchema.parse(
-				body.replaceAll(/\\([“‘”’])/g, '$1'),
+				JSON.parse(body.replaceAll(/\\([“‘”’])/g, '$1')),
 			);
 		}
 		throw e;
@@ -107,21 +107,13 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							}),
 						);
 
-						const snsMessageContent: { keywords?: string | string[] } =
-							safeBodyParse(body);
-
-						const finalContent = Array.isArray(snsMessageContent.keywords)
-							? snsMessageContent
-							: {
-									...snsMessageContent,
-									keywords: processKeywords(snsMessageContent.keywords), // re-write the keywords field as an array
-								};
+						const snsMessageContent = safeBodyParse(body);
 
 						await sql`
 						INSERT INTO ${sql(tableName)}
 							(external_id, content)
 						VALUES
-							(${fingerpostMessageId}, ${finalContent as never})
+							(${fingerpostMessageId}, ${snsMessageContent as never})
 						RETURNING id`.then((res) => {
 							if (res.length === 0) {
 								throw new Error('Failed to insert record into DB');
