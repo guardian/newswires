@@ -46,5 +46,8 @@
 			"jest.config.js",
 			"**/generated/*"
 		]
+	},
+	"dependencies": {
+		"zod": "3.23.8"
 	}
 }
