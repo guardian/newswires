@@ -22,6 +22,7 @@ const isCurlyQuoteFailure = (e: SyntaxError): boolean => {
 	return !!e.message.match(/Unexpected token '[“‘”’]'/);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- we're not currently validating this, though there's WIP for doing so
 const safeBodyParse = (body: string): any => {
 	try {
 		return JSON.parse(body);
