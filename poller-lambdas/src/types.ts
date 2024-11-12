@@ -1,11 +1,15 @@
+import type { IngestorInputBody } from '../../shared/types';
+
 export type SecretValue = string; //TODO refine type
 
-export type PollerInput = string;
+export type PollerInput = string | undefined;
 
 export interface CorePollerOutput {
-	payloadForIngestionLambda: unknown; //TODO change to be the shared/agreed type the ingestion lambda expects
+	payloadForIngestionLambda: IngestorPayload[] | IngestorPayload;
 }
-export type LongPollOutput = CorePollerOutput & { valueForNextPoll: string };
+export type LongPollOutput = CorePollerOutput & {
+	valueForNextPoll: PollerInput;
+};
 
 export type FixedFrequencyPollOutput = CorePollerOutput & {
 	idealFrequencyInSeconds: number;
@@ -21,3 +25,8 @@ export type FixedFrequencyPollFunction = (
 ) => Promise<FixedFrequencyPollOutput>;
 
 export type PollFunction = LongPollFunction | FixedFrequencyPollFunction;
+
+export type IngestorPayload = {
+	externalId: string;
+	body?: IngestorInputBody;
+};

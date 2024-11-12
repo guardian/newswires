@@ -7,7 +7,7 @@ export const EXAMPLE_fixed_frequency = (async (secret: SecretValue) => {
 	});
 	await new Promise((resolve) => setTimeout(resolve, 10));
 	return {
-		payloadForIngestionLambda: {},
+		payloadForIngestionLambda: [],
 		idealFrequencyInSeconds: 30,
 	};
 }) satisfies FixedFrequencyPollFunction;

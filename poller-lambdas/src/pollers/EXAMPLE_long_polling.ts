@@ -14,7 +14,7 @@ export const EXAMPLE_long_polling = (async (
 		newCounterValue,
 	});
 	return {
-		payloadForIngestionLambda: {},
+		payloadForIngestionLambda: [],
 		valueForNextPoll: newCounterValue.toString(),
 	};
 }) satisfies LongPollFunction;

@@ -4,7 +4,7 @@ services:
   localstack:
     image: localstack/localstack:latest
     environment:
-      - SERVICES=s3
+      - SERVICES=s3,sqs
       - AWS_DEFAULT_REGION=eu-west-1
       - EDGE_PORT=4566
     ports:
@@ -23,4 +23,3 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=newswires
-
