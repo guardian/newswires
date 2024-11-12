@@ -1,5 +1,6 @@
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
 import { LoremIpsum } from 'lorem-ipsum';
+import type { IngestorInputBody } from '../shared/types';
 import { main } from './src/handler';
 
 const lorem = new LoremIpsum({});
@@ -33,7 +34,10 @@ function recursivelyScheduleEvent() {
 	);
 }
 
-function createDummyFeedEntry() {
+function createDummyFeedEntry(): {
+	externalId: string;
+	body: IngestorInputBody;
+} {
 	const usn = Math.random().toString(36).substring(7);
 	const firstVersion = new Date().toISOString();
 	const versionCreated = new Date().toISOString();
