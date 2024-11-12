@@ -1,5 +1,7 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
+import type { IngestorInputBody } from '../../shared/types';
+import { IngestorInputBodySchema } from '../../shared/types';
 import { BUCKET_NAME } from './config';
 import { tableName } from './database';
 import { createDbConnection } from './rds';
@@ -22,10 +24,9 @@ const isCurlyQuoteFailure = (e: SyntaxError): boolean => {
 	return !!e.message.match(/Unexpected token '[“‘”’]'/);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- we're not currently validating this, though there's WIP for doing so
-const safeBodyParse = (body: string): any => {
+const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
-		return JSON.parse(body);
+		return IngestorInputBodySchema.parse(body);
 	} catch (e) {
 		if (e instanceof SyntaxError && isCurlyQuoteFailure(e)) {
 			console.warn('Stripping badly escaped curly quote');
@@ -40,7 +41,9 @@ const safeBodyParse = (body: string): any => {
 			//   .replaceAll(/(?<![^\\]\\(?:\\\\)*)\\(?!["\\/bfnrt]|u[0-9A-Fa-f]{4})/g, '')
 			//
 			// which looks like it should delete all illegal backslashes in a JSON string, but haven't rigorously tested it...
-			return JSON.parse(body.replaceAll(/\\([“‘”’])/g, '$1'));
+			return IngestorInputBodySchema.parse(
+				body.replaceAll(/\\([“‘”’])/g, '$1'),
+			);
 		}
 		throw e;
 	}
@@ -104,7 +107,6 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							}),
 						);
 
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- seems like postgres.js requires this format? https://github.com/porsager/postgres/issues/587#issuecomment-1563262612
 						const snsMessageContent: { keywords?: string | string[] } =
 							safeBodyParse(body);
 

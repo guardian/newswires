@@ -1,47 +1,56 @@
-type FingerpostFeedPayload = {
-	uri?: string;
-	'source-feed'?: string;
-	usn?: string;
-	version?: string;
-	type?: string; // this is 'text' in every entry we have in the CODE db on 1st Nov 2024 (175553 entries at time of checking)
-	format?: string; // "GOA-WIRES-NINJS" in all records
-	mimeType?: string; // application/ninjs+json
-	firstVersion?: string;
-	versionCreated?: string;
-	dateTimeSent?: string; // more than 1/2 of the time identical to versionCreated
-	originalUrn?: string; // almost all entries have a string here, but not very unique (181803 values, only 53988 unique values)
-	slug?: string; // fp set this
-	headline?: string;
-	subhead?: string;
-	byline?: string;
-	priority?: string; // 1-5 in all records
-	subjects?: {
-		code?: string;
-	};
-	mediaCatCodes?: string;
-	keywords?: string | string[];
-	organisation?: {
-		symbols?: string;
-	}; // {"symbols": ""} {"symbols": [""]} in all records
-	tabVtxt?: string; // always 'X' or null
-	status?: string; //  always one of: "" "usable" "canceled" "embargoed" "withheld"
-	usage?: string;
-	ednote?: string;
-	abstract?: string; // only present in REUTERS and AAP items
-	language?: string;
-	location?: string; // just plain string
-	body_text?: string;
-	copyrightHolder?: string;
-	copyrightNotice?: string;
-};
+import { z } from 'zod';
 
-export type IngestorInputBody = FingerpostFeedPayload & {
-	originalContentText?: string;
-};
+const FingerpostFeedPayloadSchema = z.object({
+	uri: z.string().optional(),
+	'source-feed': z.string().optional(),
+	usn: z.string().optional(),
+	version: z.string().optional(),
+	type: z.string().optional(), // this is 'text' in every entry we have in the CODE db on 1st Nov 2024 (175553 entries at time of checking)
+	format: z.string().optional(), // "GOA-WIRES-NINJS" in all records
+	mimeType: z.string().optional(), // application/ninjs+json
+	firstVersion: z.string().optional(),
+	versionCreated: z.string().optional(),
+	dateTimeSent: z.string().optional(), // more than 1/2 of the time identical to versionCreated
+	originalUrn: z.string().optional(), // almost all entries have a string here, but not very unique (181803 values, only 53988 unique values)
+	slug: z.string().optional(), // fp set this
+	headline: z.string().optional(),
+	subhead: z.string().optional(),
+	byline: z.string().optional(),
+	priority: z.string().optional(), // 1-5 in all records
+	subjects: z
+		.object({
+			code: z.string().optional(),
+		})
+		.optional(),
+	mediaCatCodes: z.string().optional(),
+	keywords: z.union([z.string(), z.array(z.string())]).optional(),
+	organisation: z
+		.object({
+			symbols: z.union([z.string(), z.array(z.string())]).optional(),
+		})
+		.optional(), // {"symbols": ""} {"symbols": [""]} in all records
+	tabVtxt: z.string().optional(), // always 'X' or null
+	status: z.string().optional(), // always one of: "" "usable" "canceled" "embargoed" "withheld"
+	usage: z.string().optional(),
+	ednote: z.string().optional(),
+	abstract: z.string().optional(), // only present in REUTERS and AAP items
+	language: z.string().optional(),
+	location: z.string().optional(), // just plain string
+	body_text: z.string().optional(),
+	copyrightHolder: z.string().optional(),
+	copyrightNotice: z.string().optional(),
+});
 
-/**
- * Data structure produced by the ingestion lambda and saved to the database as JSONB in the `content` column.
- */
-export type WireEntryContent = Omit<IngestorInputBody, 'keywords'> & {
-	keywords: string[];
-};
+export const IngestorInputBodySchema = FingerpostFeedPayloadSchema.extend({
+	originalContentText: z.string().optional(),
+});
+
+const WireEntryContentSchema = IngestorInputBodySchema.omit({
+	keywords: true,
+}).extend({
+	keywords: z.array(z.string()),
+});
+
+export type FingerpostFeedPayload = z.infer<typeof FingerpostFeedPayloadSchema>;
+export type IngestorInputBody = z.infer<typeof IngestorInputBodySchema>;
+export type WireEntryContent = z.infer<typeof WireEntryContentSchema>;
