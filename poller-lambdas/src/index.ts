@@ -1,9 +1,10 @@
-import { SQSEvent } from 'aws-lambda';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { POLLER_LAMBDA_ENV_VAR_KEYS, PollerId } from '../../shared/pollers';
-import { PollFunction } from './types';
-import EXAMPLE_long_polling from './pollers/EXAMPLE_long_polling';
-import EXAMPLE_fixed_frequency from './pollers/EXAMPLE_fixed_frequency';
+import type { SQSEvent } from 'aws-lambda';
+import type { PollerId } from '../../shared/pollers';
+import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
+import { EXAMPLE_fixed_frequency } from './pollers/EXAMPLE_fixed_frequency';
+import { EXAMPLE_long_polling } from './pollers/EXAMPLE_long_polling';
+import type { PollFunction } from './types';
 
 const getEnvironmentVariableOrCrash = (
 	key: keyof typeof POLLER_LAMBDA_ENV_VAR_KEYS,
