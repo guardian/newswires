@@ -6,7 +6,9 @@
 		"dev": "tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
-		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects ingestion-lambda"
+		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects ingestion-lambda",
+		"lint": "eslint src/** --ext .ts --no-error-on-unmatched-pattern --fix",
+		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.637.0",
