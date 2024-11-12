@@ -7,7 +7,7 @@ const OptionalStringOrArrayAsArrayOfStrings = z
 		if (Array.isArray(val)) {
 			return val;
 		}
-		if (val === undefined) {
+		if (val === undefined || val.trim() === '') {
 			return [];
 		}
 		return [val];
