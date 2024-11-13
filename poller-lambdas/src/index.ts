@@ -2,6 +2,7 @@ import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import type { SQSEvent } from 'aws-lambda';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
+import { apPoller } from './pollers/AP/apPoller';
 import { EXAMPLE_fixed_frequency } from './pollers/EXAMPLE_fixed_frequency';
 import { EXAMPLE_long_polling } from './pollers/EXAMPLE_long_polling';
 import type { PollFunction } from './types';
@@ -17,7 +18,7 @@ const ownQueueUrl = getEnvironmentVariableOrCrash(
 );
 
 const queueNextInvocation = (props: {
-	MessageBody: string;
+	MessageBody: string | undefined;
 	DelaySeconds?: number;
 }) =>
 	sqs.send(
@@ -84,4 +85,5 @@ const pollerWrapper =
 export = {
 	EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
 	EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
+	apPoller: pollerWrapper(apPoller),
 } satisfies Record<PollerId, (sqsEvent: SQSEvent) => Promise<void[]>>;
