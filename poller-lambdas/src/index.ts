@@ -33,7 +33,9 @@ const pollerWrapper =
 	(pollerFunction: PollFunction) =>
 	async ({ Records }: SQSEvent) => {
 		const startTimeEpochMillis = Date.now();
-		const secret = 'TODO'; //TODO get secret (using name from env var)
+		const secret = getEnvironmentVariableOrCrash(
+			POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME,
+		);
 		if (Records.length != 1) {
 			console.warn('Expected exactly one SQS record, but got', Records.length);
 		}
