@@ -13,7 +13,7 @@
 		"typecheck": "npm run typecheck --workspaces",
 		"format": "prettier --write --ignore-path .gitignore \"./**/*{.js,.ts,.json,.md,.yml}\"",
 		"build": "npm run build --workspaces --if-present",
-		"lint": "npm run lint --workspaces --if-present",
+		"lint": "npm run lint --workspaces",
 		"dev": "npm run dev --workspace=ingestion-lambda"
 	},
 	"repository": {
@@ -43,7 +43,11 @@
 			"node_modules",
 			"cdk.out",
 			".eslintrc.js",
-			"jest.config.js"
+			"jest.config.js",
+			"**/generated/*"
 		]
+	},
+	"dependencies": {
+		"zod": "3.23.8"
 	}
 }
