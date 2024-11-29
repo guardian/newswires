@@ -45,18 +45,18 @@ const pollerWrapper =
 
 						await Promise.all(
 							messagesForIngestionLambda.map(
-								async (payload) => {
+								async ({ externalId, body }) => {
 									console.log(
-										`Sending message to ingestion lambda with id: ${payload.externalId}. ${JSON.stringify(payload)}`,
+										`Sending message to ingestion lambda with id: ${externalId}.`,
 									);
 									return await sqs.send(
 										new SendMessageCommand({
 											//TODO consider deduplication ID based on the unique story id from the agency??
 											QueueUrl: ingestionLambdaQueueUrl,
-											MessageBody: JSON.stringify(payload),
+											MessageBody: JSON.stringify(body),
 											MessageAttributes: {
 												'Message-Id': {
-													StringValue: payload.externalId,
+													StringValue: externalId,
 													DataType: 'String',
 												},
 											},
