@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+aws \
+    --profile=localstack \
+    --endpoint-url=http://localhost.localstack.cloud:4566/_aws/sqs/messages \
+    sqs receive-message \
+    --queue-url=http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/ingestion-lambda-queue

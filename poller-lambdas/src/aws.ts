@@ -14,9 +14,9 @@ export const sqs = new SQSClient(
 export const secretsManager = new SecretsManagerClient(remoteAwsConfig);
 
 const lambdaApp = process.env['App'];
-const ownQueueUrl = getEnvironmentVariableOrCrash(
-	POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
-);
+const ownQueueUrl = isRunningLocally
+	? 'http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/ap-poller-queue'
+	: getEnvironmentVariableOrCrash(POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL);
 
 const queueNextInvocationInAws = (props: {
 	MessageBody: string | undefined;
@@ -30,6 +30,4 @@ const queueNextInvocationInAws = (props: {
 		}),
 	);
 
-export const queueNextInvocation = isRunningLocally
-	? () => console.log('invocation ended; pretending to queue next invocation')
-	: queueNextInvocationInAws;
+export const queueNextInvocation = queueNextInvocationInAws;
