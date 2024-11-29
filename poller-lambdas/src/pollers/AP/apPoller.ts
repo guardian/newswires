@@ -11,7 +11,10 @@ import type {
 } from './generated/apApi';
 import { parseNitfContent } from './parseNitfContent';
 
-export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
+export const apPollerBusinessLogic = (async (
+	secret: SecretValue,
+	input: PollerInput,
+) => {
 	// todo: remove '-preview' from baseUrl when we go live
 	const baseUrl = 'https://api.ap.org/media/v-preview';
 	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true`;

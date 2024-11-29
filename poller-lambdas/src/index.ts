@@ -1,41 +1,32 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { SQSEvent } from 'aws-lambda';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
-import { apPoller } from './pollers/AP/apPoller';
-import { EXAMPLE_fixed_frequency } from './pollers/EXAMPLE_fixed_frequency';
-import { EXAMPLE_long_polling } from './pollers/EXAMPLE_long_polling';
+import { queueNextInvocation, secretsManager, sqs } from './aws';
+import { ingestionLambdaQueueUrl } from './config';
+import { apPollerBusinessLogic } from './pollers/AP/apPoller';
 import type { PollFunction } from './types';
-
-const getEnvironmentVariableOrCrash = (
-	key: keyof typeof POLLER_LAMBDA_ENV_VAR_KEYS,
-) => process.env[key]!;
-
-const sqs = new SQSClient({});
-const lambdaApp = process.env['App'];
-const ownQueueUrl = getEnvironmentVariableOrCrash(
-	POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
-);
-
-const queueNextInvocation = (props: {
-	MessageBody: string | undefined;
-	DelaySeconds?: number;
-}) =>
-	sqs.send(
-		new SendMessageCommand({
-			QueueUrl: ownQueueUrl,
-			MessageDeduplicationId: lambdaApp, // should prevent the same lambda from being invoked multiple times
-			...props,
-		}),
-	);
 
 const pollerWrapper =
 	(pollerFunction: PollFunction) =>
 	async ({ Records }: SQSEvent) => {
 		const startTimeEpochMillis = Date.now();
-		const secret = getEnvironmentVariableOrCrash(
-			POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME,
-		);
+		const secret = await secretsManager
+			.send(
+				new GetSecretValueCommand({
+					SecretId: '/CODE/editorial-feeds/newswires/apPoller_poller_lambda',
+					// SecretId: getEnvironmentVariableOrCrash(
+					// 	POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME,
+					// ),
+				}),
+			)
+			.then((_) => _.SecretString!);
+		if (!secret) {
+			throw new Error(
+				`Secret not found at: ${POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME}`,
+			);
+		}
 		if (Records.length != 1) {
 			console.warn('Expected exactly one SQS record, but got', Records.length);
 		}
@@ -46,16 +37,34 @@ const pollerWrapper =
 					.then(async (output) => {
 						const endTimeEpochMillis = Date.now();
 
-						await sqs.send(
-							new SendMessageCommand({
-								//TODO consider deduplication ID based on the unique story id from the agency??
-								QueueUrl: getEnvironmentVariableOrCrash(
-									POLLER_LAMBDA_ENV_VAR_KEYS.INGESTION_LAMBDA_QUEUE_URL,
-								),
-								MessageBody: JSON.stringify(output.payloadForIngestionLambda),
-							}),
-						); // TODO wrap in try catch
+						const messagesForIngestionLambda = Array.isArray(
+							output.payloadForIngestionLambda,
+						)
+							? output.payloadForIngestionLambda
+							: [output.payloadForIngestionLambda];
 
+						await Promise.all(
+							messagesForIngestionLambda.map(
+								async (payload) => {
+									console.log(
+										`Sending message to ingestion lambda with id: ${payload.externalId}. ${JSON.stringify(payload)}`,
+									);
+									return await sqs.send(
+										new SendMessageCommand({
+											//TODO consider deduplication ID based on the unique story id from the agency??
+											QueueUrl: ingestionLambdaQueueUrl,
+											MessageBody: JSON.stringify(payload),
+											MessageAttributes: {
+												'Message-Id': {
+													StringValue: payload.externalId,
+													DataType: 'String',
+												},
+											},
+										}),
+									);
+								}, // TODO wrap in try catch
+							),
+						);
 						//TODO guard against too frequent polling
 						if ('valueForNextPoll' in output) {
 							await queueNextInvocation({
@@ -76,7 +85,6 @@ const pollerWrapper =
 						}
 					})
 					.catch((error) => {
-						console.error(error);
 						// TODO send message (perhaps with default delay or 1min) to avoid the lambda from stopping entirely
 						throw error;
 					});
@@ -84,8 +92,8 @@ const pollerWrapper =
 		);
 	};
 
-export = {
-	EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
-	EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
-	apPoller: pollerWrapper(apPoller),
+export const pollers = {
+	// EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
+	// EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
+	apPoller: pollerWrapper(apPollerBusinessLogic),
 } satisfies Record<PollerId, (sqsEvent: SQSEvent) => Promise<void[]>>;

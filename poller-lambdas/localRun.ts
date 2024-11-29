@@ -1,10 +1,18 @@
-import { apPoller } from './src/pollers/AP/apPoller';
+import type { SQSEvent, SQSRecord } from 'aws-lambda';
+import { pollers } from './src';
 
-const secret = process.env.AP_API_KEY;
+const { apPoller } = pollers;
 
-if (!secret) {
-	console.error('Missing AP_API_KEY environment variable');
-	process.exit(1);
-}
+const apPollerRecord: SQSRecord = {
+	messageId: '12345',
+	body: 'https://api.ap.org/media/v-preview/content/feed?page_size=10&in_my_plan=true',
+	messageAttributes: {
+		'Message-Id': { stringValue: 'AP_POLLER_LOCAL_RUN', dataType: 'String' },
+	},
+} as unknown as SQSRecord;
 
-apPoller(secret, undefined).then(console.log).catch(console.error);
+const dummyEvent: SQSEvent = {
+	Records: [apPollerRecord],
+};
+
+apPoller(dummyEvent).then(console.log).catch(console.error);
