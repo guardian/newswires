@@ -1,5 +1,5 @@
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
-import { pollers } from './src';
+import pollers from './src';
 
 const { apPoller } = pollers;
 
