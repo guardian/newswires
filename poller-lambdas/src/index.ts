@@ -92,7 +92,8 @@ const pollerWrapper =
 		);
 	};
 
-export const pollers = {
+// eslint-disable-next-line import/no-default-export -- default export is required by the Lambda config
+export default {
 	// EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
 	// EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
 	apPoller: pollerWrapper(apPollerBusinessLogic),
