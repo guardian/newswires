@@ -14,3 +14,5 @@ cdk.out
 *.tsbuildinfo
 
 vite.config.d.ts
+.DS_Store
+
