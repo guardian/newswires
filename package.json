@@ -44,5 +44,8 @@
 			".eslintrc.js",
 			"jest.config.js"
 		]
+	},
+	"dependencies": {
+		"zod": "3.23.8"
 	}
 }
