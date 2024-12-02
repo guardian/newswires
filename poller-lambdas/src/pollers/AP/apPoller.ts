@@ -147,6 +147,12 @@ function itemWithContentToDesiredOutput({
 
 	const { abstract, bodyContent } = html;
 
+	console.log(feedItem);
+	console.log('//////////////////');
+	console.log('//////////////////');
+	console.log('//////////////////');
+	console.log('//////////////////');
+
 	return {
 		externalId,
 		body: {
