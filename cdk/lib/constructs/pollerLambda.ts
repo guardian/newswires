@@ -1,14 +1,12 @@
-import { aws_sqs, Duration } from 'aws-cdk-lib';
+import type { GuStack } from '@guardian/cdk/lib/constructs/core';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
-import { GuStack } from '@guardian/cdk/lib/constructs/core';
-import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from '../constants';
-import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
-import {
-	POLLER_LAMBDA_ENV_VAR_KEYS,
-	PollerConfig,
-} from '../../../shared/pollers';
+import { aws_sqs, Duration } from 'aws-cdk-lib';
 import { RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../../shared/pollers';
+import type { PollerConfig } from '../../../shared/pollers';
+import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from '../constants';
 
 export const POLLER_LAMBDA_APP_SUFFIX = '_poller_lambda';
 
@@ -31,13 +29,15 @@ export class PollerLambda {
 		});
 
 		const timeout = Duration.seconds(
-			pollerConfig.overrideLambdaTimeoutSeconds || 60, // TODO consider also taking into account the 'idealFrequencyInSeconds' if specified
+			pollerConfig.overrideLambdaTimeoutSeconds ?? 60, // TODO consider also taking into account the 'idealFrequencyInSeconds' if specified
 		);
 
 		// we use queue here to allow lambda to call itself, but sometimes with a delay
 		const lambdaQueue = new aws_sqs.Queue(scope, `${pollerId}LambdaQueue`, {
 			queueName: `${scope.stack}-${scope.stage}-${lambdaAppName}_queue`,
 			visibilityTimeout: timeout, // must be at least the same as the lambda
+			// TODO dead letter queue
+			// TODO consider setting retry count to zero
 		});
 
 		const lambda = new GuLambdaFunction(scope, `${pollerId}Lambda`, {
@@ -53,7 +53,7 @@ export class PollerLambda {
 				[POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL]: lambdaQueue.queueUrl,
 				[POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME]: secret.secretName,
 			},
-			memorySize: pollerConfig.overrideLambdaMemoryMB || 128,
+			memorySize: pollerConfig.overrideLambdaMemoryMB ?? 128,
 			timeout,
 			handler: `index.${pollerId}`, // see programmatically generated exports in poller-lambdas/src/index.ts
 			fileName: `poller-lambdas.zip`, // shared zip for all the poller-lambdas

@@ -7,7 +7,7 @@ import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 
-export type WiresFeedsProps = GuStackProps & {};
+export type WiresFeedsProps = GuStackProps;
 const app = 'wires-feeds';
 
 export class WiresFeeds extends GuStack {

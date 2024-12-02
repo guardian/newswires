@@ -1,8 +1,9 @@
+import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
+import { GuStack } from '@guardian/cdk/lib/constructs/core';
 import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import { Newswires } from './newswires';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
-import { GuStack, GuStackProps } from '@guardian/cdk/lib/constructs/core';
+import { Newswires } from './newswires';
 
 class MockWiresFeedsStack extends GuStack {
 	public readonly mockSourceQueue: Queue;

@@ -25,9 +25,9 @@ import {
 } from 'aws-cdk-lib/aws-rds';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
-import { GuDatabase } from './constructs/database';
-import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { POLLERS_CONFIG } from '../../shared/pollers';
+import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
+import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';
 
 export type NewswiresProps = GuStackProps & {
