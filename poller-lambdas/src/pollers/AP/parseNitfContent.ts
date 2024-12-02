@@ -7,8 +7,11 @@ interface TextNode {
 
 function extractObjectWithKeyFromArrayOfObjects<
 	T extends Record<string, unknown>,
->(array: T[], key: string): T | undefined {
-	return array.find((obj) => key in obj);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- we don't know what's in the array!
+>(arr: any[], key: string): T | undefined {
+	return arr.find(
+		(obj) => typeof obj === 'object' && obj !== null && key in obj,
+	) as T;
 }
 
 /**
@@ -27,6 +30,17 @@ type NitfXml = {
 			};
 		},
 	];
+};
+
+type NitfBody = {
+	body: {
+		'body.head'?: {
+			abstract?: string;
+		};
+		'body.content'?: {
+			block?: XmlTag[][];
+		};
+	};
 };
 
 function isNitf(xml: unknown): xml is NitfXml {
@@ -60,7 +74,14 @@ export function parseNitfContent(content: string) {
 		'nitf',
 	);
 
-	const body = jObj.find(isNitf)?.nitf.body;
+	if (!nitfContent || !isNitf(nitfContent)) {
+		throw new Error(`No NITF XML found in content`);
+	}
+
+	const body = extractObjectWithKeyFromArrayOfObjects<NitfBody>(
+		nitfContent.nitf,
+		'body',
+	);
 
 	if (!body) {
 		console.table(jObj);
@@ -68,8 +89,8 @@ export function parseNitfContent(content: string) {
 		throw new Error(`No body found in NITF XML`);
 	}
 
-	const abstract = body['body.head']?.['abstract'];
-	const maybeBlock = body['body.content']?.block;
+	const abstract = body.body['body.head']?.['abstract'];
+	const maybeBlock = body.body['body.content']?.block;
 
 	if (!maybeBlock) {
 		throw new Error(`No block found in NITF`);
