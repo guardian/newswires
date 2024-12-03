@@ -1,121 +1,87 @@
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
-type XmlTag = Record<string, TextNode[]>;
-interface TextNode {
-	'#text': string;
-}
+export type XmlNode = string | { [tag: string]: XmlNode } | XmlNode[];
 
-function extractObjectWithKeyFromArrayOfObjects<
-	T extends Record<string, unknown>,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- we don't know what's in the array!
->(arr: any[], key: string): T | undefined {
-	return arr.find(
-		(obj) => typeof obj === 'object' && obj !== null && key in obj,
-	) as T;
-}
-
-/**
- * @todo this doesn't match anymore -- actually, the top level is an array of XmlTags, really, except that it
- */
-type NitfXml = {
-	nitf: [
-		{
-			body: {
-				'body.head'?: {
-					abstract?: string;
-				};
-				'body.content'?: {
-					block?: XmlTag[][];
-				};
-			};
-		},
-	];
-};
-
-type NitfBody = {
-	body: {
-		'body.head'?: {
-			abstract?: string;
-		};
-		'body.content'?: {
-			block?: XmlTag[][];
-		};
-	};
-};
-
-function isNitf(xml: unknown): xml is NitfXml {
-	console.log('xml:', JSON.stringify(xml, null, 2));
-	console.log(
-		typeof xml === 'object' &&
-			xml !== null &&
-			'nitf' in xml &&
-			typeof xml.nitf === 'object' &&
-			xml.nitf !== null &&
-			'body' in xml.nitf,
+function extractNodeFromArrayOfNodesByKey(arr: XmlNode, key: string): XmlNode {
+	if (!Array.isArray(arr)) {
+		throw new Error(`Node is not an array.`);
+	}
+	const maybeObject = arr.find(
+		(node) => typeof node === 'object' && !Array.isArray(node) && key in node,
 	);
-	return (
-		typeof xml === 'object' &&
-		xml !== null &&
-		'nitf' in xml &&
-		typeof xml.nitf === 'object' &&
-		xml.nitf !== null &&
-		'body' in xml.nitf
-	);
+	if (maybeObject === undefined) {
+		throw new Error(
+			`Could not find object with key "${key}" in provided array. Top-level keys in the available objects are: ${arr.map((o) => Object.keys(o).join(', ')).join('; ')}`,
+		);
+	}
+	// @ts-expect-error -- we've checked that maybeObject has the key we're interested in, but TS isn't picking it up
+	return maybeObject[key] as XmlNode;
 }
 
-const parser = new XMLParser({ preserveOrder: true });
-const builder = new XMLBuilder({ preserveOrder: true });
+export function extractNodeFromArrayOfNodesByPath(
+	arr: XmlNode,
+	path: string[],
+): XmlNode {
+	let node = arr;
+	for (const key of path) {
+		node = extractNodeFromArrayOfNodesByKey(node, key);
+	}
+	return node;
+}
+
+const parser = new XMLParser({
+	preserveOrder: true,
+	processEntities: true,
+	htmlEntities: true,
+});
+const builder = new XMLBuilder({
+	preserveOrder: true,
+	processEntities: true,
+	// format: true // useful for debugging
+});
 
 export function parseNitfContent(content: string) {
-	const jObj = parser.parse(content) as unknown as unknown[];
+	const jObj = parser.parse(content) as unknown as XmlNode;
 
-	const nitfContent = extractObjectWithKeyFromArrayOfObjects<NitfXml>(
-		jObj,
-		'nitf',
-	);
+	const nitfContent = extractNodeFromArrayOfNodesByKey(jObj, 'nitf');
 
-	if (!nitfContent || !isNitf(nitfContent)) {
-		throw new Error(`No NITF XML found in content`);
-	}
+	const body = extractNodeFromArrayOfNodesByKey(nitfContent, 'body');
 
-	const body = extractObjectWithKeyFromArrayOfObjects<NitfBody>(
-		nitfContent.nitf,
-		'body',
-	);
+	const headline = extractNodeFromArrayOfNodesByPath(body, [
+		'body.head',
+		'hedline',
+		'hl1',
+		'#text',
+	]) as string;
 
-	if (!body) {
-		console.table(jObj);
+	const abstract = extractNodeFromArrayOfNodesByPath(body, [
+		'body.head',
+		'abstract',
+		'#text',
+	]) as string;
+	const bodyContent = extractNodeFromArrayOfNodesByKey(body, 'body.content');
+	const maybeBlock = extractNodeFromArrayOfNodesByKey(bodyContent, 'block');
 
-		throw new Error(`No body found in NITF XML`);
-	}
+	const bodyContentTags = builder.build(nitfToHtml(maybeBlock)) as string;
 
-	const abstract = body.body['body.head']?.['abstract'];
-	const maybeBlock = body.body['body.content']?.block;
-
-	if (!maybeBlock) {
-		throw new Error(`No block found in NITF`);
-	}
-	const bodyContent = (Array.isArray(maybeBlock) ? maybeBlock : [maybeBlock])
-		.map((block) => {
-			const remappedTags = nitfToHtml(block);
-			return builder.build(remappedTags) as string;
-		})
-		.join('');
-	return { abstract, bodyContent };
+	return { headline, abstract, bodyContentTags };
 }
-export function nitfToHtml(nitfBlock: XmlTag[]): Array<[string, string]> {
-	const remappedTags: Array<[string, string]> = nitfBlock.flatMap((tagRecord) =>
-		Object.entries(tagRecord).map(([tag, textNodes]) => {
-			const text: string = textNodes.map((node) => node['#text']).join('');
+export function nitfToHtml(nitfBlock: XmlNode): XmlNode {
+	if (typeof nitfBlock === 'string') {
+		return nitfBlock;
+	}
+	if (Array.isArray(nitfBlock)) {
+		return nitfBlock.map((node) => nitfToHtml(node));
+	}
+	return Object.fromEntries(
+		Object.entries(nitfBlock).map(([tag, node]) => {
+			const remappedNode = nitfToHtml(node);
 			switch (tag) {
 				case 'hl2':
-					return ['h2', text] as [string, string];
-				case 'p':
-					return ['p', text] as [string, string];
+					return ['h2', remappedNode];
 				default:
-					return [tag, text] as [string, string];
+					return [tag, remappedNode];
 			}
 		}),
 	);
-	return remappedTags;
 }
