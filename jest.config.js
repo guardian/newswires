@@ -2,7 +2,12 @@ const generateProject = (name) => {
 	return {
 		displayName: name,
 		transform: {
-			'^.+\\.tsx?$': 'ts-jest',
+			'^.+\\.tsx?$': [
+				'ts-jest',
+				{
+					isolatedModules: true,
+				},
+			],
 		},
 		testMatch: [`<rootDir>/${name}/**/*.test.ts`],
 		setupFilesAfterEnv: [`./${name}/jest.setup.js`],

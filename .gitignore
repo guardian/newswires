@@ -15,3 +15,5 @@ cdk.out
 
 vite.config.d.ts
 .DS_Store
+.vscode
+.bsp

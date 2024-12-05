@@ -111,6 +111,13 @@ export const WireDetail = ({
 								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
 								<EuiDescriptionListDescription>
 									<article
+										dangerouslySetInnerHTML={{
+											__html: sanitizeHtml(
+												'<p>Cleveland (3-8) at Denver (7-5)</p><h2>Browns player to watch</h2><p>WR Jerry Jeudy. He returns to Denver,</p><h2>Broncos player to watch</h2><p>WR Courtland Sutton. He&apos;s come on strong with five consecutive</p><p>Intentionally including a second p tag here.</p>',
+											),
+										}}
+									/>
+									<article
 										dangerouslySetInnerHTML={{ __html: bodyTextContent }}
 										data-pinboard-selection-target
 									/>

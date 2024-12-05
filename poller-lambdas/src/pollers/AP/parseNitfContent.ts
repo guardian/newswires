@@ -1,4 +1,19 @@
+import type { HTMLElement } from 'node-html-parser';
 import { parse } from 'node-html-parser';
+
+export function nitfBlockToHtml(block: HTMLElement): string {
+	const clonedBlock = block.clone() as HTMLElement;
+	Array.from(clonedBlock.querySelectorAll('hl2')).forEach(
+		(hl2) => (hl2.tagName = 'h2'),
+	);
+	Array.from(clonedBlock.querySelectorAll('media,media-reference')).forEach(
+		(mediaTag) => mediaTag.remove(),
+	);
+	return clonedBlock.innerHTML
+		.split('\n')
+		.map((_) => _.trim())
+		.join('');
+}
 
 export function parseNitfContent(content: string) {
 	const root = parse(content);
@@ -12,19 +27,12 @@ export function parseNitfContent(content: string) {
 		root.querySelectorAll('body\\.content block'),
 	);
 
-	const bodyContentHtml = bodyContentBlockElements
-		.flatMap((block) =>
-			Array.from(block.childNodes)
-				.map((node) => {
-					// convert hl2 tags to h2 tags
-					if (node.rawTagName.toLowerCase() === 'hl2') {
-						return `<h2>${node.innerText}</h2>`;
-					}
-					return node.toString().trim();
-				})
-				.join(''),
-		)
-		.join('');
+	const bodyContentHtml =
+		bodyContentBlockElements.length > 0
+			? bodyContentBlockElements
+					.flatMap((block) => nitfBlockToHtml(block))
+					.join('')
+			: undefined;
 
 	return { bodyContentHtml, issueDate, byline, headline, abstract, edMessage };
 }
