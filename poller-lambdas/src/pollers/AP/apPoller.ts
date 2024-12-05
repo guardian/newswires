@@ -1,3 +1,4 @@
+import { writeFileSync } from 'node:fs';
 import type {
 	IngestorPayload,
 	LongPollFunction,
@@ -65,6 +66,7 @@ export const apPollerBusinessLogic = (async (
 			}
 			const resp = await fetch(maybeNitfUrl, { headers });
 			const content = await resp.text();
+			writeFileSync(`nitf-content-${feedItem?.altids?.etag}.xml`, content);
 			const html = parseNitfContent(content);
 			return { feedItem, originalXmlContent: content, html };
 		}),
