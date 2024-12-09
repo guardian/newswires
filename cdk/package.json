@@ -10,8 +10,8 @@
 		"synth": "cdk synth --path-metadata false --version-reporting false",
 		"diff": "cdk diff --path-metadata false --version-reporting false",
 		"format": "prettier --write \"{lib,bin}/**/*.ts\"",
-		"lint": "eslint src/** --ext .ts --no-error-on-unmatched-pattern --fix",
-		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern"
+		"lint": "eslint lib/** bin/** --ext .ts --no-error-on-unmatched-pattern --fix",
+		"lint:ci": "eslint lib/** bin/** --ext .ts --no-error-on-unmatched-pattern"
 	},
 	"devDependencies": {
 		"@guardian/cdk": "59.3.0",
