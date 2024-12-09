@@ -4,11 +4,13 @@ import { aws_sqs, Duration } from 'aws-cdk-lib';
 import { RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
-import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../../shared/pollers';
 import type { PollerConfig } from '../../../shared/pollers';
+import {
+	getPollerSecretName,
+	POLLER_LAMBDA_ENV_VAR_KEYS,
+	pollerIdToLambdaAppName,
+} from '../../../shared/pollers';
 import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from '../constants';
-
-export const POLLER_LAMBDA_APP_SUFFIX = '_poller_lambda';
 
 interface PollerLambdaProps {
 	pollerId: string;
@@ -21,10 +23,10 @@ export class PollerLambda {
 		scope: GuStack,
 		{ pollerId, ingestionLambdaQueue, pollerConfig }: PollerLambdaProps,
 	) {
-		const lambdaAppName = `${pollerId}${POLLER_LAMBDA_APP_SUFFIX}`;
+		const lambdaAppName = pollerIdToLambdaAppName(pollerId);
 
 		const secret = new Secret(scope, `${pollerId}Secret`, {
-			secretName: `/${scope.stage}/${scope.stack}/newswires/${lambdaAppName}`,
+			secretName: getPollerSecretName(scope.stage, pollerId),
 			description: `Secret for the ${pollerId} poller lambda`,
 		});
 
@@ -34,8 +36,10 @@ export class PollerLambda {
 
 		// we use queue here to allow lambda to call itself, but sometimes with a delay
 		const lambdaQueue = new aws_sqs.Queue(scope, `${pollerId}LambdaQueue`, {
-			queueName: `${scope.stack}-${scope.stage}-${lambdaAppName}_queue`,
+			queueName: `${scope.stack}-${scope.stage}-${lambdaAppName}_queue.fifo`,
 			visibilityTimeout: timeout, // must be at least the same as the lambda
+			fifo: true,
+			retentionPeriod: Duration.minutes(5),
 			// TODO dead letter queue
 			// TODO consider setting retry count to zero
 		});

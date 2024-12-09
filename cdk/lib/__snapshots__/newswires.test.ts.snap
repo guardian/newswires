@@ -473,7 +473,9 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     "EXAMPLEfixedfrequencyLambdaQueueF55F5480": {
       "DeletionPolicy": "Delete",
       "Properties": {
-        "QueueName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_queue",
+        "FifoQueue": true,
+        "MessageRetentionPeriod": 300,
+        "QueueName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_queue.fifo",
         "Tags": [
           {
             "Key": "App",
@@ -877,7 +879,9 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     "EXAMPLElongpollingLambdaQueue0E2C8DED": {
       "DeletionPolicy": "Delete",
       "Properties": {
-        "QueueName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_queue",
+        "FifoQueue": true,
+        "MessageRetentionPeriod": 300,
+        "QueueName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_queue.fifo",
         "Tags": [
           {
             "Key": "App",
