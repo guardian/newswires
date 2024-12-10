@@ -1,13 +1,25 @@
-import type { FixedFrequencyPollFunction, SecretValue } from '../types';
+import type {
+	FixedFrequencyPollFunction,
+	PollerInput,
+	SecretValue,
+} from '../types';
 
-export const EXAMPLE_fixed_frequency = (async (secret: SecretValue) => {
+export const EXAMPLE_fixed_frequency = (async (
+	secret: SecretValue,
+	input: PollerInput,
+) => {
+	const previousCounterValue = parseInt(input);
+	await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate polling work taking a short time
+	const newCounterValue = previousCounterValue + 1;
 	console.log({
 		secretLength: secret.length,
-		pollingAt: new Date().toISOString(),
+		input,
+		previousCounterValue,
+		newCounterValue,
 	});
-	await new Promise((resolve) => setTimeout(resolve, 10));
 	return {
 		payloadForIngestionLambda: [],
 		idealFrequencyInSeconds: 30,
+		valueForNextPoll: newCounterValue.toString(),
 	};
 }) satisfies FixedFrequencyPollFunction;

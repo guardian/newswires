@@ -1,15 +1,16 @@
 import 'source-map-support/register';
 import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
 import { App } from 'aws-cdk-lib';
-import { POLLERS_CONFIG } from '../../shared/pollers';
-import { POLLER_LAMBDA_APP_SUFFIX } from '../lib/constructs/pollerLambda';
+import {
+	PollerId,
+	pollerIdToLambdaAppName,
+	POLLERS_CONFIG,
+} from '../../shared/pollers';
 import { Newswires } from '../lib/newswires';
 import { WiresFeeds } from '../lib/wires-feeds';
+import { STACK } from '../../shared/constants';
 
 const app = new App();
-
-// FIXME we should probably have a dedicated stack for the Newswires app for e.g. cost explorer purposes (as the App tag needs to be different for riff-raff etc. to differentiate)
-const stack = 'editorial-feeds';
 
 const env = {
 	region: 'eu-west-1',
@@ -17,19 +18,19 @@ const env = {
 
 const codeWiresFeeds = new WiresFeeds(app, 'WiresFeeds-CODE', {
 	env,
-	stack,
+	stack: STACK,
 	stage: 'CODE',
 });
 
 const prodWiresFeeds = new WiresFeeds(app, 'WiresFeeds-PROD', {
 	env,
-	stack,
+	stack: STACK,
 	stage: 'PROD',
 });
 
 new Newswires(app, 'Newswires-CODE', {
 	env,
-	stack,
+	stack: STACK,
 	stage: 'CODE',
 	domainName: 'newswires.code.dev-gutools.co.uk',
 	enableMonitoring: false,
@@ -39,7 +40,7 @@ new Newswires(app, 'Newswires-CODE', {
 
 new Newswires(app, 'Newswires-PROD', {
 	env,
-	stack,
+	stack: STACK,
 	stage: 'PROD',
 	domainName: 'newswires.gutools.co.uk',
 	enableMonitoring: false,
@@ -49,8 +50,8 @@ new Newswires(app, 'Newswires-PROD', {
 
 export const riffraff = new RiffRaffYamlFile(app);
 
-const pollerLambdaIds = Object.keys(POLLERS_CONFIG).map(
-	(pollerId) => `${pollerId}${POLLER_LAMBDA_APP_SUFFIX}`,
+const pollerLambdaIds = (Object.keys(POLLERS_CONFIG) as PollerId[]).map(
+	pollerIdToLambdaAppName,
 );
 riffraff.riffRaffYaml.deployments.forEach((deployment) => {
 	if (

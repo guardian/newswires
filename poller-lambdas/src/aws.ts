@@ -4,22 +4,35 @@ import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
 import {
 	getEnvironmentVariableOrCrash,
 	isRunningLocally,
-	localStackAwsConfig,
 	remoteAwsConfig,
 } from './config';
 
-export const sqs = new SQSClient(
-	isRunningLocally ? localStackAwsConfig : remoteAwsConfig,
-);
+const buildLocalFakeSqsClient = () => {
+	const queueData: Record<string, SendMessageCommand[]> = {};
+	return {
+		queueData: queueData,
+		send: (command: SendMessageCommand) => {
+			const currentQueue: SendMessageCommand[] =
+				queueData[command.input.QueueUrl!] ?? [];
+			queueData[command.input.QueueUrl!] = [...currentQueue, command];
+			return Promise.resolve();
+		},
+	};
+};
+
+export const sqs = isRunningLocally
+	? buildLocalFakeSqsClient()
+	: new SQSClient(remoteAwsConfig);
+
 export const secretsManager = new SecretsManagerClient(remoteAwsConfig);
 
 const lambdaApp = process.env['App'];
-const ownQueueUrl = isRunningLocally
-	? 'http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/ap-poller-queue'
-	: getEnvironmentVariableOrCrash(POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL);
+const ownQueueUrl = getEnvironmentVariableOrCrash(
+	POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
+);
 
-const queueNextInvocationInAws = (props: {
-	MessageBody: string | undefined;
+export const queueNextInvocation = (props: {
+	MessageBody: string;
 	DelaySeconds?: number;
 }) =>
 	sqs.send(
@@ -29,5 +42,3 @@ const queueNextInvocationInAws = (props: {
 			...props,
 		}),
 	);
-
-export const queueNextInvocation = queueNextInvocationInAws;

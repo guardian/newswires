@@ -25,6 +25,7 @@ import {
 } from 'aws-cdk-lib/aws-rds';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
+import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
 import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
@@ -171,7 +172,7 @@ export class Newswires extends GuStack {
 		Object.entries(POLLERS_CONFIG).map(
 			([pollerId, pollerConfig]) =>
 				new PollerLambda(this, {
-					pollerId,
+					pollerId: pollerId as PollerId,
 					pollerConfig,
 					ingestionLambdaQueue: props.sourceQueue,
 				}),

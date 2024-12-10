@@ -1,6 +1,8 @@
 import { GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
-import { SendMessageCommand } from '@aws-sdk/client-sqs';
-import type { SQSEvent } from 'aws-lambda';
+import {
+	SendMessageCommand,
+	SendMessageCommandInput,
+} from '@aws-sdk/client-sqs';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
 import { queueNextInvocation, secretsManager, sqs } from './aws';
@@ -10,11 +12,12 @@ import {
 } from './config';
 import { EXAMPLE_fixed_frequency } from './pollers/EXAMPLE_fixed_frequency';
 import { EXAMPLE_long_polling } from './pollers/EXAMPLE_long_polling';
-import type { PollFunction } from './types';
+import type { HandlerInputSqsPayload, PollFunction } from './types';
+import { isFixedFrequencyPollOutput } from './types';
 
 const pollerWrapper =
 	(pollerFunction: PollFunction) =>
-	async ({ Records }: SQSEvent) => {
+	async ({ Records }: HandlerInputSqsPayload) => {
 		const startTimeEpochMillis = Date.now();
 		const secret = await secretsManager
 			.send(
@@ -33,70 +36,77 @@ const pollerWrapper =
 		if (Records.length != 1) {
 			console.warn('Expected exactly one SQS record, but got', Records.length);
 		}
-		return Promise.all(
-			Records.map((record) => {
-				const valueFromPreviousPoll = record.body; //TODO maybe parse
-				return pollerFunction(secret, valueFromPreviousPoll)
-					.then(async (output) => {
-						const endTimeEpochMillis = Date.now();
+		for (const record of Records) {
+			const valueFromPreviousPoll = record.body;
+			await pollerFunction(secret, valueFromPreviousPoll)
+				.then(async (output) => {
+					const endTimeEpochMillis = Date.now();
 
-						const messagesForIngestionLambda = Array.isArray(
-							output.payloadForIngestionLambda,
-						)
-							? output.payloadForIngestionLambda
-							: [output.payloadForIngestionLambda];
+					const messagesForIngestionLambda = Array.isArray(
+						output.payloadForIngestionLambda,
+					)
+						? output.payloadForIngestionLambda
+						: [output.payloadForIngestionLambda];
 
-						await Promise.all(
-							messagesForIngestionLambda.map(
-								//TODO consider throttling / rate limiting
-								async ({ externalId, body }) => {
-									console.log(
-										`Sending message to ingestion lambda with id: ${externalId}.`,
-									);
-									return await sqs.send(
-										new SendMessageCommand({
-											//TODO consider deduplication ID based on the unique story id from the agency??
-											QueueUrl: ingestionLambdaQueueUrl,
-											MessageBody: JSON.stringify(body),
-											MessageAttributes: {
-												'Message-Id': {
-													StringValue: externalId,
-													DataType: 'String',
-												},
-											},
-										}),
-									);
-								}, // TODO wrap in try catch
-							),
+					for (const { externalId, body } of messagesForIngestionLambda) {
+						console.log(
+							`Sending message to ingestion lambda with id: ${externalId}.`,
 						);
-						//TODO guard against too frequent polling
-						if ('valueForNextPoll' in output) {
-							await queueNextInvocation({
-								MessageBody: output.valueForNextPoll,
-							});
-						} else {
-							const remainingMillisBeforeNextInterval =
-								output.idealFrequencyInSeconds * 1000 -
-								(endTimeEpochMillis - startTimeEpochMillis);
-							const delayInSeconds = Math.max(
-								remainingMillisBeforeNextInterval / 1000,
-								0,
+						const message: SendMessageCommandInput = {
+							MessageDeduplicationId: `${pollerFunction.name}_${externalId}`,
+							QueueUrl: ingestionLambdaQueueUrl,
+							MessageBody: JSON.stringify(body),
+							MessageAttributes: {
+								'Message-Id': {
+									StringValue: externalId,
+									DataType: 'String',
+								},
+							},
+						};
+						await sqs.send(new SendMessageCommand(message)).catch((error) => {
+							console.error(
+								`sending to queue failed for ${externalId}`,
+								message,
+								error,
 							);
-							await queueNextInvocation({
-								DelaySeconds: delayInSeconds,
-								MessageBody: new Date().toISOString(), // MessageBody needs to be non-empty, see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html#SQS-SendMessage-request-MessageBody
-							});
-						}
-					})
-					.catch((error) => {
-						// TODO send message (perhaps with default delay or 1min) to avoid the lambda from stopping entirely
-						throw error;
-					});
-			}),
-		);
+							throw error; // we still expect this to be terminal for the poller lambda
+						});
+					}
+
+					if (isFixedFrequencyPollOutput(output)) {
+						const safeIdealFrequencyInSeconds = Math.min(
+							5,
+							output.idealFrequencyInSeconds,
+						);
+						const remainingMillisBeforeNextInterval =
+							safeIdealFrequencyInSeconds * 1000 -
+							(endTimeEpochMillis - startTimeEpochMillis);
+						const delayInSeconds = Math.max(
+							remainingMillisBeforeNextInterval / 1000,
+							0,
+						);
+						await queueNextInvocation({
+							DelaySeconds: delayInSeconds,
+							MessageBody: output.valueForNextPoll,
+						});
+					} else {
+						await queueNextInvocation({
+							MessageBody: output.valueForNextPoll,
+						});
+					}
+				})
+				.catch((error) => {
+					console.error('FAILED', error);
+					// consider still queuing next (perhaps with default delay or 1min) to avoid the lambda from stopping entirely
+					throw error;
+				});
+		}
 	};
 
 export = {
 	EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
 	EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
-} satisfies Record<PollerId, (sqsEvent: SQSEvent) => Promise<void[]>>;
+} satisfies Record<
+	PollerId,
+	(sqsEvent: HandlerInputSqsPayload) => Promise<void>
+>;
