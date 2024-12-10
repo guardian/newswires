@@ -23,7 +23,7 @@ export const WireDetail = ({
 	isShowingJson: boolean;
 }) => {
 	const theme = useEuiTheme();
-	const { byline, keywords, usage } = wire.content;
+	const { byline, keywords, usage, ednote } = wire.content;
 
 	const safeBodyText = useMemo(() => {
 		return wire.content.bodyText
@@ -74,6 +74,18 @@ export const WireDetail = ({
 							}
 						`}
 					>
+						{ednote && (
+							<p
+								css={css`
+									border: 1px solid;
+									padding: ${theme.euiTheme.size.s};
+									margin-bottom: ${theme.euiTheme.size.s};
+									font-weight: ${theme.euiTheme.font.weight.bold};
+								`}
+							>
+								{ednote}
+							</p>
+						)}
 						{byline && (
 							<>
 								<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
@@ -112,6 +124,11 @@ export const WireDetail = ({
 								<EuiDescriptionListDescription>
 									<article
 										dangerouslySetInnerHTML={{ __html: bodyTextContent }}
+										css={css`
+											& p {
+												margin-bottom: ${theme.euiTheme.size.s};
+											}
+										`}
 										data-pinboard-selection-target
 									/>
 								</EuiDescriptionListDescription>
