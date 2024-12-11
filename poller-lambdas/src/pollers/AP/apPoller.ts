@@ -10,7 +10,14 @@ import type {
 	FeedListData,
 	FeedListError,
 } from './generated/apApi';
+import type { ContentFromNitf } from './parseNitfContent';
 import { parseNitfContent } from './parseNitfContent';
+
+type FeedItemWithContent = {
+	feedItem: Contentitem;
+	originalXmlContent: string;
+	contentFromNitf: ContentFromNitf;
+};
 
 export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 	// todo: remove '-preview' from baseUrl when we go live
@@ -25,11 +32,19 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 
 	const { feed, timeReceived } = await getFeed(input, apiKey);
 
+	console.log(
+		`Received feed with ${feed.data?.current_item_count} items at ${timeReceived.toISOString()}`,
+	);
+
 	const valueForNextPoll = feed.data?.next_page ?? defaultFeedUrl;
 
 	const feedItems = feed.data?.items
-		?.map(({ item }) => item) // todo: do we want to do anything with items that don't have an 'item' field?
-		.filter((i) => i !== undefined);
+		?.map(
+			({ item }) => item,
+		) /** @todo: do we want to do anything with items that don't have an 'item' field? */
+		.filter(
+			(i): i is Contentitem => i !== undefined,
+		); /** @todo we should be able to remove the type predicate after we upgrade TS to around 5.6 */
 
 	if (feedItems === undefined || feedItems.length === 0) {
 		console.log('No new items in feed');
@@ -39,20 +54,11 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 		};
 	}
 
-	const mostRecentVersionCreated = feedItems
-		.map((item) => item.versioncreated)
-		.filter((v) => v !== undefined)
-		.reduce((a, b) => (a > b ? a : b), '');
-
-	console.log(
-		`received feed with ${feedItems.length} items at ${timeReceived.toISOString()}; most recent version created is ${mostRecentVersionCreated}`,
-	);
-
 	const feedItemsWithContent: Array<
 		| {
 				feedItem: Contentitem;
 				originalXmlContent: string;
-				html: { abstract: string | undefined; bodyContent: string };
+				contentFromNitf: ContentFromNitf;
 		  }
 		| undefined
 	> = await Promise.all(
@@ -63,18 +69,16 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 			}
 			const resp = await fetch(maybeNitfUrl, { headers });
 			const content = await resp.text();
-			writeFileSync(`nitf-content-${feedItem?.altids?.etag}.xml`, content);
-			const html = parseNitfContent(content);
-			return { feedItem, originalXmlContent: content, html };
+			const contentFromNitf = parseNitfContent(content);
+			return { feedItem, originalXmlContent: content, contentFromNitf };
 		}),
 	);
 
 	const payloadForIngestionLambda: IngestorPayload[] = feedItemsWithContent
-		.filter((i) => i !== undefined)
+		.filter(
+			(i): i is FeedItemWithContent => i !== undefined,
+		) /** @todo we should be able to remove the type predicate after we upgrade TS to around 5.6 */
 		.map(itemWithContentToDesiredOutput);
-
-	// todo: remove once we have a dedicated API key!!
-	await new Promise((resolve) => setTimeout(resolve, 30000));
 
 	return {
 		payloadForIngestionLambda,
@@ -122,11 +126,11 @@ async function getFeed(
 function itemWithContentToDesiredOutput({
 	feedItem,
 	originalXmlContent,
-	html,
+	contentFromNitf,
 }: {
 	feedItem: Contentitem;
 	originalXmlContent: string;
-	html: { abstract: string | undefined; bodyContent: string };
+	contentFromNitf: ContentFromNitf;
 }): IngestorPayload {
 	/**
 	 * We want our external id to be unique for each revision of a content item; the 'etag' field fits the criteria:
@@ -138,19 +142,19 @@ function itemWithContentToDesiredOutput({
 		type,
 		pubstatus,
 		title,
+		headline,
 		editorialpriority,
 		firstcreated,
 		versioncreated,
 		bylines,
+		ednote,
 	} = feedItem;
 
-	const { abstract, bodyContent } = html;
+	const { abstract, bodyContentHtml } = contentFromNitf;
 
-	console.log(feedItem);
-	console.log('//////////////////');
-	console.log('//////////////////');
-	console.log('//////////////////');
-	console.log('//////////////////');
+	const bylineToUse = bylines
+		? [...bylines].map((byline) => byline.by).join(', ')
+		: contentFromNitf.byline;
 
 	return {
 		externalId,
@@ -161,13 +165,14 @@ function itemWithContentToDesiredOutput({
 			status: pubstatus,
 			firstVersion: firstcreated, // todo: should double-check that these line up once we've got the feed back
 			versionCreated: versioncreated,
-			headline: title,
-			byline: bylines?.map((byline) => byline.by).join(', '),
+			headline: title ?? headline ?? contentFromNitf.headline,
+			byline: bylineToUse,
 			priority: editorialpriority,
 			keywords: [],
-			body_text: bodyContent,
+			body_text: bodyContentHtml,
 			abstract,
 			originalContentText: originalXmlContent,
+			ednote,
 		},
 	};
 }
