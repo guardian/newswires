@@ -56,6 +56,12 @@ jobs:
           npm run build
           zip -FSjr "dist/ingestion-lambda.zip" "dist/handler.js"
 
+      - name: Build poller-lambdas
+        working-directory: poller-lambdas
+        run: |
+          npm run build
+          zip -FSjr "dist/poller-lambdas.zip" "dist/index.js"
+
       - name: Build Newswires app and UI
         working-directory: newswires
         run: |
@@ -80,5 +86,7 @@ jobs:
               - cdk/cdk.out
             ingestion-lambda:
               - ingestion-lambda/dist/ingestion-lambda.zip
+            poller-lambdas:
+              - poller-lambdas/dist/poller-lambdas.zip
             newswires:
               - newswires/target/newswires.deb

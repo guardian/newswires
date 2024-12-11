@@ -1,0 +1,20 @@
+{
+	"name": "poller-lambdas",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"dev": "ts-node-dev --respawn localRun.ts",
+		"typecheck": "tsc -noEmit",
+		"build": "esbuild src/index.ts --bundle --minify --outfile=dist/index.js --external:@aws-sdk --external:aws-sdk --platform=node",
+		"lint": "eslint src/** --ext .ts --no-error-on-unmatched-pattern --fix",
+		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@aws-sdk/client-secrets-manager": "^3.682.0",
+		"@aws-sdk/client-sqs": "^3.682.0",
+		"@types/aws-lambda": "8.10.145",
+		"@types/prompts": "^2.0.14",
+		"prompts": "^2.4.2"
+	}
+}

@@ -69,11 +69,13 @@ function createDummyFeedEntry(): {
 			byline: '',
 			priority: '4',
 			subjects: {
+				// @ts-expect-error -- FIXME zod issue
 				code: '',
 			},
 			mediaCatCodes: 'f',
 			keywords,
 			organisation: {
+				// @ts-expect-error -- FIXME zod issue
 				symbols: '',
 			},
 			tabVtxt: 'X',
