@@ -4,7 +4,6 @@
 
 ## Running locally
 
-
 ### Ingestion Lambda
 
 ```sh
@@ -24,3 +23,13 @@ popd
 ssm ssh -t newswires,CODE -p editorial-feeds -x --newest --rds-tunnel 5432:newswires,CODE
 sbt run
 ```
+
+### Poller Lambdas
+```sh
+npm run dev -w poller-lambdas
+```
+...and follow the interactive prompts for running different poller lambdas logic (including simulating the self-queuing mechanism).
+
+## Adding a new poller lambda
+
+See [poller-lambdas/README.md](poller-lambdas/README.md)
