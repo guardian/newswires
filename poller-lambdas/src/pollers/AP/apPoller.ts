@@ -18,9 +18,10 @@ type FeedItemWithContent = {
 	contentFromNitf: ContentFromNitf;
 };
 
+// https://api.ap.org/media/v-preview/content/feed?page_size=10&in_my_plan=true
 export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 	// todo: remove '-preview' from baseUrl when we go live
-	const baseUrl = 'https://api.ap.org/media/v-preview/';
+	const baseUrl = 'https://api.ap.org/media/v-preview';
 	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true`;
 	const apiKey = secret;
 
