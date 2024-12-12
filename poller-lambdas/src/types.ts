@@ -2,7 +2,7 @@ import type { IngestorInputBody } from '../../shared/types';
 
 export type SecretValue = string;
 
-export type PollerInput = string | undefined;
+export type PollerInput = string;
 
 export interface CorePollerOutput {
 	payloadForIngestionLambda: IngestorPayload[] | IngestorPayload;
