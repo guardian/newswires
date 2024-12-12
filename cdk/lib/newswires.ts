@@ -175,6 +175,7 @@ export class Newswires extends GuStack {
 					pollerId: pollerId as PollerId,
 					pollerConfig,
 					ingestionLambdaQueue: props.sourceQueue,
+					alarmSnsTopicName: alarmSnsTopic.topicName,
 				}),
 		);
 

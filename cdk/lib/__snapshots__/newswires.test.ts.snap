@@ -14,7 +14,15 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuParameter",
       "GuParameter",
       "GuLambdaFunction",
+      "GuLambdaErrorPercentageAlarm",
+      "GuLambdaThrottlingAlarm",
+      "GuAlarm",
+      "GuAlarm",
       "GuLambdaFunction",
+      "GuLambdaErrorPercentageAlarm",
+      "GuLambdaThrottlingAlarm",
+      "GuAlarm",
+      "GuAlarm",
       "GuGetS3ObjectsPolicy",
       "GuGetS3ObjectsPolicy",
       "GuSubnetListParameter",
@@ -470,6 +478,237 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::Function",
     },
+    "EXAMPLEfixedfrequencyLambdaErrorPercentageAlarmForLambda1B4D14B2": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda is erroring.",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_Error_Alarm",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 1,
+        "Metrics": [
+          {
+            "Expression": "100*m1/m2",
+            "Id": "expr_1",
+            "Label": {
+              "Fn::Join": [
+                "",
+                [
+                  "Error % of ",
+                  {
+                    "Ref": "EXAMPLEfixedfrequencyLambdaD9A07041",
+                  },
+                ],
+              ],
+            },
+          },
+          {
+            "Id": "m1",
+            "MetricStat": {
+              "Metric": {
+                "Dimensions": [
+                  {
+                    "Name": "FunctionName",
+                    "Value": {
+                      "Ref": "EXAMPLEfixedfrequencyLambdaD9A07041",
+                    },
+                  },
+                ],
+                "MetricName": "Errors",
+                "Namespace": "AWS/Lambda",
+              },
+              "Period": 60,
+              "Stat": "Sum",
+            },
+            "ReturnData": false,
+          },
+          {
+            "Id": "m2",
+            "MetricStat": {
+              "Metric": {
+                "Dimensions": [
+                  {
+                    "Name": "FunctionName",
+                    "Value": {
+                      "Ref": "EXAMPLEfixedfrequencyLambdaD9A07041",
+                    },
+                  },
+                ],
+                "MetricName": "Invocations",
+                "Namespace": "AWS/Lambda",
+              },
+              "Period": 60,
+              "Stat": "Sum",
+            },
+            "ReturnData": false,
+          },
+        ],
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "EXAMPLEfixedfrequencyLambdaHaywireAlarm739FFA93": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda has potentially gone haywire (has been invoked more frequently than expected).",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_Haywire_Alarm",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Invocations",
+        "Namespace": "AWS/Lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 300,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 15,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
     "EXAMPLEfixedfrequencyLambdaQueueF55F5480": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -722,6 +961,192 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
+    "EXAMPLEfixedfrequencyLambdaStalledAlarm3E1E3005": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda is potentially stalled (hasn't been invoked as frequently as expected).",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_Stalled_Alarm",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Invocations",
+        "Namespace": "AWS/Lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 900,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 30,
+        "TreatMissingData": "breaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "EXAMPLEfixedfrequencyLambdaThrottlingAlarmForLambda7B722356": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda is throttling.",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_Throttling_Alarm",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": {
+              "Ref": "EXAMPLEfixedfrequencyLambdaD9A07041",
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Throttles",
+        "Namespace": "AWS/Lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 60,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
     "EXAMPLEfixedfrequencySecretCB2DCB8C": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -875,6 +1300,237 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Timeout": 60,
       },
       "Type": "AWS::Lambda::Function",
+    },
+    "EXAMPLElongpollingLambdaErrorPercentageAlarmForLambda3358F222": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda is erroring.",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_Error_Alarm",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 1,
+        "Metrics": [
+          {
+            "Expression": "100*m1/m2",
+            "Id": "expr_1",
+            "Label": {
+              "Fn::Join": [
+                "",
+                [
+                  "Error % of ",
+                  {
+                    "Ref": "EXAMPLElongpollingLambdaDC443D98",
+                  },
+                ],
+              ],
+            },
+          },
+          {
+            "Id": "m1",
+            "MetricStat": {
+              "Metric": {
+                "Dimensions": [
+                  {
+                    "Name": "FunctionName",
+                    "Value": {
+                      "Ref": "EXAMPLElongpollingLambdaDC443D98",
+                    },
+                  },
+                ],
+                "MetricName": "Errors",
+                "Namespace": "AWS/Lambda",
+              },
+              "Period": 60,
+              "Stat": "Sum",
+            },
+            "ReturnData": false,
+          },
+          {
+            "Id": "m2",
+            "MetricStat": {
+              "Metric": {
+                "Dimensions": [
+                  {
+                    "Name": "FunctionName",
+                    "Value": {
+                      "Ref": "EXAMPLElongpollingLambdaDC443D98",
+                    },
+                  },
+                ],
+                "MetricName": "Invocations",
+                "Namespace": "AWS/Lambda",
+              },
+              "Period": 60,
+              "Stat": "Sum",
+            },
+            "ReturnData": false,
+          },
+        ],
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "EXAMPLElongpollingLambdaHaywireAlarmFB9A2851": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda has potentially gone haywire (has been invoked more frequently than expected).",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_Haywire_Alarm",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Invocations",
+        "Namespace": "AWS/Lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 60,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 60,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "EXAMPLElongpollingLambdaQueue0E2C8DED": {
       "DeletionPolicy": "Delete",
@@ -1127,6 +1783,192 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
       },
       "Type": "AWS::Lambda::EventSourceMapping",
+    },
+    "EXAMPLElongpollingLambdaStalledAlarm6F0BABB6": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda is potentially stalled (hasn't been invoked as frequently as expected).",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_Stalled_Alarm",
+        "ComparisonOperator": "LessThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Invocations",
+        "Namespace": "AWS/Lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 180,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "breaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "EXAMPLElongpollingLambdaThrottlingAlarmForLambda289EA080": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "The editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda is throttling.",
+        "AlarmName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_Throttling_Alarm",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": {
+              "Ref": "EXAMPLElongpollingLambdaDC443D98",
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "Throttles",
+        "Namespace": "AWS/Lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 60,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "EXAMPLElongpollingSecret702B1E98": {
       "DeletionPolicy": "Delete",
