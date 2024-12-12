@@ -1,3 +1,4 @@
+import { writeFileSync } from 'node:fs';
 import type {
 	IngestorPayload,
 	LongPollFunction,
@@ -14,6 +15,7 @@ import { parseNitfContent } from './parseNitfContent';
 export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 	// todo: remove '-preview' from baseUrl when we go live
 	const baseUrl = 'https://api.ap.org/media/v-preview/';
+	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true`;
 	const apiKey = secret;
 
 	const headers = {
@@ -21,12 +23,9 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 		'x-api-key': apiKey,
 	};
 
-	const { feed, timeReceived } = await getFeed(baseUrl, apiKey, input);
+	const { feed, timeReceived } = await getFeed(input, apiKey);
 
-	const valueForNextPoll = feed.data?.next_page;
-
-	console.log(feed.data?.items?.length);
-	console.log(JSON.stringify(feed.data?.items));
+	const valueForNextPoll = feed.data?.next_page ?? defaultFeedUrl;
 
 	const feedItems = feed.data?.items
 		?.map(({ item }) => item) // todo: do we want to do anything with items that don't have an 'item' field?
@@ -64,6 +63,7 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 			}
 			const resp = await fetch(maybeNitfUrl, { headers });
 			const content = await resp.text();
+			writeFileSync(`nitf-content-${feedItem?.altids?.etag}.xml`, content);
 			const html = parseNitfContent(content);
 			return { feedItem, originalXmlContent: content, html };
 		}),
@@ -95,17 +95,13 @@ function isFeedListError(
 }
 
 async function getFeed(
-	baseUrl: string,
+	url: string,
 	apiKey: string,
-	nextPage?: string,
 ): Promise<{ feed: FeedListData; timeReceived: Date }> {
 	const headers: HeadersInit = {
 		accept: 'application/json',
 		'x-api-key': apiKey,
 	};
-
-	const url =
-		nextPage ?? `${baseUrl}/content/feed?page_size=10&in_my_plan=true`;
 
 	console.log(`polling for feed at ${url}`);
 
@@ -145,36 +141,33 @@ function itemWithContentToDesiredOutput({
 		editorialpriority,
 		firstcreated,
 		versioncreated,
+		bylines,
 	} = feedItem;
 
 	const { abstract, bodyContent } = html;
 
+	console.log(feedItem);
+	console.log('//////////////////');
+	console.log('//////////////////');
+	console.log('//////////////////');
+	console.log('//////////////////');
+
 	return {
-		item: {
-			externalId,
-			body: {
-				'source-feed': 'AP-Newswires',
-				version: feedItem.version?.toString() ?? '0',
-				type: type,
-				status: pubstatus,
-				firstVersion: firstcreated, // todo: should double-check that these line up once we've got the feed back
-				versionCreated: versioncreated,
-				headline: title,
-				subhead: '???',
-				byline: '???',
-				priority: editorialpriority,
-				subjects: {
-					code: '???',
-				},
-				mediaCatCodes: '???',
-				keywords: '???',
-				organisation: {
-					symbols: '???',
-				},
-				body_text: bodyContent,
-				abstract,
-				originalContentText: originalXmlContent,
-			},
+		externalId,
+		body: {
+			'source-feed': 'AP-Newswires',
+			version: feedItem.version?.toString() ?? '0',
+			type: type,
+			status: pubstatus,
+			firstVersion: firstcreated, // todo: should double-check that these line up once we've got the feed back
+			versionCreated: versioncreated,
+			headline: title,
+			byline: bylines?.map((byline) => byline.by).join(', '),
+			priority: editorialpriority,
+			keywords: [],
+			body_text: bodyContent,
+			abstract,
+			originalContentText: originalXmlContent,
 		},
 	};
 }

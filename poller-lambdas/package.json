@@ -7,10 +7,11 @@
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/index.ts --bundle --minify --outfile=dist/index.js --external:@aws-sdk --external:aws-sdk --platform=node",
 		"lint": "eslint src/** --ext .ts --no-error-on-unmatched-pattern --fix",
-		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern"
+		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern",
+		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects poller-lambdas"
 	},
 	"dependencies": {
-		"fast-xml-parser": "4.5.0"
+		"node-html-parser": "6.1.13"
 	},
 	"devDependencies": {
 		"@aws-sdk/client-secrets-manager": "^3.682.0",
