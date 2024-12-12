@@ -14,8 +14,9 @@ import type { HandlerInputSqsPayload } from './src/types';
 const fakeInvoke = async (
 	handler: (sqsEvent: HandlerInputSqsPayload) => Promise<void>,
 	input: string,
-	ownQueue: SendMessageCommand[],
-	ingestionQueue: SendMessageCommand[],
+	fakeQueues: Record<string, SendMessageCommand[]>,
+	ownQueueUrl: string,
+	ingestionQueueUrl: string,
 ) => {
 	console.log('---------------------------------------------');
 	console.log(`POLLER INVOCATION STARTED ${new Date().toISOString()}`);
@@ -28,6 +29,9 @@ const fakeInvoke = async (
 			},
 		],
 	});
+
+	const ownQueue = fakeQueues[ownQueueUrl]!;
+	const ingestionQueue = fakeQueues[ingestionQueueUrl]!;
 
 	const nextQueueItem = ownQueue.shift()!.input;
 	const inputForNext = nextQueueItem.MessageBody!;
@@ -63,8 +67,9 @@ const fakeInvoke = async (
 										void fakeInvoke(
 											handler,
 											inputForNext,
-											ownQueue,
-											ingestionQueue,
+											fakeQueues,
+											ownQueueUrl,
+											ingestionQueueUrl,
 										),
 									maybeDelaySeconds * 1000,
 								);
@@ -73,12 +78,23 @@ const fakeInvoke = async (
 					]
 				: []),
 			{
-				title: 'Invoke immediately',
+				title: 'Invoke again immediately',
 				value() {
-					void fakeInvoke(handler, inputForNext, ownQueue, ingestionQueue);
+					void fakeInvoke(
+						handler,
+						inputForNext,
+						fakeQueues,
+						ownQueueUrl,
+						ingestionQueueUrl,
+					);
 				},
 			},
-			{ title: 'Exit', value() {} },
+			{
+				title: 'Exit',
+				value() {
+					process.exit(0);
+				},
+			},
 		],
 	})) as { nextAction: () => void };
 
@@ -118,14 +134,14 @@ void (async () => {
 	const { input } = (await prompts({
 		type: 'text',
 		name: 'input',
-		message:
-			"Do want to provide a starting input? (e.g. if this is poller is 'long polling')",
+		message: 'Do you want to provide a starting input?',
 	})) as { input: string };
 
 	await fakeInvoke(
 		handler,
 		input,
-		sqs.queueData[ownQueueUrl]!,
-		sqs.queueData[ingestionQueueUrl]!,
+		sqs.queueData,
+		ownQueueUrl,
+		ingestionQueueUrl,
 	);
 })();

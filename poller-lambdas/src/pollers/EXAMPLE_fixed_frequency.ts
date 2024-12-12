@@ -18,7 +18,15 @@ export const EXAMPLE_fixed_frequency = (async (
 		newCounterValue,
 	});
 	return {
-		payloadForIngestionLambda: [],
+		payloadForIngestionLambda: [
+			{
+				externalId: 'foo',
+				body: {
+					body_text: 'foo',
+					keywords: [],
+				},
+			},
+		],
 		idealFrequencyInSeconds: 30,
 		valueForNextPoll: newCounterValue.toString(),
 	};

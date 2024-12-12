@@ -5,16 +5,34 @@ export const EXAMPLE_long_polling = (async (
 	input: PollerInput,
 ) => {
 	const previousCounterValue = parseInt(input);
-	await new Promise((resolve) => setTimeout(resolve, 30000)); // simulate long poll taking 30s
-	const newCounterValue = previousCounterValue + 1;
 	console.log({
 		secretLength: secret.length,
 		input,
 		previousCounterValue,
+	});
+	console.log('commence long poll (hard coded example to return after 5s)...');
+	await new Promise((resolve) => setTimeout(resolve, 5_000)); // simulate long poll taking 5s
+	const newCounterValue = previousCounterValue + 1;
+	console.log({
 		newCounterValue,
 	});
 	return {
-		payloadForIngestionLambda: [],
+		payloadForIngestionLambda: [
+			{
+				externalId: 'foo',
+				body: {
+					body_text: 'foo',
+					keywords: [],
+				},
+			},
+			{
+				externalId: 'bar',
+				body: {
+					body_text: 'bar',
+					keywords: [],
+				},
+			},
+		],
 		valueForNextPoll: newCounterValue.toString(),
 	};
 }) satisfies LongPollFunction;

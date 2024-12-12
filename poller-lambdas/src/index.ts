@@ -6,10 +6,7 @@ import {
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
 import { queueNextInvocation, secretsManager, sqs } from './aws';
-import {
-	getEnvironmentVariableOrCrash,
-	ingestionLambdaQueueUrl,
-} from './config';
+import { getEnvironmentVariableOrCrash } from './config';
 import { EXAMPLE_fixed_frequency } from './pollers/EXAMPLE_fixed_frequency';
 import { EXAMPLE_long_polling } from './pollers/EXAMPLE_long_polling';
 import type { HandlerInputSqsPayload, PollFunction } from './types';
@@ -54,7 +51,9 @@ const pollerWrapper =
 						);
 						const message: SendMessageCommandInput = {
 							MessageDeduplicationId: `${pollerFunction.name}_${externalId}`,
-							QueueUrl: ingestionLambdaQueueUrl,
+							QueueUrl: getEnvironmentVariableOrCrash(
+								POLLER_LAMBDA_ENV_VAR_KEYS.INGESTION_LAMBDA_QUEUE_URL,
+							),
 							MessageBody: JSON.stringify(body),
 							MessageAttributes: {
 								'Message-Id': {

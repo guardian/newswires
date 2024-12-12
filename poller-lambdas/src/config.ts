@@ -21,7 +21,3 @@ export const remoteAwsConfig = isRunningLocally
 export const getEnvironmentVariableOrCrash = (
 	key: keyof typeof POLLER_LAMBDA_ENV_VAR_KEYS,
 ) => process.env[key]!;
-
-export const ingestionLambdaQueueUrl = getEnvironmentVariableOrCrash(
-	POLLER_LAMBDA_ENV_VAR_KEYS.INGESTION_LAMBDA_QUEUE_URL,
-);

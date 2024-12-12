@@ -27,9 +27,6 @@ export const sqs = isRunningLocally
 export const secretsManager = new SecretsManagerClient(remoteAwsConfig);
 
 const lambdaApp = process.env['App'];
-const ownQueueUrl = getEnvironmentVariableOrCrash(
-	POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
-);
 
 export const queueNextInvocation = (props: {
 	MessageBody: string;
@@ -37,7 +34,9 @@ export const queueNextInvocation = (props: {
 }) =>
 	sqs.send(
 		new SendMessageCommand({
-			QueueUrl: ownQueueUrl,
+			QueueUrl: getEnvironmentVariableOrCrash(
+				POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
+			),
 			MessageDeduplicationId: lambdaApp, // should prevent the same lambda from being invoked multiple times
 			...props,
 		}),
