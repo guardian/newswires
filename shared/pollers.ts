@@ -26,4 +26,5 @@ export type PollerId = keyof typeof POLLERS_CONFIG;
 export const POLLERS_CONFIG = {
 	EXAMPLE_long_polling: {},
 	EXAMPLE_fixed_frequency: { idealFrequencyInSeconds: 30 },
+	apPoller: {},
 } as const satisfies Record<string, PollerConfig>; // used to generate lambda etc. per agency, with config mapped
