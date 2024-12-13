@@ -444,7 +444,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
         "MemorySize": 128,
         "RecursiveLoop": "Allow",
-        "ReservedConcurrentExecutions": 1,
+        "ReservedConcurrentExecutions": 2,
         "Role": {
           "Fn::GetAtt": [
             "EXAMPLEfixedfrequencyLambdaServiceRoleBA2F232F",
@@ -712,9 +712,8 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     "EXAMPLEfixedfrequencyLambdaQueueF55F5480": {
       "DeletionPolicy": "Delete",
       "Properties": {
-        "FifoQueue": true,
         "MessageRetentionPeriod": 300,
-        "QueueName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_queue.fifo",
+        "QueueName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda_queue",
         "Tags": [
           {
             "Key": "App",
@@ -1267,7 +1266,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
         "MemorySize": 128,
         "RecursiveLoop": "Allow",
-        "ReservedConcurrentExecutions": 1,
+        "ReservedConcurrentExecutions": 2,
         "Role": {
           "Fn::GetAtt": [
             "EXAMPLElongpollingLambdaServiceRoleF2C4DC08",
@@ -1535,9 +1534,8 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     "EXAMPLElongpollingLambdaQueue0E2C8DED": {
       "DeletionPolicy": "Delete",
       "Properties": {
-        "FifoQueue": true,
         "MessageRetentionPeriod": 300,
-        "QueueName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_queue.fifo",
+        "QueueName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda_queue",
         "Tags": [
           {
             "Key": "App",

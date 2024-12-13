@@ -48,9 +48,8 @@ export class PollerLambda {
 
 		// we use queue here to allow lambda to call itself, but sometimes with a delay
 		const lambdaQueue = new aws_sqs.Queue(scope, `${pollerId}LambdaQueue`, {
-			queueName: `${scope.stack}-${scope.stage}-${lambdaAppName}_queue.fifo`,
+			queueName: `${scope.stack}-${scope.stage}-${lambdaAppName}_queue`,
 			visibilityTimeout: timeout, // must be at least the same as the lambda
-			fifo: true,
 			retentionPeriod: Duration.minutes(5),
 			// TODO dead letter queue
 			// TODO consider setting retry count to zero
@@ -65,6 +64,10 @@ export class PollerLambda {
 			);
 		}
 
+		// only one lambda should be happening at once, however the lambda queues up its next execution whilst it's still running
+		// so concurrency of 2 should prevent throttling, but also guard against it going haywire
+		const reservedConcurrentExecutions = 2;
+
 		const functionName = `${scope.stack}-${scope.stage}-${lambdaAppName}`;
 		const lambda = new GuLambdaFunction(scope, `${pollerId}Lambda`, {
 			app: lambdaAppName, // varying app tag for each lambda allows riff-raff to find by tag
@@ -72,7 +75,7 @@ export class PollerLambda {
 			runtime: LAMBDA_RUNTIME,
 			architecture: LAMBDA_ARCHITECTURE,
 			recursiveLoop: RecursiveLoop.ALLOW, // this allows the lambda to indirectly call itself via the SQS queue
-			reservedConcurrentExecutions: 1,
+			reservedConcurrentExecutions,
 			environment: {
 				[POLLER_LAMBDA_ENV_VAR_KEYS.INGESTION_LAMBDA_QUEUE_URL]:
 					ingestionLambdaQueue.queueUrl,
