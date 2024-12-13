@@ -50,7 +50,6 @@ const pollerWrapper =
 							`Sending message to ingestion lambda with id: ${externalId}.`,
 						);
 						const message: SendMessageCommandInput = {
-							MessageDeduplicationId: `${pollerFunction.name}_${externalId}`,
 							QueueUrl: getEnvironmentVariableOrCrash(
 								POLLER_LAMBDA_ENV_VAR_KEYS.INGESTION_LAMBDA_QUEUE_URL,
 							),
