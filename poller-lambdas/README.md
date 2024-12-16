@@ -2,6 +2,11 @@ This directory/module contains the logic for each of out pollers and an abstract
 
 Poller lambdas have their own SQS queues to facilitate long-polling and to allow invoking on a frequency faster than the once per minute allowed by CloudWatch/EventBridge rules.
 
+## Starting/Stopping a poller lambda in AWS
+To kick-off (start) a poller in AWS, you should navigate to the corresponding SQS queue (in the SQS console) and click the `Send and receive messages` button, in the message body enter whatever value is useful for that poller (typically an id or timestamp for the polling to begin at).
+
+To stop a poller in AWS, navigate to the Lambda, in the configuration reduce the reserved concurrency to zero (normally it's two). This should result in some throttling alarms for a few mins, before the queue item expires. After that the 'stalled' alarm should fire and stay in alarm until the poller is resumed.
+
 ## Adding a new poller lambda
 
 1. add an entry to `POLLERS_CONFIG` in `shared/pollers.ts`, which allows you to specify, **optionally**...

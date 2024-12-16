@@ -2,6 +2,9 @@
 
 # newswires
 
+For more details, see 
+- [`poller-lambdas` README](poller-lambdas/README.md)
+
 ## Running locally
 
 ### Ingestion Lambda
