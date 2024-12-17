@@ -22,7 +22,7 @@ const pollerWrapper =
 					),
 				}),
 			)
-			.then((_) => _.SecretString!);
+			.then((_) => _.SecretString);
 		if (!secret) {
 			throw new Error(
 				`Secret not found at: ${POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME}`,

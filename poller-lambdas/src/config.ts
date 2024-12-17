@@ -20,4 +20,12 @@ export const remoteAwsConfig = isRunningLocally
 
 export const getEnvironmentVariableOrCrash = (
 	key: keyof typeof POLLER_LAMBDA_ENV_VAR_KEYS,
-) => process.env[key]!;
+) => {
+	const maybeValue = process.env[key];
+	if (maybeValue) {
+		return maybeValue;
+	}
+	throw Error(
+		`Environment variable '${key}' was expected to be set, but was in fact ${maybeValue}.`,
+	);
+};
