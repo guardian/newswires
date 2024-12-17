@@ -37,7 +37,6 @@ export const queueNextInvocation = (props: {
 			QueueUrl: getEnvironmentVariableOrCrash(
 				POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
 			),
-			MessageDeduplicationId: lambdaApp, // should prevent the same lambda from being invoked multiple times
 			...props,
 		}),
 	);
