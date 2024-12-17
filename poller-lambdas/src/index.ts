@@ -1,8 +1,6 @@
 import { GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
-import {
-	SendMessageCommand,
-	SendMessageCommandInput,
-} from '@aws-sdk/client-sqs';
+import type { SendMessageCommandInput } from '@aws-sdk/client-sqs';
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
 import { queueNextInvocation, secretsManager, sqs } from './aws';
@@ -101,7 +99,8 @@ const pollerWrapper =
 		}
 	};
 
-export = {
+// eslint-disable-next-line import/no-default-export -- we need this to expose the pollers as named handlers but the shape verified with 'satisfies' keyword
+export default {
 	EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
 	EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
 } satisfies Record<
