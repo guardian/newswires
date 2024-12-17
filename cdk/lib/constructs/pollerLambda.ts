@@ -1,6 +1,12 @@
+import { GuAlarm } from '@guardian/cdk/lib/constructs/cloudwatch';
 import type { GuStack } from '@guardian/cdk/lib/constructs/core';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { aws_sqs, Duration } from 'aws-cdk-lib';
+import {
+	ComparisonOperator,
+	Metric,
+	TreatMissingData,
+} from 'aws-cdk-lib/aws-cloudwatch';
 import { RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
@@ -11,12 +17,6 @@ import {
 	pollerIdToLambdaAppName,
 } from '../../../shared/pollers';
 import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from '../constants';
-import { GuAlarm } from '@guardian/cdk/lib/constructs/cloudwatch';
-import {
-	ComparisonOperator,
-	Metric,
-	TreatMissingData,
-} from 'aws-cdk-lib/aws-cloudwatch';
 
 interface PollerLambdaProps {
 	pollerId: PollerId;
