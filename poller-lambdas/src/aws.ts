@@ -26,8 +26,6 @@ export const sqs = isRunningLocally
 
 export const secretsManager = new SecretsManagerClient(remoteAwsConfig);
 
-const lambdaApp = process.env['App'];
-
 export const queueNextInvocation = (props: {
 	MessageBody: string;
 	DelaySeconds?: number;
@@ -37,7 +35,6 @@ export const queueNextInvocation = (props: {
 			QueueUrl: getEnvironmentVariableOrCrash(
 				POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL,
 			),
-			MessageDeduplicationId: lambdaApp, // should prevent the same lambda from being invoked multiple times
 			...props,
 		}),
 	);
