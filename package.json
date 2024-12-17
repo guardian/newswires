@@ -14,6 +14,7 @@
 		"format": "prettier --write --ignore-path .gitignore \"./**/*{.js,.ts,.json,.md,.yml}\"",
 		"build": "npm run build --workspaces --if-present",
 		"lint": "npm run lint --workspaces",
+		"lint:ci": "npm run lint:ci --workspaces",
 		"dev": "npm run dev --workspace=ingestion-lambda"
 	},
 	"repository": {
