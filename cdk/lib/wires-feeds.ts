@@ -7,10 +7,11 @@ import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 
-export type WiresFeedsProps = GuStackProps & {};
+export type WiresFeedsProps = GuStackProps;
 const app = 'wires-feeds';
 
 export class WiresFeeds extends GuStack {
+	public readonly sourceQueue: Queue;
 	public readonly fingerpostQueue: Queue;
 
 	constructor(scope: App, id: string, props: WiresFeedsProps) {
@@ -70,10 +71,8 @@ export class WiresFeeds extends GuStack {
 			return queue;
 		}
 
-		/** A topic and queue for the 'raw' wires feed.
-		 * Not receiving data yet so we aren't currently doing anything more with it.
-		 */
-		createTopicQueue(this, 'source');
+		/** A topic and queue for the 'raw' wires feed.*/
+		this.sourceQueue = createTopicQueue(this, 'source');
 
 		this.fingerpostQueue = createTopicQueue(this, 'fingerpost');
 	}

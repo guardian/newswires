@@ -2,7 +2,6 @@
 	"name": "cdk",
 	"version": "0.0.0",
 	"private": true,
-	"type": "module",
 	"scripts": {
 		"build": "tsc",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects cdk",
@@ -10,8 +9,8 @@
 		"synth": "cdk synth --path-metadata false --version-reporting false",
 		"diff": "cdk diff --path-metadata false --version-reporting false",
 		"format": "prettier --write \"{lib,bin}/**/*.ts\"",
-		"lint": "eslint src/** --ext .ts --no-error-on-unmatched-pattern --fix",
-		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern"
+		"lint": "eslint lib/** bin/** --ext .ts --no-error-on-unmatched-pattern --fix",
+		"lint:ci": "eslint lib/** bin/** --ext .ts --no-error-on-unmatched-pattern"
 	},
 	"devDependencies": {
 		"@guardian/cdk": "59.3.0",
@@ -20,7 +19,8 @@
 		"aws-cdk-lib": "2.153.0",
 		"constructs": "10.3.0",
 		"prettier": "^3.3.3",
-		"source-map-support": "0.5.20"
+		"source-map-support": "0.5.20",
+		"ts-node": "^10.9.2"
 	},
 	"prettier": "@guardian/prettier",
 	"jest": {
