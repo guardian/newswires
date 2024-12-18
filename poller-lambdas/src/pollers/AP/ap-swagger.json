@@ -1,0 +1,3553 @@
+{
+	"swagger": "2.0",
+	"host": "api.ap.org",
+	"basePath": "/media/v",
+	"info": {
+		"version": "2.2",
+		"title": "AP Media API",
+		"description": "AP's next generation content API\n\nhttp://api.ap.org/media/v/swagger.json"
+	},
+	"externalDocs": {
+		"description": "Developer's Guide",
+		"url": "http://api.ap.org/media/v/docs/api/"
+	},
+	"securityDefinitions": {
+		"apikey": {
+			"type": "apiKey",
+			"name": "x-api-key",
+			"in": "header",
+			"description": "apikey submitted in HTTP header x-api-key"
+		},
+		"apikeyUrl": {
+			"type": "apiKey",
+			"name": "apikey",
+			"in": "query",
+			"description": "DEPRECATED - no longer supported"
+		}
+	},
+	"security": [
+		{
+			"apikey": [],
+			"apikeyUrl": []
+		}
+	],
+	"parameters": {
+		"Query": {
+			"name": "q",
+			"in": "query",
+			"description": "Your query",
+			"required": false,
+			"type": "string",
+			"allowEmptyValue": true
+		},
+		"Include": {
+			"name": "include",
+			"in": "query",
+			"description": "Comma separated list of fields to include from the response",
+			"required": false,
+			"type": "array",
+			"collectionFormat": "csv",
+			"items": {
+				"type": "string"
+			}
+		},
+		"Exclude": {
+			"name": "exclude",
+			"in": "query",
+			"description": "Comma separated list of fields to exclude from the response",
+			"required": false,
+			"type": "array",
+			"collectionFormat": "csv",
+			"items": {
+				"type": "string"
+			}
+		},
+		"View": {
+			"name": "view",
+			"in": "query",
+			"description": "Name of a view representing a pre-defined list of include fields",
+			"required": false,
+			"type": "array",
+			"collectionFormat": "csv",
+			"items": {
+				"type": "string"
+			}
+		},
+		"Text-Links": {
+			"name": "text_links",
+			"in": "query",
+			"description": "Filter the download formats of text renditions. Values: all|\\&ast;|nitf|plain|anpa.  Defaults to all(\\&ast;).",
+			"type": "string",
+			"enum": ["all", "*", "anpa", "nitf", "plain"]
+		},
+		"Page-Size": {
+			"name": "page_size",
+			"in": "query",
+			"description": "Number of items to return per page",
+			"required": false,
+			"type": "integer"
+		},
+		"Show-Detail": {
+			"name": "show_detail",
+			"in": "query",
+			"description": "Return full details of Monitors and latest Alert",
+			"required": false,
+			"type": "boolean"
+		},
+		"AgentId": {
+			"name": "agentid",
+			"in": "query",
+			"description": "Constrain operation to one Agent",
+			"required": false,
+			"type": "string"
+		},
+		"Pricing": {
+			"name": "pricing",
+			"in": "query",
+			"description": "Whether to include pricing information with the results",
+			"required": false,
+			"type": "boolean"
+		},
+		"Versions": {
+			"name": "versions",
+			"in": "query",
+			"description": "Whether to return all versions and anpa links for a piece of content or only the latest of each",
+			"required": false,
+			"type": "string",
+			"enum": ["latest", "all"]
+		},
+		"InMyPlan": {
+			"name": "in_my_plan",
+			"in": "query",
+			"description": "Specifying in_my_plan=true in the request returns only those items that do not incur additional cost to download. Additionally, items returned include only those associations that do not incur any additional cost to download.",
+			"required": false,
+			"type": "boolean"
+		},
+		"WithMonitor": {
+			"name": "with_monitor",
+			"in": "query",
+			"description": "Apply the named Monitor to subsequent calls for this session",
+			"required": false,
+			"type": "string",
+			"pattern": "^[a-zA-Z0-9_.-]*$",
+			"minLength": 4,
+			"maxLength": 24
+		},
+		"SessionLabel": {
+			"name": "session_label",
+			"in": "query",
+			"description": "Attach an informational label to this session",
+			"required": false,
+			"type": "string",
+			"pattern": "^[a-zA-Z0-9_. -]*$",
+			"minLength": 1,
+			"maxLength": 48
+		},
+		"MonitorPostRequest": {
+			"name": "monitor",
+			"in": "body",
+			"description": "An object defining specific conditions to Alert on and how that Alert should be delivered.",
+			"required": true,
+			"schema": {
+				"$ref": "#/definitions/monitor"
+			}
+		}
+	},
+	"paths": {
+		"/content/{item_id}": {
+			"get": {
+				"summary": "Single item metadata lookup",
+				"description": "Fetch the 'contentitem' object for a single piece of content by its Item ID.\n",
+				"produces": ["application/json"],
+				"tags": ["Content"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"description": "The itemid of the desired piece of content\n",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"$ref": "#/parameters/Include"
+					},
+					{
+						"$ref": "#/parameters/Exclude"
+					},
+					{
+						"$ref": "#/parameters/Pricing"
+					},
+					{
+						"name": "in_my_plan",
+						"in": "query",
+						"description": "Specifying in_my_plan=true in the request returns only those associations of the content item that do not incur any additional cost to download.",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "format",
+						"in": "query",
+						"description": "The desired response format",
+						"required": false,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/contentresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/content/search": {
+			"get": {
+				"summary": "Search for AP content",
+				"description": "Searches AP Content and returns `ContentItem` objects.\nUse the optional query param of **q** to filter the set of content\n",
+				"produces": ["application/json"],
+				"tags": ["Content"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/Query"
+					},
+					{
+						"$ref": "#/parameters/Include"
+					},
+					{
+						"$ref": "#/parameters/Exclude"
+					},
+					{
+						"name": "sort",
+						"in": "query",
+						"description": "Your desired sorting criteria",
+						"required": false,
+						"type": "string",
+						"default": "_score:desc"
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"description": "The desired page number. Page numbers begin at 1",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"$ref": "#/parameters/Page-Size"
+					},
+					{
+						"$ref": "#/parameters/Pricing"
+					},
+					{
+						"$ref": "#/parameters/InMyPlan"
+					},
+					{
+						"$ref": "#/parameters/SessionLabel"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/searchresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/content/feed": {
+			"get": {
+				"summary": "Receive a feed of incoming AP content",
+				"description": "Receive a feed of AP Content as 'contentitem' objects.\nUse the optional query param of **q** to filter the set of content\n",
+				"produces": ["application/json"],
+				"tags": ["Content"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/Query"
+					},
+					{
+						"$ref": "#/parameters/Include"
+					},
+					{
+						"$ref": "#/parameters/Exclude"
+					},
+					{
+						"$ref": "#/parameters/Page-Size"
+					},
+					{
+						"$ref": "#/parameters/Pricing"
+					},
+					{
+						"$ref": "#/parameters/InMyPlan"
+					},
+					{
+						"$ref": "#/parameters/WithMonitor"
+					},
+					{
+						"$ref": "#/parameters/SessionLabel"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/feedresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/content/rss": {
+			"get": {
+				"summary": "Retrieve a list of available RSS XML feeds entitled to your plan. ",
+				"description": "(Successful responses always in XML)\n",
+				"produces": ["application/json", "text/xml"],
+				"tags": ["Content", "Account"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/rssresponse"
+						}
+					},
+					"304": {
+						"description": "Successful response, Not Modified"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/content/rss/{rss_id}": {
+			"get": {
+				"summary": "Receive a RSS feed of latest AP content",
+				"description": "Receive a RSS feed of latest AP Content for a Product (RSS) Id.\nUse optional **include** and **exclude** to tailor the response.\n",
+				"produces": ["application/json", "text/xml"],
+				"tags": ["Content"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "rss_id",
+						"in": "path",
+						"description": "The product ID for the desired RSS feed (see /content/rss) \n",
+						"required": true,
+						"type": "integer"
+					},
+					{
+						"$ref": "#/parameters/Include"
+					},
+					{
+						"$ref": "#/parameters/Exclude"
+					},
+					{
+						"$ref": "#/parameters/Page-Size"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/content/ondemand": {
+			"get": {
+				"summary": "Receive a feed of AP content items which have been sent to your organization's OnDemand queue.",
+				"description": "Receive a feed of 'contentitem' objects which have been sent to your organization's OnDemand queue.\n",
+				"produces": ["application/json"],
+				"tags": ["Content"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "consumer_id",
+						"in": "query",
+						"description": "A user defined identifier for the consumer of this feed.\nEach unique consumer ID will receive every item in your organization's OnDemand queue once.\nIf not specified, the API key of the request will be used.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "queue",
+						"in": "query",
+						"description": "The ID of the desired queue.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"$ref": "#/parameters/Include"
+					},
+					{
+						"$ref": "#/parameters/Exclude"
+					},
+					{
+						"$ref": "#/parameters/Page-Size"
+					},
+					{
+						"$ref": "#/parameters/Pricing"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/feedresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account": {
+			"get": {
+				"summary": "View available account endpoints",
+				"description": "Retrieve your available account endpoints\n",
+				"produces": ["application/json"],
+				"tags": ["Account"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/accountresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/followedtopics": {
+			"get": {
+				"summary": "View your Followed Topics",
+				"description": "Retrieve your Followed Topics\n",
+				"produces": ["application/json"],
+				"tags": ["Account"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "format",
+						"in": "query",
+						"required": false,
+						"type": "string",
+						"enum": ["json", "csv"],
+						"description": "'json' is the default. Use 'csv' for simplified CSV output/download."
+					},
+					{
+						"name": "include",
+						"in": "query",
+						"description": "Comma separated list of fields to include from the response.",
+						"required": false,
+						"type": "array",
+						"collectionFormat": "csv",
+						"items": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/accountfollowedtopicsresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/plans": {
+			"get": {
+				"summary": "View your plans and meters",
+				"description": "Retrieve your entitlements and associated meter information\n",
+				"produces": ["application/json"],
+				"tags": ["Account"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "include",
+						"in": "query",
+						"description": "Comma separated list of fields to include from the response.",
+						"required": false,
+						"type": "array",
+						"collectionFormat": "csv",
+						"items": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "exclude",
+						"in": "query",
+						"description": "Comma separated list of fields to exclude from the response.",
+						"required": false,
+						"type": "array",
+						"collectionFormat": "csv",
+						"items": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "format",
+						"in": "query",
+						"required": false,
+						"type": "string",
+						"enum": ["json", "csv"],
+						"description": "'json' is the default. Use 'csv' for simplified CSV output/download."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/accountplansresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/downloads": {
+			"get": {
+				"summary": "View your order history.",
+				"description": "A list of content items downloaded by you or your salesperson.  \n\n**Important:**\n- The requested date range may not exceed 60 days.\n- The download information is available for the last 365 days only.\n",
+				"produces": ["application/json"],
+				"tags": ["Account"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/Include"
+					},
+					{
+						"$ref": "#/parameters/Exclude"
+					},
+					{
+						"name": "min_date",
+						"in": "query",
+						"description": "The date and time after which the content items were downloaded, in the format\nYYYY-MM-DD(THH:mm:ss) or YYYY-MM.  \nThe default is 30 days prior to the time of the request.\nSimple ISO-8601 Duration notation can also be used to define the date relative to today.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "max_date",
+						"in": "query",
+						"description": "The date and time before which the content items were downloaded, in the\nformat YYYY-MM-DD(THH:mm:ss) or YYYY-MM.  \nThe default is the time of the request.\n",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"description": "The ID of the desired order to return. The correct date-range must be provided.",
+						"type": "integer"
+					},
+					{
+						"name": "format",
+						"in": "query",
+						"required": false,
+						"type": "string",
+						"enum": ["json", "csv"],
+						"description": "'json' is the default. Use 'csv' for simplified CSV output/download"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/accountdownloadsresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/quotas": {
+			"get": {
+				"summary": "View your API request limits.",
+				"description": "Returns the your account's request limits for the various endpoints",
+				"produces": ["application/json"],
+				"tags": ["Account"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"schema": {
+							"$ref": "#/definitions/accountquotasresponse"
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/create": {
+			"post": {
+				"summary": "Create a new Monitor",
+				"description": "Create a new Monitor, success response is a 'keyresponse'\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/MonitorPostRequest"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"404": {
+						"description": "Not Found - the app, api, plan, stage or key does not exist in the context of other request parameters",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/{monitorId}/update": {
+			"post": {
+				"summary": "Update a Monitor",
+				"description": "Update an existing Monitor\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "monitorId",
+						"in": "path",
+						"description": "The unique name or ID of the Monitor\n",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"$ref": "#/parameters/MonitorPostRequest"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"404": {
+						"description": "Not Found - the app, api, plan, stage or key does not exist in the context of other request parameters",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/{monitorId}/delete": {
+			"delete": {
+				"summary": "Delete a Monitor",
+				"description": "Delete an existing Monitor\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "monitorId",
+						"in": "path",
+						"description": "The unique name or ID of the Monitor\n",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"404": {
+						"description": "Not Found - the app, api, plan, stage or key does not exist in the context of other request parameters",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors": {
+			"get": {
+				"summary": "List your Monitors. (formerly /account/monitors/get)",
+				"description": "A list of Monitors.\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/{monitorId}": {
+			"get": {
+				"summary": "View one Monitor",
+				"description": "Provide a specific Monitors Name or ID to see its details.\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "monitorId",
+						"in": "path",
+						"description": "The unique name or ID of the desired Monitor\n",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/alerts": {
+			"get": {
+				"summary": "View recent Alerts",
+				"description": "A list of recently generated Alert Notifications, newest first.\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/Show-Detail"
+					},
+					{
+						"$ref": "#/parameters/AgentId"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/sessions": {
+			"get": {
+				"summary": "View recent Sessions that have Monitors.",
+				"description": "A list of monitored Sessions. (formerly /account/monitors/sessions/get)\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"$ref": "#/parameters/Show-Detail"
+					},
+					{
+						"$ref": "#/parameters/AgentId"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/sessions/{session_id}": {
+			"get": {
+				"summary": "View one Session",
+				"description": "Show information for a Monitored Session, including Monitor details and latest Alert if available\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"description": "The unique ID for a Session\n",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"$ref": "#/parameters/Show-Detail"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/sessions/{session_id}/disable": {
+			"get": {
+				"summary": "Disable a Monitor on a Session",
+				"description": "Make this call as part of gracefully ending or pausing a Monitored Session.\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"description": "The unique ID for a Session\n",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"$ref": "#/parameters/AgentId"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		},
+		"/account/monitors/sessions/{session_id}/enable": {
+			"get": {
+				"summary": "Enable a Monitor on a Session",
+				"description": "Use to enable a previously disabled Monitor on a Session\n",
+				"produces": ["application/json"],
+				"tags": ["Monitors and Alerts"],
+				"security": [
+					{
+						"apikey": []
+					},
+					{
+						"apikeyUrl": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"description": "The unique ID for a Session\n",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"$ref": "#/parameters/AgentId"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"$ref": "#/definitions/monitorsResponse"
+					},
+					"400": {
+						"description": "Bad Request",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"401": {
+						"description": "Invalid Auth",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"schema": {
+							"$ref": "#/definitions/errorresponse"
+						}
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"channelType": {
+			"type": "string",
+			"enum": ["email"],
+			"description": "The type of notification (currently email only)",
+			"discriminator": "monitors"
+		},
+		"channelDestinations": {
+			"type": "array",
+			"description": "A list of email addresses",
+			"items": {
+				"type": "string"
+			}
+		},
+		"conditionType": {
+			"type": "string",
+			"enum": ["idleFeed", "quality"],
+			"description": "The condition to monitor for"
+		},
+		"conditionEnabled": {
+			"type": "boolean",
+			"default": "true",
+			"description": "Enable/disable this check"
+		},
+		"conditionCriteria": {
+			"type": "object",
+			"description": "Object containing criteria specific to $ref/type",
+			"properties": {
+				"idleTime": {
+					"type": "string",
+					"description": "ISO-8601 Duration limited to Minutes and/or Hours. Range PT2M - PT12H"
+				}
+			}
+		},
+		"conditionStatus": {
+			"type": "object",
+			"description": "The status of an individual monitored condition",
+			"properties": {
+				"enabled": {
+					"type": "boolean",
+					"description": "true if this particular condition is enabled for monitoring"
+				},
+				"status": {
+					"type": "string",
+					"description": "A description of the status: ok|disabled|pending|initialized|alarm|recovered"
+				},
+				"status_detail": {
+					"type": "string",
+					"description": "Miscellaneous detail relating to status"
+				},
+				"last_alerted": {
+					"type": "string",
+					"format": "date-time",
+					"description": "When latest alert was issued"
+				}
+			}
+		},
+		"monitoredBaseresponse": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"$ref": "#/definitions/sessionMonitorResponse"
+				}
+			]
+		},
+		"sessionMonitorResponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"type": "object",
+					"properties": {
+						"monitor": {
+							"type": "object",
+							"description": "High level monitor status for monitored sessions",
+							"properties": {
+								"name": {
+									"type": "string",
+									"description": "Name of assigned Monitor"
+								},
+								"label": {
+									"type": "string",
+									"description": "Optional session_label"
+								},
+								"enabled": {
+									"type": "boolean",
+									"description": "true if the overall session is elligible for monitoring"
+								},
+								"last_checked": {
+									"type": "string",
+									"format": "date-time",
+									"description": "When an eligible session monitor was last checked"
+								},
+								"enable_session_monitor": {
+									"type": "string",
+									"description": "Call this link to enable monitoring for this session"
+								},
+								"disable_session_monitor": {
+									"type": "string",
+									"description": "Call this link to disable monitoring for this session"
+								},
+								"conditionStatus": {
+									"type": "object",
+									"properties": {
+										"idleFeed": {
+											"$ref": "#/definitions/conditionStatus"
+										},
+										"quality": {
+											"$ref": "#/definitions/conditionStatus"
+										}
+									}
+								},
+								"feed_count": {
+									"type": "integer",
+									"description": "count of feed requests made in this session"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"baseresponse": {
+			"type": "object",
+			"discriminator": "method",
+			"required": ["api_version", "id", "method", "params"],
+			"properties": {
+				"api_version": {
+					"type": "string",
+					"description": "The version of the API that generated the response"
+				},
+				"api_mode": {
+					"type": "string",
+					"description": "The API environment mode that generated the response"
+				},
+				"api_build": {
+					"type": "string",
+					"description": "The specific build version of the API"
+				},
+				"id": {
+					"type": "string",
+					"description": "The ID of this session or response"
+				},
+				"method": {
+					"type": "string",
+					"description": "The method that generated the response"
+				},
+				"org_name": {
+					"type": "string",
+					"description": "The organization associated with the request's API key"
+				},
+				"session_label": {
+					"type": "string",
+					"description": "Optional customer label supplied at session creation"
+				},
+				"params": {
+					"type": "object",
+					"description": "The parameters issued with the request",
+					"additionalProperties": true
+				}
+			}
+		},
+		"errorresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"error": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"description": "The HTTP status code of this response"
+								},
+								"code": {
+									"type": "integer",
+									"description": "The AP error code of this response"
+								},
+								"message": {
+									"type": "string",
+									"description": "A human-readable description of the error"
+								},
+								"timestamp": {
+									"type": "string",
+									"format": "date-time",
+									"description": "the time at which the error was recorded"
+								},
+								"item": {
+									"type": "string",
+									"description": "In the event of a pricing change at download time, this property will contain a link to the item metadata with new pricing details and download links."
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"contentresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"$ref": "#/definitions/contentresult"
+						}
+					}
+				}
+			]
+		},
+		"searchresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"type": "object",
+							"properties": {
+								"query": {
+									"type": "string",
+									"description": "the query of the request"
+								},
+								"updated": {
+									"type": "string",
+									"format": "date-time",
+									"description": "the time at which the response was generated"
+								},
+								"page_size": {
+									"type": "integer",
+									"description": "the requested page size"
+								},
+								"total_items": {
+									"type": "integer",
+									"description": "the total number of items matching this query"
+								},
+								"current_page": {
+									"type": "integer",
+									"description": "the page index of this response"
+								},
+								"current_item_count": {
+									"type": "integer",
+									"description": "the number of items in this response"
+								},
+								"next_page": {
+									"type": "string",
+									"description": "a link to the next page of results"
+								},
+								"previous_page": {
+									"type": "string",
+									"description": "a link to the previous page of results"
+								},
+								"page_template": {
+									"type": "string",
+									"description": "a paging template string"
+								},
+								"feed_href": {
+									"type": "string",
+									"description": "a link to the feed endpoint for the current query"
+								},
+								"items": {
+									"type": "array",
+									"description": "The current page of results that match the query",
+									"items": {
+										"$ref": "#/definitions/contentresult"
+									}
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"rssresponse": {
+			"type": "object",
+			"properties": {
+				"rss": {
+					"type": "object",
+					"properties": {
+						"version": {
+							"type": "string",
+							"xml": {
+								"attribute": true
+							}
+						},
+						"channel": {
+							"type": "object",
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"feedresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/monitoredBaseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"type": "object",
+							"properties": {
+								"query": {
+									"type": "string",
+									"description": "the query of the request"
+								},
+								"updated": {
+									"type": "string",
+									"format": "date-time",
+									"description": "the time at which the response was generated"
+								},
+								"total_items": {
+									"type": "integer",
+									"description": "the total number of search results"
+								},
+								"current_page": {
+									"type": "integer",
+									"description": "the current page index"
+								},
+								"page_size": {
+									"type": "integer",
+									"description": "the requested page size"
+								},
+								"current_item_count": {
+									"type": "integer",
+									"description": "the number of items in this response"
+								},
+								"next_page": {
+									"type": "string",
+									"description": "a link to the next page of results"
+								},
+								"previous_page": {
+									"type": "string",
+									"description": "a link to the previous page of results"
+								},
+								"page_template": {
+									"type": "string",
+									"description": "a template to use with client-side paging"
+								},
+								"items": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/contentresult"
+									}
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"accountresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string"
+								},
+								"links": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"title": {
+												"type": "string"
+											},
+											"url": {
+												"type": "string"
+											},
+											"description": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"monitorsResponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"additionalProperties": true
+						}
+					}
+				}
+			]
+		},
+		"sessionsResponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"additionalProperties": true
+						}
+					}
+				}
+			]
+		},
+		"accountfollowedtopicsresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string"
+								},
+								"followedtopics": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "integer"
+											},
+											"name": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"accountplansresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string"
+								},
+								"plans": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "integer"
+											},
+											"name": {
+												"type": "string"
+											},
+											"updated": {
+												"type": "string",
+												"format": "date-time"
+											},
+											"plan_style": {
+												"type": "string",
+												"enum": ["percent", "downloads", "duration"]
+											},
+											"duration": {
+												"type": "string"
+											},
+											"used": {
+												"type": "integer"
+											},
+											"usage_limit": {
+												"type": "integer"
+											},
+											"interval": {
+												"type": "string"
+											},
+											"next_cycle_begins": {
+												"type": "string",
+												"format": "date"
+											},
+											"entitlements": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"id": {
+															"type": "integer"
+														},
+														"parent_id": {
+															"type": "integer"
+														},
+														"name": {
+															"type": "string"
+														},
+														"tier": {
+															"type": "string"
+														},
+														"type": {
+															"type": "string",
+															"enum": ["Package", "Product"]
+														},
+														"meter_ticks": {
+															"type": "integer"
+														},
+														"base_cost": {
+															"type": "number",
+															"format": "float"
+														},
+														"overage_allowed": {
+															"type": "boolean"
+														},
+														"overage_cost": {
+															"type": "number",
+															"format": "float"
+														},
+														"currency": {
+															"type": "string"
+														},
+														"daypart": {
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"type": {
+																	"type": "string"
+																}
+															}
+														},
+														"search_link": {
+															"type": "string"
+														},
+														"feed_link": {
+															"type": "string"
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"accountdownloadsresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"total_items": {
+									"type": "integer"
+								},
+								"current_item_count": {
+									"type": "integer"
+								},
+								"min_date": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"max_date": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"downloads": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "string"
+											},
+											"item": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string"
+													},
+													"type": {
+														"type": "string",
+														"enum": [
+															"Picture",
+															"Text",
+															"Audio",
+															"Video",
+															"Photo",
+															"Graphic",
+															"Graphics Bank",
+															"Complexdata",
+															"Composite",
+															"Print Graphics",
+															"Unknown"
+														]
+													},
+													"friendlykey": {
+														"type": "string"
+													},
+													"title": {
+														"type": "string"
+													},
+													"source": {
+														"type": "string"
+													}
+												}
+											},
+											"org_name": {
+												"type": "string"
+											},
+											"downloaded_by": {
+												"type": "string"
+											},
+											"download_date": {
+												"type": "string",
+												"format": "date-time"
+											},
+											"duplicate": {
+												"type": "boolean"
+											},
+											"charge": {
+												"type": "number",
+												"format": "float"
+											},
+											"currency": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"accountquotasresponse": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/baseresponse"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"data": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"account": {
+									"type": "string"
+								},
+								"updated": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"quotas": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"method": {
+												"type": "string",
+												"enum": [
+													"content",
+													"search",
+													"feed",
+													"account",
+													"plans",
+													"downloads",
+													"quotas",
+													"other"
+												]
+											},
+											"limit": {
+												"type": "number"
+											},
+											"period": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"contentresult": {
+			"type": "object",
+			"properties": {
+				"meta": {
+					"type": "object",
+					"properties": {
+						"score": {
+							"type": "number",
+							"format": "float"
+						},
+						"products": {
+							"type": "array",
+							"description": "Your entitlements that matched this piece of content",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer",
+										"description": "The ID of the matched entitlement"
+									},
+									"name": {
+										"type": "string",
+										"description": "The name of the matched entitlement"
+									}
+								}
+							}
+						},
+						"followed_topics": {
+							"type": "array",
+							"description": "Your followed topics that matched this piece of content",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer",
+										"description": "The ID of the matched followed topic"
+									},
+									"name": {
+										"type": "string",
+										"description": "The name of the matched followed topic"
+									}
+								}
+							}
+						},
+						"pricing": {
+							"required": [
+								"amount",
+								"currency",
+								"formatted",
+								"message",
+								"policy"
+							],
+							"type": "object",
+							"properties": {
+								"amount": {
+									"type": "number",
+									"x-nullable": true
+								},
+								"currency": {
+									"type": "string",
+									"x-nullable": true
+								},
+								"formatted": {
+									"type": "string",
+									"x-nullable": true
+								},
+								"apusecode": {
+									"type": "integer"
+								},
+								"tier": {
+									"type": "string"
+								},
+								"message": {
+									"type": "string"
+								},
+								"policy": {
+									"required": ["policyid", "policytype"],
+									"type": "object",
+									"properties": {
+										"policytype": {
+											"type": "string"
+										},
+										"policyid": {
+											"type": "string"
+										},
+										"permissions": {
+											"items": {
+												"required": [
+													"action",
+													"assigner",
+													"constraints",
+													"duties",
+													"target"
+												],
+												"type": "object",
+												"properties": {
+													"target": {
+														"type": "string"
+													},
+													"action": {
+														"type": "string"
+													},
+													"assigner": {
+														"type": "string"
+													},
+													"constraints": {
+														"items": {
+															"required": ["name", "operator", "rightoperand"],
+															"type": "object",
+															"properties": {
+																"operator": {
+																	"type": "string"
+																},
+																"rightoperand": {
+																	"type": "string"
+																},
+																"name": {
+																	"type": "string"
+																}
+															}
+														},
+														"type": "array"
+													},
+													"duties": {
+														"items": {
+															"required": ["action"],
+															"type": "object",
+															"properties": {
+																"action": {
+																	"type": "string"
+																},
+																"constraints": {
+																	"items": {
+																		"required": [
+																			"name",
+																			"operator",
+																			"rightoperand",
+																			"rightoperanddatatype",
+																			"rightoperandunit"
+																		],
+																		"type": "object",
+																		"properties": {
+																			"operator": {
+																				"type": "string"
+																			},
+																			"rightoperand": {
+																				"type": "string"
+																			},
+																			"rightoperandunit": {
+																				"type": "string"
+																			},
+																			"name": {
+																				"type": "string"
+																			},
+																			"rightoperanddatatype": {
+																				"type": "string"
+																			}
+																		}
+																	},
+																	"type": "array"
+																}
+															}
+														},
+														"type": "array"
+													}
+												}
+											},
+											"type": "array"
+										},
+										"prohibitions": {
+											"type": "array",
+											"items": {
+												"required": ["target", "action", "assigner"],
+												"type": "object",
+												"properties": {
+													"target": {
+														"type": "string"
+													},
+													"action": {
+														"type": "string"
+													},
+													"assigner": {
+														"type": "string"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"item": {
+					"$ref": "#/definitions/contentitem"
+				}
+			}
+		},
+		"contentitem": {
+			"type": "object",
+			"properties": {
+				"uri": {
+					"type": "string",
+					"description": "The identifier for this content item expressed as a URI."
+				},
+				"altids": {
+					"required": ["itemid"],
+					"type": "object",
+					"description": "Alternative IDs of a content item",
+					"properties": {
+						"itemid": {
+							"type": "string",
+							"description": "A unique content item ID. For items with multiple versions, remains the same for the initial version and each subsequent revision. For example, if a news story is written and rewritten several times as new information is uncovered, this ID value remains the same for each rewrite because it points to the chain of revised stories, and not an individual version."
+						},
+						"etag": {
+							"type": "string",
+							"description": " A short digest (also known as checksum or hash) of the item's metadata. Useful for deduplication and conditional requests."
+						},
+						"friendlykey": {
+							"type": "string",
+							"description": "A human-readable ID of a content item. For video, this is the AP Archive story number."
+						},
+						"videoid": {
+							"type": "string"
+						},
+						"transref": {
+							"type": "string",
+							"description": "Transmission Reference Number; the alphanumeric identifier (or file name) associated with a story or photo."
+						},
+						"graphicsbankid": {
+							"type": "string"
+						},
+						"referenceid ": {
+							"type": "string"
+						}
+					}
+				},
+				"foreignkeys": {
+					"type": "array",
+					"items": {
+						"additionalProperties": {
+							"type": "string"
+						}
+					}
+				},
+				"version": {
+					"type": "integer",
+					"description": "The content item version number: 0 for the initial version, 1 for the first version, 2 for the second version and so on. The higher the number, the more recent the content item's version. \n - For text stories, this is the version of the story revision. \n - For other media types (for example, photos, graphics and video), this is the version of the item metadata; for example, a photo caption. Typically, significant changes to the binary asset (such as a photo) are published as a new content item."
+				},
+				"type": {
+					"type": "string",
+					"description": "The generic news type of this content item: text, picture, graphic, audio or video.",
+					"enum": ["text", "picture", "graphic", "audio", "video"]
+				},
+				"profile": {
+					"type": "string",
+					"description": "The type of information contained in the news item (also known as 'ItemContentType'); for example, Spot Development, Advisory and Weather Forecast. Currently, content types are applied to text and audio news items. For a complete list of values, see [Profile (ItemContentType)](https://api.ap.org/media/v/docs/api/#t=AP_Classification_Metadata.htm%23Profile__ItemContentType_)."
+				},
+				"urgency": {
+					"type": "integer",
+					"description": "The editorial urgency of the content from 1 to 8. 1 represents the highest urgency, 8 the lowest."
+				},
+				"editorialpriority": {
+					"type": "string"
+				},
+				"language": {
+					"type": "string",
+					"description": "The two-letter code of the language that the news item is written in; for example, en or es.",
+					"minLength": 2,
+					"maxLength": 2
+				},
+				"versioncreated": {
+					"type": "string",
+					"format": "date-time",
+					"description": "The date and time when this version of the content item was published."
+				},
+				"firstcreated": {
+					"type": "string",
+					"format": "date-time",
+					"description": "The date and time when the first version of the item was created.\n - For photos and video, this is the date and time when the content for the item was created. For example, a photo taken at a Sunday night game and published on Monday morning would carry the firstcreated value from Sunday, and the versioncreated value for the photo entry would be from Monday.\n - For GraphicsBank items, this is the date of the news event that the graphic illustrates."
+				},
+				"embargoed": {
+					"type": "string",
+					"format": "date-time",
+					"description": "The date and time before which all versions of the content item are embargoed (if absent, this item is not embargoed)."
+				},
+				"editorialrole": {
+					"type": "string"
+				},
+				"fixture": {
+					"type": "object",
+					"description": "Named sets of regularly occurring content or features with a predictable focus; for example, \"Financial Impact,\" \"Film Reviews,\" \"10 Things to Know,\" \"Sports Briefs.\" For more information, see a complete list of [AP Fixtures](https://api.ap.org/media/v/docs/api/APFixtures.xls).",
+					"properties": {
+						"name": {
+							"type": "string",
+							"description": "The name of the fixture; for example, \"Film Reviews\"."
+						},
+						"code": {
+							"type": "string",
+							"description": "The code for the fixture in AP systems."
+						}
+					}
+				},
+				"pubstatus": {
+					"type": "string",
+					"description": "The publishing status of the content item, which contains information regarding the item's ability to be distributed to news consumers. This value is usable by default. \n - usable: This content item may be distributed to news consumers in publishing forms that do not violate your agreement with the AP and copyright information contained in the content item and its metadata.\n - embargoed (the same as Hold-For-Release): Do not distribute an embargoed content item to news consumers until the release date-time found in embargoed has occurred.\n - withheld: Do not distribute this content item to news consumers because it contains questionable information. Any distributed form of the content item must be recalled.\n - canceled (the same as Kill): Do not distribute this content item to news consumers because it contains erroneous information. Any distributed form of the content item must be recalled.\n\n**Important**\nDo not use the pubstatus property alone to determine a content item's publishing status. Check the values of ednote, embargoed and editorialtypes to determine whether the content may be published.",
+					"enum": ["usable", "embargoed", "withheld", "canceled"]
+				},
+				"ednote": {
+					"type": "string",
+					"description": "Editorial instructions for processing the item. Do not distribute this information to news consumers."
+				},
+				"editorialtypes": {
+					"type": "array",
+					"description": "The editorial condition of the content item revision:\n - For text: Add, Advisory, Clarification, Corrective, Disregard, HoldForRelease, Kill, Lead, Writethru, Takes or Withhold.\n - For photos: Correction, Elimination, Kill or Withhold.\n - For video: Kill",
+					"items": {
+						"type": "string",
+						"enum": [
+							"Add",
+							"Advisory",
+							"Clarification",
+							"Corrective",
+							"Disregard",
+							"HoldForRelease",
+							"Kill",
+							"Lead",
+							"Writethru",
+							"Takes",
+							"Withhold",
+							"Correction",
+							"Elimination"
+						]
+					}
+				},
+				"signals": {
+					"type": "array",
+					"description": "Machine-readable instructions for processing the content item. [Learn more](https://api.ap.org/media/v/docs/api/index.html#t=Content_Metadata_Fields.htm%23MiniTOCBookMark19)",
+					"items": {
+						"type": "string",
+						"enum": [
+							"APWhollyOwned",
+							"explicitcontent",
+							"Test",
+							"Derived",
+							"DerivedLatest",
+							"isnotdigitized",
+							"NewsroomReady",
+							"newscontent",
+							"ConsumerReady",
+							"singlesource",
+							"whitelisted"
+						]
+					}
+				},
+				"title": {
+					"type": "string",
+					"description": "A short publishable value containing the title of the current version of the content item."
+				},
+				"headline": {
+					"type": "string",
+					"description": "A brief synopsis of the current version of the content item. For photos, this field may contain the names of the people featured in the photo."
+				},
+				"headline_extended": {
+					"type": "string"
+				},
+				"headline_seo": {
+					"type": "string"
+				},
+				"slugline": {
+					"type": "string",
+					"description": "A non-publishable sequence of tokens associated with the content that is used as a short human-readable identifier for the content item and version."
+				},
+				"description_summary": {
+					"type": "string",
+					"description": "The story summary."
+				},
+				"bylines": {
+					"type": "array",
+					"description": "The party who created or contributed to the content (if available and not captured in the photographer, captionwriter, producer or editor properties); for example, a writer (for text stories), an editor (for photos) or a speaker (for audio). To learn more, see [About Bylines](https://api.ap.org/media/v/docs/api/index.html#t=About_Bylines.htm).",
+					"items": {
+						"required": ["by"],
+						"type": "object",
+						"properties": {
+							"code": {
+								"type": "string",
+								"description": "A code identifying the creator or contributor."
+							},
+							"parametric": {
+								"type": "string",
+								"description": "Additional information about the creator's or contributor's role."
+							},
+							"by": {
+								"type": "string",
+								"description": "The name(s) of the content creator(s) and/or contributors."
+							},
+							"title": {
+								"type": "string",
+								"description": "The title of the party referenced in the byline."
+							}
+						}
+					}
+				},
+				"producer": {
+					"required": ["name"],
+					"type": "object",
+					"description": "A party that created or enhanced the content of this item.",
+					"properties": {
+						"name": {
+							"type": "string",
+							"description": "The name of the content producer."
+						}
+					}
+				},
+				"photographer": {
+					"required": ["name"],
+					"type": "object",
+					"properties": {
+						"code": {
+							"type": "string"
+						},
+						"name": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						}
+					}
+				},
+				"located": {
+					"type": "string",
+					"description": "The location where the news event or subject described or depicted by the content occurred."
+				},
+				"datelinelocation": {
+					"type": "object",
+					"description": "Contains detailed, uniform and machine-usable metadata about the location where the news event or subject described or depicted by the content occurred.",
+					"properties": {
+						"city": {
+							"type": "string",
+							"description": "The location's city."
+						},
+						"countrycode": {
+							"type": "string",
+							"description": "An abbreviated form of the location's country."
+						},
+						"countryname": {
+							"type": "string",
+							"description": "The full name of the location's country."
+						},
+						"countryareacode": {
+							"type": "string",
+							"description": "The location's country area. A country area is a large-scale division within a country; for example, a U.S. state or Canadian province."
+						},
+						"countryareaname": {
+							"type": "string",
+							"description": "The full name of the location's country area. A country area is a large-scale division within a country; for example, a U.S. state or Canadian province."
+						},
+						"geometry_geojson": {
+							"required": ["coordinates", "type"],
+							"type": "object",
+							"description": "A [GeoJson](http://geojson.org/) object holding geo data of this place.",
+							"properties": {
+								"type": {
+									"type": "string",
+									"description": "Geometry type: Point.",
+									"enum": ["Point"]
+								},
+								"coordinates": {
+									"type": "array",
+									"description": "Longitude and latitude of the location.",
+									"items": {
+										"type": "number"
+									}
+								}
+							}
+						}
+					}
+				},
+				"copyrightnotice": {
+					"type": "string",
+					"description": "Any necessary copyright notice for claiming the intellectual property for the content."
+				},
+				"usageterms": {
+					"type": "array",
+					"description": "Rights information and usage limitations associated with the publication, including any special restrictions. In addition to the special restrictions in usageterms, make sure to check for any additional use information and editorial notes in ednote and in the video script and/or shotlist.",
+					"items": {
+						"type": "string"
+					}
+				},
+				"keywords": {
+					"type": "array",
+					"description": "A displayable set of keywords relevant to a publication that can be used to expedite content searching in your own system.",
+					"items": {
+						"type": "string"
+					}
+				},
+				"outcue": {
+					"type": "string",
+					"description": "The last spoken words heard on the audio, used to help editors and news anchors construct program scripts and resume speaking after the broadcast of an audio file."
+				},
+				"provider": {
+					"type": "string",
+					"description": "The name of the provider."
+				},
+				"infosource": {
+					"type": "array",
+					"description": "A party (person or organization) that originated, modified, enhanced, distributed, aggregated or supplied the content or provided some information used to create or enhance the content. This information may be different from the copyright and provider.",
+					"items": {
+						"required": ["name"],
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string",
+								"description": "The name of the infosource."
+							},
+							"type": {
+								"type": "string",
+								"description": "The source party's type in AP systems."
+							}
+						}
+					}
+				},
+				"links": {
+					"type": "array",
+					"description": "Contains external links; such as canonical links to full stories in AP News Archive. You can use canonical links to redirect web users to AP News Archive after your right to host AP content on websites expires at 30 days.",
+					"items": {
+						"required": ["href", "rel"],
+						"type": "object",
+						"properties": {
+							"href": {
+								"type": "string",
+								"description": "The URL for accessing the external content."
+							},
+							"rel": {
+								"type": "string",
+								"description": "The type of link to external content; for example, *canonical*."
+							}
+						}
+					}
+				},
+				"person": {
+					"type": "array",
+					"description": "Individual human beings with a relationship to the content, such as named people mentioned in the content.",
+					"items": {
+						"required": ["creator", "name", "rels"],
+						"type": "object",
+						"properties": {
+							"code": {
+								"type": "string",
+								"description": "The code for the person in the AP controlled vocabulary (http://cv.ap.org/id/)."
+							},
+							"name": {
+								"type": "string",
+								"description": "The name of a person."
+							},
+							"creator": {
+								"type": "string",
+								"description": "Indicates the origin of the person tag: Editorial (assigned by an AP editor) or Machine (assigned by the AP Classification system)."
+							},
+							"rels": {
+								"type": "array",
+								"description": "The relationship(s) of the content of the news item to the person:\n - direct. Indicates that the term was applied directly by the AP Classification system (always true for persons).\n - PERSON_FEATURED. Indicates that this person is featured in the photo.",
+								"items": {
+									"type": "string",
+									"enum": ["direct", "personfeatured"]
+								}
+							},
+							"associatedstates": {
+								"type": "array",
+								"items": {
+									"required": ["code", "name"],
+									"type": "object",
+									"properties": {
+										"code": {
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										}
+									}
+								}
+							},
+							"associatedevents": {
+								"type": "array",
+								"description": "(Only for athletes and coaches participating in Olympic games or FIFA World Cup)\n Represents a relationship between a person and a current event, typically, the person's participation in or some significant contribution to the event; for example, a player's participation in 2018 FIFA World Cup. For more information, see [Associated Event Name and Code Examples](https://api.ap.org/media/v/docs/api/#t=AP_Classification_Metadata.htm%23Associated_Event_Name_and_Code_Examples).",
+								"items": {
+									"required": ["code", "name"],
+									"type": "object",
+									"properties": {
+										"code": {
+											"type": "string",
+											"description": "The code for the event in the AP controlled vocabulary."
+										},
+										"name": {
+											"type": "string",
+											"description": "The event name."
+										}
+									}
+								}
+							},
+							"teams": {
+								"type": "array",
+								"description": "(For team athletes and coaches only) The team values and codes are available as part of the list of [AP Organization terms](https://developer.ap.org/ap-taxonomy/Organization/).",
+								"items": {
+									"required": ["code", "name"],
+									"type": "object",
+									"properties": {
+										"code": {
+											"type": "string",
+											"description": "The team code in the AP Organization vocabulary."
+										},
+										"name": {
+											"type": "string",
+											"description": "The team name."
+										}
+									}
+								}
+							},
+							"scheme": {
+								"type": "string",
+								"description": "The identifier of the AP controlled vocabulary."
+							},
+							"types": {
+								"type": "array",
+								"description": "The main category that applies to a named individual; for example, POLITICIAN, ROYALTY, PROFESSIONAL_ATHLETE.",
+								"items": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"subject": {
+					"type": "array",
+					"description": "Concepts with a relationship to the content, such as topics, categories or subjects that describe the content. For a complete list of values, see [AP Subject](https://developer.ap.org/ap-taxonomy/Subject/) terms, [AP Category Codes](https://api.ap.org/media/v/docs/api/#t=AP_Classification_Metadata.htm%23AP_Category_Code) and [AP Supplemental Categories](https://api.ap.org/media/v/docs/api/#t=AP_Classification_Metadata.htm%23AP_Supplemental_Category).",
+					"items": {
+						"required": ["code", "creator", "name"],
+						"type": "object",
+						"properties": {
+							"code": {
+								"type": "string",
+								"description": "The code for the standardized subject term in the AP controlled vocabulary (http://cv.ap.org/id/), the AP category or the AP supplemental category."
+							},
+							"name": {
+								"type": "string",
+								"description": "The name of the AP subject, AP category or AP supplemental category."
+							},
+							"parentids": {
+								"type": "array",
+								"description": "The IDs of broader terms, if available.",
+								"items": {
+									"type": "string"
+								}
+							},
+							"rels": {
+								"type": "array",
+								"description": "The relationship of the content of the news item to the subject.\n - direct. Indicates the AP Subject terms applied directly by the AP Classification system.\n - ancestor. Indicates the AP Subject terms inferred from hierarchy. For instance, 'Events' is a broader subject for 'September 11 attacks.'\n - inferred. Indicates the AP Subject terms inferred from relationships other than hierarchy, such as additional subject occurrences that are added based on entity or subject matches. For example, a match on 'September 11 attacks' ensures the application of the subject terms 'Terrorism' and 'War and unrest.'\n - category. Indicates AP category codes, which are applied to text, photos, graphics and video by AP editors.\n - suppcategory. Indicates AP supplemental category codes, which are applied to photos and graphics by AP editors.",
+								"items": {
+									"type": "string",
+									"enum": [
+										"direct",
+										"ancestor",
+										"inferred",
+										"category",
+										"suppcategory"
+									]
+								}
+							},
+							"creator": {
+								"type": "string",
+								"description": "Indicates the origin of the subject/category tag: Editorial (assigned by an AP editor) or Machine (assigned by the AP Classification system)."
+							},
+							"topparent": {
+								"type": "boolean",
+								"description": ""
+							},
+							"scheme": {
+								"type": "string",
+								"description": "The identifier of the AP controlled vocabulary."
+							}
+						}
+					}
+				},
+				"organisation": {
+					"type": "array",
+					"description": "Organizations with a relationship to the content - administrative and functional structures that may act as a business, as a political party or not-for-profit party. Includes terms from [AP Company](https://api.ap.org/media/v/docs/api/#t=AP_Classification_Metadata.htm%23AP_Company) (public companies with shares traded on major global and U.S. stock exchanges) and [AP Organization](https://api.ap.org/media/v/docs/api/#t=AP_Classification_Metadata.htm%23AP_Organization) (organizations such as government and non-profit organizations, sports teams, colleges, political groups, cultural and media organizations). For more information, see a complete list of [AP Organization terms](https://developer.ap.org/ap-taxonomy/Organization/).",
+					"items": {
+						"required": ["code", "creator", "name", "scheme"],
+						"type": "object",
+						"properties": {
+							"industries": {
+								"type": "array",
+								"description": "The industries related to the company.",
+								"items": {
+									"required": ["code", "name"],
+									"type": "object",
+									"properties": {
+										"code": {
+											"type": "string",
+											"description": "The industry name."
+										},
+										"name": {
+											"type": "string",
+											"description": "The code for the industry in the AP Subject vocabulary."
+										}
+									}
+								}
+							},
+							"code": {
+								"type": "string",
+								"description": "The code for the organization in the AP controlled vocabulary (http://cv.ap.org/id/)."
+							},
+							"name": {
+								"type": "string",
+								"description": "The name of the organization/company."
+							},
+							"parentids": {
+								"type": "array",
+								"description": "The IDs of broader terms, if available.",
+								"items": {
+									"type": "string"
+								}
+							},
+							"rels": {
+								"type": "array",
+								"description": "The relationship of the content of the news item to the organization.\n - direct. Indicates the terms applied directly by the AP Classification system. The relationship is always direct for public companies ([AP Company terms](http://api.ap.org/media/v/docs/api/Classification-Metadata/#ap-company)).\n - ancestor. Indicates the terms inferred from hierarchy. For instance, 'Organizations' is a broader term for 'Museum of Modern Art.'\n - inferred. Indicates the terms inferred from relationships other than hierarchy, such as additional organization or subject occurrences that are added based on entity or subject matches. For example, a match on a sports team organization term \"Los Angeles Dodgers\" ensures the application of the league organization term \"Major League Baseball\" even if the \"Major League Baseball\" tag application rule does not match the article. In another example, a national government \"Canada government\" (organization term) ensures a match on its related concept \"Government and politics\" (subject term) even if the \"Government and politics\" rule does not match the article.",
+								"items": {
+									"type": "string"
+								}
+							},
+							"creator": {
+								"type": "string",
+								"description": "Indicates the origin of the organization tag: Editorial (assigned by an AP editor) or Machine (assigned by the AP Classification system)."
+							},
+							"symbols": {
+								"type": "array",
+								"description": "Symbols used for a financial instrument linked to the company at a specific marketplace.",
+								"items": {
+									"required": ["exchange", "instrument", "ticker"],
+									"type": "object",
+									"properties": {
+										"instrument": {
+											"type": "string",
+											"description": "Combination of the company's ticker symbol and the stock exchange that it trades on, separated by a colon."
+										},
+										"ticker": {
+											"type": "string",
+											"description": "Ticker symbol used for the financial instrument."
+										},
+										"exchange": {
+											"type": "string",
+											"description": "Identifier for the marketplace which uses the ticker symbols of the ticker property. For a list of stock exchanges, see [Stock Exchange Codes](http://api.ap.org/media/v/docs/api/Classification-Metadata/#stock-exchange-codes)."
+										}
+									}
+								}
+							},
+							"topparent": {
+								"type": "boolean",
+								"description": "The value of true indicates that this term is the top term in the AP Organization vocabulary hierarchy."
+							},
+							"scheme": {
+								"type": "string",
+								"description": "The identifier of the AP controlled vocabulary."
+							}
+						}
+					}
+				},
+				"place": {
+					"type": "array",
+					"description": "Named locations mentioned in the content, such as continents, world regions, countries, territories, U.S. states, Canadian provinces and major cities. For more information, see a complete list of [AP Geography terms](https://developer.ap.org/ap-taxonomy/Geography/).",
+					"items": {
+						"required": ["code", "creator", "name", "rels", "scheme"],
+						"type": "object",
+						"properties": {
+							"code": {
+								"type": "string",
+								"description": "The code for the place the AP controlled vocabulary (http://cv.ap.org/id/)."
+							},
+							"name": {
+								"type": "string",
+								"description": "The name of the place."
+							},
+							"parentids": {
+								"type": "array",
+								"description": "The IDs of broader terms, if available.",
+								"items": {
+									"type": "string"
+								}
+							},
+							"rels": {
+								"type": "array",
+								"description": "The relationship of the content of the news item to the place.\n - direct. Indicates the terms applied directly by the AP Classification system.\n - ancestor. Indicates the terms inferred from hierarchy. For instance, 'North America' is a broader term for 'United States.'",
+								"items": {
+									"type": "string",
+									"enum": ["direct", "ancestor"]
+								}
+							},
+							"locationtype": {
+								"required": ["code", "name"],
+								"type": "object",
+								"description": "The generic type of a geographic entity; for example, City, Province, Continent. For a list of values, see [Location Type](http://api.ap.org/media/v/docs/api/Classification-Metadata/#location-type).",
+								"properties": {
+									"code": {
+										"type": "string",
+										"description": "The code for the location type in the AP vocabulary."
+									},
+									"name": {
+										"type": "string",
+										"description": "The location type name."
+									}
+								}
+							},
+							"creator": {
+								"type": "string",
+								"description": "Indicates the origin of the organization tag: Editorial (assigned by an AP editor) or Machine (assigned by the AP Classification system).",
+								"enum": ["Editorial", "Machine"]
+							},
+							"topparent": {
+								"type": "boolean",
+								"description": "The value of true indicates that this term is the top term in the AP Geography vocabulary hierarchy."
+							},
+							"scheme": {
+								"type": "string",
+								"description": "The identifier of the AP controlled vocabulary."
+							},
+							"geometry_geojson": {
+								"required": ["coordinates", "type"],
+								"type": "object",
+								"description": "A [GeoJson](http://geojson.org/) object holding geo data of this place.",
+								"properties": {
+									"type": {
+										"type": "string",
+										"description": "Geometry type: Point.",
+										"enum": ["Point"]
+									},
+									"coordinates": {
+										"type": "array",
+										"description": "Centroid coordinates - the WGS84 longitude and latitude of the location in decimal degrees.",
+										"items": {
+											"type": "number"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"event": {
+					"type": "array",
+					"description": "Something that happens in a planned or unplanned manner; for example, sports events or developing news events (such as [The Latest](https://api.ap.org/media/v/docs/api/#t=The_Latest.htm)).",
+					"items": {
+						"type": "object",
+						"additionalProperties": true
+					}
+				},
+				"audiences": {
+					"type": "array",
+					"items": {
+						"required": ["code", "name", "type"],
+						"type": "object",
+						"description": "An editorially selected designation of the audience (for example, geographic, demographic, economic group) that would have an interest in the content.",
+						"properties": {
+							"code": {
+								"type": "string",
+								"description": "The code for the audience in the AP vocabulary."
+							},
+							"type": {
+								"type": "string",
+								"description": "The audience type."
+							},
+							"name": {
+								"type": "string",
+								"description": "The audience name."
+							}
+						}
+					}
+				},
+				"description_caption": {
+					"type": "string",
+					"description": "A freeform textual description of the content item."
+				},
+				"description_creditline": {
+					"type": "string",
+					"description": "The party or parties that are credited with providing the content (a natural-language statement of credit information)."
+				},
+				"description_editornotes": {
+					"type": "string",
+					"description": "A section of text that is separate from the main story body, but is publishable."
+				},
+				"textformat": {
+					"type": "string",
+					"description": "Legacy typeset format."
+				},
+				"associations": {
+					"type": "object",
+					"description": "Content of news items that are associated with this content item; for example, photos and/or videos associated with a news story or AP news stories that are part of [AP Top Headlines](https://api.ap.org/media/v/docs/api/#t=AP_Top_Headlines.htm). Each associated news item in the list of all news items associated with this content item is assigned a sequence number (\"1\", \"2\", \"3\" and so on). For example, if two photos and two videos are associated with a news story (in that particular order), the \"associationrank\" will be \"1\" for the first photo, \"2\" for the second photo, \"3\" for the first video and \"4\" for the second video.",
+					"additionalProperties": {
+						"required": ["uri"],
+						"type": "object",
+						"properties": {
+							"headline": {
+								"type": "string",
+								"description": "A brief synopsis of the associated news item."
+							},
+							"altids": {
+								"required": ["itemid", "etag"],
+								"type": "object",
+								"properties": {
+									"itemid": {
+										"type": "string",
+										"description": "The item ID of the associated news item."
+									},
+									"etag": {
+										"type": "string",
+										"description": " A short digest (also known as checksum or hash) of the associated item's metadata. Useful for deduplication and conditional requests."
+									}
+								}
+							},
+							"type": {
+								"type": "string",
+								"description": "The media type of the associated news item: text, picture, graphic, audio or video.",
+								"enum": ["text", "picture", "graphic", "audio", "video"]
+							},
+							"uri": {
+								"type": "string",
+								"description": "The URL for the associated news item."
+							}
+						}
+					}
+				},
+				"renditions": {
+					"type": "object",
+					"description": "Wrapper for different [renditions](https://api.ap.org/media/v/docs/api/#t=Content_File_Formats_and_Renditions.htm%23Content_Item_Formats_and_Renditions) of the content item.",
+					"additionalProperties": {
+						"type": "object",
+						"properties": {
+							"orientation": {
+								"type": "string",
+								"description": "(For images only) The image orientation, which indicates whether the human interpretation of the top of the image is aligned to its short side (vertical) or long side (horizontal).",
+								"enum": ["Horizontal", "Vertical"]
+							},
+							"scene": {
+								"type": "string",
+								"description": "Description of recording scene; used only for images."
+							},
+							"height": {
+								"type": "integer",
+								"description": "For still and moving images: the height of the display area measured in pixels."
+							},
+							"href": {
+								"type": "string",
+								"description": "The URL for accessing the rendition as a resource."
+							},
+							"duration": {
+								"type": "integer",
+								"description": "The total time duration of the content (in milliseconds for video; in seconds for audio)."
+							},
+							"samplerate": {
+								"type": "string",
+								"description": "The number of audio samples per second in the audio or video content, expressed as audio sampling frequency in hertz (Hz)."
+							},
+							"digest": {
+								"type": "string",
+								"description": "A short digest (also known as checksum or hash) of the rendition data."
+							},
+							"sizeinbytes": {
+								"type": "integer",
+								"description": "The size of the rendition resource in bytes."
+							},
+							"title": {
+								"type": "string",
+								"description": "The title of the content item rendition that can be used for posting on a website."
+							},
+							"averagebitrate": {
+								"type": "string",
+								"description": "The average amount of data that is transferred per second in the audio or video content."
+							},
+							"width": {
+								"type": "integer",
+								"description": "For still and moving images: the width of the display area measured in pixels."
+							},
+							"rel": {
+								"type": "string",
+								"description": "The content item rendition; for example, Main, Preview, Thumbnail and Caption for images; and Main, Preview, Thumbnail, Caption, Script and/or Shotlist for video.",
+								"enum": [
+									"Main",
+									"Preview",
+									"Thumbnail",
+									"Caption",
+									"Script",
+									"Shotlist"
+								]
+							},
+							"videoscaling": {
+								"type": "string",
+								"description": "Video scaling, which describes how the aspect ratio of a video has been changed from the original in order to accommodate a different display dimension:\n - pillarboxed. Bars to the left and right.\n - letterboxed. Bars to the top and bottom.\n - mixed. Two or more different aspect ratios are used in the video over the timeline.\n - original. No scaling has been applied.",
+								"enum": ["pillarboxed", "letterboxed", "mixed", "original"]
+							},
+							"contentid": {
+								"type": "string",
+								"description": "A code used to identify the content item rendition.\n\n**Tip**\nThe contentid values of the text renditions (for example, the NITF renditions of a video caption and a script) are not guaranteed to be unique. If you are using contentid values to name downloaded files, use rel and/or fileextension in addition to contentid to differentiate between the text renditions. For example, to save video captions and scripts with unique names, you can use the {itemid}-{version}-{contentid}-{rel}.{ext} file naming format."
+							},
+							"type": {
+								"type": "string",
+								"description": "The media type of the rendition: text, picture, graphic, audio or video.",
+								"enum": ["text", "picture", "graphic", "audio", "video"]
+							},
+							"videocodec": {
+								"type": "string",
+								"description": "The video encoding system used to create the content."
+							},
+							"format": {
+								"type": "string",
+								"description": "A format that applies to the rendition."
+							},
+							"words": {
+								"type": "integer",
+								"description": "The word count of the rendition."
+							},
+							"fileextension": {
+								"type": "string",
+								"description": "The file extension of the content item."
+							},
+							"mediafilterid": {
+								"type": "string",
+								"description": "Disregard - for internal Agent use."
+							},
+							"aspectratio": {
+								"type": "string",
+								"description": "Aspect ratio of the video file, which is the ratio of the width of video to its height, such as 16:9 and 4:3.",
+								"enum": ["16:9", "4:3"]
+							},
+							"originalfilename": {
+								"type": "string",
+								"description": "The name of the original media file."
+							},
+							"mimetype": {
+								"type": "string",
+								"description": "A MIME type that applies to the rendition."
+							},
+							"framerate": {
+								"type": "number",
+								"description": "The number of video frames per second, which is the rate at which the material should be shown in order to achieve the intended visual effect."
+							},
+							"colourspace": {
+								"type": "string",
+								"description": "The color space of video (if available).",
+								"enum": ["Color", "Black and White", "RGB", "Greyscale"]
+							},
+							"backgroundcolour": {
+								"type": "string"
+							},
+							"resolution": {
+								"type": "integer",
+								"description": "The recording or image resolution of the content (if available):\n - For images: the recommended printing resolution in dots per inch.\n - For video: the number of distinct pixels in each dimension.\n - For audio: the recording resolution in bits per sample."
+							},
+							"version_links": {
+								"type": "array",
+								"description": "(For ANPA stories only) The same story in the ANPA format may be filed multiple times; for example, with a different category code. When versions=all is specified in the request, the response includes links to all filings of ANPA-formatted stories in renditions.anpa.version_links. If versions=latest is specified in the request or if this parameter is not specified, only the latest filing of the ANPA story is returned in renditions.anpa.href.",
+								"items": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"monitor": {
+			"required": ["monitor"],
+			"properties": {
+				"monitor": {
+					"type": "object",
+					"title": "",
+					"description": "",
+					"items": {
+						"additionalProperties": true,
+						"minProperties": 0,
+						"description": "Member descriptions"
+					},
+					"properties": {
+						"name": {
+							"type": "string",
+							"description": "Name of the monitor",
+							"maxLength": 20,
+							"minLength": 1,
+							"pattern": "^[a-zA-Z0-9_.-]*$"
+						},
+						"description": {
+							"type": "string",
+							"description": "Brief description of monitors purpose."
+						},
+						"playbook": {
+							"type": "string",
+							"description": "Helpful instructions/guidance to include in verbose Notifications"
+						},
+						"repeatAlerts": {
+							"type": "string",
+							"description": "ISO-8601 Duration format limited to Hours and Minutes, range 10 minutes to 24 hours. 0 is valid to disable reminders. ^(0|PT[0-9]*[MH])$"
+						},
+						"notify": {
+							"type": "array",
+							"description": "One or more objects describing the type of transport (email) and the destinations (email addresses)",
+							"minItems": 1,
+							"maxItems": 5,
+							"items": {
+								"type": "object",
+								"properties": {
+									"channelType": {
+										"$ref": "#/definitions/channelType"
+									},
+									"channelDestinations": {
+										"$ref": "#/definitions/channelDestinations"
+									}
+								}
+							}
+						},
+						"conditions": {
+							"type": "array",
+							"description": "One or more objects describing specific conditions to monitor for",
+							"minItems": 1,
+							"maxItems": 5,
+							"items": {
+								"type": "object",
+								"properties": {
+									"type": {
+										"$ref": "#/definitions/conditionType"
+									},
+									"enabled": {
+										"$ref": "#/definitions/conditionEnabled"
+									},
+									"criteria": {
+										"$ref": "#/definitions/conditionCriteria"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"example": {
+				"monitor": {
+					"name": "sample_monitor",
+					"description": "Simple example monitor for creation via API.",
+					"playbook": "Check the health of your feed script.",
+					"repeatAlerts": "PT2H",
+					"notify": [
+						{
+							"channelType": "email",
+							"channelDestinations": ["set-with-real-address- @@ example.com"]
+						}
+					],
+					"conditions": [
+						{
+							"type": "idleFeed",
+							"enabled": true,
+							"criteria": {
+								"idleTime": "PT15M"
+							}
+						}
+					]
+				}
+			}
+		}
+	}
+}
