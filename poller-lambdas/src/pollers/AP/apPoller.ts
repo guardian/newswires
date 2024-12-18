@@ -39,12 +39,24 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 	const valueForNextPoll = feed.data?.next_page ?? defaultFeedUrl;
 
 	const feedItems = feed.data?.items
-		?.map(
-			({ item }) => item,
-		) /** @todo: do we want to do anything with items that don't have an 'item' field? */
+		?.map(({ item }) => item)
 		.filter(
 			(i): i is Contentitem => i !== undefined,
-		); /** @todo we should be able to remove the type predicate after we upgrade TS to around 5.6 */
+		); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
+
+	/** `items[n].item` is marked as optional in the AP schema, so it's worth
+	 * logging if it's missing, but we can't do much about it as there isn't any
+	 * other meaningful data on the response in that case
+	 */
+	if (
+		feed.data?.items &&
+		feedItems &&
+		feedItems.length < feed.data.items.length
+	) {
+		console.log(
+			`Received ${feed.data.items.length} items from AP feed, but only ${feedItems.length} contain an 'item' field.`,
+		);
+	}
 
 	if (feedItems === undefined || feedItems.length === 0) {
 		console.log('No new items in feed');
@@ -65,7 +77,13 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 		feedItems.map(async (feedItem) => {
 			const maybeNitfUrl = feedItem.renditions?.nitf?.href;
 			if (maybeNitfUrl === undefined) {
-				return undefined; // todo: do we want to do anything with items that don't have a nitf rendition (i.e. content)?
+				console.log(
+					JSON.stringify({
+						uud: feedItem.altids?.etag,
+						message: `No NITF rendition found for AP item: ${feedItem.altids?.etag}; excluding from feed.`,
+					}),
+				);
+				return undefined;
 			}
 			const resp = await fetch(maybeNitfUrl, { headers });
 			const content = await resp.text();
@@ -77,7 +95,7 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 	const payloadForIngestionLambda: IngestorPayload[] = feedItemsWithContent
 		.filter(
 			(i): i is FeedItemWithContent => i !== undefined,
-		) /** @todo we should be able to remove the type predicate after we upgrade TS to around 5.6 */
+		) /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 		.map(itemWithContentToDesiredOutput);
 
 	return {
@@ -163,7 +181,8 @@ function itemWithContentToDesiredOutput({
 			version: feedItem.version?.toString() ?? '0',
 			type: type,
 			status: pubstatus,
-			firstVersion: firstcreated, // todo: should double-check that these line up once we've got the feed back
+			firstVersion:
+				firstcreated /** @todo: we should double-check that these line up once we've got the FIP feed back */,
 			versionCreated: versioncreated,
 			headline: title ?? headline ?? contentFromNitf.headline,
 			byline: bylineToUse,
