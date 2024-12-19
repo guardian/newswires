@@ -28,7 +28,7 @@ function decideLabelForQueryBadge(query: Query): string {
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
-const recognisedSuppliers = ['REUTERS', 'AP', 'AAP', 'PA'];
+const recognisedSuppliers = ['REUTERS', 'AP', 'AAP', 'PA', 'GuAP'];
 const buckets = [
 	{ id: 'no-sports', name: 'No Sports' },
 	{ id: 'pa-home', name: 'PA Home' },
