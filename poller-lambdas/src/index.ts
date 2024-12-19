@@ -5,8 +5,7 @@ import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
 import { queueNextInvocation, secretsManager, sqs } from './aws';
 import { getEnvironmentVariableOrCrash } from './config';
-import { EXAMPLE_fixed_frequency } from './pollers/EXAMPLE_fixed_frequency';
-import { EXAMPLE_long_polling } from './pollers/EXAMPLE_long_polling';
+import { reutersPoller } from './pollers/reuters/reutersPoller';
 import type { HandlerInputSqsPayload, PollFunction } from './types';
 import { isFixedFrequencyPollOutput } from './types';
 
@@ -100,8 +99,9 @@ const pollerWrapper =
 	};
 
 export const handlers = {
-	EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
-	EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
+	// EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
+	// EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
+	reuters: pollerWrapper(reutersPoller),
 } satisfies Record<
 	PollerId,
 	(sqsEvent: HandlerInputSqsPayload) => Promise<void>
