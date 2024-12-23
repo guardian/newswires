@@ -98,7 +98,7 @@ export class PollerLambda {
 			},
 			memorySize: pollerConfig.overrideLambdaMemoryMB ?? 128,
 			timeout,
-			handler: `index.${pollerId}`, // see programmatically generated exports in poller-lambdas/src/index.ts
+			handler: `index.handlers.${pollerId}`, // see programmatically generated exports in poller-lambdas/src/index.ts
 			fileName: `poller-lambdas.zip`, // shared zip for all the poller-lambdas
 		});
 

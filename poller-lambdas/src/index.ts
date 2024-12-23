@@ -99,8 +99,7 @@ const pollerWrapper =
 		}
 	};
 
-// eslint-disable-next-line import/no-default-export -- we need this to expose the pollers as named handlers but the shape verified with 'satisfies' keyword
-export default {
+export const handlers = {
 	EXAMPLE_long_polling: pollerWrapper(EXAMPLE_long_polling),
 	EXAMPLE_fixed_frequency: pollerWrapper(EXAMPLE_fixed_frequency),
 } satisfies Record<

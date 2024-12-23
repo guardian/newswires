@@ -438,7 +438,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         },
         "FunctionName": "editorial-feeds-TEST-EXAMPLE_fixed_frequency_poller_lambda",
-        "Handler": "index.EXAMPLE_fixed_frequency",
+        "Handler": "index.handlers.EXAMPLE_fixed_frequency",
         "LoggingConfig": {
           "LogFormat": "JSON",
         },
@@ -1260,7 +1260,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         },
         "FunctionName": "editorial-feeds-TEST-EXAMPLE_long_polling_poller_lambda",
-        "Handler": "index.EXAMPLE_long_polling",
+        "Handler": "index.handlers.EXAMPLE_long_polling",
         "LoggingConfig": {
           "LogFormat": "JSON",
         },

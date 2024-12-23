@@ -8,7 +8,7 @@ import {
 	POLLERS_CONFIG,
 } from '../shared/pollers';
 import { sqs } from './src/aws';
-import handlers from './src/index';
+import { handlers } from './src/index';
 import type { HandlerInputSqsPayload } from './src/types';
 
 const fakeInvoke = async (
