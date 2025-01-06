@@ -29,9 +29,6 @@ for arg in "$@"; do
   fi
 done
 
-isInstalled() {
-  hash "$1" 2>/dev/null
-}
 
 hasCredentials() {
   STATUS=$(aws sts get-caller-identity --profile ${AWS_PROFILE} 2>&1 || true)
@@ -44,29 +41,6 @@ hasCredentials() {
   fi
 }
 
-checkRequirement() {
-  if ! isInstalled "$1"; then
-    echo -e "${red}[MISSING DEPENDENCY] $1 not found. Please install $1${plain}"
-    exit 1
-  fi
-}
-
-checkRequirements() {
-  # server side
-  checkRequirement java
-  checkRequirement sbt
-
-  # client side
-  checkRequirement npm
-
-  # used for postgres and AWS localstack
-  checkRequirement docker
-
-  # other
-  checkRequirement nginx
-  checkRequirement aws
-  checkRequirement scala-cli
-}
 
 tunnelToAwsDb() {
     if (docker stats --no-stream &> /dev/null); then
@@ -116,32 +90,9 @@ startPlayApp() {
   popd
 }
 
-checkNodeVersion() {
-  runningNodeVersion=$(node -v)
-  requiredNodeVersion=$(cat "$ROOT_DIR/.nvmrc")
-
-  if [ "$runningNodeVersion" != "$requiredNodeVersion" ]; then
-    echo -e "${red}Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}.${plain}"
-    exit 1
-  fi
-}
-
-checkForJavaHome() {
-  echo "Checking JAVA_HOME"
-  if [[ -z "$JAVA_HOME" ]]; then
-    echo "  JAVA_HOME not set, please set it before continuing"
-    echo "  This can be done by adding \"export JAVA_HOME=\$(/usr/libexec/java_home)\" to ~/.profile"
-    exit 1
-  else
-    echo "  JAVA_HOME is set to $JAVA_HOME"
-  fi
-}
-
 main() {
-    checkForJavaHome
     hasCredentials
-    checkRequirements
-    checkNodeVersion
+    source "$ROOT_DIR/scripts/check-requirements"
     if [ "$USE_CODE" == "true" ]; then
         echo "Using CODE. Starting play app with tunnel to AWS DB."
         tunnelToAwsDb && USE_CODE_DB=true startPlayApp
