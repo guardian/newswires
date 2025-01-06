@@ -23,7 +23,7 @@ EOF
 setup_nginx() {
   echo "Configuring nginx"
 
-  dev-nginx setup-app "$ROOT_DIR"/nginx/nginx-mapping.yaml
+  dev-nginx setup-app "$ROOT_DIR"/newswires/nginx/nginx-mapping.yaml
   dev-nginx restart-nginx
 }
 
