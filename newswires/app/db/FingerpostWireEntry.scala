@@ -1,6 +1,9 @@
 package db
 
-import conf.SourceFeedSupplierMapping.sourceFeedsFromSupplier
+import conf.SourceFeedSupplierMapping.{
+  sourceFeedsFromSupplier,
+  supplierFromSourceFeed
+}
 import db.CustomMappers.textArray
 import play.api.Logging
 import play.api.libs.json._
@@ -63,6 +66,7 @@ object FingerpostWire {
 
 case class FingerpostWireEntry(
     id: Long,
+    supplier: String,
     externalId: String,
     ingestedAt: ZonedDateTime,
     content: FingerpostWire,
@@ -96,14 +100,20 @@ object FingerpostWireEntry
 
   def apply(
       fm: ResultName[FingerpostWireEntry]
-  )(rs: WrappedResultSet): FingerpostWireEntry =
+  )(rs: WrappedResultSet): FingerpostWireEntry = {
+    val fingerpostContent = Json.parse(rs.string(fm.content)).as[FingerpostWire]
+
     FingerpostWireEntry(
-      rs.long(fm.id),
-      rs.string(fm.externalId),
-      rs.zonedDateTime(fm.ingestedAt),
-      Json.parse(rs.string(fm.content)).as[FingerpostWire],
-      rs.stringOpt(fm.column("highlight"))
+      id = rs.long(fm.id),
+      supplier = fingerpostContent.sourceFeed
+        .flatMap(supplierFromSourceFeed)
+        .getOrElse("Unknown"),
+      externalId = rs.string(fm.externalId),
+      ingestedAt = rs.zonedDateTime(fm.ingestedAt),
+      content = fingerpostContent,
+      highlight = rs.stringOpt(fm.column("highlight"))
     )
+  }
 
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)

@@ -28,6 +28,7 @@ const FingerpostContentSchema = z
 
 export const WireDataSchema = z.object({
 	id: z.number(),
+	supplier: z.string(),
 	externalId: z.string(),
 	ingestedAt: z.string(),
 	content: FingerpostContentSchema,

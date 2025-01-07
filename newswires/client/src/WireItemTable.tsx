@@ -49,10 +49,11 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 				<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
 			</EuiTableHeader>
 			<EuiTableBody>
-				{wires.map(({ id, content, isFromRefresh, highlight }) => (
+				{wires.map(({ id, supplier, content, isFromRefresh, highlight }) => (
 					<WireDataRow
 						key={id}
 						id={id}
+						supplier={supplier}
 						content={content}
 						isFromRefresh={isFromRefresh}
 						highlight={highlight}
@@ -67,6 +68,7 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 
 const WireDataRow = ({
 	id,
+	supplier,
 	content,
 	highlight,
 	selected,
@@ -74,6 +76,7 @@ const WireDataRow = ({
 	handleSelect,
 }: {
 	id: number;
+	supplier: string;
 	content: WireData['content'];
 	highlight: string;
 	selected: boolean;
@@ -107,7 +110,8 @@ const WireDataRow = ({
 				<EuiFlexGroup direction="column" gutterSize="xs">
 					<EuiTitle size="xxs">
 						<h3>
-							{hasSlug ? content.slug : (content.headline ?? 'No headline')}
+							{hasSlug ? content.slug : (content.headline ?? 'No headline')} [
+							{supplier}]
 						</h3>
 					</EuiTitle>
 					{hasSlug && (
