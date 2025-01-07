@@ -4,6 +4,15 @@ object SourceFeedSupplierMapping {
   def sourceFeedsFromSupplier(supplierName: String): Option[List[String]] =
     lookup.get(supplierName.toUpperCase())
 
+  def supplierFromSourceFeed(sourceFeed: String): Option[String] =
+    lookup
+      .find { case (_, sourceFeeds) =>
+        sourceFeeds.contains(sourceFeed)
+      }
+      .map { case (supplier, _) =>
+        supplier
+      }
+
   private val lookup = Map(
     "REUTERS" -> List("REUTERS"),
     "AAP" -> List("AAP"),
