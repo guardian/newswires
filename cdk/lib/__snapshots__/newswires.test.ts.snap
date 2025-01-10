@@ -2532,6 +2532,16 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             },
             {
               "Action": [
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:UpdateSecret",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "apPollerSecret4DA8E7BD",
+              },
+            },
+            {
+              "Action": [
                 "sqs:ReceiveMessage",
                 "sqs:ChangeMessageVisibility",
                 "sqs:GetQueueUrl",
@@ -3576,6 +3586,16 @@ dpkg -i /newswires/newswires.deb",
               "Action": [
                 "secretsmanager:GetSecretValue",
                 "secretsmanager:DescribeSecret",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "reutersSecretA9E37489",
+              },
+            },
+            {
+              "Action": [
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:UpdateSecret",
               ],
               "Effect": "Allow",
               "Resource": {

@@ -103,6 +103,7 @@ export class PollerLambda {
 		});
 
 		secret.grantRead(lambda);
+		secret.grantWrite(lambda);
 
 		// wire up lambda to process its own queue
 		lambda.addEventSource(new SqsEventSource(lambdaQueue, { batchSize: 1 }));
