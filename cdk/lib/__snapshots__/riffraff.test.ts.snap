@@ -45,6 +45,20 @@ deployments:
       fileName: poller-lambdas.zip
     actions:
       - uploadLambda
+  lambda-upload-eu-west-1-editorial-feeds-apPoller_poller_lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: apPoller_poller_lambda
+    contentDirectory: poller-lambdas
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: poller-lambdas.zip
+    actions:
+      - uploadLambda
   asg-upload-eu-west-1-editorial-feeds-newswires:
     type: autoscaling
     actions:
@@ -79,6 +93,7 @@ deployments:
     dependencies:
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
       - lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda
+      - lambda-upload-eu-west-1-editorial-feeds-apPoller_poller_lambda
       - asg-upload-eu-west-1-editorial-feeds-newswires
       - cfn-eu-west-1-editorial-feeds-wires-feeds
   lambda-update-eu-west-1-editorial-feeds-ingestion-lambda:
@@ -104,6 +119,22 @@ deployments:
     regions:
       - eu-west-1
     app: reuters_poller_lambda
+    contentDirectory: poller-lambdas
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: poller-lambdas.zip
+    actions:
+      - updateLambda
+    dependencies:
+      - cfn-eu-west-1-editorial-feeds-newswires
+  lambda-update-eu-west-1-editorial-feeds-apPoller_poller_lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: apPoller_poller_lambda
     contentDirectory: poller-lambdas
     parameters:
       bucketSsmLookup: true
