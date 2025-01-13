@@ -15,6 +15,7 @@ object SourceFeedSupplierMapping {
 
   private val lookup = Map(
     "REUTERS" -> List("REUTERS"),
+    "GUREUTERS" -> List("Reuters-Newswires"),
     "AAP" -> List("AAP"),
     "AP" -> List(
       "ADVIS",
