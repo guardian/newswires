@@ -1,0 +1,1 @@
+ALTER TABLE fingerpost_wire_entry ADD CONSTRAINT external_id_unique UNIQUE (external_id);
