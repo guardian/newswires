@@ -7,6 +7,7 @@ export type PollerInput = string;
 export interface CorePollerOutput {
 	payloadForIngestionLambda: IngestorPayload[] | IngestorPayload;
 	valueForNextPoll: PollerInput;
+	newSecretValue?: SecretValue;
 }
 export type LongPollOutput = CorePollerOutput;
 

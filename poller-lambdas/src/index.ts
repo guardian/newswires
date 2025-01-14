@@ -1,4 +1,7 @@
-import { GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+import {
+	GetSecretValueCommand,
+	PutSecretValueCommand,
+} from '@aws-sdk/client-secrets-manager';
 import type { SendMessageCommandInput } from '@aws-sdk/client-sqs';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { PollerId } from '../../shared/pollers';
@@ -14,12 +17,13 @@ const pollerWrapper =
 	(pollerFunction: PollFunction) =>
 	async ({ Records }: HandlerInputSqsPayload) => {
 		const startTimeEpochMillis = Date.now();
+		const secretName = getEnvironmentVariableOrCrash(
+			POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME,
+		);
 		const secret = await secretsManager
 			.send(
 				new GetSecretValueCommand({
-					SecretId: getEnvironmentVariableOrCrash(
-						POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME,
-					),
+					SecretId: secretName,
 				}),
 			)
 			.then((_) => _.SecretString);
@@ -89,6 +93,17 @@ const pollerWrapper =
 						await queueNextInvocation({
 							MessageBody: output.valueForNextPoll,
 						});
+					}
+
+					if (output.newSecretValue) {
+						// set new value in secrets manager
+						console.log(`Updating secret value for ${secretName}`);
+						await secretsManager.send(
+							new PutSecretValueCommand({
+								SecretId: secretName,
+								SecretString: output.newSecretValue,
+							}),
+						);
 					}
 				})
 				.catch((error) => {
