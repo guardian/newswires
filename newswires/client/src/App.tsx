@@ -1,8 +1,6 @@
 import {
 	EuiButton,
 	EuiEmptyPrompt,
-	EuiFlexGroup,
-	EuiFlexItem,
 	EuiHeader,
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
@@ -10,16 +8,15 @@ import {
 	EuiProvider,
 	EuiResizableContainer,
 	EuiShowFor,
-	EuiSpacer,
-	EuiSwitch,
 	EuiTitle,
+	EuiToast,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useSearch } from './context/SearchContext.tsx';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SideNav } from './SideNav';
 import { configToUrl, defaultQuery } from './urlState';
-import { useSearch } from './useSearch';
 
 export function App() {
 	const {
@@ -30,7 +27,6 @@ export function App() {
 		handleDeselectItem,
 		handleNextItem,
 		handlePreviousItem,
-		toggleAutoUpdate,
 	} = useSearch();
 
 	const { view, itemId: selectedItemId } = config;
@@ -99,42 +95,63 @@ export function App() {
 						</EuiHeaderSectionItem>
 					</EuiHeader>
 				)}
-				{status !== 'error' && (
-					<>
-						<EuiShowFor sizes={['xs', 's']}>
-							{view === 'item' ? <Item id={selectedItemId} /> : <Feed />}
-						</EuiShowFor>
-						<EuiShowFor sizes={['m', 'l', 'xl']}>
-							{view === 'item' ? (
-								<EuiResizableContainer className="eui-fullHeight">
-									{(EuiResizablePanel, EuiResizableButton) => (
-										<>
-											<EuiResizablePanel
-												minSize="25%"
-												initialSize={100}
-												className="eui-yScroll"
-											>
-												<Feed />
-											</EuiResizablePanel>
-											<EuiResizableButton />
-											<EuiResizablePanel
-												minSize="30%"
-												initialSize={100}
-												className="eui-yScroll"
-											>
-												<Item id={selectedItemId} />
-											</EuiResizablePanel>
-										</>
-									)}
-								</EuiResizableContainer>
-							) : (
-								<Feed />
-							)}
-						</EuiShowFor>
-					</>
+				{status === 'offline' && (
+					<EuiToast
+						title="You Are Currently Offline"
+						iconType="warning"
+						css={css`
+							border-radius: 0;
+							background: #fdf6d8;
+						`}
+						onClose={() => {}}
+					>
+						<p>
+							The application is no longer retrieving updates. Data
+							synchronization will resume once connectivity is restored.
+						</p>
+					</EuiToast>
 				)}
+				{status !== 'error' &&
+					state.queryData &&
+					state.queryData.results.length > 0 && (
+						<>
+							<EuiShowFor sizes={['xs', 's']}>
+								{view === 'item' ? <Item id={selectedItemId} /> : <Feed />}
+							</EuiShowFor>
+							<EuiShowFor sizes={['m', 'l', 'xl']}>
+								{view === 'item' ? (
+									<EuiResizableContainer className="eui-fullHeight">
+										{(EuiResizablePanel, EuiResizableButton) => (
+											<>
+												<EuiResizablePanel
+													minSize="25%"
+													initialSize={100}
+													className="eui-yScroll"
+												>
+													<Feed />
+												</EuiResizablePanel>
+												<EuiResizableButton />
+												<EuiResizablePanel
+													minSize="30%"
+													initialSize={100}
+													className="eui-yScroll"
+												>
+													<Item id={selectedItemId} />
+												</EuiResizablePanel>
+											</>
+										)}
+									</EuiResizableContainer>
+								) : (
+									<Feed />
+								)}
+							</EuiShowFor>
+						</>
+					)}
 				{status == 'error' && (
 					<EuiEmptyPrompt
+						css={css`
+							background: white;
+						`}
 						actions={[
 							<EuiButton onClick={handleRetry} key="retry" iconType={'refresh'}>
 								Retry

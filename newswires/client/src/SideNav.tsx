@@ -14,10 +14,10 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
+import { useSearch } from './context/SearchContext.tsx';
 import { SearchBox } from './SearchBox';
 import { brandColours } from './sharedStyles';
 import type { Query } from './sharedTypes';
-import { useSearch } from './useSearch';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q, bucket } = query;
@@ -265,7 +265,7 @@ const SingleSearchAsListOfBadges = ({
 };
 
 const SearchQueryBadges = ({ query }: { query: Query }) => {
-	const { handleEnterQuery } = useSearch();
+	const { handleEnterQuery } = searchContext();
 	const { q, subject } = query;
 
 	if (q.length === 0 && subject.length === 0) {
