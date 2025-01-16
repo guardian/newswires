@@ -71,17 +71,14 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 		const results = await Promise.all(
 			records.map(
 				async ({
-					messageId,
+					messageId: sqsMessageId,
 					messageAttributes,
 					body,
 				}): Promise<OperationResult> => {
-					const sqsMessageId = messageId;
-
 					try {
-						const fingerpostMessageId =
-							messageAttributes['Message-Id']?.stringValue;
+						const messageId = messageAttributes['Message-Id']?.stringValue;
 
-						if (!fingerpostMessageId) {
+						if (!messageId) {
 							await s3Client.send(
 								new PutObjectCommand({
 									Bucket: BUCKET_NAME,
@@ -102,23 +99,24 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						await s3Client.send(
 							new PutObjectCommand({
 								Bucket: BUCKET_NAME,
-								Key: `${fingerpostMessageId}.json`,
+								Key: `${messageId}.json`,
 								Body: body,
 							}),
 						);
 
 						const snsMessageContent = safeBodyParse(body);
 
-						await sql`
-						INSERT INTO ${sql(tableName)}
-							(external_id, content)
-						VALUES
-							(${fingerpostMessageId}, ${snsMessageContent as never})
-						RETURNING id`.then((res) => {
-							if (res.length === 0) {
-								throw new Error('Failed to insert record into DB');
-							}
-						});
+						const result = await sql`
+                            INSERT INTO ${sql(tableName)}
+                                (external_id, content)
+                            VALUES (${messageId}, ${snsMessageContent as never}) ON CONFLICT (external_id) DO NOTHING
+						RETURNING id`;
+
+						if (result.length === 0) {
+							console.warn(
+								`A record with the provided external_id (messageId: ${messageId}) already exists. No new data was inserted to prevent duplication.`,
+							);
+						}
 					} catch (e) {
 						const reason = e instanceof Error ? e.message : 'Unknown error';
 						return {
@@ -132,6 +130,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 				},
 			),
 		);
+
 		const batchItemFailures = results
 			.filter(
 				(result): result is OperationFailure => result.status === 'failure',
@@ -142,6 +141,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 				);
 				return { itemIdentifier: sqsMessageId };
 			});
+
 		console.log(
 			`Processed ${records.length} messages with ${batchItemFailures.length} failures`,
 		);
