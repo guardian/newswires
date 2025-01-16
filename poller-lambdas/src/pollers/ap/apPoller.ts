@@ -18,10 +18,10 @@ type FeedItemWithContent = {
 	contentFromNitf: ContentFromNitf;
 };
 
-// https://api.ap.org/media/v/content/feed?page_size=10&in_my_plan=true
+// https://api.ap.org/media/v/content/feed?page_size=10&in_my_plan=true&include=*
 export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 	const baseUrl = 'https://api.ap.org/media/v';
-	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true`;
+	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true&include=*`;
 	const apiKey = secret;
 
 	const headers = {
@@ -35,7 +35,9 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 		`Received feed with ${feed.data?.current_item_count} items at ${timeReceived.toISOString()}`,
 	);
 
-	const valueForNextPoll = feed.data?.next_page ?? defaultFeedUrl;
+	const valueForNextPoll = feed.data?.next_page
+		? `${feed.data.next_page}&include=*`
+		: defaultFeedUrl;
 
 	const feedItems = feed.data?.items
 		?.map(({ item }) => item)
@@ -78,7 +80,7 @@ export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
 			if (maybeNitfUrl === undefined) {
 				console.log(
 					JSON.stringify({
-						uud: feedItem.altids?.etag,
+						uuid: feedItem.altids?.etag,
 						message: `No NITF rendition found for AP item: ${feedItem.altids?.etag}; excluding from feed.`,
 					}),
 				);
@@ -165,6 +167,8 @@ function itemWithContentToDesiredOutput({
 		versioncreated,
 		bylines,
 		ednote,
+		subject,
+		keywords,
 	} = feedItem;
 
 	const { abstract, bodyContentHtml } = contentFromNitf;
@@ -173,6 +177,13 @@ function itemWithContentToDesiredOutput({
 		? [...bylines].map((byline) => byline.by).join(', ')
 		: contentFromNitf.byline;
 
+	const directSubjects =
+		subject?.filter((s) => s.rels?.includes('direct')).map((s) => s.name) ?? [];
+
+	const keywordsAsArray = keywords?.flatMap((k) => k.split(' ')) ?? [];
+
+	const amalgamatedKeywords = [...directSubjects, ...keywordsAsArray];
+
 	return {
 		externalId,
 		body: {
@@ -180,13 +191,12 @@ function itemWithContentToDesiredOutput({
 			version: feedItem.version?.toString() ?? '0',
 			type: type,
 			status: pubstatus,
-			firstVersion:
-				firstcreated /** @todo: we should double-check that these line up once we've got the FIP feed back */,
+			firstVersion: firstcreated,
 			versionCreated: versioncreated,
 			headline: title ?? headline ?? contentFromNitf.headline,
 			byline: bylineToUse,
 			priority: editorialpriority,
-			keywords: [],
+			keywords: amalgamatedKeywords,
 			body_text: bodyContentHtml,
 			abstract,
 			originalContentText: originalXmlContent,

@@ -37,4 +37,11 @@ describe('processKeywords', () => {
 			'keyword 2',
 		]);
 	});
+
+	it('should handle arrays of strings, removing duplicates and empty strings', () => {
+		expect(processKeywords(['keyword1', 'keyword2', 'keyword1', ''])).toEqual([
+			'keyword1',
+			'keyword2',
+		]);
+	});
 });

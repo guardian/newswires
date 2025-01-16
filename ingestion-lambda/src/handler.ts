@@ -24,9 +24,38 @@ const isCurlyQuoteFailure = (e: SyntaxError): boolean => {
 	return !!e.message.match(/Unexpected token '[“‘”’]'/);
 };
 
+function cleanAndDedupeKeywords(keywords: string[]): string[] {
+	return [
+		...new Set(
+			keywords
+				.map((keyword) => keyword.trim())
+				.filter((keyword) => keyword.length > 0),
+		),
+	];
+}
+
+export const processKeywords = (
+	keywords: string | string[] | undefined,
+): string[] => {
+	if (keywords === undefined) {
+		return [];
+	}
+	if (Array.isArray(keywords)) {
+		return cleanAndDedupeKeywords(keywords);
+	}
+	return cleanAndDedupeKeywords(keywords.split('+'));
+};
+
 const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
-		return IngestorInputBodySchema.parse(JSON.parse(body));
+		const json = JSON.parse(body) as unknown as Record<string, unknown>;
+		const preprocessedKeywords = processKeywords(
+			json.keywords as string | string[] | undefined,
+		); // if it's not one of these, we probably want to throw an error
+		return IngestorInputBodySchema.parse({
+			...json,
+			keywords: preprocessedKeywords,
+		});
 	} catch (e) {
 		if (e instanceof SyntaxError && isCurlyQuoteFailure(e)) {
 			console.warn('Stripping badly escaped curly quote');
@@ -47,17 +76,6 @@ const safeBodyParse = (body: string): IngestorInputBody => {
 		}
 		throw e;
 	}
-};
-
-export const processKeywords = (keywords: string | undefined): string[] => {
-	if (keywords === undefined) {
-		return [];
-	}
-	const keywordsArray = keywords
-		.split('+')
-		.map((keyword) => keyword.trim())
-		.filter((keyword) => keyword.length > 0);
-	return [...new Set(keywordsArray)]; // remove duplicates
 };
 
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
