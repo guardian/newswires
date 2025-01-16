@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import './icons';
-import { SearchContextProvider } from './useSearch.tsx';
+import { SearchContextProvider } from './context/SearchContext.tsx';
 
 const toolsDomain = window.location.hostname.substring(
 	window.location.hostname.indexOf('.'),

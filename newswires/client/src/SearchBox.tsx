@@ -1,7 +1,7 @@
 import { EuiFieldSearch } from '@elastic/eui';
 import { useMemo, useState } from 'react';
+import { useSearch } from './context/SearchContext.tsx';
 import { debounce } from './debounce';
-import { useSearch } from './useSearch';
 
 export function SearchBox() {
 	const { config, handleEnterQuery } = useSearch();

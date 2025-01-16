@@ -14,9 +14,9 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import sanitizeHtml from 'sanitize-html';
+import { useSearch } from './context/SearchContext.tsx';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
-import { useSearch } from './useSearch';
 
 const fadeOutBackground = css`
 	animation: fadeOut ease-out 15s;

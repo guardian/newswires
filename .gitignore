@@ -4,6 +4,8 @@
 !.eslintrc.js
 node_modules
 dist
+out
+coverage
 
 .idea
 

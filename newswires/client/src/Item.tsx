@@ -13,10 +13,10 @@ import {
 	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { useEffect, useMemo, useState } from 'react';
+import { useSearch } from './context/SearchContext.tsx';
 import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { paramsToQuerystring } from './urlState';
-import { useSearch } from './useSearch';
 import { WireDetail } from './WireDetail';
 
 export const Item = ({ id }: { id: string }) => {
