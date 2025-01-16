@@ -6,9 +6,9 @@ The file `./generated/apApi.ts` was generated from `ap-swagger.json` using the f
 
 ```sh
 npx swagger-typescript-api \
-    -p ./poller-lambdas/src/pollers/AP/ap-swagger.json \
-    -o ./poller-lambdas/src/pollers/AP/generated \
-    -n apApi.ts \
+    --path ./poller-lambdas/src/pollers/ap/ap-swagger.json \
+    --output ./poller-lambdas/src/pollers/ap/generated \
+    --name apApi.ts \
     --union-enums \
     --extract-response-body \
     --extract-response-error \
