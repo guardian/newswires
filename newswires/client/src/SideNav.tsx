@@ -16,7 +16,7 @@ import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { SearchBox } from './SearchBox';
-import { brandColours } from './sharedStyles';
+import { AAPBrand, APBrand, PABrand, reutersBrand } from './sharedStyles';
 import type { Query } from './sharedTypes';
 
 function decideLabelForQueryBadge(query: Query): string {
@@ -28,7 +28,36 @@ function decideLabelForQueryBadge(query: Query): string {
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
-const recognisedSuppliers = ['REUTERS', 'AP', 'AAP', 'PA'];
+const supplierData: Record<
+	string,
+	{
+		label: string;
+		colour: string;
+	}
+> = {
+	REUTERS: { label: 'Reuters', colour: reutersBrand },
+	AP: {
+		label: 'AP',
+		colour: APBrand,
+	},
+	AAP: {
+		label: 'AAP',
+		colour: AAPBrand,
+	},
+	PA: {
+		label: 'PA',
+		colour: PABrand,
+	},
+	GuAP: {
+		label: 'AP (Gu)',
+		colour: APBrand,
+	},
+	GuReuters: {
+		label: 'Reuters (Gu)',
+		colour: reutersBrand,
+	},
+};
+const recognisedSuppliers = Object.keys(supplierData);
 const buckets = [
 	{ id: 'no-sports', name: 'No Sports' },
 	{ id: 'pa-home', name: 'PA Home' },
@@ -98,11 +127,11 @@ export const SideNav = () => {
 				onClick: () => handleEnterQuery({ ...config.query, supplier: [] }),
 				colour: 'black',
 			},
-			...recognisedSuppliers.map((supplier) => ({
-				label: supplier,
+			...Object.entries(supplierData).map(([supplier, { label, colour }]) => ({
+				label,
 				isActive:
 					activeSuppliers.includes(supplier) || activeSuppliers.length === 0,
-				colour: brandColours.get(supplier) ?? 'black',
+				colour: colour,
 				onClick: () => toggleSupplier(supplier),
 			})),
 		],

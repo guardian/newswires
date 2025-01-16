@@ -15,6 +15,7 @@ object SourceFeedSupplierMapping {
 
   private val lookup = Map(
     "REUTERS" -> List("REUTERS"),
+    "GUREUTERS" -> List("Reuters-Newswires"),
     "AAP" -> List("AAP"),
     "AP" -> List(
       "ADVIS",
@@ -61,6 +62,9 @@ object SourceFeedSupplierMapping {
       "WASH",
       "WEATHER",
       "WORLD"
+    ),
+    "GUAP" -> List( // for feeds coming from our own poller
+      "AP-Newswires"
     ),
     "PA" -> List(
       "PA",
