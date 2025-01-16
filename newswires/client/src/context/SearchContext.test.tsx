@@ -1,5 +1,6 @@
 import { act, render } from '@testing-library/react';
 import type React from 'react';
+import { flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
 
@@ -16,15 +17,6 @@ global.fetch = jest.fn(() =>
 ) as jest.Mock;
 
 describe('SearchContext', () => {
-	/**
-	 * Flushes pending promises by resolving the current microtask queue.
-	 * Useful in unit tests to ensure all async operations and state updates have completed.
-	 */
-	const flushPendingPromises = async () =>
-		act(async () => {
-			await Promise.resolve();
-		});
-
 	const renderWithContext = async () => {
 		const contextRef = { current: null as SearchContextShape | null };
 

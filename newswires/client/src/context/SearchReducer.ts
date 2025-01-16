@@ -7,25 +7,26 @@ function mergeQueryData(
 	existing: WiresQueryResponse | undefined,
 	newData: WiresQueryResponse,
 ): WiresQueryResponse {
-	const mergedResults = existing
-		? [
-				...newData.results
-					.filter(
-						(newItem) =>
-							!existing.results
-								.map((existing) => existing.id)
-								.includes(newItem.id),
-					)
-					.map((newItem) => ({ ...newItem, isFromRefresh: true })),
-				...existing.results.map((existingItem) => ({
-					...existingItem,
-				})),
-			]
-		: newData.results;
-	return {
-		...newData,
-		results: mergedResults,
-	};
+	if (existing) {
+		const existingIds = new Set(existing.results.map((item) => item.id));
+
+		const mergedResults = [
+			...newData.results
+				.filter((newItem) => !existingIds.has(newItem.id))
+				.map((newItem) => ({ ...newItem, isFromRefresh: true })),
+			...existing.results,
+		];
+
+		return {
+			...newData,
+			results: mergedResults,
+		};
+	} else {
+		return {
+			...newData,
+			results: newData.results,
+		};
+	}
 }
 
 function getUpdatedHistory(

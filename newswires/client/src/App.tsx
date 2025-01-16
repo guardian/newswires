@@ -103,7 +103,6 @@ export function App() {
 							border-radius: 0;
 							background: #fdf6d8;
 						`}
-						onClose={() => {}}
 					>
 						<p>
 							The application is no longer retrieving updates. Data

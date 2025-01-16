@@ -265,7 +265,7 @@ const SingleSearchAsListOfBadges = ({
 };
 
 const SearchQueryBadges = ({ query }: { query: Query }) => {
-	const { handleEnterQuery } = searchContext();
+	const { handleEnterQuery } = useSearch();
 	const { q, subject } = query;
 
 	if (q.length === 0 && subject.length === 0) {

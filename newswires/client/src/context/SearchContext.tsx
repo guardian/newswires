@@ -15,8 +15,8 @@ import {
 	WiresQueryResponseSchema,
 } from '../sharedTypes.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
-import { SearchReducer } from './SearchReducer.ts';
 import { fetchResults } from './fetchResults.ts';
+import { SearchReducer } from './SearchReducer.ts';
 
 const SearchHistorySchema = z.array(
 	z.object({
@@ -108,6 +108,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	const [currentConfig, setConfig] = useState<Config>(
 		urlToConfig(window.location),
 	);
+
 	const [state, dispatch] = useReducer(SearchReducer, {
 		error: undefined,
 		queryData: undefined,
