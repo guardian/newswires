@@ -182,13 +182,6 @@ function itemWithContentToDesiredOutput({
 
 	const keywordsAsArray = keywords?.flatMap((k) => k.split(' ')) ?? [];
 
-	const categoryCodes =
-		subject
-			?.filter(
-				(s) => s.rels?.includes('category') ?? s.rels?.includes('suppcategory'),
-			)
-			.map((s) => s.code) ?? [];
-
 	const amalgamatedKeywords = [...directSubjects, ...keywordsAsArray];
 
 	return {
@@ -204,7 +197,6 @@ function itemWithContentToDesiredOutput({
 			byline: bylineToUse,
 			priority: editorialpriority,
 			keywords: amalgamatedKeywords,
-			mediaCatCodes: categoryCodes.join(','),
 			body_text: bodyContentHtml,
 			abstract,
 			originalContentText: originalXmlContent,
