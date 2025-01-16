@@ -32,12 +32,9 @@ jobs:
           cache-dependency-path: "./package-lock.json"
           node-version-file: ".nvmrc"
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version-file: ".java-version"
-          distribution: "corretto"
-          cache: "sbt"
+      # See https://github.com/guardian/setup-scala
+      - name: Setup Java and sbt
+        uses: guardian/setup-scala@v1
 
       - name: Lint and test
         run: |
