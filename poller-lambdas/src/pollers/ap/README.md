@@ -2,7 +2,7 @@
 
 ## Generating API types from swagger definition
 
-The file `./apApi.ts` was generated from `ap-swagger.json` using the following command, run from the repo root:
+The file `./generated/apApi.ts` was generated from `ap-swagger.json` using the following command, run from the repo root:
 
 ```sh
 npx swagger-typescript-api \
