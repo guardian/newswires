@@ -12,12 +12,12 @@ export type ContentFromNitf = {
 
 export function nitfBlockToHtml(block: HTMLElement): string {
 	const clonedBlock = block.clone() as HTMLElement;
-	Array.from(clonedBlock.querySelectorAll('hl2')).forEach(
-		(hl2) => (hl2.tagName = 'h2'),
-	);
-	Array.from(clonedBlock.querySelectorAll('media,media-reference')).forEach(
-		(mediaTag) => mediaTag.remove(),
-	);
+	for (const hl2 of clonedBlock.querySelectorAll('hl2')) {
+		hl2.tagName = 'h2';
+	}
+	for (const mediaTag of clonedBlock.querySelectorAll('media,media-reference')) {
+		mediaTag.remove();
+	}
 	return clonedBlock.innerHTML
 		.split('\n')
 		.map((_) => _.trim())
