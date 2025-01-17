@@ -56,45 +56,6 @@ export function App() {
 					max-height: 100vh;
 				`}
 			>
-				{!isPoppedOut && (
-					<EuiHeader position="fixed">
-						<EuiHeaderSection>
-							<EuiHeaderSectionItem>
-								<EuiTitle
-									size={'s'}
-									css={css`
-										padding-bottom: 3px;
-									`}
-								>
-									<h1>Newswires</h1>
-								</EuiTitle>
-							</EuiHeaderSectionItem>
-							<EuiHeaderSectionItem>
-								<SideNav />
-							</EuiHeaderSectionItem>
-						</EuiHeaderSection>
-						<EuiHeaderSectionItem>
-							{
-								<EuiButton
-									iconType={'popout'}
-									onClick={() =>
-										window.open(
-											configToUrl({
-												...config,
-												view: 'feed',
-												itemId: undefined,
-											}),
-											'_blank',
-											'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-										)
-									}
-								>
-									New ticker
-								</EuiButton>
-							}
-						</EuiHeaderSectionItem>
-					</EuiHeader>
-				)}
 				{status === 'offline' && (
 					<EuiToast
 						title="You Are Currently Offline"
@@ -102,6 +63,7 @@ export function App() {
 						css={css`
 							border-radius: 0;
 							background: #fdf6d8;
+							position: fixed;
 						`}
 					>
 						<p>
@@ -110,9 +72,55 @@ export function App() {
 						</p>
 					</EuiToast>
 				)}
-				{status !== 'error' &&
-					state.queryData &&
-					state.queryData.results.length > 0 && (
+				<div
+					css={css`
+						${status === 'offline' && 'padding-top: 84px;'}
+						height: 100%;
+						${(status === 'loading' || status === 'error') &&
+						'display: flex; align-items: center;'}
+						${status === 'loading' && 'background: white;'}
+					`}
+				>
+					{!isPoppedOut && (
+						<EuiHeader position="fixed">
+							<EuiHeaderSection>
+								<EuiHeaderSectionItem>
+									<EuiTitle
+										size={'s'}
+										css={css`
+											padding-bottom: 3px;
+										`}
+									>
+										<h1>Newswires</h1>
+									</EuiTitle>
+								</EuiHeaderSectionItem>
+								<EuiHeaderSectionItem>
+									<SideNav />
+								</EuiHeaderSectionItem>
+							</EuiHeaderSection>
+							<EuiHeaderSectionItem>
+								{
+									<EuiButton
+										iconType={'popout'}
+										onClick={() =>
+											window.open(
+												configToUrl({
+													...config,
+													view: 'feed',
+													itemId: undefined,
+												}),
+												'_blank',
+												'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+											)
+										}
+									>
+										New ticker
+									</EuiButton>
+								}
+							</EuiHeaderSectionItem>
+						</EuiHeader>
+					)}
+					{status !== 'error' && (
 						<>
 							<EuiShowFor sizes={['xs', 's']}>
 								{view === 'item' ? <Item id={selectedItemId} /> : <Feed />}
@@ -146,27 +154,32 @@ export function App() {
 							</EuiShowFor>
 						</>
 					)}
-				{status == 'error' && (
-					<EuiEmptyPrompt
-						css={css`
-							background: white;
-						`}
-						actions={[
-							<EuiButton onClick={handleRetry} key="retry" iconType={'refresh'}>
-								Retry
-							</EuiButton>,
-							<EuiButton
-								onClick={() => handleEnterQuery(defaultQuery)}
-								key="clear"
-								iconType={'cross'}
-							>
-								Clear
-							</EuiButton>,
-						]}
-						body={<p>Sorry, failed to load because of {state.error}</p>}
-						hasBorder={true}
-					/>
-				)}
+					{status == 'error' && (
+						<EuiEmptyPrompt
+							css={css`
+								background: white;
+							`}
+							actions={[
+								<EuiButton
+									onClick={handleRetry}
+									key="retry"
+									iconType={'refresh'}
+								>
+									Retry
+								</EuiButton>,
+								<EuiButton
+									onClick={() => handleEnterQuery(defaultQuery)}
+									key="clear"
+									iconType={'cross'}
+								>
+									Clear
+								</EuiButton>,
+							]}
+							body={<p>Sorry, failed to load because of {state.error}</p>}
+							hasBorder={true}
+						/>
+					)}
+				</div>
 			</EuiPageTemplate>
 		</EuiProvider>
 	);
