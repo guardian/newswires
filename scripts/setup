@@ -23,14 +23,21 @@ EOF
 setup_nginx() {
   echo "Configuring nginx"
 
-  dev-nginx setup-app "$ROOT_DIR"/nginx/nginx-mapping.yaml
+  dev-nginx setup-app "$ROOT_DIR"/newswires/nginx/nginx-mapping.yaml
   dev-nginx restart-nginx
 }
 
 setup_dependencies() {
   hash "scala-cli" 2>/dev/null || brew install Virtuslab/scala-cli/scala-cli
+
+  echo "Installing npm dependencies"
+  npm install
+  pushd "$ROOT_DIR"/newswires/client
+  npm install
+  popd
 }
 
+source "$ROOT_DIR/scripts/check-requirements"
 setup_nginx
 setup_config
 setup_dependencies
