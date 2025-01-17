@@ -50,49 +50,50 @@ function getUpdatedHistory(
 }
 
 export const SearchReducer = (state: State, action: Action): State => {
-	switch (state.status) {
-		case 'loading':
-			switch (action.type) {
-				case 'FETCH_SUCCESS':
+	switch (action.type) {
+		case 'FETCH_SUCCESS':
+			return {
+				...state,
+				queryData: action.data,
+				successfulQueryHistory: getUpdatedHistory(
+					state.successfulQueryHistory,
+					action.query,
+					action.data.results.length,
+				),
+				status: 'success',
+				error: undefined,
+			};
+		case 'TOGGLE_AUTO_UPDATE':
+			return {
+				...state,
+				autoUpdate: !state.autoUpdate,
+			};
+		case 'UPDATE_RESULTS':
+			switch (state.status) {
+				case 'success':
 					return {
 						...state,
-						queryData: action.data,
-						successfulQueryHistory: getUpdatedHistory(
-							state.successfulQueryHistory,
-							action.query,
-							action.data.results.length,
-						),
-						status: 'success',
-						error: undefined,
+						queryData: mergeQueryData(state.queryData, action.data),
 					};
-
-				case 'FETCH_ERROR':
+				case 'offline':
+				case 'error':
+					return {
+						...state,
+						status: 'success',
+						queryData: mergeQueryData(state.queryData, action.data),
+					};
+				default:
+					return state;
+			}
+		case 'FETCH_ERROR':
+			switch (state.status) {
+				case 'loading':
 					return {
 						...state,
 						error: action.error,
 						status: 'error',
 					};
-				default:
-					return state;
-			}
-		case 'success':
-			switch (action.type) {
-				case 'UPDATE_RESULTS':
-					return {
-						...state,
-						queryData: mergeQueryData(state.queryData, action.data),
-					};
-				case 'ENTER_QUERY':
-					return {
-						...state,
-						status: 'loading',
-					};
-				case 'TOGGLE_AUTO_UPDATE':
-					return {
-						...state,
-						autoUpdate: !state.autoUpdate,
-					};
-				case 'FETCH_ERROR':
+				case 'success':
 					return {
 						...state,
 						error: action.error,
@@ -101,31 +102,9 @@ export const SearchReducer = (state: State, action: Action): State => {
 				default:
 					return state;
 			}
-		case 'offline':
-			switch (action.type) {
-				case 'UPDATE_RESULTS':
-					return {
-						...state,
-						status: 'success',
-						queryData: mergeQueryData(state.queryData, action.data),
-					};
-				default:
-					return state;
-			}
-		case 'error':
-			switch (action.type) {
-				case 'UPDATE_RESULTS':
-					return {
-						...state,
-						status: 'success',
-						queryData: mergeQueryData(state.queryData, action.data),
-					};
-				case 'RETRY':
-					return {
-						...state,
-						status: 'loading',
-					};
-				case 'ENTER_QUERY':
+		case 'RETRY':
+			switch (state.status) {
+				case 'error':
 					return {
 						...state,
 						status: 'loading',
@@ -133,6 +112,11 @@ export const SearchReducer = (state: State, action: Action): State => {
 				default:
 					return state;
 			}
+		case 'ENTER_QUERY':
+			return {
+				...state,
+				status: 'loading',
+			};
 		default:
 			return state;
 	}
