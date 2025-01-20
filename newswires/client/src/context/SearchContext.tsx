@@ -170,12 +170,13 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		if (state.status === 'success' || state.status === 'offline') {
 			pollingInterval = setInterval(() => {
 				if (state.autoUpdate) {
-					fetchResults(
-						currentConfig.query,
-						Math.max(
-							...state.queryData.results.map((wire) => wire.id),
-						).toString(),
-					)
+					const sinceId =
+						state.queryData.results.length > 0
+							? Math.max(
+									...state.queryData.results.map((wire) => wire.id),
+								).toString()
+							: undefined;
+					fetchResults(currentConfig.query, sinceId)
 						.then((data) => {
 							dispatch({ type: 'UPDATE_RESULTS', data });
 						})
