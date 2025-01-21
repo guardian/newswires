@@ -48,7 +48,7 @@ export const processKeywords = (
 
 const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
-		const json = JSON.parse(body) as unknown as Record<string, unknown>;
+		const json = JSON.parse(body) as Record<string, unknown>;
 		const preprocessedKeywords = processKeywords(
 			json.keywords as string | string[] | undefined,
 		); // if it's not one of these, we probably want to throw an error
