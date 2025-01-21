@@ -48,8 +48,10 @@ case class FingerpostWire(
     language: Option[String],
     usage: Option[String],
     location: Option[String],
-    bodyText: Option[String],
-    ednote: Option[String]
+    ednote: Option[String],
+    mediaCatCodes: Option[String],
+    `abstract`: Option[String],
+    bodyText: Option[String]
 )
 object FingerpostWire {
   // rename a couple of fields

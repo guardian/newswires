@@ -48,7 +48,7 @@ export const WireDetail = ({
 		<Fragment>
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
-					{JSON.stringify(wire.content, null, 2)}
+					{JSON.stringify(wire, null, 2)}
 				</EuiCodeBlock>
 			) : (
 				<>
