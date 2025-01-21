@@ -1,5 +1,6 @@
 import { parse } from 'node-html-parser';
 import { z } from 'zod';
+import { REUTERS_POLLING_FREQUENCY_IN_SECONDS } from '../../../../shared/pollers';
 import type { IngestorInputBody } from '../../../../shared/types';
 import type {
 	FixedFrequencyPollFunction,
@@ -14,8 +15,10 @@ import { auth } from './auth';
  * versionProcessed: timestamp when this version was processed in our internal systems
  * versionedGuid: The globally unique identifier of the target item (guid) which also includes the version identifier
  */
-const textItemsSearchQuery = `query NewTextItemsSearch {
-search(filter: { mediaTypes: TEXT }) {
+const textItemsSearchQuery = (cursor?: string) => `query NewTextItemsSearch {
+search(${
+	cursor ? `cursor: "${cursor}", ` : ''
+}filter: { mediaTypes: TEXT, maxAge: "${REUTERS_POLLING_FREQUENCY_IN_SECONDS * 1.2}s" }) {
 	pageInfo {
 		endCursor
 		hasNextPage
@@ -38,6 +41,10 @@ const NullishToStringOrUndefinedSchema = z
 const SearchDataSchema = z.object({
 	data: z.object({
 		search: z.object({
+			pageInfo: z.object({
+				endCursor: NullishToStringOrUndefinedSchema,
+				hasNextPage: z.boolean(),
+			}),
 			items: z.array(
 				z.object({
 					caption: NullishToStringOrUndefinedSchema,
@@ -146,8 +153,6 @@ function itemResponseToIngestionLambdaInput(
 		usn: item.usn,
 		version: item.version,
 		type: item.type,
-		format: 'TODO',
-		mimeType: 'TODO',
 		firstVersion: item.firstCreated,
 		versionCreated: item.versionCreated,
 		dateTimeSent: item.versionCreated,
@@ -227,11 +232,49 @@ export const reutersPoller = (async (
 		return (await searchResponse.json()) as unknown;
 	}
 
-	const searchData = SearchDataSchema.parse(
-		await fetchWithReauth(textItemsSearchQuery),
-	);
+	async function* fetchAllPages(query: string) {
+		let cursor: string | undefined = undefined;
+		let hasNextPage = true;
+		const {
+			success,
+			error,
+			data: searchData,
+		} = SearchDataSchema.safeParse(await fetchWithReauth(query));
+		if (!success) {
+			console.error('Failed to parse search data', error);
+			return;
+		}
+		yield searchData;
+		cursor = searchData.data.search.pageInfo.endCursor;
+		hasNextPage = searchData.data.search.pageInfo.hasNextPage;
+		while (hasNextPage) {
+			const nextQuery = textItemsSearchQuery(cursor);
+			const {
+				success,
+				error,
+				data: nextData,
+			} = SearchDataSchema.safeParse(await fetchWithReauth(nextQuery));
+			if (!success) {
+				console.error('Failed to parse search data', error);
+				return;
+			}
+			yield nextData;
+			cursor = nextData.data.search.pageInfo.endCursor;
+			hasNextPage = nextData.data.search.pageInfo.hasNextPage;
+		}
+		return;
+	}
 
-	const itemsToFetch = searchData.data.search.items
+	const searchData = [];
+	for await (const page of fetchAllPages(textItemsSearchQuery())) {
+		const { data, success } = SearchDataSchema.safeParse(page);
+		if (!success) {
+			throw new Error('Failed to parse search data');
+		}
+		searchData.push(...data.data.search.items);
+	}
+
+	const itemsToFetch = searchData
 		.map((item) => item.versionedGuid)
 		.filter((guid): guid is string => guid !== undefined);
 
@@ -247,7 +290,7 @@ export const reutersPoller = (async (
 			body: itemResponseToIngestionLambdaInput(response.data.item),
 		})),
 		valueForNextPoll: input,
-		idealFrequencyInSeconds: 60,
+		idealFrequencyInSeconds: REUTERS_POLLING_FREQUENCY_IN_SECONDS,
 		newSecretValue:
 			accessToken === ACCESS_TOKEN
 				? undefined
