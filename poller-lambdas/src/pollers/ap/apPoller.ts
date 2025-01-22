@@ -169,6 +169,7 @@ function itemWithContentToDesiredOutput({
 		ednote,
 		subject,
 		keywords,
+		associations,
 	} = feedItem;
 
 	const { abstract, bodyContentHtml } = contentFromNitf;
@@ -201,6 +202,12 @@ function itemWithContentToDesiredOutput({
 			abstract,
 			originalContentText: originalXmlContent,
 			ednote,
+			imageIds: associations
+				? Object.keys(associations)
+						.filter(key  => associations[key]?.type === 'picture')
+						.map((key) => associations[key]?.altids?.itemid)
+						.filter((item): item is string => item !== undefined)
+				: [],
 		},
 	};
 }

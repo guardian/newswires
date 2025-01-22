@@ -56,6 +56,7 @@ const FingerpostFeedPayloadSchema = z.object({
 
 export const IngestorInputBodySchema = FingerpostFeedPayloadSchema.extend({
 	originalContentText: z.string().optional(),
+	imageIds:  z.array(z.string()).default([]),
 });
 
 const WireEntryContentSchema = IngestorInputBodySchema.omit({
