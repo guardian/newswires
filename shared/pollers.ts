@@ -23,9 +23,11 @@ export type PollerConfig = PollerLambdaProps & {
 
 export type PollerId = keyof typeof POLLERS_CONFIG;
 
+export const REUTERS_POLLING_FREQUENCY_IN_SECONDS = 60;
+
 export const POLLERS_CONFIG = {
 	// EXAMPLE_long_polling: {},
 	// EXAMPLE_fixed_frequency: { idealFrequencyInSeconds: 30 },
-	reuters: { idealFrequencyInSeconds: 60 },
+	reuters: { idealFrequencyInSeconds: REUTERS_POLLING_FREQUENCY_IN_SECONDS },
 	apPoller: {},
 } as const satisfies Record<string, PollerConfig>; // used to generate lambda etc. per agency, with config mapped
