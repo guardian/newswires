@@ -44,6 +44,13 @@ const StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 	}),
 	z.object({
+		status: z.literal('loading-more'),
+		error: z.string().optional(),
+		queryData: WiresQueryResponseSchema,
+		successfulQueryHistory: SearchHistorySchema,
+		autoUpdate: z.boolean().default(true),
+	}),
+	z.object({
 		status: z.literal('success'),
 		error: z.string().optional(),
 		queryData: WiresQueryResponseSchema,
@@ -72,9 +79,14 @@ export type State = z.infer<typeof StateSchema>;
 // Action Schema
 const ActionSchema = z.discriminatedUnion('type', [
 	z.object({ type: z.literal('ENTER_QUERY') }),
+	z.object({ type: z.literal('LOAD_MORE_RESULTS') }),
 	z.object({
 		type: z.literal('FETCH_SUCCESS'),
 		query: QuerySchema,
+		data: WiresQueryResponseSchema,
+	}),
+	z.object({
+		type: z.literal('APPEND_RESULTS'),
 		data: WiresQueryResponseSchema,
 	}),
 	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
@@ -100,6 +112,7 @@ export type SearchContextShape = {
 	handleNextItem: () => void;
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
+	loadMoreResults: () => void;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -167,7 +180,27 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				});
 		}
 
-		if (state.status === 'success' || state.status === 'offline') {
+		if (state.status === 'loading-more') {
+			fetchResults(currentConfig.query, {
+				beforeId: Math.min(
+					...state.queryData.results.map((wire) => wire.id),
+				).toString(),
+			})
+				.then((data) => {
+					dispatch({ type: 'APPEND_RESULTS', data });
+				})
+				.catch((error) => {
+					const errorMessage =
+						error instanceof Error ? error.message : 'unknown error';
+					dispatch({ type: 'FETCH_ERROR', error: errorMessage });
+				});
+		}
+
+		if (
+			state.status === 'success' ||
+			state.status === 'offline' ||
+			state.status === 'loading-more'
+		) {
 			pollingInterval = setInterval(() => {
 				if (state.autoUpdate) {
 					const sinceId =
@@ -274,6 +307,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'TOGGLE_AUTO_UPDATE' });
 	};
 
+	const loadMoreResults = () => {
+		dispatch({ type: 'LOAD_MORE_RESULTS' });
+	};
+
 	return (
 		<SearchContext.Provider
 			value={{
@@ -286,6 +323,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				handleNextItem,
 				handlePreviousItem,
 				toggleAutoUpdate,
+				loadMoreResults,
 			}}
 		>
 			{children}

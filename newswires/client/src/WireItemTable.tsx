@@ -1,4 +1,5 @@
 import {
+	EuiButton,
 	EuiFlexGroup,
 	euiScreenReaderOnly,
 	EuiTable,
@@ -31,38 +32,54 @@ const fadeOutBackground = css`
 `;
 
 export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
-	const { config, handleSelectItem } = useSearch();
+	const {
+		config,
+		handleSelectItem,
+		state: { status },
+		loadMoreResults,
+	} = useSearch();
 
 	const selectedWireId = config.itemId;
 
 	return (
-		<EuiTable
-			tableLayout="auto"
-			responsiveBreakpoint={config.view === 'item' ? true : 'm'}
-		>
-			<EuiTableHeader
-				css={css`
-					${euiScreenReaderOnly()}
-				`}
+		<>
+			<EuiTable
+				tableLayout="auto"
+				responsiveBreakpoint={config.view === 'item' ? true : 'm'}
 			>
-				<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
-				<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
-			</EuiTableHeader>
-			<EuiTableBody>
-				{wires.map(({ id, supplier, content, isFromRefresh, highlight }) => (
-					<WireDataRow
-						key={id}
-						id={id}
-						supplier={supplier}
-						content={content}
-						isFromRefresh={isFromRefresh}
-						highlight={highlight}
-						selected={selectedWireId == id.toString()}
-						handleSelect={handleSelectItem}
-					/>
-				))}
-			</EuiTableBody>
-		</EuiTable>
+				<EuiTableHeader
+					css={css`
+						${euiScreenReaderOnly()}
+					`}
+				>
+					<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
+					<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
+				</EuiTableHeader>
+				<EuiTableBody>
+					{wires.map(({ id, supplier, content, isFromRefresh, highlight }) => (
+						<WireDataRow
+							key={id}
+							id={id}
+							supplier={supplier}
+							content={content}
+							isFromRefresh={isFromRefresh}
+							highlight={highlight}
+							selected={selectedWireId == id.toString()}
+							handleSelect={handleSelectItem}
+						/>
+					))}
+				</EuiTableBody>
+			</EuiTable>
+			<EuiButton
+				isLoading={status === 'loading-more'}
+				css={css`
+					margin-top: 12px;
+				`}
+				onClick={loadMoreResults}
+			>
+				{status === 'loading-more' ? 'Loading' : 'Load more'}
+			</EuiButton>
+		</>
 	);
 };
 

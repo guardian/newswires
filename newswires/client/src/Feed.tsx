@@ -25,7 +25,9 @@ export const Feed = () => {
 						titleSize="s"
 					/>
 				)}
-			{(status == 'success' || status == 'offline') &&
+			{(status == 'success' ||
+				status == 'offline' ||
+				status == 'loading-more') &&
 				queryData.results.length > 0 && (
 					<WireItemTable wires={queryData.results} />
 				)}

@@ -70,7 +70,13 @@ export const configToUrl = (config: Config): string => {
 
 export const paramsToQuerystring = (
 	config: Query,
-	sinceId: number | undefined = undefined,
+	{
+		sinceId,
+		beforeId,
+	}: {
+		sinceId?: string;
+		beforeId?: string;
+	} = {},
 ): string => {
 	const params = Object.entries(config).reduce<Array<[string, string]>>(
 		(acc, [k, v]) => {
@@ -89,7 +95,10 @@ export const paramsToQuerystring = (
 		[],
 	);
 	if (sinceId !== undefined) {
-		params.push(['sinceId', sinceId.toString()]);
+		params.push(['sinceId', sinceId]);
+	}
+	if (beforeId !== undefined) {
+		params.push(['beforeId', beforeId]);
 	}
 	const querystring = new URLSearchParams(params).toString();
 	return querystring.length !== 0 ? `?${querystring}` : '';
