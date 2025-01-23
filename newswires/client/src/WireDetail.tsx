@@ -6,13 +6,17 @@ import {
 	EuiDescriptionListTitle,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiListGroupItem,
+	EuiPanel,
 	EuiScreenReaderLive,
 	EuiSpacer,
+	EuiText,
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { Fragment, useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import type { WireData } from './sharedTypes';
 
 export const WireDetail = ({
@@ -23,7 +27,7 @@ export const WireDetail = ({
 	isShowingJson: boolean;
 }) => {
 	const theme = useEuiTheme();
-	const { byline, keywords, usage, ednote } = wire.content;
+	const { byline, keywords, usage, ednote, subjects } = wire.content;
 
 	const safeBodyText = useMemo(() => {
 		return wire.content.bodyText
@@ -42,6 +46,11 @@ export const WireDetail = ({
 	const nonEmptyKeywords = useMemo(
 		() => keywords?.filter((keyword) => keyword.trim().length > 0) ?? [],
 		[keywords],
+	);
+
+	const nonEmptySubjects = useMemo(
+		() => subjects?.code.filter((subject) => subject.trim().length > 0) ?? [],
+		[subjects],
 	);
 
 	return (
@@ -91,6 +100,51 @@ export const WireDetail = ({
 								<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
 								<EuiDescriptionListDescription>
 									{byline}
+								</EuiDescriptionListDescription>
+							</>
+						)}
+						{nonEmptySubjects.length > 0 && (
+							<>
+								<EuiDescriptionListTitle>Subjects</EuiDescriptionListTitle>
+								<EuiDescriptionListDescription>
+									<EuiPanel>
+										<section
+											css={css`
+												max-height: 200px;
+												overflow-y: auto;
+											`}
+										>
+											<EuiDescriptionList>
+												{nonEmptySubjects.map((subject) => (
+													<>
+														<EuiDescriptionListTitle>
+															<EuiText size="s">{subject}</EuiText>
+														</EuiDescriptionListTitle>
+														<EuiDescriptionListDescription key={subject}>
+															{lookupCatCodesWideSearch(subject).length > 0 ? (
+																<>
+																	{lookupCatCodesWideSearch(subject).map(
+																		(category) => (
+																			<EuiListGroupItem
+																				key={category}
+																				label={category}
+																				size="xs"
+																				iconType={'dot'}
+																			></EuiListGroupItem>
+																		),
+																	)}
+																</>
+															) : (
+																<EuiText color="danger" key={subject} size="xs">
+																	No category label found
+																</EuiText>
+															)}
+														</EuiDescriptionListDescription>
+													</>
+												))}
+											</EuiDescriptionList>
+										</section>
+									</EuiPanel>
 								</EuiDescriptionListDescription>
 							</>
 						)}
