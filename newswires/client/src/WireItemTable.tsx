@@ -1,24 +1,17 @@
 import {
+	EuiBadge,
 	EuiButton,
-	EuiFlexGroup,
-	euiScreenReaderOnly,
-	EuiTable,
-	EuiTableBody,
-	EuiTableHeader,
-	EuiTableHeaderCell,
-	EuiTableRow,
-	EuiTableRowCell,
 	EuiText,
-	EuiTitle,
 	useEuiBackgroundColor,
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
 import { formatTimestamp } from './formatTimestamp';
 import type { WireData } from './sharedTypes';
+import { getSupplierInfo } from './suppliers.ts';
 
 const fadeOutBackground = css`
 	animation: fadeOut ease-out 15s;
@@ -33,7 +26,7 @@ const fadeOutBackground = css`
 `;
 
 export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
-	const { config, handleSelectItem, loadMoreResults } = useSearch();
+	const { config, loadMoreResults } = useSearch();
 
 	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
@@ -53,33 +46,20 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 
 	return (
 		<>
-			<EuiTable
-				tableLayout="auto"
-				responsiveBreakpoint={config.view === 'item' ? true : 'm'}
-			>
-				<EuiTableHeader
-					css={css`
-						${euiScreenReaderOnly()}
-					`}
-				>
-					<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
-					<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
-				</EuiTableHeader>
-				<EuiTableBody>
-					{wires.map(({ id, supplier, content, isFromRefresh, highlight }) => (
-						<WireDataRow
-							key={id}
+			<ul>
+				{wires.map(({ id, content, supplier, highlight, isFromRefresh }) => (
+					<li key={id}>
+						<WirePreviewCard
 							id={id}
 							supplier={supplier}
 							content={content}
 							isFromRefresh={isFromRefresh}
 							highlight={highlight}
 							selected={selectedWireId == id.toString()}
-							handleSelect={handleSelectItem}
 						/>
-					))}
-				</EuiTableBody>
-			</EuiTable>
+					</li>
+				))}
+			</ul>
 			<EuiButton
 				isLoading={isLoadingMore}
 				css={css`
@@ -93,14 +73,13 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 	);
 };
 
-const WireDataRow = ({
+const WirePreviewCard = ({
 	id,
 	supplier,
 	content,
 	highlight,
 	selected,
 	isFromRefresh,
-	handleSelect,
 }: {
 	id: number;
 	supplier: string;
@@ -108,51 +87,95 @@ const WireDataRow = ({
 	highlight: string;
 	selected: boolean;
 	isFromRefresh: boolean;
-	handleSelect: (id: string) => void;
 }) => {
+	const { config, Link } = useSearch();
+	const ref = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (selected && ref.current) {
+			ref.current.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest',
+			});
+		}
+	}, [selected]);
+
 	const theme = useEuiTheme();
-	const primaryBgColor = useEuiBackgroundColor('primary');
 	const accentBgColor = useEuiBackgroundColor('accent');
+
+	const supplierInfo = getSupplierInfo(supplier);
+
+	const supplierLabel = supplierInfo?.label ?? supplier;
+	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
 
 	const hasSlug = content.slug && content.slug.length > 0;
 
-	return (
-		<EuiTableRow
-			key={id}
-			onClick={() => {
-				handleSelect(id.toString());
-			}}
-			color={selected ? accentBgColor : 'inherit'}
-			css={css`
-				&:hover {
-					background-color: ${primaryBgColor};
-					border-left: 4px solid ${theme.euiTheme.colors.accent};
-				}
+	const mainHeadingContent = hasSlug ? content.slug : content.headline;
 
-				border-left: 4px solid
-					${selected ? theme.euiTheme.colors.primary : 'transparent'};
-				${isFromRefresh ? fadeOutBackground : ''}
-			`}
-		>
-			<EuiTableRowCell valign="baseline">
-				<EuiFlexGroup direction="column" gutterSize="xs">
-					<EuiTitle size="xxs">
-						<h3>
-							{hasSlug ? content.slug : (content.headline ?? 'No headline')} [
-							{supplier}]
-						</h3>
-					</EuiTitle>
-					{hasSlug && (
-						<EuiText size="s">
-							<p>{content.headline}</p>
-						</EuiText>
-					)}
-					{highlight.trim().length > 0 && (
+	const cardGrid = css`
+		display: grid;
+		gap: 0.5rem;
+		align-items: baseline;
+		grid-template-areas: 'badge title date' 'content content content';
+		grid-template-columns: min-content 1fr auto;
+		grid-template-rows: auto auto;
+	`;
+
+	return (
+		<Link to={{ ...config, view: 'item', itemId: id.toString() }}>
+			<div
+				ref={ref}
+				css={[
+					cardGrid,
+					css`
+						&:hover {
+							background-color: ${theme.euiTheme.colors.lightestShade};
+							border-left: 4px solid ${theme.euiTheme.colors.accent};
+						}
+						border-left: 4px solid
+							${selected ? theme.euiTheme.colors.primary : 'transparent'};
+						border-bottom: 1px solid ${theme.euiTheme.colors.mediumShade};
+						padding: 0.5rem;
+						box-sizing: content-box;
+						color: ${theme.euiTheme.colors.text};
+						background-color: ${selected ? accentBgColor : 'inherit'};
+						${isFromRefresh ? fadeOutBackground : ''}
+					`,
+				]}
+			>
+				<EuiBadge color={supplierColour}>{supplierLabel}</EuiBadge>
+				<h3>
+					<p>{mainHeadingContent}</p>
+				</h3>
+				{content.versionCreated
+					? formatTimestamp(content.versionCreated)
+							.split(', ')
+							.map((part) => (
+								<EuiText
+									size="xs"
+									key={part}
+									css={css`
+										padding-left: 5px;
+									`}
+								>
+									{part}
+								</EuiText>
+							))
+					: ''}
+				<div
+					css={css`
+						grid-area: content;
+					`}
+				>
+					{hasSlug && <p>{content.headline}</p>}
+					{highlight && highlight.trim().length > 0 && (
 						<EuiText
 							size="xs"
 							css={css`
-								padding-left: 5px;
+								margin-top: 0.1rem;
+								padding: 0.1rem 0.5rem;
 								background-color: ${theme.euiTheme.colors.highlight};
+								justify-self: start;
 							`}
 						>
 							<p
@@ -160,25 +183,8 @@ const WireDataRow = ({
 							/>
 						</EuiText>
 					)}
-				</EuiFlexGroup>
-			</EuiTableRowCell>
-			<EuiTableRowCell align="right" valign="baseline">
-				{content.versionCreated
-					? formatTimestamp(content.versionCreated)
-							.split(', ')
-							.map((part) => (
-								<EuiText
-									size="xs"
-									css={css`
-										white-space: pre;
-									`}
-									key={part}
-								>
-									{part}
-								</EuiText>
-							))
-					: ''}
-			</EuiTableRowCell>
-		</EuiTableRow>
+				</div>
+			</div>
+		</Link>
 	);
 };

@@ -16,8 +16,8 @@ import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { SearchBox } from './SearchBox';
-import { AAPBrand, APBrand, PABrand, reutersBrand } from './sharedStyles';
 import type { Query } from './sharedTypes';
+import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q, bucket } = query;
@@ -28,36 +28,6 @@ function decideLabelForQueryBadge(query: Query): string {
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
-const supplierData: Record<
-	string,
-	{
-		label: string;
-		colour: string;
-	}
-> = {
-	REUTERS: { label: 'Reuters', colour: reutersBrand },
-	AP: {
-		label: 'AP',
-		colour: APBrand,
-	},
-	AAP: {
-		label: 'AAP',
-		colour: AAPBrand,
-	},
-	PA: {
-		label: 'PA',
-		colour: PABrand,
-	},
-	GuAP: {
-		label: 'AP (Gu)',
-		colour: APBrand,
-	},
-	GuReuters: {
-		label: 'Reuters (Gu)',
-		colour: reutersBrand,
-	},
-};
-const recognisedSuppliers = Object.keys(supplierData);
 const buckets = [
 	{ id: 'no-sports', name: 'No Sports' },
 	{ id: 'pa-home', name: 'PA Home' },
