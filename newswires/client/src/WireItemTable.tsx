@@ -1,4 +1,5 @@
 import {
+	EuiButton,
 	EuiFlexGroup,
 	euiScreenReaderOnly,
 	EuiTable,
@@ -13,6 +14,7 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
 import { formatTimestamp } from './formatTimestamp';
@@ -31,38 +33,63 @@ const fadeOutBackground = css`
 `;
 
 export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
-	const { config, handleSelectItem } = useSearch();
+	const { config, handleSelectItem, loadMoreResults } = useSearch();
+
+	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
 	const selectedWireId = config.itemId;
 
+	const handleLoadMoreResults = () => {
+		if (wires.length > 0) {
+			setIsLoadingMore(true);
+
+			const beforeId = Math.min(...wires.map((wire) => wire.id)).toString();
+
+			void loadMoreResults(beforeId).finally(() => {
+				setIsLoadingMore(false);
+			});
+		}
+	};
+
 	return (
-		<EuiTable
-			tableLayout="auto"
-			responsiveBreakpoint={config.view === 'item' ? true : 'm'}
-		>
-			<EuiTableHeader
-				css={css`
-					${euiScreenReaderOnly()}
-				`}
+		<>
+			<EuiTable
+				tableLayout="auto"
+				responsiveBreakpoint={config.view === 'item' ? true : 'm'}
 			>
-				<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
-				<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
-			</EuiTableHeader>
-			<EuiTableBody>
-				{wires.map(({ id, supplier, content, isFromRefresh, highlight }) => (
-					<WireDataRow
-						key={id}
-						id={id}
-						supplier={supplier}
-						content={content}
-						isFromRefresh={isFromRefresh}
-						highlight={highlight}
-						selected={selectedWireId == id.toString()}
-						handleSelect={handleSelectItem}
-					/>
-				))}
-			</EuiTableBody>
-		</EuiTable>
+				<EuiTableHeader
+					css={css`
+						${euiScreenReaderOnly()}
+					`}
+				>
+					<EuiTableHeaderCell>Headline</EuiTableHeaderCell>
+					<EuiTableHeaderCell>Version Created</EuiTableHeaderCell>
+				</EuiTableHeader>
+				<EuiTableBody>
+					{wires.map(({ id, supplier, content, isFromRefresh, highlight }) => (
+						<WireDataRow
+							key={id}
+							id={id}
+							supplier={supplier}
+							content={content}
+							isFromRefresh={isFromRefresh}
+							highlight={highlight}
+							selected={selectedWireId == id.toString()}
+							handleSelect={handleSelectItem}
+						/>
+					))}
+				</EuiTableBody>
+			</EuiTable>
+			<EuiButton
+				isLoading={isLoadingMore}
+				css={css`
+					margin-top: 12px;
+				`}
+				onClick={handleLoadMoreResults}
+			>
+				{isLoadingMore ? 'Loading' : 'Load more'}
+			</EuiButton>
+		</>
 	);
 };
 
@@ -101,6 +128,7 @@ const WireDataRow = ({
 					background-color: ${primaryBgColor};
 					border-left: 4px solid ${theme.euiTheme.colors.accent};
 				}
+
 				border-left: 4px solid
 					${selected ? theme.euiTheme.colors.primary : 'transparent'};
 				${isFromRefresh ? fadeOutBackground : ''}

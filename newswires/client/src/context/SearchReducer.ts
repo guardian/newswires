@@ -29,6 +29,20 @@ function mergeQueryData(
 	}
 }
 
+function appendQueryData(
+	existing: WiresQueryResponse | undefined,
+	newData: WiresQueryResponse,
+): WiresQueryResponse {
+	if (existing) {
+		return {
+			...newData,
+			results: [...existing.results, ...newData.results],
+		};
+	} else {
+		return newData;
+	}
+}
+
 function getUpdatedHistory(
 	previousHistory: SearchHistory,
 	newQuery: Query,
@@ -85,6 +99,12 @@ export const SearchReducer = (state: State, action: Action): State => {
 				default:
 					return state;
 			}
+		case 'APPEND_RESULTS':
+			return {
+				...state,
+				status: 'success',
+				queryData: appendQueryData(state.queryData, action.data),
+			};
 		case 'FETCH_ERROR':
 			switch (state.status) {
 				case 'loading':

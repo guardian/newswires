@@ -77,6 +77,10 @@ const ActionSchema = z.discriminatedUnion('type', [
 		query: QuerySchema,
 		data: WiresQueryResponseSchema,
 	}),
+	z.object({
+		type: z.literal('APPEND_RESULTS'),
+		data: WiresQueryResponseSchema,
+	}),
 	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
 	z.object({ type: z.literal('RETRY') }),
 	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
@@ -100,6 +104,7 @@ export type SearchContextShape = {
 	handleNextItem: () => void;
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
+	loadMoreResults: (beforeId: string) => Promise<void>;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -176,7 +181,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 									...state.queryData.results.map((wire) => wire.id),
 								).toString()
 							: undefined;
-					fetchResults(currentConfig.query, sinceId)
+					fetchResults(currentConfig.query, { sinceId })
 						.then((data) => {
 							dispatch({ type: 'UPDATE_RESULTS', data });
 						})
@@ -274,6 +279,18 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'TOGGLE_AUTO_UPDATE' });
 	};
 
+	const loadMoreResults = async (beforeId: string): Promise<void> => {
+		return fetchResults(currentConfig.query, { beforeId })
+			.then((data) => {
+				dispatch({ type: 'APPEND_RESULTS', data });
+			})
+			.catch((error) => {
+				const errorMessage =
+					error instanceof Error ? error.message : 'unknown error';
+				dispatch({ type: 'FETCH_ERROR', error: errorMessage });
+			});
+	};
+
 	return (
 		<SearchContext.Provider
 			value={{
@@ -286,6 +303,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				handleNextItem,
 				handlePreviousItem,
 				toggleAutoUpdate,
+				loadMoreResults,
 			}}
 		>
 			{children}

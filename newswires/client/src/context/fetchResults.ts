@@ -5,12 +5,12 @@ import { paramsToQuerystring } from '../urlState.ts';
 
 export const fetchResults = async (
 	query: Query,
-	sinceId: string | undefined = undefined,
+	additionalParams: {
+		sinceId?: string;
+		beforeId?: string;
+	} = {},
 ): Promise<WiresQueryResponse> => {
-	const queryToSerialise = sinceId
-		? { ...query, sinceId: sinceId.toString() }
-		: query;
-	const queryString = paramsToQuerystring(queryToSerialise);
+	const queryString = paramsToQuerystring(query, additionalParams);
 	const response = await pandaFetch(`/api/search${queryString}`, {
 		headers: {
 			Accept: 'application/json',

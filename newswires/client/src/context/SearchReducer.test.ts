@@ -98,6 +98,31 @@ describe('SearchReducer', () => {
 		});
 	});
 
+	it(`should handle APPEND_RESULTS action in success state`, () => {
+		const state: State = {
+			...successState,
+			queryData: { results: [{ ...sampleWireData, id: 2 }] },
+		};
+
+		const action: Action = {
+			type: 'APPEND_RESULTS',
+			data: { results: [{ ...sampleWireData, id: 1 }] },
+		};
+
+		const newState = SearchReducer(state, action);
+
+		expect(newState.status).toBe('success');
+		expect(newState.queryData?.results).toHaveLength(2);
+		expect(newState.queryData?.results).toContainEqual({
+			...sampleWireData,
+			id: 1,
+		});
+		expect(newState.queryData?.results).toContainEqual({
+			...sampleWireData,
+			id: 2,
+		});
+	});
+
 	[
 		{ state: initialState, expectedStatus: 'error' },
 		{ state: successState, expectedStatus: 'offline' },
