@@ -1,4 +1,4 @@
-import type { Context, PropsWithChildren } from 'react';
+import type { Context, MouseEventHandler, PropsWithChildren } from 'react';
 import {
 	createContext,
 	useCallback,
@@ -105,6 +105,13 @@ export type SearchContextShape = {
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
+	Link: ({
+		children,
+		to,
+	}: {
+		children: React.ReactNode;
+		to: Config;
+	}) => JSX.Element;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -291,6 +298,32 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			});
 	};
 
+	const Link = ({
+		children,
+		to,
+	}: {
+		children: React.ReactNode;
+		to: Config;
+	}) => {
+		const href = configToUrl(to);
+
+		const onClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
+			(e) => {
+				if (!(e.getModifierState('Meta') || e.getModifierState('Control'))) {
+					e.preventDefault();
+					pushConfigState(to);
+				}
+			},
+			[to],
+		);
+
+		return (
+			<a href={href} onClick={onClick}>
+				{children}
+			</a>
+		);
+	};
+
 	return (
 		<SearchContext.Provider
 			value={{
@@ -304,6 +337,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				handlePreviousItem,
 				toggleAutoUpdate,
 				loadMoreResults,
+				Link,
 			}}
 		>
 			{children}
