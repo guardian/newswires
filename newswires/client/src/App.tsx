@@ -4,6 +4,7 @@ import {
 	EuiHeader,
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
+	EuiLink,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiResizableContainer,
@@ -91,7 +92,18 @@ export function App() {
 											padding-bottom: 3px;
 										`}
 									>
-										<h1>Newswires</h1>
+										<h1>
+											<EuiLink
+												href="/feed"
+												external={false}
+												css={css`
+													color: inherit;
+													font-weight: inherit;
+												`}
+											>
+												Newswires
+											</EuiLink>
+										</h1>
 									</EuiTitle>
 								</EuiHeaderSectionItem>
 								<EuiHeaderSectionItem>
