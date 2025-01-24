@@ -14,6 +14,7 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
 import { formatTimestamp } from './formatTimestamp';
@@ -32,14 +33,23 @@ const fadeOutBackground = css`
 `;
 
 export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
-	const {
-		config,
-		handleSelectItem,
-		state: { status },
-		loadMoreResults,
-	} = useSearch();
+	const { config, handleSelectItem, loadMoreResults } = useSearch();
+
+	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
 	const selectedWireId = config.itemId;
+
+	const handleLoadMoreResults = () => {
+		if (wires.length > 0) {
+			setIsLoadingMore(true);
+
+			const beforeId = Math.min(...wires.map((wire) => wire.id)).toString();
+
+			void loadMoreResults(beforeId).finally(() => {
+				setIsLoadingMore(false);
+			});
+		}
+	};
 
 	return (
 		<>
@@ -71,13 +81,13 @@ export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
 				</EuiTableBody>
 			</EuiTable>
 			<EuiButton
-				isLoading={status === 'loading-more'}
+				isLoading={isLoadingMore}
 				css={css`
 					margin-top: 12px;
 				`}
-				onClick={loadMoreResults}
+				onClick={handleLoadMoreResults}
 			>
-				{status === 'loading-more' ? 'Loading' : 'Load more'}
+				{isLoadingMore ? 'Loading' : 'Load more'}
 			</EuiButton>
 		</>
 	);
@@ -118,6 +128,7 @@ const WireDataRow = ({
 					background-color: ${primaryBgColor};
 					border-left: 4px solid ${theme.euiTheme.colors.accent};
 				}
+
 				border-left: 4px solid
 					${selected ? theme.euiTheme.colors.primary : 'transparent'};
 				${isFromRefresh ? fadeOutBackground : ''}

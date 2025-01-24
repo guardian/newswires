@@ -100,16 +100,11 @@ export const SearchReducer = (state: State, action: Action): State => {
 					return state;
 			}
 		case 'APPEND_RESULTS':
-			switch (state.status) {
-				case 'loading-more':
-					return {
-						...state,
-						status: 'success',
-						queryData: appendQueryData(state.queryData, action.data),
-					};
-				default:
-					return state;
-			}
+			return {
+				...state,
+				status: 'success',
+				queryData: appendQueryData(state.queryData, action.data),
+			};
 		case 'FETCH_ERROR':
 			switch (state.status) {
 				case 'loading':
@@ -142,18 +137,6 @@ export const SearchReducer = (state: State, action: Action): State => {
 				...state,
 				status: 'loading',
 			};
-		case 'LOAD_MORE_RESULTS':
-			switch (state.status) {
-				case 'success':
-				case 'offline':
-					return {
-						...state,
-						status: 'loading-more',
-					};
-				default:
-					return state;
-			}
-
 		default:
 			return state;
 	}

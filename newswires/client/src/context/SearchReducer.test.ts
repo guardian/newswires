@@ -15,12 +15,6 @@ describe('SearchReducer', () => {
 		queryData: { results: [sampleWireData] },
 	};
 
-	const loadingMoreState: State = {
-		...initialState,
-		status: 'loading-more',
-		queryData: { results: [sampleWireData] },
-	};
-
 	const offlineState: State = {
 		status: 'offline',
 		queryData: { results: [sampleWireData] },
@@ -104,9 +98,9 @@ describe('SearchReducer', () => {
 		});
 	});
 
-	it(`should handle APPEND_RESULTS action in loading-more state`, () => {
+	it(`should handle APPEND_RESULTS action in success state`, () => {
 		const state: State = {
-			...loadingMoreState,
+			...successState,
 			queryData: { results: [{ ...sampleWireData, id: 2 }] },
 		};
 
@@ -165,18 +159,6 @@ describe('SearchReducer', () => {
 			const newState = SearchReducer(state, action);
 
 			expect(newState.status).toBe('loading');
-		});
-	});
-
-	[successState, offlineState].forEach((state) => {
-		it(`should handle LOAD_MORE_RESULTS action in ${state.status} state`, () => {
-			const action: Action = {
-				type: 'LOAD_MORE_RESULTS',
-			};
-
-			const newState = SearchReducer(state, action);
-
-			expect(newState.status).toBe('loading-more');
 		});
 	});
 });
