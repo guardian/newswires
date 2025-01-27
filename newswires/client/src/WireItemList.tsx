@@ -9,9 +9,9 @@ import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
-import { formatTimestamp } from './formatTimestamp';
+import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
-import type { WireData } from './sharedTypes';
+import type { WireData } from './sharedTypes.ts';
 import { getSupplierInfo } from './suppliers.ts';
 
 const fadeOutBackground = css`
@@ -26,7 +26,7 @@ const fadeOutBackground = css`
 	}
 `;
 
-export const WireItemTable = ({ wires }: { wires: WireData[] }) => {
+export const WireItemList = ({ wires }: { wires: WireData[] }) => {
 	const { config, loadMoreResults } = useSearch();
 
 	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);

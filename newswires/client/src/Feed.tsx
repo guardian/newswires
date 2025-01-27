@@ -1,6 +1,6 @@
 import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
 import { useSearch } from './context/SearchContext.tsx';
-import { WireItemTable } from './WireItemTable';
+import { WireItemList } from './WireItemList.tsx';
 
 export const Feed = () => {
 	const { state } = useSearch();
@@ -27,7 +27,7 @@ export const Feed = () => {
 				)}
 			{(status == 'success' || status == 'offline') &&
 				queryData.results.length > 0 && (
-					<WireItemTable wires={queryData.results} />
+					<WireItemList wires={queryData.results} />
 				)}
 		</EuiPageTemplate.Section>
 	);
