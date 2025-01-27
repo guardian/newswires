@@ -134,6 +134,12 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							console.warn(
 								`A record with the provided external_id (messageId: ${messageId}) already exists. No new data was inserted to prevent duplication.`,
 							);
+						} else {
+							console.log({
+								messageId,
+								sourceFeed: snsMessageContent['source-feed'],
+								eventType: 'SUCCESSFUL_INGESTION',
+							});
 						}
 					} catch (e) {
 						const reason = e instanceof Error ? e.message : 'Unknown error';
