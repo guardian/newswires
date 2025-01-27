@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
 import { formatTimestamp } from './formatTimestamp';
+import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes';
 import { getSupplierInfo } from './suppliers.ts';
 
@@ -88,7 +89,6 @@ const WirePreviewCard = ({
 	selected: boolean;
 	isFromRefresh: boolean;
 }) => {
-	const { config, Link } = useSearch();
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -122,7 +122,7 @@ const WirePreviewCard = ({
 	`;
 
 	return (
-		<Link to={{ ...config, view: 'item', itemId: id.toString() }}>
+		<Link to={id.toString()}>
 			<div
 				ref={ref}
 				css={[
