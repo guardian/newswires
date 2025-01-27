@@ -20,11 +20,12 @@ import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q, bucket } = query;
+	const { supplier, q, bucket, subjects } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
+	const subjectsLabel = subjects?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const bucketLabel = bucket ? `[${bucketName(bucket)}]` : '';
-	const labels = [bucketLabel, supplierLabel, qLabel];
+	const labels = [bucketLabel, supplierLabel, subjectsLabel, qLabel];
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 

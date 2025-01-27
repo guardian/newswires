@@ -6,8 +6,8 @@ export const defaultQuery: Query = {
 	supplierExcl: [],
 	keywords: undefined,
 	keywordsExcl: undefined,
-	subjects: undefined,
-	subjectsExcl: undefined,
+	subjects: [],
+	subjectsExcl: [],
 	bucket: undefined,
 };
 
@@ -29,8 +29,8 @@ export function urlToConfig(location: {
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
 	const keywords = urlSearchParams.get('keywords') ?? undefined;
 	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
-	const subjects = urlSearchParams.get('subjects') ?? undefined;
-	const subjectsExcl = urlSearchParams.get('subjectsExcl') ?? undefined;
+	const subjects = urlSearchParams.getAll('subjects');
+	const subjectsExcl = urlSearchParams.getAll('subjectsExcl');
 	const bucket = urlSearchParams.get('bucket') ?? undefined;
 	const query: Query = {
 		q:
