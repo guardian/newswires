@@ -26,6 +26,7 @@ import {
 } from 'aws-cdk-lib/aws-rds';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
+import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
 import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
@@ -146,7 +147,7 @@ export class Newswires extends GuStack {
 			filterPattern: aws_logs.FilterPattern.stringValue(
 				'$.message.eventType',
 				'=',
-				'SUCCESSFUL_INGESTION',
+				SUCCESSFUL_INGESTION_EVENT_TYPE,
 			),
 			dimensions: { sourceFeed: '$.message.sourceFeed' },
 		});
