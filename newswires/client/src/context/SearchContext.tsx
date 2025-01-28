@@ -5,6 +5,7 @@ import {
 	useContext,
 	useEffect,
 	useReducer,
+	useRef,
 	useState,
 } from 'react';
 import { z } from 'zod';
@@ -122,6 +123,17 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		autoUpdate: true,
 	});
 
+	function handleFetchError(error: ErrorEvent) {
+		if (error instanceof Error) {
+			// we don't want to treat aborts as errors
+			if (error.name !== 'AbortError') {
+				dispatch({ type: 'FETCH_ERROR', error: error.message });
+			}
+		} else {
+			dispatch({ type: 'FETCH_ERROR', error: 'unknown error' });
+		}
+	}
+
 	const pushConfigState = useCallback(
 		(config: Config) => {
 			history.pushState(config, '', configToUrl(config));
@@ -160,16 +172,14 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	useEffect(() => {
 		let pollingInterval: NodeJS.Timeout | undefined;
 
+		const abortController = new AbortController();
+
 		if (state.status === 'loading') {
-			fetchResults(currentConfig.query)
+			fetchResults(currentConfig.query, {}, abortController)
 				.then((data) => {
 					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });
 				})
-				.catch((error) => {
-					const errorMessage =
-						error instanceof Error ? error.message : 'unknown error';
-					dispatch({ type: 'FETCH_ERROR', error: errorMessage });
-				});
+				.catch(handleFetchError);
 		}
 
 		if (state.status === 'success' || state.status === 'offline') {
@@ -181,20 +191,19 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 									...state.queryData.results.map((wire) => wire.id),
 								).toString()
 							: undefined;
-					fetchResults(currentConfig.query, { sinceId })
+					fetchResults(currentConfig.query, { sinceId }, abortController)
 						.then((data) => {
-							dispatch({ type: 'UPDATE_RESULTS', data });
+							if (!abortController.signal.aborted) {
+								dispatch({ type: 'UPDATE_RESULTS', data });
+							}
 						})
-						.catch((error) => {
-							const errorMessage =
-								error instanceof Error ? error.message : 'unknown error';
-							dispatch({ type: 'FETCH_ERROR', error: errorMessage });
-						});
+						.catch(handleFetchError);
 				}
 			}, 6000);
 		}
 
 		return () => {
+			abortController.abort();
 			if (pollingInterval) {
 				clearInterval(pollingInterval);
 			}
@@ -284,11 +293,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			.then((data) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
 			})
-			.catch((error) => {
-				const errorMessage =
-					error instanceof Error ? error.message : 'unknown error';
-				dispatch({ type: 'FETCH_ERROR', error: errorMessage });
-			});
+			.catch(handleFetchError);
 	};
 
 	return (
