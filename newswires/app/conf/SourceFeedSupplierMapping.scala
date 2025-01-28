@@ -101,6 +101,7 @@ object SourceFeedSupplierMapping {
       "PA HSL",
       "PA JUST GROUP",
       "PA BROOKE ACTION FOR WORKING HORSES AND DONKEYS"
-    )
+    ),
+    "COMET" -> List("COMET")
   )
 }

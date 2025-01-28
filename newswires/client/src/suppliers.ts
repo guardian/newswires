@@ -32,6 +32,10 @@ export const supplierData: Record<
 		label: 'Reuters (Gu)',
 		colour: reutersBrand,
 	},
+	COMET: {
+		label: 'Comet',
+		colour: '#39756a',
+	},
 };
 
 export function getSupplierInfo(
