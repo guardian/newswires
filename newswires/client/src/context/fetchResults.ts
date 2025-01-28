@@ -9,12 +9,14 @@ export const fetchResults = async (
 		sinceId?: string;
 		beforeId?: string;
 	} = {},
+	abortController?: AbortController,
 ): Promise<WiresQueryResponse> => {
 	const queryString = paramsToQuerystring(query, additionalParams);
 	const response = await pandaFetch(`/api/search${queryString}`, {
 		headers: {
 			Accept: 'application/json',
 		},
+		signal: abortController?.signal ?? undefined,
 	});
 	try {
 		const data = (await response.json()) as unknown;
@@ -27,12 +29,12 @@ export const fetchResults = async (
 		}
 
 		const parseResult = WiresQueryResponseSchema.safeParse(data);
-		if (parseResult.success) {
-			return parseResult.data;
+		if (!parseResult.success) {
+			throw new Error(
+				`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
+			);
 		}
-		throw new Error(
-			`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
-		);
+		return parseResult.data;
 	} catch (e) {
 		throw new Error(e instanceof Error ? e.message : 'Unknown error');
 	}
