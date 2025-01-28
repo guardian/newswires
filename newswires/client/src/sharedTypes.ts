@@ -52,8 +52,8 @@ export const QuerySchema = z.object({
 	supplierExcl: z.array(z.string()).optional(),
 	keywords: z.ostring(),
 	keywordsExcl: z.ostring(),
-	subjects: z.ostring(),
-	subjectsExcl: z.ostring(),
+	subjects: z.array(z.string()).optional(),
+	subjectsExcl: z.array(z.string()).optional(),
 	bucket: z.ostring(),
 });
 

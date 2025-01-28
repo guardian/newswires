@@ -35,6 +35,8 @@ class QueryController(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[String],
       suppliers: List[String],
+      subjects: List[String],
+      subjectsExcl: List[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
@@ -47,8 +49,8 @@ class QueryController(
       suppliersIncl = suppliers,
       suppliersExcl =
         request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil),
-      subjectsIncl = paramToList(request, "subjects"),
-      subjectsExcl = paramToList(request, "subjectsExcl")
+      subjectsIncl = subjects,
+      subjectsExcl = subjectsExcl
     )
 
     val mergedParams = bucket.map(_ merge queryParams).getOrElse(queryParams)

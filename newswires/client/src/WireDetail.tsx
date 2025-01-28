@@ -17,6 +17,7 @@ import { css } from '@emotion/react';
 import { Fragment, useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
+import { useSearch } from './context/SearchContext.tsx';
 import type { WireData } from './sharedTypes';
 
 export const WireDetail = ({
@@ -26,8 +27,24 @@ export const WireDetail = ({
 	wire: WireData;
 	isShowingJson: boolean;
 }) => {
+	const { handleEnterQuery, config } = useSearch();
 	const theme = useEuiTheme();
 	const { byline, keywords, usage, ednote, subjects } = wire.content;
+
+	const handleSubjectClick = (subject: string) => {
+		const subjects = config.query.subjects ?? [];
+		handleEnterQuery({
+			...config.query,
+			subjects: subjects.includes(subject)
+				? subjects.filter((s) => s !== subject)
+				: [...subjects, subject],
+		});
+	};
+
+	const isSubjectInSearch = (subject: string) => {
+		const subjects = config.query.subjects ?? [];
+		return subjects.includes(subject);
+	};
 
 	const safeBodyText = useMemo(() => {
 		return wire.content.bodyText
@@ -118,7 +135,25 @@ export const WireDetail = ({
 												{nonEmptySubjects.map((subject) => (
 													<>
 														<EuiDescriptionListTitle>
-															<EuiText size="s">{subject}</EuiText>
+															<EuiText size="s">
+																<EuiBadge
+																	iconType={
+																		isSubjectInSearch(subject)
+																			? 'cross'
+																			: undefined
+																	}
+																	color={
+																		!isSubjectInSearch(subject)
+																			? 'hollow'
+																			: undefined
+																	}
+																	iconSide="right"
+																	onClickAriaLabel={`Filter search by "${subject}" subjects`}
+																	onClick={() => handleSubjectClick(subject)}
+																>
+																	{subject}
+																</EuiBadge>
+															</EuiText>
 														</EuiDescriptionListTitle>
 														<EuiDescriptionListDescription key={subject}>
 															{lookupCatCodesWideSearch(subject).length > 0 ? (
