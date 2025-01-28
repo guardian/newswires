@@ -105,12 +105,14 @@ object FingerpostWireEntry
       fm: ResultName[FingerpostWireEntry]
   )(rs: WrappedResultSet): FingerpostWireEntry = {
     val fingerpostContent = Json.parse(rs.string(fm.content)).as[FingerpostWire]
+    val sourceFeed = fingerpostContent.sourceFeed
+    val supplier = sourceFeed
+      .flatMap(supplierFromSourceFeed)
+      .getOrElse(sourceFeed.getOrElse("Unknown"))
 
     FingerpostWireEntry(
       id = rs.long(fm.id),
-      supplier = fingerpostContent.sourceFeed
-        .flatMap(supplierFromSourceFeed)
-        .getOrElse("Unknown"),
+      supplier = supplier,
       externalId = rs.string(fm.externalId),
       ingestedAt = rs.zonedDateTime(fm.ingestedAt),
       content = fingerpostContent,
