@@ -9,7 +9,7 @@ jest.mock('../urlState', () => ({
 jest.mock('../panda-session', () => ({
 	pandaFetch: jest.fn(() =>
 		Promise.resolve({
-			json: jest.fn().mockResolvedValue({ results: [] }),
+			json: jest.fn().mockResolvedValue({ results: [], totalCount: 0 }),
 			ok: true,
 		}),
 	),
@@ -57,6 +57,7 @@ describe('fetchResults', () => {
 	it('should return parsed data if response is valid', async () => {
 		const mockResponseData = {
 			results: [],
+			totalCount: 0,
 		};
 
 		(pandaFetch as jest.Mock).mockResolvedValueOnce({

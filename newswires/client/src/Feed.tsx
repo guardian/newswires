@@ -1,10 +1,10 @@
 import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
 import { useSearch } from './context/SearchContext.tsx';
+import { SearchSummary } from './SearchSummary.tsx';
 import { WireItemList } from './WireItemList.tsx';
 
 export const Feed = () => {
 	const { state } = useSearch();
-
 	const { status, queryData } = state;
 
 	return (
@@ -18,7 +18,12 @@ export const Feed = () => {
 			{(status == 'success' || status == 'offline') &&
 				queryData.results.length === 0 && (
 					<EuiEmptyPrompt
-						body={<p>Try a different search term</p>}
+						body={
+							<>
+								<SearchSummary />
+								<p>Try another search or reset filters.</p>
+							</>
+						}
 						color="subdued"
 						layout="horizontal"
 						title={<h2>No results match your search criteria</h2>}
@@ -27,7 +32,13 @@ export const Feed = () => {
 				)}
 			{(status == 'success' || status == 'offline') &&
 				queryData.results.length > 0 && (
-					<WireItemList wires={queryData.results} />
+					<>
+						<SearchSummary />
+						<WireItemList
+							wires={queryData.results}
+							totalCount={queryData.totalCount}
+						/>
+					</>
 				)}
 		</EuiPageTemplate.Section>
 	);

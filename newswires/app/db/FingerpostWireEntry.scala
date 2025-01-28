@@ -143,7 +143,8 @@ object FingerpostWireEntry
   }
 
   case class QueryResponse(
-      results: List[FingerpostWireEntry]
+      results: List[FingerpostWireEntry],
+      totalCount: Long
 //      keywordCounts: Map[String, Int]
   )
   private object QueryResponse {
@@ -286,7 +287,8 @@ object FingerpostWireEntry
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
 
-    val query = sql"""| SELECT $selectAllStatement $highlightsClause
+    val query =
+      sql"""| SELECT COUNT(*) OVER() AS total_count, $selectAllStatement $highlightsClause
                       | FROM ${FingerpostWireEntry as syn}
                       | $whereClause
                       | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
@@ -295,8 +297,10 @@ object FingerpostWireEntry
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
-    val results = query
-      .map(FingerpostWireEntry(syn.resultName))
+    val resultsWithTotalCount = query
+      .map(rs =>
+        (FingerpostWireEntry(syn.resultName)(rs), rs.long("total_count"))
+      )
       .list()
       .apply()
 
@@ -304,7 +308,10 @@ object FingerpostWireEntry
 //      commonWhereClauses
 //    ) // TODO do this in parallel
 
-    QueryResponse(results /*, keywordCounts*/ )
+    val results = resultsWithTotalCount.map(_._1)
+    val totalCount = resultsWithTotalCount.headOption.map(_._2).getOrElse(0L)
+
+    QueryResponse(results, totalCount /*, keywordCounts*/ )
   }
 
   def getKeywords(
