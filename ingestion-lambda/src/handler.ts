@@ -1,5 +1,6 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
+import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import { BUCKET_NAME } from './config';
@@ -134,6 +135,12 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							console.warn(
 								`A record with the provided external_id (messageId: ${messageId}) already exists. No new data was inserted to prevent duplication.`,
 							);
+						} else {
+							console.log({
+								messageId,
+								sourceFeed: snsMessageContent['source-feed'],
+								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
+							});
 						}
 					} catch (e) {
 						const reason = e instanceof Error ? e.message : 'Unknown error';

@@ -10,7 +10,7 @@ import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
-import { Duration } from 'aws-cdk-lib';
+import { aws_logs, Duration } from 'aws-cdk-lib';
 import {
 	InstanceClass,
 	InstanceSize,
@@ -18,6 +18,7 @@ import {
 	Port,
 } from 'aws-cdk-lib/aws-ec2';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { LogGroup, MetricFilter } from 'aws-cdk-lib/aws-logs';
 import {
 	DatabaseInstanceEngine,
 	PostgresEngineVersion,
@@ -25,6 +26,7 @@ import {
 } from 'aws-cdk-lib/aws-rds';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
+import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
 import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
@@ -132,6 +134,23 @@ export class Newswires extends GuStack {
 		feedsBucket.grantWrite(ingestionLambda);
 
 		database.grantConnect(ingestionLambda);
+
+		new MetricFilter(this, 'IngestionSourceFeeds', {
+			logGroup: LogGroup.fromLogGroupName(
+				this,
+				'IngestionLogGroup',
+				`/aws/lambda/${ingestionLambda.functionName}`,
+			),
+			metricNamespace: `${stageStackApp}-ingestion-lambda`,
+			metricName: 'IngestionSourceFeeds',
+			metricValue: '1',
+			filterPattern: aws_logs.FilterPattern.stringValue(
+				'$.message.eventType',
+				'=',
+				SUCCESSFUL_INGESTION_EVENT_TYPE,
+			),
+			dimensions: { sourceFeed: '$.message.sourceFeed' },
+		});
 
 		const panDomainSettingsBucket = new GuParameter(
 			this,

@@ -1081,6 +1081,36 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
+    "IngestionSourceFeeds54B3095A": {
+      "Properties": {
+        "FilterPattern": "{ $.message.eventType = "SUCCESSFUL_INGESTION" }",
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "IngestionLambdaTESTC02B3E43",
+              },
+            ],
+          ],
+        },
+        "MetricTransformations": [
+          {
+            "Dimensions": [
+              {
+                "Key": "sourceFeed",
+                "Value": "$.message.sourceFeed",
+              },
+            ],
+            "MetricName": "IngestionSourceFeeds",
+            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+            "MetricValue": "1",
+          },
+        ],
+      },
+      "Type": "AWS::Logs::MetricFilter",
+    },
     "InstanceRoleNewswiresC10A0615": {
       "Properties": {
         "AssumeRolePolicyDocument": {
