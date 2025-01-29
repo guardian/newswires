@@ -120,10 +120,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "MetricsCollection": [
           {
             "Granularity": "1Minute",
-            "Metrics": [
-              "GroupTotalInstances",
-              "GroupInServiceInstances",
-            ],
           },
         ],
         "MinSize": "1",
@@ -1024,6 +1020,28 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "FunctionResponseTypes": [
           "ReportBatchItemFailures",
         ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "ingestion-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
@@ -1037,6 +1055,28 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
         "FunctionResponseTypes": [
           "ReportBatchItemFailures",
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "ingestion-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
         ],
       },
       "Type": "AWS::Lambda::EventSourceMapping",
@@ -2605,6 +2645,28 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "FunctionName": {
           "Ref": "apPollerLambdaCA07C49A",
         },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "apPoller_poller_lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
@@ -3667,6 +3729,28 @@ dpkg -i /newswires/newswires.deb",
         "FunctionName": {
           "Ref": "reutersLambda21FE513B",
         },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "reuters_poller_lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
