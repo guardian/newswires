@@ -2,6 +2,7 @@
 !jest.config.js
 !jest.setup.js
 !.eslintrc.js
+!eslint.config.js
 node_modules
 dist
 out
