@@ -1,6 +1,6 @@
 import { lookupTables } from './category-code-lookup-tables';
 
-const qCodePrefixesLookup = {
+const _qCodePrefixesLookup = {
 	medtop: ['IPTC MediaTopics'],
 	subj: ['IPTC NewsCodes', 'IPTC MediaTopics'],
 	a1312cat: ['A1312 CatCodes'],

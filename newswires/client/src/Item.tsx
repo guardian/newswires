@@ -71,7 +71,7 @@ export const Item = ({ id }: { id: string }) => {
 							: 'unknown error',
 				);
 			});
-	}, [id]);
+	}, [id, maybeSearchParams]);
 
 	return (
 		<EuiSplitPanel.Outer>

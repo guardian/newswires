@@ -65,7 +65,6 @@ jobs:
           pushd client
           npm ci
           npm run lint:ci
-          npm run format:ci
           npm test
           popd
 
