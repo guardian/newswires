@@ -7,7 +7,7 @@ import {
 	Metric,
 	TreatMissingData,
 } from 'aws-cdk-lib/aws-cloudwatch';
-import { RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
+import { LoggingFormat, RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import type { PollerConfig, PollerId } from '../../../shared/pollers';
@@ -100,6 +100,7 @@ export class PollerLambda {
 			timeout,
 			handler: `index.handlers.${pollerId}`, // see programmatically generated exports in poller-lambdas/src/index.ts
 			fileName: `poller-lambdas.zip`, // shared zip for all the poller-lambdas
+			loggingFormat: LoggingFormat.TEXT,
 		});
 
 		secret.grantRead(lambda);

@@ -1,3 +1,4 @@
+import type { Logger } from '../../shared/lambda-logging';
 import type { IngestorInputBody } from '../../shared/types';
 
 export type SecretValue = string;
@@ -22,15 +23,19 @@ export const isFixedFrequencyPollOutput = (
 	output: LongPollOutput | FixedFrequencyPollOutput,
 ): output is FixedFrequencyPollOutput => 'idealFrequencyInSeconds' in output;
 
-export type LongPollFunction = (
-	secret: SecretValue,
-	input: PollerInput,
-) => Promise<LongPollOutput>;
+export type PollFunctionInput = {
+	secret: SecretValue;
+	input: PollerInput;
+	logger: Logger;
+};
 
-export type FixedFrequencyPollFunction = (
-	secret: SecretValue,
-	input: PollerInput,
-) => Promise<FixedFrequencyPollOutput>;
+export type LongPollFunction = ({
+	input,
+}: PollFunctionInput) => Promise<LongPollOutput>;
+
+export type FixedFrequencyPollFunction = ({
+	input,
+}: PollFunctionInput) => Promise<FixedFrequencyPollOutput>;
 
 export type PollFunction = LongPollFunction | FixedFrequencyPollFunction;
 
@@ -39,4 +44,6 @@ export type IngestorPayload = {
 	body?: IngestorInputBody;
 };
 
-export type HandlerInputSqsPayload = { Records: Array<{ body: string }> };
+export type HandlerInputSqsPayload = {
+	Records: Array<{ body: string; messageId: string }>;
+};

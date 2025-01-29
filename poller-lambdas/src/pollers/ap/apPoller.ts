@@ -1,8 +1,7 @@
 import type {
 	IngestorPayload,
 	LongPollFunction,
-	PollerInput,
-	SecretValue,
+	PollFunctionInput,
 } from '../../types';
 import type {
 	Contentitem,
@@ -19,7 +18,7 @@ type FeedItemWithContent = {
 };
 
 // https://api.ap.org/media/v/content/feed?page_size=10&in_my_plan=true&include=*
-export const apPoller = (async (secret: SecretValue, input: PollerInput) => {
+export const apPoller = (async ({ secret, input }: PollFunctionInput) => {
 	const baseUrl = 'https://api.ap.org/media/v';
 	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true&include=*`;
 	const apiKey = secret;
@@ -204,7 +203,7 @@ function itemWithContentToDesiredOutput({
 			ednote,
 			imageIds: associations
 				? Object.keys(associations)
-						.filter(key  => associations[key]?.type === 'picture')
+						.filter((key) => associations[key]?.type === 'picture')
 						.map((key) => associations[key]?.altids?.itemid)
 						.filter((item): item is string => item !== undefined)
 				: [],
