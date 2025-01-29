@@ -15,9 +15,9 @@
 	"devDependencies": {
 		"@guardian/cdk": "61.1.2",
 		"@guardian/prettier": "^8.0.1",
-		"aws-cdk": "2.153.0",
-		"aws-cdk-lib": "2.153.0",
-		"constructs": "10.3.0",
+		"aws-cdk": "2.175.1",
+		"aws-cdk-lib": "2.175.1",
+		"constructs": "10.4.2",
 		"prettier": "^3.3.3",
 		"source-map-support": "0.5.20",
 		"ts-node": "^10.9.2"
