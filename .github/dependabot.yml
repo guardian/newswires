@@ -1,0 +1,52 @@
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # The version of AWS CDK libraries must match those from @guardian/cdk.
+      # We'd never be able to update them here independently, so just ignore them.
+      - dependency-name: "aws-cdk"
+      - dependency-name: "aws-cdk-lib"
+      - dependency-name: "constructs"
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+    groups:
+      cdk-dependencies:
+        patterns:
+          - "@guardian/cdk"
+        exclude-patterns:
+          - "typescript"
+      non-cdk-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@guardian/cdk"
+          - "typescript"
+
+  - package-ecosystem: "npm"
+    directory: "/newswires/client"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+    groups:
+      client:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "typescript"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
