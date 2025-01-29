@@ -19,6 +19,7 @@ function mergeQueryData(
 
 		return {
 			...newData,
+			totalCount: existing.totalCount + newData.totalCount,
 			results: mergedResults,
 		};
 	} else {
@@ -36,6 +37,7 @@ function appendQueryData(
 	if (existing) {
 		return {
 			...newData,
+			totalCount: existing.totalCount,
 			results: [...existing.results, ...newData.results],
 		};
 	} else {

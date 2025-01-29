@@ -26,7 +26,13 @@ const fadeOutBackground = css`
 	}
 `;
 
-export const WireItemList = ({ wires }: { wires: WireData[] }) => {
+export const WireItemList = ({
+	wires,
+	totalCount,
+}: {
+	wires: WireData[];
+	totalCount: number;
+}) => {
 	const { config, loadMoreResults } = useSearch();
 
 	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
@@ -61,15 +67,17 @@ export const WireItemList = ({ wires }: { wires: WireData[] }) => {
 					</li>
 				))}
 			</ul>
-			<EuiButton
-				isLoading={isLoadingMore}
-				css={css`
-					margin-top: 12px;
-				`}
-				onClick={handleLoadMoreResults}
-			>
-				{isLoadingMore ? 'Loading' : 'Load more'}
-			</EuiButton>
+			{wires.length < totalCount && (
+				<EuiButton
+					isLoading={isLoadingMore}
+					css={css`
+						margin-top: 12px;
+					`}
+					onClick={handleLoadMoreResults}
+				>
+					{isLoadingMore ? 'Loading' : 'Load more'}
+				</EuiButton>
+			)}
 		</>
 	);
 };

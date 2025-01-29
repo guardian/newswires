@@ -11,6 +11,7 @@ global.fetch = jest.fn(() =>
 		json: () =>
 			Promise.resolve({
 				results: [],
+				totalCount: 0,
 			}),
 		ok: () => true,
 	}),
@@ -54,6 +55,7 @@ describe('SearchContext', () => {
 			status: 'success',
 			queryData: {
 				results: [],
+				totalCount: 0,
 			},
 			successfulQueryHistory: [],
 		});

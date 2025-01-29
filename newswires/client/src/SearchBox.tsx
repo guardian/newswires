@@ -1,11 +1,15 @@
 import { EuiFieldSearch } from '@elastic/eui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { debounce } from './debounce';
 
 export function SearchBox() {
 	const { config, handleEnterQuery } = useSearch();
-	const [freeTextQuery, setFreeTextQuery] = useState<string>(config.query.q);
+	const [freeTextQuery, setFreeTextQuery] = useState<string>('');
+
+	useEffect(() => {
+		setFreeTextQuery(config.query.q);
+	}, [config.query.q]);
 
 	const debouncedUpdate = useMemo(
 		() => debounce(handleEnterQuery, 750),

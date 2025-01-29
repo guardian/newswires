@@ -12,12 +12,12 @@ describe('SearchReducer', () => {
 	const successState: State = {
 		...initialState,
 		status: 'success',
-		queryData: { results: [sampleWireData] },
+		queryData: { results: [sampleWireData], totalCount: 1 },
 	};
 
 	const offlineState: State = {
 		status: 'offline',
-		queryData: { results: [sampleWireData] },
+		queryData: { results: [sampleWireData], totalCount: 1 },
 		successfulQueryHistory: [],
 		error: 'Network error',
 		autoUpdate: true,
@@ -25,7 +25,7 @@ describe('SearchReducer', () => {
 
 	const errorState: State = {
 		status: 'error',
-		queryData: { results: [sampleWireData] },
+		queryData: { results: [sampleWireData], totalCount: 1 },
 		successfulQueryHistory: [],
 		error: 'Fetch error',
 		autoUpdate: true,
@@ -34,7 +34,7 @@ describe('SearchReducer', () => {
 	it('should handle FETCH_SUCCESS action in loading state', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
-			data: { results: [sampleWireData] },
+			data: { results: [sampleWireData], totalCount: 1 },
 			query: { q: 'test' },
 		};
 
@@ -79,13 +79,14 @@ describe('SearchReducer', () => {
 		it(`should handle UPDATE_RESULTS action in ${state.status} state`, () => {
 			const action: Action = {
 				type: 'UPDATE_RESULTS',
-				data: { results: [{ ...sampleWireData, id: 2 }] },
+				data: { results: [{ ...sampleWireData, id: 2 }], totalCount: 1 },
 			};
 
 			const newState = SearchReducer(state, action);
 
 			expect(newState.status).toBe('success');
 			expect(newState.queryData?.results).toHaveLength(2);
+			expect(newState.queryData?.totalCount).toBe(2);
 			expect(newState.queryData?.results).toContainEqual({
 				...sampleWireData,
 				id: 2,
@@ -101,17 +102,18 @@ describe('SearchReducer', () => {
 	it(`should handle APPEND_RESULTS action in success state`, () => {
 		const state: State = {
 			...successState,
-			queryData: { results: [{ ...sampleWireData, id: 2 }] },
+			queryData: { results: [{ ...sampleWireData, id: 2 }], totalCount: 2 },
 		};
 
 		const action: Action = {
 			type: 'APPEND_RESULTS',
-			data: { results: [{ ...sampleWireData, id: 1 }] },
+			data: { results: [{ ...sampleWireData, id: 1 }], totalCount: 1 },
 		};
 
 		const newState = SearchReducer(state, action);
 
 		expect(newState.status).toBe('success');
+		expect(newState.queryData?.totalCount).toBe(2);
 		expect(newState.queryData?.results).toHaveLength(2);
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
