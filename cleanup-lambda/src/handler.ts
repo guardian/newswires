@@ -1,5 +1,5 @@
-import { TABLE_NAME } from "./config";
-import { createDbConnection } from './rds';
+import {createDbConnection} from "../../shared/rds";
+import { TABLE_NAME } from "./database";
 
 export const main = async (): Promise<void> => {
 	const sql = await createDbConnection();
@@ -8,8 +8,7 @@ export const main = async (): Promise<void> => {
 		const result = await sql`
             DELETE
             FROM ${sql(TABLE_NAME)}
-            WHERE ingested_at < NOW() - INTERVAL '14 days'
-                RETURNING *;
+            WHERE ingested_at < NOW() - INTERVAL '14 days';
         `;
 
 		console.log(`Deleted ${result.count} records`);

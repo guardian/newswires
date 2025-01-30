@@ -6,8 +6,6 @@
 export const isRunningLocally =
 	!process.env.LAMBDA_TASK_ROOT && !process.env.AWS_EXECUTION_ENV;
 
-export const TABLE_NAME = 'fingerpost_wire_entry';
-
 export const DATABASE_NAME: string = isRunningLocally
 	? 'newswires'
 	: getFromEnv('DATABASE_NAME');
@@ -22,7 +20,7 @@ export const DATABASE_PORT: number = isRunningLocally
 
 export const DATABASE_USERNAME = 'postgres';
 
-function getFromEnv(key: string): string {
+export function getFromEnv(key: string): string {
 	const value = process.env[key];
 	if (!value) {
 		throw new Error(`Missing required environment variable ${key}`);
