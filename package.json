@@ -5,6 +5,7 @@
 	"workspaces": [
 		"cdk",
 		"ingestion-lambda",
+		"cleanup-lambda",
 		"poller-lambdas"
 	],
 	"scripts": {
