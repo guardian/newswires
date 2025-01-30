@@ -1,5 +1,5 @@
-import type { Alarms } from '@guardian/cdk';
-import { GuPlayApp } from '@guardian/cdk';
+import type {Alarms} from '@guardian/cdk';
+import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
 import type { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
 import { GuParameter, GuStack } from '@guardian/cdk/lib/constructs/core';
@@ -17,6 +17,7 @@ import {
 	InstanceType,
 	Port,
 } from 'aws-cdk-lib/aws-ec2';
+import {Schedule} from "aws-cdk-lib/aws-events";
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { LogGroup, MetricFilter } from 'aws-cdk-lib/aws-logs';
 import {
@@ -151,6 +152,35 @@ export class Newswires extends GuStack {
 			),
 			dimensions: { sourceFeed: '$.message.sourceFeed' },
 		});
+
+		const scheduledCleanupLambda = new GuScheduledLambda(this, `ScheduledCleanupLambda-${this.stage}`, {
+			app: 'cleanup-lambda',
+			runtime: LAMBDA_RUNTIME,
+			architecture: LAMBDA_ARCHITECTURE,
+			handler: 'handler.main',
+			fileName: 'cleanup-lambda.zip',
+			timeout: Duration.millis(45000),
+			environment: {
+				DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+				DATABASE_PORT: database.dbInstanceEndpointPort,
+				DATABASE_NAME: databaseName,
+			},
+			vpc,
+			vpcSubnets: {
+				subnets: privateSubnets,
+			},
+			rules: [
+				{
+					schedule: Schedule.cron({ hour: '5', minute: '00', weekDay: '*' }), // Every day at 5am
+				},
+			],
+			monitoringConfiguration: {
+				noMonitoring: true,
+			},
+		});
+
+		scheduledCleanupLambda.connections.allowTo(database, Port.tcp(5432));
+		database.grantConnect(scheduledCleanupLambda);
 
 		const panDomainSettingsBucket = new GuParameter(
 			this,

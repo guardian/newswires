@@ -53,6 +53,12 @@ jobs:
           npm run build
           zip -FSjr "dist/ingestion-lambda.zip" "dist/handler.js"
 
+      - name: Build cleanup-lambda
+        working-directory: cleanup-lambda
+        run: |
+          npm run build
+          zip -FSjr "dist/cleanup-lambda.zip" "dist/handler.js"
+
       - name: Build poller-lambdas
         working-directory: poller-lambdas
         run: |

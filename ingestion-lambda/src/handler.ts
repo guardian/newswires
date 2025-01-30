@@ -1,12 +1,11 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
+import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
-import { BUCKET_NAME } from './config';
 import { tableName } from './database';
-import { createDbConnection } from './rds';
-import { s3Client } from './s3';
+import { BUCKET_NAME, s3Client } from './s3';
 
 interface OperationFailure {
 	sqsMessageId: string;

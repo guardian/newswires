@@ -31,6 +31,20 @@ deployments:
       fileName: ingestion-lambda.zip
     actions:
       - uploadLambda
+  lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: cleanup-lambda
+    contentDirectory: cleanup-lambda
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: cleanup-lambda.zip
+    actions:
+      - uploadLambda
   lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda:
     type: aws-lambda
     stacks:
@@ -92,6 +106,7 @@ deployments:
           Encrypted: 'true'
     dependencies:
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
+      - lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda
       - lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda
       - lambda-upload-eu-west-1-editorial-feeds-apPoller_poller_lambda
       - asg-upload-eu-west-1-editorial-feeds-newswires
@@ -108,6 +123,22 @@ deployments:
       bucketSsmLookup: true
       lookupByTags: true
       fileName: ingestion-lambda.zip
+    actions:
+      - updateLambda
+    dependencies:
+      - cfn-eu-west-1-editorial-feeds-newswires
+  lambda-update-eu-west-1-editorial-feeds-cleanup-lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: cleanup-lambda
+    contentDirectory: cleanup-lambda
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: cleanup-lambda.zip
     actions:
       - updateLambda
     dependencies:
