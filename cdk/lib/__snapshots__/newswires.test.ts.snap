@@ -2531,7 +2531,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "FunctionName": "editorial-feeds-TEST-apPoller_poller_lambda",
         "Handler": "index.handlers.apPoller",
         "LoggingConfig": {
-          "LogFormat": "JSON",
+          "LogFormat": "Text",
         },
         "MemorySize": 128,
         "RecursiveLoop": "Allow",
@@ -3615,7 +3615,7 @@ dpkg -i /newswires/newswires.deb",
         "FunctionName": "editorial-feeds-TEST-reuters_poller_lambda",
         "Handler": "index.handlers.reuters",
         "LoggingConfig": {
-          "LogFormat": "JSON",
+          "LogFormat": "Text",
         },
         "MemorySize": 128,
         "RecursiveLoop": "Allow",

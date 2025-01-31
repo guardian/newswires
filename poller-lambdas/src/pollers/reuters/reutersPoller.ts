@@ -1,11 +1,11 @@
 import { parse } from 'node-html-parser';
 import { z } from 'zod';
+import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
 import { REUTERS_POLLING_FREQUENCY_IN_SECONDS } from '../../../../shared/pollers';
 import type { IngestorInputBody } from '../../../../shared/types';
 import type {
 	FixedFrequencyPollFunction,
-	PollerInput,
-	SecretValue,
+	PollFunctionInput,
 } from '../../types';
 import { auth } from './auth';
 
@@ -139,6 +139,8 @@ const itemResponseSchema = z.object({
 	}),
 });
 
+type ItemResponse = z.infer<typeof itemResponseSchema>;
+
 function itemResponseToIngestionLambdaInput(
 	item: z.infer<typeof ReutersItemSchema>,
 ): IngestorInputBody {
@@ -177,6 +179,7 @@ function itemResponseToIngestionLambdaInput(
 		body_text: bodyHtml,
 		copyrightNotice: item.copyrightNotice,
 		language: item.language,
+		imageIds: [],
 	};
 }
 
@@ -186,10 +189,11 @@ const SecretValueSchema = z.object({
 	ACCESS_TOKEN: z.string().optional(),
 });
 
-export const reutersPoller = (async (
-	secret: SecretValue,
-	input: PollerInput,
-) => {
+export const reutersPoller = (async ({
+	secret,
+	input,
+	logger,
+}: PollFunctionInput) => {
 	const parsedSecret = SecretValueSchema.safeParse(JSON.parse(secret));
 	if (!parsedSecret.success) {
 		throw new Error('Failed to parse secret value for Reuters poller');
@@ -279,16 +283,30 @@ export const reutersPoller = (async (
 		.filter((guid): guid is string => guid !== undefined);
 
 	const itemResponses = await Promise.all(
-		itemsToFetch.map(async (itemId) =>
-			itemResponseSchema.parse(await fetchWithReauth(itemQuery(itemId))),
-		),
+		itemsToFetch.map(async (itemId) => {
+			const parsedItemResult = itemResponseSchema.safeParse(
+				await fetchWithReauth(itemQuery(itemId)),
+			);
+			if (!parsedItemResult.success) {
+				logger.log({
+					externalId: itemId,
+					supplier: 'Reuters',
+					eventType: POLLER_FAILURE_EVENT_TYPE,
+					errors: parsedItemResult.error.errors,
+					message: `Failed to parse item response for ${itemId}`,
+				});
+			}
+			return parsedItemResult.data;
+		}),
 	);
 
 	return {
-		payloadForIngestionLambda: itemResponses.map((response) => ({
-			externalId: response.data.item.versionedGuid,
-			body: itemResponseToIngestionLambdaInput(response.data.item),
-		})),
+		payloadForIngestionLambda: itemResponses
+			.filter((_): _ is ItemResponse => typeof _ !== 'undefined')
+			.map((response) => ({
+				externalId: response.data.item.versionedGuid,
+				body: itemResponseToIngestionLambdaInput(response.data.item),
+			})),
 		valueForNextPoll: input,
 		idealFrequencyInSeconds: REUTERS_POLLING_FREQUENCY_IN_SECONDS,
 		newSecretValue:

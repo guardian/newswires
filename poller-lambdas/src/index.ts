@@ -4,6 +4,11 @@ import {
 } from '@aws-sdk/client-secrets-manager';
 import type { SendMessageCommandInput } from '@aws-sdk/client-sqs';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
+import {
+	POLLER_FAILURE_EVENT_TYPE,
+	POLLER_INVOCATION_EVENT_TYPE,
+} from '../../shared/constants';
+import { createLogger } from '../../shared/lambda-logging';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
 import { queueNextInvocation, secretsManager, sqs } from './aws';
@@ -16,6 +21,13 @@ import { isFixedFrequencyPollOutput } from './types';
 const pollerWrapper =
 	(pollerFunction: PollFunction) =>
 	async ({ Records }: HandlerInputSqsPayload) => {
+		const logger = createLogger({
+			sqsMessageId: Records.map((record) => record.messageId).join(', '),
+		});
+		logger.log({
+			message: `Poller lambda invoked with SQS message id: ${Records.map((record) => record.messageId).join(', ')}`,
+			eventType: POLLER_INVOCATION_EVENT_TYPE,
+		});
 		const startTimeEpochMillis = Date.now();
 		const secretName = getEnvironmentVariableOrCrash(
 			POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME,
@@ -37,7 +49,7 @@ const pollerWrapper =
 		}
 		for (const record of Records) {
 			const valueFromPreviousPoll = record.body;
-			await pollerFunction(secret, valueFromPreviousPoll)
+			await pollerFunction({ secret, input: valueFromPreviousPoll, logger })
 				.then(async (output) => {
 					const endTimeEpochMillis = Date.now();
 
@@ -64,11 +76,11 @@ const pollerWrapper =
 							},
 						};
 						await sqs.send(new SendMessageCommand(message)).catch((error) => {
-							console.error(
-								`sending to queue failed for ${externalId}`,
-								message,
-								error,
-							);
+							logger.error({
+								message: `Sending to queue failed for ${externalId}`,
+								error: error instanceof Error ? error.message : error,
+								queueMessage: JSON.stringify(message),
+							});
 							throw error; // we still expect this to be terminal for the poller lambda
 						});
 					}
@@ -107,7 +119,12 @@ const pollerWrapper =
 					}
 				})
 				.catch((error) => {
-					console.error('FAILED', error);
+					logger.error({
+						message: `Poller lambda failed with message: ${error instanceof Error ? error.message : error}`,
+						sqsMessageId: Records.map((record) => record.messageId).join(', '),
+						eventType: POLLER_FAILURE_EVENT_TYPE,
+						pollerName: pollerFunction.name,
+					});
 					// consider still queuing next (perhaps with default delay or 1min) to avoid the lambda from stopping entirely
 					throw error;
 				});
