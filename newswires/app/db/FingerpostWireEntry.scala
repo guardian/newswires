@@ -1,9 +1,5 @@
 package db
 
-import conf.SourceFeedSupplierMapping.{
-  sourceFeedsFromSupplier,
-  supplierFromSourceFeed
-}
 import db.CustomMappers.textArray
 import play.api.Logging
 import play.api.libs.json._
@@ -89,6 +85,7 @@ object FingerpostWireEntry
       "external_id",
       "ingested_at",
       "content",
+      "supplier",
       "combined_textsearch",
       "highlight"
     )
@@ -98,6 +95,7 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.id},
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
+    |   ${FingerpostWireEntry.syn.result.supplier},
     |   ${FingerpostWireEntry.syn.result.content}
     |""".stripMargin
 
@@ -105,14 +103,10 @@ object FingerpostWireEntry
       fm: ResultName[FingerpostWireEntry]
   )(rs: WrappedResultSet): FingerpostWireEntry = {
     val fingerpostContent = Json.parse(rs.string(fm.content)).as[FingerpostWire]
-    val sourceFeed = fingerpostContent.sourceFeed
-    val supplier = sourceFeed
-      .flatMap(supplierFromSourceFeed)
-      .getOrElse(sourceFeed.getOrElse("Unknown"))
 
     FingerpostWireEntry(
       id = rs.long(fm.id),
-      supplier = supplier,
+      supplier = rs.string(fm.supplier),
       externalId = rs.string(fm.externalId),
       ingestedAt = rs.zonedDateTime(fm.ingestedAt),
       content = fingerpostContent,
@@ -159,29 +153,23 @@ object FingerpostWireEntry
   ): QueryResponse = DB readOnly { implicit session =>
     val effectivePageSize = clamp(0, pageSize, 250)
 
-    val sourceFeeds =
-      search.suppliersIncl.flatMap(sourceFeedsFromSupplier(_).getOrElse(Nil))
-
-    val sourceFeedsExcl =
-      search.suppliersExcl.flatMap(sourceFeedsFromSupplier(_).getOrElse(Nil))
-
-    val sourceFeedsQuery = sourceFeeds match {
+    val sourceFeedsQuery = search.suppliersIncl match {
       case Nil => None
-      case _ =>
+      case sourceFeeds =>
         Some(
           sqls.in(
-            sqls"upper(${syn.content}->>'source-feed')",
+            sqls"upper(${syn.supplier})",
             sourceFeeds.map(feed => sqls"upper($feed)")
           )
         )
     }
 
-    val sourceFeedsExclQuery = sourceFeedsExcl match {
+    val sourceFeedsExclQuery = search.suppliersExcl match {
       case Nil => None
-      case _ =>
+      case sourceFeedsExcl =>
         val se = this.syntax("sourceFeedsExcl")
         val doesContainFeeds = sqls.in(
-          sqls"upper(${se.content}->>'source-feed')",
+          sqls"upper(${se.supplier})",
           sourceFeedsExcl.map(feed => sqls"upper($feed)")
         )
         // unpleasant, but the sort of trick you need to pull
