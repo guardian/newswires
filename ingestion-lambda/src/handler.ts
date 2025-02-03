@@ -125,7 +125,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const snsMessageContent = safeBodyParse(body);
 
-						const supplier = lookupSupplier(snsMessageContent['source-feed']!)
+						const supplier = lookupSupplier(snsMessageContent['source-feed'])
 
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
