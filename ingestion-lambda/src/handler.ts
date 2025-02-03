@@ -6,6 +6,7 @@ import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import { tableName } from './database';
 import { BUCKET_NAME, s3Client } from './s3';
+import {lookupSupplier} from "./suppliers";
 
 interface OperationFailure {
 	sqsMessageId: string;
@@ -124,10 +125,12 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const snsMessageContent = safeBodyParse(body);
 
+						const supplier = lookupSupplier(snsMessageContent['source-feed'])
+
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
-                                (external_id, content)
-                            VALUES (${messageId}, ${snsMessageContent as never}) ON CONFLICT (external_id) DO NOTHING
+                                (external_id, supplier, content)
+                            VALUES (${messageId}, ${supplier ?? "Unknown"}, ${snsMessageContent as never}) ON CONFLICT (external_id) DO NOTHING
 						RETURNING id`;
 
 						if (result.length === 0) {
