@@ -26,6 +26,7 @@ const fakeInvoke = async (
 		Records: [
 			{
 				body: input,
+				messageId: 'FAKE_MESSAGE_ID',
 			},
 		],
 	});
