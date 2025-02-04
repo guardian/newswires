@@ -275,8 +275,7 @@ object FingerpostWireEntry
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
 
-    val query =
-      sql"""| SELECT COUNT(*) OVER() AS total_count, $selectAllStatement $highlightsClause
+    val query = sql"""| SELECT $selectAllStatement $highlightsClause
                       | FROM ${FingerpostWireEntry as syn}
                       | $whereClause
                       | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
@@ -285,19 +284,27 @@ object FingerpostWireEntry
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
-    val resultsWithTotalCount = query
-      .map(rs =>
-        (FingerpostWireEntry(syn.resultName)(rs), rs.long("total_count"))
-      )
+    val results = query
+      .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()
+
+    val countQuery =
+      sql"""| SELECT COUNT(*)
+            | FROM ${FingerpostWireEntry as syn}
+            | $whereClause
+            | """.stripMargin
+
+    logger.info(
+      s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
+    )
+
+    val totalCount: Long =
+      countQuery.map(_.long(1)).single().apply().getOrElse(0)
 
 //    val keywordCounts = getKeywords(additionalWhereClauses =
 //      commonWhereClauses
 //    ) // TODO do this in parallel
-
-    val results = resultsWithTotalCount.map(_._1)
-    val totalCount = resultsWithTotalCount.headOption.map(_._2).getOrElse(0L)
 
     QueryResponse(results, totalCount /*, keywordCounts*/ )
   }
