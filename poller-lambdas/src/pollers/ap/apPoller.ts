@@ -1,3 +1,4 @@
+import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
 import type {
 	IngestorPayload,
 	LongPollFunction,
@@ -18,7 +19,11 @@ type FeedItemWithContent = {
 };
 
 // https://api.ap.org/media/v/content/feed?page_size=10&in_my_plan=true&include=*
-export const apPoller = (async ({ secret, input }: PollFunctionInput) => {
+export const apPoller = (async ({
+	secret,
+	input,
+	logger,
+}: PollFunctionInput) => {
 	const baseUrl = 'https://api.ap.org/media/v';
 	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true&include=*`;
 	const apiKey = secret;
@@ -30,9 +35,9 @@ export const apPoller = (async ({ secret, input }: PollFunctionInput) => {
 
 	const { feed, timeReceived } = await getFeed(input, apiKey);
 
-	console.log(
-		`Received feed with ${feed.data?.current_item_count} items at ${timeReceived.toISOString()}`,
-	);
+	logger.log({
+		message: `Received feed with ${feed.data?.current_item_count} items at ${timeReceived.toISOString()}`,
+	});
 
 	const valueForNextPoll = feed.data?.next_page
 		? `${feed.data.next_page}&include=*`
@@ -53,13 +58,13 @@ export const apPoller = (async ({ secret, input }: PollFunctionInput) => {
 		feedItems &&
 		feedItems.length < feed.data.items.length
 	) {
-		console.log(
-			`Received ${feed.data.items.length} items from AP feed, but only ${feedItems.length} contain an 'item' field.`,
-		);
+		logger.log({
+			message: `Received ${feed.data.items.length} items from AP feed, but only ${feedItems.length} contain an 'item' field.`,
+		});
 	}
 
 	if (feedItems === undefined || feedItems.length === 0) {
-		console.log('No new items in feed');
+		logger.log({ message: 'No new items in feed' });
 		return {
 			payloadForIngestionLambda: [],
 			valueForNextPoll,
@@ -77,12 +82,11 @@ export const apPoller = (async ({ secret, input }: PollFunctionInput) => {
 		feedItems.map(async (feedItem) => {
 			const maybeNitfUrl = feedItem.renditions?.nitf?.href;
 			if (maybeNitfUrl === undefined) {
-				console.log(
-					JSON.stringify({
-						uuid: feedItem.altids?.etag,
-						message: `No NITF rendition found for AP item: ${feedItem.altids?.etag}; excluding from feed.`,
-					}),
-				);
+				logger.log({
+					externalId: feedItem.altids?.etag,
+					message: `No NITF rendition found for AP item: ${feedItem.altids?.etag}; excluding from feed.`,
+					eventType: POLLER_FAILURE_EVENT_TYPE,
+				});
 				return undefined;
 			}
 			const resp = await fetch(maybeNitfUrl, { headers });
