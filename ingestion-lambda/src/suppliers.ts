@@ -91,7 +91,9 @@ const supplierLookupMap: Record<string, string[]> = {
 	COMET: ['COMET'],
 };
 
-export const lookupSupplier = (supplier: string | undefined ): string | undefined => {
+export const lookupSupplier = (
+	supplier: string | undefined,
+): string | undefined => {
 	if (!supplier) {
 		return undefined;
 	}
@@ -99,4 +101,4 @@ export const lookupSupplier = (supplier: string | undefined ): string | undefine
 	return Object.keys(supplierLookupMap).find((key) =>
 		supplierLookupMap[key]?.includes(supplier),
 	);
-}
+};

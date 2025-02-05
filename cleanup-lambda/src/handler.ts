@@ -1,5 +1,5 @@
-import {createDbConnection} from "../../shared/rds";
-import { TABLE_NAME } from "./database";
+import { createDbConnection } from '../../shared/rds';
+import { TABLE_NAME } from './database';
 
 export const main = async (): Promise<void> => {
 	const sql = await createDbConnection();
