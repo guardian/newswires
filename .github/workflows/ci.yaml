@@ -70,7 +70,6 @@ jobs:
         working-directory: newswires
         run: |
           pushd client
-          npm ci
           npm run format:ci
           popd
 
