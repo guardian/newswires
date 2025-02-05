@@ -6,7 +6,8 @@
 		"cdk",
 		"ingestion-lambda",
 		"cleanup-lambda",
-		"poller-lambdas"
+		"poller-lambdas",
+		"newswires/client"
 	],
 	"scripts": {
 		"test": "npm run test --workspaces --if-present",

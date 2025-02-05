@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
+		"typecheck": "tsc --noEmit",
 		"lint": "eslint 'src/**' --ext ts --no-error-on-unmatched-pattern --fix",
 		"lint:ci": "eslint src/** --ext ts --no-error-on-unmatched-pattern",
 		"format": "prettier --write \"src/**/*.ts{,x}\"",
