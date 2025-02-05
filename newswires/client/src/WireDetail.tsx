@@ -19,6 +19,7 @@ import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import type { WireData } from './sharedTypes';
+import { SendToComposer } from './SendToComposer.tsx';
 
 export const WireDetail = ({
 	wire,
@@ -207,6 +208,7 @@ export const WireDetail = ({
 								</EuiDescriptionListDescription>
 							</>
 						)}
+						<SendToComposer itemData={wire} />
 						{bodyTextContent && (
 							<>
 								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
