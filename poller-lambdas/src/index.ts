@@ -86,7 +86,7 @@ const pollerWrapper =
 					}
 
 					if (isFixedFrequencyPollOutput(output)) {
-						const safeIdealFrequencyInSeconds = Math.min(
+						const safeIdealFrequencyInSeconds = Math.max(
 							5,
 							output.idealFrequencyInSeconds,
 						);
