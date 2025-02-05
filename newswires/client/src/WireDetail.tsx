@@ -17,9 +17,9 @@ import { css } from '@emotion/react';
 import { Fragment, useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
+import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import type { WireData } from './sharedTypes';
-import { SendToComposer } from './SendToComposer.tsx';
 
 export const WireDetail = ({
 	wire,
@@ -208,7 +208,7 @@ export const WireDetail = ({
 								</EuiDescriptionListDescription>
 							</>
 						)}
-						<SendToComposer itemData={wire} />
+						<ComposerConnection itemData={wire} />
 						{bodyTextContent && (
 							<>
 								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>

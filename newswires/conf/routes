@@ -10,7 +10,7 @@ GET     /item/*id                   controllers.ViteController.item(id: String)
 GET     /api/search                 controllers.QueryController.query(q: Option[String], keywords: Option[String], supplier: List[String], subjects: List[String], subjectsExcl: List[String], beforeId: Option[Int], sinceId: Option[Int])
 GET     /api/keywords               controllers.QueryController.keywords(inLastHours: Option[Int], limit:Option[Int])
 GET     /api/item/:id               controllers.QueryController.item(id: Int, q: Option[String])
-POST    /api/item/:id/link-composer controllers.QueryController.linkToComposer(id: Int)
+PUT     /api/item/:id/composerId    controllers.QueryController.linkToComposer(id: Int)
 
 GET     /oauthCallback              controllers.AuthController.oauthCallback()
 

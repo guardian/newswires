@@ -100,8 +100,8 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
     |   ${FingerpostWireEntry.syn.result.supplier},
-    |   ${FingerpostWireEntry.syn.result.composerId}
-    |   ${FingerpostWireEntry.syn.result.composerSentBy}
+    |   ${FingerpostWireEntry.syn.result.composerId},
+    |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.content}
     |""".stripMargin
 
