@@ -1,0 +1,54 @@
+{
+	"extends": [
+		"@guardian/eslint-config-typescript",
+		"prettier",
+		"plugin:react/recommended",
+		"plugin:react/jsx-runtime",
+		"plugin:react-hooks/recommended"
+	],
+	"ignorePatterns": [
+		"**/*.js",
+		"node_modules",
+		"cdk.out",
+		".eslintrc.js",
+		"jest.config.js",
+		"**/generated/*"
+	],
+	"plugins": ["@typescript-eslint", "prettier"],
+	"overrides": [
+		{
+			"parserOptions": {
+				"project": ["./tsconfig.json", "./tsconfig.*.json"]
+			},
+			"files": ["*.ts", "*.tsx"]
+		}
+	],
+	"rules": {
+		"@typescript-eslint/no-unused-vars": [
+			"error",
+			{
+				"args": "all",
+				"argsIgnorePattern": "^_",
+				"caughtErrors": "all",
+				"caughtErrorsIgnorePattern": "^_",
+				"destructuredArrayIgnorePattern": "^_",
+				"varsIgnorePattern": "^_",
+				"ignoreRestSiblings": true
+			}
+		],
+		"prettier/prettier": "warn",
+		"react/no-unknown-property": ["error", { "ignore": ["css"] }],
+		"no-restricted-syntax": [
+			"error",
+			{
+				"message": "Don't use `fetch` directly, please use the `pandaFetch` abstraction, to get automatic session refreshes",
+				"selector": "CallExpression[callee.name='fetch']"
+			}
+		]
+	},
+	"settings": {
+		"react": {
+			"version": "detect"
+		}
+	}
+}

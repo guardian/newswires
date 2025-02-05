@@ -38,33 +38,6 @@
 		"typescript": "5.1.6"
 	},
 	"prettier": "@guardian/prettier",
-	"eslintConfig": {
-		"extends": [
-			"@guardian/eslint-config-typescript"
-		],
-		"ignorePatterns": [
-			"**/*.js",
-			"node_modules",
-			"cdk.out",
-			".eslintrc.js",
-			"jest.config.js",
-			"**/generated/*"
-		],
-		"rules": {
-			"@typescript-eslint/no-unused-vars": [
-				"error",
-				{
-					"args": "all",
-					"argsIgnorePattern": "^_",
-					"caughtErrors": "all",
-					"caughtErrorsIgnorePattern": "^_",
-					"destructuredArrayIgnorePattern": "^_",
-					"varsIgnorePattern": "^_",
-					"ignoreRestSiblings": true
-				}
-			]
-		}
-	},
 	"dependencies": {
 		"zod": "3.23.8"
 	}
