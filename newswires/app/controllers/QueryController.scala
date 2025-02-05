@@ -5,7 +5,7 @@ import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.SearchBuckets
 import db.{FingerpostWireEntry, SearchParams}
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{
   Action,
@@ -76,11 +76,46 @@ class QueryController(
   }
 
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
-    AuthAction {
+    apiAuthAction {
       FingerpostWireEntry.get(id, maybeFreeTextQuery) match {
         case Some(entry) => Ok(Json.toJson(entry))
         case None        => NotFound
       }
     }
 
+  def linkToComposer(id: Int): Action[AnyContent] = apiAuthAction {
+    request: UserRequest[AnyContent] =>
+      request.body.asJson
+        .flatMap(_.asOpt[ComposerLinkRequest])
+        .map(params =>
+          FingerpostWireEntry
+            .insertComposerId(id, params.composerId, params.sentBy)
+        ) match {
+        case Some(1) => Accepted
+        case Some(0) =>
+          logger.error(
+            s"Composer link request for $id returned 0 updates - this probably means one was already set!"
+          )
+          Conflict("Composer ID already set")
+        case Some(_) =>
+          logger.error(
+            s"Composer link request for $id returned multiple updates. How did that happen?"
+          )
+          InternalServerError
+        case None =>
+          logger.error(
+            s"Composer link request for $id was not JSON or missed required parameter"
+          )
+          BadRequest(
+            "Composer link request was not JSON or missed required parameter"
+          )
+      }
+  }
+
+}
+
+case class ComposerLinkRequest(composerId: String, sentBy: String)
+object ComposerLinkRequest {
+  implicit val format: OFormat[ComposerLinkRequest] =
+    Json.format[ComposerLinkRequest]
 }
