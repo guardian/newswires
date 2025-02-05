@@ -25,7 +25,7 @@
 	},
 	"devDependencies": {
 		"@guardian/eslint-config": "9.0.0",
-		"@guardian/eslint-config-typescript": "8.0.0",
+		"@guardian/eslint-config-typescript": "11.0.0",
 		"@guardian/prettier": "8.0.1",
 		"@guardian/tsconfig": "1.0.0",
 		"eslint-import-resolver-typescript": "3.6.3",
