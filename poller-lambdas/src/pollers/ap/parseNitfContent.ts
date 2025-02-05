@@ -15,7 +15,9 @@ export function nitfBlockToHtml(block: HTMLElement): string {
 	for (const hl2 of clonedBlock.querySelectorAll('hl2')) {
 		hl2.tagName = 'h2';
 	}
-	for (const mediaTag of clonedBlock.querySelectorAll('media,media-reference')) {
+	for (const mediaTag of clonedBlock.querySelectorAll(
+		'media,media-reference',
+	)) {
 		mediaTag.remove();
 	}
 	return clonedBlock.innerHTML

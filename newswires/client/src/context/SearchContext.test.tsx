@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react';
-import type React from 'react';
+import type { FC } from 'react';
 import { flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
@@ -21,7 +21,7 @@ describe('SearchContext', () => {
 	const renderWithContext = async () => {
 		const contextRef = { current: null as SearchContextShape | null };
 
-		const TestComponent: React.FC = () => {
+		const TestComponent: FC = () => {
 			contextRef.current = useSearch();
 			return null;
 		};
