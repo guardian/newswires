@@ -169,17 +169,15 @@ object FingerpostWireEntry
       case sourceFeedsExcl =>
         val se = this.syntax("sourceFeedsExcl")
         val doesContainFeeds = sqls.in(
-          sqls"upper(${se.supplier})",
+          sqls"upper(${syn.supplier})",
           sourceFeedsExcl.map(feed => sqls"upper($feed)")
         )
         // unpleasant, but the sort of trick you need to pull
         // because "NOT IN (...)" doesn't hit an index.
         // https://stackoverflow.com/a/19364694
         Some(
-          sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as se}
-                 |  WHERE ${syn.id} = ${se.id}
-                 |    AND $doesContainFeeds
+          sqls"""|NOT (
+                 |  $doesContainFeeds
                  |)""".stripMargin
         )
     }
@@ -203,15 +201,13 @@ object FingerpostWireEntry
         // SQL driver from treating it as a placeholder for a parameter
         // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
         val doesContainKeywords =
-          sqls"(${ke.content}->'keywords') ??| ${textArray(keywords)}"
+          sqls"(${syn.content}->'keywords') ??| ${textArray(keywords)}"
         // unpleasant, but the kind of trick you need to pull because
         // NOT [row] ?| [list] won't use the index.
         // https://stackoverflow.com/a/19364694
         Some(
-          sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as ke}
-                 |  WHERE ${syn.id} = ${ke.id}
-                 |    AND $doesContainKeywords
+          sqls"""|NOT (
+                 |  $doesContainKeywords
                  |)""".stripMargin
         )
     }
@@ -229,12 +225,10 @@ object FingerpostWireEntry
       case subjects =>
         val se = this.syntax("subjectsExcl")
         val doesContainSubjects =
-          sqls"(${se.content}->'subjects'->'code') ??| ${textArray(subjects)}"
+          sqls"(${syn.content}->'subjects'->'code') ??| ${textArray(subjects)}"
         Some(
-          sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as se}
-                 |  WHERE ${syn.id} = ${se.id}
-                 |    AND $doesContainSubjects
+          sqls"""|NOT (
+                 |  $doesContainSubjects
                  |)""".stripMargin
         )
     }
@@ -268,19 +262,37 @@ object FingerpostWireEntry
       case Nil        => sqls""
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
-
-    val highlightsClause = search.text match {
+    val query = search.text match {
       case Some(query) =>
-        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query)) AS ${syn.resultName.highlight}"
-      case None => sqls", '' AS ${syn.resultName.highlight}"
+        sql"""WITH search_results AS (
+          SELECT
+            ${syn.id},
+            ${syn.externalId},
+            ${syn.ingestedAt},
+            ${syn.supplier},
+            ${syn.content}
+          FROM ${FingerpostWireEntry as syn}
+          $whereClause
+          ORDER BY ${syn.ingestedAt} DESC
+          LIMIT $effectivePageSize
+        )
+        SELECT
+          id AS ${syn.resultName.id},
+          external_id AS ${syn.resultName.externalId},
+          ingested_at AS ${syn.resultName.ingestedAt},
+          supplier AS ${syn.resultName.supplier},
+          content AS ${syn.resultName.content},
+          ts_headline('english', content->>'body_text', websearch_to_tsquery('english', $query))
+            AS ${syn.resultName.highlight}
+        FROM search_results"""
+      case None =>
+        sql"""| SELECT $selectAllStatement, '' AS ${syn.resultName.highlight}
+                         | FROM ${FingerpostWireEntry as syn}
+                         | $whereClause
+                         | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+                         | LIMIT $effectivePageSize
+                         | """.stripMargin
     }
-
-    val query = sql"""| SELECT $selectAllStatement $highlightsClause
-                      | FROM ${FingerpostWireEntry as syn}
-                      | $whereClause
-                      | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
-                      | LIMIT $effectivePageSize
-                      | """.stripMargin
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
