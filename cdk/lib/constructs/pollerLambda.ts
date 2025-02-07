@@ -115,6 +115,21 @@ export class PollerLambda {
 		// allow lambda to write to the ingestion-lambdas queue
 		ingestionLambdaQueue.grantSendMessages(lambda); //TODO consider making that queue a destination for the poller-lambda and then the lambda just returns the payload (on success and failure) rather than using SQS SDK within the lambda
 
+		const { stalledAlarmThreshold, stalledAlarmPeriod } = (() => {
+			if (!pollerConfig.idealFrequencyInSeconds) {
+				// long polling
+				return {
+					stalledAlarmThreshold: 1,
+					stalledAlarmPeriod: Duration.minutes(3), // long polling (where we expect http requests would timeout in much less than 3 mins)
+				};
+			}
+			// fixed frequency polling
+			const period = Duration.minutes(15); // fixed frequency polling (because 15mins is max delay for SQS)
+			const periodInSeconds = period.toSeconds();
+			const threshold = Math.floor((periodInSeconds / pollerConfig.idealFrequencyInSeconds))
+			return {stalledAlarmThreshold: threshold, stalledAlarmPeriod: period};
+		})()
+
 		// alarm if the lambda is not invoked often enough (i.e. stalled)
 		new GuAlarm(scope, `${pollerId}LambdaStalledAlarm`, {
 			app: lambdaAppName,
@@ -122,20 +137,12 @@ export class PollerLambda {
 			alarmDescription: `The ${functionName} is potentially stalled (hasn't been invoked as frequently as expected).`,
 			alarmName: `${functionName}_Stalled_Alarm`,
 			okAction: true,
-			threshold: pollerConfig.idealFrequencyInSeconds
-				? Math.floor(
-						// fixed frequency polling
-						Duration.minutes(15).toSeconds() /
-							pollerConfig.idealFrequencyInSeconds,
-					)
-				: 1, // long polling
+			threshold: stalledAlarmThreshold,
 			evaluationPeriods: 1,
 			metric: new Metric({
 				metricName: 'Invocations',
 				namespace: 'AWS/Lambda',
-				period: pollerConfig.idealFrequencyInSeconds
-					? Duration.minutes(15) // fixed frequency polling (because 15mins is max delay for SQS)
-					: Duration.minutes(3), // long polling (where we http requests would timeout in much less than 3 mins)
+				period: stalledAlarmPeriod,
 				statistic: 'sum',
 				dimensionsMap: {
 					FunctionName: functionName,
