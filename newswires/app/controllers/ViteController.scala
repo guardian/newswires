@@ -2,6 +2,7 @@ package controllers
 
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.PermissionsProvider
+import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Mode}
@@ -11,6 +12,16 @@ import views.html.helper.CSRF
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
+
+case class ClientConfig(
+    suppliersToExclude: List[String]
+)
+
+object ClientConfig {
+
+  implicit val clientConfigFormat: OFormat[ClientConfig] =
+    Json.format[ClientConfig]
+}
 
 class ViteController(
     val controllerComponents: ControllerComponents,
@@ -25,7 +36,6 @@ class ViteController(
 )(implicit executionContext: ExecutionContext)
     extends BaseController
     with AppAuthActions {
-
   private def select(
       map: Map[String, scala.collection.Seq[String]],
       list: Seq[String]
@@ -35,14 +45,37 @@ class ViteController(
   private val headersToKeep =
     Seq(CACHE_CONTROL, ETAG, DATE, ACCESS_CONTROL_ALLOW_ORIGIN)
 
-  private def injectCsrf[A](
-      body: String
-  )(implicit request: Request[A]): String = {
-    val csrf = CSRF.getToken
+  private def injectClientCodeIntoPageBody(
+      html: String
+  )(implicit request: Request[AnyContent]): String = {
+    def injectCsrf[A](
+        body: String
+    )(implicit request: Request[A]): String = {
+      val csrf = CSRF.getToken
 
-    body
-      .replaceAll("@csrf\\.name", csrf.name)
-      .replaceAll("@csrf\\.value", csrf.value)
+      body
+        .replaceAll("@csrf\\.name", csrf.name)
+        .replaceAll("@csrf\\.value", csrf.value)
+    }
+
+    def injectClientConfig(body: String): String = {
+      val config =
+        views.html.fragments.clientConfig(
+          ClientConfig(List("GuReuters", "GuAP"))
+        )
+
+      body.replace(
+        "</head>",
+        s"""
+           | <!-- Client config added at runtime by ViteController. -->
+           |$config
+           |</head>""".stripMargin
+      )
+    }
+
+    val withInjectedCsrf = injectCsrf(html)(request)
+    injectClientConfig(withInjectedCsrf)
+
   }
 
   def item(id: String): Action[AnyContent] = index
@@ -59,9 +92,9 @@ class ViteController(
               "index.html"
             )
           val indexHtml = Source.fromResource(assetPath).mkString
-          val withInjectedCsrf = injectCsrf(indexHtml)
+          val withClientConfig = injectClientCodeIntoPageBody(indexHtml)
 
-          Ok(withInjectedCsrf).as(HTML)
+          Ok(withClientConfig).as(HTML)
         }
       }
     }
@@ -103,7 +136,9 @@ class ViteController(
           res.headers.get(CONTENT_TYPE).flatMap(_.headOption)
         val body =
           if (resource == "index.html")
-            injectCsrf(res.bodyAsBytes.utf8String)(request)
+            injectClientCodeIntoPageBody(res.bodyAsBytes.utf8String)(
+              request
+            )
           else res.bodyAsBytes.utf8String
 
         Ok(body)
