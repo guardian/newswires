@@ -1,12 +1,16 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
-import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
+import {
+	INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
+	SUCCESSFUL_INGESTION_EVENT_TYPE,
+} from '../../shared/constants';
+import { createLogger } from '../../shared/lambda-logging';
 import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import { tableName } from './database';
 import { BUCKET_NAME, s3Client } from './s3';
-import {lookupSupplier} from "./suppliers";
+import { lookupSupplier } from './suppliers';
 
 interface OperationFailure {
 	sqsMessageId: string;
@@ -84,6 +88,8 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 	const sql = await createDbConnection();
 
+	const logger = createLogger({});
+
 	try {
 		console.log(`Processing ${records.length} messages`);
 
@@ -94,16 +100,21 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 					messageAttributes,
 					body,
 				}): Promise<OperationResult> => {
+					logger.log({
+						message: `Processing message for ${sqsMessageId}`,
+						eventType: INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
+						sqsMessageId,
+					});
 					try {
-						const messageId = messageAttributes['Message-Id']?.stringValue;
+						const externalId = messageAttributes['Message-Id']?.stringValue;
 
-						if (!messageId) {
+						if (!externalId) {
 							await s3Client.send(
 								new PutObjectCommand({
 									Bucket: BUCKET_NAME,
 									Key: `GuMissingExternalId/${sqsMessageId}.json`,
 									Body: JSON.stringify({
-										messageId,
+										externalId,
 										messageAttributes,
 										body,
 									}),
@@ -118,30 +129,43 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						await s3Client.send(
 							new PutObjectCommand({
 								Bucket: BUCKET_NAME,
-								Key: `${messageId}.json`,
+								Key: `${externalId}.json`,
 								Body: body,
 							}),
 						);
 
 						const snsMessageContent = safeBodyParse(body);
 
-						const supplier = lookupSupplier(snsMessageContent['source-feed'])
+						const supplier = lookupSupplier(snsMessageContent['source-feed']);
 
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
                                 (external_id, supplier, content)
-                            VALUES (${messageId}, ${supplier ?? "Unknown"}, ${snsMessageContent as never}) ON CONFLICT (external_id) DO NOTHING
+                            VALUES (${externalId}, ${supplier ?? 'Unknown'}, ${snsMessageContent as never}) ON CONFLICT (external_id) DO NOTHING
 						RETURNING id`;
 
 						if (result.length === 0) {
-							console.warn(
-								`A record with the provided external_id (messageId: ${messageId}) already exists. No new data was inserted to prevent duplication.`,
-							);
+							logger.warn({
+								message: `A record with the provided external_id (messageId: ${externalId}) already exists. No new data was inserted to prevent duplication.`,
+								eventType: 'INGESTION_DUPLICATE_STORY',
+								externalId,
+								sqsMessageId,
+							});
 						} else {
+							// this logging format is for the Cloudwatch Metric Filter
 							console.log({
-								messageId,
+								externalId,
+								supplier,
 								sourceFeed: snsMessageContent['source-feed'],
 								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
+							});
+							// this logging format is for ELK
+							logger.log({
+								message: `Successfully processed message for ${sqsMessageId}`,
+								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
+								sqsMessageId,
+								externalId,
+								supplier,
 							});
 						}
 					} catch (e) {

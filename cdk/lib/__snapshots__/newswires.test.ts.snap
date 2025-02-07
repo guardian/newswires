@@ -683,7 +683,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
         "Handler": "handler.main",
         "LoggingConfig": {
-          "LogFormat": "JSON",
+          "LogFormat": "Text",
         },
         "MemorySize": 512,
         "ReservedConcurrentExecutions": 10,
@@ -1105,7 +1105,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "IngestionSourceFeeds54B3095A": {
       "Properties": {
-        "FilterPattern": "{ $.message.eventType = "SUCCESSFUL_INGESTION" }",
+        "FilterPattern": "{ $.message.eventType = "INGESTION_SUCCESS" }",
         "LogGroupName": {
           "Fn::Join": [
             "",
