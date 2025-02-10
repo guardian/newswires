@@ -1,0 +1,7 @@
+@import play.api.libs.json.Json
+
+@(config: ClientConfig)
+
+<script>
+    window.configuration = @Html(Json.stringify(Json.toJson(config)))
+</script>
