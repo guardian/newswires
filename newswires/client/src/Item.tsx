@@ -89,11 +89,6 @@ export const Item = ({ id }: { id: string }) => {
 								onClick={handleDeselectItem}
 							/>
 							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
-								<EuiButtonIcon
-									iconType={'launch'}
-									aria-label="send to composer"
-									size="s"
-								/>
 								<EuiButtonIcon iconType={'heart'} aria-label="save" size="s" />
 								<CopyButton textToCopy={currentUrl} />
 							</EuiFlexGroup>

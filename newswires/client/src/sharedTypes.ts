@@ -33,6 +33,8 @@ export const WireDataSchema = z.object({
 	externalId: z.string(),
 	ingestedAt: z.string(),
 	content: FingerpostContentSchema,
+	composerId: z.string().optional(),
+	composerSentBy: z.string().optional(),
 	highlight: z.string(),
 	isFromRefresh: z.boolean().default(false),
 });
