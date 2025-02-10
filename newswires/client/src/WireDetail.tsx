@@ -208,7 +208,10 @@ export const WireDetail = ({
 								</EuiDescriptionListDescription>
 							</>
 						)}
-						<ComposerConnection itemData={wire} />
+						<EuiDescriptionListTitle>Composer</EuiDescriptionListTitle>
+						<EuiDescriptionListDescription>
+							<ComposerConnection itemData={wire} key={wire.id} />
+						</EuiDescriptionListDescription>
 						{bodyTextContent && (
 							<>
 								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>

@@ -60,11 +60,13 @@ const SendOrVisitInComposerButton = ({
 };
 
 export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
-	const [sendState, setSendState] = useState<SendState>('unsent');
-
 	const [composerId, setComposerId] = useState(itemData.composerId);
 	const [sentBy, setSentBy] = useState(itemData.composerSentBy);
 	const [failureReason, setFailureReason] = useState<string | undefined>();
+
+	const [sendState, setSendState] = useState<SendState>(
+		itemData.composerId ? 'sent' : 'unsent',
+	);
 
 	const send = useCallback(() => {
 		setSendState('sending');
@@ -96,7 +98,7 @@ export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
 						failureReason={failureReason}
 					/>
 				</EuiFlexItem>
-				<EuiFlexItem>
+				<EuiFlexItem grow={false}>
 					<SendOrVisitInComposerButton
 						sendState={sendState}
 						composerId={composerId}
