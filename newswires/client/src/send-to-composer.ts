@@ -140,13 +140,26 @@ const linkToComposer = async (
 	composerId: string,
 	sentBy: string,
 ) => {
-	const response = await pandaFetch(`/api/content/${wireId}/composerId`, {
+	const maybeCsrfToken = document
+		.querySelector('meta[data-name="csrfToken"]')
+		?.getAttribute('data-value');
+
+	if (!maybeCsrfToken) {
+		return Promise.reject(
+			new Error(
+				`Created composer page at ${composerPageForId(composerId)} but failed to store that in newswires due to missing CSRF token!`,
+			),
+		);
+	}
+
+	const response = await pandaFetch(`/api/item/${wireId}/composerId`, {
 		method: 'PUT',
 		credentials: 'same-origin',
 		mode: 'same-origin',
 		body: JSON.stringify({ composerId, sentBy }),
 		headers: {
 			'Content-Type': 'application/json',
+			'Csrf-Token': maybeCsrfToken,
 		},
 	});
 
