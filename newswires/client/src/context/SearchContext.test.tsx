@@ -1,5 +1,4 @@
 import { act, render } from '@testing-library/react';
-import type React from 'react';
 import { flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
