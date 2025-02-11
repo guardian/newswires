@@ -8,6 +8,7 @@ import { createLogger } from '../../shared/lambda-logging';
 import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
+import { processFingerpostAPCategoryCodes } from './categoryCodes';
 import { tableName } from './database';
 import { BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
@@ -138,10 +139,17 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const supplier = lookupSupplier(snsMessageContent['source-feed']);
 
+						const categoryCodes =
+							supplier === 'AP'
+								? processFingerpostAPCategoryCodes(
+										snsMessageContent.subjects?.code ?? [],
+									)
+								: [];
+
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
-                                (external_id, supplier, content)
-                            VALUES (${externalId}, ${supplier ?? 'Unknown'}, ${snsMessageContent as never}) ON CONFLICT (external_id) DO NOTHING
+                                (external_id, supplier, content, category_codes)
+                            VALUES (${externalId}, ${supplier ?? 'Unknown'}, ${snsMessageContent as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
 						RETURNING id`;
 
 						if (result.length === 0) {

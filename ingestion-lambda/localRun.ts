@@ -69,8 +69,7 @@ function createDummyFeedEntry(): {
 			byline: '',
 			priority: '4',
 			subjects: {
-				// @ts-expect-error -- FIXME zod issue
-				code: '',
+				code: ['iptc:a', 'iptc:b', 'service:AP'],
 			},
 			mediaCatCodes: 'f',
 			keywords,
