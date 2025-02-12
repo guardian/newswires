@@ -165,6 +165,7 @@ export const WireDetail = ({
 																				label={category}
 																				size="xs"
 																				iconType={'dot'}
+																				wrapText={true}
 																			></EuiListGroupItem>
 																		),
 																	)}
