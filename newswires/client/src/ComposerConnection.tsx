@@ -44,7 +44,11 @@ const SendOrVisitInComposerButton = ({
 }) => {
 	if (sendState === 'sent' && composerId)
 		return (
-			<EuiButton href={composerPageForId(composerId)} iconType="link">
+			<EuiButton
+				href={composerPageForId(composerId)}
+				target="_blank"
+				iconType="link"
+			>
 				Open in Composer
 			</EuiButton>
 		);
