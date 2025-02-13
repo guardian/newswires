@@ -9,16 +9,16 @@ describe('processFingerpostAPCategoryCodes', () => {
 		expect(processFingerpostAPCategoryCodes(['service:news'])).toEqual([]);
 	});
 
-	it('should return simple category codes as they were received', () => {
+	it('should return simple codes labelled "iptccat" as simple "apCat" codes', () => {
 		expect(
 			processFingerpostAPCategoryCodes(['iptccat:a', 'iptccat:b']),
-		).toEqual(['iptccat:a', 'iptccat:b']);
+		).toEqual(['apCat:a', 'apCat:b']);
 	});
 
 	it('should expand category codes with multiple subcodes', () => {
 		expect(processFingerpostAPCategoryCodes(['iptccat:c+d'])).toEqual([
-			'iptccat:c',
-			'iptccat:d',
+			'apCat:c',
+			'apCat:d',
 		]);
 	});
 
@@ -31,7 +31,7 @@ describe('processFingerpostAPCategoryCodes', () => {
 	it('should remove empty strings', () => {
 		expect(
 			processFingerpostAPCategoryCodes(['iptccat:a', '', 'iptccat:c']),
-		).toEqual(['iptccat:a', 'iptccat:c']);
+		).toEqual(['apCat:a', 'apCat:c']);
 	});
 
 	it('should remove trailing and leading whitespace', () => {
@@ -42,7 +42,7 @@ describe('processFingerpostAPCategoryCodes', () => {
 				' service:news ',
 				'qCode:value ',
 			]),
-		).toEqual(['iptccat:a', 'iptccat:c', 'qCode:value']);
+		).toEqual(['apCat:a', 'apCat:c', 'qCode:value']);
 	});
 
 	it('should deduplicate category codes after stripping whitespace', () => {
@@ -52,6 +52,6 @@ describe('processFingerpostAPCategoryCodes', () => {
 				' iptccat:a',
 				'iptccat:c',
 			]),
-		).toEqual(['iptccat:a', 'iptccat:c']);
+		).toEqual(['apCat:a', 'apCat:c']);
 	});
 });
