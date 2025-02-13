@@ -58,6 +58,8 @@ export const QuerySchema = z.object({
 	keywordsExcl: z.ostring(),
 	subjects: z.array(z.string()).optional(),
 	subjectsExcl: z.array(z.string()).optional(),
+	categoryCode: z.array(z.string()).optional(),
+	categoryCodeExcl: z.array(z.string()).optional(),
 	bucket: z.ostring(),
 });
 
