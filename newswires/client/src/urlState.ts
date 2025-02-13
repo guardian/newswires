@@ -9,6 +9,8 @@ export const defaultQuery: Query = {
 	subjects: [],
 	subjectsExcl: [],
 	bucket: undefined,
+	categoryCode: [],
+	categoryCodeExcl: [],
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -31,6 +33,8 @@ export function urlToConfig(location: {
 	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
 	const subjects = urlSearchParams.getAll('subjects');
 	const subjectsExcl = urlSearchParams.getAll('subjectsExcl');
+	const categoryCode = urlSearchParams.getAll('categoryCode');
+	const categoryCodeExcl = urlSearchParams.getAll('categoryCodeExcl');
 	const bucket = urlSearchParams.get('bucket') ?? undefined;
 	const query: Query = {
 		q:
@@ -43,6 +47,8 @@ export function urlToConfig(location: {
 		keywordsExcl,
 		subjects,
 		subjectsExcl,
+		categoryCode,
+		categoryCodeExcl,
 		bucket,
 	};
 
