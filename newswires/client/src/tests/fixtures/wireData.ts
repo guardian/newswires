@@ -29,6 +29,7 @@ export const sampleWireData: WireData = {
 	supplier: 'TestSupplier',
 	externalId: 'external-123',
 	ingestedAt: '2025-01-01T00:00:00Z',
+	categoryCodes: ['category1', 'category2'],
 	content: sampleFingerpostContent,
 	highlight: 'Sample Highlight',
 	isFromRefresh: false,

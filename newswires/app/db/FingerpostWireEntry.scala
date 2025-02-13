@@ -71,6 +71,7 @@ case class FingerpostWireEntry(
     content: FingerpostWire,
     composerId: Option[String],
     composerSentBy: Option[String],
+    categoryCodes: List[String],
     highlight: Option[String] = None
 )
 
@@ -90,6 +91,7 @@ object FingerpostWireEntry
       "supplier",
       "composer_id",
       "composer_sent_by",
+      "category_codes",
       "combined_textsearch",
       "highlight"
     )
@@ -102,6 +104,7 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.supplier},
     |   ${FingerpostWireEntry.syn.result.composerId},
     |   ${FingerpostWireEntry.syn.result.composerSentBy},
+    |   ${FingerpostWireEntry.syn.result.categoryCodes},
     |   ${FingerpostWireEntry.syn.result.content}
     |""".stripMargin
 
@@ -109,6 +112,14 @@ object FingerpostWireEntry
       fm: ResultName[FingerpostWireEntry]
   )(rs: WrappedResultSet): FingerpostWireEntry = {
     val fingerpostContent = Json.parse(rs.string(fm.content)).as[FingerpostWire]
+    val maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
+    val categoryCodes = maybeCategoryCodes match {
+      case Some(array) =>
+        array.getArray
+          .asInstanceOf[Array[String]]
+          .toList
+      case None => Nil
+    }
 
     FingerpostWireEntry(
       id = rs.long(fm.id),
@@ -118,6 +129,7 @@ object FingerpostWireEntry
       content = fingerpostContent,
       composerId = rs.stringOpt(fm.composerId),
       composerSentBy = rs.stringOpt(fm.composerSentBy),
+      categoryCodes = categoryCodes,
       highlight = rs.stringOpt(fm.column("highlight"))
     )
   }
