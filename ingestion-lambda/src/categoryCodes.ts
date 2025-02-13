@@ -22,10 +22,7 @@ function flattenCategoryCodes(categoryCodes: string): string[] {
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
-	const [_serviceCodes, remainingNotServiceCodes] = partition(
-		original,
-		(code) => code.includes('service:'),
-	); // we aren't interested in keeping the service codes here
+	const remainingNotServiceCodes = original.filter((_) => !_.includes('service:'));
 	const [iptccatCodes, rest] = partition(remainingNotServiceCodes, (code) =>
 		code.includes('iptccat:'),
 	);
