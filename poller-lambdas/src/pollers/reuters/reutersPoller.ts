@@ -18,7 +18,7 @@ import { auth } from './auth';
 const textItemsSearchQuery = (cursor?: string) => `query NewTextItemsSearch {
 search(${
 	cursor ? `cursor: "${cursor}", ` : ''
-}filter: { mediaTypes: TEXT, maxAge: "${REUTERS_POLLING_FREQUENCY_IN_SECONDS * 1.2}s" }) {
+}filter: { mediaTypes: TEXT, maxAge: "${REUTERS_POLLING_FREQUENCY_IN_SECONDS * 2.2}s" }) {
 	pageInfo {
 		endCursor
 		hasNextPage
