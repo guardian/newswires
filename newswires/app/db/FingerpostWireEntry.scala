@@ -69,6 +69,8 @@ case class FingerpostWireEntry(
     externalId: String,
     ingestedAt: ZonedDateTime,
     content: FingerpostWire,
+    composerId: Option[String],
+    composerSentBy: Option[String],
     highlight: Option[String] = None
 )
 
@@ -86,6 +88,8 @@ object FingerpostWireEntry
       "ingested_at",
       "content",
       "supplier",
+      "composer_id",
+      "composer_sent_by",
       "combined_textsearch",
       "highlight"
     )
@@ -96,6 +100,8 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
     |   ${FingerpostWireEntry.syn.result.supplier},
+    |   ${FingerpostWireEntry.syn.result.composerId},
+    |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.content}
     |""".stripMargin
 
@@ -110,6 +116,8 @@ object FingerpostWireEntry
       externalId = rs.string(fm.externalId),
       ingestedAt = rs.zonedDateTime(fm.ingestedAt),
       content = fingerpostContent,
+      composerId = rs.stringOpt(fm.composerId),
+      composerSentBy = rs.stringOpt(fm.composerSentBy),
       highlight = rs.stringOpt(fm.column("highlight"))
     )
   }
@@ -120,20 +128,19 @@ object FingerpostWireEntry
   def get(
       id: Int,
       maybeFreeTextQuery: Option[String] = Some("alpaca")
-  ): Option[FingerpostWireEntry] = DB readOnly {
+  ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     val highlightsClause = maybeFreeTextQuery match {
       case Some(query) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
-    implicit session =>
-      sql"""| SELECT $selectAllStatement $highlightsClause
-            | FROM ${FingerpostWireEntry as syn}
-            | WHERE ${FingerpostWireEntry.syn.id} = $id
-            |""".stripMargin
-        .map(FingerpostWireEntry(syn.resultName))
-        .single()
-        .apply()
+    sql"""| SELECT $selectAllStatement $highlightsClause
+          | FROM ${FingerpostWireEntry as syn}
+          | WHERE ${FingerpostWireEntry.syn.id} = $id
+          |""".stripMargin
+      .map(FingerpostWireEntry(syn.resultName))
+      .single()
+      .apply()
   }
 
   case class QueryResponse(
@@ -313,7 +320,7 @@ object FingerpostWireEntry
       maybeInLastHours: Option[Int] = None,
       maybeLimit: Option[Int] = None,
       additionalWhereClauses: List[SQLSyntax] = Nil
-  ): Map[String, Int] =
+  ): Map[String, Int] = {
     DB readOnly { implicit session =>
       val innerWhereClause = additionalWhereClauses ++ maybeInLastHours
         .map(inLastHours =>
@@ -345,5 +352,20 @@ object FingerpostWireEntry
         .apply()
         .toMap // TODO would a list be better?
     }
+  }
 
+  def insertComposerId(
+      newswiresId: Int,
+      composerId: String,
+      sentBy: String
+  ): Int = DB localTx { implicit session =>
+    sql"""| UPDATE ${FingerpostWireEntry as syn}
+          | SET composer_id = $composerId, composer_sent_by = $sentBy
+          | WHERE id = $newswiresId
+          |   AND composer_id IS NULL
+          |   AND composer_sent_by IS NULL
+          | """.stripMargin
+      .update()
+      .apply()
+  }
 }
