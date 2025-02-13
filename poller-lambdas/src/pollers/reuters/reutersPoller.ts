@@ -18,7 +18,7 @@ import { auth } from './auth';
 const textItemsSearchQuery = (cursor?: string) => `query NewTextItemsSearch {
 search(${
 	cursor ? `cursor: "${cursor}", ` : ''
-}filter: { mediaTypes: TEXT, maxAge: "${REUTERS_POLLING_FREQUENCY_IN_SECONDS * 1.2}s" }) {
+}filter: { mediaTypes: TEXT, maxAge: "${REUTERS_POLLING_FREQUENCY_IN_SECONDS * 2.2}s" }) {
 	pageInfo {
 		endCursor
 		hasNextPage
@@ -288,13 +288,27 @@ export const reutersPoller = (async ({
 				await fetchWithReauth(itemQuery(itemId)),
 			);
 			if (!parsedItemResult.success) {
-				logger.log({
+				logger.warn({
 					externalId: itemId,
 					supplier: 'Reuters',
 					eventType: POLLER_FAILURE_EVENT_TYPE,
 					errors: parsedItemResult.error.errors,
-					message: `Failed to parse item response for ${itemId}`,
+					message: `Failed to parse item response for ${itemId}; retrying`,
 				});
+				await new Promise((resolve) => setTimeout(resolve, 5000));
+				const retryResult = await fetchWithReauth(itemQuery(itemId));
+				const retryParsedItemResult = itemResponseSchema.safeParse(retryResult);
+				if (!retryParsedItemResult.success) {
+					logger.error({
+						externalId: itemId,
+						supplier: 'Reuters',
+						eventType: POLLER_FAILURE_EVENT_TYPE,
+						errors: retryParsedItemResult.error.errors,
+						message: `Failed to parse item response for ${itemId} on retry`,
+					});
+					return;
+				}
+				return retryParsedItemResult.data;
 			}
 			return parsedItemResult.data;
 		}),
