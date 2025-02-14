@@ -14,21 +14,26 @@ function partition<T>(
 	return [first, second];
 }
 
+/**
+ * We receive AP codes from Fingerpost in the format `prefix:code1+code2+code3:code4+code5`.
+ * At the time of writing these are AP category codes, but mislabelled as `iptccat` codes.
+ * This function transforms the prefix, and splits the codes into individual category codes.
+ */
 function flattenCategoryCodes(categoryCodes: string): string[] {
 	const [prefix, ...codes] = categoryCodes.split(':');
 	return codes
 		.flatMap((_) => _.split('+'))
-		.flatMap((code) => `${prefix}:${code}`);
+		.map((code) => `${prefix?.trim() === 'iptccat' ? 'apCat' : prefix}:${code}`);
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
-	const remainingNotServiceCodes = original.filter((_) => !_.includes('service:'));
-	const [iptccatCodes, rest] = partition(remainingNotServiceCodes, (code) =>
+	const notServiceCodes = original.filter((_) => !_.includes('service:')); // we aren't interested in keeping the service codes here
+	const [categoryCodes, rest] = partition(notServiceCodes, (code) =>
 		code.includes('iptccat:'),
 	);
-	const transformedIptccatCodes = iptccatCodes.flatMap(flattenCategoryCodes);
+	const transformedCategoryCodes = categoryCodes.flatMap(flattenCategoryCodes);
 
-	const allCategoryCodes = [...transformedIptccatCodes, ...rest]
+	const allCategoryCodes = [...transformedCategoryCodes, ...rest]
 		.map((_) => _.trim())
 		.filter((_) => _.length > 0);
 	const deduped = [...new Set(allCategoryCodes)];
