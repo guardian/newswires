@@ -23,7 +23,7 @@ function flattenCategoryCodes(categoryCodes: string): string[] {
 	const [prefix, ...codes] = categoryCodes.split(':');
 	return codes
 		.flatMap((_) => _.split('+'))
-		.map((code) => `${prefix?.match(/\s?iptccat/) ? 'apCat' : prefix}:${code}`);
+		.map((code) => `${prefix?.trim() === 'iptccat' ? 'apCat' : prefix}:${code}`);
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
