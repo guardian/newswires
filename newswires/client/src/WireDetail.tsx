@@ -21,6 +21,57 @@ import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import type { WireData } from './sharedTypes';
 
+interface ArticleProps {
+	bodyTextContent: string;
+}
+
+const decodeBodyTextContent = (text: string): string =>
+	text
+		.replace(
+			/\\u([0-9a-fA-F]{4})/g,
+			(_: string, hex: string) => String.fromCharCode(parseInt(hex, 16)), // Replace Unicode escape sequences, e.g. \u00a0 → non-breaking space.
+		)
+		.replace(/\\([\\nrt"'])/g, (_: string, group1: string) => {
+			switch (group1) {
+				case '\\':
+					return '\\';
+				case 'n':
+					return '\n';
+				case 'r':
+					return '\r';
+				case 't':
+					return '\t';
+				case '"':
+					return '"';
+				case "'":
+					return "'";
+				default:
+					return group1;
+			}
+		})
+		.replace(/\n/g, '<br />');
+
+const Article = ({ bodyTextContent }: ArticleProps) => {
+	const theme = useEuiTheme();
+
+	const decodedContent = useMemo(
+		() => decodeBodyTextContent(bodyTextContent),
+		[bodyTextContent],
+	);
+
+	return (
+		<article
+			dangerouslySetInnerHTML={{ __html: decodedContent }}
+			css={css`
+				& p {
+					margin-bottom: ${theme.euiTheme.size.s};
+				}
+			`}
+			data-pinboard-selection-target={true}
+		/>
+	);
+};
+
 export const WireDetail = ({
 	wire,
 	isShowingJson,
@@ -217,15 +268,7 @@ export const WireDetail = ({
 							<>
 								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
 								<EuiDescriptionListDescription>
-									<article
-										dangerouslySetInnerHTML={{ __html: bodyTextContent }}
-										css={css`
-											& p {
-												margin-bottom: ${theme.euiTheme.size.s};
-											}
-										`}
-										data-pinboard-selection-target
-									/>
+									<Article bodyTextContent={bodyTextContent} />
 								</EuiDescriptionListDescription>
 							</>
 						)}
