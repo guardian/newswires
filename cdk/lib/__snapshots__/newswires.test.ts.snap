@@ -1423,7 +1423,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "EnableIAMDatabaseAuthentication": true,
         "Engine": "postgres",
         "EngineVersion": "16.4",
-        "Iops": 3000,
         "MasterUserPassword": {
           "Fn::Join": [
             "",
@@ -1452,7 +1451,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Port": "5432",
         "PubliclyAccessible": false,
         "StorageEncrypted": true,
-        "StorageThroughput": 125,
         "StorageType": "gp3",
         "Tags": [
           {
