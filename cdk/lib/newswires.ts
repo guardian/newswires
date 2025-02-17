@@ -136,28 +136,28 @@ export class Newswires extends GuStack {
 
 		database.grantConnect(ingestionLambda);
 
-		const ingestionSourceFeedsMetricFilter = new MetricFilter(
-			this,
-			'IngestionSourceFeeds',
-			{
-				logGroup: LogGroup.fromLogGroupName(
-					this,
-					'IngestionLambdaLogGroup',
-					`/aws/lambda/${ingestionLambda.functionName}`,
-				),
-				metricNamespace: `${stageStackApp}-ingestion-lambda`,
-				metricName: 'IngestionSourceFeeds',
-				metricValue: '1',
-				filterPattern: aws_logs.FilterPattern.stringValue(
-					'$.message.eventType',
-					'=',
-					SUCCESSFUL_INGESTION_EVENT_TYPE,
-				),
-				dimensions: { sourceFeed: '$.message.sourceFeed' },
-			},
-		);
+		// const ingestionSourceFeedsMetricFilter = new MetricFilter(
+		// 	this,
+		// 	'IngestionSourceFeeds',
+		// 	{
+		// 		logGroup: LogGroup.fromLogGroupName(
+		// 			this,
+		// 			'IngestionLambdaLogGroup',
+		// 			`/aws/lambda/${ingestionLambda.functionName}`,
+		// 		),
+		// 		metricNamespace: `${stageStackApp}-ingestion-lambda`,
+		// 		metricName: 'IngestionSourceFeeds',
+		// 		metricValue: '1',
+		// 		filterPattern: aws_logs.FilterPattern.stringValue(
+		// 			'$.message.eventType',
+		// 			'=',
+		// 			SUCCESSFUL_INGESTION_EVENT_TYPE,
+		// 		),
+		// 		dimensions: { sourceFeed: '$.message.sourceFeed' },
+		// 	},
+		// );
 
-		ingestionSourceFeedsMetricFilter.node.addDependency(ingestionLambda);
+		// ingestionSourceFeedsMetricFilter.node.addDependency(ingestionLambda);
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
 			this,
