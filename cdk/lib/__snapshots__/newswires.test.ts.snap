@@ -1103,36 +1103,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
-    "IngestionSourceFeeds54B3095A": {
-      "Properties": {
-        "FilterPattern": "{ $.message.eventType = "INGESTION_SUCCESS" }",
-        "LogGroupName": {
-          "Fn::Join": [
-            "",
-            [
-              "/aws/lambda/",
-              {
-                "Ref": "IngestionLambdaTESTC02B3E43",
-              },
-            ],
-          ],
-        },
-        "MetricTransformations": [
-          {
-            "Dimensions": [
-              {
-                "Key": "sourceFeed",
-                "Value": "$.message.sourceFeed",
-              },
-            ],
-            "MetricName": "IngestionSourceFeeds",
-            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
-            "MetricValue": "1",
-          },
-        ],
-      },
-      "Type": "AWS::Logs::MetricFilter",
-    },
     "InstanceRoleNewswiresC10A0615": {
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -1423,7 +1393,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "EnableIAMDatabaseAuthentication": true,
         "Engine": "postgres",
         "EngineVersion": "16.4",
-        "Iops": 3000,
         "MasterUserPassword": {
           "Fn::Join": [
             "",
@@ -1452,7 +1421,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Port": "5432",
         "PubliclyAccessible": false,
         "StorageEncrypted": true,
-        "StorageThroughput": 125,
         "StorageType": "gp3",
         "Tags": [
           {
