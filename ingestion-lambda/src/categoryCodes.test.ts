@@ -1,4 +1,4 @@
-import { processFingerpostAPCategoryCodes } from './categoryCodes';
+import {processFingerpostAAPCategoryCodes, processFingerpostAPCategoryCodes} from './categoryCodes';
 
 describe('processFingerpostAPCategoryCodes', () => {
 	it('should return an empty array if provided with an empty array', () => {
@@ -53,5 +53,40 @@ describe('processFingerpostAPCategoryCodes', () => {
 				'iptccat:c',
 			]),
 		).toEqual(['apCat:a', 'apCat:c']);
+	});
+});
+
+describe('processFingerpostAAPCategoryCodes', () => {
+	it('should return an empty array if provided with an empty array', () => {
+		expect(processFingerpostAAPCategoryCodes([])).toEqual([]);
+	});
+
+	it('should strip out non-valid news codes', () => {
+		expect(processFingerpostAAPCategoryCodes(['and'])).toEqual([]);
+	});
+
+	it('should process valid news codes', () => {
+		expect(
+			processFingerpostAAPCategoryCodes([
+				'04007003+food',
+				'goods|04013002+food',
+				'and',
+				'medtop:20000049'
+			]),
+		).toEqual(['medtop:20000049', 'subj:04007003', 'subj:04013002']);
+	});
+
+	it('should flatten embedded news codes', () => {
+		expect(
+			processFingerpostAAPCategoryCodes([
+				'11001000+defence|11001005+military',
+				'equipment|11002000+diplomacy|04015001+air',
+			]),
+		).toEqual([
+			'subj:11001000',
+			'subj:11001005',
+			'subj:11002000',
+			'subj:04015001',
+		]);
 	});
 });

@@ -8,7 +8,7 @@ import { createLogger } from '../../shared/lambda-logging';
 import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
-import { processFingerpostAPCategoryCodes } from './categoryCodes';
+import {processFingerpostAAPCategoryCodes, processFingerpostAPCategoryCodes} from './categoryCodes';
 import { tableName } from './database';
 import { BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
@@ -51,6 +51,21 @@ export const processKeywords = (
 	}
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
+
+const processCategoryCodes = (supplier: string | undefined, subjectCodes: string[]) => {
+	switch (supplier) {
+		case 'AP':
+			return processFingerpostAPCategoryCodes(
+				subjectCodes,
+			);
+		case 'AAP':
+			return processFingerpostAAPCategoryCodes(
+				subjectCodes,
+			);
+		default:
+			return [];
+	}
+}
 
 const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
@@ -139,12 +154,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const supplier = lookupSupplier(snsMessageContent['source-feed']);
 
-						const categoryCodes =
-							supplier === 'AP'
-								? processFingerpostAPCategoryCodes(
-										snsMessageContent.subjects?.code ?? [],
-									)
-								: [];
+						const categoryCodes = processCategoryCodes(supplier, snsMessageContent.subjects?.code ?? [])
 
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
