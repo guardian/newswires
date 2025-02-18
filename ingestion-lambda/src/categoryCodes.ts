@@ -39,3 +39,13 @@ export function processFingerpostAPCategoryCodes(original: string[]): string[] {
 	const deduped = [...new Set(allCategoryCodes)];
 	return deduped;
 }
+
+export function processFingerpostAAPCategoryCodes(categoryCodes: string[]): string[] {
+	return categoryCodes
+		.flatMap((categoryCode) => categoryCode.split('|'))
+		.filter((_) => _.split('+').length > 1)
+		.map((categoryCode) => {
+			const [ code, _label ] = categoryCode.split('+');
+			return `subj:${code}`
+		});
+}

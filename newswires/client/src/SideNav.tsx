@@ -35,6 +35,7 @@ const buckets = [
 	{ id: 'us-election', name: 'US Election' },
 	{ id: 'ap-world', name: 'AP World' },
 	{ id: 'reuters-world', name: 'Reuters World' },
+	{ id: 'aap-world', name: 'AAP World' },
 ];
 function bucketName(bucketId: string): string | undefined {
 	return buckets.find((bucket) => bucket.id === bucketId)?.name;
