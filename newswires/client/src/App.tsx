@@ -1,4 +1,6 @@
 import {
+	EuiBadge,
+	EuiBetaBadge,
 	EuiButton,
 	EuiEmptyPrompt,
 	EuiHeader,
@@ -9,6 +11,7 @@ import {
 	EuiProvider,
 	EuiResizableContainer,
 	EuiShowFor,
+	EuiSpacer,
 	EuiTitle,
 	EuiToast,
 } from '@elastic/eui';
@@ -103,6 +106,14 @@ export function App() {
 											>
 												Newswires
 											</EuiLink>
+											<EuiBetaBadge
+												label="Beta"
+												color={'accent'}
+												size="s"
+												css={css`
+													margin-left: 8px;
+												`}
+											></EuiBetaBadge>
 										</h1>
 									</EuiTitle>
 								</EuiHeaderSectionItem>
