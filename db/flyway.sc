@@ -107,7 +107,7 @@ def buildFlyway(password: String) =
     .locations(s"filesystem:$location")
     .load()
 
-def codeFlyway: Flyway = {
+def remoteFlyway(stage: String): Flyway = {
   val credentials =
     DefaultCredentialsProvider.builder().profileName("editorial-feeds").build()
   val secretsManager =
@@ -125,7 +125,7 @@ def codeFlyway: Flyway = {
       val tags = secret.tags().asScala
       secret.name().contains("NewswiresDBNewswiresSecret") && tags.exists(tag =>
         tag.key == "App" && tag.value == "newswires"
-      ) && tags.exists(tag => tag.key == "Stage" && tag.value == "CODE")
+      ) && tags.exists(tag => tag.key == "Stage" && tag.value == stage)
     })
     .getOrElse {
       println("No secret matching the expected name or tags!")
@@ -169,7 +169,8 @@ val command = args.lift(0) match {
 
 val (env, flyway) = args.lift(1).map(_.toLowerCase()) match {
   case Some("local") => ("local", localFlyway)
-  case Some("code") => ("code", codeFlyway)
+  case Some("code") => ("code", remoteFlyway("CODE"))
+  case Some("prod") => ("prod", remoteFlyway("PROD"))
   case o =>
     val msg = o.fold("No environment specified!")(env => s"Unknown env $env!")
     println(s"$msg Try again with one of `local`, `code` or `prod`")
