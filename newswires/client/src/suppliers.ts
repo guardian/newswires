@@ -22,6 +22,10 @@ const allSupplierData: Record<
 		label: 'AAP',
 		colour: AAPBrand,
 	},
+	AFP: {
+		label: 'AFP',
+		colour: AFPBrand,
+	},
 	PA: {
 		label: 'PA',
 		colour: PABrand,

@@ -2,6 +2,7 @@ const supplierLookupMap: Record<string, string[]> = {
 	REUTERS: ['REUTERS'],
 	GUREUTERS: ['Reuters-Newswires'],
 	AAP: ['AAP'],
+	AFP: ['AFP'],
 	AP: [
 		'ADVIS',
 		'AP ADVIS',
