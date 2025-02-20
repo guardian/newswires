@@ -100,7 +100,7 @@ function decideSecondaryCardContent({
 	subhead,
 	bodyText,
 }: WireData['content']): string | undefined {
-	if (subhead && !(subhead === headline)) {
+	if (subhead && subhead !== headline) {
 		return subhead;
 	}
 	const maybeBodyTextPreview = bodyText
@@ -109,7 +109,7 @@ function decideSecondaryCardContent({
 				100,
 			)
 		: undefined;
-	if (maybeBodyTextPreview && !(maybeBodyTextPreview === headline)) {
+	if (maybeBodyTextPreview && maybeBodyTextPreview !== headline) {
 		return maybeBodyTextPreview;
 	}
 }
