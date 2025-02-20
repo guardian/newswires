@@ -1,5 +1,4 @@
 import {
-	EuiAccordion,
 	EuiBadge,
 	EuiBadgeGroup,
 	EuiCallOut,

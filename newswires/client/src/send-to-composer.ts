@@ -65,9 +65,6 @@ const ComposerCreateContentResponseSchema = z.object({
 		}),
 	}),
 });
-type ComposerCreateContentResponse = z.infer<
-	typeof ComposerCreateContentResponseSchema
->;
 
 const COMPOSER_HOST = window.location.hostname.endsWith('.gutools.co.uk')
 	? 'composer.gutools.co.uk'

@@ -1,5 +1,4 @@
 import {
-	EuiBadge,
 	EuiBetaBadge,
 	EuiButton,
 	EuiEmptyPrompt,
@@ -11,7 +10,6 @@ import {
 	EuiProvider,
 	EuiResizableContainer,
 	EuiShowFor,
-	EuiSpacer,
 	EuiTitle,
 	EuiToast,
 } from '@elastic/eui';

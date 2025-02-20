@@ -1,13 +1,5 @@
 import { lookupTables } from './category-code-lookup-tables';
 
-const qCodePrefixesLookup = {
-	medtop: ['IPTC MediaTopics'],
-	subj: ['IPTC NewsCodes', 'IPTC MediaTopics'],
-	a1312cat: ['A1312 CatCodes'],
-	n2000: ['N2000 Codes'],
-	n2: ['N2000 Codes'],
-};
-
 export function lookupCatCodesWideSearch(catCode: string): string[] {
 	return lookupTables
 		.map((table) => {
