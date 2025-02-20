@@ -58,7 +58,7 @@ export const recognisedSuppliers = Object.keys(allSupplierData).filter(
 );
 
 export const supplierData = Object.fromEntries(
-	Object.entries(allSupplierData).filter(([supplier]) =>
+	Object.entries(allSupplierData).filter(([supplier, _]) =>
 		recognisedSuppliers.includes(supplier),
 	),
 );
