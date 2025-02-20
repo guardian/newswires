@@ -1,6 +1,7 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import {
+	FAILED_INGESTION_EVENT_TYPE,
 	INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
 	SUCCESSFUL_INGESTION_EVENT_TYPE,
 } from '../../shared/constants';
@@ -135,6 +136,12 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							}),
 						);
 
+						logger.log({
+							message: `Stored message content in S3 for ${sqsMessageId}`,
+							sqsMessageId,
+							externalId,
+						});
+
 						const snsMessageContent = safeBodyParse(body);
 
 						const supplier = lookupSupplier(snsMessageContent['source-feed']);
@@ -177,6 +184,13 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							});
 						}
 					} catch (e) {
+						logger.error({
+							message: `Failed to process message for ${sqsMessageId}`,
+							eventType: FAILED_INGESTION_EVENT_TYPE,
+							sqsMessageId,
+							error: e,
+							stackTrace: (e as { stack: string | undefined }).stack,
+						});
 						const reason = e instanceof Error ? e.message : 'Unknown error';
 						return {
 							status: 'failure',
@@ -195,9 +209,12 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 				(result): result is OperationFailure => result.status === 'failure',
 			)
 			.map(({ sqsMessageId, reason }) => {
-				console.error(
-					`Failed to process message for ${sqsMessageId}: ${reason}`,
-				);
+				logger.error({
+					message: `Failed to process message for ${sqsMessageId}: ${reason}`,
+					eventType: FAILED_INGESTION_EVENT_TYPE,
+					sqsMessageId,
+					reason,
+				});
 				return { itemIdentifier: sqsMessageId };
 			});
 
