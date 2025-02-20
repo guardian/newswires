@@ -258,20 +258,49 @@ object FingerpostWireEntry
         )
     }
 
-    // grr annoying but broadly I think subjects and keywords are the same "axis" to search on
-    val keywordsOrSubjectsQuery = (keywordsQuery, subjectsQuery) match {
-      case (Some(kwq), Some(subq)) => Some(sqls"$kwq OR $subq")
-      case _                       => keywordsQuery orElse subjectsQuery
+    val categoryCodesInclQuery = search.categoryCodesIncl match {
+      case Nil => None
+      case categoryCodes =>
+        Some(
+          sqls"${syn.categoryCodes} && array[${categoryCodes.map(code => sqls"$code")}]::text[]"
+        )
     }
+
+    val categoryCodesExclQuery = search.categoryCodesExcl match {
+      case Nil => None
+      case categoryCodesExcl =>
+        val cce = this.syntax("categoryCodesExcl")
+        val doesContainCategoryCodes =
+          sqls"${cce.categoryCodes} && array[${categoryCodesExcl.map(code => sqls"$code")}]::text[]"
+
+        Some(
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as cce}
+                 |  WHERE ${syn.id} = ${cce.id}
+                 |    AND $doesContainCategoryCodes
+                 |)""".stripMargin
+        )
+    }
+
+    // grr annoying but broadly I think subjects(/categoryCodes) and keywords are the same "axis" to search on
+    val clausesJoinedWithOr =
+      List(keywordsQuery, subjectsQuery, categoryCodesInclQuery).flatten match {
+        case Nil => None
+        case clauses =>
+          Some(sqls.joinWithOr(clauses: _*))
+      }
+
     val commonWhereClauses = List(
-      keywordsOrSubjectsQuery,
+      clausesJoinedWithOr,
       keywordsExclQuery,
       subjectsExclQuery,
       search.text.map(query =>
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
       sourceFeedsQuery,
-      sourceFeedsExclQuery
+      sourceFeedsExclQuery,
+      categoryCodesInclQuery,
+      categoryCodesExclQuery
     ).flatten
 
     val dataOnlyWhereClauses = List(
