@@ -9,6 +9,7 @@ import {
 	EuiSpacer,
 	EuiSplitPanel,
 	EuiSwitch,
+	EuiText,
 	EuiTitle,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
@@ -18,6 +19,20 @@ import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
 import { paramsToQuerystring } from './urlState';
 import { WireDetail } from './WireDetail';
+
+function decideTitleContentForItem(wire: WireData) {
+	const { slug, headline } = wire.content;
+
+	if (headline && headline.length > 0) {
+		return (
+			<>
+				{slug && <EuiText size={'xs'}>{slug}</EuiText>} {headline}
+			</>
+		);
+	}
+
+	return <>{slug ?? 'No title'}</>;
+}
 
 export const Item = ({ id }: { id: string }) => {
 	const { handleDeselectItem, config } = useSearch();
@@ -97,7 +112,9 @@ export const Item = ({ id }: { id: string }) => {
 						<EuiFlexGroup justifyContent="spaceBetween">
 							<EuiFlexItem grow={true}>
 								<EuiTitle size="xs">
-									<h2 id={pushedFlyoutTitleId}>{itemData.content.headline}</h2>
+									<h2 id={pushedFlyoutTitleId}>
+										{decideTitleContentForItem(itemData)}
+									</h2>
 								</EuiTitle>
 							</EuiFlexItem>
 						</EuiFlexGroup>
