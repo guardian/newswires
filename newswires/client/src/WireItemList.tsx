@@ -82,6 +82,38 @@ export const WireItemList = ({
 	);
 };
 
+function decideMainHeadingContent({
+	headline,
+	slug,
+}: WireData['content']): string {
+	if (headline && headline.length > 0) {
+		return headline;
+	}
+	if (slug && slug.length > 0) {
+		return slug;
+	}
+	return 'No headline';
+}
+
+function decideSecondaryCardContent({
+	headline,
+	subhead,
+	bodyText,
+}: WireData['content']): string | undefined {
+	if (subhead && subhead !== headline) {
+		return subhead;
+	}
+	const maybeBodyTextPreview = bodyText
+		? sanitizeHtml(bodyText, { allowedTags: [], allowedAttributes: {} }).slice(
+				0,
+				100,
+			)
+		: undefined;
+	if (maybeBodyTextPreview && maybeBodyTextPreview !== headline) {
+		return maybeBodyTextPreview;
+	}
+}
+
 const WirePreviewCard = ({
 	id,
 	supplier,
@@ -116,9 +148,9 @@ const WirePreviewCard = ({
 	const supplierLabel = supplierInfo?.label ?? supplier;
 	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
 
-	const hasSlug = content.slug && content.slug.length > 0;
+	const mainHeadingContent = decideMainHeadingContent(content);
 
-	const mainHeadingContent = hasSlug ? content.slug : content.headline;
+	const maybeSecondaryCardContent = decideSecondaryCardContent(content);
 
 	const cardGrid = css`
 		display: grid;
@@ -175,7 +207,7 @@ const WirePreviewCard = ({
 						grid-area: content;
 					`}
 				>
-					{hasSlug && <p>{content.headline}</p>}
+					{maybeSecondaryCardContent && <p>{maybeSecondaryCardContent}</p>}
 					{highlight && highlight.trim().length > 0 && (
 						<EuiText
 							size="xs"
