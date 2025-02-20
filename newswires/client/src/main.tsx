@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import './icons';
 import { SearchContextProvider } from './context/SearchContext.tsx';
+import './global.css';
 
 const toolsDomain = window.location.hostname.substring(
 	window.location.hostname.indexOf('.'),

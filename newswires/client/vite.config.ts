@@ -20,7 +20,6 @@ export default defineConfig({
 			},
 		},
 	},
-	base: '/assets',
 	server: {
 		origin: 'https://newswires.local.dev-gutools.co.uk',
 		hmr: {
