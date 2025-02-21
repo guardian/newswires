@@ -219,7 +219,9 @@ const WirePreviewCard = ({
 							`}
 						>
 							<p
-								dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }}
+								dangerouslySetInnerHTML={{
+									__html: sanitizeHtml(highlight.replace(/\\n/g, '')),
+								}}
 							/>
 						</EuiText>
 					)}
