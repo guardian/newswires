@@ -59,6 +59,8 @@ export const QuerySchema = z.object({
 	subjects: z.array(z.string()).optional(),
 	subjectsExcl: z.array(z.string()).optional(),
 	bucket: z.ostring(),
+	startDate: z.ostring(),
+	endDate: z.ostring(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;
