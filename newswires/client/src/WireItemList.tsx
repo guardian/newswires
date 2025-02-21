@@ -1,11 +1,15 @@
 import {
 	EuiBadge,
 	EuiButton,
+	EuiHeader,
+	EuiSpacer,
 	EuiText,
+	EuiTitle,
 	useEuiBackgroundColor,
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
@@ -95,11 +99,31 @@ function decideMainHeadingContent({
 	return 'No headline';
 }
 
-function decideSecondaryCardContent({
+function SecondaryCardContent({
 	headline,
 	subhead,
 	bodyText,
-}: WireData['content']): string | undefined {
+	highlight,
+}: Pick<WireData['content'], 'headline' | 'subhead' | 'bodyText'> & {
+	highlight: string | undefined;
+}): string | ReactNode | undefined {
+	const theme = useEuiTheme();
+
+	if (highlight && highlight.trim().length > 0) {
+		return (
+			<EuiText
+				size="xs"
+				css={css`
+					margin-top: 0.1rem;
+					padding: 0.1rem 0.5rem;
+					background-color: ${theme.euiTheme.colors.highlight};
+					justify-self: start;
+				`}
+			>
+				<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
+			</EuiText>
+		);
+	}
 	if (subhead && subhead !== headline) {
 		return subhead;
 	}
@@ -150,14 +174,17 @@ const WirePreviewCard = ({
 
 	const mainHeadingContent = decideMainHeadingContent(content);
 
-	const maybeSecondaryCardContent = decideSecondaryCardContent(content);
+	const maybeSecondaryCardContent = SecondaryCardContent({
+		...content,
+		highlight,
+	});
 
 	const cardGrid = css`
 		display: grid;
 		gap: 0.5rem;
 		align-items: baseline;
-		grid-template-areas: 'badge title date' 'content content content';
-		grid-template-columns: min-content 1fr auto;
+		grid-template-areas: 'title title meta' 'content content meta';
+		grid-template-columns: 1fr 1fr min-content;
 		grid-template-rows: auto auto;
 	`;
 
@@ -180,49 +207,50 @@ const WirePreviewCard = ({
 						color: ${theme.euiTheme.colors.text};
 						background-color: ${selected ? accentBgColor : 'inherit'};
 						${isFromRefresh ? fadeOutBackground : ''}
+
+						& h3 {
+							grid-area: title;
+						}
 					`,
 				]}
 			>
-				<EuiBadge color={supplierColour}>{supplierLabel}</EuiBadge>
-				<h3>
-					<p>{mainHeadingContent}</p>
+				<h3
+					css={css`
+						font-weight: ${theme.euiTheme.font.weight.medium};
+					`}
+				>
+					{mainHeadingContent}
 				</h3>
-				{content.versionCreated
-					? formatTimestamp(content.versionCreated)
-							.split(', ')
-							.map((part) => (
-								<EuiText
-									size="xs"
-									key={part}
-									css={css`
-										padding-left: 5px;
-									`}
-								>
-									{part}
-								</EuiText>
-							))
-					: ''}
+				<div
+					css={css`
+						grid-area: meta;
+						text-align: right;
+					`}
+				>
+					{content.versionCreated
+						? formatTimestamp(content.versionCreated)
+								.split(', ')
+								.map((part) => (
+									<EuiText
+										size="xs"
+										key={part}
+										css={css`
+											padding-left: 5px;
+										`}
+									>
+										{part}
+									</EuiText>
+								))
+						: ''}
+					<EuiSpacer size="xs" />
+					<EuiBadge color={supplierColour}>{supplierLabel}</EuiBadge>
+				</div>
 				<div
 					css={css`
 						grid-area: content;
 					`}
 				>
 					{maybeSecondaryCardContent && <p>{maybeSecondaryCardContent}</p>}
-					{highlight && highlight.trim().length > 0 && (
-						<EuiText
-							size="xs"
-							css={css`
-								margin-top: 0.1rem;
-								padding: 0.1rem 0.5rem;
-								background-color: ${theme.euiTheme.colors.highlight};
-								justify-self: start;
-							`}
-						>
-							<p
-								dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }}
-							/>
-						</EuiText>
-					)}
 				</div>
 			</div>
 		</Link>
