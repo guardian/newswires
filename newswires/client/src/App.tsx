@@ -1,4 +1,5 @@
 import {
+	EuiBetaBadge,
 	EuiButton,
 	EuiEmptyPrompt,
 	EuiHeader,
@@ -103,6 +104,14 @@ export function App() {
 											>
 												Newswires
 											</EuiLink>
+											<EuiBetaBadge
+												label="Beta"
+												color={'accent'}
+												size="s"
+												css={css`
+													margin-left: 8px;
+												`}
+											></EuiBetaBadge>
 										</h1>
 									</EuiTitle>
 								</EuiHeaderSectionItem>

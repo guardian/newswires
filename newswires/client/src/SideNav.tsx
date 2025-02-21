@@ -1,6 +1,7 @@
 import {
 	EuiBadge,
 	EuiBadgeGroup,
+	EuiCallOut,
 	EuiCollapsibleNav,
 	EuiCollapsibleNavGroup,
 	EuiHeaderSectionItemButton,
@@ -239,6 +240,22 @@ export const SideNav = () => {
 						checked={state.autoUpdate}
 						onChange={toggleAutoUpdate}
 					/>
+				</div>
+				<div>
+					<EuiCallOut
+						title="Please use with caution"
+						iconType="iInCircle"
+						color="primary"
+					>
+						<p>
+							This is a beta product. Feedback or questions? We&apos;d love to
+							hear from you at{' '}
+							<a href="mailto:media.and.feeds@theguardian.com">
+								Media & Feeds team
+							</a>
+							.
+						</p>
+					</EuiCallOut>
 				</div>
 			</EuiCollapsibleNav>
 		</>

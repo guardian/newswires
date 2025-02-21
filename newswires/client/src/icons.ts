@@ -17,11 +17,13 @@ import { icon as doubleArrowLeft } from '@elastic/eui/es/components/icon/assets/
 import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
+import { icon as iInCircle } from '@elastic/eui/es/components/icon/assets/iInCircle';
 import { icon as launch } from '@elastic/eui/es/components/icon/assets/launch';
 import { icon as link } from '@elastic/eui/es/components/icon/assets/link';
 import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
 import { icon as menuLeft } from '@elastic/eui/es/components/icon/assets/menuLeft';
 import { icon as menuRight } from '@elastic/eui/es/components/icon/assets/menuRight';
+import { icon as pin } from '@elastic/eui/es/components/icon/assets/pin_filled';
 import { icon as popout } from '@elastic/eui/es/components/icon/assets/popout';
 import { icon as refresh } from '@elastic/eui/es/components/icon/assets/refresh';
 import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return_key';
@@ -57,4 +59,6 @@ appendIconComponentCache({
 	link,
 	copyClipboard,
 	popout,
+	pin,
+	iInCircle,
 });
