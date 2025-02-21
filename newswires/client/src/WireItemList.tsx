@@ -6,6 +6,7 @@ import {
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
@@ -95,11 +96,31 @@ function decideMainHeadingContent({
 	return 'No headline';
 }
 
-function decideSecondaryCardContent({
+function SecondaryCardContent({
 	headline,
 	subhead,
 	bodyText,
-}: WireData['content']): string | undefined {
+	highlight,
+}: Pick<WireData['content'], 'headline' | 'subhead' | 'bodyText'> & {
+	highlight: string | undefined;
+}): string | ReactNode | undefined {
+	const theme = useEuiTheme();
+
+	if (highlight && highlight.trim().length > 0) {
+		return (
+			<EuiText
+				size="xs"
+				css={css`
+					margin-top: 0.1rem;
+					padding: 0.1rem 0.5rem;
+					background-color: ${theme.euiTheme.colors.highlight};
+					justify-self: start;
+				`}
+			>
+				<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
+			</EuiText>
+		);
+	}
 	if (subhead && subhead !== headline) {
 		return subhead;
 	}
@@ -150,7 +171,10 @@ const WirePreviewCard = ({
 
 	const mainHeadingContent = decideMainHeadingContent(content);
 
-	const maybeSecondaryCardContent = decideSecondaryCardContent(content);
+	const maybeSecondaryCardContent = SecondaryCardContent({
+		...content,
+		highlight,
+	});
 
 	const cardGrid = css`
 		display: grid;
