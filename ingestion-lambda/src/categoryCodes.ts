@@ -39,3 +39,20 @@ export function processFingerpostAPCategoryCodes(original: string[]): string[] {
 	const deduped = [...new Set(allCategoryCodes)];
 	return deduped;
 }
+
+export function processFingerpostAAPCategoryCodes(categoryCodes: string[]): string[] {
+	const allCategoryCodes = categoryCodes
+		.flatMap((categoryCode) => categoryCode.split('|'))
+
+	const mediaTopics = allCategoryCodes
+		.filter((_) => _.split(':').length > 1)
+
+	const legacySubjectCodes = allCategoryCodes
+		.filter((_) => _.split('+').length > 1)
+		.map((categoryCode) => {
+			const [ code, _label ] = categoryCode.split('+');
+			return `subj:${code}`
+		});
+
+	return [...mediaTopics, ...legacySubjectCodes]
+}
