@@ -24,7 +24,7 @@ describe('fetchResults', () => {
 		const mockQuery = { q: 'value' };
 		await fetchResults(mockQuery);
 
-		expect(paramsToQuerystring).toHaveBeenCalledWith(mockQuery, {});
+		expect(paramsToQuerystring).toHaveBeenCalledWith(mockQuery, true, {});
 		expect(pandaFetch).toHaveBeenCalledWith('/api/search?queryString', {
 			headers: { Accept: 'application/json' },
 		});
@@ -77,6 +77,7 @@ describe('fetchResults', () => {
 			{
 				...mockQuery,
 			},
+			true,
 			{ sinceId: '123' },
 		);
 	});
@@ -89,6 +90,7 @@ describe('fetchResults', () => {
 			{
 				...mockQuery,
 			},
+			true,
 			{ beforeId: '123' },
 		);
 	});

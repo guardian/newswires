@@ -1,4 +1,10 @@
-import { defaultQuery, exportedForTestingOnly } from './urlState';
+import * as moment from 'moment';
+import { dateMathRangeToDateRange } from './dateMathHelpers.ts';
+import {
+	defaultQuery,
+	exportedForTestingOnly,
+	paramsToQuerystring,
+} from './urlState';
 
 const { urlToConfig, configToUrl, defaultConfig } = exportedForTestingOnly;
 
@@ -6,6 +12,10 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 	const urlObject = new URL(url, 'https://example.com');
 	return { pathname: urlObject.pathname, search: urlObject.search };
 }
+
+jest.mock('./dateMathHelpers', () => ({
+	dateMathRangeToDateRange: jest.fn(),
+}));
 
 describe('urlToConfig', () => {
 	it('parses querystring into config', () => {
@@ -129,6 +139,20 @@ describe('urlToConfig', () => {
 			},
 		});
 	});
+
+	it('can add date math range', () => {
+		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=now%2Fd');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				start: 'now/d',
+				end: 'now/d',
+			},
+		});
+	});
 });
 
 describe('configToUrl', () => {
@@ -158,6 +182,24 @@ describe('configToUrl', () => {
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/item/123?q=abc&supplier=REUTERS');
+	});
+
+	it('converts date math range to querystring', () => {
+		const config = {
+			view: 'item' as const,
+			itemId: '123',
+			query: {
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+				start: 'now/d',
+				end: 'now/d',
+			},
+		};
+		const url = configToUrl(config);
+		expect(url).toBe(
+			'/item/123?q=abc&supplier=REUTERS&start=now%2Fd&end=now%2Fd',
+		);
 	});
 
 	it('converts config with no supplier to querystring', () => {
@@ -234,6 +276,35 @@ describe('configToUrl', () => {
 		const url = configToUrl(config);
 		expect(url).toBe(
 			'/feed?q=abc&subjectsExcl=medtop%3A08000000&subjectsExcl=medtop%3A20001340',
+		);
+	});
+});
+
+describe('paramsToQuerystring', () => {
+	it('converts text search param to querystring', () => {
+		const query = {
+			q: 'abc',
+		};
+
+		const url = paramsToQuerystring(query);
+		expect(url).toBe('?q=abc');
+	});
+
+	it('converts date math range param to querystring', () => {
+		(dateMathRangeToDateRange as jest.Mock).mockReturnValue([
+			moment('2025-02-21T00:00:00.000Z'),
+			moment('2025-02-21T23:59:59.000Z'),
+		]);
+
+		const query = {
+			q: 'abc',
+			start: 'now/d',
+			end: 'now/d',
+		};
+
+		const url = paramsToQuerystring(query, true);
+		expect(url).toBe(
+			'?q=abc&start=2025-02-21T00%3A00%3A00.000Z&end=2025-02-21T23%3A59%3A59.000Z',
 		);
 	});
 });

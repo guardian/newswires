@@ -263,6 +263,23 @@ object FingerpostWireEntry
       case (Some(kwq), Some(subq)) => Some(sqls"$kwq OR $subq")
       case _                       => keywordsQuery orElse subjectsQuery
     }
+
+    val dateRangeQuery = (search.start, search.end) match {
+      case (Some(startDate), Some(endDate)) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
+        )
+      case (Some(startDate), None) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+        )
+      case (None, Some(endDate)) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+        )
+      case _ => None
+    }
+
     val commonWhereClauses = List(
       keywordsOrSubjectsQuery,
       keywordsExclQuery,
@@ -271,7 +288,8 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
       sourceFeedsQuery,
-      sourceFeedsExclQuery
+      sourceFeedsExclQuery,
+      dateRangeQuery
     ).flatten
 
     val dataOnlyWhereClauses = List(

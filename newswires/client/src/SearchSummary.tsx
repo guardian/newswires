@@ -82,7 +82,7 @@ export const SearchSummary = () => {
 	return (
 		<EuiText
 			css={css`
-				margin-top: 12px;
+				margin-top: 6px;
 				margin-bottom: 18px;
 			`}
 		>

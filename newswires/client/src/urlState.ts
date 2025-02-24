@@ -1,3 +1,4 @@
+import { dateMathRangeToDateRange } from './dateMathHelpers.ts';
 import type { Config, Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
@@ -25,6 +26,8 @@ export function urlToConfig(location: {
 
 	const urlSearchParams = new URLSearchParams(location.search);
 	const queryString = urlSearchParams.get('q');
+	const start = urlSearchParams.get('start') ?? undefined;
+	const end = urlSearchParams.get('end') ?? undefined;
 	const supplier = urlSearchParams.getAll('supplier');
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
 	const keywords = urlSearchParams.get('keywords') ?? undefined;
@@ -32,6 +35,7 @@ export function urlToConfig(location: {
 	const subjects = urlSearchParams.getAll('subjects');
 	const subjectsExcl = urlSearchParams.getAll('subjectsExcl');
 	const bucket = urlSearchParams.get('bucket') ?? undefined;
+
 	const query: Query = {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
@@ -44,6 +48,8 @@ export function urlToConfig(location: {
 		subjects,
 		subjectsExcl,
 		bucket,
+		start,
+		end,
 	};
 
 	if (page === 'feed') {
@@ -68,8 +74,26 @@ export const configToUrl = (config: Config): string => {
 	}
 };
 
+const processDateMathRange = (config: Query, useDateTimeValue: boolean) => {
+	if (useDateTimeValue && config.start && config.end) {
+		const [start, end] = dateMathRangeToDateRange({
+			start: config.start,
+			end: config.end,
+		});
+
+		return {
+			...config,
+			start: start?.toISOString(),
+			end: end?.toISOString(),
+		};
+	} else {
+		return config;
+	}
+};
+
 export const paramsToQuerystring = (
 	config: Query,
+	useDateTimeValue: boolean = false,
 	{
 		sinceId,
 		beforeId,
@@ -78,7 +102,9 @@ export const paramsToQuerystring = (
 		beforeId?: string;
 	} = {},
 ): string => {
-	const params = Object.entries(config).reduce<Array<[string, string]>>(
+	const updatedQuery = processDateMathRange(config, useDateTimeValue);
+
+	const params = Object.entries(updatedQuery).reduce<Array<[string, string]>>(
 		(acc, [k, v]) => {
 			if (typeof v === 'string' && v.trim().length > 0) {
 				return [...acc, [k, v.trim()]];
@@ -94,13 +120,17 @@ export const paramsToQuerystring = (
 		},
 		[],
 	);
+
 	if (sinceId !== undefined) {
 		params.push(['sinceId', sinceId]);
 	}
+
 	if (beforeId !== undefined) {
 		params.push(['beforeId', beforeId]);
 	}
+
 	const querystring = new URLSearchParams(params).toString();
+
 	return querystring.length !== 0 ? `?${querystring}` : '';
 };
 

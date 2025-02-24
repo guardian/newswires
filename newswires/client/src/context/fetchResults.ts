@@ -11,7 +11,7 @@ export const fetchResults = async (
 	} = {},
 	abortController?: AbortController,
 ): Promise<WiresQueryResponse> => {
-	const queryString = paramsToQuerystring(query, additionalParams);
+	const queryString = paramsToQuerystring(query, true, additionalParams);
 	const response = await pandaFetch(`/api/search${queryString}`, {
 		headers: {
 			Accept: 'application/json',
