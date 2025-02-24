@@ -282,6 +282,23 @@ object FingerpostWireEntry
         )
     }
 
+    val dateRangeQuery = (search.start, search.end) match {
+      case (Some(startDate), Some(endDate)) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
+        )
+      case (Some(startDate), None) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+        )
+      case (None, Some(endDate)) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+        )
+      case _ => None
+    }
+
+
     // grr annoying but broadly I think subjects(/categoryCodes) and keywords are the same "axis" to search on
     val clausesJoinedWithOr =
       List(keywordsQuery, subjectsQuery, categoryCodesInclQuery).flatten match {
@@ -299,6 +316,7 @@ object FingerpostWireEntry
       ),
       sourceFeedsQuery,
       sourceFeedsExclQuery,
+      dateRangeQuery,
       categoryCodesInclQuery,
       categoryCodesExclQuery
     ).flatten
