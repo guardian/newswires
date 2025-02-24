@@ -1,10 +1,8 @@
 import {
 	EuiBadge,
 	EuiButton,
-	EuiHeader,
 	EuiSpacer,
 	EuiText,
-	EuiTitle,
 	useEuiBackgroundColor,
 	useEuiTheme,
 } from '@elastic/eui';
