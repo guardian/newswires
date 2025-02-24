@@ -97,33 +97,35 @@ function decideMainHeadingContent({
 	return 'No headline';
 }
 
-function SecondaryCardContent({
+function MaybeSecondaryCardContent({
 	headline,
 	subhead,
 	bodyText,
 	highlight,
-}: Pick<WireData['content'], 'headline' | 'subhead' | 'bodyText'> & {
+}: WireData['content'] & {
 	highlight: string | undefined;
 }): string | ReactNode | undefined {
 	const theme = useEuiTheme();
 
 	if (highlight && highlight.trim().length > 0) {
 		return (
-			<EuiText
-				size="xs"
-				css={css`
-					margin-top: 0.1rem;
-					padding: 0.1rem 0.5rem;
-					background-color: ${theme.euiTheme.colors.highlight};
-					justify-self: start;
-				`}
-			>
-				<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
-			</EuiText>
+			<p>
+				<EuiText
+					size="xs"
+					css={css`
+						margin-top: 0.1rem;
+						padding: 0.1rem 0.5rem;
+						background-color: ${theme.euiTheme.colors.highlight};
+						justify-self: start;
+					`}
+				>
+					<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
+				</EuiText>
+			</p>
 		);
 	}
 	if (subhead && subhead !== headline) {
-		return subhead;
+		return <p>{subhead}</p>;
 	}
 	const maybeBodyTextPreview = bodyText
 		? sanitizeHtml(bodyText, { allowedTags: [], allowedAttributes: {} }).slice(
@@ -132,8 +134,9 @@ function SecondaryCardContent({
 			)
 		: undefined;
 	if (maybeBodyTextPreview && maybeBodyTextPreview !== headline) {
-		return maybeBodyTextPreview;
+		return <p>{maybeBodyTextPreview}</p>;
 	}
+	return null;
 }
 
 const WirePreviewCard = ({
@@ -171,11 +174,6 @@ const WirePreviewCard = ({
 	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
 
 	const mainHeadingContent = decideMainHeadingContent(content);
-
-	const maybeSecondaryCardContent = SecondaryCardContent({
-		...content,
-		highlight,
-	});
 
 	const cardGrid = css`
 		display: grid;
@@ -248,7 +246,7 @@ const WirePreviewCard = ({
 						grid-area: content;
 					`}
 				>
-					{maybeSecondaryCardContent && <p>{maybeSecondaryCardContent}</p>}
+					<MaybeSecondaryCardContent {...content} highlight={highlight} />
 				</div>
 			</div>
 		</Link>
