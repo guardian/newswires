@@ -8,6 +8,7 @@ import { icon as arrowEnd } from '@elastic/eui/es/components/icon/assets/arrowEn
 import { icon as arrowStart } from '@elastic/eui/es/components/icon/assets/arrowStart';
 import { icon as boxesHorizontal } from '@elastic/eui/es/components/icon/assets/boxes_horizontal';
 import { icon as boxesVertical } from '@elastic/eui/es/components/icon/assets/boxes_vertical';
+import { icon as calendar } from '@elastic/eui/es/components/icon/assets/calendar';
 import { icon as check } from '@elastic/eui/es/components/icon/assets/check';
 import { icon as clock } from '@elastic/eui/es/components/icon/assets/clock';
 import { icon as copyClipboard } from '@elastic/eui/es/components/icon/assets/copy_clipboard';
@@ -28,10 +29,12 @@ import { icon as popout } from '@elastic/eui/es/components/icon/assets/popout';
 import { icon as refresh } from '@elastic/eui/es/components/icon/assets/refresh';
 import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return_key';
 import { icon as search } from '@elastic/eui/es/components/icon/assets/search';
+import { icon as sortRight } from '@elastic/eui/es/components/icon/assets/sortRight';
 import { icon as warning } from '@elastic/eui/es/components/icon/assets/warning';
 import { appendIconComponentCache } from '@elastic/eui/es/components/icon/icon';
 
 const icons = {
+	calendar,
 	clock,
 	arrowDown,
 	arrowLeft,
@@ -58,6 +61,7 @@ const icons = {
 	link,
 	copyClipboard,
 	popout,
+	sortRight,
 	pin,
 	iInCircle,
 };

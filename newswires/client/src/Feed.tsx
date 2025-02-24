@@ -1,5 +1,12 @@
-import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
+import {
+	EuiEmptyPrompt,
+	EuiFlexGroup,
+	EuiFlexItem,
+	EuiLoadingLogo,
+	EuiPageTemplate,
+} from '@elastic/eui';
 import { useSearch } from './context/SearchContext.tsx';
+import { DatePicker } from './DatePicker.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
 import { WireItemList } from './WireItemList.tsx';
 
@@ -33,7 +40,17 @@ export const Feed = () => {
 			{(status == 'success' || status == 'offline') &&
 				queryData.results.length > 0 && (
 					<>
-						<SearchSummary />
+						<EuiFlexGroup>
+							<EuiFlexItem
+								style={{ flex: 1, paddingTop: 20, paddingBottom: 20 }}
+							>
+								<SearchSummary />
+							</EuiFlexItem>
+							<EuiFlexItem grow={false}>
+								<DatePicker />
+							</EuiFlexItem>
+						</EuiFlexGroup>
+
 						<WireItemList
 							wires={queryData.results}
 							totalCount={queryData.totalCount}

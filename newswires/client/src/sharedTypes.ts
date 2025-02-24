@@ -61,6 +61,8 @@ export const QuerySchema = z.object({
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
 	bucket: z.ostring(),
+	start: z.ostring(),
+	end: z.ostring(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;

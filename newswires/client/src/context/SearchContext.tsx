@@ -216,18 +216,19 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const handleEnterQuery = (query: Query) => {
 		dispatch({ type: 'ENTER_QUERY' });
+
 		if (currentConfig.view === 'item') {
 			pushConfigState({
 				...currentConfig,
 				query,
 			});
-			return;
+		} else {
+			pushConfigState({
+				...currentConfig,
+				view: 'feed',
+				query,
+			});
 		}
-		pushConfigState({
-			...currentConfig,
-			view: 'feed',
-			query,
-		});
 	};
 
 	const handleRetry = () => {
