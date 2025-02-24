@@ -1,4 +1,5 @@
 import { EuiEmptyPrompt, EuiLoadingLogo, EuiPageTemplate } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { useSearch } from './context/SearchContext.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
 import { WireItemList } from './WireItemList.tsx';
@@ -8,7 +9,11 @@ export const Feed = () => {
 	const { status, queryData } = state;
 
 	return (
-		<EuiPageTemplate.Section>
+		<EuiPageTemplate.Section
+			css={css`
+				padding: 0 0.5rem;
+			`}
+		>
 			{status == 'loading' && (
 				<EuiEmptyPrompt
 					icon={<EuiLoadingLogo logo="clock" size="l" />}

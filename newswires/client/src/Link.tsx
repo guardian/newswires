@@ -6,10 +6,11 @@ import { configToUrl } from './urlState';
 export const Link = ({
 	children,
 	to,
+	...props
 }: {
 	children: React.ReactNode;
 	to: string;
-}) => {
+} & React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
 	const { handleSelectItem, config } = useSearch();
 	const href = configToUrl({ ...config, view: 'item', itemId: to });
 
@@ -24,7 +25,7 @@ export const Link = ({
 	);
 
 	return (
-		<a href={href} onClick={onClick}>
+		<a href={href} onClick={onClick} {...props}>
 			{children}
 		</a>
 	);
