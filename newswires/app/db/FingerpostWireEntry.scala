@@ -262,7 +262,7 @@ object FingerpostWireEntry
       case Nil => None
       case categoryCodes =>
         Some(
-          sqls"${syn.categoryCodes} && array[${categoryCodes.map(code => sqls"$code")}]::text[]"
+          sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
         )
     }
 
@@ -271,7 +271,7 @@ object FingerpostWireEntry
       case categoryCodesExcl =>
         val cce = this.syntax("categoryCodesExcl")
         val doesContainCategoryCodes =
-          sqls"${cce.categoryCodes} && array[${categoryCodesExcl.map(code => sqls"$code")}]::text[]"
+          sqls"${cce.categoryCodes} && ${textArray(categoryCodesExcl)}"
 
         Some(
           sqls"""|NOT EXISTS (
