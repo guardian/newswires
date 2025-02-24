@@ -51,7 +51,7 @@ export function urlToConfig(location: {
 	} else if (page.startsWith('item/') && page.split('/').length === 2) {
 		return { view: 'item', itemId: page.split('/')[1], query };
 	} else {
-		console.warn(`Page not found: "${page}", so using defaultConfig`);
+		console.log(`Page not found: "${page}", so using defaultConfig`);
 		return defaultConfig;
 	}
 }
