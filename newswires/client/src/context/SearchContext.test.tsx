@@ -41,6 +41,7 @@ describe('SearchContext', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		localStorage.clear();
 	});
 
 	it('should fetch data and initialise the state', async () => {
@@ -93,5 +94,69 @@ describe('SearchContext', () => {
 		await flushPendingPromises();
 
 		expect(global.fetch).toHaveBeenCalledTimes(2);
+	});
+
+	it('should add item ids to the view history on item navigation', async () => {
+		const contextRef = await renderWithContext();
+
+		if (!contextRef.current) {
+			throw new Error('Context ref was null after render.');
+		}
+
+		expect(contextRef.current.viewedItemIds).toEqual([]);
+
+		act(() => {
+			contextRef.current?.handleSelectItem('111');
+		});
+
+		expect(contextRef.current.viewedItemIds).toEqual(['111']);
+	});
+
+	it('should store the view history in local storage', async () => {
+		const contextRef = await renderWithContext();
+
+		if (!contextRef.current) {
+			throw new Error('Context ref was null after render.');
+		}
+
+		expect(contextRef.current.viewedItemIds).toEqual([]);
+
+		act(() => {
+			contextRef.current?.handleSelectItem('111');
+		});
+
+		expect(contextRef.current.viewedItemIds).toEqual(['111']);
+		expect(localStorage.getItem('viewedItemIds')).toEqual('["111"]');
+
+		// Re-render the component
+		const newContextRef = await renderWithContext();
+
+		if (!newContextRef.current) {
+			throw new Error('Context ref was null after render.');
+		}
+
+		expect(newContextRef.current.viewedItemIds).toEqual(['111']);
+	});
+
+	it('should deduplicate item ids in the view history', async () => {
+		const contextRef = await renderWithContext();
+
+		if (!contextRef.current) {
+			throw new Error('Context ref was null after render.');
+		}
+
+		expect(contextRef.current.viewedItemIds).toEqual([]);
+
+		act(() => {
+			contextRef.current?.handleSelectItem('1');
+		});
+		act(() => {
+			contextRef.current?.handleSelectItem('2');
+		});
+		act(() => {
+			contextRef.current?.handleSelectItem('1');
+		});
+
+		expect(contextRef.current.viewedItemIds).toEqual(['1', '2']);
 	});
 });
