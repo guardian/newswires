@@ -37,6 +37,8 @@ class QueryController(
       suppliers: List[String],
       subjects: List[String],
       subjectsExcl: List[String],
+      maybeStart: Option[String],
+      maybeEnd: Option[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
@@ -44,6 +46,8 @@ class QueryController(
 
     val queryParams = SearchParams(
       text = maybeFreeTextQuery,
+      start = maybeStart,
+      end = maybeEnd,
       keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
       keywordExcl = paramToList(request, "keywordsExcl"),
       suppliersIncl = suppliers,
