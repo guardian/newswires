@@ -7,6 +7,8 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Mode}
 import play.filters.csrf.CSRFAddToken
+import service.FeatureSwitchProvider
+import service.FeatureSwitchProvider.FeatureSwitch
 import views.html.helper.CSRF
 
 import java.net.URL
@@ -14,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
 
 case class ClientConfig(
-    suppliersToExclude: List[String]
+    switches: Map[String, Boolean]
 )
 
 object ClientConfig {
@@ -61,7 +63,7 @@ class ViteController(
     def injectClientConfig(body: String): String = {
       val config =
         views.html.fragments.clientConfig(
-          ClientConfig(List("GuReuters", "GuAP"))
+          ClientConfig(FeatureSwitchProvider.clientSideSwitchStates)
         )
 
       body.replace(
