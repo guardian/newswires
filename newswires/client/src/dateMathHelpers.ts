@@ -6,6 +6,58 @@ export interface TimeRange {
 	end?: string;
 }
 
+export const deriveDateMathRangeLabel = (
+	start: string,
+	end: string,
+): string => {
+	// Relative range ending at "now" (e.g. now-1m, now-30m, now-1h, now-24h)
+	if (end === 'now') {
+		const regex = /^now-(\d+)([mhd])$/;
+		const match = start.match(regex);
+		if (match) {
+			const value = parseInt(match[1], 10);
+			const unit = match[2];
+			let unitWord = '';
+			if (unit === 'm') {
+				unitWord = value === 1 ? 'minute' : 'minutes';
+			} else if (unit === 'h') {
+				unitWord = value === 1 ? 'hour' : 'hours';
+			} else if (unit === 'd') {
+				unitWord = value === 1 ? 'day' : 'days';
+			}
+			return `Last ${value} ${unitWord}`;
+		}
+	}
+
+	// Day-rounded ranges (e.g. now/d, now-1d/d, now-2d/d)
+	// The regex checks for patterns like "now/d" or "now-1d/d"
+	const dayRegex = /^(now(?:-\d+d)?)\/d$/;
+	if (dayRegex.test(start) && dayRegex.test(end) && start === end) {
+		if (start === 'now/d') {
+			return 'Today';
+		} else {
+			const match = start.match(/^now-(\d+)d\/d$/);
+			if (match) {
+				const daysAgo = parseInt(match[1], 10);
+				if (daysAgo === 1) {
+					return 'Yesterday';
+				} else {
+					const targetDate = moment().startOf('day').subtract(daysAgo, 'days');
+					return targetDate.format('dddd');
+				}
+			}
+		}
+	}
+
+	const startMoment = moment(start);
+	const endMoment = moment(end);
+	if (!startMoment.isValid() || !endMoment.isValid()) {
+		return '';
+	}
+
+	return `${startMoment.format('MMM D')} - ${endMoment.format('MMM D')}`;
+};
+
 export const dateMathRangeToDateRange = ({ start, end }: TimeRange) => {
 	const startDate = start ? dateMath.parse(start) : undefined;
 	const endDate = end && end !== 'now' ? dateMath.parse(end) : undefined;

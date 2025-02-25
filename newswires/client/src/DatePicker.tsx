@@ -45,7 +45,7 @@ export const DatePicker = () => {
 				minDate={minDate}
 				maxDate={maxDate}
 				onTimeChange={onTimeChange}
-				showUpdateButton={false}
+				showUpdateButton={true}
 				customQuickSelectRender={customQuickSelectRender}
 				commonlyUsedRanges={[
 					timeRangeOption('30m'),

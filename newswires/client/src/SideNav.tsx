@@ -16,17 +16,28 @@ import {
 import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
+import { deriveDateMathRangeLabel } from './dateMathHelpers.ts';
 import { SearchBox } from './SearchBox';
 import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q, bucket, subjects } = query;
+	const { supplier, q, bucket, subjects, start, end } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
 	const subjectsLabel = subjects?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const bucketLabel = bucket ? `[${bucketName(bucket)}]` : '';
-	const labels = [bucketLabel, supplierLabel, subjectsLabel, qLabel];
+	const dateRangeLabel =
+		start && end ? deriveDateMathRangeLabel(start, end) : '';
+
+	const labels = [
+		bucketLabel,
+		supplierLabel,
+		subjectsLabel,
+		qLabel,
+		dateRangeLabel,
+	];
+
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 

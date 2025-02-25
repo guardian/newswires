@@ -19,6 +19,7 @@ import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
 import { icon as iInCircle } from '@elastic/eui/es/components/icon/assets/iInCircle';
+import { icon as kqlFunction } from '@elastic/eui/es/components/icon/assets/kql_function';
 import { icon as launch } from '@elastic/eui/es/components/icon/assets/launch';
 import { icon as link } from '@elastic/eui/es/components/icon/assets/link';
 import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
@@ -64,6 +65,7 @@ const icons = {
 	sortRight,
 	pin,
 	iInCircle,
+	kqlFunction,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent
