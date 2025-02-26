@@ -50,6 +50,11 @@ export const WiresQueryResponseSchema = z.object({
 
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
 
+const DateRange = z.object({
+	start: z.string(),
+	end: z.string(),
+});
+
 export const QuerySchema = z.object({
 	q: z.string(),
 	supplier: z.array(z.string()).optional(),
@@ -61,8 +66,7 @@ export const QuerySchema = z.object({
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
 	bucket: z.ostring(),
-	start: z.ostring(),
-	end: z.ostring(),
+	dateRange: DateRange.optional(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;

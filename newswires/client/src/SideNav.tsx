@@ -22,13 +22,14 @@ import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q, bucket, subjects, start, end } = query;
+	const { supplier, q, bucket, subjects, dateRange } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
 	const subjectsLabel = subjects?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const bucketLabel = bucket ? `[${bucketName(bucket)}]` : '';
-	const dateRangeLabel =
-		start && end ? deriveDateMathRangeLabel(start, end) : '';
+	const dateRangeLabel = dateRange
+		? deriveDateMathRangeLabel(dateRange.start, dateRange.end)
+		: '';
 
 	const labels = [
 		bucketLabel,
@@ -49,6 +50,7 @@ const buckets = [
 	{ id: 'reuters-world', name: 'Reuters World' },
 	{ id: 'aap-world', name: 'AAP World' },
 ];
+
 function bucketName(bucketId: string): string | undefined {
 	return buckets.find((bucket) => bucket.id === bucketId)?.name;
 }

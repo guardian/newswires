@@ -13,22 +13,66 @@ jest.mock('@elastic/datemath', () => ({
 }));
 
 describe('dateMathRangeToDateRange', () => {
-	it('should convert a date math range to a date/time range', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('should convert a relative date range to an absolute date range', () => {
 		(dateMath.parse as jest.Mock).mockImplementation(() =>
 			moment().startOf('day'),
 		);
 
 		const [start, end] = dateMathRangeToDateRange({
-			start: 'now/d',
-			end: 'now/d',
+			start: 'now-1d/d',
+			end: 'now-1d/d',
 		});
 
 		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
 		expect(end?.toISOString()).toBe(moment().endOf('day').toISOString());
 	});
+
+	it('should convert a relative date range to a partial absolute date range when the relative end date is "now"', () => {
+		(dateMath.parse as jest.Mock).mockImplementation(() =>
+			moment().startOf('day'),
+		);
+
+		const [start, end] = dateMathRangeToDateRange({
+			start: 'now-1d/d',
+			end: 'now/d',
+		});
+
+		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
+		expect(end?.toISOString()).toBe(undefined);
+	});
+
+	it('should convert a relative date range to a partial absolute date range when the relative end date is "now/d"', () => {
+		(dateMath.parse as jest.Mock).mockImplementation(() =>
+			moment().startOf('day'),
+		);
+
+		const [start, end] = dateMathRangeToDateRange({
+			start: 'now-1d/d',
+			end: 'now/d',
+		});
+
+		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
+		expect(end?.toISOString()).toBe(undefined);
+	});
 });
 
 describe('deriveDateMathRangeLabel', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('should return "Last 1 second" for "now-1s" to "now"', () => {
+		expect(deriveDateMathRangeLabel('now-1s', 'now')).toBe('Last 1 second');
+	});
+
+	it('should return "Last 10 seconds" for "now-1s0" to "now"', () => {
+		expect(deriveDateMathRangeLabel('now-10s', 'now')).toBe('Last 10 seconds');
+	});
+
 	it('should return "Last 1 minute" for "now-1m" to "now"', () => {
 		expect(deriveDateMathRangeLabel('now-1m', 'now')).toBe('Last 1 minute');
 	});
@@ -43,6 +87,14 @@ describe('deriveDateMathRangeLabel', () => {
 
 	it('should return "Last 24 hours" for "now-24h" to "now"', () => {
 		expect(deriveDateMathRangeLabel('now-24h', 'now')).toBe('Last 24 hours');
+	});
+
+	it('should return "Last 1 week" for "now-1w" to "now"', () => {
+		expect(deriveDateMathRangeLabel('now-1w', 'now')).toBe('Last 1 week');
+	});
+
+	it('should return "Last 2 weeks" for "now-2w" to "now"', () => {
+		expect(deriveDateMathRangeLabel('now-2w', 'now')).toBe('Last 2 weeks');
 	});
 
 	it('should return "Today" for "now/d" to "now/d"', () => {
@@ -65,8 +117,19 @@ describe('deriveDateMathRangeLabel', () => {
 	});
 
 	it('should return a formatted date range for absolute ISO dates when end date is not today', () => {
+		(dateMath.parse as jest.Mock).mockImplementation(() => undefined);
 		const start = '2025-02-23T00:20:43.493Z';
 		const end = '2025-02-25T00:20:51.294Z';
 		expect(deriveDateMathRangeLabel(start, end)).toBe('Feb 23 - Feb 25');
+	});
+
+	it('should return a formatted date range  for "now-3d" to "now-2d/d"', () => {
+		(dateMath.parse as jest.Mock)
+			.mockImplementationOnce(() => moment('2024-02-23')) // Mock start date
+			.mockImplementationOnce(() => moment('2024-02-24'));
+
+		expect(deriveDateMathRangeLabel('now-3d', 'now-2d%2Fd')).toBe(
+			'Feb 23 - Feb 24',
+		);
 	});
 });

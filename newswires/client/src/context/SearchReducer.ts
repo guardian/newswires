@@ -1,4 +1,6 @@
+import dateMath from '@elastic/datemath';
 import { isEqual as deepIsEqual } from 'lodash';
+import moment from 'moment';
 import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
@@ -6,21 +8,35 @@ import type { Action, SearchHistory, State } from './SearchContext.tsx';
 function mergeQueryData(
 	existing: WiresQueryResponse | undefined,
 	newData: WiresQueryResponse,
+	{ dateRange }: Query,
 ): WiresQueryResponse {
+	const parsePostgresTimestamp = (timestamp: string) =>
+		moment(timestamp.replace(/\[.*]$/, ''));
+
 	if (existing) {
 		const existingIds = new Set(existing.results.map((item) => item.id));
 
-		const mergedResults = [
-			...newData.results
-				.filter((newItem) => !existingIds.has(newItem.id))
-				.map((newItem) => ({ ...newItem, isFromRefresh: true })),
-			...existing.results,
-		];
+		const filteredExistingResults =
+			dateRange !== undefined
+				? existing.results.filter((existingItem) => {
+						return parsePostgresTimestamp(
+							existingItem.ingestedAt,
+						).isSameOrAfter(dateMath.parse(dateRange.start));
+					})
+				: existing.results;
+
+		const filteredOutCount =
+			existing.results.length - filteredExistingResults.length;
 
 		return {
 			...newData,
-			totalCount: existing.totalCount + newData.totalCount,
-			results: mergedResults,
+			totalCount: existing.totalCount + newData.totalCount - filteredOutCount,
+			results: [
+				...newData.results
+					.filter((newItem) => !existingIds.has(newItem.id))
+					.map((newItem) => ({ ...newItem, isFromRefresh: true })),
+				...filteredExistingResults,
+			],
 		};
 	} else {
 		return {
@@ -89,14 +105,22 @@ export const SearchReducer = (state: State, action: Action): State => {
 				case 'success':
 					return {
 						...state,
-						queryData: mergeQueryData(state.queryData, action.data),
+						queryData: mergeQueryData(
+							state.queryData,
+							action.data,
+							action.query,
+						),
 					};
 				case 'offline':
 				case 'error':
 					return {
 						...state,
 						status: 'success',
-						queryData: mergeQueryData(state.queryData, action.data),
+						queryData: mergeQueryData(
+							state.queryData,
+							action.data,
+							action.query,
+						),
 					};
 				default:
 					return state;

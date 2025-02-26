@@ -15,6 +15,7 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useSearch } from './context/SearchContext.tsx';
+import { isRestricted } from './dateMathHelpers.ts';
 import { Feed } from './Feed';
 import { Item } from './Item';
 import { SideNav } from './SideNav';
@@ -31,7 +32,7 @@ export function App() {
 		handlePreviousItem,
 	} = useSearch();
 
-	const { view, itemId: selectedItemId } = config;
+	const { view, itemId: selectedItemId, query } = config;
 	const { status } = state;
 
 	const isPoppedOut = !!window.opener;
@@ -74,9 +75,26 @@ export function App() {
 						</p>
 					</EuiToast>
 				)}
+				{isRestricted(query.dateRange?.end) && (
+					<EuiToast
+						title="Restricted"
+						iconType="warning"
+						css={css`
+							border-radius: 0;
+							background: #fdf6d8;
+							position: fixed;
+						`}
+					>
+						<p>
+							Your current filter settings exclude recent updates. Adjust the
+							filter to see the latest data.
+						</p>
+					</EuiToast>
+				)}
 				<div
 					css={css`
-						${status === 'offline' && 'padding-top: 84px;'}
+						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
+						'padding-top: 84px;'}
 						height: 100%;
 						${(status === 'loading' || status === 'error') &&
 						'display: flex; align-items: center;'}

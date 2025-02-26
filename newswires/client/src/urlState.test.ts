@@ -1,5 +1,8 @@
 import moment from 'moment';
-import { dateMathRangeToDateRange } from './dateMathHelpers.ts';
+import {
+	dateMathRangeToDateRange,
+	isRelativeDateNow,
+} from './dateMathHelpers.ts';
 import {
 	defaultQuery,
 	exportedForTestingOnly,
@@ -15,9 +18,14 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 
 jest.mock('./dateMathHelpers', () => ({
 	dateMathRangeToDateRange: jest.fn(),
+	isRelativeDateNow: jest.fn().mockReturnValue(false),
 }));
 
 describe('urlToConfig', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('parses querystring into config', () => {
 		const url = makeFakeLocation('/feed?q=abc');
 		const config = urlToConfig(url);
@@ -148,14 +156,20 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				start: 'now/d',
-				end: 'now/d',
+				dateRange: {
+					start: 'now/d',
+					end: 'now/d',
+				},
 			},
 		});
 	});
 });
 
 describe('configToUrl', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('converts config to querystring', () => {
 		const config = {
 			view: 'feed' as const,
@@ -169,9 +183,11 @@ describe('configToUrl', () => {
 		expect(url).toBe('/feed?q=abc&supplier=REUTERS');
 	});
 
-	it('converts default query config to empty querystring', () => {
+	it('handle default query config', () => {
+		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(true);
+
 		const url = configToUrl({ view: 'feed', query: defaultQuery });
-		expect(url).toBe('/feed');
+		expect(url).toBe('/feed?start=now-2w');
 	});
 
 	it('converts item config to querystring', () => {
@@ -184,7 +200,9 @@ describe('configToUrl', () => {
 		expect(url).toBe('/item/123?q=abc&supplier=REUTERS');
 	});
 
-	it('converts date math range to querystring', () => {
+	it('converts relative date range to querystring', () => {
+		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(false);
+
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
@@ -192,13 +210,15 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
-				start: 'now/d',
-				end: 'now/d',
+				dateRange: {
+					start: 'now-1d/d',
+					end: 'now-1d/d',
+				},
 			},
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
-			'/item/123?q=abc&supplier=REUTERS&start=now%2Fd&end=now%2Fd',
+			'/item/123?q=abc&supplier=REUTERS&start=now-1d%2Fd&end=now-1d%2Fd',
 		);
 	});
 
@@ -281,6 +301,10 @@ describe('configToUrl', () => {
 });
 
 describe('paramsToQuerystring', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('converts text search param to querystring', () => {
 		const query = {
 			q: 'abc',
@@ -290,7 +314,7 @@ describe('paramsToQuerystring', () => {
 		expect(url).toBe('?q=abc');
 	});
 
-	it('converts date math range param to querystring', () => {
+	it('keep relative date range', () => {
 		(dateMathRangeToDateRange as jest.Mock).mockReturnValue([
 			moment('2025-02-21T00:00:00.000Z'),
 			moment('2025-02-21T23:59:59.000Z'),
@@ -298,13 +322,50 @@ describe('paramsToQuerystring', () => {
 
 		const query = {
 			q: 'abc',
-			start: 'now/d',
-			end: 'now/d',
+			dateRange: {
+				start: 'now/d',
+				end: 'now/d',
+			},
+		};
+
+		const url = paramsToQuerystring(query);
+		expect(url).toBe('?q=abc&start=now%2Fd&end=now%2Fd');
+	});
+
+	it('converts relative date range to an absolute date range', () => {
+		(dateMathRangeToDateRange as jest.Mock).mockReturnValue([
+			moment('2025-02-21T00:00:00.000Z'),
+			moment('2025-02-21T23:59:59.000Z'),
+		]);
+
+		const query = {
+			q: 'abc',
+			dateRange: {
+				start: 'now/d',
+				end: 'now/d',
+			},
 		};
 
 		const url = paramsToQuerystring(query, true);
 		expect(url).toBe(
 			'?q=abc&start=2025-02-21T00%3A00%3A00.000Z&end=2025-02-21T23%3A59%3A59.000Z',
 		);
+	});
+
+	it('converts relative date range to a partial absolute date range', () => {
+		(dateMathRangeToDateRange as jest.Mock).mockReturnValue([
+			moment('2025-02-21T00:00:00.000Z'),
+		]);
+
+		const query = {
+			q: 'abc',
+			dateRange: {
+				start: 'now/d',
+				end: 'now/d',
+			},
+		};
+
+		const url = paramsToQuerystring(query, true);
+		expect(url).toBe('?q=abc&start=2025-02-21T00%3A00%3A00.000Z');
 	});
 });
