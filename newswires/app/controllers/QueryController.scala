@@ -38,6 +38,8 @@ class QueryController(
       suppliers: List[String],
       subjects: List[String],
       subjectsExcl: List[String],
+      categoryCode: List[String],
+      categoryCodeExcl: List[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
@@ -57,7 +59,9 @@ class QueryController(
         .map(_.toList)
         .getOrElse(Nil) ++ suppliersToExcludeByDefault,
       subjectsIncl = subjects,
-      subjectsExcl = subjectsExcl
+      subjectsExcl = subjectsExcl,
+      categoryCodesIncl = categoryCode,
+      categoryCodesExcl = categoryCodeExcl
     )
 
     val mergedParams = bucket.map(_ merge queryParams).getOrElse(queryParams)

@@ -7,7 +7,9 @@ case class SearchParams(
     suppliersIncl: List[String] = Nil,
     suppliersExcl: List[String] = Nil,
     subjectsIncl: List[String] = Nil,
-    subjectsExcl: List[String] = Nil
+    subjectsExcl: List[String] = Nil,
+    categoryCodesIncl: List[String] = Nil,
+    categoryCodesExcl: List[String] = Nil
 ) {
   def merge(o: SearchParams): SearchParams = {
     val mergedText = (text, o.text) match {
@@ -21,7 +23,9 @@ case class SearchParams(
       suppliersIncl = suppliersIncl ++ o.suppliersIncl,
       suppliersExcl = suppliersExcl ++ o.suppliersExcl,
       subjectsIncl = subjectsIncl ++ o.subjectsIncl,
-      subjectsExcl = subjectsExcl ++ o.subjectsExcl
+      subjectsExcl = subjectsExcl ++ o.subjectsExcl,
+      categoryCodesIncl = categoryCodesIncl ++ o.categoryCodesIncl,
+      categoryCodesExcl = categoryCodesExcl ++ o.categoryCodesExcl
     )
   }
 }
