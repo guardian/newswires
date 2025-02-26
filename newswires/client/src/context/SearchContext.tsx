@@ -87,6 +87,7 @@ const ActionSchema = z.discriminatedUnion('type', [
 	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
 	z.object({
 		type: z.literal('UPDATE_RESULTS'),
+		query: QuerySchema,
 		data: WiresQueryResponseSchema,
 	}),
 	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
@@ -205,7 +206,11 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 					fetchResults(currentConfig.query, { sinceId }, abortController)
 						.then((data) => {
 							if (!abortController.signal.aborted) {
-								dispatch({ type: 'UPDATE_RESULTS', data });
+								dispatch({
+									type: 'UPDATE_RESULTS',
+									data,
+									query: currentConfig.query,
+								});
 							}
 						})
 						.catch(handleFetchError);
@@ -227,7 +232,9 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	]);
 
 	const handleEnterQuery = (query: Query) => {
-		dispatch({ type: 'ENTER_QUERY' });
+		dispatch({
+			type: 'ENTER_QUERY',
+		});
 
 		if (currentConfig.view === 'item') {
 			pushConfigState({

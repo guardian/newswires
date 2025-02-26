@@ -1,6 +1,15 @@
+import dateMath from '@elastic/datemath';
+import moment from 'moment/moment';
 import { sampleWireData } from '../tests/fixtures/wireData.ts';
 import type { Action, State } from './SearchContext.tsx';
 import { SearchReducer } from './SearchReducer';
+
+jest.mock('@elastic/datemath', () => ({
+	__esModule: true,
+	default: {
+		parse: jest.fn(),
+	},
+}));
 
 describe('SearchReducer', () => {
 	const initialState: State = {
@@ -80,6 +89,7 @@ describe('SearchReducer', () => {
 			const action: Action = {
 				type: 'UPDATE_RESULTS',
 				data: { results: [{ ...sampleWireData, id: 2 }], totalCount: 1 },
+				query: { q: 'test' },
 			};
 
 			const newState = SearchReducer(state, action);
@@ -96,6 +106,79 @@ describe('SearchReducer', () => {
 				...sampleWireData,
 				id: 1,
 			});
+		});
+	});
+
+	it(`should filter storing when handling UPDATE_RESULTS action in success state`, () => {
+		const state: State = {
+			...successState,
+			queryData: {
+				results: [
+					{ ...sampleWireData, id: 1, ingestedAt: '2025-01-01T02:00:00Z' },
+					{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T02:05:00Z' },
+				],
+				totalCount: 2,
+			},
+		};
+
+		(dateMath.parse as jest.Mock).mockImplementation(() =>
+			moment('2025-01-01T02:04:00Z'),
+		);
+
+		const action: Action = {
+			type: 'UPDATE_RESULTS',
+			data: {
+				results: [
+					{ ...sampleWireData, id: 4, ingestedAt: '2025-01-01T02:07:00Z' },
+					{ ...sampleWireData, id: 3, ingestedAt: '2025-01-01T02:06:00Z' },
+				],
+				totalCount: 2,
+			},
+			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
+		};
+
+		expect(state.queryData.results).toContainEqual({
+			...sampleWireData,
+			id: 2,
+			ingestedAt: '2025-01-01T02:05:00Z',
+		});
+
+		expect(state.queryData.results).toContainEqual({
+			...sampleWireData,
+			id: 1,
+			ingestedAt: '2025-01-01T02:00:00Z',
+		});
+
+		const newState = SearchReducer(state, action);
+
+		expect(newState.status).toBe('success');
+		expect(newState.queryData?.results).toHaveLength(3);
+		expect(newState.queryData?.totalCount).toBe(3);
+
+		expect(newState.queryData?.results).toContainEqual({
+			...sampleWireData,
+			id: 4,
+			ingestedAt: '2025-01-01T02:07:00Z',
+			isFromRefresh: true,
+		});
+
+		expect(newState.queryData?.results).toContainEqual({
+			...sampleWireData,
+			id: 3,
+			ingestedAt: '2025-01-01T02:06:00Z',
+			isFromRefresh: true,
+		});
+
+		expect(newState.queryData?.results).toContainEqual({
+			...sampleWireData,
+			id: 2,
+			ingestedAt: '2025-01-01T02:05:00Z',
+		});
+
+		expect(newState.queryData?.results).not.toContainEqual({
+			...sampleWireData,
+			id: 1,
+			ingestedAt: '2025-01-01T02:00:00Z',
 		});
 	});
 

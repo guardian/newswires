@@ -298,7 +298,6 @@ object FingerpostWireEntry
       case _ => None
     }
 
-
     // grr annoying but broadly I think subjects(/categoryCodes) and keywords are the same "axis" to search on
     val clausesJoinedWithOr =
       List(keywordsQuery, subjectsQuery, categoryCodesInclQuery).flatten match {

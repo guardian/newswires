@@ -2,9 +2,15 @@ import dateMath from '@elastic/datemath';
 import moment from 'moment';
 
 export interface TimeRange {
-	start?: string;
-	end?: string;
+	start: string;
+	end: string;
 }
+
+export const isRelativeDateNow = (relativeDate: string) =>
+	relativeDate === 'now' || relativeDate === 'now/d';
+
+export const isRestricted = (end: string | undefined): boolean =>
+	!!(end && !isRelativeDateNow(end) && dateMath.parse(end)?.isBefore(moment()));
 
 export const deriveDateMathRangeLabel = (
 	start: string,
@@ -12,18 +18,22 @@ export const deriveDateMathRangeLabel = (
 ): string => {
 	// Relative range ending at "now" (e.g. now-1m, now-30m, now-1h, now-24h)
 	if (end === 'now') {
-		const regex = /^now-(\d+)([mhd])$/;
+		const regex = /^now-(\d+)([smhdw])$/;
 		const match = start.match(regex);
 		if (match) {
 			const value = parseInt(match[1], 10);
 			const unit = match[2];
 			let unitWord = '';
-			if (unit === 'm') {
+			if (unit === 's') {
+				unitWord = value === 1 ? 'second' : 'seconds';
+			} else if (unit === 'm') {
 				unitWord = value === 1 ? 'minute' : 'minutes';
 			} else if (unit === 'h') {
 				unitWord = value === 1 ? 'hour' : 'hours';
 			} else if (unit === 'd') {
 				unitWord = value === 1 ? 'day' : 'days';
+			} else if (unit === 'w') {
+				unitWord = value === 1 ? 'week' : 'weeks';
 			}
 			return `Last ${value} ${unitWord}`;
 		}
@@ -49,8 +59,12 @@ export const deriveDateMathRangeLabel = (
 		}
 	}
 
-	const startMoment = moment(start);
-	const endMoment = moment(end);
+	// Try to convert the date math date range to moment js objects
+	// If dateMath.parse doesn't work, start and end might be timestamps
+	const startMoment =
+		dateMath.parse(start, { roundUp: false }) ?? moment(start);
+	const endMoment = dateMath.parse(end, { roundUp: true }) ?? moment(end);
+
 	if (!startMoment.isValid() || !endMoment.isValid()) {
 		return '';
 	}
@@ -60,11 +74,12 @@ export const deriveDateMathRangeLabel = (
 
 export const dateMathRangeToDateRange = ({ start, end }: TimeRange) => {
 	const startDate = start ? dateMath.parse(start) : undefined;
-	const endDate = end && end !== 'now' ? dateMath.parse(end) : undefined;
+	const endDate =
+		end && !isRelativeDateNow(end) ? dateMath.parse(end) : undefined;
 
 	return [
 		startDate,
-		startDate?.isSame(endDate) ? endDate?.endOf('day') : endDate,
+		endDate && startDate?.isSame(endDate) ? endDate.endOf('day') : endDate,
 	];
 };
 

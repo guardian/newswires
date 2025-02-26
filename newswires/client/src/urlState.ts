@@ -1,4 +1,8 @@
-import { dateMathRangeToDateRange } from './dateMathHelpers.ts';
+import { LAST_TWO_WEEKS, NOW, TWO_WEEKS_AGO } from './dateConstants.ts';
+import {
+	dateMathRangeToDateRange,
+	isRelativeDateNow,
+} from './dateMathHelpers.ts';
 import type { Config, Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
@@ -12,6 +16,10 @@ export const defaultQuery: Query = {
 	bucket: undefined,
 	categoryCode: [],
 	categoryCodeExcl: [],
+	dateRange: {
+		start: 'now-2w',
+		end: 'now',
+	},
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -28,8 +36,8 @@ export function urlToConfig(location: {
 
 	const urlSearchParams = new URLSearchParams(location.search);
 	const queryString = urlSearchParams.get('q');
-	const start = urlSearchParams.get('start') ?? undefined;
-	const end = urlSearchParams.get('end') ?? undefined;
+	const start = urlSearchParams.get('start') ?? LAST_TWO_WEEKS;
+	const end = urlSearchParams.get('end') ?? NOW;
 	const supplier = urlSearchParams.getAll('supplier');
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
 	const keywords = urlSearchParams.get('keywords') ?? undefined;
@@ -54,8 +62,7 @@ export function urlToConfig(location: {
 		categoryCode,
 		categoryCodeExcl,
 		bucket,
-		start,
-		end,
+		dateRange: { start, end },
 	};
 
 	if (page === 'feed') {
@@ -81,19 +88,30 @@ export const configToUrl = (config: Config): string => {
 };
 
 const processDateMathRange = (config: Query, useDateTimeValue: boolean) => {
-	if (useDateTimeValue && config.start && config.end) {
-		const [start, end] = dateMathRangeToDateRange({
-			start: config.start,
-			end: config.end,
-		});
+	if (useDateTimeValue) {
+		if (config.dateRange) {
+			const [maybeStartMoment, maybeEndMoment] = dateMathRangeToDateRange({
+				start: config.dateRange.start,
+				end: config.dateRange.end,
+			});
 
+			return {
+				...config,
+				start: maybeStartMoment?.toISOString(),
+				end: maybeEndMoment?.toISOString(),
+			};
+		} else {
+			return { ...config, start: TWO_WEEKS_AGO.toISOString() };
+		}
+	} else {
 		return {
 			...config,
-			start: start?.toISOString(),
-			end: end?.toISOString(),
+			start: config.dateRange?.start,
+			end:
+				config.dateRange?.end && !isRelativeDateNow(config.dateRange.end)
+					? config.dateRange.end
+					: undefined,
 		};
-	} else {
-		return config;
 	}
 };
 
@@ -108,9 +126,9 @@ export const paramsToQuerystring = (
 		beforeId?: string;
 	} = {},
 ): string => {
-	const updatedQuery = processDateMathRange(config, useDateTimeValue);
+	const flattenedQuery = processDateMathRange(config, useDateTimeValue);
 
-	const params = Object.entries(updatedQuery).reduce<Array<[string, string]>>(
+	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(
 		(acc, [k, v]) => {
 			if (typeof v === 'string' && v.trim().length > 0) {
 				return [...acc, [k, v.trim()]];
