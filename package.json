@@ -17,7 +17,8 @@
 		"build": "npm run build --workspaces --if-present",
 		"lint": "npm run lint --workspaces",
 		"lint:ci": "npm run lint:ci --workspaces",
-		"dev": "npm run dev --workspace=ingestion-lambda"
+		"dev": "npm run dev --workspace=ingestion-lambda",
+		"storybook": "npm run storybook --workspace=newswires/client"
 	},
 	"repository": {
 		"type": "git",
