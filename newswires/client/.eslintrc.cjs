@@ -22,6 +22,12 @@ module.exports = {
 			},
 			files: ['*.ts', '*.tsx'],
 		},
+		{
+			rules: {
+				'import/no-default-export': 'off',
+			},
+			files: ['src/**/*.stories.tsx'],
+		},
 	],
 	rules: {
 		'no-unused-vars': 'off',
