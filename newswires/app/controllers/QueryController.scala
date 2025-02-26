@@ -15,6 +15,7 @@ import play.api.mvc.{
   Request
 }
 import play.api.{Configuration, Logging}
+import service.FeatureSwitchProvider
 
 class QueryController(
     val controllerComponents: ControllerComponents,
@@ -42,13 +43,19 @@ class QueryController(
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val bucket = request.getQueryString("bucket").flatMap(SearchBuckets.get)
 
+    val suppliersToExcludeByDefault =
+      if (FeatureSwitchProvider.ShowGuSuppliers.isOn) List("GuReuters", "GuAP")
+      else Nil
+
     val queryParams = SearchParams(
       text = maybeFreeTextQuery,
       keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
       keywordExcl = paramToList(request, "keywordsExcl"),
       suppliersIncl = suppliers,
-      suppliersExcl =
-        request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil),
+      suppliersExcl = request.queryString
+        .get("supplierExcl")
+        .map(_.toList)
+        .getOrElse(Nil) ++ suppliersToExcludeByDefault,
       subjectsIncl = subjects,
       subjectsExcl = subjectsExcl
     )
