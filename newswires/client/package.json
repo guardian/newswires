@@ -12,7 +12,9 @@
 		"format": "prettier --write \"src/**/*.ts{,x}\"",
 		"format:ci": "prettier --check \"src/**/*.ts{,x}\"",
 		"preview": "vite preview",
-		"test": "jest --detectOpenHandles"
+		"test": "jest --detectOpenHandles",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build"
 	},
 	"prettier": "@guardian/prettier",
 	"dependencies": {
@@ -28,9 +30,17 @@
 		"zod": "3.23.8"
 	},
 	"devDependencies": {
+		"@chromatic-com/storybook": "3.2.4",
 		"@eslint/js": "^9.9.0",
 		"@guardian/eslint-config": "9.0.0",
 		"@guardian/prettier": "^8.0.1",
+		"@storybook/addon-essentials": "8.6.0",
+		"@storybook/addon-interactions": "8.6.0",
+		"@storybook/addon-onboarding": "8.6.0",
+		"@storybook/blocks": "8.6.0",
+		"@storybook/react": "8.6.0",
+		"@storybook/react-vite": "8.6.0",
+		"@storybook/test": "8.6.0",
 		"@testing-library/react": "^16.1.0",
 		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
@@ -42,10 +52,12 @@
 		"eslint-plugin-react": "^7.35.0",
 		"eslint-plugin-react-hooks": "^5.1.0-rc.0",
 		"eslint-plugin-react-refresh": "^0.4.9",
+		"eslint-plugin-storybook": "0.11.3",
 		"globals": "^15.9.0",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "^29.7.0",
 		"prettier": "^3.3.3",
+		"storybook": "8.6.0",
 		"ts-jest": "29.2.4",
 		"typescript": "^5.5.3",
 		"typescript-eslint": "^8.0.1",
