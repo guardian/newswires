@@ -50,7 +50,7 @@ export const ItemData = ({ id }: { id: string }) => {
 							: 'unknown error',
 				);
 			});
-	}, [id]);
+	}, [id, maybeSearchParams]);
 
 	return (
 		<Item
