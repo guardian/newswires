@@ -16,7 +16,7 @@ import {
 import { css } from '@emotion/react';
 import { useSearch } from './context/SearchContext.tsx';
 import { Feed } from './Feed';
-import { Item } from './Item';
+import { ItemData } from './ItemData.tsx';
 import { SideNav } from './SideNav';
 import { configToUrl, defaultQuery } from './urlState';
 
@@ -144,7 +144,7 @@ export function App() {
 					{status !== 'error' && (
 						<>
 							<EuiShowFor sizes={['xs', 's']}>
-								{view === 'item' ? <Item id={selectedItemId} /> : <Feed />}
+								{view === 'item' ? <ItemData id={selectedItemId} /> : <Feed />}
 							</EuiShowFor>
 							<EuiShowFor sizes={['m', 'l', 'xl']}>
 								{view === 'item' ? (
@@ -171,7 +171,7 @@ export function App() {
 														padding: 0.5rem;
 													`}
 												>
-													<Item id={selectedItemId} />
+													<ItemData id={selectedItemId} />
 												</EuiResizablePanel>
 											</>
 										)}
