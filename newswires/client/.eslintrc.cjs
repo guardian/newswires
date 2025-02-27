@@ -7,6 +7,7 @@ module.exports = {
 		'plugin:react/recommended',
 		'plugin:react/jsx-runtime',
 		'plugin:react-hooks/recommended',
+		'plugin:storybook/recommended',
 	],
 	plugins: ['@typescript-eslint', 'prettier'],
 	env: {
@@ -20,6 +21,12 @@ module.exports = {
 				project: ['./tsconfig.json', './tsconfig.*.json'],
 			},
 			files: ['*.ts', '*.tsx'],
+		},
+		{
+			rules: {
+				'import/no-default-export': 'off',
+			},
+			files: ['src/**/*.stories.tsx'],
 		},
 	],
 	rules: {

@@ -31,8 +31,7 @@ import { icon as search } from '@elastic/eui/es/components/icon/assets/search';
 import { icon as warning } from '@elastic/eui/es/components/icon/assets/warning';
 import { appendIconComponentCache } from '@elastic/eui/es/components/icon/icon';
 
-// One or more icons are passed in as an object of iconKey (string): IconComponent
-appendIconComponentCache({
+const icons = {
 	clock,
 	arrowDown,
 	arrowLeft,
@@ -61,4 +60,11 @@ appendIconComponentCache({
 	popout,
 	pin,
 	iInCircle,
-});
+};
+
+// One or more icons are passed in as an object of iconKey (string): IconComponent
+appendIconComponentCache(icons);
+
+export const setUpIcons = () => {
+	appendIconComponentCache(icons);
+};
