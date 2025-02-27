@@ -1,4 +1,8 @@
-import {processFingerpostAAPCategoryCodes, processFingerpostAPCategoryCodes} from './categoryCodes';
+import {
+	processFingerpostAAPCategoryCodes,
+	processFingerpostAFPCategoryCodes,
+	processFingerpostAPCategoryCodes,
+} from './categoryCodes';
 
 describe('processFingerpostAPCategoryCodes', () => {
 	it('should return an empty array if provided with an empty array', () => {
@@ -71,7 +75,7 @@ describe('processFingerpostAAPCategoryCodes', () => {
 				'04007003+food',
 				'goods|04013002+food',
 				'and',
-				'medtop:20000049'
+				'medtop:20000049',
 			]),
 		).toEqual(['medtop:20000049', 'subj:04007003', 'subj:04013002']);
 	});
@@ -88,5 +92,62 @@ describe('processFingerpostAAPCategoryCodes', () => {
 			'subj:11002000',
 			'subj:04015001',
 		]);
+	});
+});
+
+describe('processFingerpostAFPCategoryCodes', () => {
+	it('should return an empty array if provided with an empty array', () => {
+		expect(processFingerpostAFPCategoryCodes([])).toEqual([]);
+	});
+	it('should strip out service codes', () => {
+		expect(processFingerpostAFPCategoryCodes(['service:news'])).toEqual([]);
+	});
+	it('should strip out empty iptccat entries', () => {
+		expect(
+			processFingerpostAFPCategoryCodes(['iptccat:', 'iptccat:a']),
+		).toEqual(['afpCat:a']);
+	});
+	it('should return simple codes labelled "iptc" as simple "afp" codes', () => {
+		expect(
+			processFingerpostAFPCategoryCodes(['iptccat:a', 'iptccat:b']),
+		).toEqual(['afpCat:a', 'afpCat:b']);
+	});
+	it('should expand category codes with multiple subcodes', () => {
+		expect(processFingerpostAFPCategoryCodes(['iptccat:c+d'])).toEqual([
+			'afpCat:c',
+			'afpCat:d',
+		]);
+	});
+	it('should pass other codes through untransformed', () => {
+		expect(processFingerpostAFPCategoryCodes(['qCode:value+value'])).toEqual([
+			'qCode:value+value',
+		]);
+	});
+
+	it('should remove empty strings', () => {
+		expect(
+			processFingerpostAFPCategoryCodes(['iptccat:a', '', 'iptccat:c']),
+		).toEqual(['afpCat:a', 'afpCat:c']);
+	});
+
+	it('should remove trailing and leading whitespace', () => {
+		expect(
+			processFingerpostAFPCategoryCodes([
+				'iptccat:a ',
+				' iptccat:c',
+				' service:news ',
+				'iptccat: ',
+				'qCode:value ',
+			]),
+		).toEqual(['afpCat:a', 'afpCat:c', 'qCode:value']);
+	});
+
+	it('should deduplicate category codes after stripping whitespace', () => {
+		expect(
+			processFingerpostAFPCategoryCodes([
+				'iptccat:ECO+SOC+ECO+SOC+ECO ',
+				' iptccat:ECO',
+			]),
+		).toEqual(['afpCat:ECO', 'afpCat:SOC']);
 	});
 });
