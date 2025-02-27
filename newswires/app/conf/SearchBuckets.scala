@@ -643,6 +643,7 @@ object SearchBuckets {
     case "ap-world"      => Some(ApWorld)
     case "aap-world"     => Some(AapWorld)
     case "all-world"     => Some(AllWorld)
+    case "afp-world"     => Some(AfpWorld)
     case _               => None
   }
 
@@ -720,5 +721,12 @@ object SearchBuckets {
     )
   )
 
-  private val AllWorld = ApWorld ::: ReutersWorld ::: AapWorld
+  private val AfpWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AFP")
+    )
+  )
+
+  private val AllWorld = ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld
 }
