@@ -78,7 +78,7 @@ export class Newswires extends GuStack {
 			storageType: StorageType.GP3,
 			iops: 3000, // the default for gp3 - not required but nice to declare
 			storageThroughput: 125, // the default for gp3
-			autoMinorVersionUpgrade: false, // FIXME temporary, until rds defaults version 16 to 16.4
+			autoMinorVersionUpgrade: true,
 		});
 
 		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
