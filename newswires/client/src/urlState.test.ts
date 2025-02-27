@@ -2,6 +2,7 @@ import moment from 'moment';
 import {
 	dateMathRangeToDateRange,
 	isRelativeDateNow,
+	isValidDateValue,
 } from './dateMathHelpers.ts';
 import {
 	defaultQuery,
@@ -18,6 +19,7 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 
 jest.mock('./dateMathHelpers', () => ({
 	dateMathRangeToDateRange: jest.fn(),
+	isValidDateValue: jest.fn().mockReturnValue(true),
 	isRelativeDateNow: jest.fn().mockReturnValue(false),
 }));
 
@@ -148,7 +150,7 @@ describe('urlToConfig', () => {
 		});
 	});
 
-	it('can add date math range', () => {
+	it('can add a relative date range', () => {
 		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=now%2Fd');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
@@ -159,6 +161,44 @@ describe('urlToConfig', () => {
 				dateRange: {
 					start: 'now/d',
 					end: 'now/d',
+				},
+			},
+		});
+	});
+
+	it('can add an absolute date range', () => {
+		const url = makeFakeLocation(
+			'/feed?q=abc&start=2024-02-23T16%3A17%3A31.296Z&end=2024-02-24T16%3A17%3A36.295Z',
+		);
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				dateRange: {
+					end: '2024-02-24T16:17:36.295Z',
+					start: '2024-02-23T16:17:31.296Z',
+				},
+			},
+		});
+	});
+
+	it('replaces invalid dates on date math range with default value', () => {
+		(isValidDateValue as unknown as jest.Mock)
+			.mockReturnValueOnce(true)
+			.mockReturnValueOnce(false);
+
+		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=invalid');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				dateRange: {
+					start: 'now/d',
+					end: 'now',
 				},
 			},
 		});

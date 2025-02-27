@@ -2,6 +2,7 @@ import { LAST_TWO_WEEKS, NOW, TWO_WEEKS_AGO } from './dateConstants.ts';
 import {
 	dateMathRangeToDateRange,
 	isRelativeDateNow,
+	isValidDateValue,
 } from './dateMathHelpers.ts';
 import type { Config, Query } from './sharedTypes';
 
@@ -36,8 +37,17 @@ export function urlToConfig(location: {
 
 	const urlSearchParams = new URLSearchParams(location.search);
 	const queryString = urlSearchParams.get('q');
-	const start = urlSearchParams.get('start') ?? LAST_TWO_WEEKS;
-	const end = urlSearchParams.get('end') ?? NOW;
+
+	const startParam = urlSearchParams.get('start');
+	const start =
+		!!startParam && isValidDateValue(startParam) ? startParam : LAST_TWO_WEEKS;
+
+	const endParam = urlSearchParams.get('end');
+	const end = !!endParam && isValidDateValue(endParam) ? endParam : NOW;
+
+	!!endParam &&
+		console.log('isValidDateValue(endParam)', isValidDateValue(endParam));
+
 	const supplier = urlSearchParams.getAll('supplier');
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
 	const keywords = urlSearchParams.get('keywords') ?? undefined;
