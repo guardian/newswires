@@ -13,6 +13,12 @@ describe('processFingerpostAPCategoryCodes', () => {
 		expect(processFingerpostAPCategoryCodes(['service:news'])).toEqual([]);
 	});
 
+	it('should strip out empty iptccat entries', () => {
+		expect(processFingerpostAPCategoryCodes(['iptccat:', 'iptccat:a'])).toEqual(
+			['apCat:a'],
+		);
+	});
+
 	it('should return simple codes labelled "iptccat" as simple "apCat" codes', () => {
 		expect(
 			processFingerpostAPCategoryCodes(['iptccat:a', 'iptccat:b']),
@@ -45,6 +51,7 @@ describe('processFingerpostAPCategoryCodes', () => {
 				' iptccat:c',
 				' service:news ',
 				'qCode:value ',
+				'iptccat: ',
 			]),
 		).toEqual(['apCat:a', 'apCat:c', 'qCode:value']);
 	});

@@ -24,6 +24,7 @@ export function processFingerpostAPCategoryCodes(original: string[]): string[] {
 		const [prefix, ...codes] = categoryCodes.split(':');
 		return codes
 			.flatMap((_) => _.split('+'))
+			.filter((_) => _.trim().length > 0)
 			.map(
 				(code) => `${prefix?.trim() === 'iptccat' ? 'apCat' : prefix}:${code}`,
 			);
