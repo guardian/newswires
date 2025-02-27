@@ -21,6 +21,28 @@ import { Item } from './Item';
 import { SideNav } from './SideNav';
 import { configToUrl, defaultQuery } from './urlState';
 
+const Alert = ({
+	title,
+	icon = 'warning',
+	children,
+}: {
+	title: string;
+	icon?: string;
+	children: React.ReactNode;
+}) => (
+	<EuiToast
+		title={title}
+		iconType={icon}
+		css={css`
+			border-radius: 0;
+			background: #fdf6d8;
+			position: fixed;
+		`}
+	>
+		<p>{children}</p>
+	</EuiToast>
+);
+
 export function App() {
 	const {
 		config,
@@ -60,37 +82,19 @@ export function App() {
 				`}
 			>
 				{status === 'offline' && (
-					<EuiToast
-						title="You Are Currently Offline"
-						iconType="warning"
-						css={css`
-							border-radius: 0;
-							background: #fdf6d8;
-							position: fixed;
-						`}
-					>
-						<p>
-							The application is no longer retrieving updates. Data
-							synchronization will resume once connectivity is restored.
-						</p>
-					</EuiToast>
+					<Alert title="You Are Currently Offline">
+						The application is no longer retrieving updates. Data
+						synchronization will resume once connectivity is restored.
+					</Alert>
 				)}
-				{isRestricted(query.dateRange?.end) && (
-					<EuiToast
-						title="Restricted"
-						iconType="warning"
-						css={css`
-							border-radius: 0;
-							background: #fdf6d8;
-							position: fixed;
-						`}
-					>
-						<p>
+				{isRestricted(query.dateRange?.end) &&
+					status !== 'offline' &&
+					status !== 'error' && (
+						<Alert title="Restricted">
 							Your current filter settings exclude recent updates. Adjust the
 							filter to see the latest data.
-						</p>
-					</EuiToast>
-				)}
+						</Alert>
+					)}
 				<div
 					css={css`
 						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&

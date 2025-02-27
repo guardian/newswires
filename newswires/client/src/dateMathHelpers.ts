@@ -6,6 +6,9 @@ export interface TimeRange {
 	end: string;
 }
 
+export const isValidDateValue = (value: string) =>
+	/^now(?:[+-]\d+[smhdwMy])*(?:\/\w+)?$/.test(value) || moment(value).isValid();
+
 export const isRelativeDateNow = (relativeDate: string) =>
 	relativeDate === 'now' || relativeDate === 'now/d';
 
