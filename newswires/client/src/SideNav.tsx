@@ -47,6 +47,7 @@ const buckets = [
 	{ id: 'ap-world', name: 'AP World' },
 	{ id: 'reuters-world', name: 'Reuters World' },
 	{ id: 'aap-world', name: 'AAP World' },
+	{ id: 'afp-world', name: 'AFP World' },
 ];
 
 function bucketName(bucketId: string): string | undefined {
