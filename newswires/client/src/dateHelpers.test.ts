@@ -4,7 +4,7 @@ import {
 	dateMathRangeToDateRange,
 	deriveDateMathRangeLabel,
 	isValidDateValue,
-} from './dateMathHelpers.ts';
+} from './dateHelpers.ts';
 
 jest.mock('@elastic/datemath', () => ({
 	__esModule: true,

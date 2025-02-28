@@ -3,7 +3,7 @@ import {
 	dateMathRangeToDateRange,
 	isRelativeDateNow,
 	isValidDateValue,
-} from './dateMathHelpers.ts';
+} from './dateHelpers.ts';
 import type { Config, Query } from './sharedTypes';
 
 export const defaultQuery: Query = {

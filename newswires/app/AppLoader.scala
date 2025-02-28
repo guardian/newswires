@@ -6,14 +6,19 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 
 import scala.annotation.unused
 import scala.util.{Success, Try}
+import java.util.TimeZone
 
 // Accessed via reflection from configuration: see application.conf
 @unused
 class AppLoader extends ApplicationLoader with Logging {
-  def load(context: Context) = {
+  def load(context: Context): Application = {
     LoggerConfigurator(context.environment.classLoader).foreach {
       _.configure(context.environment, context.initialConfiguration, Map.empty)
     }
+
+    // Ensure JVM uses UTC to prevent unexpected timezone conversions in database queries
+    System.setProperty("user.timezone", "UTC")
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 
     val discoveredIdentity = Identity.discover(context)
 
@@ -51,7 +56,7 @@ class AppLoader extends ApplicationLoader with Logging {
 }
 
 object Identity {
-  def discover(context: Context) = {
+  def discover(context: Context): Try[AppIdentity] = {
     if (context.environment.mode == Mode.Dev)
       Success(DevIdentity("newswires"))
     else

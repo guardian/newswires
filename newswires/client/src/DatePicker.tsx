@@ -3,6 +3,7 @@
 import type { EuiQuickSelect } from '@elastic/eui';
 import { EuiSuperDatePicker } from '@elastic/eui';
 import type { EuiCommonlyUsedTimeRanges } from '@elastic/eui/src/components/date_picker/super_date_picker/quick_select_popover/commonly_used_time_ranges';
+import moment from 'moment';
 import type { ReactElement } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import {
@@ -11,18 +12,22 @@ import {
 	NOW,
 	TWO_WEEKS_AGO,
 } from './dateConstants.ts';
-import type { TimeRange } from './dateMathHelpers.ts';
-import { timeRangeOption } from './dateMathHelpers.ts';
+import type { TimeRange } from './dateHelpers.ts';
+import { timeRangeOption } from './dateHelpers.ts';
 
 export const DatePicker = () => {
 	const { config, handleEnterQuery } = useSearch();
 
+	/*
+	 * The Super Date Picker automatically converts absolute dates to UTC.
+	 * To display the dates correctly in local time, we adjust the UTC values back to the local timezone.
+	 */
 	const onTimeChange = ({ start, end }: TimeRange) => {
 		handleEnterQuery({
 			...config.query,
 			dateRange: {
-				start,
-				end,
+				start: moment(start).isValid() ? moment(start).format() : start,
+				end: moment(end).isValid() ? moment(end).format() : end,
 			},
 		});
 	};
@@ -51,6 +56,7 @@ export const DatePicker = () => {
 				minDate={TWO_WEEKS_AGO}
 				maxDate={END_OF_TODAY}
 				onTimeChange={onTimeChange}
+				utcOffset={moment().utcOffset()}
 				updateButtonProps={{ showTooltip: true, iconOnly: true }}
 				customQuickSelectRender={customQuickSelectRender}
 				dateFormat={'MMM D • HH:mm'}
