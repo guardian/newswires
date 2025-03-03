@@ -11,12 +11,12 @@
 		"lint:ci": "eslint src/** --ext .ts --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
-		"@aws-sdk/client-s3": "3.637.0",
-		"@aws-sdk/rds-signer": "3.637.0",
-		"postgres": "3.4.4"
+		"@aws-sdk/client-s3": "3.758.0",
+		"@aws-sdk/rds-signer": "3.758.0",
+		"postgres": "3.4.5"
 	},
 	"devDependencies": {
-		"@types/aws-lambda": "8.10.145",
+		"@types/aws-lambda": "8.10.147",
 		"lorem-ipsum": "2.0.8"
 	}
 }
