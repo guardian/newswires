@@ -1,198 +1,116 @@
-import {
-	EuiButton,
-	EuiEmptyPrompt,
-	EuiHeader,
-	EuiHeaderSection,
-	EuiHeaderSectionItem,
-	EuiLink,
-	EuiPageTemplate,
-	EuiProvider,
-	EuiResizableContainer,
-	EuiShowFor,
-	EuiTitle,
-	EuiToast,
-} from '@elastic/eui';
-import { css } from '@emotion/react';
-import { useSearch } from './context/SearchContext.tsx';
-import { Feed } from './Feed';
-import { Item } from './Item';
-import { SideNav } from './SideNav';
-import { configToUrl, defaultQuery } from './urlState';
+import { Bell, Bookmark, Filter, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '../components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { ScrollArea } from '../components/ui/scroll-area';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Layout } from './shadcn/Layout.tsx';
+import { Badge } from "../components/ui/badge"
+
+const sampleNews = [
+	{
+		id: 1,
+		title: 'Breaking: Market Surges',
+		source: 'Reuters',
+		category: 'Business',
+		timestamp: '2 mins ago',
+	},
+	{
+		id: 2,
+		title: 'Elections: Latest Poll Results',
+		source: 'AP News',
+		category: 'Politics',
+		timestamp: '5 mins ago',
+	},
+	{
+		id: 3,
+		title: 'Tech Giants Announce AI Breakthrough',
+		source: 'Bloomberg',
+		category: 'Technology',
+		timestamp: '10 mins ago',
+	},
+];
 
 export function App() {
-	const {
-		config,
-		state,
-		handleEnterQuery,
-		handleRetry,
-		handleDeselectItem,
-		handleNextItem,
-		handlePreviousItem,
-	} = useSearch();
+	const [newsFeed, setNewsFeed] = useState(sampleNews);
+	const [search, setSearch] = useState('');
 
-	const { view, itemId: selectedItemId } = config;
-	const { status } = state;
-
-	const isPoppedOut = !!window.opener;
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setNewsFeed((prev) => [
+				{
+					id: Date.now(),
+					title: 'New Headline',
+					source: 'AFP',
+					category: 'General',
+					timestamp: 'Just now',
+				},
+				...prev,
+			]);
+		}, 10000);
+		return () => clearInterval(interval);
+	}, []);
 
 	return (
-		<EuiProvider colorMode="light">
-			<EuiPageTemplate
-				onKeyUp={(e) => {
-					if (view == 'item') {
-						switch (e.key) {
-							case 'Escape':
-								handleDeselectItem();
-								break;
-							case 'ArrowLeft':
-								handlePreviousItem();
-								break;
-							case 'ArrowRight':
-								handleNextItem();
-								break;
-						}
-					}
-				}}
-				css={css`
-					max-height: 100vh;
-				`}
-			>
-				{status === 'offline' && (
-					<EuiToast
-						title="You Are Currently Offline"
-						iconType="warning"
-						css={css`
-							border-radius: 0;
-							background: #fdf6d8;
-							position: fixed;
-						`}
-					>
-						<p>
-							The application is no longer retrieving updates. Data
-							synchronization will resume once connectivity is restored.
-						</p>
-					</EuiToast>
-				)}
-				<div
-					css={css`
-						${status === 'offline' && 'padding-top: 84px;'}
-						height: 100%;
-						${(status === 'loading' || status === 'error') &&
-						'display: flex; align-items: center;'}
-						${status === 'loading' && 'background: white;'}
-					`}
-				>
-					{!isPoppedOut && (
-						<EuiHeader position="fixed">
-							<EuiHeaderSection>
-								<EuiHeaderSectionItem>
-									<EuiTitle
-										size={'s'}
-										css={css`
-											padding-bottom: 3px;
-										`}
-									>
-										<h1>
-											<EuiLink
-												href="/feed"
-												external={false}
-												css={css`
-													color: inherit;
-													font-weight: inherit;
-												`}
-											>
-												Newswires
-											</EuiLink>
-										</h1>
-									</EuiTitle>
-								</EuiHeaderSectionItem>
-								<EuiHeaderSectionItem>
-									<SideNav />
-								</EuiHeaderSectionItem>
-							</EuiHeaderSection>
-							<EuiHeaderSectionItem>
-								{
-									<EuiButton
-										iconType={'popout'}
-										onClick={() =>
-											window.open(
-												configToUrl({
-													...config,
-													view: 'feed',
-													itemId: undefined,
-												}),
-												'_blank',
-												'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-											)
-										}
-									>
-										New ticker
-									</EuiButton>
-								}
-							</EuiHeaderSectionItem>
-						</EuiHeader>
-					)}
-					{status !== 'error' && (
-						<>
-							<EuiShowFor sizes={['xs', 's']}>
-								{view === 'item' ? <Item id={selectedItemId} /> : <Feed />}
-							</EuiShowFor>
-							<EuiShowFor sizes={['m', 'l', 'xl']}>
-								{view === 'item' ? (
-									<EuiResizableContainer className="eui-fullHeight">
-										{(EuiResizablePanel, EuiResizableButton) => (
-											<>
-												<EuiResizablePanel
-													minSize="25%"
-													initialSize={100}
-													className="eui-yScroll"
-												>
-													<Feed />
-												</EuiResizablePanel>
-												<EuiResizableButton />
-												<EuiResizablePanel
-													minSize="30%"
-													initialSize={100}
-													className="eui-yScroll"
-												>
-													<Item id={selectedItemId} />
-												</EuiResizablePanel>
-											</>
-										)}
-									</EuiResizableContainer>
-								) : (
-									<Feed />
-								)}
-							</EuiShowFor>
-						</>
-					)}
-					{status == 'error' && (
-						<EuiEmptyPrompt
-							css={css`
-								background: white;
-							`}
-							actions={[
-								<EuiButton
-									onClick={handleRetry}
-									key="retry"
-									iconType={'refresh'}
-								>
-									Retry
-								</EuiButton>,
-								<EuiButton
-									onClick={() => handleEnterQuery(defaultQuery)}
-									key="clear"
-									iconType={'cross'}
-								>
-									Clear
-								</EuiButton>,
-							]}
-							body={<p>Sorry, failed to load because of {state.error}</p>}
-							hasBorder={true}
-						/>
-					)}
+		<Layout>
+			<div className="p-6 max-w-4xl mx-auto">
+				<div className="flex items-center gap-4 mb-4">
+					<Input
+						className="bg-white"
+						placeholder="Search news..."
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+					/>
+					<Button variant="outline">
+						<Filter className="w-5 h-5" />
+					</Button>
+					<Button variant="outline">
+						<Bell className="w-5 h-5" />
+					</Button>
+					<Button variant="outline" onClick={() => setNewsFeed(sampleNews)}>
+						<RefreshCw className="w-5 h-5" />
+					</Button>
 				</div>
-			</EuiPageTemplate>
-		</EuiProvider>
+
+				<Tabs defaultValue="all">
+					<TabsList className="mb-4">
+						<TabsTrigger value="all">All</TabsTrigger>
+						<TabsTrigger value="business">Reuters World</TabsTrigger>
+						<TabsTrigger value="politics">AP World</TabsTrigger>
+						<TabsTrigger value="technology">AAP World</TabsTrigger>
+					</TabsList>
+
+					<ScrollArea className="h-[500px] border rounded-lg p-4 bg-white">
+						{newsFeed
+							.filter((news) =>
+								news.title.toLowerCase().includes(search.toLowerCase()),
+							)
+							.map((news) => (
+								<Card
+									key={news.id}
+									className="border-t-0 border-x-0 border-b shadow-none rounded-none"
+								>
+									<CardContent className="p-2 flex justify-between items-start">
+										<div className="flex-1">
+											<h3 className="text-lg font-semibold">{news.title}</h3>
+											<p className="text-sm text-gray-500">{news.category}</p>
+										</div>
+										<div className="flex flex-col items-end gap-1 ml-4">
+											<div className="text-sm text-gray-500 text-right">
+												{news.timestamp}
+											</div>
+											<Badge>{news.source}</Badge>
+											<div className="text-sm text-gray-500 text-right">
+												
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							))}
+					</ScrollArea>
+				</Tabs>
+			</div>
+		</Layout>
 	);
 }
