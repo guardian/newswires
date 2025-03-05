@@ -99,19 +99,17 @@ function MaybeSecondaryCardContent({
 
 	if (highlight && highlight.trim().length > 0) {
 		return (
-			<p>
-				<EuiText
-					size="xs"
-					css={css`
-						margin-top: 0.1rem;
-						padding: 0.1rem 0.5rem;
-						background-color: ${theme.euiTheme.colors.highlight};
-						justify-self: start;
-					`}
-				>
-					<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
-				</EuiText>
-			</p>
+			<EuiText
+				size="xs"
+				css={css`
+					margin-top: 0.1rem;
+					padding: 0.1rem 0.5rem;
+					background-color: ${theme.euiTheme.colors.highlight};
+					justify-self: start;
+				`}
+			>
+				<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
+			</EuiText>
 		);
 	}
 	if (subhead && subhead !== headline) {
@@ -125,11 +123,9 @@ function MaybeSecondaryCardContent({
 		: undefined;
 	if (maybeBodyTextPreview && maybeBodyTextPreview !== headline) {
 		return (
-			<p>
-				<EuiTextBlockTruncate lines={2}>
-					{maybeBodyTextPreview}
-				</EuiTextBlockTruncate>
-			</p>
+			<EuiTextBlockTruncate lines={2}>
+				<p>{maybeBodyTextPreview}</p>
+			</EuiTextBlockTruncate>
 		);
 	}
 	return null;
