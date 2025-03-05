@@ -1,4 +1,4 @@
-import {Bell, Bookmark, Filter, RefreshCw, Search, X} from 'lucide-react';
+import { Bell, Bookmark, Filter, RefreshCw, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -30,6 +30,16 @@ import {
 } from '../components/ui/drawer';
 import { Separator } from '../components/ui/separator';
 import { Direction } from 'react-resizable-panels/dist/declarations/src/types';
+import { useSearch } from './context/SearchContext.tsx';
+import { Skeleton } from '../components/ui/skeleton';
+import { format, formatDistanceToNow, isToday } from 'date-fns';
+
+export function formatTimestamp(s: string): [string, string] {
+	const date = new Date(s);
+	const relativeTime = formatDistanceToNow(date, { addSuffix: true });
+	const formattedDate = isToday(date) ? format(date, 'p') : format(date, 'Pp');
+	return [relativeTime, formattedDate];
+}
 
 const sampleNews = [
 	{
@@ -56,6 +66,10 @@ const sampleNews = [
 ];
 
 export function App() {
+	const {
+		state: { status, queryData },
+	} = useSearch();
+
 	const [newsFeed, setNewsFeed] = useState(sampleNews);
 	const [search, setSearch] = useState('');
 	const [showContent, setShowContent] = useState(false);
@@ -279,36 +293,78 @@ export function App() {
 					>
 						<ResizablePanel defaultSize={32} minSize={30}>
 							<ScrollArea className=" overflow-auto h-full px-4 py-2">
-								{newsFeed
-									.filter((news) =>
-										news.title.toLowerCase().includes(search.toLowerCase()),
-									)
-									.map((news, index) => (
+								{status === 'loading' ? (
+									// Skeleton loading state
+									<>
+										{Array(5)
+											.fill(0)
+											.map((_, index) => (
+												<div key={index} className="mb-4">
+													<Card className="border-t-0 border-x-0 border-b shadow-none rounded-none">
+														<CardContent className="p-2 flex justify-between items-start">
+															<div className="flex-1">
+																<Skeleton className="h-6 w-3/4 mb-2" />
+																<Skeleton className="h-4 w-1/4" />
+															</div>
+															<div className="flex flex-col items-end gap-1 ml-4">
+																<Skeleton className="h-4 w-16 mb-1" />
+																<Skeleton className="h-5 w-20" />
+															</div>
+														</CardContent>
+													</Card>
+												</div>
+											))}
+									</>
+								) : (
+									// Actual news content
+									queryData?.results.map((wire, index) => (
 										<div key={index} onClick={() => setShowContent(true)}>
 											<Card
-												key={news.id}
+												key={wire.id}
 												className="border-t-0 border-x-0 border-b shadow-none rounded-none"
 											>
 												<CardContent className="p-2 flex justify-between items-start">
 													<div className="flex-1">
-														<h3 className="text-lg font-semibold">
-															{news.title}
+														<h3 className="text-sm font-semibold">
+															{wire.content.headline}
 														</h3>
 														<p className="text-sm text-gray-500">
-															{news.category}
+															{wire.content.subhead}
 														</p>
 													</div>
 													<div className="flex flex-col items-end gap-1 ml-4">
 														<div className="text-sm text-gray-500 text-right">
-															{news.timestamp}
+															<TooltipProvider>
+																<Tooltip>
+																	<TooltipTrigger>
+																		<>
+																			{wire.content.firstVersion
+																				? formatTimestamp(
+																						wire.content.firstVersion,
+																					)[0]
+																				: ''}
+																		</>
+																	</TooltipTrigger>
+																	<TooltipContent>
+																		<p>
+																			{wire.content.firstVersion
+																				? formatTimestamp(
+																						wire.content.firstVersion,
+																					)[1]
+																				: ''}
+																		</p>
+																	</TooltipContent>
+																</Tooltip>
+															</TooltipProvider>
 														</div>
-														<Badge>{news.source}</Badge>
+														<Badge>{wire.supplier}</Badge>
 														<div className="text-sm text-gray-500 text-right"></div>
 													</div>
 												</CardContent>
 											</Card>
 										</div>
-									))}
+									))
+								)}
 							</ScrollArea>
 						</ResizablePanel>
 						{showContent && (
@@ -316,75 +372,103 @@ export function App() {
 								<ResizableHandle withHandle />
 								<ResizablePanel defaultSize={48} minSize={30}>
 									<div className="h-full flex flex-col p-4">
-										<div className="mb-4 flex justify-between items-center">
-											<div>
-												<h2 className="text-2xl font-bold">Article Title</h2>
-												<p className="text-sm text-gray-500">
-													Source • Category • Timestamp
-												</p>
-											</div>
-											<div className="flex space-x-1">
-												<TooltipProvider>
-													<Tooltip>
-														<TooltipTrigger asChild>
-															<Button variant="ghost" size="icon">
-																<Bookmark className="h-5 w-5" />
-															</Button>
-														</TooltipTrigger>
-														<TooltipContent>
-															<p>Bookmark article</p>
-														</TooltipContent>
-													</Tooltip>
-												</TooltipProvider>
+										{status === 'loading' ? (
+											// Skeleton loading state for article content
+											<>
+												<div className="mb-4">
+													<div>
+														<Skeleton className="h-10 w-4/5 mb-3" />
+														<Skeleton className="h-5 w-3/5 mb-2" />
+													</div>
+												</div>
+												<ScrollArea className="flex-1">
+													<div className="space-y-4">
+														<Skeleton className="h-4 w-full" />
+														<Skeleton className="h-4 w-full" />
+														<Skeleton className="h-4 w-3/4" />
+														<Skeleton className="h-4 w-full" />
+														<Skeleton className="h-4 w-full" />
+														<Skeleton className="h-4 w-5/6" />
+														<Skeleton className="h-4 w-full" />
+														<Skeleton className="h-4 w-full" />
+														<Skeleton className="h-4 w-2/3" />
+													</div>
+												</ScrollArea>
+											</>
+										) : (
+											// Actual article content
+											<>
+												<div className="mb-4 flex justify-between items-center">
+													<div>
+														<h2 className="text-2xl font-bold">
+															Article Title
+														</h2>
+														<p className="text-sm text-gray-500">
+															Source • Category • Timestamp
+														</p>
+													</div>
+													<div className="flex space-x-1">
+														<TooltipProvider>
+															<Tooltip>
+																<TooltipTrigger asChild>
+																	<Button variant="ghost" size="icon">
+																		<Bookmark className="h-5 w-5" />
+																	</Button>
+																</TooltipTrigger>
+																<TooltipContent>
+																	<p>Bookmark article</p>
+																</TooltipContent>
+															</Tooltip>
+														</TooltipProvider>
 
-												<TooltipProvider>
-													<Tooltip>
-														<TooltipTrigger asChild>
-															<Button
-																variant="ghost"
-																size="icon"
-																onClick={() => setShowContent(false)}
-															>
-																<X className="h-5 w-5" />
-															</Button>
-														</TooltipTrigger>
-														<TooltipContent>
-															<p>Close article</p>
-														</TooltipContent>
-													</Tooltip>
-												</TooltipProvider>
-											</div>
-										</div>
+														<TooltipProvider>
+															<Tooltip>
+																<TooltipTrigger asChild>
+																	<Button
+																		variant="ghost"
+																		size="icon"
+																		onClick={() => setShowContent(false)}
+																	>
+																		<X className="h-5 w-5" />
+																	</Button>
+																</TooltipTrigger>
+																<TooltipContent>
+																	<p>Close article</p>
+																</TooltipContent>
+															</Tooltip>
+														</TooltipProvider>
+													</div>
+												</div>
 
-										<div className="bg-gray-100 w-full h-48 mb-4 rounded-md flex items-center justify-center">
-											<p className="text-gray-400">Article Image</p>
-										</div>
+												<div className="bg-gray-100 w-full h-48 mb-4 rounded-md flex items-center justify-center">
+													<p className="text-gray-400">Article Image</p>
+												</div>
 
-										<ScrollArea className="flex-1">
-											<div className="space-y-4">
-												<p>
-													Lorem ipsum dolor sit amet, consectetur adipiscing
-													elit. Sed do eiusmod tempor incididunt ut labore et
-													dolore magna aliqua. Ut enim ad minim veniam, quis
-													nostrud exercitation ullamco laboris nisi ut aliquip
-													ex ea commodo consequat.
-												</p>
-												<p>
-													Duis aute irure dolor in reprehenderit in voluptate
-													velit esse cillum dolore eu fugiat nulla pariatur.
-													Excepteur sint occaecat cupidatat non proident, sunt
-													in culpa qui officia deserunt mollit anim id est
-													laborum.
-												</p>
-												<p>
-													Sed ut perspiciatis unde omnis iste natus error sit
-													voluptatem accusantium doloremque laudantium, totam
-													rem aperiam, eaque ipsa quae ab illo inventore
-													veritatis et quasi architecto beatae vitae dicta sunt
-													explicabo.
-												</p>
-											</div>
-										</ScrollArea>
+												<ScrollArea className="flex-1">
+													<div className="space-y-4">
+														<p>
+															Lorem ipsum dolor sit amet, consectetur adipiscing
+															elit, sed do eiusmod tempor incididunt ut labore
+															et dolore magna aliqua. Ut enim ad minim veniam,
+															quis nostrud exercitation ullamco laboris nisi ut
+															aliquip ex ea commodo consequat. Duis aute irure
+															dolor in reprehenderit in voluptate velit esse
+															cillum dolore eu fugiat nulla pariatur. Excepteur
+															sint occaecat cupidatat non proident, sunt in
+															culpa qui officia deserunt mollit anim id est
+															laborum.
+														</p>
+														<p>
+															Sed ut perspiciatis unde omnis iste natus error
+															sit voluptatem accusantium doloremque laudantium,
+															totam rem aperiam, eaque ipsa quae ab illo
+															inventore veritatis et quasi architecto beatae
+															vitae dicta sunt explicabo.
+														</p>
+													</div>
+												</ScrollArea>
+											</>
+										)}
 									</div>
 								</ResizablePanel>
 							</>
