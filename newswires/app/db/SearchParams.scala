@@ -2,6 +2,8 @@ package db
 
 case class SearchParams(
     text: Option[String],
+    start: Option[String] = None,
+    end: Option[String] = None,
     keywordIncl: List[String] = Nil,
     keywordExcl: List[String] = Nil,
     suppliersIncl: List[String] = Nil,

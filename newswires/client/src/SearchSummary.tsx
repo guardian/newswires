@@ -2,10 +2,11 @@ import { EuiBadge, EuiText } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
+import { deriveDateMathRangeLabel } from './dateMathHelpers.ts';
 
 const Summary = ({ searchSummary }: { searchSummary: string }) => {
 	const { config, handleEnterQuery } = useSearch();
-	const { q, bucket, subjects, supplier: suppliers } = config.query;
+	const { q, bucket, subjects, supplier: suppliers, dateRange } = config.query;
 
 	const displaySubjects = (subjects ?? []).length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;
@@ -20,6 +21,7 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 		handleEnterQuery({
 			...config.query,
 			q: label === 'Search term' ? '' : config.query.q,
+			dateRange: label === 'Time range' ? undefined : config.query.dateRange,
 			bucket: label === 'Bucket' ? undefined : config.query.bucket,
 			supplier:
 				label === 'Supplier'
@@ -43,7 +45,8 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 					handleBadgeClick(label, value);
 				}}
 			>
-				<strong>{label}</strong>: {value}
+				<strong>{label}</strong>
+				{value !== '' ? `: ${value}` : ''}
 			</EuiBadge>
 		) : null;
 
@@ -53,6 +56,11 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 				{searchSummary}
 				{displayFilters && ' for: '}
 			</span>
+			{dateRange &&
+				renderBadge(
+					'Time range',
+					deriveDateMathRangeLabel(dateRange.start, dateRange.end),
+				)}
 			{q && renderBadge('Search term', q)}
 			{bucket && renderBadge('Bucket', bucket)}
 			{displaySuppliers &&
@@ -82,7 +90,7 @@ export const SearchSummary = () => {
 	return (
 		<EuiText
 			css={css`
-				margin-top: 12px;
+				margin-top: 6px;
 				margin-bottom: 18px;
 			`}
 		>

@@ -8,6 +8,7 @@ import { icon as arrowEnd } from '@elastic/eui/es/components/icon/assets/arrowEn
 import { icon as arrowStart } from '@elastic/eui/es/components/icon/assets/arrowStart';
 import { icon as boxesHorizontal } from '@elastic/eui/es/components/icon/assets/boxes_horizontal';
 import { icon as boxesVertical } from '@elastic/eui/es/components/icon/assets/boxes_vertical';
+import { icon as calendar } from '@elastic/eui/es/components/icon/assets/calendar';
 import { icon as check } from '@elastic/eui/es/components/icon/assets/check';
 import { icon as clock } from '@elastic/eui/es/components/icon/assets/clock';
 import { icon as copyClipboard } from '@elastic/eui/es/components/icon/assets/copy_clipboard';
@@ -16,8 +17,10 @@ import { icon as dot } from '@elastic/eui/es/components/icon/assets/dot';
 import { icon as doubleArrowLeft } from '@elastic/eui/es/components/icon/assets/doubleArrowLeft';
 import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
+import { icon as filter } from '@elastic/eui/es/components/icon/assets/filter';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
 import { icon as iInCircle } from '@elastic/eui/es/components/icon/assets/iInCircle';
+import { icon as kqlFunction } from '@elastic/eui/es/components/icon/assets/kql_function';
 import { icon as launch } from '@elastic/eui/es/components/icon/assets/launch';
 import { icon as link } from '@elastic/eui/es/components/icon/assets/link';
 import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
@@ -28,10 +31,13 @@ import { icon as popout } from '@elastic/eui/es/components/icon/assets/popout';
 import { icon as refresh } from '@elastic/eui/es/components/icon/assets/refresh';
 import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return_key';
 import { icon as search } from '@elastic/eui/es/components/icon/assets/search';
+import { icon as sortLeft } from '@elastic/eui/es/components/icon/assets/sortLeft';
+import { icon as sortRight } from '@elastic/eui/es/components/icon/assets/sortRight';
 import { icon as warning } from '@elastic/eui/es/components/icon/assets/warning';
 import { appendIconComponentCache } from '@elastic/eui/es/components/icon/icon';
 
 const icons = {
+	calendar,
 	clock,
 	arrowDown,
 	arrowLeft,
@@ -58,8 +64,12 @@ const icons = {
 	link,
 	copyClipboard,
 	popout,
+	sortRight,
+	sortLeft,
 	pin,
 	iInCircle,
+	kqlFunction,
+	filter,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent
