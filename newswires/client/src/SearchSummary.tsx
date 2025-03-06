@@ -95,6 +95,7 @@ export const SearchSummary = () => {
 					font-weight: 500;
 					gap: 4px;
 					line-height: 1.5;
+					padding: 0 8px;
 				`}
 			>
 				<Summary searchSummary={searchSummary} />

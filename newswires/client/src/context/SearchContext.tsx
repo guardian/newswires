@@ -16,6 +16,7 @@ import {
 } from '../sharedTypes.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { fetchResults } from './fetchResults.ts';
+import { loadFromLocalStorage, saveToLocalStorage } from './localStorage.tsx';
 import { SearchReducer } from './SearchReducer.ts';
 
 const SearchHistorySchema = z.array(
@@ -97,6 +98,7 @@ export type Action = z.infer<typeof ActionSchema>;
 export type SearchContextShape = {
 	config: Config;
 	state: State;
+	viewedItemIds: string[];
 	handleEnterQuery: (query: Query) => void;
 	handleRetry: () => void;
 	handleSelectItem: (item: string) => void;
@@ -110,8 +112,11 @@ export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
 
 export function SearchContextProvider({ children }: PropsWithChildren) {
-	const [currentConfig, setConfig] = useState<Config>(
+	const [currentConfig, setConfig] = useState<Config>(() =>
 		urlToConfig(window.location),
+	);
+	const [viewedItemIds, setViewedItemIds] = useState<string[]>(() =>
+		loadFromLocalStorage<string[]>('viewedItemIds', z.array(z.string()), []),
 	);
 
 	const [state, dispatch] = useReducer(SearchReducer, {
@@ -136,9 +141,16 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	const pushConfigState = useCallback(
 		(config: Config) => {
 			history.pushState(config, '', configToUrl(config));
+			if (config.view === 'item') {
+				const updatedViewedItemIds = Array.from(
+					new Set([config.itemId, ...viewedItemIds]),
+				);
+				setViewedItemIds(updatedViewedItemIds);
+				saveToLocalStorage<string[]>('viewedItemIds', updatedViewedItemIds);
+			}
 			setConfig(config);
 		},
-		[setConfig],
+		[setConfig, viewedItemIds, setViewedItemIds],
 	);
 
 	const popConfigStateCallback = useCallback(
@@ -308,6 +320,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				handlePreviousItem,
 				toggleAutoUpdate,
 				loadMoreResults,
+				viewedItemIds,
 			}}
 		>
 			{children}

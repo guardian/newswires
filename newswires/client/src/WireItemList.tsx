@@ -1,8 +1,10 @@
 import {
 	EuiBadge,
 	EuiButton,
+	EuiScreenReaderOnly,
 	EuiSpacer,
 	EuiText,
+	EuiTextBlockTruncate,
 	useEuiBackgroundColor,
 	useEuiTheme,
 } from '@elastic/eui';
@@ -10,23 +12,12 @@ import { css } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { lightShadeOf } from './colour-utils.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
 import { getSupplierInfo } from './suppliers.ts';
-
-const fadeOutBackground = css`
-	animation: fadeOut ease-out 15s;
-	@keyframes fadeOut {
-		from {
-			background-color: aliceblue;
-		}
-		to {
-			background-color: white;
-		}
-	}
-`;
 
 export const WireItemList = ({
 	wires,
@@ -109,19 +100,17 @@ function MaybeSecondaryCardContent({
 
 	if (highlight && highlight.trim().length > 0) {
 		return (
-			<p>
-				<EuiText
-					size="xs"
-					css={css`
-						margin-top: 0.1rem;
-						padding: 0.1rem 0.5rem;
-						background-color: ${theme.euiTheme.colors.highlight};
-						justify-self: start;
-					`}
-				>
-					<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
-				</EuiText>
-			</p>
+			<EuiText
+				size="xs"
+				css={css`
+					margin-top: 0.1rem;
+					padding: 0.1rem 0.5rem;
+					background-color: ${theme.euiTheme.colors.highlight};
+					justify-self: start;
+				`}
+			>
+				<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
+			</EuiText>
 		);
 	}
 	if (subhead && subhead !== headline) {
@@ -130,11 +119,15 @@ function MaybeSecondaryCardContent({
 	const maybeBodyTextPreview = bodyText
 		? sanitizeHtml(bodyText, { allowedTags: [], allowedAttributes: {} }).slice(
 				0,
-				100,
+				300,
 			)
 		: undefined;
 	if (maybeBodyTextPreview && maybeBodyTextPreview !== headline) {
-		return <p>{maybeBodyTextPreview}</p>;
+		return (
+			<EuiTextBlockTruncate lines={2}>
+				<p>{maybeBodyTextPreview}</p>
+			</EuiTextBlockTruncate>
+		);
 	}
 	return null;
 }
@@ -145,7 +138,6 @@ const WirePreviewCard = ({
 	content,
 	highlight,
 	selected,
-	isFromRefresh,
 }: {
 	id: number;
 	supplier: string;
@@ -154,6 +146,7 @@ const WirePreviewCard = ({
 	selected: boolean;
 	isFromRefresh: boolean;
 }) => {
+	const { viewedItemIds } = useSearch();
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -166,7 +159,9 @@ const WirePreviewCard = ({
 	}, [selected]);
 
 	const theme = useEuiTheme();
-	const accentBgColor = useEuiBackgroundColor('accent');
+	const accentBgColor = useEuiBackgroundColor('subdued', {
+		method: 'transparent',
+	});
 
 	const supplierInfo = getSupplierInfo(supplier);
 
@@ -174,6 +169,8 @@ const WirePreviewCard = ({
 	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
 
 	const mainHeadingContent = decideMainHeadingContent(content);
+
+	const hasBeenViewed = viewedItemIds.includes(id.toString());
 
 	const cardGrid = css`
 		display: grid;
@@ -201,8 +198,7 @@ const WirePreviewCard = ({
 						padding: 0.5rem;
 						box-sizing: content-box;
 						color: ${theme.euiTheme.colors.text};
-						background-color: ${selected ? accentBgColor : 'inherit'};
-						${isFromRefresh ? fadeOutBackground : ''}
+						background-color: ${hasBeenViewed ? accentBgColor : 'inherit'};
 
 						& h3 {
 							grid-area: title;
@@ -212,11 +208,18 @@ const WirePreviewCard = ({
 			>
 				<h3
 					css={css`
-						font-weight: ${theme.euiTheme.font.weight.medium};
+						font-weight: ${hasBeenViewed
+							? theme.euiTheme.font.weight.regular
+							: theme.euiTheme.font.weight.medium};
 					`}
 				>
 					{mainHeadingContent}
 				</h3>
+				{hasBeenViewed && (
+					<EuiScreenReaderOnly>
+						<h4>viewed</h4>
+					</EuiScreenReaderOnly>
+				)}
 				<div
 					css={css`
 						grid-area: meta;
@@ -232,6 +235,9 @@ const WirePreviewCard = ({
 										key={part}
 										css={css`
 											padding-left: 5px;
+											font-weight: ${hasBeenViewed
+												? theme.euiTheme.font.weight.regular
+												: theme.euiTheme.font.weight.medium};
 										`}
 									>
 										{part}
@@ -239,11 +245,20 @@ const WirePreviewCard = ({
 								))
 						: ''}
 					<EuiSpacer size="xs" />
-					<EuiBadge color={supplierColour}>{supplierLabel}</EuiBadge>
+					<EuiBadge
+						color={
+							hasBeenViewed ? lightShadeOf(supplierColour) : supplierColour
+						}
+					>
+						{supplierLabel}
+					</EuiBadge>
 				</div>
 				<div
 					css={css`
 						grid-area: content;
+						font-weight: ${hasBeenViewed
+							? theme.euiTheme.font.weight.light
+							: theme.euiTheme.font.weight.regular};
 					`}
 				>
 					<MaybeSecondaryCardContent {...content} highlight={highlight} />
