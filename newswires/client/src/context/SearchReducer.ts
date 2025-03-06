@@ -1,26 +1,48 @@
+import dateMath from '@elastic/datemath';
 import { isEqual as deepIsEqual } from 'lodash';
-import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
+import moment from 'moment-timezone';
+import { convertToLocalDate } from '../dateHelpers.ts';
+import type { Query, WireData, WiresQueryResponse } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
+
+const transformQueryResults = (data: WireData[]) =>
+	data.map((item) => {
+		return {
+			...item,
+			ingestedAt: convertToLocalDate(item.ingestedAt),
+		};
+	});
 
 function mergeQueryData(
 	existing: WiresQueryResponse | undefined,
 	newData: WiresQueryResponse,
+	{ dateRange }: Query,
 ): WiresQueryResponse {
 	if (existing) {
 		const existingIds = new Set(existing.results.map((item) => item.id));
 
-		const mergedResults = [
-			...newData.results
-				.filter((newItem) => !existingIds.has(newItem.id))
-				.map((newItem) => ({ ...newItem, isFromRefresh: true })),
-			...existing.results,
-		];
+		const filteredExistingResults =
+			dateRange !== undefined
+				? existing.results.filter((existingItem) => {
+						return moment(existingItem.ingestedAt).isSameOrAfter(
+							dateMath.parse(dateRange.start),
+						);
+					})
+				: existing.results;
+
+		const filteredOutCount =
+			existing.results.length - filteredExistingResults.length;
 
 		return {
 			...newData,
-			totalCount: existing.totalCount + newData.totalCount,
-			results: mergedResults,
+			totalCount: existing.totalCount + newData.totalCount - filteredOutCount,
+			results: [
+				...newData.results
+					.filter((newItem) => !existingIds.has(newItem.id))
+					.map((newItem) => ({ ...newItem, isFromRefresh: true })),
+				...filteredExistingResults,
+			],
 		};
 	} else {
 		return {
@@ -70,7 +92,10 @@ export const SearchReducer = (state: State, action: Action): State => {
 		case 'FETCH_SUCCESS':
 			return {
 				...state,
-				queryData: action.data,
+				queryData: {
+					...action.data,
+					results: transformQueryResults(action.data.results),
+				},
 				successfulQueryHistory: getUpdatedHistory(
 					state.successfulQueryHistory,
 					action.query,
@@ -87,16 +112,19 @@ export const SearchReducer = (state: State, action: Action): State => {
 		case 'UPDATE_RESULTS':
 			switch (state.status) {
 				case 'success':
-					return {
-						...state,
-						queryData: mergeQueryData(state.queryData, action.data),
-					};
 				case 'offline':
 				case 'error':
 					return {
 						...state,
 						status: 'success',
-						queryData: mergeQueryData(state.queryData, action.data),
+						queryData: mergeQueryData(
+							state.queryData,
+							{
+								...action.data,
+								results: transformQueryResults(action.data.results),
+							},
+							action.query,
+						),
 					};
 				default:
 					return state;
@@ -105,7 +133,10 @@ export const SearchReducer = (state: State, action: Action): State => {
 			return {
 				...state,
 				status: 'success',
-				queryData: appendQueryData(state.queryData, action.data),
+				queryData: appendQueryData(state.queryData, {
+					...action.data,
+					results: transformQueryResults(action.data.results),
+				}),
 			};
 		case 'FETCH_ERROR':
 			switch (state.status) {
