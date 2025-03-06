@@ -12,6 +12,7 @@ import { css } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { lightShadeOf } from './colour-utils.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
@@ -244,7 +245,11 @@ const WirePreviewCard = ({
 								))
 						: ''}
 					<EuiSpacer size="xs" />
-					<EuiBadge color={hasBeenViewed ? 'subdued' : supplierColour}>
+					<EuiBadge
+						color={
+							hasBeenViewed ? lightShadeOf(supplierColour) : supplierColour
+						}
+					>
 						{supplierLabel}
 					</EuiBadge>
 				</div>
