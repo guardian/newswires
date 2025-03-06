@@ -33,6 +33,7 @@ import { Direction } from 'react-resizable-panels/dist/declarations/src/types';
 import { useSearch } from './context/SearchContext.tsx';
 import { Skeleton } from '../components/ui/skeleton';
 import { format, formatDistanceToNow, isToday } from 'date-fns';
+import {AdvancedSearchForm} from "./shadcn/AdvancedSearchForm.tsx";
 
 export function formatTimestamp(s: string): [string, string] {
 	const date = new Date(s);
@@ -124,130 +125,19 @@ export function App() {
 							</Tooltip>
 						</TooltipProvider>
 						<DrawerContent>
-							<DrawerHeader>
+							<DrawerHeader className="mx-auto max-w-8xl">
 								<DrawerTitle>Advanced Filters</DrawerTitle>
 								<DrawerDescription>
 									Customize your news feed with advanced filtering options.
 								</DrawerDescription>
 							</DrawerHeader>
-							<div className="px-4 py-2">
-								<div className="space-y-4">
-									<div>
-										<label htmlFor="source" className="text-sm font-medium">
-											News Source
-										</label>
-										<div className="flex gap-2 mt-1">
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												Reuters
-											</Button>
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												AP News
-											</Button>
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												Bloomberg
-											</Button>
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												AFP
-											</Button>
-										</div>
-									</div>
 
-									<div>
-										<label htmlFor="category" className="text-sm font-medium">
-											Category
-										</label>
-										<div className="flex gap-2 mt-1">
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												Business
-											</Button>
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												Politics
-											</Button>
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												Technology
-											</Button>
-											<Button
-												variant="outline"
-												size="sm"
-												className="rounded-full"
-											>
-												General
-											</Button>
-										</div>
-									</div>
+							<AdvancedSearchForm />
 
-									<div>
-										<label htmlFor="date-range" className="text-sm font-medium">
-											Date Range
-										</label>
-										<div className="flex gap-2 mt-1">
-											<Input type="date" className="flex-1" />
-											<span className="flex items-center">to</span>
-											<Input type="date" className="flex-1" />
-										</div>
-									</div>
-
-									<div>
-										<label htmlFor="keywords" className="text-sm font-medium">
-											Keywords
-										</label>
-										<Input
-											type="text"
-											id="keywords"
-											placeholder="Enter keywords to filter by"
-											className="mt-1"
-										/>
-									</div>
-
-									<Separator />
-
-									<div>
-										<label className="text-sm font-medium">
-											Save Filter Preset
-										</label>
-										<div className="flex gap-2 mt-1">
-											<Input
-												type="text"
-												placeholder="Enter preset name"
-												className="flex-1"
-											/>
-											<Button size="sm">Save</Button>
-										</div>
-									</div>
-								</div>
-							</div>
-							<DrawerFooter>
-								<Button>Apply Filters</Button>
+							<DrawerFooter className="mx-auto max-w-8xl">
+								<Button size="sm">Apply Filters</Button>
 								<DrawerClose asChild>
-									<Button variant="outline">Cancel</Button>
+									<Button variant="outline" size="sm">Cancel</Button>
 								</DrawerClose>
 							</DrawerFooter>
 						</DrawerContent>
