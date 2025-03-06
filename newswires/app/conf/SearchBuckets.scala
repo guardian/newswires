@@ -635,7 +635,7 @@ object Subjects {
 }
 
 object SearchBuckets {
-  def get(name: String): Option[SearchParams] = name match {
+  def get(name: String): Option[List[SearchParams]] = name match {
     case "no-sports"     => Some(NoSports)
     case "reuters-world" => Some(ReutersWorld)
     case "pa-home"       => Some(PaHome)
@@ -645,17 +645,21 @@ object SearchBuckets {
     case _               => None
   }
 
-  private val PaHome = SearchParams(
-    text = None,
-    suppliersIncl = List("PA"),
-    subjectsExcl = Subjects.sportsRelated
+  private val PaHome = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("PA"),
+      subjectsExcl = Subjects.sportsRelated
+    )
   )
 
-  private val UsElection = SearchParams(
-    text = None,
-    keywordIncl = List("2024 United States presidential election"),
-    subjectsIncl = List(
-      "N2:VOTP"
+  private val UsElection = List(
+    SearchParams(
+      text = None,
+      keywordIncl = List("2024 United States presidential election"),
+      subjectsIncl = List(
+        "N2:VOTP"
+      )
     )
   )
 
@@ -684,40 +688,58 @@ object SearchBuckets {
     * However, we should remain open to changing this in response to user feedback.
     */
   // format: on
-  private val ApWorld = SearchParams(
-    text = None,
-    suppliersIncl = List("AP"),
-    keywordIncl = List("World news"),
-    categoryCodesIncl = List("apCat:i", "apCat:a", "apCat:w"),
-    categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
-  )
-
-  private val ReutersWorld = SearchParams(
-    text = None,
-    subjectsIncl = List(
-      "MCC:OVR",
-      "MCC:OEC",
-      "MCCL:OVR",
-      "MCCL:OSM",
-      "N2:US"
-    ),
-    subjectsExcl = List(
-      "N2:GB",
-      "N2:COM",
-      "N2:ECI"
+  private val ApWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AP"),
+      keywordIncl = List("World news"),
+      categoryCodesIncl = List("apCat:i", "apCat:a", "apCat:w"),
+      categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
     )
   )
 
-  private val AapWorld = SearchParams(
-    text = None,
-    suppliersIncl = List("AAP"),
-    keywordExcl = List("Sports"),
-    subjectsExcl = Subjects.sportsRelatedNewsCodes
+  private val ReutersWorld = List(
+    SearchParams(
+      text = Some("New Summary"),
+      subjectsIncl = List(
+        "MCC:OEC"
+      ),
+      subjectsExcl = List(
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    ),
+    SearchParams(
+      text = None,
+      subjectsIncl = List(
+        "MCC:OVR",
+        "MCCL:OVR",
+        "MCCL:OSM",
+        "N2:US"
+      ),
+      subjectsExcl = List(
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    )
   )
 
-  private val NoSports = SearchParams(
-    text = None,
-    keywordExcl = List("Sports"),
-    subjectsExcl = Subjects.sportsRelated
+  private val AapWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AAP"),
+      keywordExcl = List("Sports"),
+      subjectsExcl = Subjects.sportsRelatedNewsCodes
+    )
+  )
+
+  private val NoSports = List(
+    SearchParams(
+      text = None,
+      keywordExcl = List("Sports"),
+      subjectsExcl = Subjects.sportsRelated
+    )
   )
 }
