@@ -1,9 +1,9 @@
 import dateMath from '@elastic/datemath';
 import moment from 'moment';
 import {
-	dateMathRangeToDateRange,
 	deriveDateMathRangeLabel,
 	isValidDateValue,
+	relativeDateRangeToAbsoluteDateRange,
 } from './dateMathHelpers.ts';
 
 jest.mock('@elastic/datemath', () => ({
@@ -33,7 +33,7 @@ describe('isValidDateValue', () => {
 	});
 });
 
-describe('dateMathRangeToDateRange', () => {
+describe('relativeDateRangeToAbsoluteDateRange', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
@@ -43,7 +43,7 @@ describe('dateMathRangeToDateRange', () => {
 			moment().startOf('day'),
 		);
 
-		const [start, end] = dateMathRangeToDateRange({
+		const [start, end] = relativeDateRangeToAbsoluteDateRange({
 			start: 'now-1d/d',
 			end: 'now-1d/d',
 		});
@@ -57,7 +57,7 @@ describe('dateMathRangeToDateRange', () => {
 			moment().startOf('day'),
 		);
 
-		const [start, end] = dateMathRangeToDateRange({
+		const [start, end] = relativeDateRangeToAbsoluteDateRange({
 			start: 'now-1d/d',
 			end: 'now/d',
 		});
@@ -71,7 +71,7 @@ describe('dateMathRangeToDateRange', () => {
 			moment().startOf('day'),
 		);
 
-		const [start, end] = dateMathRangeToDateRange({
+		const [start, end] = relativeDateRangeToAbsoluteDateRange({
 			start: 'now-1d/d',
 			end: 'now/d',
 		});

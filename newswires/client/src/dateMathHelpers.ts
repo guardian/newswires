@@ -75,7 +75,10 @@ export const deriveDateMathRangeLabel = (
 	return `${startMoment.format('MMM D')} - ${endMoment.format('MMM D')}`;
 };
 
-export const dateMathRangeToDateRange = ({ start, end }: TimeRange) => {
+export const relativeDateRangeToAbsoluteDateRange = ({
+	start,
+	end,
+}: TimeRange) => {
 	const startDate = start ? dateMath.parse(start) : undefined;
 	const endDate =
 		end && !isRelativeDateNow(end) ? dateMath.parse(end) : undefined;

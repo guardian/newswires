@@ -1,8 +1,8 @@
 import { LAST_TWO_WEEKS, NOW, TWO_WEEKS_AGO } from './dateConstants.ts';
 import {
-	dateMathRangeToDateRange,
 	isRelativeDateNow,
 	isValidDateValue,
+	relativeDateRangeToAbsoluteDateRange,
 } from './dateMathHelpers.ts';
 import type { Config, Query } from './sharedTypes';
 
@@ -99,11 +99,13 @@ export const configToUrl = (config: Config): string => {
 
 const processDateMathRange = (config: Query, useDateTimeValue: boolean) => {
 	if (useDateTimeValue) {
+		// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
 		if (config.dateRange) {
-			const [maybeStartMoment, maybeEndMoment] = dateMathRangeToDateRange({
-				start: config.dateRange.start,
-				end: config.dateRange.end,
-			});
+			const [maybeStartMoment, maybeEndMoment] =
+				relativeDateRangeToAbsoluteDateRange({
+					start: config.dateRange.start,
+					end: config.dateRange.end,
+				});
 
 			return {
 				...config,

@@ -1,8 +1,8 @@
 import moment from 'moment';
 import {
-	dateMathRangeToDateRange,
 	isRelativeDateNow,
 	isValidDateValue,
+	relativeDateRangeToAbsoluteDateRange,
 } from './dateMathHelpers.ts';
 import {
 	defaultQuery,
@@ -18,7 +18,7 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 }
 
 jest.mock('./dateMathHelpers', () => ({
-	dateMathRangeToDateRange: jest.fn(),
+	relativeDateRangeToAbsoluteDateRange: jest.fn(),
 	isValidDateValue: jest.fn().mockReturnValue(true),
 	isRelativeDateNow: jest.fn().mockReturnValue(false),
 }));
@@ -355,7 +355,7 @@ describe('paramsToQuerystring', () => {
 	});
 
 	it('keep relative date range', () => {
-		(dateMathRangeToDateRange as jest.Mock).mockReturnValue([
+		(relativeDateRangeToAbsoluteDateRange as jest.Mock).mockReturnValue([
 			moment('2025-02-21T00:00:00.000Z'),
 			moment('2025-02-21T23:59:59.000Z'),
 		]);
@@ -373,7 +373,7 @@ describe('paramsToQuerystring', () => {
 	});
 
 	it('converts relative date range to an absolute date range', () => {
-		(dateMathRangeToDateRange as jest.Mock).mockReturnValue([
+		(relativeDateRangeToAbsoluteDateRange as jest.Mock).mockReturnValue([
 			moment('2025-02-21T00:00:00.000Z'),
 			moment('2025-02-21T23:59:59.000Z'),
 		]);
@@ -393,7 +393,7 @@ describe('paramsToQuerystring', () => {
 	});
 
 	it('converts relative date range to a partial absolute date range', () => {
-		(dateMathRangeToDateRange as jest.Mock).mockReturnValue([
+		(relativeDateRangeToAbsoluteDateRange as jest.Mock).mockReturnValue([
 			moment('2025-02-21T00:00:00.000Z'),
 		]);
 
