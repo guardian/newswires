@@ -160,18 +160,12 @@ object FingerpostWireEntry
       totalCount: Long
 //      keywordCounts: Map[String, Int]
   )
+
   private object QueryResponse {
     implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
   }
 
-  def query(
-      search: SearchParams,
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int],
-      pageSize: Int = 250
-  ): QueryResponse = DB readOnly { implicit session =>
-    val effectivePageSize = clamp(0, pageSize, 250)
-
+  private def buildWhereClause(search: SearchParams): Seq[SQLSyntax] = {
     val sourceFeedsQuery = search.suppliersIncl match {
       case Nil => None
       case sourceFeeds =>
@@ -306,7 +300,7 @@ object FingerpostWireEntry
           Some(sqls.joinWithOr(clauses: _*))
       }
 
-    val commonWhereClauses = List(
+    List(
       clausesJoinedWithOr,
       keywordsExclQuery,
       subjectsExclQuery,
@@ -319,6 +313,16 @@ object FingerpostWireEntry
       categoryCodesInclQuery,
       categoryCodesExclQuery
     ).flatten
+  }
+
+  def query(
+      searchParamList: List[SearchParams],
+      maybeTextSearchToHighlight: Option[String],
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int],
+      pageSize: Int = 250
+  ): QueryResponse = DB readOnly { implicit session =>
+    val effectivePageSize = clamp(0, pageSize, 250)
 
     val dataOnlyWhereClauses = List(
       maybeBeforeId.map(beforeId =>
@@ -329,12 +333,29 @@ object FingerpostWireEntry
       )
     ).flatten
 
-    val whereClause = dataOnlyWhereClauses ++ commonWhereClauses match {
-      case Nil        => sqls""
-      case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
+    val commonWhereClauses = searchParamList.flatMap(searchParams => {
+      val whereClause = buildWhereClause(searchParams)
+      if (whereClause.nonEmpty) {
+        Some(
+          sqls.joinWithAnd(
+            dataOnlyWhereClauses ++ buildWhereClause(searchParams): _*
+          )
+        )
+      } else {
+        None
+      }
+    })
+
+    val whereClause = commonWhereClauses match {
+      case Nil => sqls""
+      case wherePart :: Nil => {
+        sqls"WHERE $wherePart"
+      }
+      case whereParts =>
+        sqls"WHERE ${sqls.joinWithOr(whereParts.map(clause => sqls"(${clause})"): _*)}"
     }
 
-    val highlightsClause = search.text match {
+    val highlightsClause = maybeTextSearchToHighlight match {
       case Some(query) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query)) AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
