@@ -1,27 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { Item } from './Item';
 import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
-import { paramsToQuerystring } from './urlState';
 
 export const ItemData = ({ id }: { id: string }) => {
-	const { handleDeselectItem, config } = useSearch();
+	const { handleDeselectItem } = useSearch();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
 
-	const maybeSearchParams = useMemo(() => {
-		const q = config.query.q;
-		if (q) {
-			return paramsToQuerystring({ q, supplier: [] });
-		}
-		return '';
-	}, [config.query.q]);
-
 	useEffect(() => {
 		// fetch item data from /api/item/:id
-		pandaFetch(`/api/item/${id}${maybeSearchParams}`)
+		pandaFetch(`/api/item/${id}`)
 			.then((res) => {
 				if (res.status === 404) {
 					throw new Error('Item not found');
@@ -50,7 +41,7 @@ export const ItemData = ({ id }: { id: string }) => {
 							: 'unknown error',
 				);
 			});
-	}, [id, maybeSearchParams]);
+	}, [id]);
 
 	return (
 		<Item
