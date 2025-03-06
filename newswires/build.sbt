@@ -8,10 +8,10 @@ organization := "com.gu"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.13.14"
+scalaVersion := "2.13.16"
 
 libraryDependencies += ws
-libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "1.6.4"
+libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "5.0.0"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "7.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "4.0.0"
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "7.4"
