@@ -75,23 +75,8 @@ export function App() {
 	const [search, setSearch] = useState('');
 	const [showContent, setShowContent] = useState(false);
 	const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+	// const [layout, setLayout] = useState<Direction>('vertical');
 	const [layout, setLayout] = useState<Direction>('horizontal');
-
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setNewsFeed((prev) => [
-				{
-					id: Date.now(),
-					title: 'New Headline',
-					source: 'AFP',
-					category: 'General',
-					timestamp: 'Just now',
-				},
-				...prev,
-			]);
-		}, 10000);
-		return () => clearInterval(interval);
-	}, []);
 
 	return (
 		<Layout>
@@ -120,24 +105,24 @@ export function App() {
 									</DrawerTrigger>
 								</TooltipTrigger>
 								<TooltipContent>
-									<p>Filter news</p>
+									<p>Filter wire feed</p>
 								</TooltipContent>
 							</Tooltip>
 						</TooltipProvider>
 						<DrawerContent>
-							<DrawerHeader className="mx-auto max-w-8xl">
-								<DrawerTitle>Advanced Filters</DrawerTitle>
+							<DrawerHeader className="">
+								<DrawerTitle>Advanced Search</DrawerTitle>
 								<DrawerDescription>
-									Customize your news feed with advanced filtering options.
+									Customise your wire feed with advanced search options.
 								</DrawerDescription>
 							</DrawerHeader>
 
-							<AdvancedSearchForm />
+							<AdvancedSearchForm className="" />
 
-							<DrawerFooter className="mx-auto max-w-8xl">
-								<Button size="sm">Apply Filters</Button>
+							<DrawerFooter className="">
+								<Button size="sm" className="inline-block">Search</Button>
 								<DrawerClose asChild>
-									<Button variant="outline" size="sm">Cancel</Button>
+									<Button variant="outline" size="sm" className="inline-block">Cancel</Button>
 								</DrawerClose>
 							</DrawerFooter>
 						</DrawerContent>
@@ -154,7 +139,7 @@ export function App() {
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent>
-								<p>Refresh news feed</p>
+								<p>Refresh wire feed</p>
 							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
