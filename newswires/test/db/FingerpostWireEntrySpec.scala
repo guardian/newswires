@@ -50,7 +50,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     whereClause.parameters should be(List("text1"))
   }
 
-  it should "concatenate keywords and subjects with 'or'" in {
+  it should "concatenate keywords, subjects and category codes with 'or'" in {
     val searchParams =
       SearchParams(
         text = None,
@@ -74,6 +74,33 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
         List("keyword1", "keyword2"),
         List("subject1", "subject2"),
         List("category1", "category2")
+      )
+    )
+  }
+
+  it should "join other clauses using 'and'" in {
+    val searchParams =
+      SearchParams(
+        text = Some("text1"),
+        keywordExcl = List("keyword1")
+      )
+
+    val whereClause =
+      FingerpostWireEntry.buildWhereClause(searchParams, Some(1), None)
+
+    whereClause.value.replaceAll("\\s*", " ") should be(
+      """WHERE NOT EXISTS (
+        SELECT FROM fingerpost_wire_entry keywordsExcl
+        WHERE fm.id = keywordsExcl.id
+          AND (keywordsExcl.content->'keywords') ??| ?
+      ) and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and fm.id < ?"""
+        .replaceAll("\\s*", " ")
+    )
+    whereClause.parameters should be(
+      List(
+        List("keyword1"),
+        "text1",
+        1
       )
     )
   }
