@@ -16,7 +16,7 @@ import {
 import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
-import { deriveDateMathRangeLabel } from './dateMathHelpers.ts';
+import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { SearchBox } from './SearchBox';
 import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
