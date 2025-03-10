@@ -3,7 +3,7 @@ import {
 	isRelativeDateNow,
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
-} from './dateMathHelpers.ts';
+} from './dateHelpers.ts';
 import {
 	defaultQuery,
 	exportedForTestingOnly,
@@ -17,10 +17,11 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 	return { pathname: urlObject.pathname, search: urlObject.search };
 }
 
-jest.mock('./dateMathHelpers', () => ({
+jest.mock('./dateHelpers', () => ({
 	relativeDateRangeToAbsoluteDateRange: jest.fn(),
 	isValidDateValue: jest.fn().mockReturnValue(true),
 	isRelativeDateNow: jest.fn().mockReturnValue(false),
+	convertToUtcDate: jest.fn().mockReturnValue(false),
 }));
 
 describe('urlToConfig', () => {
