@@ -326,7 +326,6 @@ object FingerpostWireEntry
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       dateRangeQuery,
-      categoryCodesInclQuery,
       categoryCodesExclQuery
     ).flatten ++ dataOnlyWhereClauses match {
       case Nil        => sqls""

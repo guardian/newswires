@@ -67,13 +67,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     val whereClause =
       FingerpostWireEntry.buildWhereClause(searchParams, None, None)
     whereClause.value should be(
-      "WHERE ((fm.content -> 'keywords') ??| ? or (fm.content -> 'subjects' -> 'code') ??| ? or fm.category_codes && ?) and fm.category_codes && ?"
+      "WHERE ((fm.content -> 'keywords') ??| ? or (fm.content -> 'subjects' -> 'code') ??| ? or fm.category_codes && ?)"
     )
     whereClause.parameters should be(
       List(
         List("keyword1", "keyword2"),
         List("subject1", "subject2"),
-        List("category1", "category2"),
         List("category1", "category2")
       )
     )
