@@ -1,27 +1,33 @@
 import dateMath from '@elastic/datemath';
 import { isEqual as deepIsEqual } from 'lodash';
-import moment from 'moment';
-import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
+import moment from 'moment-timezone';
+import { convertToLocalDate } from '../dateHelpers.ts';
+import type { Query, WireData, WiresQueryResponse } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
+
+const transformQueryResults = (data: WireData[]) =>
+	data.map((item) => {
+		return {
+			...item,
+			ingestedAt: convertToLocalDate(item.ingestedAt),
+		};
+	});
 
 function mergeQueryData(
 	existing: WiresQueryResponse | undefined,
 	newData: WiresQueryResponse,
 	{ dateRange }: Query,
 ): WiresQueryResponse {
-	const parsePostgresTimestamp = (timestamp: string) =>
-		moment(timestamp.replace(/\[.*]$/, ''));
-
 	if (existing) {
 		const existingIds = new Set(existing.results.map((item) => item.id));
 
 		const filteredExistingResults =
 			dateRange !== undefined
 				? existing.results.filter((existingItem) => {
-						return parsePostgresTimestamp(
-							existingItem.ingestedAt,
-						).isSameOrAfter(dateMath.parse(dateRange.start));
+						return moment(existingItem.ingestedAt).isSameOrAfter(
+							dateMath.parse(dateRange.start),
+						);
 					})
 				: existing.results;
 
@@ -86,7 +92,10 @@ export const SearchReducer = (state: State, action: Action): State => {
 		case 'FETCH_SUCCESS':
 			return {
 				...state,
-				queryData: action.data,
+				queryData: {
+					...action.data,
+					results: transformQueryResults(action.data.results),
+				},
 				successfulQueryHistory: getUpdatedHistory(
 					state.successfulQueryHistory,
 					action.query,
@@ -103,14 +112,6 @@ export const SearchReducer = (state: State, action: Action): State => {
 		case 'UPDATE_RESULTS':
 			switch (state.status) {
 				case 'success':
-					return {
-						...state,
-						queryData: mergeQueryData(
-							state.queryData,
-							action.data,
-							action.query,
-						),
-					};
 				case 'offline':
 				case 'error':
 					return {
@@ -118,7 +119,10 @@ export const SearchReducer = (state: State, action: Action): State => {
 						status: 'success',
 						queryData: mergeQueryData(
 							state.queryData,
-							action.data,
+							{
+								...action.data,
+								results: transformQueryResults(action.data.results),
+							},
 							action.query,
 						),
 					};
@@ -129,7 +133,10 @@ export const SearchReducer = (state: State, action: Action): State => {
 			return {
 				...state,
 				status: 'success',
-				queryData: appendQueryData(state.queryData, action.data),
+				queryData: appendQueryData(state.queryData, {
+					...action.data,
+					results: transformQueryResults(action.data.results),
+				}),
 			};
 		case 'FETCH_ERROR':
 			switch (state.status) {

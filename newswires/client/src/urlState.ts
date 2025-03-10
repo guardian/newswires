@@ -3,7 +3,7 @@ import {
 	isRelativeDateNow,
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
-} from './dateMathHelpers.ts';
+} from './dateHelpers.ts';
 import type { Config, Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
@@ -97,8 +97,11 @@ export const configToUrl = (config: Config): string => {
 	}
 };
 
-const processDateMathRange = (config: Query, useDateTimeValue: boolean) => {
-	if (useDateTimeValue) {
+const processDateRange = (
+	config: Query,
+	useAbsoluteDateTimeValues: boolean,
+) => {
+	if (useAbsoluteDateTimeValues) {
 		// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
 		if (config.dateRange) {
 			const [maybeStartMoment, maybeEndMoment] =
@@ -138,7 +141,7 @@ export const paramsToQuerystring = (
 		beforeId?: string;
 	} = {},
 ): string => {
-	const flattenedQuery = processDateMathRange(config, useDateTimeValue);
+	const flattenedQuery = processDateRange(config, useDateTimeValue);
 
 	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(
 		(acc, [k, v]) => {
