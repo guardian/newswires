@@ -164,13 +164,19 @@ object FingerpostWireEntry
     implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
   }
 
-  def query(
+  def buildWhereClause(
       search: SearchParams,
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int],
-      pageSize: Int = 250
-  ): QueryResponse = DB readOnly { implicit session =>
-    val effectivePageSize = clamp(0, pageSize, 250)
+      maybeSinceId: Option[Int]
+  ): SQLSyntax = {
+    val dataOnlyWhereClauses = List(
+      maybeBeforeId.map(beforeId =>
+        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+      ),
+      maybeSinceId.map(sinceId =>
+        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
+      )
+    ).flatten
 
     val sourceFeedsQuery = search.suppliersIncl match {
       case Nil => None
@@ -196,10 +202,10 @@ object FingerpostWireEntry
         // https://stackoverflow.com/a/19364694
         Some(
           sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as se}
-                 |  WHERE ${syn.id} = ${se.id}
-                 |    AND $doesContainFeeds
-                 |)""".stripMargin
+                   |  SELECT FROM ${FingerpostWireEntry as se}
+                   |  WHERE ${syn.id} = ${se.id}
+                   |    AND $doesContainFeeds
+                   |)""".stripMargin
         )
     }
 
@@ -228,10 +234,10 @@ object FingerpostWireEntry
         // https://stackoverflow.com/a/19364694
         Some(
           sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as ke}
-                 |  WHERE ${syn.id} = ${ke.id}
-                 |    AND $doesContainKeywords
-                 |)""".stripMargin
+                   |  SELECT FROM ${FingerpostWireEntry as ke}
+                   |  WHERE ${syn.id} = ${ke.id}
+                   |    AND $doesContainKeywords
+                   |)""".stripMargin
         )
     }
 
@@ -251,10 +257,10 @@ object FingerpostWireEntry
           sqls"(${se.content}->'subjects'->'code') ??| ${textArray(subjects)}"
         Some(
           sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as se}
-                 |  WHERE ${syn.id} = ${se.id}
-                 |    AND $doesContainSubjects
-                 |)""".stripMargin
+                   |  SELECT FROM ${FingerpostWireEntry as se}
+                   |  WHERE ${syn.id} = ${se.id}
+                   |    AND $doesContainSubjects
+                   |)""".stripMargin
         )
     }
 
@@ -275,10 +281,10 @@ object FingerpostWireEntry
 
         Some(
           sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as cce}
-                 |  WHERE ${syn.id} = ${cce.id}
-                 |    AND $doesContainCategoryCodes
-                 |)""".stripMargin
+                   |  SELECT FROM ${FingerpostWireEntry as cce}
+                   |  WHERE ${syn.id} = ${cce.id}
+                   |    AND $doesContainCategoryCodes
+                   |)""".stripMargin
         )
     }
 
@@ -300,13 +306,17 @@ object FingerpostWireEntry
 
     // grr annoying but broadly I think subjects(/categoryCodes) and keywords are the same "axis" to search on
     val clausesJoinedWithOr =
-      List(keywordsQuery, subjectsQuery, categoryCodesInclQuery).flatten match {
+      List(
+        keywordsQuery,
+        subjectsQuery,
+        categoryCodesInclQuery
+      ).flatten match {
         case Nil => None
         case clauses =>
           Some(sqls.joinWithOr(clauses: _*))
       }
 
-    val commonWhereClauses = List(
+    List(
       clausesJoinedWithOr,
       keywordsExclQuery,
       subjectsExclQuery,
@@ -318,21 +328,25 @@ object FingerpostWireEntry
       dateRangeQuery,
       categoryCodesInclQuery,
       categoryCodesExclQuery
-    ).flatten
-
-    val dataOnlyWhereClauses = List(
-      maybeBeforeId.map(beforeId =>
-        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-      ),
-      maybeSinceId.map(sinceId =>
-        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-      )
-    ).flatten
-
-    val whereClause = dataOnlyWhereClauses ++ commonWhereClauses match {
+    ).flatten ++ dataOnlyWhereClauses match {
       case Nil        => sqls""
       case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
     }
+  }
+
+  def query(
+      search: SearchParams,
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int],
+      pageSize: Int = 250
+  ): QueryResponse = DB readOnly { implicit session =>
+    val effectivePageSize = clamp(0, pageSize, 250)
+
+    val whereClause = buildWhereClause(
+      search,
+      maybeBeforeId = maybeBeforeId,
+      maybeSinceId = maybeSinceId
+    )
 
     val highlightsClause = search.text match {
       case Some(query) =>
