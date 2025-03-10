@@ -68,12 +68,16 @@ class QueryController(
       categoryCodesExcl = categoryCodeExcl
     )
 
-    val mergedParams = bucket.map(_ merge queryParams).getOrElse(queryParams)
+    val mergedParamList = bucket match {
+      case Some(queryParamList) => queryParamList.map(_ merge queryParams)
+      case None                 => List(queryParams)
+    }
 
     Ok(
       Json.toJson(
         FingerpostWireEntry.query(
-          mergedParams,
+          mergedParamList,
+          maybeFreeTextQuery,
           maybeBeforeId,
           maybeSinceId,
           pageSize = 30

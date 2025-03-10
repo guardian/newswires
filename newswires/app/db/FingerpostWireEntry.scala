@@ -160,6 +160,7 @@ object FingerpostWireEntry
       totalCount: Long
 //      keywordCounts: Map[String, Int]
   )
+
   private object QueryResponse {
     implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
   }
@@ -347,7 +348,7 @@ object FingerpostWireEntry
       maybeSinceId = maybeSinceId
     )
 
-    val highlightsClause = search.text match {
+    val highlightsClause = maybeTextSearchToHighlight match {
       case Some(query) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query)) AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
