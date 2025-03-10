@@ -103,13 +103,14 @@ export const WireDetail = ({
 					</EuiTitle>
 				</EuiFlexItem>
 			</EuiFlexGroup>
-			<EuiSpacer size="xs" />
+			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
 					{JSON.stringify(wire, null, 2)}
 				</EuiCodeBlock>
 			) : (
 				<>
+					<EuiSpacer size="xs" />
 					<h3
 						css={css`
 							font-weight: ${theme.euiTheme.font.weight.bold};
@@ -117,6 +118,8 @@ export const WireDetail = ({
 					>
 						{wire.content.subhead}
 					</h3>
+					<EuiSpacer size="s" />
+					{ednote && <EuiCallOut size="s" title={ednote} color="success" />}
 					<EuiSpacer size="s" />
 					<EuiDescriptionList
 						css={css`
@@ -126,10 +129,11 @@ export const WireDetail = ({
 								position: relative;
 								border: 3px solid ${theme.euiTheme.colors.highlight};
 							}
+							display: flex;
+							flex-direction: column;
+							gap: ${theme.euiTheme.size.s};
 						`}
 					>
-						{ednote && <EuiCallOut size="s" title={ednote} color="success" />}
-						<EuiSpacer size="xs" />
 						{byline && (
 							<>
 								<EuiScreenReaderOnly>
@@ -146,7 +150,6 @@ export const WireDetail = ({
 								</EuiDescriptionListDescription>
 							</>
 						)}
-						<EuiSpacer size="s" />
 						{bodyTextContent && (
 							<>
 								<EuiScreenReaderOnly>
