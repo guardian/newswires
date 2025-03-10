@@ -1,5 +1,6 @@
 import {
 	EuiBadge,
+	EuiCallOut,
 	EuiCodeBlock,
 	EuiDescriptionList,
 	EuiDescriptionListDescription,
@@ -8,18 +9,37 @@ import {
 	EuiFlexItem,
 	EuiListGroupItem,
 	EuiPanel,
-	EuiScreenReaderLive,
+	EuiScreenReaderOnly,
 	EuiSpacer,
 	EuiText,
+	EuiTitle,
 	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { Fragment, useMemo } from 'react';
+import { useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import type { WireData } from './sharedTypes';
+
+function TitleContentForItem({
+	slug,
+	headline,
+}: {
+	slug?: string;
+	headline?: string;
+}) {
+	if (headline && headline.length > 0) {
+		return (
+			<>
+				{slug && <EuiText size={'xs'}>{slug}</EuiText>} {headline}
+			</>
+		);
+	}
+
+	return <>{slug ?? 'No title'}</>;
+}
 
 export const WireDetail = ({
 	wire,
@@ -30,7 +50,8 @@ export const WireDetail = ({
 }) => {
 	const { handleEnterQuery, config } = useSearch();
 	const theme = useEuiTheme();
-	const { byline, keywords, usage, ednote, subjects } = wire.content;
+	const { byline, keywords, usage, ednote, subjects, headline, slug } =
+		wire.content;
 
 	const handleSubjectClick = (subject: string) => {
 		const subjects = config.query.subjects ?? [];
@@ -72,25 +93,34 @@ export const WireDetail = ({
 	);
 
 	return (
-		<Fragment>
+		<>
+			<EuiFlexGroup justifyContent="spaceBetween">
+				<EuiFlexItem grow={true}>
+					<EuiTitle size="xs">
+						<h2>
+							<TitleContentForItem headline={headline} slug={slug} />
+						</h2>
+					</EuiTitle>
+				</EuiFlexItem>
+			</EuiFlexGroup>
+			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
 					{JSON.stringify(wire, null, 2)}
 				</EuiCodeBlock>
 			) : (
 				<>
-					<EuiScreenReaderLive focusRegionOnTextChange>
-						<h3
-							css={css`
-								font-weight: 300;
-							`}
-						>
-							{wire.content.subhead}
-						</h3>
-					</EuiScreenReaderLive>
-
-					<EuiSpacer size="m" />
-
+					<EuiSpacer size="xs" />
+					<h3
+						css={css`
+							font-weight: ${theme.euiTheme.font.weight.bold};
+						`}
+					>
+						{wire.content.subhead}
+					</h3>
+					<EuiSpacer size="s" />
+					{ednote && <EuiCallOut size="s" title={ednote} color="success" />}
+					<EuiSpacer size="s" />
 					<EuiDescriptionList
 						css={css`
 							& mark {
@@ -99,25 +129,42 @@ export const WireDetail = ({
 								position: relative;
 								border: 3px solid ${theme.euiTheme.colors.highlight};
 							}
+							display: flex;
+							flex-direction: column;
+							gap: ${theme.euiTheme.size.s};
 						`}
 					>
-						{ednote && (
-							<p
-								css={css`
-									border: 1px solid;
-									padding: ${theme.euiTheme.size.s};
-									margin-bottom: ${theme.euiTheme.size.s};
-									font-weight: ${theme.euiTheme.font.weight.bold};
-								`}
-							>
-								{ednote}
-							</p>
-						)}
 						{byline && (
 							<>
-								<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
+								<EuiScreenReaderOnly>
+									<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
+								</EuiScreenReaderOnly>
 								<EuiDescriptionListDescription>
-									{byline}
+									<p
+										css={css`
+											font-style: italic;
+										`}
+									>
+										{byline}
+									</p>
+								</EuiDescriptionListDescription>
+							</>
+						)}
+						{bodyTextContent && (
+							<>
+								<EuiScreenReaderOnly>
+									<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
+								</EuiScreenReaderOnly>
+								<EuiDescriptionListDescription>
+									<article
+										dangerouslySetInnerHTML={{ __html: bodyTextContent }}
+										css={css`
+											& p {
+												margin-bottom: ${theme.euiTheme.size.s};
+											}
+										`}
+										data-pinboard-selection-target
+									/>
 								</EuiDescriptionListDescription>
 							</>
 						)}
@@ -213,25 +260,9 @@ export const WireDetail = ({
 						<EuiDescriptionListDescription>
 							<ComposerConnection itemData={wire} key={wire.id} />
 						</EuiDescriptionListDescription>
-						{bodyTextContent && (
-							<>
-								<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
-								<EuiDescriptionListDescription>
-									<article
-										dangerouslySetInnerHTML={{ __html: bodyTextContent }}
-										css={css`
-											& p {
-												margin-bottom: ${theme.euiTheme.size.s};
-											}
-										`}
-										data-pinboard-selection-target
-									/>
-								</EuiDescriptionListDescription>
-							</>
-						)}
 					</EuiDescriptionList>
 				</>
 			)}
-		</Fragment>
+		</>
 	);
 };
