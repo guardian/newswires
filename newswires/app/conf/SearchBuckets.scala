@@ -638,7 +638,7 @@ object Subjects {
 }
 
 object SearchBuckets {
-  def get(name: String): Option[SearchParams] = name match {
+  def get(name: String): Option[List[SearchParams]] = name match {
     case "reuters-world" => Some(ReutersWorld)
     case "ap-world"      => Some(ApWorld)
     case "aap-world"     => Some(AapWorld)
@@ -671,36 +671,54 @@ object SearchBuckets {
     * However, we should remain open to changing this in response to user feedback.
     */
   // format: on
-  private val ApWorld = SearchParams(
-    text = None,
-    suppliersIncl = List("AP"),
-    keywordIncl = List("World news"),
-    categoryCodesIncl = List("apCat:i", "apCat:a", "apCat:w"),
-    categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
-  )
-
-  private val ReutersWorld = SearchParams(
-    text = None,
-    subjectsIncl = List(
-      "MCC:OVR",
-      "MCC:OEC",
-      "MCCL:OVR",
-      "MCCL:OSM",
-      "N2:US"
-    ),
-    subjectsExcl = List(
-      "N2:GB",
-      "N2:COM",
-      "N2:ECI"
+  private val ApWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AP"),
+      keywordIncl = List("World news"),
+      categoryCodesIncl = List("apCat:i", "apCat:a", "apCat:w"),
+      categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
     )
   )
 
-  private val AapWorld = SearchParams(
-    text = None,
-    suppliersIncl = List("AAP"),
-    keywordExcl = List("Sports"),
-    subjectsExcl = Subjects.sportsRelatedNewsCodes
+  private val ReutersWorld = List(
+    SearchParams(
+      text = Some("News Summary"),
+      suppliersIncl = List("REUTERS"),
+      subjectsIncl = List(
+        "MCC:OEC"
+      ),
+      subjectsExcl = List(
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    ),
+    SearchParams(
+      text = None,
+      suppliersIncl = List("REUTERS"),
+      subjectsIncl = List(
+        "MCC:OVR",
+        "MCCL:OVR",
+        "MCCL:OSM",
+        "N2:US"
+      ),
+      subjectsExcl = List(
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    )
   )
 
-  private val AllWorld = ApWorld merge ReutersWorld merge AapWorld
+  private val AapWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AAP"),
+      keywordExcl = List("Sports"),
+      subjectsExcl = Subjects.sportsRelatedNewsCodes
+    )
+  )
+
+  private val AllWorld = ApWorld ::: ReutersWorld ::: AapWorld
 }
