@@ -15,7 +15,7 @@ const sampleItemData = {
 		usage: 'No restrictions',
 		ednote: 'This is an editorial note',
 		subjects: {
-			code: ['politics', 'technology', 'science'],
+			code: ['iptccat:SPO', 'technology'],
 		},
 		slug: 'SAMPLE-WIRE',
 		headline: 'This is a sample headline',
