@@ -43,9 +43,7 @@ function decideLabelForQueryBadge(query: Query): string {
 }
 
 const buckets = [
-	{ id: 'no-sports', name: 'No Sports' },
-	{ id: 'pa-home', name: 'PA Home' },
-	{ id: 'us-election', name: 'US Election' },
+	{ id: 'all-world', name: 'All World' },
 	{ id: 'ap-world', name: 'AP World' },
 	{ id: 'reuters-world', name: 'Reuters World' },
 	{ id: 'aap-world', name: 'AAP World' },
