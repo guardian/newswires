@@ -72,14 +72,47 @@ const processCategoryCodes = (
 	}
 };
 
+const decodeBodyTextContent = (text: string | undefined): string | undefined =>
+	text
+		?.replace(
+			/\\u([0-9a-fA-F]{4})/g,
+			(_: string, hex: string) => String.fromCharCode(parseInt(hex, 16)), // Replace Unicode escape sequences, e.g. \u00a0 → non-breaking space.
+		)
+		.replace(/\\([\\nrt"'])/g, (_: string, group1: string) => {
+			switch (group1) {
+				case '\\':
+					return '\\';
+				case 'n':
+					return '\n';
+				case 'r':
+					return '\r';
+				case 't':
+					return '\t';
+				case '"':
+					return '"';
+				case "'":
+					return "'";
+				default:
+					return group1;
+			}
+		})
+		.replace(/\n/g, '<br />');
+
 const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
 		const json = JSON.parse(body) as Record<string, unknown>;
+
 		const preprocessedKeywords = processKeywords(
 			json.keywords as string | string[] | undefined,
 		); // if it's not one of these, we probably want to throw an error
+
+		const preprocessedBodyTextContent = decodeBodyTextContent(
+			json.body_Text as string | undefined,
+		);
+
 		return IngestorInputBodySchema.parse({
 			...json,
+			body_text: preprocessedBodyTextContent,
 			keywords: preprocessedKeywords,
 		});
 	} catch (e) {
