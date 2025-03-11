@@ -102,6 +102,11 @@ export const apPoller = (async ({
 		) /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 		.map(itemWithContentToDesiredOutput);
 
+	logger.log({
+		message: `Successfully parsed ${payloadForIngestionLambda.length} items from feed. Queueing up next invocation with URL: ${valueForNextPoll}`,
+		valueForNextPoll,
+	});
+
 	return {
 		payloadForIngestionLambda,
 		valueForNextPoll,
