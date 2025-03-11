@@ -637,6 +637,53 @@ object Subjects {
   )
 }
 
+object Categories {
+  val sportsRelated = List(
+    "MCC:SPO",
+    "N2:TEN",
+    "a1312cat:s",
+    "paCat:GXX", // maybe, or maybe advertising "Tequila brand announces partnership with Fulham Football Club"
+    "paCat:RDR",
+    "paCat:RFC",
+    "paCat:RRB",
+    "paCat:RRF",
+    "paCat:RRG",
+    "paCat:RRR",
+    "paCat:RSF",
+    "paCat:RSR",
+    "paCat:SCN",
+    "paCat:SCR",
+    "paCat:SDA",
+    "paCat:SDB",
+    "paCat:SDP",
+    "paCat:SDQ",
+    "paCat:SDR",
+    "paCat:SDS",
+    "paCat:SFF",
+    "paCat:SJA",
+    "paCat:SJB",
+    "paCat:SOD",
+    "paCat:SOS",
+    "paCat:SPO",
+    "paCat:SRD",
+    "paCat:SRN",
+    "paCat:SRR",
+    "paCat:SRS",
+    "paCat:SRZ",
+    "paCat:SSD",
+    "paCat:SSF",
+    "paCat:SSO",
+    "paCat:SSS",
+    "paCat:SST",
+    "paCat:STA",
+    "paCat:STB",
+    "paCat:STC",
+    "paCat:STD",
+    "paCat:STR",
+    "medtop:15000000"
+  )
+}
+
 object SearchBuckets {
   def get(name: String): Option[List[SearchParams]] = name match {
     case "reuters-world" => Some(ReutersWorld)

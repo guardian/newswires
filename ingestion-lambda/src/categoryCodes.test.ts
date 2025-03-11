@@ -2,6 +2,7 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
+	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 
 describe('processFingerpostAPCategoryCodes', () => {
@@ -29,12 +30,6 @@ describe('processFingerpostAPCategoryCodes', () => {
 		expect(processFingerpostAPCategoryCodes(['iptccat:c+d'])).toEqual([
 			'apCat:c',
 			'apCat:d',
-		]);
-	});
-
-	it('should pass other codes through untransformed', () => {
-		expect(processFingerpostAPCategoryCodes(['qCode:value+value'])).toEqual([
-			'qCode:value+value',
 		]);
 	});
 
@@ -125,11 +120,6 @@ describe('processFingerpostAFPCategoryCodes', () => {
 			'afpCat:d',
 		]);
 	});
-	it('should pass other codes through untransformed', () => {
-		expect(processFingerpostAFPCategoryCodes(['qCode:value+value'])).toEqual([
-			'qCode:value+value',
-		]);
-	});
 
 	it('should remove empty strings', () => {
 		expect(
@@ -156,5 +146,38 @@ describe('processFingerpostAFPCategoryCodes', () => {
 				' iptccat:ECO',
 			]),
 		).toEqual(['afpCat:ECO', 'afpCat:SOC']);
+	});
+});
+
+describe('processUnknownFingerpostCategoryCodes', () => {
+	it('should return an empty array if provided with an empty array', () => {
+		expect(processUnknownFingerpostCategoryCodes([], 'supplier')).toEqual([]);
+	});
+
+	it('should remove service codes', () => {
+		expect(
+			processUnknownFingerpostCategoryCodes(['service:news'], 'supplier'),
+		).toEqual([]);
+	});
+
+	it('should remove empty strings', () => {
+		expect(
+			processUnknownFingerpostCategoryCodes(['', 'qCode:value'], 'supplier'),
+		).toEqual(['qCode:value']);
+	});
+
+	it('should remove trailing and leading whitespace', () => {
+		expect(
+			processUnknownFingerpostCategoryCodes(
+				['qCode:value ', ' service:news ', 'qCode:value'],
+				'supplier',
+			),
+		).toEqual(['qCode:value']);
+	});
+
+	it('should unpack multiple category codes separated by "+"', () => {
+		expect(
+			processUnknownFingerpostCategoryCodes(['qCode:value+value1'], 'supplier'),
+		).toEqual(['qCode:value', 'qCode:value1']);
 	});
 });
