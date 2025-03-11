@@ -3,9 +3,11 @@ import { css } from '@emotion/react';
 
 export const Disclosure = ({
 	title,
+	defaultOpen,
 	children,
 }: {
 	title: string;
+	defaultOpen?: boolean;
 	children: React.ReactNode;
 }) => {
 	return (
@@ -33,7 +35,7 @@ export const Disclosure = ({
 				}
 			`}
 		>
-			<details>
+			<details open={defaultOpen}>
 				<summary>
 					<EuiIcon type="arrowRight" />
 					<span>{title}</span>

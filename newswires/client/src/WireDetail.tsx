@@ -118,6 +118,54 @@ function SubjectTable({ subjects }: { subjects: string[] }) {
 	);
 }
 
+function MetaTable({ wire }: { wire: WireData }) {
+	const { externalId, ingestedAt } = wire;
+	const { firstVersion, status, versionCreated, version } = wire.content;
+
+	const metaItems = [
+		{
+			title: 'Status',
+			description: status ?? 'N/A',
+		},
+		{
+			title: 'External ID',
+			description: externalId,
+		},
+		{
+			title: 'Ingested at',
+			description: ingestedAt,
+		},
+		{
+			title: 'First version',
+			description: firstVersion ?? 'N/A',
+		},
+		{
+			title: 'This version created',
+			description: versionCreated ?? 'N/A',
+		},
+		{
+			title: 'Version',
+			description: version ?? 'N/A',
+		},
+	];
+
+	return (
+		<Disclosure title="General" defaultOpen={true}>
+			<EuiBasicTable
+				columns={[
+					{ field: 'title', name: '' },
+					{ field: 'description', name: 'Description' },
+				]}
+				items={metaItems.map(({ title, description }) => ({
+					title,
+					description,
+				}))}
+				tableLayout="auto"
+			/>
+		</Disclosure>
+	);
+}
+
 export const WireDetail = ({
 	wire,
 	isShowingJson,
@@ -254,6 +302,8 @@ export const WireDetail = ({
 						</EuiDescriptionListDescription>
 						<EuiDescriptionListTitle>Metadata</EuiDescriptionListTitle>
 						<EuiDescriptionListDescription>
+							<MetaTable wire={wire} />
+							<EuiSpacer />
 							<SubjectTable subjects={subjects?.code ?? []} />
 							<EuiSpacer />
 						</EuiDescriptionListDescription>
