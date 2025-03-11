@@ -48,8 +48,8 @@ class QueryController(
     val bucket = request.getQueryString("bucket").flatMap(SearchBuckets.get)
 
     val suppliersToExcludeByDefault =
-      if (FeatureSwitchProvider.ShowGuSuppliers.isOn) List("GuReuters", "GuAP")
-      else Nil
+      if (FeatureSwitchProvider.ShowGuSuppliers.isOn) Nil
+      else List("GuReuters", "GuAP")
 
     val queryParams = SearchParams(
       text = maybeFreeTextQuery,
