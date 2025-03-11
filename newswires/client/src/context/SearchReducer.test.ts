@@ -157,8 +157,16 @@ describe('SearchReducer', () => {
 			type: 'UPDATE_RESULTS',
 			data: {
 				results: [
-					{ ...sampleWireData, id: 4, ingestedAt: '2025-01-01T02:07:00Z' },
-					{ ...sampleWireData, id: 3, ingestedAt: '2025-01-01T02:06:00Z' },
+					{
+						...sampleWireData,
+						id: 4,
+						ingestedAt: '2025-01-01T02:07:00.00000Z[UTC]',
+					},
+					{
+						...sampleWireData,
+						id: 3,
+						ingestedAt: '2025-01-01T02:06:00.00000Z[UTC]',
+					},
 				],
 				totalCount: 2,
 			},

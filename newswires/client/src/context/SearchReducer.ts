@@ -6,6 +6,22 @@ import type { Query, WireData, WiresQueryResponse } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
 
+export const safeReducer = (
+	reducer: (state: State, action: Action) => State,
+) => {
+	return (state: State, action: Action): State => {
+		try {
+			return reducer(state, action);
+		} catch (error: unknown) {
+			return {
+				...state,
+				status: 'error',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			};
+		}
+	};
+};
+
 const transformQueryResults = (data: WireData[]) =>
 	data.map((item) => {
 		return {
