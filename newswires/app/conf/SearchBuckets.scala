@@ -639,28 +639,12 @@ object Subjects {
 
 object SearchBuckets {
   def get(name: String): Option[SearchParams] = name match {
-    case "no-sports"     => Some(NoSports)
     case "reuters-world" => Some(ReutersWorld)
-    case "pa-home"       => Some(PaHome)
-    case "us-election"   => Some(UsElection)
     case "ap-world"      => Some(ApWorld)
     case "aap-world"     => Some(AapWorld)
+    case "all-world"     => Some(AllWorld)
     case _               => None
   }
-
-  private val PaHome = SearchParams(
-    text = None,
-    suppliersIncl = List("PA"),
-    subjectsExcl = Subjects.sportsRelated
-  )
-
-  private val UsElection = SearchParams(
-    text = None,
-    keywordIncl = List("2024 United States presidential election"),
-    subjectsIncl = List(
-      "N2:VOTP"
-    )
-  )
 
   // format: off
   /**
@@ -718,9 +702,5 @@ object SearchBuckets {
     subjectsExcl = Subjects.sportsRelatedNewsCodes
   )
 
-  private val NoSports = SearchParams(
-    text = None,
-    keywordExcl = List("Sports"),
-    subjectsExcl = Subjects.sportsRelated
-  )
+  private val AllWorld = ApWorld merge ReutersWorld merge AapWorld
 }
