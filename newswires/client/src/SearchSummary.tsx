@@ -2,7 +2,7 @@ import { EuiBadge, EuiText } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
-import { deriveDateMathRangeLabel } from './dateMathHelpers.ts';
+import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 
 const Summary = ({ searchSummary }: { searchSummary: string }) => {
 	const { config, handleEnterQuery } = useSearch();

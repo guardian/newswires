@@ -15,7 +15,7 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useSearch } from './context/SearchContext.tsx';
-import { isRestricted } from './dateMathHelpers.ts';
+import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
 import { ItemData } from './ItemData.tsx';
 import { SideNav } from './SideNav';
