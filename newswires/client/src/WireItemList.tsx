@@ -47,18 +47,21 @@ export const WireItemList = ({
 	return (
 		<>
 			<ul>
-				{wires.map(({ id, content, supplier, highlight, isFromRefresh }) => (
-					<li key={id}>
-						<WirePreviewCard
-							id={id}
-							supplier={supplier}
-							content={content}
-							isFromRefresh={isFromRefresh}
-							highlight={highlight}
-							selected={selectedWireId == id.toString()}
-						/>
-					</li>
-				))}
+				{wires.map(
+					({ id, content, supplier, highlight, isFromRefresh, ingestedAt }) => (
+						<li key={id}>
+							<WirePreviewCard
+								id={id}
+								ingestedAt={ingestedAt}
+								supplier={supplier}
+								content={content}
+								isFromRefresh={isFromRefresh}
+								highlight={highlight}
+								selected={selectedWireId == id.toString()}
+							/>
+						</li>
+					),
+				)}
 			</ul>
 			{wires.length < totalCount && (
 				<EuiButton
@@ -142,12 +145,14 @@ function MaybeSecondaryCardContent({
 const WirePreviewCard = ({
 	id,
 	supplier,
+	ingestedAt,
 	content,
 	highlight,
 	selected,
 }: {
 	id: number;
 	supplier: string;
+	ingestedAt: string;
 	content: WireData['content'];
 	highlight: string | undefined;
 	selected: boolean;
@@ -199,6 +204,7 @@ const WirePreviewCard = ({
 							background-color: ${theme.euiTheme.colors.lightestShade};
 							border-left: 4px solid ${theme.euiTheme.colors.accent};
 						}
+
 						border-left: 4px solid
 							${selected ? theme.euiTheme.colors.primary : 'transparent'};
 						border-bottom: 1px solid ${theme.euiTheme.colors.mediumShade};
@@ -233,24 +239,22 @@ const WirePreviewCard = ({
 						text-align: right;
 					`}
 				>
-					{content.versionCreated
-						? formatTimestamp(content.versionCreated)
-								.split(', ')
-								.map((part) => (
-									<EuiText
-										size="xs"
-										key={part}
-										css={css`
-											padding-left: 5px;
-											font-weight: ${hasBeenViewed
-												? theme.euiTheme.font.weight.regular
-												: theme.euiTheme.font.weight.medium};
-										`}
-									>
-										{part}
-									</EuiText>
-								))
-						: ''}
+					{formatTimestamp(ingestedAt)
+						.split(', ')
+						.map((part) => (
+							<EuiText
+								size="xs"
+								key={part}
+								css={css`
+									padding-left: 5px;
+									font-weight: ${hasBeenViewed
+										? theme.euiTheme.font.weight.regular
+										: theme.euiTheme.font.weight.medium};
+								`}
+							>
+								{part}
+							</EuiText>
+						))}
 					<EuiSpacer size="xs" />
 					<EuiBadge
 						color={
