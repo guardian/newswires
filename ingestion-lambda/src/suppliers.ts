@@ -88,8 +88,14 @@ const supplierLookupMap: Record<string, string[]> = {
 		'PA HSL',
 		'PA JUST GROUP',
 		'PA BROOKE ACTION FOR WORKING HORSES AND DONKEYS',
+		'PA ZEN INTERNET',
+		'PA PRESSWIRE',
+		'PA EDREAMS ODIGEO',
+		'PA TRUSSEL',
+		'PA ACCESS NEWSWIRE'
 	],
 	COMET: ['COMET'],
+	WIREFAST: ['WIREFAST'],
 };
 
 export const lookupSupplier = (supplier: string | undefined ): string | undefined => {

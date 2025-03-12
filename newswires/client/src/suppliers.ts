@@ -42,6 +42,10 @@ const allSupplierData: Record<
 		label: 'Comet',
 		colour: '#39756a',
 	},
+	WIREFAST: {
+		label: 'Wirefast',
+		colour: '#f2d600',
+	},
 };
 
 export function getSupplierInfo(
