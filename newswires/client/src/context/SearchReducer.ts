@@ -16,7 +16,7 @@ export const safeReducer = (
 			return {
 				...state,
 				status: 'error',
-				error: error instanceof Error ? error.message : 'Unknown error',
+				error: `Error processing action (${action.type}) ${error instanceof Error ? error.message : 'Unknown error'}`,
 			};
 		}
 	};
