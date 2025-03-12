@@ -15,10 +15,13 @@ const sampleItemData = {
 		usage: 'No restrictions',
 		ednote: 'This is an editorial note',
 		subjects: {
-			code: ['politics', 'technology', 'science'],
+			code: ['iptccat:SPO', 'technology'],
 		},
 		slug: 'SAMPLE-WIRE',
 		headline: 'This is a sample headline',
+		firstVersion: '2025-02-26T09:56:22.000Z',
+		versionCreated: '2025-02-26T09:57:22.000Z',
+		version: '2',
 	},
 	highlight:
 		'<p>This is a sample news wire story.</p><p>It contains multiple paragraphs, <a href="#">a link</a>, and some <mark>highlighted</mark> text.</p>',

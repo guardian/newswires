@@ -1,5 +1,8 @@
+import type { EuiBasicTableColumn } from '@elastic/eui';
 import {
 	EuiBadge,
+	EuiBasicTable,
+	EuiButtonIcon,
 	EuiCallOut,
 	EuiCodeBlock,
 	EuiDescriptionList,
@@ -7,8 +10,6 @@ import {
 	EuiDescriptionListTitle,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiListGroupItem,
-	EuiPanel,
 	EuiScreenReaderOnly,
 	EuiSpacer,
 	EuiText,
@@ -21,6 +22,7 @@ import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
+import { Disclosure } from './Disclosure.tsx';
 import type { WireData } from './sharedTypes';
 
 function TitleContentForItem({
@@ -41,20 +43,34 @@ function TitleContentForItem({
 	return <>{slug ?? 'No title'}</>;
 }
 
-export const WireDetail = ({
-	wire,
-	isShowingJson,
-}: {
-	wire: WireData;
-	isShowingJson: boolean;
-}) => {
+type SubjectTableItem = {
+	code: string;
+	labels: string;
+	isSelected: boolean;
+};
+
+function SubjectTable({ subjects }: { subjects: string[] }) {
 	const { handleEnterQuery, config } = useSearch();
-	const theme = useEuiTheme();
-	const { byline, keywords, usage, ednote, subjects, headline, slug } =
-		wire.content;
+
+	const isSubjectInSearch = (subject: string) => {
+		const subjects = config.query.subjects ?? [];
+		return subjects.includes(subject);
+	};
+
+	const nonEmptySubjects = subjects.filter(
+		(subject) => subject.trim().length > 0,
+	);
+	const subjectTableItems: SubjectTableItem[] = nonEmptySubjects.map(
+		(subject) => ({
+			code: subject,
+			labels: lookupCatCodesWideSearch(subject).join('; '),
+			isSelected: isSubjectInSearch(subject),
+		}),
+	);
 
 	const handleSubjectClick = (subject: string) => {
 		const subjects = config.query.subjects ?? [];
+		console.log('handleSubjectClick', subject, subjects);
 		handleEnterQuery({
 			...config.query,
 			subjects: subjects.includes(subject)
@@ -63,10 +79,103 @@ export const WireDetail = ({
 		});
 	};
 
-	const isSubjectInSearch = (subject: string) => {
-		const subjects = config.query.subjects ?? [];
-		return subjects.includes(subject);
-	};
+	const columns: Array<EuiBasicTableColumn<SubjectTableItem>> = [
+		{
+			field: 'code',
+			name: 'Subject code',
+		},
+		{
+			field: 'labels',
+			name: 'Subject label(s)',
+		},
+		{
+			field: 'isSelected',
+			name: 'Filter by?',
+			align: 'right',
+			render: (isSelected, item) => (
+				<EuiButtonIcon
+					color={isSelected ? 'primary' : 'accent'}
+					onClick={() => handleSubjectClick(item.code)}
+					iconType={isSelected ? 'check' : 'plusInCircle'}
+					aria-label="Toggle selection"
+				/>
+			),
+		},
+	];
+
+	return (
+		<Disclosure title={`Subjects (${subjectTableItems.length})`}>
+			{subjectTableItems.length === 0 ? (
+				'No subject information available'
+			) : (
+				<EuiBasicTable
+					items={subjectTableItems}
+					columns={columns}
+					tableLayout="auto"
+				/>
+			)}
+		</Disclosure>
+	);
+}
+
+function MetaTable({ wire }: { wire: WireData }) {
+	const { externalId, ingestedAt } = wire;
+	const { firstVersion, status, versionCreated, version } = wire.content;
+
+	const metaItems = [
+		{
+			title: 'Status',
+			description: status ?? 'N/A',
+		},
+		{
+			title: 'External ID',
+			description: externalId,
+		},
+		{
+			title: 'Ingested at',
+			description: ingestedAt,
+		},
+		{
+			title: 'First version',
+			description: firstVersion ?? 'N/A',
+		},
+		{
+			title: 'This version created',
+			description: versionCreated ?? 'N/A',
+		},
+		{
+			title: 'Version',
+			description: version ?? 'N/A',
+		},
+	];
+
+	return (
+		<Disclosure title="General" defaultOpen={true}>
+			<EuiBasicTable
+				columns={[
+					{ field: 'title', name: '' },
+					{ field: 'description', name: 'Description' },
+				]}
+				items={metaItems.map(({ title, description }) => ({
+					title,
+					description,
+				}))}
+				tableLayout="auto"
+			/>
+		</Disclosure>
+	);
+}
+
+export const WireDetail = ({
+	wire,
+	isShowingJson,
+}: {
+	wire: WireData;
+	isShowingJson: boolean;
+}) => {
+	const theme = useEuiTheme();
+	const { byline, keywords, usage, ednote, subjects, headline, slug } =
+		wire.content;
 
 	const safeBodyText = useMemo(() => {
 		return wire.content.bodyText
@@ -85,11 +194,6 @@ export const WireDetail = ({
 	const nonEmptyKeywords = useMemo(
 		() => keywords?.filter((keyword) => keyword.trim().length > 0) ?? [],
 		[keywords],
-	);
-
-	const nonEmptySubjects = useMemo(
-		() => subjects?.code.filter((subject) => subject.trim().length > 0) ?? [],
-		[subjects],
 	);
 
 	return (
@@ -168,70 +272,6 @@ export const WireDetail = ({
 								</EuiDescriptionListDescription>
 							</>
 						)}
-						{nonEmptySubjects.length > 0 && (
-							<>
-								<EuiDescriptionListTitle>Subjects</EuiDescriptionListTitle>
-								<EuiDescriptionListDescription>
-									<EuiPanel>
-										<section
-											css={css`
-												max-height: 200px;
-												overflow-y: auto;
-											`}
-										>
-											<EuiDescriptionList>
-												{nonEmptySubjects.map((subject) => (
-													<>
-														<EuiDescriptionListTitle>
-															<EuiText size="s">
-																<EuiBadge
-																	iconType={
-																		isSubjectInSearch(subject)
-																			? 'cross'
-																			: undefined
-																	}
-																	color={
-																		!isSubjectInSearch(subject)
-																			? 'hollow'
-																			: undefined
-																	}
-																	iconSide="right"
-																	onClickAriaLabel={`Filter search by "${subject}" subjects`}
-																	onClick={() => handleSubjectClick(subject)}
-																>
-																	{subject}
-																</EuiBadge>
-															</EuiText>
-														</EuiDescriptionListTitle>
-														<EuiDescriptionListDescription key={subject}>
-															{lookupCatCodesWideSearch(subject).length > 0 ? (
-																<>
-																	{lookupCatCodesWideSearch(subject).map(
-																		(category) => (
-																			<EuiListGroupItem
-																				key={category}
-																				label={category}
-																				size="xs"
-																				iconType={'dot'}
-																				wrapText={true}
-																			></EuiListGroupItem>
-																		),
-																	)}
-																</>
-															) : (
-																<EuiText color="danger" key={subject} size="xs">
-																	No category label found
-																</EuiText>
-															)}
-														</EuiDescriptionListDescription>
-													</>
-												))}
-											</EuiDescriptionList>
-										</section>
-									</EuiPanel>
-								</EuiDescriptionListDescription>
-							</>
-						)}
 						{nonEmptyKeywords.length > 0 && (
 							<>
 								<EuiDescriptionListTitle>Keywords</EuiDescriptionListTitle>
@@ -259,6 +299,13 @@ export const WireDetail = ({
 						<EuiDescriptionListTitle>Composer</EuiDescriptionListTitle>
 						<EuiDescriptionListDescription>
 							<ComposerConnection itemData={wire} key={wire.id} />
+						</EuiDescriptionListDescription>
+						<EuiDescriptionListTitle>Metadata</EuiDescriptionListTitle>
+						<EuiDescriptionListDescription>
+							<MetaTable wire={wire} />
+							<EuiSpacer />
+							<SubjectTable subjects={subjects?.code ?? []} />
+							<EuiSpacer />
 						</EuiDescriptionListDescription>
 					</EuiDescriptionList>
 				</>

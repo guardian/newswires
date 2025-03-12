@@ -27,6 +27,7 @@ import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
 import { icon as menuLeft } from '@elastic/eui/es/components/icon/assets/menuLeft';
 import { icon as menuRight } from '@elastic/eui/es/components/icon/assets/menuRight';
 import { icon as pin } from '@elastic/eui/es/components/icon/assets/pin_filled';
+import { icon as plusInCircle } from '@elastic/eui/es/components/icon/assets/plus_in_circle';
 import { icon as popout } from '@elastic/eui/es/components/icon/assets/popout';
 import { icon as refresh } from '@elastic/eui/es/components/icon/assets/refresh';
 import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return_key';
@@ -70,6 +71,7 @@ const icons = {
 	iInCircle,
 	kqlFunction,
 	filter,
+	plusInCircle,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent
