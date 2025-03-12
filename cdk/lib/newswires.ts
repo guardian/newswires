@@ -148,11 +148,11 @@ export class Newswires extends GuStack {
 			metricName: 'IngestionSourceFeeds',
 			metricValue: '1',
 			filterPattern: aws_logs.FilterPattern.stringValue(
-				'$.message.eventType',
+				'$.eventType',
 				'=',
 				SUCCESSFUL_INGESTION_EVENT_TYPE,
 			),
-			dimensions: { sourceFeed: '$.message.sourceFeed' },
+			dimensions: { supplier: '$.supplier' },
 		});
 
 		const scheduledCleanupLambda = new GuScheduledLambda(

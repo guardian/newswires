@@ -1105,7 +1105,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "IngestionSourceFeeds54B3095A": {
       "Properties": {
-        "FilterPattern": "{ $.message.eventType = "INGESTION_SUCCESS" }",
+        "FilterPattern": "{ $.eventType = "INGESTION_SUCCESS" }",
         "LogGroupName": {
           "Fn::Join": [
             "",
@@ -1121,8 +1121,8 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           {
             "Dimensions": [
               {
-                "Key": "sourceFeed",
-                "Value": "$.message.sourceFeed",
+                "Key": "supplier",
+                "Value": "$.supplier",
               },
             ],
             "MetricName": "IngestionSourceFeeds",
