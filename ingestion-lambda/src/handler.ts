@@ -80,18 +80,12 @@ export const decodeBodyTextContent = (text: string | undefined): string | undefi
 		)
 		.replace(/\\([\\nrt"'])/g, (_: string, group1: string) => {
 			switch (group1) {
-				case '\\':
-					return '\\';
 				case 'n':
 					return '\n';
 				case 'r':
 					return '\r';
 				case 't':
 					return '\t';
-				case '"':
-					return '"';
-				case "'":
-					return "'";
 				default:
 					return group1;
 			}
