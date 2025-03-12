@@ -22,6 +22,7 @@ import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
+import { convertToLocalDate } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { WireData } from './sharedTypes';
 
@@ -144,15 +145,15 @@ function MetaTable({ wire }: { wire: WireData }) {
 		},
 		{
 			title: 'Ingested at',
-			description: ingestedAt,
+			description: convertToLocalDate(ingestedAt),
 		},
 		{
 			title: 'First version',
-			description: firstVersion ?? 'N/A',
+			description: firstVersion ? convertToLocalDate(firstVersion) : 'N/A',
 		},
 		{
 			title: 'This version created',
-			description: versionCreated ?? 'N/A',
+			description: versionCreated ? convertToLocalDate(versionCreated) : 'N/A',
 		},
 		{
 			title: 'Version',
