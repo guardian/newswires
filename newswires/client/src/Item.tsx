@@ -15,10 +15,14 @@ export const Item = ({
 	error,
 	itemData,
 	handleDeselectItem,
+	handlePreviousItem,
+	handleNextItem,
 }: {
 	error: string | undefined;
 	itemData: WireData | undefined;
 	handleDeselectItem: () => void;
+	handlePreviousItem: () => void;
+	handleNextItem: () => void;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 
@@ -35,13 +39,21 @@ export const Item = ({
 						<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
 							<EuiButtonIcon
 								iconType="arrowLeft"
-								onClick={handleDeselectItem}
-								aria-contro
+								onClick={handlePreviousItem}
+								aria-label="Previous story"
 							/>
-							<EuiFlexGroup
-								justifyContent="flexEnd"
-								alignItems="center"
-							></EuiFlexGroup>
+							<EuiButtonIcon
+								iconType="arrowRight"
+								onClick={handleNextItem}
+								aria-label="Next story"
+							/>
+							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
+								<EuiButtonIcon
+									iconType="cross"
+									onClick={handleDeselectItem}
+									aria-label="Close story"
+								/>
+							</EuiFlexGroup>
 						</EuiFlexGroup>
 						<EuiHorizontalRule margin="s" />
 

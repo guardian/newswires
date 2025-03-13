@@ -5,7 +5,8 @@ import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
 
 export const ItemData = ({ id }: { id: string }) => {
-	const { handleDeselectItem } = useSearch();
+	const { handleDeselectItem, handlePreviousItem, handleNextItem } =
+		useSearch();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -48,6 +49,8 @@ export const ItemData = ({ id }: { id: string }) => {
 			itemData={itemData}
 			error={error}
 			handleDeselectItem={handleDeselectItem}
+			handlePreviousItem={handlePreviousItem}
+			handleNextItem={handleNextItem}
 		/>
 	);
 };
