@@ -6,7 +6,7 @@ import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 
 const Summary = ({ searchSummary }: { searchSummary: string }) => {
 	const { config, handleEnterQuery } = useSearch();
-	const { q, bucket, subjects, supplier: suppliers, dateRange } = config.query;
+	const { q, bucket, supplier: suppliers, dateRange, subjects } = config.query;
 
 	const displaySubjects = (subjects ?? []).length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;

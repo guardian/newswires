@@ -43,50 +43,46 @@ function TitleContentForItem({
 	return <>{slug ?? 'No title'}</>;
 }
 
-type SubjectTableItem = {
+type CategoryCodeTableItem = {
 	code: string;
 	labels: string;
 	isSelected: boolean;
 };
 
-function SubjectTable({ subjects }: { subjects: string[] }) {
+function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 	const { handleEnterQuery, config } = useSearch();
 
-	const isSubjectInSearch = (subject: string) => {
-		const subjects = config.query.subjects ?? [];
-		return subjects.includes(subject);
+	const isCodeInSearch = (code: string) => {
+		const categoryCodesInSearch = config.query.categoryCode ?? [];
+		return categoryCodesInSearch.includes(code);
 	};
 
-	const nonEmptySubjects = subjects.filter(
-		(subject) => subject.trim().length > 0,
-	);
-	const subjectTableItems: SubjectTableItem[] = nonEmptySubjects.map(
-		(subject) => ({
-			code: subject,
-			labels: lookupCatCodesWideSearch(subject).join('; '),
-			isSelected: isSubjectInSearch(subject),
+	const categoryCodeTableItems: CategoryCodeTableItem[] = categoryCodes.map(
+		(code) => ({
+			code: code,
+			labels: lookupCatCodesWideSearch(code).join('; '),
+			isSelected: isCodeInSearch(code),
 		}),
 	);
 
-	const handleSubjectClick = (subject: string) => {
-		const subjects = config.query.subjects ?? [];
-		console.log('handleSubjectClick', subject, subjects);
+	const handleCategoryClick = (categoryCode: string) => {
+		const codes = config.query.categoryCode ?? [];
 		handleEnterQuery({
 			...config.query,
-			subjects: subjects.includes(subject)
-				? subjects.filter((s) => s !== subject)
-				: [...subjects, subject],
+			categoryCode: codes.includes(categoryCode)
+				? codes.filter((s) => s !== categoryCode)
+				: [...codes, categoryCode],
 		});
 	};
 
-	const columns: Array<EuiBasicTableColumn<SubjectTableItem>> = [
+	const columns: Array<EuiBasicTableColumn<CategoryCodeTableItem>> = [
 		{
 			field: 'code',
-			name: 'Subject code',
+			name: 'Category code',
 		},
 		{
 			field: 'labels',
-			name: 'Subject label(s)',
+			name: 'Category label(s)*',
 		},
 		{
 			field: 'isSelected',
@@ -95,7 +91,7 @@ function SubjectTable({ subjects }: { subjects: string[] }) {
 			render: (isSelected, item) => (
 				<EuiButtonIcon
 					color={isSelected ? 'primary' : 'accent'}
-					onClick={() => handleSubjectClick(item.code)}
+					onClick={() => handleCategoryClick(item.code)}
 					iconType={isSelected ? 'check' : 'plusInCircle'}
 					aria-label="Toggle selection"
 				/>
@@ -104,15 +100,30 @@ function SubjectTable({ subjects }: { subjects: string[] }) {
 	];
 
 	return (
-		<Disclosure title={`Subjects (${subjectTableItems.length})`}>
-			{subjectTableItems.length === 0 ? (
-				'No subject information available'
+		<Disclosure title={`Category Codes (${categoryCodeTableItems.length})`}>
+			{categoryCodeTableItems.length === 0 ? (
+				'No category code information available'
 			) : (
-				<EuiBasicTable
-					items={subjectTableItems}
-					columns={columns}
-					tableLayout="auto"
-				/>
+				<figure>
+					<EuiBasicTable
+						items={categoryCodeTableItems}
+						columns={columns}
+						tableLayout="auto"
+					/>
+					<EuiSpacer size={'s'} />
+					<figcaption>
+						<EuiText size={'xs'}>
+							<p>
+								Category codes associated with this item. Many of these are
+								agency-specific.
+							</p>
+							<p>
+								* nb. Category labels are a best approximation, please let us
+								know if you spot any that don&apos;t look right!
+							</p>
+						</EuiText>
+					</figcaption>
+				</figure>
 			)}
 		</Disclosure>
 	);
@@ -174,8 +185,8 @@ export const WireDetail = ({
 	isShowingJson: boolean;
 }) => {
 	const theme = useEuiTheme();
-	const { byline, keywords, usage, ednote, subjects, headline, slug } =
-		wire.content;
+	const { categoryCodes } = wire;
+	const { byline, keywords, usage, ednote, headline, slug } = wire.content;
 
 	const safeBodyText = useMemo(() => {
 		return wire.content.bodyText
@@ -304,7 +315,7 @@ export const WireDetail = ({
 						<EuiDescriptionListDescription>
 							<MetaTable wire={wire} />
 							<EuiSpacer />
-							<SubjectTable subjects={subjects?.code ?? []} />
+							<CategoryCodeTable categoryCodes={categoryCodes} />
 							<EuiSpacer />
 						</EuiDescriptionListDescription>
 					</EuiDescriptionList>
