@@ -107,6 +107,13 @@ function MaybeSecondaryCardContent({
 					padding: 0.1rem 0.5rem;
 					background-color: ${theme.euiTheme.colors.highlight};
 					justify-self: start;
+
+					& mark {
+						background-color: ${theme.euiTheme.colors.highlight};
+						font-weight: bold;
+						position: relative;
+						border: 3px solid ${theme.euiTheme.colors.highlight};
+					}
 				`}
 			>
 				<p dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlight) }} />
