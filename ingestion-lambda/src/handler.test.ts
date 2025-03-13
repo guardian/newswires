@@ -1,4 +1,4 @@
-import { processKeywords } from './handler';
+import { decodeBodyTextContent, processKeywords } from './handler';
 
 describe('processKeywords', () => {
 	it('should return an empty array if provided with `undefined`', () => {
@@ -43,5 +43,15 @@ describe('processKeywords', () => {
 			'keyword1',
 			'keyword2',
 		]);
+	});
+});
+
+describe('decodeBodyTextContent', () => {
+	it('should fix over-escaped characters', () => {
+		const content =
+			'\\n \\n test paragraph 1. \\n test paragraph 2. \\u00a0 \\n test paragraph 3.';
+		expect(decodeBodyTextContent(content)).toEqual(
+			'<br /> <br /> test paragraph 1. <br /> test paragraph 2.   <br /> test paragraph 3.',
+		);
 	});
 });
