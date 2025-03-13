@@ -2,6 +2,7 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
+	processFingerpostPACategoryCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 
@@ -146,6 +147,65 @@ describe('processFingerpostAFPCategoryCodes', () => {
 				' iptccat:ECO',
 			]),
 		).toEqual(['afpCat:ECO', 'afpCat:SOC']);
+	});
+});
+
+describe('processFingerpostPACategoryCodes', () => {
+	describe('processFingerpostPACategoryCodes', () => {
+		it('should return an empty array if provided with an empty array', () => {
+			expect(processFingerpostPACategoryCodes([])).toEqual([]);
+		});
+
+		it('should strip out service codes', () => {
+			expect(processFingerpostPACategoryCodes(['service:news'])).toEqual([]);
+		});
+
+		it('should strip out empty iptccat entries', () => {
+			expect(
+				processFingerpostPACategoryCodes(['iptccat:', 'iptccat:a']),
+			).toEqual(['paCat:a']);
+		});
+
+		it('should return simple codes labelled "iptccat" as simple "paCat" codes', () => {
+			expect(
+				processFingerpostPACategoryCodes(['iptccat:a', 'iptccat:b']),
+			).toEqual(['paCat:a', 'paCat:b']);
+		});
+
+		it('should expand category codes with multiple subcodes', () => {
+			expect(processFingerpostPACategoryCodes(['iptccat:c+d'])).toEqual([
+				'paCat:c',
+				'paCat:d',
+			]);
+		});
+
+		it('should remove empty strings', () => {
+			expect(
+				processFingerpostPACategoryCodes(['iptccat:a', '', 'iptccat:c']),
+			).toEqual(['paCat:a', 'paCat:c']);
+		});
+
+		it('should remove trailing and leading whitespace', () => {
+			expect(
+				processFingerpostPACategoryCodes([
+					'iptccat:a ',
+					' iptccat:c',
+					' service:news ',
+					'qCode:value ',
+					'iptccat: ',
+				]),
+			).toEqual(['paCat:a', 'paCat:c', 'qCode:value']);
+		});
+
+		it('should deduplicate category codes after stripping whitespace', () => {
+			expect(
+				processFingerpostPACategoryCodes([
+					'iptccat:a ',
+					' iptccat:a',
+					'iptccat:c',
+				]),
+			).toEqual(['paCat:a', 'paCat:c']);
+		});
 	});
 });
 
