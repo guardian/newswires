@@ -149,7 +149,7 @@ const WirePreviewCard = ({
 	id: number;
 	supplier: string;
 	content: WireData['content'];
-	highlight: string;
+	highlight: string | undefined;
 	selected: boolean;
 	isFromRefresh: boolean;
 }) => {
