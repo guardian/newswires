@@ -160,24 +160,14 @@ object FingerpostWireEntry
       totalCount: Long
 //      keywordCounts: Map[String, Int]
   )
+
   private object QueryResponse {
     implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
   }
 
-  def buildWhereClause(
-      search: SearchParams,
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
-  ): SQLSyntax = {
-    val dataOnlyWhereClauses = List(
-      maybeBeforeId.map(beforeId =>
-        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-      ),
-      maybeSinceId.map(sinceId =>
-        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-      )
-    ).flatten
-
+  private def processSearchParams(
+      search: SearchParams
+  ): List[SQLSyntax] = {
     val sourceFeedsQuery = search.suppliersIncl match {
       case Nil => None
       case sourceFeeds =>
@@ -202,10 +192,10 @@ object FingerpostWireEntry
         // https://stackoverflow.com/a/19364694
         Some(
           sqls"""|NOT EXISTS (
-                   |  SELECT FROM ${FingerpostWireEntry as se}
-                   |  WHERE ${syn.id} = ${se.id}
-                   |    AND $doesContainFeeds
-                   |)""".stripMargin
+                 |  SELECT FROM ${FingerpostWireEntry as se}
+                 |  WHERE ${syn.id} = ${se.id}
+                 |    AND $doesContainFeeds
+                 |)""".stripMargin
         )
     }
 
@@ -234,10 +224,10 @@ object FingerpostWireEntry
         // https://stackoverflow.com/a/19364694
         Some(
           sqls"""|NOT EXISTS (
-                   |  SELECT FROM ${FingerpostWireEntry as ke}
-                   |  WHERE ${syn.id} = ${ke.id}
-                   |    AND $doesContainKeywords
-                   |)""".stripMargin
+                 |  SELECT FROM ${FingerpostWireEntry as ke}
+                 |  WHERE ${syn.id} = ${ke.id}
+                 |    AND $doesContainKeywords
+                 |)""".stripMargin
         )
     }
 
@@ -257,10 +247,10 @@ object FingerpostWireEntry
           sqls"(${se.content}->'subjects'->'code') ??| ${textArray(subjects)}"
         Some(
           sqls"""|NOT EXISTS (
-                   |  SELECT FROM ${FingerpostWireEntry as se}
-                   |  WHERE ${syn.id} = ${se.id}
-                   |    AND $doesContainSubjects
-                   |)""".stripMargin
+                 |  SELECT FROM ${FingerpostWireEntry as se}
+                 |  WHERE ${syn.id} = ${se.id}
+                 |    AND $doesContainSubjects
+                 |)""".stripMargin
         )
     }
 
@@ -281,10 +271,10 @@ object FingerpostWireEntry
 
         Some(
           sqls"""|NOT EXISTS (
-                   |  SELECT FROM ${FingerpostWireEntry as cce}
-                   |  WHERE ${syn.id} = ${cce.id}
-                   |    AND $doesContainCategoryCodes
-                   |)""".stripMargin
+                 |  SELECT FROM ${FingerpostWireEntry as cce}
+                 |  WHERE ${syn.id} = ${cce.id}
+                 |    AND $doesContainCategoryCodes
+                 |)""".stripMargin
         )
     }
 
@@ -327,14 +317,49 @@ object FingerpostWireEntry
       sourceFeedsExclQuery,
       dateRangeQuery,
       categoryCodesExclQuery
-    ).flatten ++ dataOnlyWhereClauses match {
-      case Nil        => sqls""
-      case whereParts => sqls"WHERE ${sqls.joinWithAnd(whereParts: _*)}"
+    ).flatten
+  }
+
+  private[db] def buildWhereClause(
+      searchParamList: List[SearchParams],
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int]
+  ): SQLSyntax = {
+    val dataOnlyWhereClauses = List(
+      maybeBeforeId.map(beforeId =>
+        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+      ),
+      maybeSinceId.map(sinceId =>
+        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
+      )
+    ).flatten
+
+    val commonWhereClauses = searchParamList.flatMap(searchParams => {
+      val whereClause = processSearchParams(searchParams)
+
+      if (whereClause.nonEmpty) {
+        Some(
+          sqls.joinWithAnd(
+            dataOnlyWhereClauses ++ whereClause: _*
+          )
+        )
+      } else {
+        None
+      }
+    })
+
+    commonWhereClauses match {
+      case Nil => sqls""
+      case wherePart :: Nil =>
+        sqls"WHERE $wherePart"
+      case whereParts =>
+        sqls"WHERE ${sqls.joinWithOr(whereParts.map(clause => sqls"($clause)"): _*)}"
     }
   }
 
   def query(
-      search: SearchParams,
+      searchParamList: List[SearchParams],
+      maybeTextSearch: Option[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
@@ -342,12 +367,12 @@ object FingerpostWireEntry
     val effectivePageSize = clamp(0, pageSize, 250)
 
     val whereClause = buildWhereClause(
-      search,
+      searchParamList,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId
     )
 
-    val highlightsClause = search.text match {
+    val highlightsClause = maybeTextSearch match {
       case Some(query) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query)) AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
