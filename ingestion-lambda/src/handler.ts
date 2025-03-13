@@ -12,6 +12,8 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
+	processFingerpostPACategoryCodes,
+	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 import { tableName } from './database';
 import { BUCKET_NAME, s3Client } from './s3';
@@ -56,10 +58,7 @@ export const processKeywords = (
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
 
-const processCategoryCodes = (
-	supplier: string | undefined,
-	subjectCodes: string[],
-) => {
+const processCategoryCodes = (supplier: string, subjectCodes: string[]) => {
 	switch (supplier) {
 		case 'AP':
 			return processFingerpostAPCategoryCodes(subjectCodes);
@@ -67,12 +66,16 @@ const processCategoryCodes = (
 			return processFingerpostAAPCategoryCodes(subjectCodes);
 		case 'AFP':
 			return processFingerpostAFPCategoryCodes(subjectCodes);
+		case 'PA':
+			return processFingerpostPACategoryCodes(subjectCodes);
 		default:
-			return [];
+			return processUnknownFingerpostCategoryCodes(subjectCodes, supplier);
 	}
 };
 
-export const decodeBodyTextContent = (text: string | undefined): string | undefined =>
+export const decodeBodyTextContent = (
+	text: string | undefined,
+): string | undefined =>
 	text
 		?.replace(
 			/\\u([0-9a-fA-F]{4})/g,
@@ -144,10 +147,10 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 		const results = await Promise.all(
 			records.map(
 				async ({
-						   messageId: sqsMessageId,
-						   messageAttributes,
-						   body,
-					   }): Promise<OperationResult> => {
+					messageId: sqsMessageId,
+					messageAttributes,
+					body,
+				}): Promise<OperationResult> => {
 					logger.log({
 						message: `Processing message for ${sqsMessageId}`,
 						eventType: INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
@@ -184,7 +187,8 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const snsMessageContent = safeBodyParse(body);
 
-						const supplier = lookupSupplier(snsMessageContent['source-feed']);
+						const supplier =
+							lookupSupplier(snsMessageContent['source-feed']) ?? 'Unknown';
 
 						const categoryCodes = processCategoryCodes(
 							supplier,
@@ -192,10 +196,10 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						);
 
 						const result = await sql`
-							INSERT INTO ${sql(tableName)}
-								(external_id, supplier, content, category_codes)
-							VALUES (${externalId}, ${supplier ?? 'Unknown'}, ${snsMessageContent as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
-						RETURNING id`;
+                            INSERT INTO ${sql(tableName)}
+                                (external_id, supplier, content, category_codes)
+                            VALUES (${externalId}, ${supplier}, ${snsMessageContent as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
+							RETURNING id`;
 
 						if (result.length === 0) {
 							logger.warn({
