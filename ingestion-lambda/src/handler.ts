@@ -205,14 +205,6 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 								sqsMessageId,
 							});
 						} else {
-							// this logging format is for the Cloudwatch Metric Filter
-							console.log({
-								externalId,
-								supplier,
-								sourceFeed: snsMessageContent['source-feed'],
-								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
-							});
-							// this logging format is for ELK
 							logger.log({
 								message: `Successfully processed message for ${sqsMessageId}`,
 								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
