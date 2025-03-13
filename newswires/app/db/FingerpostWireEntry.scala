@@ -130,7 +130,11 @@ object FingerpostWireEntry
       composerId = rs.stringOpt(fm.composerId),
       composerSentBy = rs.stringOpt(fm.composerSentBy),
       categoryCodes = categoryCodes,
-      highlight = rs.stringOpt(fm.column("highlight"))
+      highlight = rs
+        .stringOpt(fm.column("highlight"))
+        .filter(
+          _.contains("<mark>")
+        ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
     )
   }
 
@@ -349,7 +353,7 @@ object FingerpostWireEntry
 
     val highlightsClause = search.text match {
       case Some(query) =>
-        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query)) AS ${syn.resultName.highlight}"
+        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
 
