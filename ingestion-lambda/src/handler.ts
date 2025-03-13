@@ -95,7 +95,7 @@ export const decodeBodyTextContent = (
 		})
 		.replace(/\n/g, '<br />');
 
-const safeBodyParse = (body: string): IngestorInputBody => {
+export const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
 		const json = JSON.parse(body) as Record<string, unknown>;
 
@@ -104,7 +104,7 @@ const safeBodyParse = (body: string): IngestorInputBody => {
 		); // if it's not one of these, we probably want to throw an error
 
 		const preprocessedBodyTextContent = decodeBodyTextContent(
-			json.body_Text as string | undefined,
+			json.body_text as string | undefined,
 		);
 
 		return IngestorInputBodySchema.parse({
