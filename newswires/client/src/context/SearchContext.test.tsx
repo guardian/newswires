@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react';
-import { flushPendingPromises } from '../tests/testHelpers.ts';
+import { disableLogs, flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
 
@@ -41,6 +41,7 @@ describe('SearchContext', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		localStorage.clear();
+		disableLogs();
 	});
 
 	it('should fetch data and initialise the state', async () => {
