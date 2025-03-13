@@ -61,8 +61,6 @@ export const QuerySchema = z.object({
 	supplierExcl: z.array(z.string()).optional(),
 	keywords: z.ostring(),
 	keywordsExcl: z.ostring(),
-	subjects: z.array(z.string()).optional(),
-	subjectsExcl: z.array(z.string()).optional(),
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
 	bucket: z.ostring(),

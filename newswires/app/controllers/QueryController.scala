@@ -36,8 +36,6 @@ class QueryController(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[String],
       suppliers: List[String],
-      subjects: List[String],
-      subjectsExcl: List[String],
       categoryCode: List[String],
       categoryCodeExcl: List[String],
       maybeStart: Option[String],
@@ -62,8 +60,6 @@ class QueryController(
         .get("supplierExcl")
         .map(_.toList)
         .getOrElse(Nil) ++ suppliersToExcludeByDefault,
-      subjectsIncl = subjects,
-      subjectsExcl = subjectsExcl,
       categoryCodesIncl = categoryCode,
       categoryCodesExcl = categoryCodeExcl
     )

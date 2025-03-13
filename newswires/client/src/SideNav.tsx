@@ -22,9 +22,9 @@ import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q, bucket, subjects, dateRange } = query;
+	const { supplier, q, bucket, categoryCode, dateRange } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
-	const subjectsLabel = subjects?.join(', ') ?? '';
+	const categoryCodesLabel = categoryCode?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const bucketLabel = bucket ? `[${bucketName(bucket)}]` : '';
 	const dateRangeLabel = dateRange
@@ -34,7 +34,7 @@ function decideLabelForQueryBadge(query: Query): string {
 	const labels = [
 		bucketLabel,
 		supplierLabel,
-		subjectsLabel,
+		categoryCodesLabel,
 		qLabel,
 		dateRangeLabel,
 	];
@@ -272,72 +272,3 @@ export const SideNav = () => {
 		</>
 	);
 };
-
-/** 
- * Feels worth leaving this code here but commented out for a while.
- * I wrote it when adding keywords but we're removing this for the time being.
- * Feels worth having in the code, rather than keeping it in a separate branch, to
- * make it easier to discover. If it's not been used by, say, the end of October 2024
- * then let's delete it.
- * 
-const SingleSearchAsListOfBadges = ({
-	title,
-	query,
-}: {
-	title: string;
-	query: Query;
-}) => {
-	return (
-		<EuiCollapsibleNavGroup title={title}>
-			<SearchQueryBadges query={query} />
-		</EuiCollapsibleNavGroup>
-	);
-};
-
-const SearchQueryBadges = ({ query }: { query: Query }) => {
-	const { handleEnterQuery } = useSearch();
-	const { q, subject } = query;
-
-	if (q.length === 0 && subject.length === 0) {
-		return <EuiText size="s">No filters applied</EuiText>;
-	}
-
-	return (
-		<EuiFlexGroup wrap responsive={false} gutterSize="s">
-			{q.length > 0 && (
-				<EuiFlexItem grow={false}>
-					<EuiBadge
-						color="secondary"
-						iconType="cross"
-						iconSide="right"
-						iconOnClick={() => {
-							handleEnterQuery({ ...query, q: '' });
-						}}
-						iconOnClickAriaLabel="Remove text query filter"
-					>
-						{`"${q}"`}
-					</EuiBadge>
-				</EuiFlexItem>
-			)}
-			{subject.map((s) => (
-				<EuiFlexItem grow={false} key={s}>
-					<EuiBadge
-						color="accent"
-						iconType="cross"
-						iconSide="right"
-						iconOnClick={() => {
-							handleEnterQuery({
-								...query,
-								subject: subject.filter((sub) => sub !== s),
-							});
-						}}
-						iconOnClickAriaLabel={`Remove ${s} filter`}
-					>
-						{s}
-					</EuiBadge>
-				</EuiFlexItem>
-			))}
-		</EuiFlexGroup>
-	);
-};
-*/

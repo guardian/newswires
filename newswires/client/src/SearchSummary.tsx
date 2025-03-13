@@ -6,17 +6,23 @@ import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 
 const Summary = ({ searchSummary }: { searchSummary: string }) => {
 	const { config, handleEnterQuery } = useSearch();
-	const { q, bucket, supplier: suppliers, dateRange, subjects } = config.query;
+	const {
+		q,
+		bucket,
+		supplier: suppliers,
+		dateRange,
+		categoryCode,
+	} = config.query;
 
-	const displaySubjects = (subjects ?? []).length > 0;
+	const displayCategoryCodes = (categoryCode ?? []).length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;
 
 	const displayFilters: boolean =
-		!!q || !!bucket || displaySubjects || displaySuppliers;
+		!!q || !!bucket || displayCategoryCodes || displaySuppliers;
 
 	const handleBadgeClick = (label: string, value?: string) => {
 		const supplier = config.query.supplier ?? [];
-		const subjects = config.query.subjects ?? [];
+		const categoryCodes = config.query.categoryCode ?? [];
 
 		handleEnterQuery({
 			...config.query,
@@ -27,10 +33,10 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 				label === 'Supplier'
 					? supplier.filter((s: string) => s !== value)
 					: supplier,
-			subjects:
-				label === 'Subject'
-					? subjects.filter((s: string) => s !== value)
-					: subjects,
+			categoryCode:
+				label === 'Category code'
+					? categoryCodes.filter((s: string) => s !== value)
+					: categoryCodes,
 		});
 	};
 
@@ -65,8 +71,8 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 			{bucket && renderBadge('Bucket', bucket)}
 			{displaySuppliers &&
 				suppliers!.map((supplier) => renderBadge('Supplier', supplier))}
-			{displaySubjects &&
-				subjects!.map((subject) => renderBadge('Subject', subject))}
+			{displayCategoryCodes &&
+				categoryCode!.map((code) => renderBadge('Category code', code))}
 		</>
 	);
 };
