@@ -724,7 +724,8 @@ object SearchBuckets {
   private val AfpWorld = List(
     SearchParams(
       text = None,
-      suppliersIncl = List("AFP")
+      suppliersIncl = List("AFP"),
+      categoryCodesExcl = List("afpCat:SPO")
     )
   )
 
