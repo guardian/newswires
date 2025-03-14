@@ -38,8 +38,8 @@ const allSupplierData: Record<
 		label: 'Reuters (Gu)',
 		colour: reutersBrand,
 	},
-	COMET: {
-		label: 'Comet',
+	MINOR_AGENCIES: {
+		label: 'Minor agencies',
 		colour: '#39756a',
 	},
 };

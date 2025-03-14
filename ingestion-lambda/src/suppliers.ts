@@ -88,11 +88,18 @@ const supplierLookupMap: Record<string, string[]> = {
 		'PA HSL',
 		'PA JUST GROUP',
 		'PA BROOKE ACTION FOR WORKING HORSES AND DONKEYS',
+		'PA ZEN INTERNET',
+		'PA PRESSWIRE',
+		'PA EDREAMS ODIGEO',
+		'PA TRUSSEL',
+		'PA ACCESS NEWSWIRE',
 	],
-	COMET: ['COMET'],
+	MINOR_AGENCIES: ['COMET', 'WIREFAST'],
 };
 
-export const lookupSupplier = (supplier: string | undefined ): string | undefined => {
+export const lookupSupplier = (
+	supplier: string | undefined,
+): string | undefined => {
 	if (!supplier) {
 		return undefined;
 	}
@@ -100,4 +107,4 @@ export const lookupSupplier = (supplier: string | undefined ): string | undefine
 	return Object.keys(supplierLookupMap).find((key) =>
 		supplierLookupMap[key]?.includes(supplier),
 	);
-}
+};
