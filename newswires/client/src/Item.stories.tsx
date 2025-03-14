@@ -59,6 +59,8 @@ export const LoadedItem: Story = {
 		itemData: sampleItemData,
 		error: undefined,
 		handleDeselectItem: () => console.log('deselect clicked'),
+		handlePreviousItem: () => console.log('previous item clicked'),
+		handleNextItem: () => console.log('next item clicked'),
 	},
 };
 
@@ -67,6 +69,8 @@ export const WithError: Story = {
 		itemData: undefined,
 		error: 'Failed to load item',
 		handleDeselectItem: () => console.log('deselect clicked'),
+		handlePreviousItem: () => console.log('previous item clicked'),
+		handleNextItem: () => console.log('next item clicked'),
 	},
 };
 
