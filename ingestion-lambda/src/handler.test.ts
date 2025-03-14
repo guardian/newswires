@@ -1,4 +1,4 @@
-import { decodeBodyTextContent, processKeywords } from './handler';
+import {processKeywords, safeBodyParse} from './handler';
 
 describe('processKeywords', () => {
 	it('should return an empty array if provided with `undefined`', () => {
@@ -46,12 +46,24 @@ describe('processKeywords', () => {
 	});
 });
 
-describe('decodeBodyTextContent', () => {
+describe('safeBodyParse', () => {
 	it('should fix over-escaped characters', () => {
-		const content =
-			'\\n \\n test paragraph 1. \\n test paragraph 2. \\u00a0 \\n test paragraph 3.';
-		expect(decodeBodyTextContent(content)).toEqual(
-			'<br /> <br /> test paragraph 1. <br /> test paragraph 2.   <br /> test paragraph 3.',
-		);
+		const body = `{
+			"version": "1",
+			"firstVersion": "2025-03-13T15:45:04.000Z",
+			"versionCreated": "2025-03-13T15:45:04.000Z",
+			"keywords": "keyword1+keyword2",
+			"body_text": "\\n \\n test paragraph 1. \\n test paragraph 2. \\u00a0 \\n test paragraph 3."
+		}`;
+
+		expect(safeBodyParse(body)).toEqual({
+			firstVersion: '2025-03-13T15:45:04.000Z',
+			imageIds: [],
+			keywords: ['keyword1', 'keyword2'],
+			body_text:
+				'<br /> <br /> test paragraph 1. <br /> test paragraph 2.   <br /> test paragraph 3.',
+			version: '1',
+			versionCreated: '2025-03-13T15:45:04.000Z',
+		});
 	});
 });
