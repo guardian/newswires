@@ -8,8 +8,6 @@ case class SearchParams(
     keywordExcl: List[String] = Nil,
     suppliersIncl: List[String] = Nil,
     suppliersExcl: List[String] = Nil,
-    subjectsIncl: List[String] = Nil,
-    subjectsExcl: List[String] = Nil,
     categoryCodesIncl: List[String] = Nil,
     categoryCodesExcl: List[String] = Nil
 ) {
@@ -24,8 +22,6 @@ case class SearchParams(
       keywordExcl = keywordExcl ++ o.keywordExcl,
       suppliersIncl = suppliersIncl ++ o.suppliersIncl,
       suppliersExcl = suppliersExcl ++ o.suppliersExcl,
-      subjectsIncl = subjectsIncl ++ o.subjectsIncl,
-      subjectsExcl = subjectsExcl ++ o.subjectsExcl,
       categoryCodesIncl = categoryCodesIncl ++ o.categoryCodesIncl,
       categoryCodesExcl = categoryCodesExcl ++ o.categoryCodesExcl
     )

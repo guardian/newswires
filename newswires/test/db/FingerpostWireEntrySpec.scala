@@ -16,9 +16,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       keywordIncl = Nil,
       keywordExcl = Nil,
       suppliersIncl = Nil,
-      suppliersExcl = Nil,
-      subjectsIncl = Nil,
-      subjectsExcl = Nil
+      suppliersExcl = Nil
     )
 
     val whereClause =
@@ -45,12 +43,11 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
   }
 
-  it should "concatenate keywords, subjects and category codes with 'or'" in {
+  it should "concatenate keywords and category codes with 'or'" in {
     val searchParams =
       SearchParams(
         text = None,
         keywordIncl = List("keyword1", "keyword2"),
-        subjectsIncl = List("subject1", "subject2"),
         categoryCodesIncl = List("category1", "category2")
       )
 
@@ -58,10 +55,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       FingerpostWireEntry.buildWhereClause(List(searchParams), None, None)
 
     whereClause should matchWhereClause(
-      "WHERE ((fm.content -> 'keywords') ??| ? or (fm.content -> 'subjects' -> 'code') ??| ? or fm.category_codes && ?)",
+      "WHERE ((fm.content -> 'keywords') ??| ? or fm.category_codes && ?)",
       List(
         List("keyword1", "keyword2"),
-        List("subject1", "subject2"),
         List("category1", "category2")
       )
     )
@@ -143,10 +139,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       SearchParams(
         text = Some("News Summary"),
         suppliersIncl = List("REUTERS"),
-        subjectsIncl = List(
+        categoryCodesIncl = List(
           "MCC:OEC"
         ),
-        subjectsExcl = List(
+        categoryCodesExcl = List(
           "N2:GB",
           "N2:COM",
           "N2:ECI"
@@ -155,13 +151,13 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       SearchParams(
         text = None,
         suppliersIncl = List("REUTERS"),
-        subjectsIncl = List(
+        categoryCodesIncl = List(
           "MCC:OVR",
           "MCCL:OVR",
           "MCCL:OSM",
           "N2:US"
         ),
-        subjectsExcl = List(
+        categoryCodesExcl = List(
           "N2:GB",
           "N2:COM",
           "N2:ECI"
@@ -173,23 +169,23 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       FingerpostWireEntry.buildWhereClause(searchParamList, None, None)
 
     whereClause should matchWhereClause(
-      """WHERE ((fm.content -> 'subjects' -> 'code') ??| ? and NOT EXISTS (
-        |  SELECT FROM fingerpost_wire_entry subjectsExcl
-        |  WHERE fm.id = subjectsExcl.id
-        |    AND (subjectsExcl.content->'subjects'->'code') ??| ?
-        |) and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and  upper(fm.supplier) in (upper(?))) or ((fm.content -> 'subjects' -> 'code') ??| ? and NOT EXISTS (
-        |  SELECT FROM fingerpost_wire_entry subjectsExcl
-        |  WHERE fm.id = subjectsExcl.id
-        |    AND (subjectsExcl.content->'subjects'->'code') ??| ?
-        |) and  upper(fm.supplier) in (upper(?)))""".stripMargin,
+      """WHERE (fm.category_codes && ? and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
+        |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
+        |  WHERE fm.id = categoryCodesExcl.id
+        |    AND categoryCodesExcl.category_codes && ?
+        |)) or (fm.category_codes && ? and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
+        |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
+        |  WHERE fm.id = categoryCodesExcl.id
+        |    AND categoryCodesExcl.category_codes && ?
+        |))""".stripMargin,
       List(
         List("MCC:OEC"),
-        List("N2:GB", "N2:COM", "N2:ECI"),
         "News Summary",
         "REUTERS",
-        List("MCC:OVR", "MCCL:OVR", "MCCL:OSM", "N2:US"),
         List("N2:GB", "N2:COM", "N2:ECI"),
-        "REUTERS"
+        List("MCC:OVR", "MCCL:OVR", "MCCL:OSM", "N2:US"),
+        "REUTERS",
+        List("N2:GB", "N2:COM", "N2:ECI")
       )
     )
   }

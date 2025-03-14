@@ -2,49 +2,49 @@ package conf
 
 import db.SearchParams
 
-object Subjects {
+object Categories {
   val sportsRelated = List(
     "MCC:SPO",
     "N2:TEN",
     "a1312cat:s",
-    "iptccat:GXX", // maybe, or maybe advertising "Tequila brand announces partnership with Fulham Football Club"
-    "iptccat:RDR",
-    "iptccat:RFC",
-    "iptccat:RRB",
-    "iptccat:RRF",
-    "iptccat:RRG",
-    "iptccat:RRR",
-    "iptccat:RSF",
-    "iptccat:RSR",
-    "iptccat:SCN",
-    "iptccat:SCR",
-    "iptccat:SDA",
-    "iptccat:SDB",
-    "iptccat:SDP",
-    "iptccat:SDQ",
-    "iptccat:SDR",
-    "iptccat:SDS",
-    "iptccat:SFF",
-    "iptccat:SJA",
-    "iptccat:SJB",
-    "iptccat:SOD",
-    "iptccat:SOS",
-    "iptccat:SPO",
-    "iptccat:SRD",
-    "iptccat:SRN",
-    "iptccat:SRR",
-    "iptccat:SRS",
-    "iptccat:SRZ",
-    "iptccat:SSD",
-    "iptccat:SSF",
-    "iptccat:SSO",
-    "iptccat:SSS",
-    "iptccat:SST",
-    "iptccat:STA",
-    "iptccat:STB",
-    "iptccat:STC",
-    "iptccat:STD",
-    "iptccat:STR",
+    "paCat:GXX", // maybe, or maybe advertising "Tequila brand announces partnership with Fulham Football Club"
+    "paCat:RDR",
+    "paCat:RFC",
+    "paCat:RRB",
+    "paCat:RRF",
+    "paCat:RRG",
+    "paCat:RRR",
+    "paCat:RSF",
+    "paCat:RSR",
+    "paCat:SCN",
+    "paCat:SCR",
+    "paCat:SDA",
+    "paCat:SDB",
+    "paCat:SDP",
+    "paCat:SDQ",
+    "paCat:SDR",
+    "paCat:SDS",
+    "paCat:SFF",
+    "paCat:SJA",
+    "paCat:SJB",
+    "paCat:SOD",
+    "paCat:SOS",
+    "paCat:SPO",
+    "paCat:SRD",
+    "paCat:SRN",
+    "paCat:SRR",
+    "paCat:SRS",
+    "paCat:SRZ",
+    "paCat:SSD",
+    "paCat:SSF",
+    "paCat:SSO",
+    "paCat:SSS",
+    "paCat:SST",
+    "paCat:STA",
+    "paCat:STB",
+    "paCat:STC",
+    "paCat:STD",
+    "paCat:STR",
     "medtop:15000000"
   )
 
@@ -637,53 +637,6 @@ object Subjects {
   )
 }
 
-object Categories {
-  val sportsRelated = List(
-    "MCC:SPO",
-    "N2:TEN",
-    "a1312cat:s",
-    "paCat:GXX", // maybe, or maybe advertising "Tequila brand announces partnership with Fulham Football Club"
-    "paCat:RDR",
-    "paCat:RFC",
-    "paCat:RRB",
-    "paCat:RRF",
-    "paCat:RRG",
-    "paCat:RRR",
-    "paCat:RSF",
-    "paCat:RSR",
-    "paCat:SCN",
-    "paCat:SCR",
-    "paCat:SDA",
-    "paCat:SDB",
-    "paCat:SDP",
-    "paCat:SDQ",
-    "paCat:SDR",
-    "paCat:SDS",
-    "paCat:SFF",
-    "paCat:SJA",
-    "paCat:SJB",
-    "paCat:SOD",
-    "paCat:SOS",
-    "paCat:SPO",
-    "paCat:SRD",
-    "paCat:SRN",
-    "paCat:SRR",
-    "paCat:SRS",
-    "paCat:SRZ",
-    "paCat:SSD",
-    "paCat:SSF",
-    "paCat:SSO",
-    "paCat:SSS",
-    "paCat:SST",
-    "paCat:STA",
-    "paCat:STB",
-    "paCat:STC",
-    "paCat:STD",
-    "paCat:STR",
-    "medtop:15000000"
-  )
-}
-
 object SearchBuckets {
   def get(name: String): Option[List[SearchParams]] = name match {
     case "reuters-world" => Some(ReutersWorld)
@@ -732,10 +685,10 @@ object SearchBuckets {
     SearchParams(
       text = Some("News Summary"),
       suppliersIncl = List("REUTERS"),
-      subjectsIncl = List(
+      categoryCodesIncl = List(
         "MCC:OEC"
       ),
-      subjectsExcl = List(
+      categoryCodesExcl = List(
         "N2:GB",
         "N2:COM",
         "N2:ECI"
@@ -744,13 +697,13 @@ object SearchBuckets {
     SearchParams(
       text = None,
       suppliersIncl = List("REUTERS"),
-      subjectsIncl = List(
+      categoryCodesIncl = List(
         "MCC:OVR",
         "MCCL:OVR",
         "MCCL:OSM",
         "N2:US"
       ),
-      subjectsExcl = List(
+      categoryCodesExcl = List(
         "N2:GB",
         "N2:COM",
         "N2:ECI"
@@ -763,7 +716,7 @@ object SearchBuckets {
       text = None,
       suppliersIncl = List("AAP"),
       keywordExcl = List("Sports"),
-      subjectsExcl = Subjects.sportsRelatedNewsCodes
+      categoryCodesExcl = Categories.sportsRelatedNewsCodes
     )
   )
 

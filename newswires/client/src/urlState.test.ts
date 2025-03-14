@@ -121,9 +121,9 @@ describe('urlToConfig', () => {
 		});
 	});
 
-	it('can pass subjects', () => {
+	it('can pass categoryCode', () => {
 		const url = makeFakeLocation(
-			'/feed?q=abc&subjects=medtop%3A08000000&subjects=medtop%3A20001340',
+			'/feed?q=abc&categoryCode=medtop%3A08000000&categoryCode=medtop%3A20001340',
 		);
 		const config = urlToConfig(url);
 		expect(config).toEqual({
@@ -131,14 +131,14 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				subjects: ['medtop:08000000', 'medtop:20001340'],
+				categoryCode: ['medtop:08000000', 'medtop:20001340'],
 			},
 		});
 	});
 
-	it('can exclude subjects', () => {
+	it('can exclude categoryCode', () => {
 		const url = makeFakeLocation(
-			'/feed?q=abc&subjectsExcl=medtop%3A08000000&subjectsExcl=medtop%3A20001340',
+			'/feed?q=abc&categoryCodeExcl=medtop%3A08000000&categoryCodeExcl=medtop%3A20001340',
 		);
 		const config = urlToConfig(url);
 		expect(config).toEqual({
@@ -146,7 +146,7 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				subjectsExcl: ['medtop:08000000', 'medtop:20001340'],
+				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
 			},
 		});
 	});
@@ -318,25 +318,28 @@ describe('configToUrl', () => {
 		expect(url).toBe('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
 	});
 
-	it('converts config with many subjects to querystring', () => {
+	it('converts config with many categoryCode to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', subjects: ['medtop:08000000', 'medtop:20001340'] },
+			query: { q: 'abc', categoryCode: ['medtop:08000000', 'medtop:20001340'] },
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
-			'/feed?q=abc&subjects=medtop%3A08000000&subjects=medtop%3A20001340',
+			'/feed?q=abc&categoryCode=medtop%3A08000000&categoryCode=medtop%3A20001340',
 		);
 	});
 
-	it('converts config with many excluded subjects to querystring', () => {
+	it('converts config with many excluded categoryCode to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', subjectsExcl: ['medtop:08000000', 'medtop:20001340'] },
+			query: {
+				q: 'abc',
+				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
+			},
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
-			'/feed?q=abc&subjectsExcl=medtop%3A08000000&subjectsExcl=medtop%3A20001340',
+			'/feed?q=abc&categoryCodeExcl=medtop%3A08000000&categoryCodeExcl=medtop%3A20001340',
 		);
 	});
 });

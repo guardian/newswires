@@ -231,29 +231,6 @@ object FingerpostWireEntry
         )
     }
 
-    val subjectsQuery = search.subjectsIncl match {
-      case Nil => None
-      case subjects =>
-        Some(
-          sqls"(${syn.content} -> 'subjects' -> 'code') ??| ${textArray(subjects)}"
-        )
-    }
-
-    val subjectsExclQuery = search.subjectsExcl match {
-      case Nil => None
-      case subjects =>
-        val se = this.syntax("subjectsExcl")
-        val doesContainSubjects =
-          sqls"(${se.content}->'subjects'->'code') ??| ${textArray(subjects)}"
-        Some(
-          sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as se}
-                 |  WHERE ${syn.id} = ${se.id}
-                 |    AND $doesContainSubjects
-                 |)""".stripMargin
-        )
-    }
-
     val categoryCodesInclQuery = search.categoryCodesIncl match {
       case Nil => None
       case categoryCodes =>
@@ -298,7 +275,6 @@ object FingerpostWireEntry
     val clausesJoinedWithOr =
       List(
         keywordsQuery,
-        subjectsQuery,
         categoryCodesInclQuery
       ).flatten match {
         case Nil => None
@@ -309,7 +285,6 @@ object FingerpostWireEntry
     List(
       clausesJoinedWithOr,
       keywordsExclQuery,
-      subjectsExclQuery,
       search.text.map(query =>
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       ),
