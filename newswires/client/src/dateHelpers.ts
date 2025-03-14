@@ -7,12 +7,7 @@ export interface TimeRange {
 }
 
 export const convertToLocalDate = (timestamp: string): string => {
-	if (!timestamp.toLowerCase().includes('utc')) {
-		throw new Error(`Incoming timestamps must be in UTC format: ${timestamp}`);
-	}
-
-	const cleanedTimestamp = timestamp.replace(/\[.*]$/, '');
-	const localTime = moment.utc(cleanedTimestamp).local();
+	const localTime = moment.utc(timestamp).local();
 
 	if (!localTime.isValid()) {
 		throw new Error(`Invalid timestamp: ${timestamp}`);
