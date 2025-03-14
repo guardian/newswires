@@ -5,6 +5,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { disableLogs } from './tests/testHelpers.ts';
 
 jest.mock('@elastic/datemath', () => ({
 	__esModule: true,
@@ -29,6 +30,7 @@ describe('isValidDateValue', () => {
 	});
 
 	it(`should invalidate invalid value`, () => {
+		disableLogs();
 		expect(isValidDateValue('invalid')).toBe(false);
 	});
 });

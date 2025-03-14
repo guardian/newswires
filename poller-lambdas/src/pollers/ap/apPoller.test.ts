@@ -29,6 +29,7 @@ describe('apPoller', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		jest.spyOn(console, 'log').mockImplementation(() => {});
 	});
 
 	it('should return an empty payload if no new items are in the feed', async () => {

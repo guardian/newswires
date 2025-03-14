@@ -4,6 +4,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { disableLogs } from './tests/testHelpers.ts';
 import {
 	defaultQuery,
 	exportedForTestingOnly,
@@ -27,6 +28,7 @@ jest.mock('./dateHelpers', () => ({
 describe('urlToConfig', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		disableLogs();
 	});
 
 	it('parses querystring into config', () => {
