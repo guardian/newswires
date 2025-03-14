@@ -20,7 +20,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
 
     val whereClause =
-      FingerpostWireEntry.buildWhereClause(List(searchParams), None, None)
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        List(),
+        None,
+        None
+      )
 
     whereClause should matchWhereClause(
       expectedClause = "",
@@ -35,7 +40,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       )
 
     val whereClause =
-      FingerpostWireEntry.buildWhereClause(List(searchParams), None, None)
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        List(),
+        None,
+        None
+      )
 
     whereClause should matchWhereClause(
       "WHERE websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
@@ -52,7 +62,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       )
 
     val whereClause =
-      FingerpostWireEntry.buildWhereClause(List(searchParams), None, None)
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        List(),
+        None,
+        None
+      )
 
     whereClause should matchWhereClause(
       "WHERE ((fm.content -> 'keywords') ??| ? or fm.category_codes && ?)",
@@ -75,7 +90,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       )
 
     val whereClause =
-      FingerpostWireEntry.buildWhereClause(List(searchParams), Some(1), None)
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        List(),
+        Some(1),
+        None
+      )
 
     whereClause should matchWhereClause(
       """WHERE fm.id < ? and NOT EXISTS (
@@ -111,7 +131,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
 
     val whereClause =
-      FingerpostWireEntry.buildWhereClause(List(searchParams), None, None)
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        List(),
+        None,
+        None
+      )
 
     whereClause should matchWhereClause(
       "WHERE fm.ingested_at >= CAST(? AS timestamptz)",
@@ -126,7 +151,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
 
     val whereClause =
-      FingerpostWireEntry.buildWhereClause(List(searchParams), None, None)
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        List(),
+        None,
+        None
+      )
 
     whereClause should matchWhereClause(
       "WHERE fm.ingested_at <= CAST(? AS timestamptz)",
@@ -135,7 +165,14 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
   }
 
   it should "should join complex bucket presets using 'or'" in {
-    val searchParamList = List(
+    val searchParams =
+      SearchParams(
+        text = None,
+        start = Some("2025-03-10T00:00:00.000Z"),
+        suppliersExcl = List("supplier1")
+      )
+
+    val savedSearchParamList = List(
       SearchParams(
         text = Some("News Summary"),
         suppliersIncl = List("REUTERS"),
@@ -166,10 +203,19 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
 
     val whereClause =
-      FingerpostWireEntry.buildWhereClause(searchParamList, None, None)
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        savedSearchParamList,
+        None,
+        None
+      )
 
     whereClause should matchWhereClause(
-      """WHERE (fm.category_codes && ? and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
+      """WHERE (NOT EXISTS (
+        |  SELECT FROM fingerpost_wire_entry sourceFeedsExcl
+        |  WHERE fm.id = sourceFeedsExcl.id
+        |    AND  upper(sourceFeedsExcl.supplier) in (upper(?))
+        |) and fm.ingested_at >= CAST(? AS timestamptz)) and ((fm.category_codes && ? and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
         |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
         |  WHERE fm.id = categoryCodesExcl.id
         |    AND categoryCodesExcl.category_codes && ?
@@ -177,8 +223,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
         |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
         |  WHERE fm.id = categoryCodesExcl.id
         |    AND categoryCodesExcl.category_codes && ?
-        |))""".stripMargin,
+        |)))""".stripMargin,
       List(
+        "supplier1",
+        "2025-03-10T00:00:00.000Z",
         List("MCC:OEC"),
         "News Summary",
         "REUTERS",
