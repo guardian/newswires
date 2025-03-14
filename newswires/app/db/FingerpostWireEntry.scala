@@ -295,11 +295,11 @@ object FingerpostWireEntry
     ).flatten
   }
 
-  private[db] def buildWhereClause(
+  private def buildWhereClauseParts(
       searchParamList: List[SearchParams],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
-  ): SQLSyntax = {
+  ) = {
     val dataOnlyWhereClauses = List(
       maybeBeforeId.map(beforeId =>
         sqls"${FingerpostWireEntry.syn.id} < $beforeId"
@@ -324,16 +324,38 @@ object FingerpostWireEntry
     })
 
     commonWhereClauses match {
-      case Nil => sqls""
+      case Nil => None
       case wherePart :: Nil =>
-        sqls"WHERE $wherePart"
+        Some(wherePart)
       case whereParts =>
-        sqls"WHERE ${sqls.joinWithOr(whereParts.map(clause => sqls"($clause)"): _*)}"
+        Some(sqls.joinWithOr(whereParts.map(clause => sqls"($clause)"): _*))
+    }
+  }
+
+  private[db] def buildWhereClause(
+      userSearchParamList: List[SearchParams],
+      bucketSearchParamList: List[SearchParams],
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int]
+  ): SQLSyntax = {
+
+    val maybeUserSearch =
+      buildWhereClauseParts(userSearchParamList, maybeBeforeId, maybeSinceId)
+    val maybeBucketSearch =
+      buildWhereClauseParts(bucketSearchParamList, maybeBeforeId, maybeSinceId)
+
+    (maybeUserSearch, maybeBucketSearch) match {
+      case (None, None)               => sqls""
+      case (None, Some(bucketSearch)) => sqls"WHERE $bucketSearch"
+      case (Some(userSearch), None)   => sqls"WHERE $userSearch"
+      case (Some(userSearch), Some(bucketSearch)) =>
+        sqls"WHERE ${sqls.joinWithAnd(List(userSearch, bucketSearch).map(clause => sqls"($clause)"): _*)}"
     }
   }
 
   def query(
-      searchParamList: List[SearchParams],
+      userSearchParamList: List[SearchParams],
+      bucketSearchParamList: List[SearchParams],
       maybeTextSearch: Option[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
@@ -342,7 +364,8 @@ object FingerpostWireEntry
     val effectivePageSize = clamp(0, pageSize, 250)
 
     val whereClause = buildWhereClause(
-      searchParamList,
+      userSearchParamList = userSearchParamList,
+      bucketSearchParamList = bucketSearchParamList,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId
     )
