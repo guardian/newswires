@@ -53,7 +53,7 @@ describe('safeBodyParse', () => {
 			"firstVersion": "2025-03-13T15:45:04.000Z",
 			"versionCreated": "2025-03-13T15:45:04.000Z",
 			"keywords": "keyword1+keyword2",
-			"body_text": "\\n \\n test paragraph 1. \\n test paragraph 2. \\u00a0 \\n test paragraph 3."
+			"body_text": "\\n \\n   <p>test paragraph 1.</p>\\n\\n<p>test paragraph 2. \\u00a0 \\n</p>\\n\\n<p>test paragraph 3.<p>"
 		}`;
 
 		expect(safeBodyParse(body)).toEqual({
@@ -61,7 +61,7 @@ describe('safeBodyParse', () => {
 			imageIds: [],
 			keywords: ['keyword1', 'keyword2'],
 			body_text:
-				'<br /> <br /> test paragraph 1. <br /> test paragraph 2.   <br /> test paragraph 3.',
+				'<br /><p>test paragraph 1.</p><br /><p>test paragraph 2.   <br /></p><br /><p>test paragraph 3.<p>',
 			version: '1',
 			versionCreated: '2025-03-13T15:45:04.000Z',
 		});
