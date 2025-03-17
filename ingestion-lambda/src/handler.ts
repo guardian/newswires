@@ -93,7 +93,7 @@ export const decodeBodyTextContent = (
 					return group1;
 			}
 		})
-		.replace(/\n/g, '<br />');
+		.replace(/(?:\n\s*)+/g, '<br />'); // Replaces consecutive newlines (and spaces) with one <br />.
 
 export const safeBodyParse = (body: string): IngestorInputBody => {
 	try {
