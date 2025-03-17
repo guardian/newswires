@@ -705,6 +705,7 @@ object SearchBuckets {
         "N2:US"
       ),
       categoryCodesExcl = List(
+        "MCC:OEC",
         "N2:GB",
         "N2:COM",
         "N2:ECI"
