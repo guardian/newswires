@@ -121,10 +121,11 @@ export const safeJsonParse = (body: string): Record<string, unknown> => {
 		if (e instanceof SyntaxError && isBadControlChar(e)) {
 			console.warn('Attempting to strip unescaped tab chars');
 			// technically, the bad control char warning could appear for any control char that remains unescaped
-			// inside a JSON string; but in practice we've only seen this for tab characters so far. If other control
-			// chars start appearing, this will start firing again, but we'll have to think carefully about how we strip
-			// since this replace will affect all locations in the JSON document, not just inside string literals.
-			return JSON.parse(body.replaceAll('\t', ' ')) as Record<string, unknown>;
+			// inside a JSON string; but in practice we've only seen this for tab and newline characters so far. If
+			// other control chars start appearing, this will start firing again, but we'll have to think carefully
+			// about how we strip since this replace will affect all locations in the JSON document, not just inside
+			// string literals.
+			return JSON.parse(body.replaceAll(/[\t\r\n]/g, ' ')) as Record<string, unknown>;
 		}
 		throw e;
 	}
