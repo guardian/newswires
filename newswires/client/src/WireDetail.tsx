@@ -195,7 +195,7 @@ export const WireDetail = ({
 	}, [wire]);
 
 	const safeHighlightText = useMemo(() => {
-		return wire.highlight.trim().length > 0
+		return wire.highlight && wire.highlight.trim().length > 0
 			? sanitizeHtml(wire.highlight)
 			: undefined;
 	}, [wire]);
