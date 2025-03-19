@@ -36,6 +36,10 @@ const isCurlyQuoteFailure = (e: SyntaxError): boolean => {
 	return !!e.message.match(/Unexpected token '[“‘”’]'/);
 };
 
+const isBadControlChar = (e: SyntaxError): boolean => {
+	return !!e.message.match(/Bad control character in string literal in JSON/);
+};
+
 function cleanAndDedupeKeywords(keywords: string[]): string[] {
 	return [
 		...new Set(
@@ -95,27 +99,13 @@ export const decodeBodyTextContent = (
 		})
 		.replace(/(?:\n\s*)+/g, '<br />'); // Replaces consecutive newlines (and spaces) with one <br />.
 
-export const safeBodyParse = (body: string): IngestorInputBody => {
+export const safeJsonParse = (body: string): Record<string, unknown> => {
 	try {
-		const json = JSON.parse(body) as Record<string, unknown>;
-
-		const preprocessedKeywords = processKeywords(
-			json.keywords as string | string[] | undefined,
-		); // if it's not one of these, we probably want to throw an error
-
-		const preprocessedBodyTextContent = decodeBodyTextContent(
-			json.body_text as string | undefined,
-		);
-
-		return IngestorInputBodySchema.parse({
-			...json,
-			body_text: preprocessedBodyTextContent,
-			keywords: preprocessedKeywords,
-		});
+		return JSON.parse(body) as Record<string, unknown>;
 	} catch (e) {
 		if (e instanceof SyntaxError && isCurlyQuoteFailure(e)) {
 			console.warn('Stripping badly escaped curly quote');
-			// näive regex to delete a backslash before a curly quote - isn't a fully correct solution.
+			// naïve regex to delete a backslash before a curly quote - isn't a fully correct solution.
 			// what if a string had 2 backslashes then a curly quote? that would be a correct string, that
 			// we'd make incorrect by deleting the second backslash. We could fix that, but then what about
 			// 3 backslashes then a curly quote? etc. infinitely
@@ -126,12 +116,37 @@ export const safeBodyParse = (body: string): IngestorInputBody => {
 			//   .replaceAll(/(?<![^\\]\\(?:\\\\)*)\\(?!["\\/bfnrt]|u[0-9A-Fa-f]{4})/g, '')
 			//
 			// which looks like it should delete all illegal backslashes in a JSON string, but haven't rigorously tested it...
-			return IngestorInputBodySchema.parse(
-				JSON.parse(body.replaceAll(/\\([“‘”’])/g, '$1')),
-			);
+			return JSON.parse(body.replaceAll(/\\([“‘”’])/g, '$1')) as Record<string, unknown>;
+		}
+		if (e instanceof SyntaxError && isBadControlChar(e)) {
+			console.warn('Attempting to strip unescaped tab chars');
+			// technically, the bad control char warning could appear for any control char that remains unescaped
+			// inside a JSON string; but in practice we've only seen this for tab and newline characters so far. If
+			// other control chars start appearing, this will start firing again, but we'll have to think carefully
+			// about how we strip since this replace will affect all locations in the JSON document, not just inside
+			// string literals.
+			return JSON.parse(body.replaceAll(/[\t\r\n]/g, ' ')) as Record<string, unknown>;
 		}
 		throw e;
 	}
+};
+
+export const safeBodyParse = (body: string): IngestorInputBody => {
+	const json = safeJsonParse(body);
+
+	const preprocessedKeywords = processKeywords(
+		json.keywords as string | string[] | undefined,
+	); // if it's not one of these, we probably want to throw an error
+
+	const preprocessedBodyTextContent = decodeBodyTextContent(
+		json.body_text as string | undefined,
+	);
+
+	return IngestorInputBodySchema.parse({
+		...json,
+		body_text: preprocessedBodyTextContent,
+		keywords: preprocessedKeywords,
+	});
 };
 
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {

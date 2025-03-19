@@ -1,10 +1,10 @@
-import {processKeywords, safeBodyParse} from './handler';
+import { processKeywords, safeBodyParse } from './handler';
 
 describe('processKeywords', () => {
 	it('should return an empty array if provided with `undefined`', () => {
 		expect(
 			Array.isArray(processKeywords(undefined)) &&
-				processKeywords(undefined).length === 0,
+			processKeywords(undefined).length === 0,
 		).toBe(true);
 	});
 
@@ -62,6 +62,64 @@ describe('safeBodyParse', () => {
 			keywords: ['keyword1', 'keyword2'],
 			body_text:
 				'<br /><p>test paragraph 1.</p><br /><p>test paragraph 2.   <br /></p><br /><p>test paragraph 3.<p>',
+			version: '1',
+			versionCreated: '2025-03-13T15:45:04.000Z',
+		});
+	});
+
+	it('should fix incorrectly escaped curly quotes in json strings', () => {
+		const body = `{
+			"version": "1",
+			"firstVersion": "2025-03-13T15:45:04.000Z",
+			"versionCreated": "2025-03-13T15:45:04.000Z",
+			"keywords": "keyword1+keyword2",
+			"body_text": "bla \\“bla bla\\”."
+		}`;
+
+		expect(safeBodyParse(body)).toEqual({
+			firstVersion: '2025-03-13T15:45:04.000Z',
+			imageIds: [],
+			keywords: ['keyword1', 'keyword2'],
+			body_text: 'bla “bla bla”.',
+			version: '1',
+			versionCreated: '2025-03-13T15:45:04.000Z',
+		});
+	});
+
+	it('should fix unescaped tab literals in json strings', () => {
+		const body = `{
+			"version": "1",
+			"firstVersion": "2025-03-13T15:45:04.000Z",
+			"versionCreated": "2025-03-13T15:45:04.000Z",
+			"keywords": "keyword1+keyword2",
+			"body_text": "bla	bla bla."
+		}`; //             ^
+		// bad char here   |
+		expect(safeBodyParse(body)).toEqual({
+			firstVersion: '2025-03-13T15:45:04.000Z',
+			imageIds: [],
+			keywords: ['keyword1', 'keyword2'],
+			body_text: 'bla bla bla.', // note tab char is now space char
+			version: '1',
+			versionCreated: '2025-03-13T15:45:04.000Z',
+		});
+	});
+
+	it('should fix unescaped newline literals in json strings', () => {
+		const body = `{
+			"version": "1",
+			"firstVersion": "2025-03-13T15:45:04.000Z",
+			"versionCreated": "2025-03-13T15:45:04.000Z",
+			"keywords": "keyword1+keyword2",
+			"body_text": "bla
+bla
+bla."
+		}`;
+		expect(safeBodyParse(body)).toEqual({
+			firstVersion: '2025-03-13T15:45:04.000Z',
+			imageIds: [],
+			keywords: ['keyword1', 'keyword2'],
+			body_text: 'bla bla bla.', // note newline char is now space char
 			version: '1',
 			versionCreated: '2025-03-13T15:45:04.000Z',
 		});
