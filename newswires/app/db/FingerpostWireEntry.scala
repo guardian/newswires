@@ -295,11 +295,11 @@ object FingerpostWireEntry
     ).flatten
   }
 
-  private[db] def buildWhereClause(
+  private def buildWhereClauseParts(
       searchParamList: List[SearchParams],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
-  ): SQLSyntax = {
+  ) = {
     val dataOnlyWhereClauses = List(
       maybeBeforeId.map(beforeId =>
         sqls"${FingerpostWireEntry.syn.id} < $beforeId"
@@ -324,16 +324,39 @@ object FingerpostWireEntry
     })
 
     commonWhereClauses match {
-      case Nil => sqls""
+      case Nil => None
       case wherePart :: Nil =>
-        sqls"WHERE $wherePart"
+        Some(wherePart)
       case whereParts =>
-        sqls"WHERE ${sqls.joinWithOr(whereParts.map(clause => sqls"($clause)"): _*)}"
+        Some(sqls.joinWithOr(whereParts.map(clause => sqls"($clause)"): _*))
+    }
+  }
+
+  private[db] def buildWhereClause(
+      searchParams: SearchParams,
+      savedSearchParamList: List[SearchParams],
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int]
+  ): SQLSyntax = {
+
+    val maybeSearch =
+      buildWhereClauseParts(List(searchParams), maybeBeforeId, maybeSinceId)
+
+    val maybeSavedSearch =
+      buildWhereClauseParts(savedSearchParamList, maybeBeforeId, maybeSinceId)
+
+    (maybeSearch, maybeSavedSearch) match {
+      case (None, None)               => sqls""
+      case (None, Some(bucketSearch)) => sqls"WHERE $bucketSearch"
+      case (Some(userSearch), None)   => sqls"WHERE $userSearch"
+      case (Some(userSearch), Some(bucketSearch)) =>
+        sqls"WHERE ($userSearch) and ($bucketSearch)"
     }
   }
 
   def query(
-      searchParamList: List[SearchParams],
+      searchParams: SearchParams,
+      savedSearchParamList: List[SearchParams],
       maybeTextSearch: Option[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
@@ -342,7 +365,8 @@ object FingerpostWireEntry
     val effectivePageSize = clamp(0, pageSize, 250)
 
     val whereClause = buildWhereClause(
-      searchParamList,
+      searchParams,
+      savedSearchParamList,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId
     )
