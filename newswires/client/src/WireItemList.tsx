@@ -78,16 +78,21 @@ export const WireItemList = ({
 	);
 };
 
-function decideMainHeadingContent({
-	headline,
-	slug,
-}: WireData['content']): string {
+function decideMainHeadingContent(
+	supplier: string,
+	{ headline, slug }: WireData['content'],
+): string {
+	const prefix =
+		supplier === 'AAP' && slug && slug.length > 0 ? `${slug} - ` : '';
+
 	if (headline && headline.length > 0) {
-		return headline;
+		return `${prefix}${headline}`;
 	}
+
 	if (slug && slug.length > 0) {
 		return slug;
 	}
+
 	return 'No headline';
 }
 
@@ -180,7 +185,7 @@ const WirePreviewCard = ({
 	const supplierLabel = supplierInfo?.label ?? supplier;
 	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
 
-	const mainHeadingContent = decideMainHeadingContent(content);
+	const mainHeadingContent = decideMainHeadingContent(supplier, content);
 
 	const hasBeenViewed = viewedItemIds.includes(id.toString());
 
