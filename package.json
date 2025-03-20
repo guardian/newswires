@@ -70,7 +70,7 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,jsx,ts,tsx}": "jest --findRelatedTests"
+		"*.{js,jsx,ts,tsx}": "jest --findRelatedTests --passWithNoTests"
 	},
 	"dependencies": {
 		"zod": "3.23.8"
