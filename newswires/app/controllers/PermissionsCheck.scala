@@ -12,7 +12,7 @@ trait PermissionsCheck {
   private val app = "newswires"
 
   private val WiresAccess = PermissionDefinition(
-    name = "editorial-wires-access",
+    name = "editorial_wires_access",
     app = "editorial-wires"
   )
 
