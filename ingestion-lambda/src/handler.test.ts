@@ -1,4 +1,4 @@
-import { processKeywords, safeBodyParse } from './handler';
+import {extractFieldFromString, processKeywords, safeBodyParse} from './handler';
 
 describe('processKeywords', () => {
 	it('should return an empty array if provided with `undefined`', () => {
@@ -123,5 +123,14 @@ bla."
 			version: '1',
 			versionCreated: '2025-03-13T15:45:04.000Z',
 		});
+	});
+});
+
+describe('extractFieldFromString', () => {
+	it('should extract a field value from broken JSON', () => {
+		const body = `{
+			"slug": "test-slug",`;
+
+		expect(extractFieldFromString(body, 'slug')).toEqual('test-slug');
 	});
 });

@@ -22,6 +22,7 @@ import { lookupSupplier } from './suppliers';
 interface OperationFailure {
 	sqsMessageId: string;
 	status: 'failure';
+	storyIdentifier?: string;
 	reason?: string;
 }
 
@@ -48,6 +49,13 @@ function cleanAndDedupeKeywords(keywords: string[]): string[] {
 				.filter((keyword) => keyword.length > 0),
 		),
 	];
+}
+
+// Retrieve a value from a JSON-like string regardless of its validity.
+export const extractFieldFromString = (input: string, targetField: string): string | undefined  =>{
+	const regex = new RegExp(`"${targetField}"\\s*:\\s*"([^"]*)"`); // Capture a value from a "key": "value" pattern.
+	const match = input.match(regex);
+	return match ? match[1] : undefined;
 }
 
 export const processKeywords = (
@@ -225,7 +233,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							});
 						} else {
 							logger.log({
-								message: `Successfully processed message for ${sqsMessageId}`,
+								message: `Successfully processed message for ${sqsMessageId} (${snsMessageContent.slug})`,
 								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
 								sqsMessageId,
 								externalId,
@@ -238,6 +246,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							status: 'failure',
 							reason,
 							sqsMessageId,
+							storyIdentifier: extractFieldFromString(body, 'slug')
 						};
 					}
 
@@ -250,9 +259,9 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 			.filter(
 				(result): result is OperationFailure => result.status === 'failure',
 			)
-			.map(({ sqsMessageId, reason }) => {
+			.map(({ sqsMessageId, storyIdentifier, reason }) => {
 				console.error(
-					`Failed to process message for ${sqsMessageId}: ${reason}`,
+					`Failed to process message for ${sqsMessageId}${storyIdentifier ? ` (${storyIdentifier})` : ''}: ${reason}`,
 				);
 				return { itemIdentifier: sqsMessageId };
 			});
