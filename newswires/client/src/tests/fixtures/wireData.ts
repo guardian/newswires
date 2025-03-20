@@ -28,7 +28,7 @@ export const sampleWireData: WireData = {
 	id: 1,
 	supplier: 'TestSupplier',
 	externalId: 'external-123',
-	ingestedAt: '2025-01-01T00:00:00.00000Z[UTC]', // UTC dates to make sure the reducer is converting dates to the local timezone.
+	ingestedAt: '2025-01-01T00:00:00.00000Z', // UTC dates to make sure the reducer is converting dates to the local timezone.
 	categoryCodes: ['category1', 'category2'],
 	content: sampleFingerpostContent,
 	highlight: 'Sample Highlight',

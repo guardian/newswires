@@ -5,7 +5,7 @@ import play.api.Logging
 import play.api.libs.json._
 import scalikejdbc._
 
-import java.time.ZonedDateTime
+import java.time.{Instant, ZonedDateTime}
 
 case class FingerpostWireSubjects(
     code: List[String]
@@ -67,7 +67,7 @@ case class FingerpostWireEntry(
     id: Long,
     supplier: String,
     externalId: String,
-    ingestedAt: ZonedDateTime,
+    ingestedAt: Instant,
     content: FingerpostWire,
     composerId: Option[String],
     composerSentBy: Option[String],
@@ -125,7 +125,7 @@ object FingerpostWireEntry
       id = rs.long(fm.id),
       supplier = rs.string(fm.supplier),
       externalId = rs.string(fm.externalId),
-      ingestedAt = rs.zonedDateTime(fm.ingestedAt),
+      ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
       content = fingerpostContent,
       composerId = rs.stringOpt(fm.composerId),
       composerSentBy = rs.stringOpt(fm.composerSentBy),
