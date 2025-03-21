@@ -25,18 +25,32 @@ import { useSearch } from './context/SearchContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { WireData } from './sharedTypes';
+import { getSupplierInfo } from './suppliers.ts';
 
 function TitleContentForItem({
 	slug,
 	headline,
+	supplierDetails,
 }: {
 	slug?: string;
 	headline?: string;
+	supplierDetails?: {
+		label: string;
+		colour: string;
+	};
 }) {
 	if (headline && headline.length > 0) {
 		return (
 			<>
-				{slug && <EuiText size={'xs'}>{slug}</EuiText>} {headline}
+				{slug && <EuiText size={'xs'}>{slug}</EuiText>}{' '}
+				{supplierDetails && (
+					<>
+						<EuiBadge color={supplierDetails.colour}>
+							{supplierDetails.label}
+						</EuiBadge>{' '}
+					</>
+				)}
+				{headline}
 			</>
 		);
 	}
@@ -208,17 +222,31 @@ export const WireDetail = ({
 		[keywords],
 	);
 
+	const supplierInfo = getSupplierInfo(wire.supplier);
+
+	const supplierLabel = supplierInfo?.label ?? wire.supplier;
+	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
+
 	return (
 		<>
 			<EuiFlexGroup justifyContent="spaceBetween">
 				<EuiFlexItem grow={true}>
 					<EuiTitle size="xs">
 						<h2>
-							<TitleContentForItem headline={headline} slug={slug} />
+							<TitleContentForItem
+								headline={headline}
+								slug={slug}
+								supplierDetails={{
+									label: supplierLabel,
+									colour: supplierColour,
+								}}
+							/>
 						</h2>
 					</EuiTitle>
 				</EuiFlexItem>
 			</EuiFlexGroup>
+			<EuiSpacer size="s" />
+
 			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
@@ -245,6 +273,7 @@ export const WireDetail = ({
 								position: relative;
 								border: 3px solid ${theme.euiTheme.colors.highlight};
 							}
+
 							display: flex;
 							flex-direction: column;
 							gap: ${theme.euiTheme.size.s};
