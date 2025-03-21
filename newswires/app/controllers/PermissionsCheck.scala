@@ -11,9 +11,13 @@ trait PermissionsCheck {
   def permissionsProvider: PermissionsProvider
   private val app = "newswires"
 
+  private val WiresAccess = PermissionDefinition(
+    name = "editorial_wires_access",
+    app = "editorial-wires"
+  )
+
   def hasAccessPermission(email: String): Boolean =
-    // permissionsProvider.hasPermission(CrosswordsAccess, email)
-    true
+    permissionsProvider.hasPermission(WiresAccess, email)
 
   def checkPermission(
       permission: PermissionDefinition
