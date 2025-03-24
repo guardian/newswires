@@ -22,7 +22,7 @@ import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
-import { convertToLocalDate } from './dateHelpers.ts';
+import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { WireData } from './sharedTypes';
 import { getSupplierInfo } from './suppliers.ts';
@@ -30,32 +30,33 @@ import { getSupplierInfo } from './suppliers.ts';
 function TitleContentForItem({
 	slug,
 	headline,
+	ingestedAt,
 	supplierDetails,
 }: {
 	slug?: string;
 	headline?: string;
+	ingestedAt: string;
 	supplierDetails?: {
 		label: string;
 		colour: string;
 	};
 }) {
-	if (headline && headline.length > 0) {
-		return (
-			<>
-				{slug && <EuiText size={'xs'}>{slug}</EuiText>}{' '}
-				{supplierDetails && (
-					<>
-						<EuiBadge color={supplierDetails.colour}>
-							{supplierDetails.label}
-						</EuiBadge>{' '}
-					</>
-				)}
-				{headline}
-			</>
-		);
-	}
-
-	return <>{slug ?? 'No title'}</>;
+	return (
+		<>
+			<EuiText size={'xs'}>
+				{slug && <>{slug} &#183; </>}
+				{ingestedAt}
+			</EuiText>{' '}
+			{supplierDetails && (
+				<>
+					<EuiBadge color={supplierDetails.colour}>
+						{supplierDetails.label}
+					</EuiBadge>{' '}
+				</>
+			)}
+			{headline && headline.length > 0 ? headline : (slug ?? 'No title')}
+		</>
+	);
 }
 
 type CategoryCodeTableItem = {
@@ -159,15 +160,19 @@ function MetaTable({ wire }: { wire: WireData }) {
 		},
 		{
 			title: 'Ingested at',
-			description: convertToLocalDate(ingestedAt),
+			description: convertToLocalDateString(ingestedAt),
 		},
 		{
 			title: 'First version',
-			description: firstVersion ? convertToLocalDate(firstVersion) : 'N/A',
+			description: firstVersion
+				? convertToLocalDateString(firstVersion)
+				: 'N/A',
 		},
 		{
 			title: 'This version created',
-			description: versionCreated ? convertToLocalDate(versionCreated) : 'N/A',
+			description: versionCreated
+				? convertToLocalDateString(versionCreated)
+				: 'N/A',
 		},
 		{
 			title: 'Version',
@@ -236,6 +241,7 @@ export const WireDetail = ({
 							<TitleContentForItem
 								headline={headline}
 								slug={slug}
+								ingestedAt={convertToLocalDate(wire.ingestedAt).fromNow()}
 								supplierDetails={{
 									label: supplierLabel,
 									colour: supplierColour,
