@@ -1,4 +1,4 @@
-import { LAST_TWO_WEEKS, NOW, TWO_WEEKS_AGO } from './dateConstants.ts';
+import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
 import {
 	isRelativeDateNow,
 	isValidDateValue,
@@ -16,8 +16,8 @@ export const defaultQuery: Query = {
 	categoryCode: [],
 	categoryCodeExcl: [],
 	dateRange: {
-		start: 'now-2w',
-		end: 'now',
+		start: DEFAULT_DATE_RANGE.start,
+		end: DEFAULT_DATE_RANGE.end,
 	},
 };
 
@@ -38,10 +38,15 @@ export function urlToConfig(location: {
 
 	const startParam = urlSearchParams.get('start');
 	const start =
-		!!startParam && isValidDateValue(startParam) ? startParam : LAST_TWO_WEEKS;
+		!!startParam && isValidDateValue(startParam)
+			? startParam
+			: DEFAULT_DATE_RANGE.start;
 
 	const endParam = urlSearchParams.get('end');
-	const end = !!endParam && isValidDateValue(endParam) ? endParam : NOW;
+	const end =
+		!!endParam && isValidDateValue(endParam)
+			? endParam
+			: DEFAULT_DATE_RANGE.end;
 
 	!!endParam &&
 		console.log('isValidDateValue(endParam)', isValidDateValue(endParam));
@@ -110,7 +115,7 @@ const processDateRange = (
 				end: maybeEndMoment?.toISOString(),
 			};
 		} else {
-			return { ...config, start: TWO_WEEKS_AGO.toISOString() };
+			return { ...config, start: START_OF_TODAY.toISOString() };
 		}
 	} else {
 		return {

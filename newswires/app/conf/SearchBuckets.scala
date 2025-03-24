@@ -684,18 +684,6 @@ object SearchBuckets {
 
   private val ReutersWorld = List(
     SearchParams(
-      text = Some("News Summary"),
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "MCC:OEC"
-      ),
-      categoryCodesExcl = List(
-        "N2:GB",
-        "N2:COM",
-        "N2:ECI"
-      )
-    ),
-    SearchParams(
       text = None,
       suppliersIncl = List("REUTERS"),
       categoryCodesIncl = List(
@@ -706,6 +694,18 @@ object SearchBuckets {
       ),
       categoryCodesExcl = List(
         "MCC:OEC",
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    ),
+    SearchParams(
+      text = Some("News Summary"),
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "MCC:OEC"
+      ),
+      categoryCodesExcl = List(
         "N2:GB",
         "N2:COM",
         "N2:ECI"
@@ -730,5 +730,8 @@ object SearchBuckets {
     )
   )
 
-  private val AllWorld = ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld
+  private val AllWorld = List(
+    ReutersWorld(1),
+    ApWorld.head merge ReutersWorld.head merge AapWorld.head merge AfpWorld.head
+  )
 }
