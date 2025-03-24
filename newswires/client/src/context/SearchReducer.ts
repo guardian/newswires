@@ -1,7 +1,7 @@
 import dateMath from '@elastic/datemath';
 import { isEqual as deepIsEqual } from 'lodash';
 import moment from 'moment-timezone';
-import { convertToLocalDate } from '../dateHelpers.ts';
+import { convertToLocalDateString } from '../dateHelpers.ts';
 import type { Query, WireData, WiresQueryResponse } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
@@ -26,7 +26,7 @@ const transformQueryResults = (data: WireData[]) =>
 	data.map((item) => {
 		return {
 			...item,
-			ingestedAt: convertToLocalDate(item.ingestedAt),
+			ingestedAt: convertToLocalDateString(item.ingestedAt),
 		};
 	});
 

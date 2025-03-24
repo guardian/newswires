@@ -6,14 +6,18 @@ export interface TimeRange {
 	end: string;
 }
 
-export const convertToLocalDate = (timestamp: string): string => {
+export const convertToLocalDate = (timestamp: string) => {
 	const localTime = moment.utc(timestamp).local();
 
 	if (!localTime.isValid()) {
 		throw new Error(`Invalid timestamp: ${timestamp}`);
 	}
 
-	return localTime.format();
+	return localTime;
+};
+
+export const convertToLocalDateString = (timestamp: string): string => {
+	return convertToLocalDate(timestamp).format();
 };
 
 export const isValidDateValue = (value: string) =>
