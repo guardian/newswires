@@ -7,9 +7,8 @@ import moment from 'moment';
 import type { ReactElement } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import {
+	DEFAULT_DATE_RANGE,
 	END_OF_TODAY,
-	LAST_TWO_WEEKS,
-	NOW,
 	TWO_WEEKS_AGO,
 } from './dateConstants.ts';
 import type { TimeRange } from './dateHelpers.ts';
@@ -50,9 +49,15 @@ export const DatePicker = () => {
 			<EuiSuperDatePicker
 				width={'auto'}
 				start={
-					config.query.dateRange ? config.query.dateRange.start : LAST_TWO_WEEKS
+					config.query.dateRange
+						? config.query.dateRange.start
+						: DEFAULT_DATE_RANGE.start
 				}
-				end={config.query.dateRange ? config.query.dateRange.end : NOW}
+				end={
+					config.query.dateRange
+						? config.query.dateRange.end
+						: DEFAULT_DATE_RANGE.end
+				}
 				minDate={TWO_WEEKS_AGO}
 				maxDate={END_OF_TODAY}
 				onTimeChange={onTimeChange}

@@ -201,7 +201,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				dateRange: {
 					start: 'now/d',
-					end: 'now',
+					end: 'now/d',
 				},
 			},
 		});
@@ -230,7 +230,7 @@ describe('configToUrl', () => {
 		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(true);
 
 		const url = configToUrl({ view: 'feed', query: defaultQuery });
-		expect(url).toBe('/feed?start=now-2w');
+		expect(url).toBe('/feed?start=now%2Fd');
 	});
 
 	it('converts item config to querystring', () => {
