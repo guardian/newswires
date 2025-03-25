@@ -375,7 +375,7 @@ describe('paramsToQuerystring', () => {
 		};
 
 		const url = paramsToQuerystring(query);
-		expect(url).toBe('?q=abc&start=now%2Fd&end=now%2Fd');
+		expect(url).toBe('?q=abc&start=now%2Fd');
 	});
 
 	it('converts relative date range to an absolute date range', () => {
