@@ -192,19 +192,6 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
           "Statement": [
             {
               "Action": "sns:Publish",
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": {
-                  "Ref": "fingerpostpublishinguserarn",
-                },
-              },
-              "Resource": {
-                "Ref": "fingerposttopic0A8134FC",
-              },
-              "Sid": "0",
-            },
-            {
-              "Action": "sns:Publish",
               "Condition": {
                 "Bool": {
                   "aws:SecureTransport": "false",
@@ -216,6 +203,19 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 "Ref": "fingerposttopic0A8134FC",
               },
               "Sid": "AllowPublishThroughSSLOnly",
+            },
+            {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Ref": "fingerpostpublishinguserarn",
+                },
+              },
+              "Resource": {
+                "Ref": "fingerposttopic0A8134FC",
+              },
+              "Sid": "1",
             },
           ],
           "Version": "2012-10-17",
@@ -405,19 +405,6 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
           "Statement": [
             {
               "Action": "sns:Publish",
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": {
-                  "Ref": "fingerpostpublishinguserarn",
-                },
-              },
-              "Resource": {
-                "Ref": "sourcetopic7C3DC892",
-              },
-              "Sid": "0",
-            },
-            {
-              "Action": "sns:Publish",
               "Condition": {
                 "Bool": {
                   "aws:SecureTransport": "false",
@@ -429,6 +416,19 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 "Ref": "sourcetopic7C3DC892",
               },
               "Sid": "AllowPublishThroughSSLOnly",
+            },
+            {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Ref": "fingerpostpublishinguserarn",
+                },
+              },
+              "Resource": {
+                "Ref": "sourcetopic7C3DC892",
+              },
+              "Sid": "1",
             },
           ],
           "Version": "2012-10-17",
