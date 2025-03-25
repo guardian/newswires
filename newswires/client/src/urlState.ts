@@ -1,6 +1,5 @@
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
 import {
-	isRelativeDateNow,
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
@@ -47,9 +46,6 @@ export function urlToConfig(location: {
 		!!endParam && isValidDateValue(endParam)
 			? endParam
 			: DEFAULT_DATE_RANGE.end;
-
-	!!endParam &&
-		console.log('isValidDateValue(endParam)', isValidDateValue(endParam));
 
 	const supplier = urlSearchParams.getAll('supplier');
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
@@ -122,7 +118,7 @@ const processDateRange = (
 			...config,
 			start: config.dateRange?.start,
 			end:
-				config.dateRange?.end && !isRelativeDateNow(config.dateRange.end)
+				config.dateRange?.end && config.dateRange.end !== DEFAULT_DATE_RANGE.end
 					? config.dateRange.end
 					: undefined,
 		};
