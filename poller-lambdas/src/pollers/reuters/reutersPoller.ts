@@ -278,6 +278,10 @@ export const reutersPoller = (async ({
 		searchData.push(...data.data.search.items);
 	}
 
+	logger.log({
+		message: `Search returned ${searchData.length} items; fetching details now`,
+	});
+
 	const itemsToFetch = searchData
 		.map((item) => item.versionedGuid)
 		.filter((guid): guid is string => guid !== undefined);
@@ -299,13 +303,16 @@ export const reutersPoller = (async ({
 				const retryResult = await fetchWithReauth(itemQuery(itemId));
 				const retryParsedItemResult = itemResponseSchema.safeParse(retryResult);
 				if (!retryParsedItemResult.success) {
-					logger.error({
-						externalId: itemId,
-						supplier: 'Reuters',
-						eventType: POLLER_FAILURE_EVENT_TYPE,
-						errors: retryParsedItemResult.error.errors,
-						message: `Failed to parse item response for ${itemId} on retry`,
-					});
+					logger.error(
+						{
+							externalId: itemId,
+							supplier: 'Reuters',
+							eventType: POLLER_FAILURE_EVENT_TYPE,
+							errors: parsedItemResult.error.errors,
+							message: `Failed to parse item response for ${itemId} on retry`,
+						},
+						retryParsedItemResult.error,
+					);
 					return;
 				}
 				return retryParsedItemResult.data;
