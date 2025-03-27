@@ -143,7 +143,7 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[String] = Some("alpaca")
+      maybeFreeTextQuery: Option[String]
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     val highlightsClause = maybeFreeTextQuery match {
       case Some(query) =>
