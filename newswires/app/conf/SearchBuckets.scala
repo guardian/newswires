@@ -730,8 +730,5 @@ object SearchBuckets {
     )
   )
 
-  private val AllWorld = List(
-    ReutersWorld(1),
-    ApWorld.head merge ReutersWorld.head merge AapWorld.head merge AfpWorld.head
-  )
+  private val AllWorld = ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld
 }
