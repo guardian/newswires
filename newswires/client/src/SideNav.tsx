@@ -42,13 +42,7 @@ function decideLabelForQueryBadge(query: Query): string {
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
-const buckets = [
-	{ id: 'all-world', name: 'All World' },
-	{ id: 'ap-world', name: 'AP World' },
-	{ id: 'reuters-world', name: 'Reuters World' },
-	{ id: 'aap-world', name: 'AAP World' },
-	{ id: 'afp-world', name: 'AFP World' },
-];
+const buckets = [{ id: 'all-world', name: 'World' }];
 
 function bucketName(bucketId: string): string | undefined {
 	return buckets.find((bucket) => bucket.id === bucketId)?.name;
@@ -157,7 +151,7 @@ export const SideNav = () => {
 			>
 				<div style={{ height: '90%', overflowY: 'auto' }}>
 					<SearchBox />
-					<EuiCollapsibleNavGroup title="Buckets">
+					<EuiCollapsibleNavGroup title="Presets">
 						<EuiListGroup
 							maxWidth="none"
 							color="subdued"
