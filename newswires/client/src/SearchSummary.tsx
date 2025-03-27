@@ -46,8 +46,8 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 				key={value}
 				iconType="cross"
 				iconSide="right"
-				onClickAriaLabel={`Remove ${label} filter from results`}
-				onClick={() => {
+				iconOnClickAriaLabel={`Remove ${label} filter from results`}
+				iconOnClick={() => {
 					handleBadgeClick(label, value);
 				}}
 			>
