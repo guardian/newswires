@@ -5,7 +5,7 @@ import { pandaFetch } from './panda-session';
 import { type WireData, WireDataSchema } from './sharedTypes';
 
 export const ItemData = ({ id }: { id: string }) => {
-	const { handleDeselectItem, handlePreviousItem, handleNextItem } =
+	const { handleDeselectItem, handlePreviousItem, handleNextItem, config } =
 		useSearch();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
@@ -13,7 +13,8 @@ export const ItemData = ({ id }: { id: string }) => {
 
 	useEffect(() => {
 		// fetch item data from /api/item/:id
-		pandaFetch(`/api/item/${id}`)
+		const q = config.query.q ? `?q=${config.query.q}` : '';
+		pandaFetch(`/api/item/${id}${q}`)
 			.then((res) => {
 				if (res.status === 404) {
 					throw new Error('Item not found');
@@ -42,7 +43,7 @@ export const ItemData = ({ id }: { id: string }) => {
 							: 'unknown error',
 				);
 			});
-	}, [id]);
+	}, [id, config.query.q]);
 
 	return (
 		<Item
