@@ -1,22 +1,37 @@
 import {
 	EuiBetaBadge,
 	EuiButton,
+	EuiButtonEmpty,
 	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
+	EuiIcon,
 	EuiLink,
+	EuiModal,
+	EuiModalBody,
+	EuiModalFooter,
+	EuiModalHeader,
+	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiResizableContainer,
 	EuiShowFor,
+	EuiText,
 	EuiTitle,
 	EuiToast,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useState } from 'react';
+import { z } from 'zod';
+import {
+	loadFromLocalStorage,
+	saveToLocalStorage,
+} from './context/localStorage.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
+import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
 import { SideNav } from './SideNav';
 import { configToUrl, defaultQuery } from './urlState';
@@ -54,10 +69,19 @@ export function App() {
 		handlePreviousItem,
 	} = useSearch();
 
+	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
+		loadFromLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
+	);
+
 	const { view, itemId: selectedItemId, query } = config;
 	const { status } = state;
 
 	const isPoppedOut = !!window.opener;
+
+	const dismissDisclaimer = (persist?: boolean) => {
+		setDisplayDisclaimer(false);
+		persist && saveToLocalStorage<boolean>('displayDisclaimer', false);
+	};
 
 	return (
 		<EuiProvider colorMode="light">
@@ -81,6 +105,39 @@ export function App() {
 					max-height: 100vh;
 				`}
 			>
+				{displayDisclaimer && (
+					<EuiModal
+						aria-labelledby="disclaimer-title"
+						onClose={() => dismissDisclaimer()}
+					>
+						<EuiModalHeader>
+							<EuiModalHeaderTitle
+								title={'Please use with caution'}
+								id="disclaimer-title"
+							>
+								<EuiIcon type="iInCircle" size="xl" /> Please use with caution
+							</EuiModalHeaderTitle>
+						</EuiModalHeader>
+
+						<EuiModalBody>
+							<EuiText size="m">
+								Please be advised that this product is currently in its early
+								testing phase, under active development, and subject to change.
+								<br />
+								<FeedbackContent />
+							</EuiText>
+						</EuiModalBody>
+
+						<EuiModalFooter>
+							<EuiButtonEmpty onClick={() => dismissDisclaimer()}>
+								Close
+							</EuiButtonEmpty>
+							<EuiButton onClick={() => dismissDisclaimer(true)} fill>
+								Don&apos;t show again
+							</EuiButton>
+						</EuiModalFooter>
+					</EuiModal>
+				)}
 				{status === 'offline' && (
 					<Alert title="You Are Currently Offline">
 						The application is no longer retrieving updates. Data
@@ -127,7 +184,7 @@ export function App() {
 												Newswires
 											</EuiLink>
 											<EuiBetaBadge
-												label="Beta"
+												label="Under construction"
 												color={'accent'}
 												size="s"
 												css={css`
