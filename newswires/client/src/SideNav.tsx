@@ -17,6 +17,7 @@ import { css } from '@emotion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
+import { FeedbackContent } from './FeedbackContent.tsx';
 import { SearchBox } from './SearchBox';
 import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
@@ -259,14 +260,7 @@ export const SideNav = () => {
 						iconType="iInCircle"
 						color="primary"
 					>
-						<p>
-							This is a beta product. Feedback or questions? We&apos;d love to
-							hear from you at{' '}
-							<a href="mailto:media.and.feeds@theguardian.com">
-								Media & Feeds team
-							</a>
-							.
-						</p>
+						<FeedbackContent />
 					</EuiCallOut>
 				</div>
 			</EuiCollapsibleNav>

@@ -1,22 +1,32 @@
 import {
 	EuiBetaBadge,
 	EuiButton,
+	EuiButtonEmpty,
 	EuiEmptyPrompt,
 	EuiHeader,
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
+	EuiIcon,
 	EuiLink,
+	EuiModal,
+	EuiModalBody,
+	EuiModalFooter,
+	EuiModalHeader,
+	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
 	EuiResizableContainer,
 	EuiShowFor,
+	EuiText,
 	EuiTitle,
 	EuiToast,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
+import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
 import { SideNav } from './SideNav';
 import { configToUrl, defaultQuery } from './urlState';
@@ -57,7 +67,13 @@ export function App() {
 	const { view, itemId: selectedItemId, query } = config;
 	const { status } = state;
 
+	const [displayDisclaimer, setDisplayDisclaimer] = useState(true);
+
 	const isPoppedOut = !!window.opener;
+
+	const dismissDisclaimer = () => {
+		setDisplayDisclaimer(false);
+	};
 
 	return (
 		<EuiProvider colorMode="light">
@@ -81,6 +97,34 @@ export function App() {
 					max-height: 100vh;
 				`}
 			>
+				{displayDisclaimer && (
+					<EuiModal
+						aria-labelledby={'Use with caution'}
+						onClose={dismissDisclaimer}
+					>
+						<EuiModalHeader>
+							<EuiModalHeaderTitle title={'Please use with caution'}>
+								<EuiIcon type="iInCircle" size="xl" /> Please use with caution
+							</EuiModalHeaderTitle>
+						</EuiModalHeader>
+
+						<EuiModalBody>
+							<EuiText size="m">
+								Please be advised that this product is currently in its early
+								testing phase, under active development, and subject to change.
+								<br />
+								<FeedbackContent />
+							</EuiText>
+						</EuiModalBody>
+
+						<EuiModalFooter>
+							<EuiButtonEmpty onClick={dismissDisclaimer}>Close</EuiButtonEmpty>
+							<EuiButton onClick={dismissDisclaimer} fill>
+								Acknowledge
+							</EuiButton>
+						</EuiModalFooter>
+					</EuiModal>
+				)}
 				{status === 'offline' && (
 					<Alert title="You Are Currently Offline">
 						The application is no longer retrieving updates. Data
