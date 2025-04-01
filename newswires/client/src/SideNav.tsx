@@ -22,17 +22,17 @@ import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q, bucket, categoryCode, dateRange } = query;
+	const { supplier, q, preset, categoryCode, dateRange } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
 	const categoryCodesLabel = categoryCode?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
-	const bucketLabel = bucket ? `[${bucketName(bucket)}]` : '';
+	const presetLabel = preset ? `[${presetName(preset)}]` : '';
 	const dateRangeLabel = dateRange
 		? deriveDateMathRangeLabel(dateRange.start, dateRange.end)
 		: '';
 
 	const labels = [
-		bucketLabel,
+		presetLabel,
 		supplierLabel,
 		categoryCodesLabel,
 		qLabel,
@@ -42,10 +42,10 @@ function decideLabelForQueryBadge(query: Query): string {
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
-const buckets = [{ id: 'all-world', name: 'World' }];
+const presets = [{ id: 'all-world', name: 'World' }];
 
-function bucketName(bucketId: string): string | undefined {
-	return buckets.find((bucket) => bucket.id === bucketId)?.name;
+function presetName(presetId: string): string | undefined {
+	return presets.find((preset) => preset.id === presetId)?.name;
 }
 
 export const SideNav = () => {
@@ -61,7 +61,7 @@ export const SideNav = () => {
 		[config.query.supplier],
 	);
 
-	const activeBucket = config.query.bucket;
+	const activePreset = config.query.preset;
 
 	const searchHistoryItems = useMemo(
 		() =>
@@ -118,20 +118,20 @@ export const SideNav = () => {
 		[activeSuppliers, config.query, handleEnterQuery, toggleSupplier],
 	);
 
-	const bucketItems = useMemo(() => {
-		const toggleBucket = (bucket: string) =>
-			activeBucket === bucket ? undefined : bucket;
+	const presetItems = useMemo(() => {
+		const togglePreset = (preset: string) =>
+			activePreset === preset ? undefined : preset;
 
 		return [
-			...buckets.map(({ id: bucketId, name }) => ({
-				bucketId,
+			...presets.map(({ id: presetId, name }) => ({
+				presetId,
 				label: name,
-				isActive: activeBucket === bucketId,
+				isActive: activePreset === presetId,
 				onClick: () =>
-					handleEnterQuery({ ...config.query, bucket: toggleBucket(bucketId) }),
+					handleEnterQuery({ ...config.query, preset: togglePreset(presetId) }),
 			})),
 		];
-	}, [activeBucket, config.query, handleEnterQuery]);
+	}, [activePreset, config.query, handleEnterQuery]);
 
 	return (
 		<>
@@ -158,12 +158,12 @@ export const SideNav = () => {
 							gutterSize="none"
 							size="s"
 						>
-							{bucketItems.map(({ bucketId, label, isActive, onClick }) => {
+							{presetItems.map(({ presetId, label, isActive, onClick }) => {
 								return (
 									<EuiListGroupItem
 										color={isActive ? 'primary' : 'subdued'}
 										label={label}
-										key={bucketId}
+										key={presetId}
 										aria-current={isActive}
 										onClick={onClick}
 										icon={

@@ -11,7 +11,7 @@ export const defaultQuery: Query = {
 	supplierExcl: [],
 	keywords: undefined,
 	keywordsExcl: undefined,
-	bucket: undefined,
+	preset: undefined,
 	categoryCode: [],
 	categoryCodeExcl: [],
 	dateRange: {
@@ -53,7 +53,7 @@ export function urlToConfig(location: {
 	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
 	const categoryCode = urlSearchParams.getAll('categoryCode');
 	const categoryCodeExcl = urlSearchParams.getAll('categoryCodeExcl');
-	const bucket = urlSearchParams.get('bucket') ?? undefined;
+	const preset = urlSearchParams.get('preset') ?? undefined;
 
 	const query: Query = {
 		q:
@@ -66,7 +66,7 @@ export function urlToConfig(location: {
 		keywordsExcl,
 		categoryCode,
 		categoryCodeExcl,
-		bucket,
+		preset,
 		dateRange: { start, end },
 	};
 

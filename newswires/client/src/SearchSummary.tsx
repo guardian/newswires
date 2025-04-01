@@ -8,7 +8,7 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 	const { config, handleEnterQuery } = useSearch();
 	const {
 		q,
-		bucket,
+		preset,
 		supplier: suppliers,
 		dateRange,
 		categoryCode,
@@ -18,7 +18,7 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 	const displaySuppliers = (suppliers ?? []).length > 0;
 
 	const displayFilters: boolean =
-		!!q || !!bucket || displayCategoryCodes || displaySuppliers;
+		!!q || !!preset || displayCategoryCodes || displaySuppliers;
 
 	const handleBadgeClick = (label: string, value?: string) => {
 		const supplier = config.query.supplier ?? [];
@@ -28,7 +28,7 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 			...config.query,
 			q: label === 'Search term' ? '' : config.query.q,
 			dateRange: label === 'Time range' ? undefined : config.query.dateRange,
-			bucket: label === 'Bucket' ? undefined : config.query.bucket,
+			preset: label === 'Preset' ? undefined : config.query.preset,
 			supplier:
 				label === 'Supplier'
 					? supplier.filter((s: string) => s !== value)
@@ -68,7 +68,7 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 					deriveDateMathRangeLabel(dateRange.start, dateRange.end),
 				)}
 			{q && renderBadge('Search term', q)}
-			{bucket && renderBadge('Bucket', bucket)}
+			{preset && renderBadge('Preset', preset)}
 			{displaySuppliers &&
 				suppliers!.map((supplier) => renderBadge('Supplier', supplier))}
 			{displayCategoryCodes &&

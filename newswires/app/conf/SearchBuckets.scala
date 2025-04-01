@@ -637,7 +637,7 @@ object Categories {
   )
 }
 
-object SearchBuckets {
+object SearchPresets {
   def get(name: String): Option[List[SearchParams]] = name match {
     case "reuters-world" => Some(ReutersWorld)
     case "ap-world"      => Some(ApWorld)
@@ -649,7 +649,7 @@ object SearchBuckets {
 
   // format: off
   /**
-    * Main config table for AP world ('NY:for') bucket in Fip system.
+    * Main config table for AP world ('NY:for') preset in Fip system.
     * (nb. 'NY' here is a Fip header, and doesn't seem to stand for New York)
 
       > ; Category Codes
@@ -667,7 +667,7 @@ object SearchBuckets {
     * The fingerpost system runs top to bottom, and '>' tells it to stop once it finds a match, so an item with
     * category code 'JC:ae' would be bucketed as 'NY:for' and not 'NY:fea', and an item with category code 'JC:ew'
     * would be bucketed as 'NY:fea' rather than 'NY:for'.
-    * We're inclined to exclude sports, entertainment, finance, and technology news from this bucket instead, even
+    * We're inclined to exclude sports, entertainment, finance, and technology news from this preset instead, even
     * if they have e.g. code 'a' (US news) code, because they're likely to be less relevant to International desk.
     * However, we should remain open to changing this in response to user feedback.
     */
