@@ -3,7 +3,7 @@ package controllers
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
-import conf.SearchBuckets
+import conf.SearchPresets
 import db.{FingerpostWireEntry, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
@@ -43,7 +43,8 @@ class QueryController(
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
-    val bucket = request.getQueryString("bucket").flatMap(SearchBuckets.get)
+    val maybePreset =
+      request.getQueryString("preset").flatMap(SearchPresets.get)
 
     val suppliersToExcludeByDefault =
       if (FeatureSwitchProvider.ShowGuSuppliers.isOn) Nil
@@ -68,7 +69,7 @@ class QueryController(
       Json.toJson(
         FingerpostWireEntry.query(
           searchParams = queryParams,
-          savedSearchParamList = bucket.getOrElse(Nil),
+          savedSearchParamList = maybePreset.getOrElse(Nil),
           maybeTextSearch = maybeFreeTextQuery,
           maybeBeforeId = maybeBeforeId,
           maybeSinceId = maybeSinceId,

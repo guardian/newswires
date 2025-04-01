@@ -351,10 +351,10 @@ object FingerpostWireEntry
 
     (maybeSearch, maybeSavedSearch) match {
       case (None, None)               => sqls""
-      case (None, Some(bucketSearch)) => sqls"WHERE $bucketSearch"
+      case (None, Some(presetSearch)) => sqls"WHERE $presetSearch"
       case (Some(userSearch), None)   => sqls"WHERE $userSearch"
-      case (Some(userSearch), Some(bucketSearch)) =>
-        sqls"WHERE ($userSearch) and ($bucketSearch)"
+      case (Some(userSearch), Some(presetSearch)) =>
+        sqls"WHERE ($userSearch) and ($presetSearch)"
     }
   }
 

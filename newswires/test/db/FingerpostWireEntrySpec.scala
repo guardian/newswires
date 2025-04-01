@@ -164,7 +164,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
   }
 
-  it should "should join complex bucket presets using 'or'" in {
+  it should "should join complex search presets using 'or'" in {
     val searchParams =
       SearchParams(
         text = None,
