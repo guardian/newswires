@@ -639,12 +639,13 @@ object Categories {
 
 object SearchPresets {
   def get(name: String): Option[List[SearchParams]] = name match {
-    case "reuters-world" => Some(ReutersWorld)
-    case "ap-world"      => Some(ApWorld)
-    case "aap-world"     => Some(AapWorld)
-    case "all-world"     => Some(AllWorld)
-    case "afp-world"     => Some(AfpWorld)
-    case _               => None
+    case "reuters-world"        => Some(ReutersWorld)
+    case "ap-world"             => Some(ApWorld)
+    case "aap-world"            => Some(AapWorld)
+    case "all-world"            => Some(AllWorld)
+    case "afp-world"            => Some(AfpWorld)
+    case "minor-agencies-world" => Some(MinorAgenciesWorld)
+    case _                      => None
   }
 
   // format: off
@@ -730,5 +731,14 @@ object SearchPresets {
     )
   )
 
-  private val AllWorld = ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld
+  private val MinorAgenciesWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("MINOR_AGENCIES"),
+      categoryCodesExcl = List("N2:GB")
+    )
+  )
+
+  private val AllWorld =
+    ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 }

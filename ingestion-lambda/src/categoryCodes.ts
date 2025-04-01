@@ -1,4 +1,3 @@
-import nlp from 'compromise';
 import {lexicon, ukPlaces} from "./ukPlaces";
 
 interface CategoryCode {
@@ -114,10 +113,12 @@ export function processUnknownFingerpostCategoryCodes(
 	return deduped;
 }
 
-export function inferRegionCategoryFromText(content: string | undefined): string | undefined {
+export async function inferRegionCategoryFromText(content: string | undefined): Promise<string | undefined> {
 	if (!content) {
 		return undefined;
 	}
+
+	const { default: nlp } = await import('compromise');
 
 	const doc = nlp(content, lexicon) as {
 		places: () => { out: (format: string) => unknown };
