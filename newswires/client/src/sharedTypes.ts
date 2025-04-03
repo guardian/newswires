@@ -22,6 +22,7 @@ const FingerpostContentSchema = z
 		language: z.string(),
 		usage: z.string(),
 		location: z.string(),
+		abstract: z.string(),
 		bodyText: z.string(),
 		ednote: z.string(),
 	})

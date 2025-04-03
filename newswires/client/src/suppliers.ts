@@ -6,6 +6,8 @@ export const AFPBrand = '#325aff';
 export const PABrand = '#6352ba';
 export const AAPBrand = '#013a81';
 
+export const AP = 'AP';
+
 const allSupplierData: Record<
 	string,
 	{

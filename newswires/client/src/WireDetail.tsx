@@ -26,7 +26,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { WireData } from './sharedTypes';
-import { getSupplierInfo } from './suppliers.ts';
+import { AP, getSupplierInfo } from './suppliers.ts';
 
 function TitleContentForItem({
 	slug,
@@ -207,7 +207,12 @@ export const WireDetail = ({
 }) => {
 	const theme = useEuiTheme();
 	const { categoryCodes } = wire;
-	const { byline, keywords, usage, ednote, headline, slug } = wire.content;
+	const { byline, keywords, usage, ednote, headline, slug, abstract } =
+		wire.content;
+
+	const safeAbstract = useMemo(() => {
+		return abstract ? sanitizeHtml(abstract) : undefined;
+	}, [abstract]);
 
 	const safeBodyText = useMemo(() => {
 		return wire.content.bodyText
@@ -299,6 +304,16 @@ export const WireDetail = ({
 									>
 										{byline}
 									</p>
+								</EuiDescriptionListDescription>
+							</>
+						)}
+						{safeAbstract && wire.supplier === AP && (
+							<>
+								<EuiScreenReaderOnly>
+									<EuiDescriptionListTitle>Abstract</EuiDescriptionListTitle>
+								</EuiScreenReaderOnly>
+								<EuiDescriptionListDescription>
+									<p>(abstract) {safeAbstract}</p>
 								</EuiDescriptionListDescription>
 							</>
 						)}
