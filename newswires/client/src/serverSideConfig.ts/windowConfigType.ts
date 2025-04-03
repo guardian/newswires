@@ -9,6 +9,7 @@ declare global {
 	interface Window {
 		configuration: {
 			switches: FeatureSwitches;
+			stage: string;
 		};
 	}
 }
