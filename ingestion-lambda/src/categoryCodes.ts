@@ -1,3 +1,5 @@
+import {lexicon, ukPlaces} from "./ukPlaces";
+
 interface CategoryCode {
 	prefix: string;
 	code: string;
@@ -109,4 +111,33 @@ export function processUnknownFingerpostCategoryCodes(
 	const deduped = [...new Set(transformedCategoryCodes)];
 
 	return deduped;
+}
+
+export async function inferRegionCategoryFromText(content: string | undefined): Promise<string | undefined> {
+	if (!content) {
+		return undefined;
+	}
+
+	const { default: nlp } = await import('compromise');
+
+	const doc = nlp(content, lexicon) as {
+		places: () => { out: (format: string) => unknown };
+	};
+
+	const rawPlaces = doc.places().out('array');
+
+	if (!Array.isArray(rawPlaces)) {
+		return undefined;
+	}
+
+	const places = (rawPlaces as string[])
+		.flatMap((place) => place.split(/[,\n]/))
+		.map((place) => place.trim().toLowerCase())
+		.filter((place) => !!place && place.length > 0);
+
+	const isUk = places.some((place) =>
+		ukPlaces.some((ukPlace) => place.includes(ukPlace)),
+	);
+
+	return isUk ? 'N2:GB' : undefined;
 }

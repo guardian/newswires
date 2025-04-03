@@ -9,6 +9,7 @@ import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import {
+	inferRegionCategoryFromText,
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
@@ -70,7 +71,7 @@ export const processKeywords = (
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
 
-const processCategoryCodes = (supplier: string, subjectCodes: string[]) => {
+const processCategoryCodes = async (supplier: string, subjectCodes: string[], bodyText: string | undefined) => {
 	switch (supplier) {
 		case 'AP':
 			return processFingerpostAPCategoryCodes(subjectCodes);
@@ -80,6 +81,10 @@ const processCategoryCodes = (supplier: string, subjectCodes: string[]) => {
 			return processFingerpostAFPCategoryCodes(subjectCodes);
 		case 'PA':
 			return processFingerpostPACategoryCodes(subjectCodes);
+		case 'MINOR_AGENCIES': {
+			const region = await inferRegionCategoryFromText(bodyText);
+			return region ? [...subjectCodes, region] : subjectCodes;
+		}
 		default:
 			return processUnknownFingerpostCategoryCodes(subjectCodes, supplier);
 	}
@@ -213,9 +218,10 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						const supplier =
 							lookupSupplier(snsMessageContent['source-feed']) ?? 'Unknown';
 
-						const categoryCodes = processCategoryCodes(
+						const categoryCodes = await processCategoryCodes(
 							supplier,
 							snsMessageContent.subjects?.code ?? [],
+							snsMessageContent.body_text
 						);
 
 						const result = await sql`
