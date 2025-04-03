@@ -6,6 +6,7 @@ import {
 	processFingerpostPACategoryCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
+import {processCategoryCodes} from "./handler";
 
 describe('processFingerpostAPCategoryCodes', () => {
 	it('should return an empty array if provided with an empty array', () => {
@@ -283,3 +284,10 @@ describe('inferRegionCategoryFromText', () => {
 		expect(await inferRegionCategoryFromText(content)).toEqual(undefined);
 	});
 });
+
+describe('processCategoryCodes', () => {
+	it('should filter out empty category codes', async () => {
+		const content = 'US and EU leaders meet in Paris to discuss international trade agreements.';
+		expect(await processCategoryCodes('MINOR_AGENCIES', [""], content)).toEqual([]);
+	});
+})
