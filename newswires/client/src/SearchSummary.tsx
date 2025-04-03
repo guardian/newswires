@@ -1,8 +1,16 @@
-import { EuiBadge, EuiText } from '@elastic/eui';
+import {
+	EuiBadge,
+	EuiBeacon,
+	EuiButtonIcon,
+	EuiText,
+	useIsWithinBreakpoints,
+} from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
+import { Tooltip } from './Tooltip.tsx';
+import { configToUrl } from './urlState.ts';
 
 const Summary = ({ searchSummary }: { searchSummary: string }) => {
 	const { config, handleEnterQuery } = useSearch();
@@ -79,9 +87,12 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 
 export const SearchSummary = () => {
 	const {
-		state: { queryData },
+		state: { queryData, status },
+		config,
 	} = useSearch();
 	const [searchSummary, setSearchSummary] = useState('No results found');
+
+	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 
 	useEffect(() => {
 		if (queryData && queryData.totalCount > 0) {
@@ -92,6 +103,8 @@ export const SearchSummary = () => {
 			setSearchSummary('No results found');
 		}
 	}, [queryData]);
+
+	const isPoppedOut = !!window.opener;
 
 	return (
 		<EuiText
@@ -112,6 +125,53 @@ export const SearchSummary = () => {
 					padding: 0 8px;
 				`}
 			>
+				{!isPoppedOut && (
+					<Tooltip
+						tooltipContent="Open new ticker"
+						position={isSmallScreen ? 'right' : 'top'}
+					>
+						<EuiButtonIcon
+							css={css`
+								margin-right: 4px;
+							`}
+							iconType={'popout'}
+							color={'primary'}
+							onClick={() =>
+								window.open(
+									configToUrl({
+										...config,
+										view: 'feed',
+										itemId: undefined,
+									}),
+									'_blank',
+									'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+								)
+							}
+						/>
+					</Tooltip>
+				)}
+
+				{isPoppedOut && status === 'offline' && (
+					<div
+						style={{
+							width: '10px',
+							height: '10px',
+							backgroundColor: 'red',
+							borderRadius: '50%',
+							display: 'inline-block',
+							boxShadow: '0 0 4px red',
+						}}
+						title="Offline"
+					/>
+				)}
+
+				{isPoppedOut && status !== 'offline' && (
+					<EuiBeacon
+						css={css`
+							margin-right: 4px;
+						`}
+					/>
+				)}
 				<Summary searchSummary={searchSummary} />
 			</p>
 		</EuiText>

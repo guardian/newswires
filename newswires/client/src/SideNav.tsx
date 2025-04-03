@@ -1,3 +1,4 @@
+import type { EuiPinnableListGroupItemProps } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBadgeGroup,
@@ -8,6 +9,7 @@ import {
 	EuiIcon,
 	EuiListGroup,
 	EuiListGroupItem,
+	EuiPinnableListGroup,
 	EuiSwitch,
 	EuiText,
 	useEuiTheme,
@@ -19,8 +21,9 @@ import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { SearchBox } from './SearchBox';
-import type { Query } from './sharedTypes';
+import type { Config, Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
+import { configToUrl } from './urlState.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q, preset, categoryCode, dateRange } = query;
@@ -48,6 +51,22 @@ const presets = [{ id: 'all-world', name: 'World' }];
 function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
 }
+
+const openTicker = (config: Config, supplier?: string) => {
+	window.open(
+		configToUrl({
+			...config,
+			query: {
+				...config.query,
+				supplier: supplier ? [supplier] : [],
+			},
+			view: 'feed',
+			itemId: undefined,
+		}),
+		'_blank',
+		'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+	);
+};
 
 export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
@@ -98,7 +117,7 @@ export const SideNav = () => {
 		[config.query, handleEnterQuery, activeSuppliers],
 	);
 
-	const supplierItems = useMemo(
+	const suppliers = useMemo(
 		() => [
 			{
 				label: 'All',
@@ -106,6 +125,9 @@ export const SideNav = () => {
 					activeSuppliers.length === 0 ||
 					activeSuppliers.length === recognisedSuppliers.length,
 				onClick: () => handleEnterQuery({ ...config.query, supplier: [] }),
+				onTickerClick: () => {
+					openTicker(config);
+				},
 				colour: 'black',
 			},
 			...Object.entries(supplierData).map(([supplier, { label, colour }]) => ({
@@ -114,9 +136,12 @@ export const SideNav = () => {
 					activeSuppliers.includes(supplier) || activeSuppliers.length === 0,
 				colour: colour,
 				onClick: () => toggleSupplier(supplier),
+				onTickerClick: () => {
+					openTicker(config, supplier);
+				},
 			})),
 		],
-		[activeSuppliers, config.query, handleEnterQuery, toggleSupplier],
+		[activeSuppliers, handleEnterQuery, toggleSupplier, config],
 	);
 
 	const presetItems = useMemo(() => {
@@ -134,6 +159,38 @@ export const SideNav = () => {
 		];
 	}, [activePreset, config.query, handleEnterQuery]);
 
+	const supplierItems: EuiPinnableListGroupItemProps[] = suppliers.map(
+		({ label, colour, isActive, onClick, onTickerClick }) => ({
+			id: label,
+			label,
+			onClick,
+			isActive,
+			iconType: () => (
+				<div
+					css={css`
+						width: 0.5rem;
+						height: 1.5rem;
+
+						margin-right: 12px;
+						background-color: ${isActive ? colour : 'transparent'};
+					`}
+				/>
+			),
+			color: isActive ? 'primary' : 'subdued',
+			pinnable: false,
+			extraAction: {
+				iconType: 'popout', // EUI icon on the right
+				onClick: (e) => {
+					e.stopPropagation();
+					onTickerClick();
+				},
+				'aria-label': 'More info',
+				alwaysShow: false,
+				className: 'hover-only-icon',
+			},
+		}),
+	);
+
 	return (
 		<>
 			<EuiCollapsibleNav
@@ -149,6 +206,29 @@ export const SideNav = () => {
 					</EuiHeaderSectionItemButton>
 				}
 				onClose={() => setNavIsOpen(false)}
+				css={css`
+					.hover-only-icon {
+						opacity: 0;
+						transition: opacity 0.2s ease;
+						pointer-events: none;
+					}
+
+					.hover-only-icon:hover {
+						background-color: rgba(0, 119, 204, 0.1);
+						color: rgb(0, 97, 166);
+					}
+
+					.euiListGroupItem:hover .hover-only-icon,
+					.euiListGroupItem:hover:focus-within .hover-only-icon {
+						opacity: 1;
+						pointer-events: auto;
+					}
+
+					.euiListGroupItem:focus-within .hover-only-icon {
+						opacity: 0;
+						pointer-events: none;
+					}
+				`}
 			>
 				<div style={{ height: '90%', overflowY: 'auto' }}>
 					<SearchBox />
@@ -184,35 +264,14 @@ export const SideNav = () => {
 						</EuiListGroup>
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Suppliers'}>
-						<EuiListGroup
+						<EuiPinnableListGroup
+							onPinClick={() => {}}
+							listItems={supplierItems}
 							maxWidth="none"
 							color="subdued"
-							gutterSize="none"
+							gutterSize="s"
 							size="s"
-						>
-							{supplierItems.map(({ label, colour, isActive, onClick }) => {
-								return (
-									<EuiListGroupItem
-										color={isActive ? 'primary' : 'subdued'}
-										key={label}
-										label={label}
-										onClick={onClick}
-										icon={
-											<div
-												css={css`
-													width: 0.5rem;
-													height: 1.5rem;
-													background-color: ${isActive
-														? colour
-														: 'transparent'};
-												`}
-											/>
-										}
-										aria-current={isActive}
-									/>
-								);
-							})}
-						</EuiListGroup>
+						/>
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Search history'}>
 						{searchHistoryItems.length === 0 ? (
