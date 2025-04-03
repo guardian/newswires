@@ -1,4 +1,4 @@
-import { SUPPLIERS_TO_EXCLUDE } from './serverSideConfig.ts/serverSideConfig';
+import { SUPPLIERS_TO_EXCLUDE } from './configuration';
 
 export const reutersBrand = '#fb8023';
 export const APBrand = '#eb483b';
