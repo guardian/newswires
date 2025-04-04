@@ -41,23 +41,34 @@ import { configToUrl, defaultQuery } from './urlState';
 const Alert = ({
 	title,
 	icon = 'warning',
-	children,
 }: {
 	title: string;
 	icon?: string;
-	children: React.ReactNode;
 }) => (
-	<EuiToast
-		title={title}
-		iconType={icon}
+	<div
 		css={css`
-			border-radius: 0;
-			background: #fdf6d8;
-			position: fixed;
+			.euiToast.header-only span {
+				font-weight: 500;
+				font-size: 1rem;
+			}
+
+			.euiToast.header-only svg {
+				top: 2px;
+			}
 		`}
 	>
-		<p>{children}</p>
-	</EuiToast>
+		<EuiToast
+			title={title}
+			iconType={icon}
+			className={'header-only'}
+			css={css`
+				padding: 8px;
+				border-radius: 0;
+				background: #fdf6d8;
+				position: fixed;
+			`}
+		></EuiToast>
+	</div>
 );
 
 export function App() {
@@ -143,23 +154,23 @@ export function App() {
 					</EuiModal>
 				)}
 				{status === 'offline' && (
-					<Alert title="You Are Currently Offline">
-						The application is no longer retrieving updates. Data
-						synchronization will resume once connectivity is restored.
-					</Alert>
+					<Alert
+						title="The application is no longer retrieving updates. Data
+                        synchronization will resume once connectivity is restored."
+					/>
 				)}
 				{isRestricted(query.dateRange?.end) &&
 					status !== 'offline' &&
 					status !== 'error' && (
-						<Alert title="Restricted">
-							Your current filter settings exclude recent updates. Adjust the
-							filter to see the latest data.
-						</Alert>
+						<Alert
+							title="Your current filter settings exclude recent updates. Adjust the
+							filter to see the latest data."
+						/>
 					)}
 				<div
 					css={css`
 						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
-						'padding-top: 84px;'}
+						'padding-top: 40px;'}
 						height: 100%;
 						${(status === 'loading' || status === 'error') &&
 						'display: flex; align-items: center;'}
