@@ -2,6 +2,7 @@ import { act, render } from '@testing-library/react';
 import { disableLogs, flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
+import { TelemetryContextProvider } from './TelemetryContext.tsx';
 
 jest.useFakeTimers();
 
@@ -27,9 +28,11 @@ describe('SearchContext', () => {
 
 		act(() => {
 			render(
-				<SearchContextProvider>
-					<TestComponent />
-				</SearchContextProvider>,
+				<TelemetryContextProvider sendTelemetryEvent={console.log}>
+					<SearchContextProvider>
+						<TestComponent />
+					</SearchContextProvider>
+				</TelemetryContextProvider>,
 			);
 		});
 

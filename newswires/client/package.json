@@ -22,13 +22,14 @@
 		"@elastic/eui": "99.1.0",
 		"@emotion/css": "11.13.0",
 		"@emotion/react": "11.13.3",
+		"@guardian/user-telemetry-client": "1.2.0",
 		"lodash": "4.17.21",
 		"moment": "2.30.1",
 		"moment-timezone": "^0.5.47",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"sanitize-html": "^2.13.0",
-		"zod": "3.23.8"
+		"uuid": "11.1.0"
 	},
 	"devDependencies": {
 		"@chromatic-com/storybook": "3.2.4",

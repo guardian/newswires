@@ -25,7 +25,7 @@ import { css } from '@emotion/react';
 import { useState } from 'react';
 import { z } from 'zod';
 import {
-	loadFromLocalStorage,
+	loadOrSetInLocalStorage,
 	saveToLocalStorage,
 } from './context/localStorage.tsx';
 import { useSearch } from './context/SearchContext.tsx';
@@ -70,7 +70,7 @@ export function App() {
 	} = useSearch();
 
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
-		loadFromLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
+		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
 	);
 
 	const { view, itemId: selectedItemId, query } = config;

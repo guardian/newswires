@@ -16,7 +16,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
 
 case class ClientConfig(
-    switches: Map[String, Boolean]
+    switches: Map[String, Boolean],
+    stage: String
 )
 
 object ClientConfig {
@@ -63,7 +64,10 @@ class ViteController(
     def injectClientConfig(body: String): String = {
       val config =
         views.html.fragments.clientConfig(
-          ClientConfig(FeatureSwitchProvider.clientSideSwitchStates)
+          ClientConfig(
+            FeatureSwitchProvider.clientSideSwitchStates,
+            stage = configuration.get[String]("stage")
+          )
         )
 
       body.replace(
