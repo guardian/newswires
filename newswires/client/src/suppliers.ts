@@ -1,4 +1,4 @@
-import { SUPPLIERS_TO_EXCLUDE } from './configuration';
+import { SUPPLIERS_TO_EXCLUDE } from './app-configuration';
 
 export const reutersBrand = '#fb8023';
 export const APBrand = '#eb483b';

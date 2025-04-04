@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { stage } from './app-configuration.ts';
 import { App } from './App.tsx';
 import './icons';
-import { stage } from './configuration.ts';
 import { SearchContextProvider } from './context/SearchContext.tsx';
 import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
 import { createTelemetryEventSender } from './telemetry.ts';
