@@ -134,6 +134,7 @@ export const SearchSummary = () => {
 							css={css`
 								margin-right: 4px;
 							`}
+							aria-label="Open new ticker in popout"
 							iconType={'popout'}
 							color={'primary'}
 							onClick={() =>

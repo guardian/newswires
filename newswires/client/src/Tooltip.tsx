@@ -1,7 +1,7 @@
 import type { SerializedStyles } from '@emotion/react';
 import { css, keyframes } from '@emotion/react';
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
@@ -118,6 +118,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 		left: 0,
 	});
 	const wrapperRef = useRef<HTMLDivElement>(null);
+	const tooltipId = useId();
 
 	useEffect(() => {
 		if (visible && wrapperRef.current) {
@@ -157,10 +158,26 @@ export const Tooltip: React.FC<TooltipProps> = ({
 		}
 	}, [visible, position]);
 
+	useEffect(() => {
+		if (!visible) return;
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setVisible(false);
+			}
+		};
+
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [visible]);
+
 	return (
 		<div
 			ref={wrapperRef}
 			css={tooltipWrapperStyle}
+			aria-describedby={visible ? tooltipId : undefined}
 			onMouseEnter={() => setVisible(true)}
 			onMouseLeave={() => setVisible(false)}
 			onFocus={() => setVisible(true)}
@@ -170,6 +187,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
 			{visible &&
 				createPortal(
 					<div
+						id={tooltipId}
+						role="tooltip"
 						css={[
 							tooltipBaseStyle,
 							css`
