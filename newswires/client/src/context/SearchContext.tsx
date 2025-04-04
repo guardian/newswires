@@ -16,7 +16,10 @@ import {
 } from '../sharedTypes.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { fetchResults } from './fetchResults.ts';
-import { loadFromLocalStorage, saveToLocalStorage } from './localStorage.tsx';
+import {
+	loadOrSetInLocalStorage,
+	saveToLocalStorage,
+} from './localStorage.tsx';
 import { safeReducer, SearchReducer } from './SearchReducer.ts';
 
 const SearchHistorySchema = z.array(
@@ -117,7 +120,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		urlToConfig(window.location),
 	);
 	const [viewedItemIds, setViewedItemIds] = useState<string[]>(() =>
-		loadFromLocalStorage<string[]>('viewedItemIds', z.array(z.string()), []),
+		loadOrSetInLocalStorage<string[]>('viewedItemIds', z.array(z.string()), []),
 	);
 
 	const [state, dispatch] = useReducer(safeReducer(SearchReducer), {
