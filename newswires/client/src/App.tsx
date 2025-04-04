@@ -166,6 +166,9 @@ export function App() {
 						<EuiHeader position="fixed">
 							<EuiHeaderSection>
 								<EuiHeaderSectionItem>
+									<SideNav />
+								</EuiHeaderSectionItem>
+								<EuiHeaderSectionItem>
 									<EuiTitle
 										size={'s'}
 										css={css`
@@ -194,29 +197,29 @@ export function App() {
 										</h1>
 									</EuiTitle>
 								</EuiHeaderSectionItem>
-								<EuiHeaderSectionItem>
-									<SideNav />
-								</EuiHeaderSectionItem>
 							</EuiHeaderSection>
+
 							<EuiHeaderSectionItem>
-								{
-									<EuiButton
-										iconType={'popout'}
-										onClick={() =>
-											window.open(
-												configToUrl({
-													...config,
-													view: 'feed',
-													itemId: undefined,
-												}),
-												'_blank',
-												'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-											)
-										}
-									>
-										New ticker
-									</EuiButton>
-								}
+								<EuiButton
+									css={css`
+										margin-left: 8px;
+									`}
+									size="s"
+									iconType={'popout'}
+									onClick={() =>
+										window.open(
+											configToUrl({
+												...config,
+												view: 'feed',
+												itemId: undefined,
+											}),
+											'_blank',
+											'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+										)
+									}
+								>
+									New ticker
+								</EuiButton>
 							</EuiHeaderSectionItem>
 						</EuiHeader>
 					)}
