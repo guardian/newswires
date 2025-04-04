@@ -21,6 +21,7 @@ import {
 	saveToLocalStorage,
 } from './localStorage.tsx';
 import { safeReducer, SearchReducer } from './SearchReducer.ts';
+import { useTelemetry } from './TelemetryContext.tsx';
 
 const SearchHistorySchema = z.array(
 	z.object({
@@ -116,6 +117,8 @@ export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
 
 export function SearchContextProvider({ children }: PropsWithChildren) {
+	const { sendTelemetryEvent } = useTelemetry();
+
 	const [currentConfig, setConfig] = useState<Config>(() =>
 		urlToConfig(window.location),
 	);
@@ -235,6 +238,15 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	]);
 
 	const handleEnterQuery = (query: Query) => {
+		sendTelemetryEvent(
+			'NEWSWIRES_ENTER_SEARCH',
+			Object.fromEntries(
+				Object.entries(query).map(([key, value]) => [
+					key,
+					JSON.stringify(value),
+				]),
+			),
+		);
 		dispatch({
 			type: 'ENTER_QUERY',
 		});
@@ -256,12 +268,16 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'RETRY' });
 	};
 
-	const handleSelectItem = (item: string) =>
+	const handleSelectItem = (item: string) => {
+		sendTelemetryEvent('NEWSWIRES_SELECT_ITEM', {
+			itemId: item,
+		});
 		pushConfigState({
 			view: 'item',
 			itemId: item,
 			query: currentConfig.query,
 		});
+	};
 
 	const handleDeselectItem = () => {
 		pushConfigState({ view: 'feed', query: currentConfig.query });
@@ -306,6 +322,9 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	};
 
 	const toggleAutoUpdate = () => {
+		sendTelemetryEvent('NEWSWIRES_TOGGLE_AUTO_UPDATE', {
+			newAutoUpdateState: !state.autoUpdate,
+		});
 		dispatch({ type: 'TOGGLE_AUTO_UPDATE' });
 	};
 

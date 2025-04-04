@@ -5,6 +5,7 @@ import {
 	EuiLoadingSpinner,
 } from '@elastic/eui';
 import { useCallback, useState } from 'react';
+import { useTelemetry } from './context/TelemetryContext.tsx';
 import { composerPageForId, sendToComposer } from './send-to-composer.ts';
 import type { WireData } from './sharedTypes.ts';
 
@@ -64,6 +65,7 @@ const SendOrVisitInComposerButton = ({
 };
 
 export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
+	const { sendTelemetryEvent } = useTelemetry();
 	const [composerId, setComposerId] = useState(itemData.composerId);
 	const [sentBy, setSentBy] = useState(itemData.composerSentBy);
 	const [failureReason, setFailureReason] = useState<string | undefined>();
@@ -81,6 +83,11 @@ export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
 				setSentBy(sentBy);
 				window.open(composerPageForId(composerId));
 				setSendState('sent');
+				sendTelemetryEvent('NEWSWIRES_SEND_TO_COMPOSER', {
+					composerId,
+					itemId: itemData.id,
+					status: 'success',
+				});
 			})
 			.catch((cause) => {
 				if (cause instanceof Error) {
@@ -88,9 +95,13 @@ export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
 				} else if (typeof cause === 'string') {
 					setFailureReason(cause);
 				}
+				sendTelemetryEvent('NEWSWIRES_SEND_TO_COMPOSER', {
+					itemId: itemData.id,
+					status: 'failed',
+				});
 				setSendState('failed');
 			});
-	}, [itemData]);
+	}, [itemData, sendTelemetryEvent]);
 
 	return (
 		<>
