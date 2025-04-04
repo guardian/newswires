@@ -242,7 +242,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			'NEWSWIRES_ENTER_SEARCH',
 			Object.fromEntries(
 				Object.entries(query).map(([key, value]) => [
-					key,
+					`search-query_${key}`,
 					JSON.stringify(value),
 				]),
 			),
@@ -270,6 +270,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const handleSelectItem = (item: string) => {
 		sendTelemetryEvent('NEWSWIRES_SELECT_ITEM', {
+			...Object.fromEntries(
+				Object.entries(currentConfig.query).map(([key, value]) => [
+					`search-query_${key}`,
+					JSON.stringify(value),
+				]),
+			),
 			itemId: item,
 		});
 		pushConfigState({
@@ -323,6 +329,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const toggleAutoUpdate = () => {
 		sendTelemetryEvent('NEWSWIRES_TOGGLE_AUTO_UPDATE', {
+			...Object.fromEntries(
+				Object.entries(currentConfig.query).map(([key, value]) => [
+					`search-query_${key}`,
+					JSON.stringify(value),
+				]),
+			),
 			newAutoUpdateState: !state.autoUpdate,
 		});
 		dispatch({ type: 'TOGGLE_AUTO_UPDATE' });
