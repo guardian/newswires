@@ -248,7 +248,7 @@ const WirePreviewCard = ({
 				</h3>
 				{hasBeenViewed && (
 					<EuiScreenReaderOnly>
-						<h4>viewed</h4>
+						<h2>viewed</h2>
 					</EuiScreenReaderOnly>
 				)}
 				<div
@@ -272,6 +272,7 @@ const WirePreviewCard = ({
 						))}
 				</div>
 				<EuiBadge
+                    title={`${supplierLabel} supplier`}
 					css={css`
 						grid-area: supplier;
 						justify-self: end;

@@ -2,7 +2,6 @@ import {
 	EuiBadge,
 	EuiBeacon,
 	EuiButtonIcon,
-	EuiText,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -71,6 +70,7 @@ const Summary = ({
 		value ? (
 			<EuiBadge
 				key={value}
+				title={`Filtered by ${label}: ${value}`}
 				iconType="cross"
 				iconSide="right"
 				iconOnClickAriaLabel={`Remove ${label} filter from results`}
@@ -86,10 +86,10 @@ const Summary = ({
 	return (
 		<>
 			{searchSummaryLabel && (
-				<span>
+				<h2>
 					{searchSummaryLabel}
 					{displayFilters && ' for: '}
-				</span>
+				</h2>
 			)}
 			{dateRange &&
 				!isDefaultDateRange(dateRange) &&
@@ -150,80 +150,74 @@ export const SearchSummary = () => {
 	}, [queryData]);
 
 	return (
-		<EuiText
+		<p
 			css={css`
-				margin-top: 6px;
+				display: flex;
+				align-items: center;
+				flex-wrap: wrap;
+				font-size: 18px;
+				font-weight: 500;
+				gap: 4px;
+				line-height: 1.5;
+				padding: 0 8px;
 			`}
 		>
-			<p
-				css={css`
-					display: flex;
-					align-items: center;
-					flex-wrap: wrap;
-					font-size: 18px;
-					font-weight: 500;
-					gap: 4px;
-					line-height: 1.5;
-					padding: 0 8px;
-				`}
-			>
-				{!isPoppedOut && (
-					<Tooltip
-						tooltipContent="Open new ticker"
-						position={isSmallScreen ? 'right' : 'top'}
-					>
-						<EuiButtonIcon
-							css={css`
-								margin-right: 4px;
-							`}
-							aria-label="Open new ticker in popout"
-							iconType={'popout'}
-							color={'primary'}
-							onClick={() =>
-								window.open(
-									configToUrl({ ...config, view: 'feed', itemId: undefined }),
-									'_blank',
-									'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-								)
-							}
-						/>
-					</Tooltip>
-				)}
+			{!isPoppedOut && (
+				<Tooltip
+					tooltipContent="Open new ticker"
+					position={isSmallScreen ? 'right' : 'top'}
+				>
+					<EuiButtonIcon
+						css={css`
+							margin-right: 4px;
+						`}
+						aria-label="Open new ticker in popout"
+						iconType={'popout'}
+						color={'primary'}
+						onClick={() =>
+							window.open(
+								configToUrl({
+									...config,
+									view: 'feed',
+									itemId: undefined
+								}),
+								'_blank',
+								'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+							)
+						}
+					/>
+				</Tooltip>
+			)}
 
-				{isPoppedOut &&
-					(isRestricted(config.query.dateRange?.end) ||
+			{isPoppedOut && (isRestricted(config.query.dateRange?.end) ||
 						status === 'offline' ||
-						!lastUpdate) && (
-						<div
-							style={{
-								width: '10px',
-								height: '10px',
-								backgroundColor: 'red',
-								borderRadius: '50%',
-								display: 'inline-block',
-								boxShadow: '0 0 4px red',
-							}}
-							title="Offline"
-						/>
-					)}
+						!lastUpdate)&& (
+				<div
+					style={{
+						width: '10px',
+						height: '10px',
+						backgroundColor: 'red',
+						borderRadius: '50%',
+						display: 'inline-block',
+						boxShadow: '0 0 4px red',
+					}}
+					title="Offline"
+				/>
+			)}
 
-				{isPoppedOut &&
-					!isRestricted(config.query.dateRange?.end) &&
+			{isPoppedOut && !isRestricted(config.query.dateRange?.end) &&
 					status !== 'offline' &&
-					lastUpdate && (
+				lastUpdate && (
 						<Tooltip
 							tooltipContent={`Last update: ${lastUpdate}`}
 							position={'right'}
-						>
-							<EuiBeacon
-								css={css`
-									margin-right: 4px;
-								`}
-							/>
-						</Tooltip>
-					)}
-				<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
-			</p>
-		</EuiText>
+						><EuiBeacon
+					css={css`
+						margin-right: 4px;
+					`}
+				/></Tooltip>
+			)}
+			<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
+		</p>
 	);
 };
