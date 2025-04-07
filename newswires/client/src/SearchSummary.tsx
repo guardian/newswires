@@ -52,6 +52,7 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 		value ? (
 			<EuiBadge
 				key={value}
+				title={`Filtered by ${label}: ${value}`}
 				iconType="cross"
 				iconSide="right"
 				iconOnClickAriaLabel={`Remove ${label} filter from results`}
