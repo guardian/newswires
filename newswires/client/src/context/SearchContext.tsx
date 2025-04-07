@@ -40,6 +40,7 @@ const StateSchema = z.discriminatedUnion('status', [
 		queryData: WiresQueryResponseSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
+		lastUpdate: z.string().optional(),
 	}),
 	z.object({
 		status: z.literal('loading'),
@@ -47,6 +48,7 @@ const StateSchema = z.discriminatedUnion('status', [
 		queryData: WiresQueryResponseSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
+		lastUpdate: z.string().optional(),
 	}),
 	z.object({
 		status: z.literal('success'),
@@ -54,6 +56,7 @@ const StateSchema = z.discriminatedUnion('status', [
 		queryData: WiresQueryResponseSchema,
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
+		lastUpdate: z.string().optional(),
 	}),
 	z.object({
 		status: z.literal('error'),
@@ -61,6 +64,7 @@ const StateSchema = z.discriminatedUnion('status', [
 		queryData: WiresQueryResponseSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
+		lastUpdate: z.string().optional(),
 	}),
 	z.object({
 		status: z.literal('offline'),
@@ -68,6 +72,7 @@ const StateSchema = z.discriminatedUnion('status', [
 		queryData: WiresQueryResponseSchema,
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
+		lastUpdate: z.string().optional(),
 	}),
 ]);
 

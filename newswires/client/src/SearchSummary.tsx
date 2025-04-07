@@ -87,12 +87,12 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 
 export const SearchSummary = () => {
 	const {
-		state: { queryData, status },
+		state: { queryData, status, lastUpdate },
 		config,
 	} = useSearch();
 	const [searchSummary, setSearchSummary] = useState('No results found');
 
-	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
 
 	useEffect(() => {
 		if (queryData && queryData.totalCount > 0) {
@@ -166,7 +166,20 @@ export const SearchSummary = () => {
 					/>
 				)}
 
-				{isPoppedOut && status !== 'offline' && (
+				{isPoppedOut && status !== 'offline' && lastUpdate && (
+					<Tooltip
+						tooltipContent={`Last update: ${lastUpdate}`}
+						position={'right'}
+					>
+						<EuiBeacon
+							css={css`
+								margin-right: 4px;
+							`}
+						/>
+					</Tooltip>
+				)}
+
+				{isPoppedOut && status !== 'offline' && !lastUpdate && (
 					<EuiBeacon
 						css={css`
 							margin-right: 4px;
