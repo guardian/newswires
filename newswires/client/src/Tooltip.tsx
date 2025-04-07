@@ -182,6 +182,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 			onMouseLeave={() => setVisible(false)}
 			onFocus={() => setVisible(true)}
 			onBlur={() => setVisible(false)}
+			onClick={() => setVisible(false)}
 		>
 			{children}
 			{visible &&

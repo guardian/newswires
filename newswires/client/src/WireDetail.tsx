@@ -27,6 +27,7 @@ import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { WireData } from './sharedTypes';
 import { AP, getSupplierInfo } from './suppliers.ts';
+import { Tooltip } from './Tooltip.tsx';
 
 function TitleContentForItem({
 	slug,
@@ -46,7 +47,9 @@ function TitleContentForItem({
 		<>
 			<EuiText size={'xs'}>
 				{slug && <>{slug} &#183; </>}
-				<span title={ingestedAt.format()}>{ingestedAt.fromNow()}</span>
+				<Tooltip tooltipContent={ingestedAt.format()}>
+					{ingestedAt.fromNow()}
+				</Tooltip>
 			</EuiText>{' '}
 			{supplierDetails && (
 				<>

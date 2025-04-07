@@ -6,9 +6,11 @@ import {
 	EuiPageTemplate,
 	EuiSplitPanel,
 	EuiSwitch,
+	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { useState } from 'react';
 import { type WireData } from './sharedTypes';
+import { Tooltip } from './Tooltip.tsx';
 import { WireDetail } from './WireDetail';
 
 export const Item = ({
@@ -25,6 +27,7 @@ export const Item = ({
 	handleNextItem: () => void;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
+	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 
 	return (
 		<EuiSplitPanel.Outer>
@@ -37,22 +40,31 @@ export const Item = ({
 				<>
 					<EuiSplitPanel.Inner>
 						<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
-							<EuiButtonIcon
-								iconType="arrowLeft"
-								onClick={handlePreviousItem}
-								aria-label="Previous story"
-							/>
-							<EuiButtonIcon
-								iconType="arrowRight"
-								onClick={handleNextItem}
-								aria-label="Next story"
-							/>
-							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
+							<Tooltip
+								tooltipContent="Previous story"
+								position={isSmallScreen ? 'right' : 'top'}
+							>
 								<EuiButtonIcon
-									iconType="cross"
-									onClick={handleDeselectItem}
-									aria-label="Close story"
+									iconType="arrowLeft"
+									onClick={handlePreviousItem}
+									aria-label="Previous story"
 								/>
+							</Tooltip>
+							<Tooltip tooltipContent="Next story">
+								<EuiButtonIcon
+									iconType="arrowRight"
+									onClick={handleNextItem}
+									aria-label="Next story"
+								/>
+							</Tooltip>
+							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
+								<Tooltip tooltipContent="Close story" position="left">
+									<EuiButtonIcon
+										iconType="cross"
+										onClick={handleDeselectItem}
+										aria-label="Close story"
+									/>
+								</Tooltip>
 							</EuiFlexGroup>
 						</EuiFlexGroup>
 						<EuiHorizontalRule margin="s" />

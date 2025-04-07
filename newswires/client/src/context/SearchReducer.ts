@@ -119,6 +119,7 @@ export const SearchReducer = (state: State, action: Action): State => {
 				),
 				status: 'success',
 				error: undefined,
+				lastUpdate: moment().format(),
 			};
 		case 'TOGGLE_AUTO_UPDATE':
 			return {
@@ -141,6 +142,7 @@ export const SearchReducer = (state: State, action: Action): State => {
 							},
 							action.query,
 						),
+						lastUpdate: moment().format(),
 					};
 				default:
 					return state;
