@@ -265,20 +265,32 @@ export const WireDetail = ({
 					{JSON.stringify(wire, null, 2)}
 				</EuiCodeBlock>
 			) : (
-				<div
-					css={css`
-						& mark {
-							background-color: ${theme.euiTheme.colors.highlight};
-							font-weight: bold;
-							position: relative;
-							border: 3px solid ${theme.euiTheme.colors.highlight};
-						}
-					`}
-				>
+				<>
 					<EuiSpacer size="xs" />
-					<h3
+					{wire.content.subhead && wire.content.subhead.length > 1 && (
+						<h3
+							css={css`
+								font-weight: ${theme.euiTheme.font.weight.bold};
+							`}
+						>
+							{wire.content.subhead}
+						</h3>
+					)}
+					<EuiSpacer size="s" />
+					{ednote && <EuiCallOut size="s" title={ednote} color="success" />}
+					<EuiSpacer size="s" />
+					<EuiDescriptionList
 						css={css`
-							font-weight: ${theme.euiTheme.font.weight.bold};
+							& mark {
+								background-color: ${theme.euiTheme.colors.highlight};
+								font-weight: bold;
+								position: relative;
+								border: 3px solid ${theme.euiTheme.colors.highlight};
+							}
+
+							display: flex;
+							flex-direction: column;
+							gap: ${theme.euiTheme.size.s};
 						`}
 					>
 						{wire.content.subhead}
