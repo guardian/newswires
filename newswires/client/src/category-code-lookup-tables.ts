@@ -6760,4 +6760,14 @@ export const lookupTables: Array<{
 			'M:1QK': 'Corporate Taxation',
 		},
 	},
+	{
+		name: 'Reuters Destination Codes',
+		lookup: {
+			'REUTERS:RWS': 'Reuters World Service',
+			'REUTERS:RNA': 'Reuters North America',
+			'REUTERS:RWSA': 'Reuters World Service America',
+			'REUTERS:REULB': 'Reuters UK/London Business',
+			'REUTERS:RBN': 'Reuters Business News',
+		},
+	},
 ];

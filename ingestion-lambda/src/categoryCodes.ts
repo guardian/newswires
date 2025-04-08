@@ -39,6 +39,15 @@ function replacePrefixesFromLookup(
 	const newPrefix = lookup[prefix] ?? prefix;
 	return { prefix: newPrefix, code };
 }
+
+export function processReutersCategoryCodes(original: string[]): string[] {
+	const supportedDestinations: string[] = ['RWS', 'RNA', 'RWSA', 'REULB', 'RBN'];
+
+	return original
+		.filter((_) => supportedDestinations.includes(_))
+		.map((_) => `REUTERS:${_}`);
+}
+
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
 	const notServiceCodes = original.filter((_) => !_.includes('service:')); // we aren't interested in keeping the service codes here
 	const transformedCategoryCodes = notServiceCodes

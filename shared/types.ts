@@ -35,6 +35,7 @@ const FingerpostFeedPayloadSchema = z.object({
 			code: OptionalStringOrArrayAsArrayOfStrings,
 		})
 		.optional(),
+	destination:  z.array(z.string()).optional().nullable(),
 	mediaCatCodes: z.string().optional(),
 	keywords: OptionalStringOrArrayAsArrayOfStrings,
 	organisation: z

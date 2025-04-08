@@ -34,6 +34,7 @@ export const WireDataSchema = z.object({
 	externalId: z.string(),
 	ingestedAt: z.string(),
 	categoryCodes: z.array(z.string()),
+	destination: z.array(z.string()).optional(),
 	content: FingerpostContentSchema,
 	composerId: z.string().optional(),
 	composerSentBy: z.string().optional(),
