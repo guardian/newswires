@@ -4,15 +4,15 @@ import {
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
 	processFingerpostPACategoryCodes,
-	processReutersCategoryCodes,
+	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 import {processCategoryCodes} from "./handler";
 
 
-describe('processReutersCategoryCodes', () => {
+describe('processReutersDestinationCodes', () => {
 	it('should return formatted custom cat codes for known destinations and ignores the rest', () => {
-		expect(processReutersCategoryCodes(['RWSA','RNP'])).toEqual(['REUTERS:RWSA']);
+		expect(processReutersDestinationCodes(['RWSA','RNP'])).toEqual(['REUTERS:RWSA']);
 	});
 });
 
@@ -296,6 +296,6 @@ describe('inferRegionCategoryFromText', () => {
 describe('processCategoryCodes', () => {
 	it('should filter out empty category codes', async () => {
 		const content = 'US and EU leaders meet in Paris to discuss international trade agreements.';
-		expect(await processCategoryCodes('MINOR_AGENCIES', [""], content)).toEqual([]);
+		expect(await processCategoryCodes('MINOR_AGENCIES', [""], [], content)).toEqual([]);
 	});
 })
