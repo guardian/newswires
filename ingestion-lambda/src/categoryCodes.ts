@@ -40,7 +40,7 @@ function replacePrefixesFromLookup(
 	return { prefix: newPrefix, code };
 }
 
-export function processReutersCategoryCodes(original: string[]): string[] {
+export function processReutersDestinationCodes(original: string[]): string[] {
 	const supportedDestinations: string[] = ['RWS', 'RNA', 'RWSA', 'REULB', 'RBN'];
 
 	return original

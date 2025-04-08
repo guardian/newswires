@@ -13,7 +13,8 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
-	processFingerpostPACategoryCodes, processReutersCategoryCodes,
+	processFingerpostPACategoryCodes,
+	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 import { tableName } from './database';
@@ -71,10 +72,10 @@ export const processKeywords = (
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
 
-export const processCategoryCodes = async (supplier: string, subjectCodes: string[], bodyText: string | undefined) => {
+export const processCategoryCodes = async (supplier: string, subjectCodes: string[], destinationCodes: string[], bodyText: string | undefined) => {
 	switch (supplier) {
 		case 'REUTERS':
-			return processReutersCategoryCodes(subjectCodes)
+			return [...subjectCodes, ...processReutersDestinationCodes(destinationCodes)]
 		case 'AP':
 			return processFingerpostAPCategoryCodes(subjectCodes);
 		case 'AAP':
@@ -223,10 +224,8 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const categoryCodes = await processCategoryCodes(
 							supplier,
-							[
-								...(snsMessageContent.subjects?.code ?? []),
-								...(snsMessageContent.destination ?? [])
-							],
+							snsMessageContent.subjects?.code ?? [],
+							snsMessageContent.destination ?? [],
 							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`
 						);
 
