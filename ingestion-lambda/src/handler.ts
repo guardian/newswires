@@ -13,7 +13,7 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
-	processFingerpostPACategoryCodes,
+	processFingerpostPACategoryCodes, processReutersCategoryCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 import { tableName } from './database';
@@ -73,6 +73,8 @@ export const processKeywords = (
 
 export const processCategoryCodes = async (supplier: string, subjectCodes: string[], bodyText: string | undefined) => {
 	switch (supplier) {
+		case 'REUTERS':
+			return processReutersCategoryCodes(subjectCodes)
 		case 'AP':
 			return processFingerpostAPCategoryCodes(subjectCodes);
 		case 'AAP':
@@ -221,7 +223,10 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const categoryCodes = await processCategoryCodes(
 							supplier,
-							snsMessageContent.subjects?.code ?? [],
+							[
+								...(snsMessageContent.subjects?.code ?? []),
+								...(snsMessageContent.destination ?? [])
+							],
 							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`
 						);
 

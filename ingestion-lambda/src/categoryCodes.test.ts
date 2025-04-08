@@ -4,9 +4,17 @@ import {
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
 	processFingerpostPACategoryCodes,
+	processReutersCategoryCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 import {processCategoryCodes} from "./handler";
+
+
+describe('processReutersCategoryCodes', () => {
+	it('should return formatted custom cat codes for known destinations and ignores the rest', () => {
+		expect(processReutersCategoryCodes(['RWSA','RNP'])).toEqual(['REUTERS:RWSA']);
+	});
+});
 
 describe('processFingerpostAPCategoryCodes', () => {
 	it('should return an empty array if provided with an empty array', () => {
