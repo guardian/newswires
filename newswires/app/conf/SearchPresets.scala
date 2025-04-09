@@ -689,7 +689,10 @@ object SearchPresets {
       suppliersIncl = List("REUTERS"),
       categoryCodesIncl = List(
         "REUTERS:RWS",
-        "REUTERS:RNA"
+        "REUTERS:RWSA"
+      ),
+      categoryCodesExcl = List(
+        "MCC:SPO"
       )
     ),
     SearchParams(
@@ -703,6 +706,8 @@ object SearchPresets {
         "N2:US"
       ),
       categoryCodesExcl = List(
+        "MCC:DED",
+        "MCC:SPO",
         "MCC:OEC",
         "N2:GB",
         "N2:COM",
