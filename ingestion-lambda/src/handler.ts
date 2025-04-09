@@ -219,13 +219,24 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const snsMessageContent = safeBodyParse(body);
 
+						try {
+							const jsonString = JSON.stringify(snsMessageContent, (key: string, value: unknown) => {
+								return key === "body_text" ? undefined : value;
+							});
+
+							snsMessageContent['source-feed'] === 'REUTERS' && console.log("DEBUG_CONTENT", jsonString);
+						} catch (e: unknown) {
+							console.error("DEBUG_CONTENT", e);
+						}
+
+
 						const supplier =
 							lookupSupplier(snsMessageContent['source-feed']) ?? 'Unknown';
 
 						const categoryCodes = await processCategoryCodes(
 							supplier,
 							snsMessageContent.subjects?.code ?? [],
-							snsMessageContent.destination ?? [],
+							snsMessageContent.destinations?.code ?? [],
 							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`
 						);
 

@@ -25,6 +25,7 @@ const FingerpostContentSchema = z
 		abstract: z.string(),
 		bodyText: z.string(),
 		ednote: z.string(),
+		destination: z.string(),
 	})
 	.partial();
 
