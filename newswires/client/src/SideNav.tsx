@@ -7,12 +7,9 @@ import {
 	EuiCollapsibleNavGroup,
 	EuiHeaderSectionItemButton,
 	EuiIcon,
-	EuiListGroup,
-	EuiListGroupItem,
 	EuiPinnableListGroup,
 	EuiSwitch,
 	EuiText,
-	useEuiTheme,
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -47,6 +44,7 @@ function decideLabelForQueryBadge(query: Query): string {
 }
 
 const presets = [
+	{ id: 'all-presets', name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
 ];
@@ -55,14 +53,22 @@ function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
 }
 
-const openTicker = (config: Config, supplier?: string) => {
+const openTicker = (queryType: string, config: Config, value?: string) => {
+	const query =
+		queryType === 'preset'
+			? {
+					...config.query,
+					preset: value ? value : undefined,
+				}
+			: {
+					...config.query,
+					supplier: value ? [value] : [],
+				};
+
 	window.open(
 		configToUrl({
 			...config,
-			query: {
-				...config.query,
-				supplier: supplier ? [supplier] : [],
-			},
+			query,
 			view: 'feed',
 			itemId: undefined,
 		}),
@@ -73,7 +79,6 @@ const openTicker = (config: Config, supplier?: string) => {
 
 export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
-	const theme = useEuiTheme();
 	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
 
 	const { state, config, handleEnterQuery, toggleAutoUpdate } = useSearch();
@@ -129,7 +134,7 @@ export const SideNav = () => {
 					activeSuppliers.length === recognisedSuppliers.length,
 				onClick: () => handleEnterQuery({ ...config.query, supplier: [] }),
 				onTickerClick: () => {
-					openTicker(config);
+					openTicker('supplier', config);
 				},
 				colour: 'black',
 			},
@@ -140,7 +145,7 @@ export const SideNav = () => {
 				colour: colour,
 				onClick: () => toggleSupplier(supplier),
 				onTickerClick: () => {
-					openTicker(config, supplier);
+					openTicker('supplier', config, supplier);
 				},
 			})),
 		],
@@ -149,18 +154,49 @@ export const SideNav = () => {
 
 	const presetItems = useMemo(() => {
 		const togglePreset = (preset: string) =>
-			activePreset === preset ? undefined : preset;
+			activePreset === preset || preset === 'all-presets' ? undefined : preset;
 
-		return [
-			...presets.map(({ id: presetId, name }) => ({
-				presetId,
+		return presets.map(({ id: presetId, name }) => {
+			const isActive =
+				activePreset === presetId ||
+				(presetId === 'all-presets' && !activePreset);
+
+			return {
+				id: presetId,
 				label: name,
-				isActive: activePreset === presetId,
+				isActive: isActive,
 				onClick: () =>
-					handleEnterQuery({ ...config.query, preset: togglePreset(presetId) }),
-			})),
-		];
-	}, [activePreset, config.query, handleEnterQuery]);
+					handleEnterQuery({
+						...config.query,
+						preset: togglePreset(presetId),
+					}),
+				iconType: () => (
+					<div
+						css={css`
+							width: 0.5rem;
+							height: 1.5rem;
+
+							margin-right: 12px;
+							background-color: ${isActive
+								? 'rgb(0, 119, 204)'
+								: 'transparent'};
+						`}
+					/>
+				),
+				color: isActive ? 'primary' : 'subdued',
+				pinnable: false,
+				extraAction: {
+					iconType: 'popout', // EUI icon on the right
+					onClick: () => {
+						openTicker('preset', config, presetId);
+					},
+					'aria-label': 'More info',
+					alwaysShow: false,
+					className: 'hover-only-icon',
+				},
+			};
+		}) as EuiPinnableListGroupItemProps[];
+	}, [activePreset, config, handleEnterQuery]);
 
 	const supplierItems: EuiPinnableListGroupItemProps[] = suppliers.map(
 		({ label, colour, isActive, onClick, onTickerClick }) => ({
@@ -236,36 +272,14 @@ export const SideNav = () => {
 				<div style={{ height: '90%', overflowY: 'auto' }}>
 					<SearchBox />
 					<EuiCollapsibleNavGroup title="Presets">
-						<EuiListGroup
+						<EuiPinnableListGroup
+							onPinClick={() => {}}
+							listItems={presetItems}
 							maxWidth="none"
 							color="subdued"
-							gutterSize="none"
+							gutterSize="s"
 							size="s"
-						>
-							{presetItems.map(({ presetId, label, isActive, onClick }) => {
-								return (
-									<EuiListGroupItem
-										color={isActive ? 'primary' : 'subdued'}
-										label={label}
-										title={`${label} preset`}
-										key={presetId}
-										aria-current={isActive}
-										onClick={onClick}
-										icon={
-											<div
-												css={css`
-													width: 0.5rem;
-													height: 1.5rem;
-													background-color: ${isActive
-														? theme.euiTheme.colors.primary
-														: 'transparent'};
-												`}
-											/>
-										}
-									/>
-								);
-							})}
-						</EuiListGroup>
+						/>
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Suppliers'}>
 						<EuiPinnableListGroup
