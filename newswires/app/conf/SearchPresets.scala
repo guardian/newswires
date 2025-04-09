@@ -639,6 +639,7 @@ object Categories {
 
 object SearchPresets {
   def get(name: String): Option[List[SearchParams]] = name match {
+    case "all-presets"          => Some(AllWorld)
     case "reuters-world"        => Some(ReutersWorld)
     case "ap-world"             => Some(ApWorld)
     case "aap-world"            => Some(AapWorld)
