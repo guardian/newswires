@@ -219,13 +219,14 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const snsMessageContent = safeBodyParse(body);
 
+
 						const supplier =
 							lookupSupplier(snsMessageContent['source-feed']) ?? 'Unknown';
 
 						const categoryCodes = await processCategoryCodes(
 							supplier,
 							snsMessageContent.subjects?.code ?? [],
-							snsMessageContent.destination ?? [],
+							snsMessageContent.destinations?.code ?? [],
 							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`
 						);
 
