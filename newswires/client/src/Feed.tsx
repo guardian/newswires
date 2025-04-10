@@ -31,9 +31,7 @@ export const Feed = () => {
 				queryData.results.length === 0 && (
 					<>
 						<EuiFlexGroup>
-							<EuiFlexItem
-								style={{ flex: 1, paddingTop: 20, paddingBottom: 20 }}
-							></EuiFlexItem>
+							<EuiFlexItem style={{ flex: 1 }}></EuiFlexItem>
 							<EuiFlexItem grow={false}>
 								<DatePicker />
 							</EuiFlexItem>
@@ -56,10 +54,12 @@ export const Feed = () => {
 				queryData.results.length > 0 && (
 					<>
 						<div>
-							<EuiFlexGroup>
-								<EuiFlexItem
-									style={{ flex: 1, paddingTop: 20, paddingBottom: 20 }}
-								>
+							<EuiFlexGroup
+								css={css`
+									padding-bottom: 12px;
+								`}
+							>
+								<EuiFlexItem style={{ flex: 1 }}>
 									<SearchSummary />
 								</EuiFlexItem>
 								<EuiFlexItem grow={false}>

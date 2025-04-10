@@ -45,7 +45,7 @@ export const DatePicker = () => {
 	);
 
 	return (
-		<div style={{ paddingTop: 20, paddingBottom: 20 }}>
+		<div>
 			<EuiSuperDatePicker
 				width={'auto'}
 				start={
