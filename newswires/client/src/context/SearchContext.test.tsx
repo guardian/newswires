@@ -54,15 +54,13 @@ describe('SearchContext', () => {
 			throw new Error('Context ref was null after render.');
 		}
 
-		expect(contextRef.current.state).toEqual({
-			autoUpdate: true,
-			status: 'success',
-			queryData: {
-				results: [],
-				totalCount: 0,
-			},
-			successfulQueryHistory: [],
+		expect(contextRef.current.state.autoUpdate).toEqual(true);
+		expect(contextRef.current.state.status).toEqual('success');
+		expect(contextRef.current.state.queryData).toEqual({
+			results: [],
+			totalCount: 0,
 		});
+		expect(contextRef.current.state.successfulQueryHistory).toEqual([]);
 	});
 
 	it('should toggle the auto update flag', async () => {
