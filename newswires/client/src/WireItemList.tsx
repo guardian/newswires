@@ -218,13 +218,13 @@ const WirePreviewCard = ({
 						color: ${theme.euiTheme.colors.text};
 						background-color: ${hasBeenViewed ? accentBgColor : 'inherit'};
 
-						& h3 {
+						& h1 {
 							grid-area: title;
 						}
 					`,
 				]}
 			>
-				<h3
+				<h1
 					css={css`
 						font-weight: ${hasBeenViewed
 							? theme.euiTheme.font.weight.regular
@@ -232,10 +232,10 @@ const WirePreviewCard = ({
 					`}
 				>
 					{mainHeadingContent}
-				</h3>
+				</h1>
 				{hasBeenViewed && (
 					<EuiScreenReaderOnly>
-						<h4>viewed</h4>
+						<h2>viewed</h2>
 					</EuiScreenReaderOnly>
 				)}
 				<div
@@ -262,6 +262,7 @@ const WirePreviewCard = ({
 						))}
 					<EuiSpacer size="xs" />
 					<EuiBadge
+						title={`${supplierLabel} supplier`}
 						color={
 							hasBeenViewed ? lightShadeOf(supplierColour) : supplierColour
 						}

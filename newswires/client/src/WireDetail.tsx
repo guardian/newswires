@@ -267,13 +267,15 @@ export const WireDetail = ({
 			) : (
 				<>
 					<EuiSpacer size="xs" />
-					<h3
-						css={css`
-							font-weight: ${theme.euiTheme.font.weight.bold};
-						`}
-					>
-						{wire.content.subhead}
-					</h3>
+					{wire.content.subhead && wire.content.subhead.length > 1 && (
+						<h3
+							css={css`
+								font-weight: ${theme.euiTheme.font.weight.bold};
+							`}
+						>
+							{wire.content.subhead}
+						</h3>
+					)}
 					<EuiSpacer size="s" />
 					{ednote && <EuiCallOut size="s" title={ednote} color="success" />}
 					<EuiSpacer size="s" />
