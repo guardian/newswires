@@ -110,7 +110,6 @@ export const SearchSummary = () => {
 		<EuiText
 			css={css`
 				margin-top: 6px;
-				margin-bottom: 18px;
 			`}
 		>
 			<p

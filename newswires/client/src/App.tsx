@@ -237,10 +237,7 @@ export function App() {
 													minSize="25%"
 													initialSize={100}
 													className="eui-yScroll"
-													css={css`
-														padding: 0;
-														padding-right: 0.5rem;
-													`}
+													style={{ padding: 0, marginRight: '0.5rem' }}
 												>
 													<Feed />
 												</EuiResizablePanel>
