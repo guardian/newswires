@@ -46,7 +46,10 @@ function decideLabelForQueryBadge(query: Query): string {
 	return labels.filter((label) => label.length > 0).join(' ');
 }
 
-const presets = [{ id: 'all-world', name: 'World' }];
+const presets = [
+	{ id: 'all-world', name: 'World' },
+	{ id: 'all-uk', name: 'UK' },
+];
 
 function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;

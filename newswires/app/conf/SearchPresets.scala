@@ -2,53 +2,167 @@ package conf
 
 import db.SearchParams
 
-object Categories {
-  val sportsRelated = List(
-    "MCC:SPO",
-    "N2:TEN",
-    "a1312cat:s",
-    "paCat:GXX", // maybe, or maybe advertising "Tequila brand announces partnership with Fulham Football Club"
-    "paCat:RDR",
-    "paCat:RFC",
-    "paCat:RRB",
-    "paCat:RRF",
-    "paCat:RRG",
-    "paCat:RRR",
-    "paCat:RSF",
-    "paCat:RSR",
-    "paCat:SCN",
-    "paCat:SCR",
-    "paCat:SDA",
-    "paCat:SDB",
-    "paCat:SDP",
-    "paCat:SDQ",
-    "paCat:SDR",
-    "paCat:SDS",
-    "paCat:SFF",
-    "paCat:SJA",
-    "paCat:SJB",
-    "paCat:SOD",
-    "paCat:SOS",
-    "paCat:SPO",
-    "paCat:SRD",
-    "paCat:SRN",
-    "paCat:SRR",
-    "paCat:SRS",
-    "paCat:SRZ",
-    "paCat:SSD",
-    "paCat:SSF",
-    "paCat:SSO",
-    "paCat:SSS",
-    "paCat:SST",
-    "paCat:STA",
-    "paCat:STB",
-    "paCat:STC",
-    "paCat:STD",
-    "paCat:STR",
-    "medtop:15000000"
+object SearchPresets {
+  def get(name: String): Option[List[SearchParams]] = name match {
+    case "reuters-world"        => Some(ReutersWorld)
+    case "ap-world"             => Some(ApWorld)
+    case "aap-world"            => Some(AapWorld)
+    case "all-world"            => Some(AllWorld)
+    case "afp-world"            => Some(AfpWorld)
+    case "minor-agencies-world" => Some(MinorAgenciesWorld)
+    case "all-uk"               => Some(AllUk)
+    case "pa-home"              => Some(PaHome)
+    case _                      => None
+  }
+
+  // format: off
+  /**
+    * Main config table for AP world ('NY:for') preset in Fip system.
+    * (nb. 'NY' here is a Fip header, and doesn't seem to stand for New York)
+
+      > ; Category Codes
+      >  2	JC=a*				>w4apapi#NY:for
+      >  2	JC=d*				>w4apapi#NY:fea
+      >  2	JC=e*				>w4apapi#NY:fea
+      >  2	JC=f*				>w4apapi#NY:fin
+      >  2	JC=i*				>w4apapi#NY:for
+      >  2	JC=s*				>w4apapi#NY:spt
+      >  2	JC=t*				>w4apapi#NY:fea
+      >  2	JC=w*				>w4apapi#NY:for
+      > ; Default
+      >  2	JC=*				>w4apapi#NY:for
+
+    * The fingerpost system runs top to bottom, and '>' tells it to stop once it finds a match, so an item with
+    * category code 'JC:ae' would be bucketed as 'NY:for' and not 'NY:fea', and an item with category code 'JC:ew'
+    * would be bucketed as 'NY:fea' rather than 'NY:for'.
+    * We're inclined to exclude sports, entertainment, finance, and technology news from this preset instead, even
+    * if they have e.g. code 'a' (US news) code, because they're likely to be less relevant to International desk.
+    * However, we should remain open to changing this in response to user feedback.
+    */
+  // format: on
+  private val ApWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AP"),
+      keywordIncl = List("World news"),
+      categoryCodesIncl = List("apCat:i", "apCat:a", "apCat:w"),
+      categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
+    )
   )
 
-  val sportsRelatedNewsCodes = List(
+  private val ReutersWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "REUTERS:RWS",
+        "REUTERS:RWSA"
+      ),
+      categoryCodesExcl = List(
+        "MCC:SPO"
+      )
+    ),
+    SearchParams(
+      text = None,
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "MCC:OVR",
+        "MCC:QFE",
+        "MCCL:OVR",
+        "MCCL:OSM",
+        "N2:US"
+      ),
+      categoryCodesExcl = List(
+        "MCC:DED",
+        "MCC:SPO",
+        "MCC:OEC",
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    ),
+    SearchParams(
+      text = Some("News Summary"),
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "MCC:OEC"
+      ),
+      categoryCodesExcl = List(
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    )
+  )
+
+  private val AapWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AAP"),
+      keywordExcl = List("Sports"),
+      categoryCodesExcl = Categories.sportsRelatedNewsCodes
+    )
+  )
+
+  private val AfpWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AFP"),
+      categoryCodesExcl = List("afpCat:SPO")
+    )
+  )
+
+  private val MinorAgenciesWorld = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("MINOR_AGENCIES"),
+      categoryCodesExcl = List("N2:GB")
+    )
+  )
+
+  private val PaHome = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("PA"),
+      categoryCodesIncl = List(
+        "paCat:HHH",
+        "paCat:FFF",
+        "paCat:GXX",
+        "paCat:SCN",
+        "paCat:IFN",
+        "paCat:QFF",
+        "paCat:PPP"
+      ),
+      categoryCodesExcl = List("MCC:SPO")
+    )
+  )
+
+  private val MinorAgenciesUk = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("MINOR_AGENCIES"),
+      categoryCodesIncl = List("N2:GB")
+    )
+  )
+
+  private val ReutersUk = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List("N2:GB"),
+      categoryCodesExcl = List("REUTERS:RBN", "REUTERS:RWS")
+    )
+  )
+
+  private val AllWorld =
+    ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
+
+  private val AllUk =
+    PaHome ::: ReutersUk ::: MinorAgenciesUk
+}
+
+object Categories {
+  private[conf] val sportsRelatedNewsCodes = List(
     "subj:15000000",
     "subj:15001000",
     "subj:15001001",
@@ -635,124 +749,4 @@ object Categories {
     "subj:15102000",
     "subj:15103000"
   )
-}
-
-object SearchPresets {
-  def get(name: String): Option[List[SearchParams]] = name match {
-    case "reuters-world"        => Some(ReutersWorld)
-    case "ap-world"             => Some(ApWorld)
-    case "aap-world"            => Some(AapWorld)
-    case "all-world"            => Some(AllWorld)
-    case "afp-world"            => Some(AfpWorld)
-    case "minor-agencies-world" => Some(MinorAgenciesWorld)
-    case _                      => None
-  }
-
-  // format: off
-  /**
-    * Main config table for AP world ('NY:for') preset in Fip system.
-    * (nb. 'NY' here is a Fip header, and doesn't seem to stand for New York)
-
-      > ; Category Codes
-      >  2	JC=a*				>w4apapi#NY:for
-      >  2	JC=d*				>w4apapi#NY:fea
-      >  2	JC=e*				>w4apapi#NY:fea
-      >  2	JC=f*				>w4apapi#NY:fin
-      >  2	JC=i*				>w4apapi#NY:for
-      >  2	JC=s*				>w4apapi#NY:spt
-      >  2	JC=t*				>w4apapi#NY:fea
-      >  2	JC=w*				>w4apapi#NY:for
-      > ; Default
-      >  2	JC=*				>w4apapi#NY:for
-
-    * The fingerpost system runs top to bottom, and '>' tells it to stop once it finds a match, so an item with
-    * category code 'JC:ae' would be bucketed as 'NY:for' and not 'NY:fea', and an item with category code 'JC:ew'
-    * would be bucketed as 'NY:fea' rather than 'NY:for'.
-    * We're inclined to exclude sports, entertainment, finance, and technology news from this preset instead, even
-    * if they have e.g. code 'a' (US news) code, because they're likely to be less relevant to International desk.
-    * However, we should remain open to changing this in response to user feedback.
-    */
-  // format: on
-  private val ApWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("AP"),
-      keywordIncl = List("World news"),
-      categoryCodesIncl = List("apCat:i", "apCat:a", "apCat:w"),
-      categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
-    )
-  )
-
-  private val ReutersWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "REUTERS:RWS",
-        "REUTERS:RWSA"
-      ),
-      categoryCodesExcl = List(
-        "MCC:SPO"
-      )
-    ),
-    SearchParams(
-      text = None,
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "MCC:OVR",
-        "MCC:QFE",
-        "MCCL:OVR",
-        "MCCL:OSM",
-        "N2:US"
-      ),
-      categoryCodesExcl = List(
-        "MCC:DED",
-        "MCC:SPO",
-        "MCC:OEC",
-        "N2:GB",
-        "N2:COM",
-        "N2:ECI"
-      )
-    ),
-    SearchParams(
-      text = Some("News Summary"),
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "MCC:OEC"
-      ),
-      categoryCodesExcl = List(
-        "N2:GB",
-        "N2:COM",
-        "N2:ECI"
-      )
-    )
-  )
-
-  private val AapWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("AAP"),
-      keywordExcl = List("Sports"),
-      categoryCodesExcl = Categories.sportsRelatedNewsCodes
-    )
-  )
-
-  private val AfpWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("AFP"),
-      categoryCodesExcl = List("afpCat:SPO")
-    )
-  )
-
-  private val MinorAgenciesWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("MINOR_AGENCIES"),
-      categoryCodesExcl = List("N2:GB")
-    )
-  )
-
-  private val AllWorld =
-    ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 }
