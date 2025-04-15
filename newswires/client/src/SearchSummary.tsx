@@ -12,6 +12,15 @@ import { deriveDateMathRangeLabel, isRestricted } from './dateHelpers.ts';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
+const presetLabel = (preset: string) => {
+	switch (preset) {
+		case 'all-world':
+			return 'World';
+		default:
+			return '';
+	}
+};
+
 const Summary = ({
 	searchSummaryLabel,
 }: {
@@ -82,7 +91,7 @@ const Summary = ({
 					deriveDateMathRangeLabel(dateRange.start, dateRange.end),
 				)}
 			{q && renderBadge('Search term', q)}
-			{preset && renderBadge('Preset', preset)}
+			{preset && renderBadge('Preset', presetLabel(preset))}
 			{displaySuppliers &&
 				suppliers!.map((supplier) => renderBadge('Supplier', supplier))}
 			{displayCategoryCodes &&
@@ -92,6 +101,8 @@ const Summary = ({
 };
 
 export const SearchSummary = () => {
+	const isPoppedOut = !!window.opener;
+
 	const {
 		state: { queryData, status, lastUpdate },
 		config,
@@ -99,6 +110,27 @@ export const SearchSummary = () => {
 	const [searchSummary, setSearchSummary] = useState('No results found');
 
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
+
+	useEffect(() => {
+		if (!isPoppedOut) {
+			return;
+		}
+
+		const { preset, supplier } = config.query;
+
+		const displayPreset = !!preset;
+		const displaySuppliers = !!supplier && supplier.length > 0;
+
+		if (displayPreset || displaySuppliers) {
+			const titlePrefix = supplier!.length == 1 ? `${supplier![0]} ` : '';
+			const titlePostfix =
+				supplier!.length > 1 ? ` ${supplier!.join(', ')}` : '';
+
+			document.title = `${titlePrefix}${preset ? `${presetLabel(preset).toUpperCase()}` : ''}${titlePostfix}`;
+		} else {
+			document.title = 'Newswires';
+		}
+	}, [isPoppedOut, config.query]);
 
 	useEffect(() => {
 		if (queryData && queryData.totalCount > 0) {
@@ -109,8 +141,6 @@ export const SearchSummary = () => {
 			setSearchSummary('No results found');
 		}
 	}, [queryData]);
-
-	const isPoppedOut = !!window.opener;
 
 	return (
 		<EuiText
