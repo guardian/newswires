@@ -15,8 +15,11 @@ export const Feed = () => {
 	const { state } = useSearch();
 	const { status, queryData } = state;
 
+	const isPoppedOut = !!window.opener;
+
 	return (
 		<EuiPageTemplate.Section
+			paddingSize={isPoppedOut ? 's' : 'm'}
 			css={css`
 				padding: 0 0.5rem;
 			`}
@@ -62,9 +65,11 @@ export const Feed = () => {
 								<EuiFlexItem style={{ flex: 1 }}>
 									<SearchSummary />
 								</EuiFlexItem>
-								<EuiFlexItem grow={false}>
-									<DatePicker />
-								</EuiFlexItem>
+								{!isPoppedOut && (
+									<EuiFlexItem grow={false}>
+										<DatePicker />
+									</EuiFlexItem>
+								)}
 							</EuiFlexGroup>
 						</div>
 

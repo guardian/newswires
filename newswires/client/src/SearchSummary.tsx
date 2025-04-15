@@ -12,7 +12,11 @@ import { deriveDateMathRangeLabel, isRestricted } from './dateHelpers.ts';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
-const Summary = ({ searchSummary }: { searchSummary: string }) => {
+const Summary = ({
+	searchSummaryLabel,
+}: {
+	searchSummaryLabel: string | boolean;
+}) => {
 	const { config, handleEnterQuery } = useSearch();
 	const {
 		q,
@@ -66,10 +70,12 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 
 	return (
 		<>
-			<span>
-				{searchSummary}
-				{displayFilters && ' for: '}
-			</span>
+			{searchSummaryLabel && (
+				<span>
+					{searchSummaryLabel}
+					{displayFilters && ' for: '}
+				</span>
+			)}
 			{dateRange &&
 				renderBadge(
 					'Time range',
@@ -183,7 +189,7 @@ export const SearchSummary = () => {
 							/>
 						</Tooltip>
 					)}
-				<Summary searchSummary={searchSummary} />
+				<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
 			</p>
 		</EuiText>
 	);
