@@ -283,10 +283,13 @@ export const WireDetail = ({
 					>
 						{wire.content.subhead}
 					</h3>
-					<EuiSpacer size="s" />
-					{ednote && <EuiCallOut size="s" title={ednote} color="success" />}
 					<EuiSpacer size="m" />
-
+					{ednote && (
+						<>
+							<EuiCallOut size="s" title={ednote} color="success" />
+							<EuiSpacer size="m" />
+						</>
+					)}
 					{byline && (
 						<>
 							<p
