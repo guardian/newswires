@@ -8,7 +8,7 @@ import {
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
-import { deriveDateMathRangeLabel } from './dateHelpers.ts';
+import { deriveDateMathRangeLabel, isRestricted } from './dateHelpers.ts';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
@@ -87,12 +87,12 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 
 export const SearchSummary = () => {
 	const {
-		state: { queryData, status },
+		state: { queryData, status, lastUpdate },
 		config,
 	} = useSearch();
 	const [searchSummary, setSearchSummary] = useState('No results found');
 
-	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
 
 	useEffect(() => {
 		if (queryData && queryData.totalCount > 0) {
@@ -151,27 +151,38 @@ export const SearchSummary = () => {
 					</Tooltip>
 				)}
 
-				{isPoppedOut && status === 'offline' && (
-					<div
-						style={{
-							width: '10px',
-							height: '10px',
-							backgroundColor: 'red',
-							borderRadius: '50%',
-							display: 'inline-block',
-							boxShadow: '0 0 4px red',
-						}}
-						title="Offline"
-					/>
-				)}
+				{isPoppedOut &&
+					(isRestricted(config.query.dateRange?.end) ||
+						status === 'offline' ||
+						!lastUpdate) && (
+						<div
+							style={{
+								width: '10px',
+								height: '10px',
+								backgroundColor: 'red',
+								borderRadius: '50%',
+								display: 'inline-block',
+								boxShadow: '0 0 4px red',
+							}}
+							title="Offline"
+						/>
+					)}
 
-				{isPoppedOut && status !== 'offline' && (
-					<EuiBeacon
-						css={css`
-							margin-right: 4px;
-						`}
-					/>
-				)}
+				{isPoppedOut &&
+					!isRestricted(config.query.dateRange?.end) &&
+					status !== 'offline' &&
+					lastUpdate && (
+						<Tooltip
+							tooltipContent={`Last update: ${lastUpdate}`}
+							position={'right'}
+						>
+							<EuiBeacon
+								css={css`
+									margin-right: 4px;
+								`}
+							/>
+						</Tooltip>
+					)}
 				<Summary searchSummary={searchSummary} />
 			</p>
 		</EuiText>
