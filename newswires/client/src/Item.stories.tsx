@@ -1,6 +1,7 @@
 import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react';
 import { SearchContextProvider } from './context/SearchContext';
+import { TelemetryContextProvider } from './context/TelemetryContext';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
 
@@ -42,11 +43,13 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<EuiProvider colorMode="light">
-				<SearchContextProvider>
-					<div style={{ maxWidth: '800px', margin: '0 auto' }}>
-						<Story />
-					</div>
-				</SearchContextProvider>
+				<TelemetryContextProvider sendTelemetryEvent={console.log}>
+					<SearchContextProvider>
+						<div style={{ maxWidth: '800px', margin: '0 auto' }}>
+							<Story />
+						</div>
+					</SearchContextProvider>
+				</TelemetryContextProvider>
 			</EuiProvider>
 		),
 	],
