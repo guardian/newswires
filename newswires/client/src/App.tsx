@@ -66,6 +66,7 @@ const Alert = ({
 				border-radius: 0;
 				background: #fdf6d8;
 				position: fixed;
+				z-index: 1000;
 			`}
 		></EuiToast>
 	</div>
@@ -96,6 +97,11 @@ export function App() {
 		if (persist) {
 			saveToLocalStorage<boolean>('displayDisclaimer', false);
 		}
+	};
+
+	const breakpoints = {
+		sm: '@media (max-width: 600px)',
+		md: '@media (min-width: 900px)',
 	};
 
 	return (
@@ -170,7 +176,11 @@ export function App() {
 				<div
 					css={css`
 						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
-						'padding-top: 40px;'}
+						`padding-top: 40px;
+						  ${breakpoints.sm} {
+							padding-top: 72px;
+						  }
+						`}
 						height: 100%;
 						${(status === 'loading' || status === 'error') &&
 						'display: flex; align-items: center;'}
