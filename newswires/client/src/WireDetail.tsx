@@ -10,7 +10,6 @@ import {
 	EuiDescriptionListTitle,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiScreenReaderOnly,
 	EuiSpacer,
 	EuiText,
 	EuiTitle,
@@ -261,14 +260,21 @@ export const WireDetail = ({
 				</EuiFlexItem>
 			</EuiFlexGroup>
 			<EuiSpacer size="s" />
-
-			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
 					{JSON.stringify(wire, null, 2)}
 				</EuiCodeBlock>
 			) : (
-				<>
+				<div
+					css={css`
+						& mark {
+							background-color: ${theme.euiTheme.colors.highlight};
+							font-weight: bold;
+							position: relative;
+							border: 3px solid ${theme.euiTheme.colors.highlight};
+						}
+					`}
+				>
 					<EuiSpacer size="xs" />
 					<h3
 						css={css`
@@ -277,67 +283,52 @@ export const WireDetail = ({
 					>
 						{wire.content.subhead}
 					</h3>
-					<EuiSpacer size="s" />
-					{ednote && <EuiCallOut size="s" title={ednote} color="success" />}
-					<EuiSpacer size="s" />
+					<EuiSpacer size="m" />
+					{ednote && (
+						<>
+							<EuiCallOut size="s" title={ednote} color="success" />
+							<EuiSpacer size="m" />
+						</>
+					)}
+					{byline && (
+						<>
+							<p
+								css={css`
+									font-style: italic;
+								`}
+							>
+								Byline: {byline}
+							</p>
+							<EuiSpacer size="m" />
+						</>
+					)}
+					{safeAbstract && wire.supplier === AP && (
+						<>
+							<p>(abstract) {safeAbstract}</p>
+							<EuiSpacer size="m" />
+						</>
+					)}
+					{bodyTextContent && (
+						<>
+							<article
+								dangerouslySetInnerHTML={{ __html: bodyTextContent }}
+								css={css`
+									& p {
+										margin-bottom: ${theme.euiTheme.size.s};
+									}
+								`}
+								data-pinboard-selection-target
+							/>
+							<EuiSpacer size="m" />
+						</>
+					)}
 					<EuiDescriptionList
 						css={css`
-							& mark {
-								background-color: ${theme.euiTheme.colors.highlight};
-								font-weight: bold;
-								position: relative;
-								border: 3px solid ${theme.euiTheme.colors.highlight};
-							}
-
 							display: flex;
 							flex-direction: column;
 							gap: ${theme.euiTheme.size.s};
 						`}
 					>
-						{byline && (
-							<>
-								<EuiScreenReaderOnly>
-									<EuiDescriptionListTitle>Byline</EuiDescriptionListTitle>
-								</EuiScreenReaderOnly>
-								<EuiDescriptionListDescription>
-									<p
-										css={css`
-											font-style: italic;
-										`}
-									>
-										{byline}
-									</p>
-								</EuiDescriptionListDescription>
-							</>
-						)}
-						{safeAbstract && wire.supplier === AP && (
-							<>
-								<EuiScreenReaderOnly>
-									<EuiDescriptionListTitle>Abstract</EuiDescriptionListTitle>
-								</EuiScreenReaderOnly>
-								<EuiDescriptionListDescription>
-									<p>(abstract) {safeAbstract}</p>
-								</EuiDescriptionListDescription>
-							</>
-						)}
-						{bodyTextContent && (
-							<>
-								<EuiScreenReaderOnly>
-									<EuiDescriptionListTitle>Body text</EuiDescriptionListTitle>
-								</EuiScreenReaderOnly>
-								<EuiDescriptionListDescription>
-									<article
-										dangerouslySetInnerHTML={{ __html: bodyTextContent }}
-										css={css`
-											& p {
-												margin-bottom: ${theme.euiTheme.size.s};
-											}
-										`}
-										data-pinboard-selection-target
-									/>
-								</EuiDescriptionListDescription>
-							</>
-						)}
 						{nonEmptyKeywords.length > 0 && (
 							<>
 								<EuiDescriptionListTitle>Keywords</EuiDescriptionListTitle>
@@ -374,7 +365,7 @@ export const WireDetail = ({
 							<EuiSpacer />
 						</EuiDescriptionListDescription>
 					</EuiDescriptionList>
-				</>
+				</div>
 			)}
 		</>
 	);
