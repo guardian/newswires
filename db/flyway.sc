@@ -6,8 +6,8 @@
 //> using dep org.flywaydb:flyway-core:11.6.0
 //> using dep org.flywaydb:flyway-database-postgresql:11.6.0
 //> using dep org.postgresql:postgresql:42.7.5
-//> using dep software.amazon.awssdk:rds:2.30.38
-//> using dep software.amazon.awssdk:secretsmanager:2.30.38
+//> using dep software.amazon.awssdk:rds:2.31.20
+//> using dep software.amazon.awssdk:secretsmanager:2.31.20
 import java.nio.file.Path
 import software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequest
 import software.amazon.awssdk.services.rds.RdsClient
