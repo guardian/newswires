@@ -12,7 +12,7 @@ import { SearchSummary } from './SearchSummary.tsx';
 import { WireItemList } from './WireItemList.tsx';
 
 export const Feed = () => {
-	const { state } = useSearch();
+	const { state, viewedItemIds } = useSearch();
 	const { status, queryData } = state;
 
 	return (
@@ -71,6 +71,7 @@ export const Feed = () => {
 						<WireItemList
 							wires={queryData.results}
 							totalCount={queryData.totalCount}
+							viewedItemIds={viewedItemIds}
 						/>
 					</>
 				)}

@@ -22,9 +22,11 @@ import { getSupplierInfo } from './suppliers.ts';
 export const WireItemList = ({
 	wires,
 	totalCount,
+	viewedItemIds,
 }: {
 	wires: WireData[];
 	totalCount: number;
+	viewedItemIds: string[];
 }) => {
 	const { config, loadMoreResults } = useSearch();
 
@@ -58,6 +60,7 @@ export const WireItemList = ({
 								isFromRefresh={isFromRefresh}
 								highlight={highlight}
 								selected={selectedWireId == id.toString()}
+								hasBeenViewed={viewedItemIds.includes(id.toString())}
 							/>
 						</li>
 					),
@@ -154,6 +157,7 @@ const WirePreviewCard = ({
 	content,
 	highlight,
 	selected,
+	hasBeenViewed,
 }: {
 	id: number;
 	supplier: string;
@@ -162,8 +166,8 @@ const WirePreviewCard = ({
 	highlight: string | undefined;
 	selected: boolean;
 	isFromRefresh: boolean;
+	hasBeenViewed: boolean;
 }) => {
-	const { viewedItemIds } = useSearch();
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -186,8 +190,6 @@ const WirePreviewCard = ({
 	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
 
 	const mainHeadingContent = decideMainHeadingContent(supplier, content);
-
-	const hasBeenViewed = viewedItemIds.includes(id.toString());
 
 	const cardGrid = css`
 		display: grid;
