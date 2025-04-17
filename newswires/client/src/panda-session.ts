@@ -5,9 +5,10 @@
  */
 export const pandaFetch: typeof fetch = async (...args) => {
 	const response = await fetch(...args);
-	if (response.status !== 419)
+	if (response.status !== 419) {
 		// succeeded; return the response
 		return response;
+	}
 
 	// refresh the auth session
 	await fetch('/', { mode: 'no-cors', credentials: 'include' });
