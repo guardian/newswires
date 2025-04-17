@@ -189,34 +189,38 @@ export const SearchSummary = () => {
 				</Tooltip>
 			)}
 
-			{isPoppedOut && (isRestricted(config.query.dateRange?.end) ||
-						status === 'offline' ||
-						!lastUpdate)&& (
-				<div
-					style={{
-						width: '10px',
-						height: '10px',
-						backgroundColor: 'red',
-						borderRadius: '50%',
-						display: 'inline-block',
-						boxShadow: '0 0 4px red',
-					}}
-					title="Offline"
-				/>
-			)}
+			{isPoppedOut &&
+				(isRestricted(config.query.dateRange?.end) ||
+					status === 'offline' ||
+					!lastUpdate) && (
+					<div
+						style={{
+							width: '10px',
+							height: '10px',
+							backgroundColor: 'red',
+							borderRadius: '50%',
+							display: 'inline-block',
+							boxShadow: '0 0 4px red',
+						}}
+						title="Offline"
+					/>
+				)}
 
-			{isPoppedOut && !isRestricted(config.query.dateRange?.end) &&
-					status !== 'offline' &&
+			{isPoppedOut &&
+				!isRestricted(config.query.dateRange?.end) &&
+				status !== 'offline' &&
 				lastUpdate && (
-						<Tooltip
-							tooltipContent={`Last update: ${lastUpdate}`}
-							position={'right'}
-						><EuiBeacon
-					css={css`
-						margin-right: 4px;
-					`}
-				/></Tooltip>
-			)}
+					<Tooltip
+						tooltipContent={`Last update: ${lastUpdate}`}
+						position={'right'}
+					>
+						<EuiBeacon
+							css={css`
+								margin-right: 4px;
+							`}
+						/>
+					</Tooltip>
+				)}
 			<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
 		</p>
 	);
