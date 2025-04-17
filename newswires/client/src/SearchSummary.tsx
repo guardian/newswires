@@ -91,6 +91,16 @@ const Summary = ({
 					{displayFilters && ' for: '}
 				</h2>
 			)}
+			{!searchSummaryLabel && (
+				<h2
+					css={css`
+						display: none;
+					`}
+					className="sr-only"
+				>
+					Search summary:
+				</h2>
+			)}
 			{dateRange &&
 				!isDefaultDateRange(dateRange) &&
 				renderBadge(
@@ -179,7 +189,7 @@ export const SearchSummary = () => {
 								configToUrl({
 									...config,
 									view: 'feed',
-									itemId: undefined
+									itemId: undefined,
 								}),
 								'_blank',
 								'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',

@@ -272,7 +272,7 @@ const WirePreviewCard = ({
 						))}
 				</div>
 				<EuiBadge
-                    title={`${supplierLabel} supplier`}
+					title={`${supplierLabel} supplier`}
 					css={css`
 						grid-area: supplier;
 						justify-self: end;
