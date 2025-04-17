@@ -72,7 +72,7 @@ export const processKeywords = (
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
 
-export const processCategoryCodes = async (supplier: string, subjectCodes: string[], destinationCodes: string[], bodyText: string | undefined) => {
+export const processCategoryCodes = (supplier: string, subjectCodes: string[], destinationCodes: string[], bodyText: string | undefined) => {
 	switch (supplier) {
 		case 'REUTERS':
 			return [...subjectCodes, ...processReutersDestinationCodes(destinationCodes)]
@@ -85,7 +85,7 @@ export const processCategoryCodes = async (supplier: string, subjectCodes: strin
 		case 'PA':
 			return processFingerpostPACategoryCodes(subjectCodes);
 		case 'MINOR_AGENCIES': {
-			const region = await inferRegionCategoryFromText(bodyText);
+			const region = inferRegionCategoryFromText(bodyText);
 			const updatedSubjectCodes = region ? [...subjectCodes, region] : subjectCodes
 			return updatedSubjectCodes.filter(_ => _.length > 0);
 		}
@@ -223,7 +223,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						const supplier =
 							lookupSupplier(snsMessageContent['source-feed']) ?? 'Unknown';
 
-						const categoryCodes = await processCategoryCodes(
+						const categoryCodes = processCategoryCodes(
 							supplier,
 							snsMessageContent.subjects?.code ?? [],
 							snsMessageContent.destinations?.code ?? [],

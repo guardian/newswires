@@ -253,49 +253,49 @@ describe('processUnknownFingerpostCategoryCodes', () => {
 });
 
 describe('inferRegionCategoryFromText', () => {
-	it('should return undefined if provided with an string', async () => {
-		expect(await inferRegionCategoryFromText('')).toEqual(undefined);
+	it('should return undefined if provided with an string', () => {
+		expect(inferRegionCategoryFromText('')).toEqual(undefined);
 	});
 
-	it('should return N2:GB when a UK country is mentioned', async () => {
+	it('should return N2:GB when a UK country is mentioned', () => {
 		const content = 'Prime Minister visits Scotland to address economic concerns in rural areas.';
-		expect(await inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
 	});
 
-	it('should return N2:GB for a UK city is mentioned', async () => {
+	it('should return N2:GB for a UK city is mentioned', () => {
 		const content = 'Manchester sees surge in tech sector jobs as new startups attract global investment.';
-		expect(await inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
 	});
 
-	it('should return N2:GB for a UK region is mentioned', async () => {
+	it('should return N2:GB for a UK region is mentioned', () => {
 		const content = 'Heavy rainfall causes flooding in the Lake District, prompting emergency response.';
-		expect(await inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
 	});
 
-	it('should return N2:GB even with varied casing and punctuation in text', async () => {
+	it('should return N2:GB even with varied casing and punctuation in text', () => {
 		const content = 'BREAKING: london officials respond to transportation delays across the city.';
-		expect(await inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
 	});
 
-	it('should return N2:GB when a London borough is mentioned', async () => {
+	it('should return N2:GB when a London borough is mentioned', () => {
 		const content = 'Hackney council launches initiative to support local small businesses amid rising rents.';
-		expect(await inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
 	});
 
-	it('should return N2:GB when a UK landmark is mentioned', async () => {
+	it('should return N2:GB when a UK landmark is mentioned', () => {
 		const content = 'Thousands of tourists expected at Stonehenge for the summer solstice celebrations.';
-		expect(await inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
 	});
 
-	it('should return undefined when only non-UK places are mentioned', async () => {
+	it('should return undefined when only non-UK places are mentioned', () => {
 		const content = 'US and EU leaders meet in Paris to discuss international trade agreements.';
-		expect(await inferRegionCategoryFromText(content)).toEqual(undefined);
+		expect(inferRegionCategoryFromText(content)).toEqual(undefined);
 	});
 });
 
 describe('processCategoryCodes', () => {
-	it('should filter out empty category codes', async () => {
+	it('should filter out empty category codes', () => {
 		const content = 'US and EU leaders meet in Paris to discuss international trade agreements.';
-		expect(await processCategoryCodes('MINOR_AGENCIES', [""], [], content)).toEqual([]);
+		expect(processCategoryCodes('MINOR_AGENCIES', [""], [], content)).toEqual([]);
 	});
 })
