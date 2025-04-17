@@ -5,6 +5,7 @@ const supplierLookupMap: Record<string, string[]> = {
 	AFP: ['AFP'],
 	AP: [
 		'ADVIS',
+		'APAPIUS',
 		'AP ADVIS',
 		'AP APAPI',
 		'AP APBIZWIR',
