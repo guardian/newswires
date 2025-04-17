@@ -14,10 +14,12 @@ import { configToUrl } from './urlState.ts';
 
 const presetLabel = (preset: string) => {
 	switch (preset) {
+		case 'all-uk':
+			return 'UK';
 		case 'all-world':
 			return 'World';
 		default:
-			return '';
+			return preset;
 	}
 };
 
