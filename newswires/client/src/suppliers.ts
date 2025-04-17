@@ -12,36 +12,44 @@ const allSupplierData: Record<
 	string,
 	{
 		label: string;
+		shortLabel: string;
 		colour: string;
 	}
 > = {
-	REUTERS: { label: 'Reuters', colour: reutersBrand },
+	REUTERS: { label: 'Reuters', shortLabel: 'Reu', colour: reutersBrand },
 	AP: {
 		label: 'AP',
+		shortLabel: 'AP',
 		colour: APBrand,
 	},
 	AAP: {
 		label: 'AAP',
+		shortLabel: 'AAP',
 		colour: AAPBrand,
 	},
 	AFP: {
 		label: 'AFP',
+		shortLabel: 'AFP',
 		colour: AFPBrand,
 	},
 	PA: {
 		label: 'PA',
+		shortLabel: 'PA',
 		colour: PABrand,
 	},
 	GUAP: {
 		label: 'AP (Gu)',
+		shortLabel: 'AP (Gu)',
 		colour: APBrand,
 	},
 	GUREUTERS: {
 		label: 'Reuters (Gu)',
+		shortLabel: 'Reuters (Gu)',
 		colour: reutersBrand,
 	},
 	MINOR_AGENCIES: {
 		label: 'Minor agencies',
+		shortLabel: 'Min.',
 		colour: '#39756a',
 	},
 };

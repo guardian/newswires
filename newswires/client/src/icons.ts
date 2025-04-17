@@ -19,6 +19,7 @@ import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as error } from '@elastic/eui/es/components/icon/assets/error';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
 import { icon as filter } from '@elastic/eui/es/components/icon/assets/filter';
+import { icon as gear } from '@elastic/eui/es/components/icon/assets/gear';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
 import { icon as iInCircle } from '@elastic/eui/es/components/icon/assets/iInCircle';
 import { icon as kqlFunction } from '@elastic/eui/es/components/icon/assets/kql_function';
@@ -74,6 +75,7 @@ const icons = {
 	filter,
 	plusInCircle,
 	error,
+	gear,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

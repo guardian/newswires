@@ -3,6 +3,7 @@ import {
 	EuiButton,
 	EuiButtonEmpty,
 	EuiEmptyPrompt,
+	EuiFlexGroup,
 	EuiHeader,
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
@@ -33,6 +34,7 @@ import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
+import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
 import { configToUrl, defaultQuery } from './urlState';
 
@@ -200,26 +202,31 @@ export function App() {
 							</EuiHeaderSection>
 
 							<EuiHeaderSectionItem>
-								<EuiButton
+								<EuiFlexGroup
+									gutterSize="xs"
 									css={css`
 										margin-left: 8px;
 									`}
-									size="s"
-									iconType={'popout'}
-									onClick={() =>
-										window.open(
-											configToUrl({
-												...config,
-												view: 'feed',
-												itemId: undefined,
-											}),
-											'_blank',
-											'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-										)
-									}
 								>
-									New ticker
-								</EuiButton>
+									<EuiButton
+										size="s"
+										iconType={'popout'}
+										onClick={() =>
+											window.open(
+												configToUrl({
+													...config,
+													view: 'feed',
+													itemId: undefined,
+												}),
+												'_blank',
+												'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+											)
+										}
+									>
+										New ticker
+									</EuiButton>
+									<SettingsMenu />
+								</EuiFlexGroup>
 							</EuiHeaderSectionItem>
 						</EuiHeader>
 					)}
