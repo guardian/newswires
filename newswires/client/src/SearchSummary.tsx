@@ -87,6 +87,16 @@ const Summary = ({
 					{displayFilters && ' for: '}
 				</h2>
 			)}
+			{!searchSummaryLabel && (
+				<h2
+					css={css`
+						display: none;
+					`}
+					className="sr-only"
+				>
+					Search summary:
+				</h2>
+			)}
 			{dateRange &&
 				renderBadge(
 					'Time range',
