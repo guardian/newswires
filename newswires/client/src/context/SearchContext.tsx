@@ -33,7 +33,7 @@ const SearchHistorySchema = z.array(
 export type SearchHistory = z.infer<typeof SearchHistorySchema>;
 
 // State Schema
-const StateSchema = z.discriminatedUnion('status', [
+const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
 		status: z.literal('initialised'),
 		error: z.string().optional(),
@@ -77,10 +77,10 @@ const StateSchema = z.discriminatedUnion('status', [
 ]);
 
 // Infer State Type
-export type State = z.infer<typeof StateSchema>;
+export type State = z.infer<typeof _StateSchema>;
 
 // Action Schema
-const ActionSchema = z.discriminatedUnion('type', [
+const _ActionSchema = z.discriminatedUnion('type', [
 	z.object({ type: z.literal('ENTER_QUERY') }),
 	z.object({
 		type: z.literal('FETCH_SUCCESS'),
@@ -103,7 +103,7 @@ const ActionSchema = z.discriminatedUnion('type', [
 ]);
 
 // Infer Action Type
-export type Action = z.infer<typeof ActionSchema>;
+export type Action = z.infer<typeof _ActionSchema>;
 
 export type SearchContextShape = {
 	config: Config;

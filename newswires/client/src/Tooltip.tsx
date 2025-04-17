@@ -159,7 +159,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
 	}, [visible, position]);
 
 	useEffect(() => {
-		if (!visible) return;
+		if (!visible) {
+			return;
+		}
 
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') {

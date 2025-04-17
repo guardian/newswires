@@ -80,7 +80,9 @@ export function App() {
 
 	const dismissDisclaimer = (persist?: boolean) => {
 		setDisplayDisclaimer(false);
-		persist && saveToLocalStorage<boolean>('displayDisclaimer', false);
+		if (persist) {
+			saveToLocalStorage<boolean>('displayDisclaimer', false);
+		}
 	};
 
 	return (

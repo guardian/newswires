@@ -20,17 +20,21 @@ const ComposerSendStatus = ({
 	sentBy: string | undefined;
 	failureReason: string | undefined;
 }) => {
-	if (state === 'sent' && sentBy)
+	if (state === 'sent' && sentBy) {
 		return (
 			<p>
 				Sent to Composer by: <a href={`mailto:${sentBy}`}>{sentBy}</a>
 			</p>
 		);
-	if (state === 'sent') return <p>Sent to Composer</p>;
-	if (state === 'failed')
+	}
+	if (state === 'sent') {
+		return <p>Sent to Composer</p>;
+	}
+	if (state === 'failed') {
 		return (
 			<p>Failed to send to Composer: {failureReason ?? 'unknown failure'}</p>
 		);
+	}
 	return <p>Not in Composer</p>;
 };
 
@@ -43,7 +47,7 @@ const SendOrVisitInComposerButton = ({
 	composerId: undefined | string;
 	send: () => void;
 }) => {
-	if (sendState === 'sent' && composerId)
+	if (sendState === 'sent' && composerId) {
 		return (
 			<EuiButton
 				href={composerPageForId(composerId)}
@@ -53,9 +57,13 @@ const SendOrVisitInComposerButton = ({
 				Open in Composer
 			</EuiButton>
 		);
-	if (sendState === 'sent' || sendState === 'failed')
+	}
+	if (sendState === 'sent' || sendState === 'failed') {
 		return <EuiButton iconType="error">Send to Composer failed</EuiButton>;
-	if (sendState === 'sending') return <EuiLoadingSpinner size="l" />;
+	}
+	if (sendState === 'sending') {
+		return <EuiLoadingSpinner size="l" />;
+	}
 
 	return (
 		<EuiButton onClick={send} iconType="launch">
