@@ -260,6 +260,16 @@ export function App() {
 							</EuiHeaderSectionItem>
 						</EuiHeader>
 					)}
+					{isPoppedOut && (
+						<h1
+							css={css`
+								display: none;
+							`}
+							className="sr-only"
+						>
+							Newswires
+						</h1>
+					)}
 					{status !== 'error' && (
 						<>
 							<EuiShowFor sizes={['xs', 's']}>
