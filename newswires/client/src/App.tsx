@@ -21,6 +21,7 @@ import {
 	EuiText,
 	EuiTitle,
 	EuiToast,
+	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useState } from 'react';
@@ -44,33 +45,38 @@ const Alert = ({
 }: {
 	title: string;
 	icon?: string;
-}) => (
-	<div
-		css={css`
-			.euiToast.header-only span {
-				font-weight: 500;
-				font-size: 1rem;
-			}
+}) => {
+	const isOnLargerScreen = useIsWithinMinBreakpoint('l');
 
-			.euiToast.header-only svg {
-				top: 2px;
-			}
-		`}
-	>
-		<EuiToast
-			title={title}
-			iconType={icon}
-			className={'header-only'}
+	return (
+		<div
 			css={css`
-				padding: 8px;
-				border-radius: 0;
-				background: #fdf6d8;
-				position: fixed;
-				z-index: 1000;
+				.euiToast.header-only span {
+					font-weight: 500;
+					font-size: 1rem;
+				}
+
+				.euiToast.header-only svg {
+					top: 2px;
+				}
 			`}
-		></EuiToast>
-	</div>
-);
+		>
+			<EuiToast
+				title={title}
+				iconType={icon}
+				className={'header-only'}
+				css={css`
+					padding: 8px;
+					border-radius: 0;
+					background: #fdf6d8;
+					position: fixed;
+					z-index: 1000;
+					${isOnLargerScreen && 'width: calc(100% - 300px)'}
+				`}
+			></EuiToast>
+		</div>
+	);
+};
 
 export function App() {
 	const {
