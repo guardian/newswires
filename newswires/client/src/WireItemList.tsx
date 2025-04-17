@@ -251,26 +251,26 @@ const WirePreviewCard = ({
 						<h4>viewed</h4>
 					</EuiScreenReaderOnly>
 				)}
-				{formatTimestamp(ingestedAt)
-					.split(', ')
-					.map((part) => (
-						<EuiText
-							size="xs"
-							key={part}
-							css={css`
-								grid-area: time;
-								padding-left: 5px;
-								font-weight: ${hasBeenViewed
-									? theme.euiTheme.font.weight.regular
-									: theme.euiTheme.font.weight.medium};
-								justify-self: end;
-								text-align: right;
-								font-variant-numeric: tabular-nums;
-							`}
-						>
-							{part}
-						</EuiText>
-					))}
+				<div
+					css={css`
+						grid-area: time;
+						padding-left: 5px;
+						font-weight: ${hasBeenViewed
+							? theme.euiTheme.font.weight.regular
+							: theme.euiTheme.font.weight.medium};
+						justify-self: end;
+						text-align: right;
+						font-variant-numeric: tabular-nums;
+					`}
+				>
+					{formatTimestamp(ingestedAt)
+						.split(', ')
+						.map((part) => (
+							<EuiText size="xs" key={part}>
+								{part}
+							</EuiText>
+						))}
+				</div>
 				<EuiBadge
 					css={css`
 						grid-area: supplier;
