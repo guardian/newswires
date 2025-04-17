@@ -5,6 +5,7 @@ import { App } from './App.tsx';
 import './icons';
 import { SearchContextProvider } from './context/SearchContext.tsx';
 import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
+import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
 import { createTelemetryEventSender } from './telemetry.ts';
 
 const { sendTelemetryEvent } = createTelemetryEventSender(stage);
@@ -19,9 +20,11 @@ document.head.appendChild(script);
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
-			<SearchContextProvider>
-				<App />
-			</SearchContextProvider>
+			<UserSettingsContextProvider>
+				<SearchContextProvider>
+					<App />
+				</SearchContextProvider>
+			</UserSettingsContextProvider>
 		</TelemetryContextProvider>
 	</StrictMode>,
 );

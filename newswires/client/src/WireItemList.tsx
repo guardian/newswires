@@ -2,7 +2,6 @@ import {
 	EuiBadge,
 	EuiButton,
 	EuiScreenReaderOnly,
-	EuiSpacer,
 	EuiText,
 	EuiTextBlockTruncate,
 	useEuiBackgroundColor,
@@ -14,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lightShadeOf } from './colour-utils.ts';
 import { useSearch } from './context/SearchContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
@@ -164,6 +164,8 @@ const WirePreviewCard = ({
 	isFromRefresh: boolean;
 }) => {
 	const { viewedItemIds } = useSearch();
+	const { showSecondaryFeedContent } = useUserSettings();
+
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -182,7 +184,10 @@ const WirePreviewCard = ({
 
 	const supplierInfo = getSupplierInfo(supplier);
 
-	const supplierLabel = supplierInfo?.label ?? supplier;
+	const supplierLabel =
+		(showSecondaryFeedContent
+			? supplierInfo?.label
+			: supplierInfo?.shortLabel) ?? supplier;
 	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
 
 	const mainHeadingContent = decideMainHeadingContent(supplier, content);
@@ -191,11 +196,19 @@ const WirePreviewCard = ({
 
 	const cardGrid = css`
 		display: grid;
-		gap: 0.5rem;
+
 		align-items: baseline;
-		grid-template-areas: 'title title meta' 'content content meta';
-		grid-template-columns: 1fr 1fr min-content;
-		grid-template-rows: auto auto;
+		grid-template-areas: 'title time' 'title supplier' 'content supplier' 'content supplier';
+		grid-template-columns: 1fr min-content;
+		grid-template-rows: auto auto auto auto;
+	`;
+
+	const compactCardGrid = css`
+		display: grid;
+		gap: 0.3rem;
+		grid-template-areas: 'title supplier time';
+		grid-template-columns: 1fr min-content min-content;
+		align-items: baseline;
 	`;
 
 	return (
@@ -203,7 +216,7 @@ const WirePreviewCard = ({
 			<div
 				ref={ref}
 				css={[
-					cardGrid,
+					showSecondaryFeedContent ? cardGrid : compactCardGrid,
 					css`
 						&:hover {
 							background-color: ${theme.euiTheme.colors.lightestShade};
@@ -240,45 +253,47 @@ const WirePreviewCard = ({
 				)}
 				<div
 					css={css`
-						grid-area: meta;
+						grid-area: time;
+						padding-left: 5px;
+						font-weight: ${hasBeenViewed
+							? theme.euiTheme.font.weight.regular
+							: theme.euiTheme.font.weight.medium};
+						justify-self: end;
 						text-align: right;
+						font-variant-numeric: tabular-nums;
 					`}
 				>
 					{formatTimestamp(ingestedAt)
 						.split(', ')
 						.map((part) => (
-							<EuiText
-								size="xs"
-								key={part}
-								css={css`
-									padding-left: 5px;
-									font-weight: ${hasBeenViewed
-										? theme.euiTheme.font.weight.regular
-										: theme.euiTheme.font.weight.medium};
-								`}
-							>
+							<EuiText size="xs" key={part}>
 								{part}
 							</EuiText>
 						))}
-					<EuiSpacer size="xs" />
-					<EuiBadge
-						color={
-							hasBeenViewed ? lightShadeOf(supplierColour) : supplierColour
-						}
-					>
-						{supplierLabel}
-					</EuiBadge>
 				</div>
-				<div
+				<EuiBadge
 					css={css`
-						grid-area: content;
-						font-weight: ${hasBeenViewed
-							? theme.euiTheme.font.weight.light
-							: theme.euiTheme.font.weight.regular};
+						grid-area: supplier;
+						justify-self: end;
+						margin-top: ${showSecondaryFeedContent ? '0.5rem' : '0'};
 					`}
+					color={hasBeenViewed ? lightShadeOf(supplierColour) : supplierColour}
 				>
-					<MaybeSecondaryCardContent {...content} highlight={highlight} />
-				</div>
+					{supplierLabel}
+				</EuiBadge>
+				{showSecondaryFeedContent && (
+					<div
+						css={css`
+							margin-top: 0.5rem;
+							grid-area: content;
+							font-weight: ${hasBeenViewed
+								? theme.euiTheme.font.weight.light
+								: theme.euiTheme.font.weight.regular};
+						`}
+					>
+						<MaybeSecondaryCardContent {...content} highlight={highlight} />
+					</div>
+				)}
 			</div>
 		</Link>
 	);
