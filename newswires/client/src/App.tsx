@@ -21,6 +21,7 @@ import {
 	EuiText,
 	EuiTitle,
 	EuiToast,
+	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useState } from 'react';
@@ -41,24 +42,41 @@ import { configToUrl, defaultQuery } from './urlState';
 const Alert = ({
 	title,
 	icon = 'warning',
-	children,
 }: {
 	title: string;
 	icon?: string;
-	children: React.ReactNode;
-}) => (
-	<EuiToast
-		title={title}
-		iconType={icon}
-		css={css`
-			border-radius: 0;
-			background: #fdf6d8;
-			position: fixed;
-		`}
-	>
-		<p>{children}</p>
-	</EuiToast>
-);
+}) => {
+	const isOnLargerScreen = useIsWithinMinBreakpoint('l');
+
+	return (
+		<div
+			css={css`
+				.euiToast.header-only span {
+					font-weight: 500;
+					font-size: 1rem;
+				}
+
+				.euiToast.header-only svg {
+					top: 2px;
+				}
+			`}
+		>
+			<EuiToast
+				title={title}
+				iconType={icon}
+				className={'header-only'}
+				css={css`
+					padding: 8px;
+					border-radius: 0;
+					background: #fdf6d8;
+					position: fixed;
+					z-index: 1000;
+					${isOnLargerScreen && 'width: calc(100% - 300px)'}
+				`}
+			></EuiToast>
+		</div>
+	);
+};
 
 export function App() {
 	const {
@@ -85,6 +103,11 @@ export function App() {
 		if (persist) {
 			saveToLocalStorage<boolean>('displayDisclaimer', false);
 		}
+	};
+
+	const breakpoints = {
+		sm: '@media (max-width: 600px)',
+		md: '@media (min-width: 900px)',
 	};
 
 	return (
@@ -143,23 +166,27 @@ export function App() {
 					</EuiModal>
 				)}
 				{status === 'offline' && (
-					<Alert title="You Are Currently Offline">
-						The application is no longer retrieving updates. Data
-						synchronization will resume once connectivity is restored.
-					</Alert>
+					<Alert
+						title="The application is no longer retrieving updates. Data
+                        synchronization will resume once connectivity is restored."
+					/>
 				)}
 				{isRestricted(query.dateRange?.end) &&
 					status !== 'offline' &&
 					status !== 'error' && (
-						<Alert title="Restricted">
-							Your current filter settings exclude recent updates. Adjust the
-							filter to see the latest data.
-						</Alert>
+						<Alert
+							title="Your current filter settings exclude recent updates. Adjust the
+							filter to see the latest data."
+						/>
 					)}
 				<div
 					css={css`
 						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
-						'padding-top: 84px;'}
+						`padding-top: 40px;
+						  ${breakpoints.sm} {
+							padding-top: 72px;
+						  }
+						`}
 						height: 100%;
 						${(status === 'loading' || status === 'error') &&
 						'display: flex; align-items: center;'}
