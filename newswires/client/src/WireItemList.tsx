@@ -49,7 +49,12 @@ export const WireItemList = ({
 			<ul>
 				{wires.map(
 					({ id, content, supplier, highlight, isFromRefresh, ingestedAt }) => (
-						<li key={id}>
+						<li
+							key={id}
+							css={css`
+								line-break: anywhere;
+							`}
+						>
 							<WirePreviewCard
 								id={id}
 								ingestedAt={ingestedAt}
