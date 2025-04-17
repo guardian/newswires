@@ -12,7 +12,22 @@ import { deriveDateMathRangeLabel, isRestricted } from './dateHelpers.ts';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
-const Summary = ({ searchSummary }: { searchSummary: string }) => {
+const presetLabel = (preset: string) => {
+	switch (preset) {
+		case 'all-uk':
+			return 'UK';
+		case 'all-world':
+			return 'World';
+		default:
+			return preset;
+	}
+};
+
+const Summary = ({
+	searchSummaryLabel,
+}: {
+	searchSummaryLabel: string | boolean;
+}) => {
 	const { config, handleEnterQuery } = useSearch();
 	const {
 		q,
@@ -66,17 +81,19 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 
 	return (
 		<>
-			<span>
-				{searchSummary}
-				{displayFilters && ' for: '}
-			</span>
+			{searchSummaryLabel && (
+				<span>
+					{searchSummaryLabel}
+					{displayFilters && ' for: '}
+				</span>
+			)}
 			{dateRange &&
 				renderBadge(
 					'Time range',
 					deriveDateMathRangeLabel(dateRange.start, dateRange.end),
 				)}
 			{q && renderBadge('Search term', q)}
-			{preset && renderBadge('Preset', preset)}
+			{preset && renderBadge('Preset', presetLabel(preset))}
 			{displaySuppliers &&
 				suppliers!.map((supplier) => renderBadge('Supplier', supplier))}
 			{displayCategoryCodes &&
@@ -86,6 +103,8 @@ const Summary = ({ searchSummary }: { searchSummary: string }) => {
 };
 
 export const SearchSummary = () => {
+	const isPoppedOut = !!window.opener;
+
 	const {
 		state: { queryData, status, lastUpdate },
 		config,
@@ -93,6 +112,27 @@ export const SearchSummary = () => {
 	const [searchSummary, setSearchSummary] = useState('No results found');
 
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
+
+	useEffect(() => {
+		if (!isPoppedOut) {
+			return;
+		}
+
+		const { preset, supplier } = config.query;
+
+		const displayPreset = !!preset;
+		const displaySuppliers = !!supplier && supplier.length > 0;
+
+		if (displayPreset || displaySuppliers) {
+			const titlePrefix = supplier!.length == 1 ? `${supplier![0]} ` : '';
+			const titlePostfix =
+				supplier!.length > 1 ? ` ${supplier!.join(', ')}` : '';
+
+			document.title = `${titlePrefix}${preset ? `${presetLabel(preset).toUpperCase()}` : ''}${titlePostfix}`;
+		} else {
+			document.title = 'Newswires';
+		}
+	}, [isPoppedOut, config.query]);
 
 	useEffect(() => {
 		if (queryData && queryData.totalCount > 0) {
@@ -103,8 +143,6 @@ export const SearchSummary = () => {
 			setSearchSummary('No results found');
 		}
 	}, [queryData]);
-
-	const isPoppedOut = !!window.opener;
 
 	return (
 		<EuiText
@@ -183,7 +221,7 @@ export const SearchSummary = () => {
 							/>
 						</Tooltip>
 					)}
-				<Summary searchSummary={searchSummary} />
+				<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
 			</p>
 		</EuiText>
 	);
