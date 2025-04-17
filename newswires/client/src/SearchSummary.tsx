@@ -150,7 +150,7 @@ export const SearchSummary = () => {
 	}, [queryData]);
 
 	return (
-		<p
+		<div
 			css={css`
 				display: flex;
 				align-items: center;
@@ -222,6 +222,6 @@ export const SearchSummary = () => {
 					</Tooltip>
 				)}
 			<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
-		</p>
+		</div>
 	);
 };
