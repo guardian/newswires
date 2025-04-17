@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Disclosure } from './Disclosure';
 import { setUpIcons } from './icons';
 
-export default { component: Disclosure };
 const _meta = {
 	title: 'Components/Disclosure',
 	component: Disclosure,
@@ -65,3 +64,5 @@ export const WithLongContent: Story = {
 		),
 	},
 };
+
+export default _meta;
