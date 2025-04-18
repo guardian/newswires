@@ -107,6 +107,7 @@ const ResizableContainer = ({
 			className="eui-fullHeight"
 			direction={resizablePanelsDirection}
 			onPanelWidthChange={(newSizes) => {
+				console.log('newSizes', JSON.stringify(newSizes));
 				saveToLocalStorage('resizablePanelSizes', newSizes);
 				setSizes((prevSizes) => ({ ...prevSizes, ...newSizes }));
 			}}
@@ -188,7 +189,7 @@ export function App() {
 					}
 				}}
 				css={css`
-					max-height: 100vh;
+					height: 100vh;
 				`}
 			>
 				{displayDisclaimer && (
@@ -247,6 +248,7 @@ export function App() {
 						  }
 						`}
 						height: 100%;
+						max-height: 100vh;
 						${(status === 'loading' || status === 'error') &&
 						'display: flex; align-items: center;'}
 						${status === 'loading' && 'background: white;'}
