@@ -1,5 +1,6 @@
 import dateMath from '@elastic/datemath';
 import moment from 'moment-timezone';
+import { DEFAULT_DATE_RANGE } from './dateConstants';
 
 export interface TimeRange {
 	start: string;
@@ -112,17 +113,9 @@ export const timeRangeOption = (start: string) => {
 		case '24h':
 			return { start: `now-24h`, end: 'now', label: 'Last 24 hours' };
 		case 'today':
-			return {
-				start: 'now/d',
-				end: 'now/d',
-				label: 'Today',
-			};
+			return { start: 'now/d', end: 'now/d', label: 'Today' };
 		case '1d':
-			return {
-				start: `now-1d/d`,
-				end: `now-1d/d`,
-				label: 'Yesterday',
-			};
+			return { start: `now-1d/d`, end: `now-1d/d`, label: 'Yesterday' };
 		case '2d':
 			return {
 				start: `now-2d/d`,
@@ -133,3 +126,13 @@ export const timeRangeOption = (start: string) => {
 			return { start: `now-2w`, end: 'now', label: 'Last 14 days' };
 	}
 };
+
+export function isDefaultDateRange(dateRange: {
+	start: string;
+	end: string;
+}): boolean {
+	return (
+		dateRange.start === DEFAULT_DATE_RANGE.start &&
+		dateRange.end === DEFAULT_DATE_RANGE.end
+	);
+}
