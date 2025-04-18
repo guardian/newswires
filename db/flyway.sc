@@ -3,8 +3,8 @@
 //> using jvm corretto:17
 
 //> using dep com.lihaoyi::ujson:4.1.0
-//> using dep org.flywaydb:flyway-core:11.6.0
-//> using dep org.flywaydb:flyway-database-postgresql:11.6.0
+//> using dep org.flywaydb:flyway-core:11.7.2
+//> using dep org.flywaydb:flyway-database-postgresql:11.7.2
 //> using dep org.postgresql:postgresql:42.7.5
 //> using dep software.amazon.awssdk:rds:2.31.20
 //> using dep software.amazon.awssdk:secretsmanager:2.31.20
