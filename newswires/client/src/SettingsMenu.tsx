@@ -10,8 +10,12 @@ import { useState } from 'react';
 import { useUserSettings } from './context/UserSettingsContext';
 
 export const SettingsMenu = () => {
-	const { showSecondaryFeedContent, toggleShowSecondaryFeedContent } =
-		useUserSettings();
+	const {
+		resizablePanelsDirection,
+		toggleResizablePanelsDirection,
+		showSecondaryFeedContent,
+		toggleShowSecondaryFeedContent,
+	} = useUserSettings();
 
 	const [isPopoverOpen, setPopover] = useState(false);
 
@@ -19,6 +23,9 @@ export const SettingsMenu = () => {
 		prefix: 'contextMenuPopover',
 	});
 	const embeddedCodeSwitchId__1 = useGeneratedHtmlId({
+		prefix: 'embeddedCodeSwitchId',
+	});
+	const embeddedCodeSwitchId__2 = useGeneratedHtmlId({
 		prefix: 'embeddedCodeSwitchId',
 	});
 
@@ -52,6 +59,24 @@ export const SettingsMenu = () => {
 						</div>
 					),
 				},
+				{
+					renderItem: () => (
+						<div style={{ padding: 16 }}>
+							<EuiFormRow hasChildLabel={true}>
+								<EuiSwitch
+									name="switch"
+									id={embeddedCodeSwitchId__2}
+									label="Display wire details below feed"
+									checked={resizablePanelsDirection === 'vertical'}
+									onChange={() => {
+										toggleResizablePanelsDirection();
+									}}
+								/>
+							</EuiFormRow>
+						</div>
+					),
+				},
+				{ name: 'Close', icon: 'cross', onClick: closePopover },
 			],
 		},
 	];

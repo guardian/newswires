@@ -6,6 +6,8 @@ import { useTelemetry } from './TelemetryContext';
 interface UserSettingsContextShape {
 	showSecondaryFeedContent: boolean;
 	toggleShowSecondaryFeedContent: () => void;
+	resizablePanelsDirection: 'vertical' | 'horizontal';
+	toggleResizablePanelsDirection: () => void;
 }
 
 const UserSettingsContext = createContext<UserSettingsContextShape | null>(
@@ -26,6 +28,15 @@ export const UserSettingsContextProvider = ({
 				true,
 			),
 		);
+	const [resizablePanelsDirection, setResizablePanelsDirection] = useState<
+		'vertical' | 'horizontal'
+	>(
+		loadOrSetInLocalStorage(
+			'resizablePanelDirection',
+			z.enum(['vertical', 'horizontal']),
+			'horizontal',
+		),
+	);
 
 	const toggleShowSecondaryFeedContent = () => {
 		setShowSecondaryFeedContent(!showSecondaryFeedContent);
@@ -34,13 +45,28 @@ export const UserSettingsContextProvider = ({
 			!showSecondaryFeedContent,
 		);
 		sendTelemetryEvent('toggleShowSecondaryFeedContent', {
-			compactView: !showSecondaryFeedContent ? 'on' : 'off',
+			showSecondaryFeedContent: !showSecondaryFeedContent ? 'on' : 'off',
+		});
+	};
+
+	const toggleResizablePanelsDirection = () => {
+		const newDirection =
+			resizablePanelsDirection === 'horizontal' ? 'vertical' : 'horizontal';
+		setResizablePanelsDirection(newDirection);
+		saveToLocalStorage('resizablePanelDirection', newDirection);
+		sendTelemetryEvent('toggleResizablePanelsDirection', {
+			resizablePanelsDirection: newDirection,
 		});
 	};
 
 	return (
 		<UserSettingsContext.Provider
-			value={{ showSecondaryFeedContent, toggleShowSecondaryFeedContent }}
+			value={{
+				showSecondaryFeedContent,
+				toggleShowSecondaryFeedContent,
+				resizablePanelsDirection,
+				toggleResizablePanelsDirection,
+			}}
 		>
 			{children}
 		</UserSettingsContext.Provider>
