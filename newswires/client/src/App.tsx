@@ -123,12 +123,13 @@ const ResizableContainer = ({
 					>
 						{Feed}
 					</EuiResizablePanel>
-					<EuiResizableButton accountForScrollbars={'before'} />
+					<EuiResizableButton accountForScrollbars={'both'} />
 					<EuiResizablePanel
 						id={secondPanelId}
 						minSize="20%"
 						initialSize={sizes[secondPanelId]}
 						className="eui-yScroll"
+						paddingSize="none"
 					>
 						{Item}
 					</EuiResizablePanel>
