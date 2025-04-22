@@ -219,12 +219,13 @@ export function App() {
 											</EuiLink>
 											<EuiBetaBadge
 												label="Under construction"
+												title="Currently under construction"
 												color={'accent'}
 												size="s"
 												css={css`
 													margin-left: 8px;
 												`}
-											></EuiBetaBadge>
+											/>
 										</h1>
 									</EuiTitle>
 								</EuiHeaderSectionItem>
@@ -258,6 +259,16 @@ export function App() {
 								</EuiFlexGroup>
 							</EuiHeaderSectionItem>
 						</EuiHeader>
+					)}
+					{isPoppedOut && (
+						<h1
+							css={css`
+								display: none;
+							`}
+							className="sr-only"
+						>
+							Newswires
+						</h1>
 					)}
 					{status !== 'error' && (
 						<>

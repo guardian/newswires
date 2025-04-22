@@ -247,6 +247,7 @@ export const SideNav = () => {
 									<EuiListGroupItem
 										color={isActive ? 'primary' : 'subdued'}
 										label={label}
+										title={`${label} preset`}
 										key={presetId}
 										aria-current={isActive}
 										onClick={onClick}
