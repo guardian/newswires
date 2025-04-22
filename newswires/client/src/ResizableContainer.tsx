@@ -38,11 +38,15 @@ const defaultPanelSizes: ResizablePanelSizesData = {
 export const ResizableContainer = ({
 	Feed,
 	Item,
+	directionOverride,
 }: {
 	Feed: React.ReactNode;
 	Item: React.ReactNode;
+	directionOverride?: PanelDirections;
 }) => {
-	const { resizablePanelsDirection: direction } = useUserSettings();
+	const { resizablePanelsDirection: directionFromSettings } = useUserSettings();
+
+	const direction = directionOverride ?? directionFromSettings;
 
 	const [sizes, setSizes] = useState<ResizablePanelSizesData>(() =>
 		loadOrSetInLocalStorage(
