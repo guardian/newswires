@@ -8,7 +8,11 @@ import {
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
-import { deriveDateMathRangeLabel, isRestricted } from './dateHelpers.ts';
+import {
+	deriveDateMathRangeLabel,
+	isDefaultDateRange,
+	isRestricted,
+} from './dateHelpers.ts';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
@@ -88,6 +92,7 @@ const Summary = ({
 				</span>
 			)}
 			{dateRange &&
+				!isDefaultDateRange(dateRange) &&
 				renderBadge(
 					'Time range',
 					deriveDateMathRangeLabel(dateRange.start, dateRange.end),
@@ -176,11 +181,7 @@ export const SearchSummary = () => {
 							color={'primary'}
 							onClick={() =>
 								window.open(
-									configToUrl({
-										...config,
-										view: 'feed',
-										itemId: undefined,
-									}),
+									configToUrl({ ...config, view: 'feed', itemId: undefined }),
 									'_blank',
 									'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
 								)
