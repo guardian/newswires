@@ -268,6 +268,7 @@ export function App() {
 										<ResizableContainer
 											Feed={<Feed />}
 											Item={<ItemData id={selectedItemId} />}
+											directionOverride={'vertical'}
 										/>
 									) : (
 										<ItemData id={selectedItemId} />
