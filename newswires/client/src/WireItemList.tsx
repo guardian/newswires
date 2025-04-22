@@ -49,12 +49,7 @@ export const WireItemList = ({
 			<ul>
 				{wires.map(
 					({ id, content, supplier, highlight, isFromRefresh, ingestedAt }) => (
-						<li
-							key={id}
-							css={css`
-								line-break: anywhere;
-							`}
-						>
+						<li key={id}>
 							<WirePreviewCard
 								id={id}
 								ingestedAt={ingestedAt}
@@ -235,6 +230,7 @@ const WirePreviewCard = ({
 						box-sizing: content-box;
 						color: ${theme.euiTheme.colors.text};
 						background-color: ${hasBeenViewed ? accentBgColor : 'inherit'};
+						line-break: anywhere;
 
 						& h3 {
 							grid-area: title;
@@ -266,6 +262,7 @@ const WirePreviewCard = ({
 						justify-self: end;
 						text-align: right;
 						font-variant-numeric: tabular-nums;
+						line-break: strict;
 					`}
 				>
 					{formatTimestamp(ingestedAt)
