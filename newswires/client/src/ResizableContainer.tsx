@@ -7,6 +7,34 @@ import {
 } from './context/localStorage.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 
+export type PanelDirections = 'vertical' | 'horizontal';
+
+const firstPanelId = 'firstResizablePanel';
+const secondPanelId = 'secondResizablePanel';
+
+const panelsSizeSchema = z.object({
+	[firstPanelId]: z.number(),
+	[secondPanelId]: z.number(),
+});
+
+const ResizablePanelSizesDataSchema = z.object({
+	horizontal: panelsSizeSchema,
+	vertical: panelsSizeSchema,
+});
+
+type ResizablePanelSizesData = z.infer<typeof ResizablePanelSizesDataSchema>;
+
+const defaultPanelSizes: ResizablePanelSizesData = {
+	horizontal: {
+		[firstPanelId]: 50,
+		[secondPanelId]: 50,
+	},
+	vertical: {
+		[firstPanelId]: 50,
+		[secondPanelId]: 50,
+	},
+};
+
 export const ResizableContainer = ({
 	Feed,
 	Item,
@@ -14,29 +42,26 @@ export const ResizableContainer = ({
 	Feed: React.ReactNode;
 	Item: React.ReactNode;
 }) => {
-	const firstPanelId = 'firstResizablePanel';
-	const secondPanelId = 'secondResizablePanel';
+	const { resizablePanelsDirection: direction } = useUserSettings();
 
-	const { resizablePanelsDirection } = useUserSettings();
-
-	const [sizes, setSizes] = useState<{
-		[firstPanelId]: number;
-		[secondPanelId]: number;
-	}>(() =>
+	const [sizes, setSizes] = useState<ResizablePanelSizesData>(() =>
 		loadOrSetInLocalStorage(
 			'resizablePanelSizes',
-			z.object({ [firstPanelId]: z.number(), [secondPanelId]: z.number() }),
-			{ [firstPanelId]: 50, [secondPanelId]: 50 },
+			ResizablePanelSizesDataSchema,
+			defaultPanelSizes,
 		),
 	);
 
 	return (
 		<EuiResizableContainer
 			className="eui-fullHeight"
-			direction={resizablePanelsDirection}
+			direction={direction}
 			onPanelWidthChange={(newSizes) => {
 				console.log('newSizes', JSON.stringify(newSizes));
-				saveToLocalStorage('resizablePanelSizes', newSizes);
+				saveToLocalStorage('resizablePanelSizes', {
+					...sizes,
+					[direction]: { ...newSizes },
+				});
 				setSizes((prevSizes) => ({ ...prevSizes, ...newSizes }));
 			}}
 		>
@@ -45,7 +70,7 @@ export const ResizableContainer = ({
 					<EuiResizablePanel
 						id={firstPanelId}
 						minSize="20%"
-						initialSize={sizes[firstPanelId]}
+						initialSize={sizes[direction][firstPanelId]}
 						className="eui-yScroll"
 						style={{ padding: 0 }}
 					>
@@ -55,7 +80,7 @@ export const ResizableContainer = ({
 					<EuiResizablePanel
 						id={secondPanelId}
 						minSize="20%"
-						initialSize={sizes[secondPanelId]}
+						initialSize={sizes[direction][secondPanelId]}
 						className="eui-yScroll"
 						paddingSize="none"
 					>
