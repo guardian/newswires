@@ -110,7 +110,7 @@ export const SideNav = () => {
 					activeSuppliers.length === recognisedSuppliers.length,
 				onClick: () => handleEnterQuery({ ...config.query, supplier: [] }),
 				onTickerClick: () => {
-					openTicker('supplier', config);
+					openTicker({ ...config.query });
 				},
 				colour: 'black',
 			},
@@ -121,7 +121,7 @@ export const SideNav = () => {
 				colour: colour,
 				onClick: () => toggleSupplier(supplier),
 				onTickerClick: () => {
-					openTicker('supplier', config, supplier);
+					openTicker({ ...config.query, supplier: [supplier] });
 				},
 			})),
 		],
@@ -164,7 +164,7 @@ export const SideNav = () => {
 				extraAction: {
 					iconType: 'popout', // EUI icon on the right
 					onClick: () => {
-						openTicker('preset', config, presetId);
+						openTicker({ ...config.query, preset: presetId });
 					},
 					'aria-label': 'More info',
 					alwaysShow: false,

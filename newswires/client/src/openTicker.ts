@@ -1,25 +1,9 @@
-import type { Config } from './sharedTypes';
+import type { Query } from './sharedTypes';
 import { configToUrl } from './urlState';
 
-export const openTicker = (
-	queryType: string,
-	config: Config,
-	value?: string,
-) => {
-	const query =
-		queryType === 'preset'
-			? {
-					...config.query,
-					preset: value ? value : undefined,
-				}
-			: {
-					...config.query,
-					supplier: value ? [value] : [],
-				};
-
+export const openTicker = (query: Query) => {
 	window.open(
 		configToUrl({
-			...config,
 			query,
 			view: 'feed',
 			itemId: undefined,
