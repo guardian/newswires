@@ -47,6 +47,7 @@ const presets = [
 	{ id: 'all-presets', name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
+	{ id: 'all-business', name: 'Business' },
 ];
 
 function presetName(presetId: string): string | undefined {

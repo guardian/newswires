@@ -12,6 +12,7 @@ object SearchPresets {
     case "minor-agencies-world" => Some(MinorAgenciesWorld)
     case "all-uk"               => Some(AllUk)
     case "pa-home"              => Some(PaHome)
+    case "all-business"         => Some(AllBusiness)
     case _                      => None
   }
 
@@ -155,14 +156,218 @@ object SearchPresets {
     )
   )
 
+  private val ReutersBusiness = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "REUTERS:RBN",
+        "MCC:OEC",
+        "MCCL:OEC",
+        "N2:COM",
+        "N2:ECI"
+      ),
+      categoryCodesExcl = List(
+        "MCC:SPO"
+      )
+    )
+  )
+
+  private val ApBusiness = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AP"),
+      categoryCodesIncl = List("apCat:f"),
+      categoryCodesExcl = List("apCat:s", "apCat:e")
+    )
+  )
+
+  private val AapBusiness = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("AAP"),
+      categoryCodesIncl = Categories.businessRelatedNewsCode
+    )
+  )
+
   private val AllWorld =
     ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 
   private val AllUk =
     PaHome ::: ReutersUk ::: MinorAgenciesUk
+
+  private val AllBusiness = ReutersBusiness ::: ApBusiness ::: AapBusiness
 }
 
 object Categories {
+  private[conf] val businessRelatedNewsCode = List(
+    "subj:04004002",
+    "subj:04004003",
+    "subj:04004004",
+    "subj:04004005",
+    "subj:04004006",
+    "subj:04004007",
+    "subj:04005000",
+    "subj:04005001",
+    "subj:04005002",
+    "subj:04005003",
+    "subj:04005004",
+    "subj:04005005",
+    "subj:04005006",
+    "subj:04005007",
+    "subj:04005008",
+    "subj:04005009",
+    "subj:04005010",
+    "subj:04005011",
+    "subj:04005012",
+    "subj:04005013",
+    "subj:04005014",
+    "subj:04006000",
+    "subj:04006001",
+    "subj:04006002",
+    "subj:04006003",
+    "subj:04006004",
+    "subj:04006005",
+    "subj:04006006",
+    "subj:04006007",
+    "subj:04006008",
+    "subj:04006009",
+    "subj:04006010",
+    "subj:04006011",
+    "subj:04008000",
+    "subj:04008001",
+    "subj:04008002",
+    "subj:04008003",
+    "subj:04008004",
+    "subj:04008005",
+    "subj:04008006",
+    "subj:04008007",
+    "subj:04008008",
+    "subj:04008009",
+    "subj:04008010",
+    "subj:04008011",
+    "subj:04008012",
+    "subj:04008013",
+    "subj:04008014",
+    "subj:04008015",
+    "subj:04008016",
+    "subj:04008017",
+    "subj:04008018",
+    "subj:04008019",
+    "subj:04008020",
+    "subj:04008021",
+    "subj:04008022",
+    "subj:04008023",
+    "subj:04008024",
+    "subj:04008025",
+    "subj:04008026",
+    "subj:04008027",
+    "subj:04008028",
+    "subj:04008029",
+    "subj:04008030",
+    "subj:04008031",
+    "subj:04008032",
+    "subj:04008033",
+    "subj:04008034",
+    "subj:04008035",
+    "subj:04008036",
+    "subj:04009000",
+    "subj:04009001",
+    "subj:04009002",
+    "subj:04009003",
+    "subj:04009004",
+    "subj:04016000",
+    "subj:04016001",
+    "subj:04016002",
+    "subj:04016003",
+    "subj:04016004",
+    "subj:04016005",
+    "subj:04016006",
+    "subj:04016007",
+    "subj:04016008",
+    "subj:04016009",
+    "subj:04016010",
+    "subj:04016011",
+    "subj:04016012",
+    "subj:04016013",
+    "subj:04016014",
+    "subj:04016015",
+    "subj:04016016",
+    "subj:04016017",
+    "subj:04016018",
+    "subj:04016019",
+    "subj:04016020",
+    "subj:04016021",
+    "subj:04016022",
+    "subj:04016023",
+    "subj:04016024",
+    "subj:04016025",
+    "subj:04016026",
+    "subj:04016027",
+    "subj:04016028",
+    "subj:04016029",
+    "subj:04016030",
+    "subj:04016031",
+    "subj:04016032",
+    "subj:04016033",
+    "subj:04016034",
+    "subj:04016035",
+    "subj:04016036",
+    "subj:04016037",
+    "subj:04016038",
+    "subj:04016039",
+    "subj:04016040",
+    "subj:04016041",
+    "subj:04016042",
+    "subj:04016043",
+    "subj:04016044",
+    "subj:04016045",
+    "subj:04016046",
+    "subj:04016047",
+    "subj:04016048",
+    "subj:04016049",
+    "subj:04016050",
+    "subj:04016051",
+    "subj:04016052",
+    "subj:04016053",
+    "subj:04016054",
+    "subj:04016055",
+    "subj:04016056",
+    "subj:04016057",
+    "subj:04017000",
+    "subj:04017001",
+    "subj:04018000",
+    "subj:04018001",
+    "subj:04019000",
+    "subj:04019001",
+    "subj:04000000",
+    "subj:09000000",
+    "subj:09001000",
+    "subj:09002000",
+    "subj:09002001",
+    "subj:09002002",
+    "subj:09002003",
+    "subj:09003000",
+    "subj:09003001",
+    "subj:09003002",
+    "subj:09003003",
+    "subj:09003004",
+    "subj:09004000",
+    "subj:09005000",
+    "subj:09006000",
+    "subj:09007000",
+    "subj:09008000",
+    "subj:09009000",
+    "subj:09010000",
+    "subj:09011000",
+    "subj:09011001",
+    "subj:09011002",
+    "subj:09012000",
+    "subj:09013000",
+    "subj:09014000",
+    "subj:09015000",
+    "subj:09016000"
+  )
   private[conf] val sportsRelatedNewsCodes = List(
     "subj:15000000",
     "subj:15001000",
