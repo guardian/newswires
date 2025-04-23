@@ -6,6 +6,7 @@ import { icon as arrowLeft } from '@elastic/eui/es/components/icon/assets/arrow_
 import { icon as arrowRight } from '@elastic/eui/es/components/icon/assets/arrow_right';
 import { icon as arrowEnd } from '@elastic/eui/es/components/icon/assets/arrowEnd';
 import { icon as arrowStart } from '@elastic/eui/es/components/icon/assets/arrowStart';
+import { icon as beaker } from '@elastic/eui/es/components/icon/assets/beaker'; // nb. might be renamed 'flask' in newer versions?
 import { icon as boxesHorizontal } from '@elastic/eui/es/components/icon/assets/boxes_horizontal';
 import { icon as boxesVertical } from '@elastic/eui/es/components/icon/assets/boxes_vertical';
 import { icon as calendar } from '@elastic/eui/es/components/icon/assets/calendar';
@@ -76,6 +77,7 @@ const icons = {
 	plusInCircle,
 	error,
 	gear,
+	beaker,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

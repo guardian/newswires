@@ -2,6 +2,7 @@ import {
 	EuiBetaBadge,
 	EuiButton,
 	EuiButtonEmpty,
+	EuiButtonIcon,
 	EuiEmptyPrompt,
 	EuiFlexGroup,
 	EuiHeader,
@@ -37,6 +38,7 @@ import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
+import { Tooltip } from './Tooltip.tsx';
 import { configToUrl, defaultQuery } from './urlState';
 
 const Alert = ({
@@ -217,15 +219,30 @@ export function App() {
 											>
 												Newswires
 											</EuiLink>
-											<EuiBetaBadge
-												label="Under construction"
-												title="Currently under construction"
-												color={'accent'}
-												size="s"
-												css={css`
-													margin-left: 8px;
-												`}
-											/>
+											<EuiShowFor sizes={['xs', 's']}>
+												<EuiBetaBadge
+													iconType={'beaker'}
+													label="Currently under construction"
+													aria-label="(Under construction)"
+													color={'accent'}
+													size="m"
+													css={css`
+														margin-left: 8px;
+													`}
+												/>
+											</EuiShowFor>
+											<EuiShowFor sizes={['m', 'l', 'xl']}>
+												<EuiBetaBadge
+													label="Under construction"
+													aria-label="(Under construction)"
+													title="Currently under construction"
+													color={'accent'}
+													size="s"
+													css={css`
+														margin-left: 8px;
+													`}
+												/>
+											</EuiShowFor>
 										</h1>
 									</EuiTitle>
 								</EuiHeaderSectionItem>
@@ -238,23 +255,49 @@ export function App() {
 										margin-left: 8px;
 									`}
 								>
-									<EuiButton
-										size="s"
-										iconType={'popout'}
-										onClick={() =>
-											window.open(
-												configToUrl({
-													...config,
-													view: 'feed',
-													itemId: undefined,
-												}),
-												'_blank',
-												'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-											)
-										}
-									>
-										New ticker
-									</EuiButton>
+									<EuiShowFor sizes={['xs', 's']}>
+										<Tooltip
+											tooltipContent={'Open ticker in a new window'}
+											position="left"
+										>
+											<EuiButtonIcon
+												aria-label="New ticker"
+												display="base"
+												size="s"
+												iconType={'popout'}
+												onClick={() =>
+													window.open(
+														configToUrl({
+															...config,
+															view: 'feed',
+															itemId: undefined,
+														}),
+														'_blank',
+														'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+													)
+												}
+											/>
+										</Tooltip>
+									</EuiShowFor>
+									<EuiShowFor sizes={['m', 'l', 'xl']}>
+										<EuiButton
+											size="s"
+											iconType={'popout'}
+											onClick={() =>
+												window.open(
+													configToUrl({
+														...config,
+														view: 'feed',
+														itemId: undefined,
+													}),
+													'_blank',
+													'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+												)
+											}
+										>
+											New ticker
+										</EuiButton>
+									</EuiShowFor>
 									<SettingsMenu />
 								</EuiFlexGroup>
 							</EuiHeaderSectionItem>
