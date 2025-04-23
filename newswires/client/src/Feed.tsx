@@ -8,6 +8,7 @@ import {
 import { css } from '@emotion/react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
+import { isOpenAsTicker } from './openTicker.ts';
 import { SearchSummary } from './SearchSummary.tsx';
 import { WireItemList } from './WireItemList.tsx';
 
@@ -15,7 +16,7 @@ export const Feed = () => {
 	const { state } = useSearch();
 	const { status, queryData } = state;
 
-	const isPoppedOut = !!window.opener;
+	const isPoppedOut = isOpenAsTicker();
 
 	return (
 		<EuiPageTemplate.Section
