@@ -48,6 +48,7 @@ export const DatePicker = () => {
 		<div>
 			<EuiSuperDatePicker
 				width={'auto'}
+				compressed={true}
 				start={
 					config.query.dateRange
 						? config.query.dateRange.start
