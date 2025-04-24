@@ -256,10 +256,7 @@ export function App() {
 									`}
 								>
 									<EuiShowFor sizes={['xs', 's']}>
-										<Tooltip
-											tooltipContent={'Open ticker in a new window'}
-											position="left"
-										>
+										<Tooltip tooltipContent={'Open new ticker'} position="left">
 											<EuiButtonIcon
 												aria-label="New ticker"
 												display="base"
