@@ -230,7 +230,8 @@ const WirePreviewCard = ({
 						box-sizing: content-box;
 						color: ${theme.euiTheme.colors.text};
 						background-color: ${hasBeenViewed ? accentBgColor : 'inherit'};
-						line-break: anywhere;
+						hyphens: auto;
+						hyphenate-limit-chars: 5 3 3;
 
 						& h3 {
 							grid-area: title;
