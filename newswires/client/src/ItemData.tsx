@@ -13,8 +13,11 @@ export const ItemData = ({ id }: { id: string }) => {
 
 	useEffect(() => {
 		// fetch item data from /api/item/:id
-		const q = config.query.q ? `?q=${config.query.q}` : '';
-		pandaFetch(`/api/item/${id}${q}`)
+		const queryParams = config.query.q
+			? `?${new URLSearchParams([['q', config.query.q]]).toString()}`
+			: '';
+
+		pandaFetch(`/api/item/${id}${queryParams}`)
 			.then((res) => {
 				if (res.status === 404) {
 					throw new Error('Item not found');
