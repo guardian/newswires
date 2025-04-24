@@ -16,7 +16,6 @@ import {
 	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
-	EuiResizableContainer,
 	EuiShowFor,
 	EuiText,
 	EuiTitle,
@@ -35,6 +34,7 @@ import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
+import { ResizableContainer } from './ResizableContainer.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
 import { configToUrl, defaultQuery } from './urlState';
@@ -129,7 +129,7 @@ export function App() {
 					}
 				}}
 				css={css`
-					max-height: 100vh;
+					height: 100vh;
 				`}
 			>
 				{displayDisclaimer && (
@@ -188,6 +188,7 @@ export function App() {
 						  }
 						`}
 						height: 100%;
+						max-height: 100vh;
 						${(status === 'loading' || status === 'error') &&
 						'display: flex; align-items: center;'}
 						${status === 'loading' && 'background: white;'}
@@ -273,35 +274,24 @@ export function App() {
 					{status !== 'error' && (
 						<>
 							<EuiShowFor sizes={['xs', 's']}>
-								{view === 'item' ? <ItemData id={selectedItemId} /> : <Feed />}
+								{view === 'item' &&
+									(isPoppedOut ? (
+										<ResizableContainer
+											Feed={<Feed />}
+											Item={<ItemData id={selectedItemId} />}
+											directionOverride={'vertical'}
+										/>
+									) : (
+										<ItemData id={selectedItemId} />
+									))}
+								{view !== 'item' && <Feed />}
 							</EuiShowFor>
 							<EuiShowFor sizes={['m', 'l', 'xl']}>
 								{view === 'item' ? (
-									<EuiResizableContainer className="eui-fullHeight">
-										{(EuiResizablePanel, EuiResizableButton) => (
-											<>
-												<EuiResizablePanel
-													minSize="25%"
-													initialSize={100}
-													className="eui-yScroll"
-													style={{ padding: 0, marginRight: '0.5rem' }}
-												>
-													<Feed />
-												</EuiResizablePanel>
-												<EuiResizableButton />
-												<EuiResizablePanel
-													minSize="30%"
-													initialSize={100}
-													className="eui-yScroll"
-													css={css`
-														padding: 0.5rem;
-													`}
-												>
-													<ItemData id={selectedItemId} />
-												</EuiResizablePanel>
-											</>
-										)}
-									</EuiResizableContainer>
+									<ResizableContainer
+										Feed={<Feed />}
+										Item={<ItemData id={selectedItemId} />}
+									/>
 								) : (
 									<Feed />
 								)}
