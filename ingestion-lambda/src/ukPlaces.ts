@@ -65,7 +65,7 @@ export const ukPlaces = [
     "stockport", "stratford-upon-avon", "swindon", "telford", "torquay",
     "warrington", "watford", "wigan", "windsor", "worthing", "st austell",
     "canvey island", "hatfield", "guiseley", "oulton", "filching", "everleigh",
-    "tutbury", "elmer", "ironbridge", "wembley", "portland", "kings lynn",
+    "tutbury", "elmer", "ironbridge", "wembley", "portland", "kings lynn", "glastonbury",
     // Wales towns and smaller cities
     "aberdare", "bridgend", "caernarfon", "conwy", "merthyr tydfil", "wrexham",
     "llantrisant", "neath", "port talbot", "newport", "st davids", "llandudno",
