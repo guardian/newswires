@@ -78,6 +78,7 @@ object SearchPresets {
         "MCC:DED",
         "MCC:SPO",
         "MCC:OEC",
+        "MCCL:OEC",
         "N2:GB",
         "N2:COM",
         "N2:ECI"
