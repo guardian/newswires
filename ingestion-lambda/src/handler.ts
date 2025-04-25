@@ -73,24 +73,24 @@ export const processKeywords = (
 };
 
 export const processCategoryCodes = (supplier: string, subjectCodes: string[], destinationCodes: string[], bodyText: string | undefined) => {
+	const regionCodes = inferRegionCategoryFromText(bodyText);
 	switch (supplier) {
 		case 'REUTERS':
-			return [...subjectCodes, ...processReutersDestinationCodes(destinationCodes)]
+			return [...subjectCodes, ...processReutersDestinationCodes(destinationCodes), ...regionCodes]
 		case 'AP':
-			return processFingerpostAPCategoryCodes(subjectCodes);
+			return [...processFingerpostAPCategoryCodes(subjectCodes), ...regionCodes];
 		case 'AAP':
-			return processFingerpostAAPCategoryCodes(subjectCodes);
+			return [...processFingerpostAAPCategoryCodes(subjectCodes), ...regionCodes];
 		case 'AFP':
-			return processFingerpostAFPCategoryCodes(subjectCodes);
+			return [...processFingerpostAFPCategoryCodes(subjectCodes), ...regionCodes];
 		case 'PA':
 			return processFingerpostPACategoryCodes(subjectCodes);
 		case 'MINOR_AGENCIES': {
-			const region = inferRegionCategoryFromText(bodyText);
-			const updatedSubjectCodes = region ? [...subjectCodes, region] : subjectCodes
+			const updatedSubjectCodes = [...subjectCodes, ...regionCodes];
 			return updatedSubjectCodes.filter(_ => _.length > 0);
 		}
 		default:
-			return processUnknownFingerpostCategoryCodes(subjectCodes, supplier);
+			return [...processUnknownFingerpostCategoryCodes(subjectCodes, supplier), ...regionCodes];
 	}
 };
 
