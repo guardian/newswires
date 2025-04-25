@@ -1,4 +1,5 @@
 import nlp from 'compromise';
+import { countryNames, countryNamesMap } from './countries';
 import { lexicon, ukPlaces } from './ukPlaces';
 
 interface CategoryCode {
@@ -131,9 +132,9 @@ export function processUnknownFingerpostCategoryCodes(
 
 export function inferRegionCategoryFromText(
 	content: string | undefined,
-): string | undefined {
+): string[] {
 	if (!content) {
-		return undefined;
+		return [];
 	}
 
 	const doc = nlp(content, lexicon) as {
@@ -143,17 +144,41 @@ export function inferRegionCategoryFromText(
 	const rawPlaces = doc.places().out('array');
 
 	if (!Array.isArray(rawPlaces)) {
-		return undefined;
+		return [];
 	}
 
 	const places = (rawPlaces as string[])
 		.flatMap((place) => place.split(/[,\n]/))
-		.map((place) => place.trim().toLowerCase())
+		.map((place) =>
+			place
+				.trim()
+				.toLowerCase()
+				.replaceAll(/['’]s$/g, '')
+				.replaceAll(/\/>/g, ''),
+		)
 		.filter((place) => !!place && place.length > 0);
 
 	const isUk = places.some((place) =>
 		ukPlaces.some((ukPlace) => place.includes(ukPlace)),
 	);
 
-	return isUk ? 'N2:GB' : undefined;
+	const maybeIsUkTag = isUk ? 'N2:GB' : undefined;
+
+	const countriesMentioned = places
+		.filter((place) => countryNames.includes(place))
+		.map((country) => countryNamesMap[country])
+		.filter((country) => !!country);
+
+	const countryTags: string[] = countriesMentioned.flatMap((country) => [
+		`experimentalCountryCode:${country['alpha-2']}`,
+		`experimentalRegionName:${country.region}`,
+	]);
+
+	return Array.from(
+		new Set(
+			[...countryTags, maybeIsUkTag].filter(
+				(i): i is string => i !== undefined,
+			),
+		),
+	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 }

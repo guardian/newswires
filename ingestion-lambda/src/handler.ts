@@ -84,6 +84,7 @@ export const processCategoryCodes = (
 	priority?: string,
 ) => {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
+	const regionCodes = inferRegionCategoryFromText(bodyText);
 
 	switch (supplier) {
 		case 'REUTERS':
@@ -91,26 +92,45 @@ export const processCategoryCodes = (
 				...catCodes,
 				...subjectCodes,
 				...processReutersDestinationCodes(destinationCodes),
+				...regionCodes,
+			];
+			return [
+				...subjectCodes,
+				...processReutersDestinationCodes(destinationCodes),
 			];
 		case 'AP':
-			return [...catCodes, ...processFingerpostAPCategoryCodes(subjectCodes)];
+			return [
+				...catCodes,
+				...processFingerpostAPCategoryCodes(subjectCodes),
+				...regionCodes,
+			];
 		case 'AAP':
-			return [...catCodes, ...processFingerpostAAPCategoryCodes(subjectCodes)];
+			return [
+				...catCodes,
+				...processFingerpostAAPCategoryCodes(subjectCodes),
+				...regionCodes,
+			];
 		case 'AFP':
-			return [...catCodes, ...processFingerpostAFPCategoryCodes(subjectCodes)];
+			return [
+				...catCodes,
+				...processFingerpostAFPCategoryCodes(subjectCodes),
+				...regionCodes,
+			];
 		case 'PA':
 			return [...catCodes, ...processFingerpostPACategoryCodes(subjectCodes)];
 		case 'MINOR_AGENCIES': {
-			const region = inferRegionCategoryFromText(bodyText);
-			const updatedSubjectCodes = region
-				? [...subjectCodes, region]
-				: subjectCodes;
-			return [...catCodes, ...updatedSubjectCodes.filter((_) => _.length > 0)];
+			const updatedSubjectCodes = [
+				...subjectCodes,
+				...catCodes,
+				...regionCodes,
+			];
+			return updatedSubjectCodes.filter((_) => _.length > 0);
 		}
 		default:
 			return [
 				...catCodes,
 				...processUnknownFingerpostCategoryCodes(subjectCodes, supplier),
+				...regionCodes,
 			];
 	}
 };
