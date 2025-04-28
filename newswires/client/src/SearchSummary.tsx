@@ -38,9 +38,12 @@ const Summary = ({
 		supplier: suppliers,
 		dateRange,
 		categoryCode,
+		categoryCodeExcl,
 	} = config.query;
 
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
+	const displayExcludedCategoryCodes =
+		categoryCodeExcl && categoryCodeExcl.length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;
 
 	const displayFilters: boolean =
@@ -112,7 +115,9 @@ const Summary = ({
 			{displaySuppliers &&
 				suppliers!.map((supplier) => renderBadge('Supplier', supplier))}
 			{displayCategoryCodes &&
-				categoryCode!.map((code) => renderBadge('Category code', code))}
+				categoryCode!.map((code) => renderBadge('Category', code))}
+			{displayExcludedCategoryCodes &&
+				categoryCodeExcl.map((code) => renderBadge('(NOT) Category', code))}
 		</>
 	);
 };
