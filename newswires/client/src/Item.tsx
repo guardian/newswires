@@ -8,7 +8,7 @@ import {
 	EuiSwitch,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type WireData } from './sharedTypes';
 import { Tooltip } from './Tooltip.tsx';
 import { WireDetail } from './WireDetail';
@@ -29,6 +29,22 @@ export const Item = ({
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 
+	const headingRef = useRef<HTMLHeadingElement>(null);
+
+	// scroll to heading when a new item is selected
+	useEffect(() => {
+		if (headingRef.current) {
+			headingRef.current.scrollIntoView({
+				/**
+				 * this won't actually put it in the center because there's not
+				 * much above the heading, but it makes sure that the panel is fully
+				 * scrolled to the top
+				 * */
+				block: 'center',
+			});
+		}
+	}, [headingRef, itemData?.id]);
+
 	return (
 		<EuiSplitPanel.Outer>
 			{error && (
@@ -39,7 +55,11 @@ export const Item = ({
 			{itemData && (
 				<>
 					<EuiSplitPanel.Inner>
-						<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
+						<EuiFlexGroup
+							justifyContent="spaceBetween"
+							alignItems="center"
+							ref={headingRef}
+						>
 							<Tooltip
 								tooltipContent="Previous story"
 								position={isSmallScreen ? 'right' : 'top'}
