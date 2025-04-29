@@ -24,8 +24,9 @@ import {
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
+import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
 	loadOrSetInLocalStorage,
 	saveToLocalStorage,
@@ -82,19 +83,13 @@ const Alert = ({
 };
 
 export function App() {
-	const {
-		config,
-		state,
-		handleEnterQuery,
-		handleRetry,
-		handleDeselectItem,
-		handleNextItem,
-		handlePreviousItem,
-	} = useSearch();
+	const { config, state, handleEnterQuery, handleRetry } = useSearch();
 
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
 	);
+
+	const { handleShortcutKeyUp } = useKeyboardShortcuts();
 
 	const { view, itemId: selectedItemId, query } = config;
 	const { status } = state;
@@ -108,6 +103,14 @@ export function App() {
 		}
 	};
 
+	useEffect(() => {
+		window.addEventListener('keyup', handleShortcutKeyUp);
+
+		return () => {
+			window.removeEventListener('keyup', handleShortcutKeyUp);
+		};
+	}, [handleShortcutKeyUp]);
+
 	const breakpoints = {
 		sm: '@media (max-width: 600px)',
 		md: '@media (min-width: 900px)',
@@ -116,21 +119,6 @@ export function App() {
 	return (
 		<EuiProvider colorMode="light">
 			<EuiPageTemplate
-				onKeyUp={(e) => {
-					if (view == 'item') {
-						switch (e.key) {
-							case 'Escape':
-								handleDeselectItem();
-								break;
-							case 'ArrowLeft':
-								handlePreviousItem();
-								break;
-							case 'ArrowRight':
-								handleNextItem();
-								break;
-						}
-					}
-				}}
 				css={css`
 					height: 100vh;
 				`}

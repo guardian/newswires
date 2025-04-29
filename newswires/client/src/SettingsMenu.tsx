@@ -7,6 +7,7 @@ import {
 	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { useState } from 'react';
+import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
 import { useUserSettings } from './context/UserSettingsContext';
 
 export const SettingsMenu = () => {
@@ -92,15 +93,17 @@ export const SettingsMenu = () => {
 	);
 
 	return (
-		<EuiPopover
-			id={contextMenuPopoverId}
-			button={button}
-			isOpen={isPopoverOpen}
-			closePopover={closePopover}
-			panelPaddingSize="none"
-			anchorPosition="downLeft"
-		>
-			<EuiContextMenu initialPanelId={0} panels={panels} />
-		</EuiPopover>
+		<StopShortcutPropagationWrapper>
+			<EuiPopover
+				id={contextMenuPopoverId}
+				button={button}
+				isOpen={isPopoverOpen}
+				closePopover={closePopover}
+				panelPaddingSize="none"
+				anchorPosition="downLeft"
+			>
+				<EuiContextMenu initialPanelId={0} panels={panels} />
+			</EuiPopover>
+		</StopShortcutPropagationWrapper>
 	);
 };
