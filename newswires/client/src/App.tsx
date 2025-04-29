@@ -24,7 +24,7 @@ import {
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import {
 	loadOrSetInLocalStorage,
@@ -107,6 +107,46 @@ export function App() {
 		}
 	};
 
+	const handleShortCutKeyUp = useCallback(
+		(event: KeyboardEvent): void => {
+			if (!(event.target instanceof HTMLElement)) return;
+			const target = event.target;
+			/**
+			 * @see https://www.taniarascia.com/keyboard-shortcut-hook-react/ for these 'isTextInput' conditions
+			 */
+			const isTextInput =
+				target instanceof HTMLTextAreaElement ||
+				(target instanceof HTMLInputElement &&
+					(!target.type || target.type === 'text')) ||
+				target.isContentEditable;
+
+			if (isTextInput) return;
+
+			if (view == 'item') {
+				switch (event.key) {
+					case 'Escape':
+						handleDeselectItem();
+						break;
+					case 'ArrowLeft':
+						handlePreviousItem();
+						break;
+					case 'ArrowRight':
+						handleNextItem();
+						break;
+				}
+			}
+		},
+		[handleDeselectItem, handleNextItem, handlePreviousItem, view],
+	);
+
+	useEffect(() => {
+		window.addEventListener('keyup', handleShortCutKeyUp);
+
+		return () => {
+			window.removeEventListener('keyup', handleShortCutKeyUp);
+		};
+	}, [handleShortCutKeyUp]);
+
 	const breakpoints = {
 		sm: '@media (max-width: 600px)',
 		md: '@media (min-width: 900px)',
@@ -115,21 +155,6 @@ export function App() {
 	return (
 		<EuiProvider colorMode="light">
 			<EuiPageTemplate
-				onKeyUp={(e) => {
-					if (view == 'item') {
-						switch (e.key) {
-							case 'Escape':
-								handleDeselectItem();
-								break;
-							case 'ArrowLeft':
-								handlePreviousItem();
-								break;
-							case 'ArrowRight':
-								handleNextItem();
-								break;
-						}
-					}
-				}}
 				css={css`
 					height: 100vh;
 				`}
