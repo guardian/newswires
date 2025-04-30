@@ -17,10 +17,10 @@ import { useCallback, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
+import { openTicker } from './openTicker.ts';
 import { SearchBox } from './SearchBox';
-import type { Config, Query } from './sharedTypes';
+import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
-import { configToUrl } from './urlState.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q, preset, categoryCode, dateRange } = query;
@@ -52,30 +52,6 @@ const presets = [
 function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
 }
-
-const openTicker = (queryType: string, config: Config, value?: string) => {
-	const query =
-		queryType === 'preset'
-			? {
-					...config.query,
-					preset: value ? value : undefined,
-				}
-			: {
-					...config.query,
-					supplier: value ? [value] : [],
-				};
-
-	window.open(
-		configToUrl({
-			...config,
-			query,
-			view: 'feed',
-			itemId: undefined,
-		}),
-		'_blank',
-		'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-	);
-};
 
 export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
@@ -134,7 +110,7 @@ export const SideNav = () => {
 					activeSuppliers.length === recognisedSuppliers.length,
 				onClick: () => handleEnterQuery({ ...config.query, supplier: [] }),
 				onTickerClick: () => {
-					openTicker('supplier', config);
+					openTicker({ ...config.query, supplier: [] });
 				},
 				colour: 'black',
 			},
@@ -145,7 +121,7 @@ export const SideNav = () => {
 				colour: colour,
 				onClick: () => toggleSupplier(supplier),
 				onTickerClick: () => {
-					openTicker('supplier', config, supplier);
+					openTicker({ ...config.query, supplier: [supplier] });
 				},
 			})),
 		],
@@ -188,7 +164,7 @@ export const SideNav = () => {
 				extraAction: {
 					iconType: 'popout', // EUI icon on the right
 					onClick: () => {
-						openTicker('preset', config, presetId);
+						openTicker({ ...config.query, preset: presetId });
 					},
 					'aria-label': 'More info',
 					alwaysShow: false,

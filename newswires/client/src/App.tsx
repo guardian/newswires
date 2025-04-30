@@ -35,11 +35,12 @@ import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
+import { isOpenAsTicker, openTicker } from './openTicker.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
 import { Tooltip } from './Tooltip.tsx';
-import { configToUrl, defaultQuery } from './urlState';
+import { defaultQuery } from './urlState';
 
 const Alert = ({
 	title,
@@ -98,7 +99,7 @@ export function App() {
 	const { view, itemId: selectedItemId, query } = config;
 	const { status } = state;
 
-	const isPoppedOut = !!window.opener;
+	const isPoppedOut = isOpenAsTicker();
 
 	const dismissDisclaimer = (persist?: boolean) => {
 		setDisplayDisclaimer(false);
@@ -263,17 +264,7 @@ export function App() {
 												display="base"
 												size="s"
 												iconType={'popout'}
-												onClick={() =>
-													window.open(
-														configToUrl({
-															...config,
-															view: 'feed',
-															itemId: undefined,
-														}),
-														'_blank',
-														'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-													)
-												}
+												onClick={() => openTicker(config.query)}
 											/>
 										</Tooltip>
 									</EuiShowFor>
@@ -281,17 +272,7 @@ export function App() {
 										<EuiButton
 											size="s"
 											iconType={'popout'}
-											onClick={() =>
-												window.open(
-													configToUrl({
-														...config,
-														view: 'feed',
-														itemId: undefined,
-													}),
-													'_blank',
-													'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-												)
-											}
+											onClick={() => openTicker(config.query)}
 										>
 											New ticker
 										</EuiButton>

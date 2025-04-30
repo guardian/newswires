@@ -12,8 +12,8 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
+import { isOpenAsTicker, openTicker } from './openTicker.ts';
 import { Tooltip } from './Tooltip.tsx';
-import { configToUrl } from './urlState.ts';
 
 const presetLabel = (preset: string) => {
 	switch (preset) {
@@ -123,7 +123,7 @@ const Summary = ({
 };
 
 export const SearchSummary = () => {
-	const isPoppedOut = !!window.opener;
+	const isPoppedOut = isOpenAsTicker();
 
 	const {
 		state: { queryData, status, lastUpdate },
@@ -189,17 +189,7 @@ export const SearchSummary = () => {
 						aria-label="Open new ticker in popout"
 						iconType={'popout'}
 						color={'primary'}
-						onClick={() =>
-							window.open(
-								configToUrl({
-									...config,
-									view: 'feed',
-									itemId: undefined,
-								}),
-								'_blank',
-								'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
-							)
-						}
+						onClick={() => openTicker(config.query)}
 					/>
 				</Tooltip>
 			)}
