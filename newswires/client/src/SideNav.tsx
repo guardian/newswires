@@ -110,7 +110,7 @@ export const SideNav = () => {
 					activeSuppliers.length === recognisedSuppliers.length,
 				onClick: () => handleEnterQuery({ ...config.query, supplier: [] }),
 				onTickerClick: () => {
-					openTicker({ ...config.query });
+					openTicker({ ...config.query, supplier: [] });
 				},
 				colour: 'black',
 			},
