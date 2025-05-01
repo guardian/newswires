@@ -1,4 +1,5 @@
-import { EuiResizableContainer } from '@elastic/eui';
+import { EuiEmptyPrompt, EuiResizableContainer } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import { z } from 'zod';
 import {
@@ -41,7 +42,7 @@ export const ResizableContainer = ({
 	directionOverride,
 }: {
 	Feed: React.ReactNode;
-	Item: React.ReactNode;
+	Item?: React.ReactNode;
 	directionOverride?: PanelDirections;
 }) => {
 	const { resizablePanelsDirection: directionFromSettings } = useUserSettings();
@@ -61,7 +62,6 @@ export const ResizableContainer = ({
 			className="eui-fullHeight"
 			direction={direction}
 			onPanelWidthChange={(newSizes) => {
-				console.log('newSizes', JSON.stringify(newSizes));
 				saveToLocalStorage('resizablePanelSizes', {
 					...sizes,
 					[direction]: { ...newSizes },
@@ -74,21 +74,26 @@ export const ResizableContainer = ({
 					<EuiResizablePanel
 						id={firstPanelId}
 						minSize="20%"
-						initialSize={sizes[direction][firstPanelId]}
+						initialSize={Item ? sizes[direction][firstPanelId] : 100}
 						className="eui-yScroll"
 						style={{ padding: 0 }}
 					>
 						{Feed}
 					</EuiResizablePanel>
-					<EuiResizableButton accountForScrollbars={'both'} />
+					<EuiResizableButton
+						accountForScrollbars={'both'}
+						css={css`
+							${Item ? '' : 'display: none;'}
+						`}
+					/>
 					<EuiResizablePanel
 						id={secondPanelId}
-						minSize="20%"
-						initialSize={sizes[direction][secondPanelId]}
+						minSize={Item ? '20%' : '0%'}
+						initialSize={Item ? sizes[direction][secondPanelId] : 0}
 						className="eui-yScroll"
 						paddingSize="none"
 					>
-						{Item}
+						{Item ?? <EuiEmptyPrompt title={<h2>No item selected</h2>} />}
 					</EuiResizablePanel>
 				</>
 			)}
