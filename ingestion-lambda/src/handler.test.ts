@@ -1,10 +1,14 @@
-import {extractFieldFromString, processKeywords, safeBodyParse} from './handler';
+import {
+	extractFieldFromString,
+	processKeywords,
+	safeBodyParse,
+} from './handler';
 
 describe('processKeywords', () => {
 	it('should return an empty array if provided with `undefined`', () => {
 		expect(
 			Array.isArray(processKeywords(undefined)) &&
-			processKeywords(undefined).length === 0,
+				processKeywords(undefined).length === 0,
 		).toBe(true);
 	});
 
