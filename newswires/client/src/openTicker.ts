@@ -14,8 +14,5 @@ export const openTicker = (query: Query) => {
 };
 
 export const isOpenAsTicker = (): boolean => {
-	const isPoppedOut = !!window.opener;
-	const url = new URL(window.location.href);
-	const isFeed = url.pathname.startsWith('/feed');
-	return isPoppedOut && isFeed;
+	return !!window.opener;
 };
