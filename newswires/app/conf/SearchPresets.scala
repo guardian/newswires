@@ -147,15 +147,6 @@ object SearchPresets {
     )
   )
 
-  private val ReutersUk = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List("N2:GB"),
-      categoryCodesExcl = List("REUTERS:RBN", "REUTERS:RWS")
-    )
-  )
-
   private val ReutersBusiness = List(
     SearchParams(
       text = None,
@@ -188,7 +179,7 @@ object SearchPresets {
     ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 
   private val AllUk =
-    PaHome ::: ReutersUk ::: MinorAgenciesUk
+    PaHome ::: MinorAgenciesUk
 
   private val AllBusiness = ReutersBusiness ::: ApBusiness ::: AapBusiness
 }
