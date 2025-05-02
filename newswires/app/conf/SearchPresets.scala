@@ -59,9 +59,7 @@ object SearchPresets {
         "REUTERS:RWSA"
       ),
       categoryCodesExcl = List(
-        "MCC:SPO",
-        "REUTERS:RBN",
-        "REUTERS:REULB"
+        "MCC:SPO"
       )
     ),
     SearchParams(
