@@ -108,6 +108,7 @@ export type Action = z.infer<typeof ActionSchema>;
 export type SearchContextShape = {
 	config: Config;
 	state: State;
+	previousItemId: string | undefined;
 	viewedItemIds: string[];
 	handleEnterQuery: (query: Query) => void;
 	handleRetry: () => void;
@@ -123,6 +124,10 @@ export const SearchContext: Context<SearchContextShape | null> =
 
 export function SearchContextProvider({ children }: PropsWithChildren) {
 	const { sendTelemetryEvent } = useTelemetry();
+
+	const [previousItemId, setPreviousItemId] = useState<string | undefined>(
+		undefined,
+	);
 
 	const [currentConfig, setConfig] = useState<Config>(() =>
 		urlToConfig(window.location),
@@ -274,6 +279,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	};
 
 	const handleSelectItem = (item: string) => {
+		setPreviousItemId(undefined);
+
 		sendTelemetryEvent('NEWSWIRES_SELECT_ITEM', {
 			...Object.fromEntries(
 				Object.entries(currentConfig.query).map(([key, value]) => [
@@ -283,6 +290,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			),
 			itemId: item,
 		});
+
 		pushConfigState({
 			view: 'item',
 			itemId: item,
@@ -292,6 +300,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const handleDeselectItem = () => {
 		pushConfigState({ view: 'feed', query: currentConfig.query });
+
+		if (currentConfig.itemId) {
+			setPreviousItemId(currentConfig.itemId);
+		}
 	};
 
 	const handleNextItem = () => {
@@ -367,6 +379,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				toggleAutoUpdate,
 				loadMoreResults,
 				viewedItemIds,
+				previousItemId,
 			}}
 		>
 			{children}

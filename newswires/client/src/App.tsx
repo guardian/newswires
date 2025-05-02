@@ -295,27 +295,33 @@ export function App() {
 					{status !== 'error' && (
 						<>
 							<EuiShowFor sizes={['xs', 's']}>
-								{view === 'item' &&
-									(isPoppedOut ? (
-										<ResizableContainer
-											Feed={<Feed />}
-											Item={<ItemData id={selectedItemId} />}
-											directionOverride={'vertical'}
-										/>
-									) : (
-										<ItemData id={selectedItemId} />
-									))}
-								{view !== 'item' && <Feed />}
-							</EuiShowFor>
-							<EuiShowFor sizes={['m', 'l', 'xl']}>
-								{view === 'item' ? (
+								{isPoppedOut && (
 									<ResizableContainer
 										Feed={<Feed />}
-										Item={<ItemData id={selectedItemId} />}
+										Item={
+											selectedItemId ? (
+												<ItemData id={selectedItemId} />
+											) : undefined
+										}
+										directionOverride={'vertical'}
 									/>
-								) : (
-									<Feed />
 								)}
+
+								{view === 'item' && !isPoppedOut && (
+									<ItemData id={selectedItemId} />
+								)}
+
+								{view !== 'item' && !isPoppedOut && <Feed />}
+							</EuiShowFor>
+							<EuiShowFor sizes={['m', 'l', 'xl']}>
+								<ResizableContainer
+									Feed={<Feed />}
+									Item={
+										selectedItemId ? (
+											<ItemData id={selectedItemId} />
+										) : undefined
+									}
+								/>
 							</EuiShowFor>
 						</>
 					)}

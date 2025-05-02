@@ -6,8 +6,9 @@ import {
 	EuiTextBlockTruncate,
 	useEuiBackgroundColor,
 	useEuiTheme,
+	useIsWithinBreakpoints,
 } from '@elastic/eui';
-import { css } from '@emotion/react';
+import { css, keyframes } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
@@ -16,6 +17,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
+import { isOpenAsTicker } from './openTicker.ts';
 import type { WireData } from './sharedTypes.ts';
 import { getSupplierInfo } from './suppliers.ts';
 
@@ -26,7 +28,7 @@ export const WireItemList = ({
 	wires: WireData[];
 	totalCount: number;
 }) => {
-	const { config, loadMoreResults } = useSearch();
+	const { config, loadMoreResults, previousItemId } = useSearch();
 
 	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
@@ -58,6 +60,8 @@ export const WireItemList = ({
 								isFromRefresh={isFromRefresh}
 								highlight={highlight}
 								selected={selectedWireId == id.toString()}
+								view={config.view}
+								previousItemId={previousItemId}
 							/>
 						</li>
 					),
@@ -147,6 +151,23 @@ function MaybeSecondaryCardContent({
 	return null;
 }
 
+function scrollElementIntoView(
+	el: HTMLElement,
+	{
+		scrollPosition = 'nearest',
+		behavior,
+	}: {
+		scrollPosition?: ScrollLogicalPosition;
+		behavior?: ScrollBehavior;
+	} = {},
+) {
+	el.scrollIntoView({
+		behavior,
+		block: scrollPosition,
+		inline: scrollPosition,
+	});
+}
+
 const WirePreviewCard = ({
 	id,
 	supplier,
@@ -154,6 +175,8 @@ const WirePreviewCard = ({
 	content,
 	highlight,
 	selected,
+	view,
+	previousItemId,
 }: {
 	id: number;
 	supplier: string;
@@ -162,20 +185,37 @@ const WirePreviewCard = ({
 	highlight: string | undefined;
 	selected: boolean;
 	isFromRefresh: boolean;
+	view: string;
+	previousItemId: string | undefined;
 }) => {
 	const { viewedItemIds } = useSearch();
 	const { showSecondaryFeedContent } = useUserSettings();
 
 	const ref = useRef<HTMLDivElement>(null);
+	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const isPoppedOut = isOpenAsTicker();
 
 	useEffect(() => {
 		if (selected && ref.current) {
-			ref.current.scrollIntoView({
-				behavior: 'smooth',
-				block: 'nearest',
-			});
+			scrollElementIntoView(ref.current);
 		}
 	}, [selected]);
+
+	/*
+	 * In mobile view, the Feed component re‑renders when returning from a story view.
+	 * Restores the previous scroll position to maintain continuity.
+	 */
+	useEffect(() => {
+		if (
+			!isPoppedOut &&
+			isSmallScreen &&
+			view === 'feed' &&
+			id.toString() === previousItemId &&
+			ref.current
+		) {
+			scrollElementIntoView(ref.current, { scrollPosition: 'center' });
+		}
+	}, [view, id, previousItemId, isSmallScreen, isPoppedOut]);
 
 	const theme = useEuiTheme();
 	const accentBgColor = useEuiBackgroundColor('subdued', {
@@ -211,6 +251,15 @@ const WirePreviewCard = ({
 		align-items: baseline;
 	`;
 
+	const borderFade = (primaryColor: string) => keyframes`
+		from {
+			border-left-color: ${primaryColor};
+		}
+		to {
+			border-left-color: transparent;
+		}
+	`;
+
 	return (
 		<Link to={id.toString()}>
 			<div
@@ -226,6 +275,12 @@ const WirePreviewCard = ({
 						border-left: 4px solid
 							${selected ? theme.euiTheme.colors.primary : 'transparent'};
 						border-bottom: 1px solid ${theme.euiTheme.colors.mediumShade};
+						${id.toString() === previousItemId
+							? css`
+									animation: ${borderFade(theme.euiTheme.colors.primary)} 0.6s
+										ease-out forwards;
+								`
+							: null}
 						padding: 0.5rem;
 						box-sizing: content-box;
 						color: ${theme.euiTheme.colors.text};
