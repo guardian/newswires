@@ -87,7 +87,9 @@ function decideMainHeadingContent(
 	{ headline, slug }: WireData['content'],
 ): string {
 	const prefix =
-		supplier === 'AAP' && slug && slug.length > 0 ? `${slug} - ` : '';
+		(supplier === 'AAP' || supplier === 'PA') && slug && slug.length > 0
+			? `${slug} - `
+			: '';
 
 	if (headline && headline.length > 0) {
 		return `${prefix}${headline}`;
@@ -136,10 +138,10 @@ function MaybeSecondaryCardContent({
 		return <p>{subhead}</p>;
 	}
 	const maybeBodyTextPreview = bodyText
-		? sanitizeHtml(bodyText, { allowedTags: [], allowedAttributes: {} }).slice(
-				0,
-				300,
-			)
+		? sanitizeHtml(bodyText.replace(/<br \/>/g, '&nbsp;'), {
+				allowedTags: [],
+				allowedAttributes: {},
+			}).slice(0, 300)
 		: undefined;
 	if (maybeBodyTextPreview && maybeBodyTextPreview !== headline) {
 		return (
