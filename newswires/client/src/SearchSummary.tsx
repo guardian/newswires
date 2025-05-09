@@ -17,10 +17,14 @@ import { Tooltip } from './Tooltip.tsx';
 
 const presetLabel = (preset: string) => {
 	switch (preset) {
-		case 'all-uk':
-			return 'UK';
+		case 'all-presets':
+			return 'All';
 		case 'all-world':
 			return 'World';
+		case 'all-uk':
+			return 'UK';
+		case 'all-business':
+			return 'Business';
 		default:
 			return preset;
 	}
