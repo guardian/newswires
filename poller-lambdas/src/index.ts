@@ -76,11 +76,13 @@ const pollerWrapper =
 							},
 						};
 						await sqs.send(new SendMessageCommand(message)).catch((error) => {
-							logger.error({
-								message: `Sending to queue failed for ${externalId}`,
-								error: error instanceof Error ? error.message : error,
-								queueMessage: JSON.stringify(message),
-							});
+							logger.error(
+								{
+									message: `Sending to queue failed for ${externalId}`,
+									queueMessage: JSON.stringify(message),
+								},
+								error,
+							);
 							throw error; // we still expect this to be terminal for the poller lambda
 						});
 					}
@@ -119,12 +121,17 @@ const pollerWrapper =
 					}
 				})
 				.catch((error) => {
-					logger.error({
-						message: `Poller lambda failed with message: ${error instanceof Error ? error.message : error}`,
-						sqsMessageId: Records.map((record) => record.messageId).join(', '),
-						eventType: POLLER_FAILURE_EVENT_TYPE,
-						pollerName: pollerFunction.name,
-					});
+					logger.error(
+						{
+							message: `Poller lambda failed with message: ${error instanceof Error ? error.message : error}`,
+							sqsMessageId: Records.map((record) => record.messageId).join(
+								', ',
+							),
+							eventType: POLLER_FAILURE_EVENT_TYPE,
+							pollerName: pollerFunction.name,
+						},
+						error,
+					);
 					// consider still queuing next (perhaps with default delay or 1min) to avoid the lambda from stopping entirely
 					throw error;
 				});
