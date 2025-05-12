@@ -1,12 +1,13 @@
 import { EuiEmptyPrompt, EuiResizableContainer } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { z } from 'zod';
 import {
 	loadOrSetInLocalStorage,
 	saveToLocalStorage,
 } from './context/localStorage.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
+import type { FeedProps } from './Feed.tsx';
 
 export type PanelDirections = 'vertical' | 'horizontal';
 
@@ -41,10 +42,12 @@ export const ResizableContainer = ({
 	Item,
 	directionOverride,
 }: {
-	Feed: React.ReactNode;
+	Feed: React.ComponentType<FeedProps>;
 	Item?: React.ReactNode;
 	directionOverride?: PanelDirections;
 }) => {
+	const leftPanelRef = useRef<HTMLDivElement>(null);
+
 	const { resizablePanelsDirection: directionFromSettings } = useUserSettings();
 
 	const direction = directionOverride ?? directionFromSettings;
@@ -77,8 +80,9 @@ export const ResizableContainer = ({
 						initialSize={Item ? sizes[direction][firstPanelId] : 100}
 						className="eui-yScroll"
 						style={{ padding: 0 }}
+						panelRef={leftPanelRef}
 					>
-						{Feed}
+						<Feed containerRef={leftPanelRef} />
 					</EuiResizablePanel>
 					<EuiResizableButton
 						accountForScrollbars={'both'}
