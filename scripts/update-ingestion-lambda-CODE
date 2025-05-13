@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+npm run build -w ingestion-lambda
+
+zip -FSjr "ingestion-lambda/dist/ingestion-lambda.zip" "ingestion-lambda/dist/handler.js"
+
+aws lambda update-function-code \
+    --function-name editorial-feeds-CODE-news-IngestionLambdaCODEB3050-ULV0rX4EQYIo \
+    --profile editorial-feeds \
+    --region eu-west-1 \
+    --zip-file "fileb://ingestion-lambda/dist/ingestion-lambda.zip"
