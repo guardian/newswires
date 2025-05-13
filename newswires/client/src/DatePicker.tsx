@@ -70,6 +70,8 @@ export const DatePicker = () => {
 					timeRangeOption('30m'),
 					timeRangeOption('1h'),
 					timeRangeOption('24h'),
+					timeRangeOption('3d'),
+					timeRangeOption('1w'),
 					timeRangeOption('today'),
 					timeRangeOption('1d'),
 					timeRangeOption('2d'),

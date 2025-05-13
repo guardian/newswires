@@ -122,6 +122,10 @@ export const timeRangeOption = (start: string) => {
 				end: `now-2d/d`,
 				label: moment().subtract(2, 'days').format('dddd'),
 			};
+		case '3d':
+			return { start: `now-3d`, end: `now`, label: 'Last 3 days' };
+		case '1w':
+			return { start: `now-1w`, end: 'now', label: 'Last 1 week' };
 		default:
 			return { start: `now-2w`, end: 'now', label: 'Last 14 days' };
 	}
