@@ -24,7 +24,7 @@ import {
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
