@@ -57,7 +57,10 @@ function mergeQueryData(
 				...newData.results
 					.filter((newItem) => !existingIds.has(newItem.id))
 					.map((newItem) => ({ ...newItem, isFromRefresh: true })),
-				...filteredExistingResults,
+				...filteredExistingResults.map((item) => ({
+					...item,
+					isFromRefresh: false,
+				})),
 			],
 		};
 	} else {

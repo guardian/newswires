@@ -285,7 +285,7 @@ export function App() {
 							<EuiShowFor sizes={['xs', 's']}>
 								{isPoppedOut && (
 									<ResizableContainer
-										Feed={<Feed />}
+										Feed={Feed}
 										Item={
 											selectedItemId ? (
 												<ItemData id={selectedItemId} />
@@ -303,7 +303,7 @@ export function App() {
 							</EuiShowFor>
 							<EuiShowFor sizes={['m', 'l', 'xl']}>
 								<ResizableContainer
-									Feed={<Feed />}
+									Feed={Feed}
 									Item={
 										selectedItemId ? (
 											<ItemData id={selectedItemId} />

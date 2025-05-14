@@ -9,10 +9,15 @@ import { css } from '@emotion/react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { isOpenAsTicker } from './openTicker.ts';
+import { ScrollToTopButton } from './ScrollToTopButton.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
 import { WireItemList } from './WireItemList.tsx';
 
-export const Feed = () => {
+export interface FeedProps {
+	containerRef?: React.RefObject<HTMLDivElement>;
+}
+
+export const Feed = ({ containerRef }: FeedProps) => {
 	const { state } = useSearch();
 	const { status, queryData } = state;
 
@@ -78,6 +83,8 @@ export const Feed = () => {
 							wires={queryData.results}
 							totalCount={queryData.totalCount}
 						/>
+
+						<ScrollToTopButton threshold={300} containerRef={containerRef} />
 					</>
 				)}
 		</EuiPageTemplate.Section>
