@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { stage } from './app-configuration.ts';
 import { App } from './App.tsx';
 import './icons';
+import { KeyboardShortcutsProvider } from './context/KeyboardShortcutsContext.tsx';
 import { SearchContextProvider } from './context/SearchContext.tsx';
 import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
 import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
@@ -22,7 +23,9 @@ createRoot(document.getElementById('root')!).render(
 		<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
 			<UserSettingsContextProvider>
 				<SearchContextProvider>
-					<App />
+					<KeyboardShortcutsProvider>
+						<App />
+					</KeyboardShortcutsProvider>
 				</SearchContextProvider>
 			</UserSettingsContextProvider>
 		</TelemetryContextProvider>

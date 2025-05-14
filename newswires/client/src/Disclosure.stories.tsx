@@ -4,7 +4,7 @@ import { Disclosure } from './Disclosure';
 import { setUpIcons } from './icons';
 
 export default { component: Disclosure };
-const meta = {
+const _meta = {
 	title: 'Components/Disclosure',
 	component: Disclosure,
 	parameters: {
@@ -22,7 +22,7 @@ const meta = {
 	],
 } satisfies Meta<typeof Disclosure>;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof _meta>;
 
 setUpIcons();
 

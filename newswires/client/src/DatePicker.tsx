@@ -5,6 +5,7 @@ import { EuiSuperDatePicker } from '@elastic/eui';
 import type { EuiCommonlyUsedTimeRanges } from '@elastic/eui/src/components/date_picker/super_date_picker/quick_select_popover/commonly_used_time_ranges';
 import moment from 'moment';
 import type { ReactElement } from 'react';
+import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import {
 	DEFAULT_DATE_RANGE,
@@ -45,7 +46,7 @@ export const DatePicker = () => {
 	);
 
 	return (
-		<div>
+		<StopShortcutPropagationWrapper>
 			<EuiSuperDatePicker
 				width={'auto'}
 				compressed={true}
@@ -77,6 +78,6 @@ export const DatePicker = () => {
 					timeRangeOption('2d'),
 				]}
 			/>
-		</div>
+		</StopShortcutPropagationWrapper>
 	);
 };
