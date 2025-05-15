@@ -17,6 +17,7 @@ import {
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
+import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
 import { BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
@@ -54,11 +55,14 @@ function cleanAndDedupeKeywords(keywords: string[]): string[] {
 }
 
 // Retrieve a value from a JSON-like string regardless of its validity.
-export const extractFieldFromString = (input: string, targetField: string): string | undefined  =>{
+export const extractFieldFromString = (
+	input: string,
+	targetField: string,
+): string | undefined => {
 	const regex = new RegExp(`"${targetField}"\\s*:\\s*"([^"]*)"`); // Capture a value from a "key": "value" pattern.
 	const match = input.match(regex);
 	return match ? match[1] : undefined;
-}
+};
 
 export const processKeywords = (
 	keywords: string | string[] | undefined,
@@ -72,10 +76,18 @@ export const processKeywords = (
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
 
-export const processCategoryCodes = (supplier: string, subjectCodes: string[], destinationCodes: string[], bodyText: string | undefined) => {
+export const processCategoryCodes = (
+	supplier: string,
+	subjectCodes: string[],
+	destinationCodes: string[],
+	bodyText: string | undefined,
+) => {
 	switch (supplier) {
 		case 'REUTERS':
-			return [...subjectCodes, ...processReutersDestinationCodes(destinationCodes)]
+			return [
+				...subjectCodes,
+				...processReutersDestinationCodes(destinationCodes),
+			];
 		case 'AP':
 			return processFingerpostAPCategoryCodes(subjectCodes);
 		case 'AAP':
@@ -86,8 +98,10 @@ export const processCategoryCodes = (supplier: string, subjectCodes: string[], d
 			return processFingerpostPACategoryCodes(subjectCodes);
 		case 'MINOR_AGENCIES': {
 			const region = inferRegionCategoryFromText(bodyText);
-			const updatedSubjectCodes = region ? [...subjectCodes, region] : subjectCodes
-			return updatedSubjectCodes.filter(_ => _.length > 0);
+			const updatedSubjectCodes = region
+				? [...subjectCodes, region]
+				: subjectCodes;
+			return updatedSubjectCodes.filter((_) => _.length > 0);
 		}
 		default:
 			return processUnknownFingerpostCategoryCodes(subjectCodes, supplier);
@@ -133,7 +147,10 @@ export const safeJsonParse = (body: string): Record<string, unknown> => {
 			//   .replaceAll(/(?<![^\\]\\(?:\\\\)*)\\(?!["\\/bfnrt]|u[0-9A-Fa-f]{4})/g, '')
 			//
 			// which looks like it should delete all illegal backslashes in a JSON string, but haven't rigorously tested it...
-			return JSON.parse(body.replaceAll(/\\([“‘”’])/g, '$1')) as Record<string, unknown>;
+			return JSON.parse(body.replaceAll(/\\([“‘”’])/g, '$1')) as Record<
+				string,
+				unknown
+			>;
 		}
 		if (e instanceof SyntaxError && isBadControlChar(e)) {
 			console.warn('Attempting to strip unescaped tab chars');
@@ -142,7 +159,10 @@ export const safeJsonParse = (body: string): Record<string, unknown> => {
 			// other control chars start appearing, this will start firing again, but we'll have to think carefully
 			// about how we strip since this replace will affect all locations in the JSON document, not just inside
 			// string literals.
-			return JSON.parse(body.replaceAll(/[\t\r\n]/g, ' ')) as Record<string, unknown>;
+			return JSON.parse(body.replaceAll(/[\t\r\n]/g, ' ')) as Record<
+				string,
+				unknown
+			>;
 		}
 		throw e;
 	}
@@ -219,21 +239,25 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const snsMessageContent = safeBodyParse(body);
 
+						const content = {
+							...snsMessageContent,
+							body_text: cleanBodyTextMarkup(snsMessageContent.body_text ?? ''),
+						};
 
 						const supplier =
-							lookupSupplier(snsMessageContent['source-feed']) ?? 'Unknown';
+							lookupSupplier(content['source-feed']) ?? 'Unknown';
 
 						const categoryCodes = processCategoryCodes(
 							supplier,
-							snsMessageContent.subjects?.code ?? [],
-							snsMessageContent.destinations?.code ?? [],
-							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`
+							content.subjects?.code ?? [],
+							content.destinations?.code ?? [],
+							`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
 						);
 
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
                                 (external_id, supplier, content, category_codes)
-                            VALUES (${externalId}, ${supplier}, ${snsMessageContent as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
+                            VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
 							RETURNING id`;
 
 						if (result.length === 0) {
@@ -245,7 +269,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							});
 						} else {
 							logger.log({
-								message: `Successfully processed message for ${sqsMessageId} (${snsMessageContent.slug})`,
+								message: `Successfully processed message for ${sqsMessageId} (${content.slug})`,
 								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
 								sqsMessageId,
 								externalId,
@@ -258,7 +282,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							status: 'failure',
 							reason,
 							sqsMessageId,
-							storyIdentifier: extractFieldFromString(body, 'slug')
+							storyIdentifier: extractFieldFromString(body, 'slug'),
 						};
 					}
 
