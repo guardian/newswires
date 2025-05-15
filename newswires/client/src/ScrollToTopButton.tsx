@@ -1,7 +1,13 @@
 import { EuiButton, EuiPortal, useEuiTheme } from '@elastic/eui';
 import type { RefObject } from 'react';
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 import { useSearch } from './context/SearchContext';
 
 /**
@@ -11,10 +17,12 @@ export const ScrollToTopButton = ({
 	threshold = 200,
 	label,
 	containerRef,
+	direction,
 }: {
 	threshold?: number;
 	label?: string;
 	containerRef?: RefObject<HTMLElement>;
+	direction?: string;
 }) => {
 	const buttonRef = useRef<HTMLDivElement>(null);
 	const { euiTheme } = useEuiTheme();
@@ -24,6 +32,30 @@ export const ScrollToTopButton = ({
 	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [btnStyle, setBtnStyle] = useState<React.CSSProperties>({});
+
+	const updatePosition = useCallback(() => {
+		const cont = containerRef?.current;
+		const btn = buttonRef.current;
+
+		const offset = 16;
+		if (cont && btn) {
+			const contRect = cont.getBoundingClientRect();
+			const btnRect = btn.getBoundingClientRect();
+			setBtnStyle({
+				position: 'fixed',
+				top: contRect.top + contRect.height - btnRect.height - offset,
+				left: contRect.left + contRect.width - btnRect.width - offset,
+				zIndex: 1000,
+			});
+		} else {
+			setBtnStyle({
+				position: 'fixed',
+				bottom: offset,
+				right: euiTheme.size.s,
+				zIndex: 1000,
+			});
+		}
+	}, [containerRef, euiTheme.size.s]);
 
 	// Accumulate counts of newly loaded stories
 	useEffect(() => {
@@ -56,30 +88,6 @@ export const ScrollToTopButton = ({
 	useEffect(() => {
 		if (!visible) return;
 
-		const updatePosition = () => {
-			const cont = containerRef?.current;
-			const btn = buttonRef.current;
-
-			const offset = 16;
-			if (cont && btn) {
-				const contRect = cont.getBoundingClientRect();
-				const btnRect = btn.getBoundingClientRect();
-				setBtnStyle({
-					position: 'fixed',
-					top: contRect.top + contRect.height - btnRect.height - offset,
-					left: contRect.left + contRect.width - btnRect.width - offset,
-					zIndex: 1000,
-				});
-			} else {
-				setBtnStyle({
-					position: 'fixed',
-					bottom: offset,
-					right: euiTheme.size.s,
-					zIndex: 1000,
-				});
-			}
-		};
-
 		window.addEventListener('resize', updatePosition);
 
 		const scrollEl = containerRef?.current ?? window;
@@ -99,7 +107,11 @@ export const ScrollToTopButton = ({
 			scrollEl.removeEventListener('scroll', updatePosition);
 			if (resizeObs) resizeObs.disconnect();
 		};
-	}, [visible, containerRef, euiTheme.size.s]);
+	}, [visible, containerRef, euiTheme.size.s, updatePosition]);
+
+	useLayoutEffect(() => {
+		updatePosition();
+	}, [direction, updatePosition]);
 
 	const handleClick = () => {
 		if (containerRef?.current) {

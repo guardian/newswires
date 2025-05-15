@@ -15,9 +15,10 @@ import { WireItemList } from './WireItemList.tsx';
 
 export interface FeedProps {
 	containerRef?: React.RefObject<HTMLDivElement>;
+	direction?: string;
 }
 
-export const Feed = ({ containerRef }: FeedProps) => {
+export const Feed = ({ containerRef, direction }: FeedProps) => {
 	const { state } = useSearch();
 	const { status, queryData } = state;
 
@@ -84,7 +85,11 @@ export const Feed = ({ containerRef }: FeedProps) => {
 							totalCount={queryData.totalCount}
 						/>
 
-						<ScrollToTopButton threshold={300} containerRef={containerRef} />
+						<ScrollToTopButton
+							threshold={300}
+							containerRef={containerRef}
+							direction={direction}
+						/>
 					</>
 				)}
 		</EuiPageTemplate.Section>
