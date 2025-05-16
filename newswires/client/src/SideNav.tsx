@@ -18,7 +18,6 @@ import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { openTicker } from './openTicker.ts';
-import { SearchBox } from './SearchBox';
 import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
@@ -226,7 +225,6 @@ export const SideNav = () => {
 				`}
 			>
 				<div style={{ height: '90%', overflowY: 'auto' }}>
-					<SearchBox />
 					<EuiCollapsibleNavGroup title="Presets">
 						<EuiPinnableListGroup
 							onPinClick={() => {}}
