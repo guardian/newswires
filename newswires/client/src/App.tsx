@@ -38,6 +38,8 @@ import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
 import { isOpenAsTicker, openTicker } from './openTicker.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
+import { SearchBox } from './SearchBox.tsx';
+import { SearchMenu } from './SearchMenu.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
 import { Tooltip } from './Tooltip.tsx';
@@ -239,12 +241,24 @@ export function App() {
 							</EuiHeaderSection>
 
 							<EuiHeaderSectionItem>
+								<EuiShowFor sizes={['l', 'xl']}>
+									<SearchBox width={'580px'} />
+								</EuiShowFor>
+							</EuiHeaderSectionItem>
+
+							<EuiHeaderSectionItem>
 								<EuiFlexGroup
 									gutterSize="xs"
 									css={css`
 										margin-left: 8px;
 									`}
 								>
+									<EuiShowFor sizes={['xs', 's', 'm']}>
+										<Tooltip tooltipContent={'Open search box'} position="left">
+											<SearchMenu />
+										</Tooltip>
+									</EuiShowFor>
+
 									<EuiShowFor sizes={['xs', 's']}>
 										<Tooltip tooltipContent={'Open new ticker'} position="left">
 											<EuiButtonIcon
