@@ -101,6 +101,7 @@ export const SettingsMenu = () => {
 				closePopover={closePopover}
 				panelPaddingSize="none"
 				anchorPosition="downLeft"
+				repositionOnScroll={true}
 			>
 				<EuiContextMenu initialPanelId={0} panels={panels} />
 			</EuiPopover>
