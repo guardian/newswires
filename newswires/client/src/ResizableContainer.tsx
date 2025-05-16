@@ -82,7 +82,7 @@ export const ResizableContainer = ({
 						style={{ padding: 0 }}
 						panelRef={leftPanelRef}
 					>
-						<Feed containerRef={leftPanelRef} />
+						<Feed containerRef={leftPanelRef} direction={direction} />
 					</EuiResizablePanel>
 					<EuiResizableButton
 						accountForScrollbars={'both'}
