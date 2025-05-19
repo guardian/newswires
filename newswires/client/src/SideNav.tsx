@@ -13,7 +13,7 @@ import {
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
@@ -58,13 +58,10 @@ export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
 	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
 
-	const { state, config, handleEnterQuery, toggleAutoUpdate } = useSearch();
+	const { state, config, handleEnterQuery, toggleAutoUpdate, toggleSupplier } =
+		useSearch();
 
 	const searchHistory = state.successfulQueryHistory;
-	const activeSuppliers = useMemo(
-		() => config.query.supplier ?? [],
-		[config.query.supplier],
-	);
 
 	const activePreset = config.query.preset;
 
@@ -78,28 +75,9 @@ export const SideNav = () => {
 		[searchHistory],
 	);
 
-	const toggleSupplier = useCallback(
-		(supplier: string) => {
-			// If 'activeSuppliers' is empty, that means that *all* suppliers are active.
-			if (activeSuppliers.length === 0) {
-				handleEnterQuery({
-					...config.query,
-					supplier: [supplier],
-				});
-				return;
-			}
-			const newSuppliers = activeSuppliers.includes(supplier)
-				? activeSuppliers.filter((s) => s !== supplier)
-				: [...activeSuppliers, supplier];
-			handleEnterQuery({
-				...config.query,
-				// if all the suppliers are active, we don't need to specify them in the query
-				supplier: recognisedSuppliers.every((s) => newSuppliers.includes(s))
-					? []
-					: newSuppliers,
-			});
-		},
-		[config.query, handleEnterQuery, activeSuppliers],
+	const activeSuppliers = useMemo(
+		() => config.query.supplier ?? [],
+		[config.query.supplier],
 	);
 
 	const suppliers = useMemo(
