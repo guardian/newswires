@@ -53,7 +53,7 @@ const Summary = ({
 	const displayFilters: boolean =
 		!!q || !!preset || displayCategoryCodes || displaySuppliers;
 
-	const handleBadgeClick = (label: string, value?: string) => {
+	const handleBadgeClick = (label: string, value: string) => {
 		const supplier = config.query.supplier ?? [];
 		const categoryCodes = config.query.categoryCode ?? [];
 
@@ -73,7 +73,7 @@ const Summary = ({
 		});
 	};
 
-	const renderBadge = (label: string, value?: string) =>
+	const renderBadge = (label: SearchTermBadgeLabel, value: string) =>
 		value ? (
 			<EuiBadge
 				key={value}
