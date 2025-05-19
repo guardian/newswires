@@ -39,6 +39,7 @@ module.exports = {
 				caughtErrorsIgnorePattern: '^_',
 			},
 		],
+		"@typescript-eslint/switch-exhaustiveness-check": "error",
 		'prettier/prettier': 'warn',
 		'react/no-unknown-property': ['error', { ignore: ['css'] }],
 		'no-restricted-syntax': [
