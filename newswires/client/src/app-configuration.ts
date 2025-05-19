@@ -1,12 +1,14 @@
+import type { AppConfiguration } from './windowConfigType';
+
 const isNode = typeof process !== 'undefined';
 const isJest = isNode && process.env.JEST_WORKER_ID !== undefined;
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- if the code isn't
-if (isJest === undefined && !window.configuration) {
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- if the code isn't running in jest, window should be defined
+if (!isJest && !window.configuration) {
 	throw new Error('window object is defined, but window.configuration is not');
 }
 
-const configLookup = isJest
+const configLookup: AppConfiguration = isJest
 	? {
 			switches: {
 				ShowGuSuppliers: false,
