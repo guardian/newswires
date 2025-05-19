@@ -250,32 +250,35 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		state.queryData?.results,
 	]);
 
-	const handleEnterQuery = (query: Query) => {
-		sendTelemetryEvent(
-			'NEWSWIRES_ENTER_SEARCH',
-			Object.fromEntries(
-				Object.entries(query).map(([key, value]) => [
-					`search-query_${key}`,
-					JSON.stringify(value),
-				]),
-			),
-		);
-		dispatch({
-			type: 'ENTER_QUERY',
-		});
-		if (currentConfig.view === 'item') {
-			pushConfigState({
-				...currentConfig,
-				query,
+	const handleEnterQuery = useCallback(
+		(query: Query) => {
+			sendTelemetryEvent(
+				'NEWSWIRES_ENTER_SEARCH',
+				Object.fromEntries(
+					Object.entries(query).map(([key, value]) => [
+						`search-query_${key}`,
+						JSON.stringify(value),
+					]),
+				),
+			);
+			dispatch({
+				type: 'ENTER_QUERY',
 			});
-		} else {
-			pushConfigState({
-				...currentConfig,
-				view: 'feed',
-				query,
-			});
-		}
-	};
+			if (currentConfig.view === 'item') {
+				pushConfigState({
+					...currentConfig,
+					query,
+				});
+			} else {
+				pushConfigState({
+					...currentConfig,
+					view: 'feed',
+					query,
+				});
+			}
+		},
+		[currentConfig, pushConfigState, sendTelemetryEvent],
+	);
 
 	const handleRetry = () => {
 		dispatch({ type: 'RETRY' });
