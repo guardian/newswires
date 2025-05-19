@@ -58,8 +58,14 @@ export const SideNav = () => {
 	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
 	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
 
-	const { state, config, handleEnterQuery, toggleAutoUpdate, toggleSupplier } =
-		useSearch();
+	const {
+		state,
+		config,
+		handleEnterQuery,
+		toggleAutoUpdate,
+		activeSuppliers,
+		toggleSupplier,
+	} = useSearch();
 
 	const searchHistory = state.successfulQueryHistory;
 
@@ -73,11 +79,6 @@ export const SideNav = () => {
 				resultsCount,
 			})),
 		[searchHistory],
-	);
-
-	const activeSuppliers = useMemo(
-		() => config.query.supplier ?? [],
-		[config.query.supplier],
 	);
 
 	const suppliers = useMemo(

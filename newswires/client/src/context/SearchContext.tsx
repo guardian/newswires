@@ -120,6 +120,7 @@ export type SearchContextShape = {
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
+	activeSuppliers: string[];
 	toggleSupplier: (supplier: string) => void;
 };
 export const SearchContext: Context<SearchContextShape | null> =
@@ -415,6 +416,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				loadMoreResults,
 				viewedItemIds,
 				previousItemId,
+				activeSuppliers,
 				toggleSupplier,
 			}}
 		>
