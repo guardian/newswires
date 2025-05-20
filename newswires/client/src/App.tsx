@@ -21,6 +21,8 @@ import {
 	EuiText,
 	EuiTitle,
 	EuiToast,
+	useEuiMaxBreakpoint,
+	useEuiMinBreakpoint,
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -39,7 +41,6 @@ import { ItemData } from './ItemData.tsx';
 import { openTicker } from './openTicker.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
-import { SearchMenu } from './SearchMenu.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
 import { Tooltip } from './Tooltip.tsx';
@@ -113,10 +114,9 @@ export function App() {
 		};
 	}, [handleShortcutKeyUp]);
 
-	const breakpoints = {
-		sm: '@media (max-width: 600px)',
-		md: '@media (min-width: 900px)',
-	};
+	const largeMinBreakpoint = useEuiMinBreakpoint('l');
+	const largeMaxBreakpoint = useEuiMaxBreakpoint('l');
+	const smallMinBreakpoint = useEuiMinBreakpoint('s');
 
 	return (
 		<EuiProvider colorMode="light">
@@ -176,7 +176,7 @@ export function App() {
 					css={css`
 						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
 						`padding-top: 40px;
-						  ${breakpoints.sm} {
+						  ${smallMinBreakpoint} {
 							padding-top: 72px;
 						  }
 						`}
@@ -189,7 +189,7 @@ export function App() {
 				>
 					{!isPoppedOut && (
 						<EuiHeader position="fixed">
-							<EuiHeaderSection>
+							<EuiHeaderSection side={'left'}>
 								<EuiHeaderSectionItem>
 									<SideNav />
 								</EuiHeaderSectionItem>
@@ -198,6 +198,12 @@ export function App() {
 										size={'s'}
 										css={css`
 											padding-bottom: 3px;
+											${largeMaxBreakpoint} {
+												margin-right: 8px;
+											}
+											${largeMinBreakpoint} {
+												width: 298px;
+											}
 										`}
 									>
 										<h1>
@@ -240,48 +246,51 @@ export function App() {
 								</EuiHeaderSectionItem>
 							</EuiHeaderSection>
 
-							<EuiHeaderSectionItem>
-								<EuiShowFor sizes={['l', 'xl']}>
-									<SearchBox width={'580px'} />
-								</EuiShowFor>
-							</EuiHeaderSectionItem>
-
-							<EuiHeaderSectionItem>
-								<EuiFlexGroup
-									gutterSize="xs"
+							<EuiHeaderSection grow={true}>
+								<EuiHeaderSectionItem
 									css={css`
-										margin-left: 8px;
+										flex: 1 1 100%;
 									`}
 								>
-									<EuiShowFor sizes={['xs', 's', 'm']}>
-										<Tooltip tooltipContent={'Open search box'} position="left">
-											<SearchMenu />
-										</Tooltip>
-									</EuiShowFor>
+									<SearchBox />
+								</EuiHeaderSectionItem>
+							</EuiHeaderSection>
 
-									<EuiShowFor sizes={['xs', 's']}>
-										<Tooltip tooltipContent={'Open new ticker'} position="left">
-											<EuiButtonIcon
-												aria-label="New ticker"
-												display="base"
+							<EuiHeaderSection side={'right'}>
+								<EuiHeaderSectionItem>
+									<EuiFlexGroup
+										gutterSize="xs"
+										css={css`
+											margin-left: 8px;
+										`}
+									>
+										<EuiShowFor sizes={['xs', 's']}>
+											<Tooltip
+												tooltipContent={'Open new ticker'}
+												position="left"
+											>
+												<EuiButtonIcon
+													aria-label="New ticker"
+													display="base"
+													size="s"
+													iconType={'popout'}
+													onClick={() => openTicker(config.query)}
+												/>
+											</Tooltip>
+										</EuiShowFor>
+										<EuiShowFor sizes={['m', 'l', 'xl']}>
+											<EuiButton
 												size="s"
 												iconType={'popout'}
 												onClick={() => openTicker(config.query)}
-											/>
-										</Tooltip>
-									</EuiShowFor>
-									<EuiShowFor sizes={['m', 'l', 'xl']}>
-										<EuiButton
-											size="s"
-											iconType={'popout'}
-											onClick={() => openTicker(config.query)}
-										>
-											New ticker
-										</EuiButton>
-									</EuiShowFor>
-									<SettingsMenu />
-								</EuiFlexGroup>
-							</EuiHeaderSectionItem>
+											>
+												New ticker
+											</EuiButton>
+										</EuiShowFor>
+										<SettingsMenu />
+									</EuiFlexGroup>
+								</EuiHeaderSectionItem>
+							</EuiHeaderSection>
 						</EuiHeader>
 					)}
 					{isPoppedOut && (
