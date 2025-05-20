@@ -1,5 +1,5 @@
 import type { KeyboardEventHandler } from 'react';
-import { createContext, useCallback, useContext } from 'react';
+import { cloneElement, createContext, useCallback, useContext } from 'react';
 import { useSearch } from './SearchContext';
 
 const keysWithShortcuts = ['ArrowLeft', 'ArrowRight', 'Escape'] as const;
@@ -10,7 +10,9 @@ function isKeyWithShortcut(key: string): key is KeyWithShortcut {
 	return keysWithShortcuts.includes(key as KeyWithShortcut);
 }
 
-const stopShortcutPropagation: KeyboardEventHandler<HTMLElement> = (event) => {
+const stopShortcutPropagation = (
+	event: React.KeyboardEvent<HTMLElement> | KeyboardEvent,
+): void => {
 	if (isKeyWithShortcut(event.key)) {
 		if (event.target instanceof HTMLElement) {
 			console.log(
@@ -100,10 +102,23 @@ export function useKeyboardShortcuts() {
 	return context;
 }
 
+type HasKeyUpCapture = {
+	onKeyUpCapture?: React.KeyboardEventHandler<HTMLElement>;
+};
+
 export const StopShortcutPropagationWrapper = ({
 	children,
 }: {
-	children: React.ReactNode;
+	children: React.ReactElement<HasKeyUpCapture>;
 }) => {
-	return <div onKeyUp={stopShortcutPropagation}>{children}</div>;
+	const existingCapture = children.props.onKeyUpCapture;
+
+	const handleCapture: React.KeyboardEventHandler<HTMLElement> = (e) => {
+		stopShortcutPropagation(e);
+		existingCapture?.(e);
+	};
+
+	return cloneElement(children, {
+		onKeyUpCapture: handleCapture,
+	});
 };
