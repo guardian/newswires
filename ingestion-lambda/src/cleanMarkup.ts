@@ -1,12 +1,19 @@
 import type { Node } from 'node-html-parser';
 import { HTMLElement, parse, TextNode } from 'node-html-parser';
+import type { Logger } from '../../shared/lambda-logging';
+import { createLogger } from '../../shared/lambda-logging';
 
-export function cleanBodyTextMarkup(bodyText: string): string {
+export function cleanBodyTextMarkup(bodyText: string, logger: Logger = createLogger({})): string {
 	const root = parse(bodyText);
+	const originalInnerText = root.innerText; // flattenBlocks mutates the root, so we need to save the original innerText
 	const wrapper = new HTMLElement('div', {});
 	flattenBlocks(root).forEach((block) => {
 		wrapper.appendChild(block);
 	});
+	if (originalInnerText.replaceAll(/\s/g, '').length !== wrapper.innerText.replaceAll(/\s/g, '').length) {
+		logger.warn({message: 'Warning: bodyText markup was not cleaned correctly, reverting to original markup', originalInnerText, newInnerText: wrapper.innerText});
+		return bodyText;
+	}
 	return wrapper.innerHTML;
 }
 
