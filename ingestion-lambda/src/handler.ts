@@ -72,25 +72,27 @@ export const processKeywords = (
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
 
-export const processCategoryCodes = (supplier: string, subjectCodes: string[], destinationCodes: string[], bodyText: string | undefined) => {
+export const processCategoryCodes = (supplier: string, subjectCodes: string[], destinationCodes: string[], bodyText?: string, priority?: string) => {
+	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : []
+
 	switch (supplier) {
 		case 'REUTERS':
-			return [...subjectCodes, ...processReutersDestinationCodes(destinationCodes)]
+			return [...catCodes, ...subjectCodes, ...processReutersDestinationCodes(destinationCodes)]
 		case 'AP':
-			return processFingerpostAPCategoryCodes(subjectCodes);
+			return [...catCodes, ...processFingerpostAPCategoryCodes(subjectCodes)];
 		case 'AAP':
-			return processFingerpostAAPCategoryCodes(subjectCodes);
+			return [...catCodes, ...processFingerpostAAPCategoryCodes(subjectCodes)];
 		case 'AFP':
-			return processFingerpostAFPCategoryCodes(subjectCodes);
+			return [...catCodes, ...processFingerpostAFPCategoryCodes(subjectCodes)];
 		case 'PA':
-			return processFingerpostPACategoryCodes(subjectCodes);
+			return [...catCodes, ...processFingerpostPACategoryCodes(subjectCodes)];
 		case 'MINOR_AGENCIES': {
 			const region = inferRegionCategoryFromText(bodyText);
 			const updatedSubjectCodes = region ? [...subjectCodes, region] : subjectCodes
-			return updatedSubjectCodes.filter(_ => _.length > 0);
+			return [...catCodes, ...updatedSubjectCodes.filter(_ => _.length > 0)];
 		}
 		default:
-			return processUnknownFingerpostCategoryCodes(subjectCodes, supplier);
+			return [...catCodes, ...processUnknownFingerpostCategoryCodes(subjectCodes, supplier)];
 	}
 };
 
@@ -227,7 +229,8 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							supplier,
 							snsMessageContent.subjects?.code ?? [],
 							snsMessageContent.destinations?.code ?? [],
-							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`
+							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`,
+							snsMessageContent.priority
 						);
 
 						const result = await sql`
