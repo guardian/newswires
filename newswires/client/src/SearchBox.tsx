@@ -5,7 +5,7 @@ import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsConte
 import { useSearch } from './context/SearchContext.tsx';
 import { debounce } from './debounce';
 
-export function SearchBox({ width }: { width?: string }) {
+export function SearchBox() {
 	const { config, handleEnterQuery } = useSearch();
 	const [freeTextQuery, setFreeTextQuery] = useState<string>('');
 
@@ -31,11 +31,12 @@ export function SearchBox({ width }: { width?: string }) {
 					debouncedUpdate({ ...config.query, q: newQuery });
 				}}
 				aria-label="search wires"
+				fullWidth={true}
 				css={css`
 					border: none;
 					background-color: #edf1f8;
 					transition: background-color 0.2s ease;
-					${width ? `width: ${width};` : ''}
+					max-width: 580px;
 
 					&:focus {
 						background-color: #ffffff;
