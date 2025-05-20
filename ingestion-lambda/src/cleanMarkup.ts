@@ -10,7 +10,7 @@ export function cleanBodyTextMarkup(bodyText: string, logger: Logger = createLog
 	flattenBlocks(root).forEach((block) => {
 		wrapper.appendChild(block);
 	});
-	if (originalInnerText.replaceAll(/\s/g, '').length !== wrapper.innerText.replaceAll(/\s/g, '').length) {
+	if (originalInnerText.replaceAll(/\s/g, '') !== wrapper.innerText.replaceAll(/\s/g, '')) {
 		logger.warn({message: 'Warning: bodyText markup was not cleaned correctly, reverting to original markup', originalInnerText, newInnerText: wrapper.innerText});
 		return bodyText;
 	}
