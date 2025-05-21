@@ -17,6 +17,7 @@ import {
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
+import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
 import { BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
@@ -245,21 +246,26 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const snsMessageContent = safeBodyParse(body);
 
+						const content = {
+							...snsMessageContent,
+							body_text: cleanBodyTextMarkup(snsMessageContent.body_text ?? ''),
+						};
+
 						const supplier =
-							lookupSupplier(snsMessageContent['source-feed']) ?? 'Unknown';
+							lookupSupplier(content['source-feed']) ?? 'Unknown';
 
 						const categoryCodes = processCategoryCodes(
 							supplier,
-							snsMessageContent.subjects?.code ?? [],
-							snsMessageContent.destinations?.code ?? [],
-							`${snsMessageContent.headline ?? ''} ${snsMessageContent.abstract ?? ''} ${snsMessageContent.body_text}`,
-							snsMessageContent.priority,
+							content.subjects?.code ?? [],
+							content.destinations?.code ?? [],
+							`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
+							content.priority,
 						);
 
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
                                 (external_id, supplier, content, category_codes)
-                            VALUES (${externalId}, ${supplier}, ${snsMessageContent as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
+                            VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
 							RETURNING id`;
 
 						if (result.length === 0) {
@@ -271,7 +277,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							});
 						} else {
 							logger.log({
-								message: `Successfully processed message for ${sqsMessageId} (${snsMessageContent.slug})`,
+								message: `Successfully processed message for ${sqsMessageId} (${content.slug})`,
 								eventType: SUCCESSFUL_INGESTION_EVENT_TYPE,
 								sqsMessageId,
 								externalId,
