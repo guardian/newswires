@@ -4,6 +4,9 @@ import type { Logger } from '../../shared/lambda-logging';
 import { createLogger } from '../../shared/lambda-logging';
 
 export function cleanBodyTextMarkup(bodyText: string, logger: Logger = createLogger({})): string {
+	if (bodyText.trim().length === 0) {
+		return '';
+	}
 	const root = parse(bodyText);
 	const originalInnerText = root.innerText; // flattenBlocks mutates the root, so we need to save the original innerText
 	const wrapper = new HTMLElement('div', {});
