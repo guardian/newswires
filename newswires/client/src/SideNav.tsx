@@ -2,13 +2,11 @@ import type { EuiPinnableListGroupItemProps } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBadgeGroup,
-	EuiBetaBadge,
 	EuiCallOut,
 	EuiCollapsibleNav,
 	EuiCollapsibleNavGroup,
 	EuiHeaderSectionItemButton,
 	EuiIcon,
-	EuiLink,
 	EuiPinnableListGroup,
 	EuiShowFor,
 	EuiSwitch,
@@ -18,6 +16,8 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useMemo, useState } from 'react';
+import { AppTitle } from './AppTitle.tsx';
+import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
@@ -238,26 +238,8 @@ export const SideNav = () => {
 								`}
 							>
 								<h1>
-									<EuiLink
-										href="/feed"
-										external={false}
-										css={css`
-											color: inherit;
-											font-weight: inherit;
-										`}
-									>
-										Newswires
-									</EuiLink>
-									<EuiBetaBadge
-										label="Under construction"
-										aria-label="(Under construction)"
-										title="Currently under construction"
-										color={'accent'}
-										size="s"
-										css={css`
-											margin-left: 8px;
-										`}
-									/>
+									<AppTitle />
+									<BetaBadge size={'medium'} />
 								</h1>
 							</EuiTitle>
 						</>
