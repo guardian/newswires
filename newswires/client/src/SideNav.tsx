@@ -2,14 +2,18 @@ import type { EuiPinnableListGroupItemProps } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBadgeGroup,
+	EuiBetaBadge,
 	EuiCallOut,
 	EuiCollapsibleNav,
 	EuiCollapsibleNavGroup,
 	EuiHeaderSectionItemButton,
 	EuiIcon,
+	EuiLink,
 	EuiPinnableListGroup,
+	EuiShowFor,
 	EuiSwitch,
 	EuiText,
+	EuiTitle,
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -225,6 +229,39 @@ export const SideNav = () => {
 				`}
 			>
 				<div style={{ height: '90%', overflowY: 'auto' }}>
+					<EuiShowFor sizes={['xs']}>
+						<>
+							<EuiTitle
+								size={'s'}
+								css={css`
+									padding: 7px;
+								`}
+							>
+								<h1>
+									<EuiLink
+										href="/feed"
+										external={false}
+										css={css`
+											color: inherit;
+											font-weight: inherit;
+										`}
+									>
+										Newswires
+									</EuiLink>
+									<EuiBetaBadge
+										label="Under construction"
+										aria-label="(Under construction)"
+										title="Currently under construction"
+										color={'accent'}
+										size="s"
+										css={css`
+											margin-left: 8px;
+										`}
+									/>
+								</h1>
+							</EuiTitle>
+						</>
+					</EuiShowFor>
 					<EuiCollapsibleNavGroup title="Presets">
 						<EuiPinnableListGroup
 							onPinClick={() => {}}

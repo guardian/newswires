@@ -193,57 +193,59 @@ export function App() {
 								<EuiHeaderSectionItem>
 									<SideNav />
 								</EuiHeaderSectionItem>
-								<EuiHeaderSectionItem>
-									<EuiTitle
-										size={'s'}
-										css={css`
-											padding-bottom: 3px;
-											${largeMaxBreakpoint} {
-												margin-right: 8px;
-											}
-											${largeMinBreakpoint} {
-												width: 298px;
-											}
-										`}
-									>
-										<h1>
-											<EuiLink
-												href="/feed"
-												external={false}
-												css={css`
-													color: inherit;
-													font-weight: inherit;
-												`}
-											>
-												Newswires
-											</EuiLink>
-											<EuiShowFor sizes={['xs', 's']}>
-												<EuiBetaBadge
-													iconType={'beaker'}
-													label="Currently under construction"
-													aria-label="(Under construction)"
-													color={'accent'}
-													size="m"
+								<EuiShowFor sizes={['s', 'm', 'l', 'xl']}>
+									<EuiHeaderSectionItem>
+										<EuiTitle
+											size={'s'}
+											css={css`
+												padding-bottom: 3px;
+												${largeMaxBreakpoint} {
+													margin-right: 8px;
+												}
+												${largeMinBreakpoint} {
+													width: 298px;
+												}
+											`}
+										>
+											<h1>
+												<EuiLink
+													href="/feed"
+													external={false}
 													css={css`
-														margin-left: 8px;
+														color: inherit;
+														font-weight: inherit;
 													`}
-												/>
-											</EuiShowFor>
-											<EuiShowFor sizes={['m', 'l', 'xl']}>
-												<EuiBetaBadge
-													label="Under construction"
-													aria-label="(Under construction)"
-													title="Currently under construction"
-													color={'accent'}
-													size="s"
-													css={css`
-														margin-left: 8px;
-													`}
-												/>
-											</EuiShowFor>
-										</h1>
-									</EuiTitle>
-								</EuiHeaderSectionItem>
+												>
+													Newswires
+												</EuiLink>
+												<EuiShowFor sizes={['xs', 's']}>
+													<EuiBetaBadge
+														iconType={'beaker'}
+														label="Currently under construction"
+														aria-label="(Under construction)"
+														color={'accent'}
+														size="m"
+														css={css`
+															margin-left: 8px;
+														`}
+													/>
+												</EuiShowFor>
+												<EuiShowFor sizes={['m', 'l', 'xl']}>
+													<EuiBetaBadge
+														label="Under construction"
+														aria-label="(Under construction)"
+														title="Currently under construction"
+														color={'accent'}
+														size="s"
+														css={css`
+															margin-left: 8px;
+														`}
+													/>
+												</EuiShowFor>
+											</h1>
+										</EuiTitle>
+									</EuiHeaderSectionItem>
+								</EuiShowFor>
 							</EuiHeaderSection>
 
 							<EuiHeaderSection grow={true}>
