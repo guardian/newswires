@@ -1,6 +1,12 @@
 import { cleanBodyTextMarkup } from './cleanMarkup';
 
 describe('cleanBodyTextMarkup', () => {
+	it('should handle empty input', () => {
+		const input = '   	';
+		const expectedOutput = '';
+		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
+	});
+
 	it('should wrap all nodes in <p> tags', () => {
 		const input = 'This is a <strong>test</strong> string.';
 		expect(cleanBodyTextMarkup(input)).toBe(`<p>${input}</p>`);
@@ -57,11 +63,11 @@ describe('cleanBodyTextMarkup', () => {
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});
 
-	// it('should remove empty <p> tags', () => {
-	// 	const input = '<p>  </p><div><p>   </p></div>';
-	// 	const expectedOutput = '';
-	// 	expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
-	// });
+	it('should remove empty <p> tags', () => {
+		const input = '<p>  </p><div><p>   </p></div>';
+		const expectedOutput = '<div></div>';
+		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
+	});
 
 	it('should handle deeply nested mixed content', () => {
 		const input =
@@ -71,7 +77,7 @@ describe('cleanBodyTextMarkup', () => {
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});
 
-	it('should preserve self-closing tags within paragraphs', () => {
+	it('should preserve (non-<br/>) self-closing tags within paragraphs', () => {
 		const input = 'Start<br/>Middle<img src="test.jpg"/><hr/>End';
 		const expectedOutput =
 			'<p>Start</p><p>Middle<img src="test.jpg"><hr>End</p>';
