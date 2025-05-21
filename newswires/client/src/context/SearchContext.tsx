@@ -4,6 +4,7 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useReducer,
 	useState,
 } from 'react';
@@ -14,6 +15,7 @@ import {
 	QuerySchema,
 	WiresQueryResponseSchema,
 } from '../sharedTypes.ts';
+import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { fetchResults } from './fetchResults.ts';
 import {
@@ -118,6 +120,8 @@ export type SearchContextShape = {
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
+	activeSuppliers: string[];
+	toggleSupplier: (supplier: string) => void;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -247,32 +251,35 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		state.queryData?.results,
 	]);
 
-	const handleEnterQuery = (query: Query) => {
-		sendTelemetryEvent(
-			'NEWSWIRES_ENTER_SEARCH',
-			Object.fromEntries(
-				Object.entries(query).map(([key, value]) => [
-					`search-query_${key}`,
-					JSON.stringify(value),
-				]),
-			),
-		);
-		dispatch({
-			type: 'ENTER_QUERY',
-		});
-		if (currentConfig.view === 'item') {
-			pushConfigState({
-				...currentConfig,
-				query,
+	const handleEnterQuery = useCallback(
+		(query: Query) => {
+			sendTelemetryEvent(
+				'NEWSWIRES_ENTER_SEARCH',
+				Object.fromEntries(
+					Object.entries(query).map(([key, value]) => [
+						`search-query_${key}`,
+						JSON.stringify(value),
+					]),
+				),
+			);
+			dispatch({
+				type: 'ENTER_QUERY',
 			});
-		} else {
-			pushConfigState({
-				...currentConfig,
-				view: 'feed',
-				query,
-			});
-		}
-	};
+			if (currentConfig.view === 'item') {
+				pushConfigState({
+					...currentConfig,
+					query,
+				});
+			} else {
+				pushConfigState({
+					...currentConfig,
+					view: 'feed',
+					query,
+				});
+			}
+		},
+		[currentConfig, pushConfigState, sendTelemetryEvent],
+	);
 
 	const handleRetry = () => {
 		dispatch({ type: 'RETRY' });
@@ -365,6 +372,35 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			.catch(handleFetchError);
 	};
 
+	const activeSuppliers = useMemo(
+		() => currentConfig.query.supplier ?? [],
+		[currentConfig.query.supplier],
+	);
+
+	const toggleSupplier = useCallback(
+		(supplier: string) => {
+			// If 'activeSuppliers' is empty, that means that *all* suppliers are active.
+			if (activeSuppliers.length === 0) {
+				handleEnterQuery({
+					...currentConfig.query,
+					supplier: [supplier],
+				});
+				return;
+			}
+			const newSuppliers = activeSuppliers.includes(supplier)
+				? activeSuppliers.filter((s) => s !== supplier)
+				: [...activeSuppliers, supplier];
+			handleEnterQuery({
+				...currentConfig.query,
+				// if all the suppliers are active, we don't need to specify them in the query
+				supplier: recognisedSuppliers.every((s) => newSuppliers.includes(s))
+					? []
+					: newSuppliers,
+			});
+		},
+		[currentConfig.query, handleEnterQuery, activeSuppliers],
+	);
+
 	return (
 		<SearchContext.Provider
 			value={{
@@ -380,6 +416,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				loadMoreResults,
 				viewedItemIds,
 				previousItemId,
+				activeSuppliers,
+				toggleSupplier,
 			}}
 		>
 			{children}

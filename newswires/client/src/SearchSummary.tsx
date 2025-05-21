@@ -30,12 +30,20 @@ const presetLabel = (preset: string) => {
 	}
 };
 
+type SearchTermBadgeLabel =
+	| 'Search term'
+	| 'Time range'
+	| 'Preset'
+	| 'Supplier'
+	| 'Category'
+	| '(NOT) Category';
+
 const Summary = ({
 	searchSummaryLabel,
 }: {
 	searchSummaryLabel: string | boolean;
 }) => {
-	const { config, handleEnterQuery } = useSearch();
+	const { config, handleEnterQuery, toggleSupplier } = useSearch();
 	const {
 		q,
 		preset,
@@ -53,27 +61,50 @@ const Summary = ({
 	const displayFilters: boolean =
 		!!q || !!preset || displayCategoryCodes || displaySuppliers;
 
-	const handleBadgeClick = (label: string, value?: string) => {
-		const supplier = config.query.supplier ?? [];
+	const handleBadgeClick = (label: SearchTermBadgeLabel, value: string) => {
 		const categoryCodes = config.query.categoryCode ?? [];
+		const categoryCodesExcl = config.query.categoryCodeExcl ?? [];
 
-		handleEnterQuery({
-			...config.query,
-			q: label === 'Search term' ? '' : config.query.q,
-			dateRange: label === 'Time range' ? undefined : config.query.dateRange,
-			preset: label === 'Preset' ? undefined : config.query.preset,
-			supplier:
-				label === 'Supplier'
-					? supplier.filter((s: string) => s !== value)
-					: supplier,
-			categoryCode:
-				label === 'Category code'
-					? categoryCodes.filter((s: string) => s !== value)
-					: categoryCodes,
-		});
+		switch (label) {
+			case 'Search term':
+				handleEnterQuery({
+					...config.query,
+					q: '',
+				});
+				break;
+			case 'Time range':
+				handleEnterQuery({
+					...config.query,
+					dateRange: undefined,
+				});
+				break;
+			case 'Supplier':
+				toggleSupplier(value);
+				break;
+			case 'Preset':
+				handleEnterQuery({
+					...config.query,
+					preset: undefined,
+				});
+				break;
+			case 'Category':
+				handleEnterQuery({
+					...config.query,
+					categoryCode: categoryCodes.filter((s: string) => s !== value),
+				});
+				break;
+			case '(NOT) Category':
+				handleEnterQuery({
+					...config.query,
+					categoryCodeExcl: categoryCodesExcl.filter(
+						(s: string) => s !== value,
+					),
+				});
+				break;
+		}
 	};
 
-	const renderBadge = (label: string, value?: string) =>
+	const renderBadge = (label: SearchTermBadgeLabel, value: string) =>
 		value ? (
 			<EuiBadge
 				key={value}
