@@ -1,5 +1,4 @@
 import {
-	EuiBetaBadge,
 	EuiButton,
 	EuiButtonEmpty,
 	EuiButtonIcon,
@@ -9,7 +8,6 @@ import {
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
 	EuiIcon,
-	EuiLink,
 	EuiModal,
 	EuiModalBody,
 	EuiModalFooter,
@@ -28,6 +26,8 @@ import {
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
+import { AppTitle } from './AppTitle.tsx';
+import { BetaBadge } from './BetaBadge.tsx';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
 	loadOrSetInLocalStorage,
@@ -208,39 +208,12 @@ export function App() {
 											`}
 										>
 											<h1>
-												<EuiLink
-													href="/feed"
-													external={false}
-													css={css`
-														color: inherit;
-														font-weight: inherit;
-													`}
-												>
-													Newswires
-												</EuiLink>
+												<AppTitle />
 												<EuiShowFor sizes={['xs', 's']}>
-													<EuiBetaBadge
-														iconType={'beaker'}
-														label="Currently under construction"
-														aria-label="(Under construction)"
-														color={'accent'}
-														size="m"
-														css={css`
-															margin-left: 8px;
-														`}
-													/>
+													<BetaBadge size={'small'} />
 												</EuiShowFor>
 												<EuiShowFor sizes={['m', 'l', 'xl']}>
-													<EuiBetaBadge
-														label="Under construction"
-														aria-label="(Under construction)"
-														title="Currently under construction"
-														color={'accent'}
-														size="s"
-														css={css`
-															margin-left: 8px;
-														`}
-													/>
+													<BetaBadge size={'medium'} />
 												</EuiShowFor>
 											</h1>
 										</EuiTitle>
