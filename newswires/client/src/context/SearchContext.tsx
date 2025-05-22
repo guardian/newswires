@@ -270,10 +270,16 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 					...currentConfig,
 					query,
 				});
-			} else {
+			} else if (currentConfig.view === 'feed') {
 				pushConfigState({
 					...currentConfig,
 					view: 'feed',
+					query,
+				});
+			} else {
+				pushConfigState({
+					...currentConfig,
+					view: 'home',
 					query,
 				});
 			}
@@ -302,11 +308,16 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			view: 'item',
 			itemId: item,
 			query: currentConfig.query,
+			ticker: currentConfig.ticker,
 		});
 	};
 
 	const handleDeselectItem = () => {
-		pushConfigState({ view: 'feed', query: currentConfig.query });
+		pushConfigState({
+			view: 'feed',
+			query: currentConfig.query,
+			ticker: currentConfig.ticker,
+		});
 
 		if (currentConfig.itemId) {
 			setPreviousItemId(currentConfig.itemId);

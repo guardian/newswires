@@ -12,7 +12,7 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
-import { isOpenAsTicker, openTicker } from './openTicker.ts';
+import { openTicker } from './openTicker.ts';
 import { Tooltip } from './Tooltip.tsx';
 
 const presetLabel = (preset: string) => {
@@ -158,12 +158,12 @@ const Summary = ({
 };
 
 export const SearchSummary = () => {
-	const isPoppedOut = isOpenAsTicker();
-
 	const {
 		state: { queryData, status, lastUpdate },
 		config,
 	} = useSearch();
+	const isPoppedOut = config.ticker;
+
 	const [searchSummary, setSearchSummary] = useState('No results found');
 
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
