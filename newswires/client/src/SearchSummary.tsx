@@ -205,7 +205,7 @@ export const SearchSummary = () => {
 				display: flex;
 				align-items: center;
 				flex-wrap: wrap;
-				font-size: 18px;
+				font-size: 1.25rem;
 				font-weight: 500;
 				gap: 4px;
 				line-height: 1.5;

@@ -23,7 +23,7 @@ import {
 	EuiToast,
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
-import { css } from '@emotion/react';
+import { css, Global } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
@@ -42,6 +42,108 @@ import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
 import { Tooltip } from './Tooltip.tsx';
 import { defaultQuery } from './urlState';
+
+const globalStyles = css`
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Regular.woff')
+				format('woff');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-RegularItalic.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-RegularItalic.woff')
+				format('woff');
+		font-weight: 400;
+		font-style: italic;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Regular.woff')
+				format('woff');
+		font-weight: 450;
+		font-style: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-RegularItalic.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-RegularItalic.woff')
+				format('woff');
+		font-weight: 450;
+		font-style: italic;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Regular.woff')
+				format('woff');
+		font-weight: 500;
+		font-style: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-RegularItalic.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-RegularItalic.woff')
+				format('woff');
+		font-weight: 500;
+		font-style: italic;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Bold.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Bold.woff')
+				format('woff');
+		font-weight: 700;
+		font-style: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'GuardianTextSans';
+		src:
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-BoldItalic.woff2')
+				format('woff2'),
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-BoldItalic.woff')
+				format('woff');
+		font-weight: 700;
+		font-style: italic;
+		font-display: swap;
+	}
+
+	:root {
+		--euiFontFamily:
+			'Public Sans', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	}
+
+	body {
+		margin: 0;
+		font-family: var(--euiFontFamily);
+		font-size: 1.1rem;
+	}
+`;
 
 const Alert = ({
 	title,
@@ -117,173 +219,203 @@ export function App() {
 	};
 
 	return (
-		<EuiProvider colorMode="light">
-			<EuiPageTemplate
-				css={css`
-					height: 100vh;
-				`}
+		<>
+			<Global styles={globalStyles} />
+
+			<EuiProvider
+				colorMode="light"
+				modify={{
+					fontFamily: 'GuardianTextSans, Inter, Helvetica, Arial, sans-serif',
+				}}
 			>
-				{displayDisclaimer && (
-					<EuiModal
-						aria-labelledby="disclaimer-title"
-						onClose={() => dismissDisclaimer()}
-					>
-						<EuiModalHeader>
-							<EuiModalHeaderTitle
-								title={'Please use with caution'}
-								id="disclaimer-title"
-							>
-								<EuiIcon type="iInCircle" size="xl" /> Please use with caution
-							</EuiModalHeaderTitle>
-						</EuiModalHeader>
-
-						<EuiModalBody>
-							<EuiText size="m">
-								Please be advised that this product is currently in its early
-								testing phase, under active development, and subject to change.
-								<br />
-								<FeedbackContent />
-							</EuiText>
-						</EuiModalBody>
-
-						<EuiModalFooter>
-							<EuiButtonEmpty onClick={() => dismissDisclaimer()}>
-								Close
-							</EuiButtonEmpty>
-							<EuiButton onClick={() => dismissDisclaimer(true)} fill>
-								Don&apos;t show again
-							</EuiButton>
-						</EuiModalFooter>
-					</EuiModal>
-				)}
-				{status === 'offline' && (
-					<Alert
-						title="The application is no longer retrieving updates. Data
-                        synchronization will resume once connectivity is restored."
-					/>
-				)}
-				{isRestricted(query.dateRange?.end) &&
-					status !== 'offline' &&
-					status !== 'error' && (
-						<Alert
-							title="Your current filter settings exclude recent updates. Adjust the
-							filter to see the latest data."
-						/>
-					)}
-				<div
+				<EuiPageTemplate
 					css={css`
-						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
-						`padding-top: 40px;
-						  ${breakpoints.sm} {
-							padding-top: 72px;
-						  }
-						`}
-						height: 100%;
-						max-height: 100vh;
-						${(status === 'loading' || status === 'error') &&
-						'display: flex; align-items: center;'}
-						${status === 'loading' && 'background: white;'}
+						height: 100vh;
 					`}
 				>
-					{!isPoppedOut && (
-						<EuiHeader position="fixed">
-							<EuiHeaderSection>
+					{displayDisclaimer && (
+						<EuiModal
+							aria-labelledby="disclaimer-title"
+							onClose={() => dismissDisclaimer()}
+						>
+							<EuiModalHeader>
+								<EuiModalHeaderTitle
+									title={'Please use with caution'}
+									id="disclaimer-title"
+								>
+									<EuiIcon type="iInCircle" size="xl" /> Please use with caution
+								</EuiModalHeaderTitle>
+							</EuiModalHeader>
+
+							<EuiModalBody>
+								<EuiText size="m">
+									Please be advised that this product is currently in its early
+									testing phase, under active development, and subject to
+									change.
+									<br />
+									<FeedbackContent />
+								</EuiText>
+							</EuiModalBody>
+
+							<EuiModalFooter>
+								<EuiButtonEmpty onClick={() => dismissDisclaimer()}>
+									Close
+								</EuiButtonEmpty>
+								<EuiButton onClick={() => dismissDisclaimer(true)} fill>
+									Don&apos;t show again
+								</EuiButton>
+							</EuiModalFooter>
+						</EuiModal>
+					)}
+					{status === 'offline' && (
+						<Alert
+							title="The application is no longer retrieving updates. Data
+							synchronization will resume once connectivity is restored."
+						/>
+					)}
+					{isRestricted(query.dateRange?.end) &&
+						status !== 'offline' &&
+						status !== 'error' && (
+							<Alert
+								title="Your current filter settings exclude recent updates. Adjust the
+								filter to see the latest data."
+							/>
+						)}
+					<div
+						css={css`
+							${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
+							`padding-top: 40px;
+							  ${breakpoints.sm} {
+								padding-top: 72px;
+							  }
+							`}
+							height: 100%;
+							max-height: 100vh;
+							${(status === 'loading' || status === 'error') &&
+							'display: flex; align-items: center;'}
+							${status === 'loading' && 'background: white;'}
+						`}
+					>
+						{!isPoppedOut && (
+							<EuiHeader position="fixed">
+								<EuiHeaderSection>
+									<EuiHeaderSectionItem>
+										<SideNav />
+									</EuiHeaderSectionItem>
+									<EuiHeaderSectionItem>
+										<EuiTitle
+											size={'s'}
+											css={css`
+												padding-bottom: 3px;
+											`}
+										>
+											<h1>
+												<EuiLink
+													href="/feed"
+													external={false}
+													css={css`
+														color: inherit;
+														font-weight: inherit;
+													`}
+												>
+													Newswires
+												</EuiLink>
+												<EuiShowFor sizes={['xs', 's']}>
+													<EuiBetaBadge
+														iconType={'beaker'}
+														label="Currently under construction"
+														aria-label="(Under construction)"
+														color={'accent'}
+														size="m"
+														css={css`
+															margin-left: 8px;
+														`}
+													/>
+												</EuiShowFor>
+												<EuiShowFor sizes={['m', 'l', 'xl']}>
+													<EuiBetaBadge
+														label="Under construction"
+														aria-label="(Under construction)"
+														title="Currently under construction"
+														color={'accent'}
+														size="s"
+														css={css`
+															margin-left: 8px;
+														`}
+													/>
+												</EuiShowFor>
+											</h1>
+										</EuiTitle>
+									</EuiHeaderSectionItem>
+								</EuiHeaderSection>
+
 								<EuiHeaderSectionItem>
-									<SideNav />
-								</EuiHeaderSectionItem>
-								<EuiHeaderSectionItem>
-									<EuiTitle
-										size={'s'}
+									<EuiFlexGroup
+										gutterSize="xs"
 										css={css`
-											padding-bottom: 3px;
+											margin-left: 8px;
 										`}
 									>
-										<h1>
-											<EuiLink
-												href="/feed"
-												external={false}
-												css={css`
-													color: inherit;
-													font-weight: inherit;
-												`}
+										<EuiShowFor sizes={['xs', 's']}>
+											<Tooltip
+												tooltipContent={'Open new ticker'}
+												position="left"
 											>
-												Newswires
-											</EuiLink>
-											<EuiShowFor sizes={['xs', 's']}>
-												<EuiBetaBadge
-													iconType={'beaker'}
-													label="Currently under construction"
-													aria-label="(Under construction)"
-													color={'accent'}
-													size="m"
-													css={css`
-														margin-left: 8px;
-													`}
-												/>
-											</EuiShowFor>
-											<EuiShowFor sizes={['m', 'l', 'xl']}>
-												<EuiBetaBadge
-													label="Under construction"
-													aria-label="(Under construction)"
-													title="Currently under construction"
-													color={'accent'}
+												<EuiButtonIcon
+													aria-label="New ticker"
+													display="base"
 													size="s"
-													css={css`
-														margin-left: 8px;
-													`}
+													iconType={'popout'}
+													onClick={() => openTicker(config.query)}
 												/>
-											</EuiShowFor>
-										</h1>
-									</EuiTitle>
-								</EuiHeaderSectionItem>
-							</EuiHeaderSection>
-
-							<EuiHeaderSectionItem>
-								<EuiFlexGroup
-									gutterSize="xs"
-									css={css`
-										margin-left: 8px;
-									`}
-								>
-									<EuiShowFor sizes={['xs', 's']}>
-										<Tooltip tooltipContent={'Open new ticker'} position="left">
-											<EuiButtonIcon
-												aria-label="New ticker"
-												display="base"
+											</Tooltip>
+										</EuiShowFor>
+										<EuiShowFor sizes={['m', 'l', 'xl']}>
+											<EuiButton
 												size="s"
 												iconType={'popout'}
 												onClick={() => openTicker(config.query)}
-											/>
-										</Tooltip>
-									</EuiShowFor>
-									<EuiShowFor sizes={['m', 'l', 'xl']}>
-										<EuiButton
-											size="s"
-											iconType={'popout'}
-											onClick={() => openTicker(config.query)}
-										>
-											New ticker
-										</EuiButton>
-									</EuiShowFor>
-									<SettingsMenu />
-								</EuiFlexGroup>
-							</EuiHeaderSectionItem>
-						</EuiHeader>
-					)}
-					{isPoppedOut && (
-						<h1
-							css={css`
-								display: none;
-							`}
-							className="sr-only"
-						>
-							Newswires
-						</h1>
-					)}
-					{status !== 'error' && (
-						<>
-							<EuiShowFor sizes={['xs', 's']}>
-								{isPoppedOut && (
+											>
+												New ticker
+											</EuiButton>
+										</EuiShowFor>
+										<SettingsMenu />
+									</EuiFlexGroup>
+								</EuiHeaderSectionItem>
+							</EuiHeader>
+						)}
+						{isPoppedOut && (
+							<h1
+								css={css`
+									display: none;
+								`}
+								className="sr-only"
+							>
+								Newswires
+							</h1>
+						)}
+						{status !== 'error' && (
+							<>
+								<EuiShowFor sizes={['xs', 's']}>
+									{isPoppedOut && (
+										<ResizableContainer
+											Feed={Feed}
+											Item={
+												selectedItemId ? (
+													<ItemData id={selectedItemId} />
+												) : undefined
+											}
+											directionOverride={'vertical'}
+										/>
+									)}
+
+									{view === 'item' && !isPoppedOut && (
+										<ItemData id={selectedItemId} />
+									)}
+
+									{view !== 'item' && !isPoppedOut && <Feed />}
+								</EuiShowFor>
+								<EuiShowFor sizes={['m', 'l', 'xl']}>
 									<ResizableContainer
 										Feed={Feed}
 										Item={
@@ -291,55 +423,38 @@ export function App() {
 												<ItemData id={selectedItemId} />
 											) : undefined
 										}
-										directionOverride={'vertical'}
 									/>
-								)}
-
-								{view === 'item' && !isPoppedOut && (
-									<ItemData id={selectedItemId} />
-								)}
-
-								{view !== 'item' && !isPoppedOut && <Feed />}
-							</EuiShowFor>
-							<EuiShowFor sizes={['m', 'l', 'xl']}>
-								<ResizableContainer
-									Feed={Feed}
-									Item={
-										selectedItemId ? (
-											<ItemData id={selectedItemId} />
-										) : undefined
-									}
-								/>
-							</EuiShowFor>
-						</>
-					)}
-					{status == 'error' && (
-						<EuiEmptyPrompt
-							css={css`
-								background: white;
-							`}
-							actions={[
-								<EuiButton
-									onClick={handleRetry}
-									key="retry"
-									iconType={'refresh'}
-								>
-									Retry
-								</EuiButton>,
-								<EuiButton
-									onClick={() => handleEnterQuery(defaultQuery)}
-									key="clear"
-									iconType={'cross'}
-								>
-									Clear
-								</EuiButton>,
-							]}
-							body={<p>Sorry, failed to load because of {state.error}</p>}
-							hasBorder={true}
-						/>
-					)}
-				</div>
-			</EuiPageTemplate>
-		</EuiProvider>
+								</EuiShowFor>
+							</>
+						)}
+						{status == 'error' && (
+							<EuiEmptyPrompt
+								css={css`
+									background: white;
+								`}
+								actions={[
+									<EuiButton
+										onClick={handleRetry}
+										key="retry"
+										iconType={'refresh'}
+									>
+										Retry
+									</EuiButton>,
+									<EuiButton
+										onClick={() => handleEnterQuery(defaultQuery)}
+										key="clear"
+										iconType={'cross'}
+									>
+										Clear
+									</EuiButton>,
+								]}
+								body={<p>Sorry, failed to load because of {state.error}</p>}
+								hasBorder={true}
+							/>
+						)}
+					</div>
+				</EuiPageTemplate>
+			</EuiProvider>
+		</>
 	);
 }
