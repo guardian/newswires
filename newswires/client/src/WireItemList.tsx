@@ -17,7 +17,6 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
-import { isOpenAsTicker } from './openTicker.ts';
 import type { WireData } from './sharedTypes.ts';
 import { getSupplierInfo } from './suppliers.ts';
 
@@ -190,12 +189,12 @@ const WirePreviewCard = ({
 	view: string;
 	previousItemId: string | undefined;
 }) => {
-	const { viewedItemIds } = useSearch();
+	const { viewedItemIds, config } = useSearch();
 	const { showSecondaryFeedContent } = useUserSettings();
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
-	const isPoppedOut = isOpenAsTicker();
+	const isPoppedOut = config.ticker;
 
 	useEffect(() => {
 		if (selected && ref.current) {
