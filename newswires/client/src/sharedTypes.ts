@@ -78,16 +78,19 @@ export const ConfigSchema = z.discriminatedUnion('view', [
 		view: z.literal('home'),
 		query: QuerySchema,
 		itemId: z.undefined(),
+		ticker: z.boolean().default(false),
 	}),
 	z.object({
 		view: z.literal('feed'),
 		query: QuerySchema,
 		itemId: z.undefined(),
+		ticker: z.boolean(),
 	}),
 	z.object({
 		view: z.literal('item'),
 		query: QuerySchema,
 		itemId: z.string(),
+		ticker: z.boolean(),
 	}),
 ]);
 

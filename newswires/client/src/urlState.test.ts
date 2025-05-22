@@ -31,25 +31,40 @@ describe('urlToConfig', () => {
 		disableLogs();
 	});
 
+	it('parses ticker path into config', () => {
+		const url = makeFakeLocation('/ticker/feed');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: defaultQuery,
+			ticker: true,
+		});
+	});
+
 	it('parses querystring into config', () => {
 		const url = makeFakeLocation('/feed?q=abc');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
 			query: { ...defaultQuery, q: 'abc' },
+			ticker: false,
 		});
 	});
 
 	it('parses empty querystring into default query', () => {
 		const url = makeFakeLocation('/feed');
 		const config = urlToConfig(url);
-		expect(config).toEqual({ view: 'feed', query: defaultQuery });
+		expect(config).toEqual({
+			view: 'feed',
+			query: defaultQuery,
+			ticker: false,
+		});
 	});
 
 	it('parses unrecognised path to default config', () => {
 		const url = makeFakeLocation('/doesnt_exist_feed');
 		const config = urlToConfig(url);
-		expect(config).toEqual(defaultConfig);
+		expect(config).toEqual({ ...defaultConfig, view: 'feed' });
 	});
 
 	it('parses item path into config', () => {
@@ -59,6 +74,18 @@ describe('urlToConfig', () => {
 			view: 'item',
 			itemId: '123',
 			query: { ...defaultQuery, supplier: ['AP'], q: 'abc' },
+			ticker: false,
+		});
+	});
+
+	it('parses ticker item path into config', () => {
+		const url = makeFakeLocation('/ticker/item/123?q=abc&supplier=AP');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'item',
+			itemId: '123',
+			query: { ...defaultQuery, supplier: ['AP'], q: 'abc' },
+			ticker: true,
 		});
 	});
 
@@ -72,6 +99,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				supplier: ['AP', 'PA'],
 			},
+			ticker: false,
 		});
 	});
 
@@ -81,6 +109,7 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: { ...defaultQuery, q: 'abc', supplier: [] },
+			ticker: false,
 		});
 	});
 
@@ -94,6 +123,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				supplierExcl: ['PA', 'AP'],
 			},
+			ticker: false,
 		});
 	});
 
@@ -107,6 +137,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				keywords: 'Sports,Politics',
 			},
+			ticker: false,
 		});
 	});
 
@@ -120,6 +151,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				keywordsExcl: 'Sports,Politics',
 			},
+			ticker: false,
 		});
 	});
 
@@ -135,6 +167,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				categoryCode: ['medtop:08000000', 'medtop:20001340'],
 			},
+			ticker: false,
 		});
 	});
 
@@ -150,6 +183,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
 			},
+			ticker: false,
 		});
 	});
 
@@ -166,6 +200,7 @@ describe('urlToConfig', () => {
 					end: 'now/d',
 				},
 			},
+			ticker: false,
 		});
 	});
 
@@ -184,6 +219,7 @@ describe('urlToConfig', () => {
 					start: '2024-02-23T16:17:31.296Z',
 				},
 			},
+			ticker: false,
 		});
 	});
 
@@ -204,6 +240,7 @@ describe('urlToConfig', () => {
 					end: 'now/d',
 				},
 			},
+			ticker: false,
 		});
 	});
 });
@@ -221,15 +258,34 @@ describe('configToUrl', () => {
 				supplier: ['REUTERS' as const],
 				subject: [],
 			},
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&supplier=REUTERS');
 	});
 
+	it('converts ticker config to querystring', () => {
+		const config = {
+			view: 'feed' as const,
+			query: {
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+			},
+			ticker: true,
+		};
+		const url = configToUrl(config);
+		expect(url).toBe('/ticker/feed?q=abc&supplier=REUTERS');
+	});
+
 	it('handle default query config', () => {
 		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(true);
 
-		const url = configToUrl({ view: 'feed', query: defaultQuery });
+		const url = configToUrl({
+			view: 'feed',
+			query: defaultQuery,
+			ticker: false,
+		});
 		expect(url).toBe('/feed?start=now%2Fd');
 	});
 
@@ -238,9 +294,21 @@ describe('configToUrl', () => {
 			view: 'item' as const,
 			itemId: '123',
 			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/item/123?q=abc&supplier=REUTERS');
+	});
+
+	it('converts ticker item config to querystring', () => {
+		const config = {
+			view: 'item' as const,
+			itemId: '123',
+			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			ticker: true,
+		};
+		const url = configToUrl(config);
+		expect(url).toBe('/ticker/item/123?q=abc&supplier=REUTERS');
 	});
 
 	it('converts relative date range to querystring', () => {
@@ -258,6 +326,7 @@ describe('configToUrl', () => {
 					end: 'now-1d/d',
 				},
 			},
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
@@ -270,6 +339,7 @@ describe('configToUrl', () => {
 			view: 'item' as const,
 			itemId: '123',
 			query: { q: 'abc', supplier: [], subject: [] },
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/item/123?q=abc');
@@ -284,6 +354,7 @@ describe('configToUrl', () => {
 				supplier: ['AP' as const, 'PA' as const, 'REUTERS' as const],
 				subject: [],
 			},
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
@@ -295,6 +366,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'feed' as const,
 			query: { q: 'abc', supplierExcl: ['AP', 'PA', 'REUTERS'] },
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
@@ -306,6 +378,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'feed' as const,
 			query: { q: 'abc', keywords: 'Sports,Politics' },
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&keywords=Sports%2CPolitics');
@@ -315,6 +388,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'feed' as const,
 			query: { q: 'abc', keywordsExcl: 'Sports,Politics' },
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
@@ -324,6 +398,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'feed' as const,
 			query: { q: 'abc', categoryCode: ['medtop:08000000', 'medtop:20001340'] },
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
@@ -338,6 +413,7 @@ describe('configToUrl', () => {
 				q: 'abc',
 				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
 			},
+			ticker: false,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
