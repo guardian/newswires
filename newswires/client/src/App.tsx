@@ -69,9 +69,9 @@ const globalStyles = css`
 	@font-face {
 		font-family: 'GuardianTextSans';
 		src:
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Medium.woff2')
 				format('woff2'),
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Regular.woff')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Medium.woff')
 				format('woff');
 		font-weight: 450;
 		font-style: normal;
@@ -80,9 +80,9 @@ const globalStyles = css`
 	@font-face {
 		font-family: 'GuardianTextSans';
 		src:
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-RegularItalic.woff2')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-MediumItalic.woff2')
 				format('woff2'),
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-RegularItalic.woff')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-MediumItalic.woff')
 				format('woff');
 		font-weight: 450;
 		font-style: italic;
@@ -91,9 +91,9 @@ const globalStyles = css`
 	@font-face {
 		font-family: 'GuardianTextSans';
 		src:
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Medium.woff2')
 				format('woff2'),
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Regular.woff')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-Medium.woff')
 				format('woff');
 		font-weight: 500;
 		font-style: normal;
@@ -102,9 +102,9 @@ const globalStyles = css`
 	@font-face {
 		font-family: 'GuardianTextSans';
 		src:
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-RegularItalic.woff2')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-MediumItalic.woff2')
 				format('woff2'),
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-RegularItalic.woff')
+			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/latin1-not-hinted/GuardianTextSans-MediumItalic.woff')
 				format('woff');
 		font-weight: 500;
 		font-style: italic;
@@ -135,13 +135,18 @@ const globalStyles = css`
 
 	:root {
 		--euiFontFamily:
-			'Public Sans', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+			'GuardianTextSans', 'Inter', 'Helvetica Neue', Helvetica, Arial,
+			sans-serif;
 	}
 
 	body {
 		margin: 0;
 		font-family: var(--euiFontFamily);
 		font-size: 1.1rem;
+	}
+
+	button {
+		font-family: var(--euiFontFamily);
 	}
 `;
 
