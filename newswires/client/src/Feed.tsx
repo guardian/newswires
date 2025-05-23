@@ -8,7 +8,6 @@ import {
 import { css } from '@emotion/react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
-import { isOpenAsTicker } from './openTicker.ts';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
 import { WireItemList } from './WireItemList.tsx';
@@ -19,10 +18,10 @@ export interface FeedProps {
 }
 
 export const Feed = ({ containerRef, direction }: FeedProps) => {
-	const { state } = useSearch();
+	const { state, config } = useSearch();
 	const { status, queryData } = state;
 
-	const isPoppedOut = isOpenAsTicker();
+	const isPoppedOut = config.ticker;
 
 	return (
 		<EuiPageTemplate.Section

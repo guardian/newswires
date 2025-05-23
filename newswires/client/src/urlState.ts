@@ -24,6 +24,7 @@ export const defaultConfig: Config = Object.freeze({
 	view: 'home',
 	query: defaultQuery,
 	itemId: undefined,
+	ticker: false,
 });
 
 export function urlToConfig(location: {
@@ -70,10 +71,20 @@ export function urlToConfig(location: {
 		dateRange: { start, end },
 	};
 
-	if (page === 'feed') {
-		return { view: 'feed', query };
-	} else if (page.startsWith('item/') && page.split('/').length === 2) {
-		return { view: 'item', itemId: page.split('/')[1], query };
+	const pageSegments = page.split('/');
+
+	if (page.includes('feed')) {
+		return { view: 'feed', query, ticker: page.includes('ticker') };
+	} else if (
+		page.includes('item/') &&
+		(pageSegments.length === 2 || pageSegments.length === 3)
+	) {
+		return {
+			view: 'item',
+			itemId: pageSegments[pageSegments.length - 1],
+			query,
+			ticker: page.includes('ticker'),
+		};
 	} else {
 		console.log(`Page not found: "${page}", so using defaultConfig`);
 		return defaultConfig;
@@ -84,9 +95,9 @@ export const configToUrl = (config: Config): string => {
 	const { view, query, itemId } = config;
 	switch (view) {
 		case 'feed':
-			return `/feed${paramsToQuerystring(query)}`;
+			return `${config.ticker ? '/ticker' : ''}/feed${paramsToQuerystring(query)}`;
 		case 'item':
-			return `/item/${itemId}${paramsToQuerystring(query)}`;
+			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${paramsToQuerystring(query)}`;
 		default:
 			return '/';
 	}

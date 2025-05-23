@@ -7,6 +7,7 @@ export const openTicker = (query: Query) => {
 			query,
 			view: 'feed',
 			itemId: undefined,
+			ticker: true,
 		}),
 		'_blank',
 		'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
