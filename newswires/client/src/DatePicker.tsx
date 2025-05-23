@@ -47,37 +47,40 @@ export const DatePicker = () => {
 
 	return (
 		<StopShortcutPropagationWrapper>
-			<EuiSuperDatePicker
-				width={'auto'}
-				compressed={true}
-				start={
-					config.query.dateRange
-						? config.query.dateRange.start
-						: DEFAULT_DATE_RANGE.start
-				}
-				end={
-					config.query.dateRange
-						? config.query.dateRange.end
-						: DEFAULT_DATE_RANGE.end
-				}
-				minDate={TWO_WEEKS_AGO}
-				maxDate={END_OF_TODAY}
-				onTimeChange={onTimeChange}
-				utcOffset={moment().utcOffset()}
-				updateButtonProps={{ showTooltip: true, iconOnly: true }}
-				customQuickSelectRender={customQuickSelectRender}
-				dateFormat={'MMM D • HH:mm'}
-				commonlyUsedRanges={[
-					timeRangeOption('30m'),
-					timeRangeOption('1h'),
-					timeRangeOption('24h'),
-					timeRangeOption('3d'),
-					timeRangeOption('1w'),
-					timeRangeOption('today'),
-					timeRangeOption('1d'),
-					timeRangeOption('2d'),
-				]}
-			/>
+			{/* Wrap date picker so StopShortcutPropagationWrapper can catch and stop its keyboard events */}
+			<div>
+				<EuiSuperDatePicker
+					width={'auto'}
+					compressed={true}
+					start={
+						config.query.dateRange
+							? config.query.dateRange.start
+							: DEFAULT_DATE_RANGE.start
+					}
+					end={
+						config.query.dateRange
+							? config.query.dateRange.end
+							: DEFAULT_DATE_RANGE.end
+					}
+					minDate={TWO_WEEKS_AGO}
+					maxDate={END_OF_TODAY}
+					onTimeChange={onTimeChange}
+					utcOffset={moment().utcOffset()}
+					updateButtonProps={{ showTooltip: true, iconOnly: true }}
+					customQuickSelectRender={customQuickSelectRender}
+					dateFormat={'MMM D • HH:mm'}
+					commonlyUsedRanges={[
+						timeRangeOption('30m'),
+						timeRangeOption('1h'),
+						timeRangeOption('24h'),
+						timeRangeOption('3d'),
+						timeRangeOption('1w'),
+						timeRangeOption('today'),
+						timeRangeOption('1d'),
+						timeRangeOption('2d'),
+					]}
+				/>
+			</div>
 		</StopShortcutPropagationWrapper>
 	);
 };
