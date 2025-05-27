@@ -55,13 +55,13 @@ function flattenBlocks(block: Node): Node[] {
 			case 'ASIDE':
 			case 'ARTICLE':
 				(() => {
-					const clonedWrapper = b.clone() as HTMLElement;
-					clonedWrapper.innerHTML = '';
+					const wrapper = new HTMLElement(tagName.toLowerCase(), {});
+					wrapper.innerHTML = '';
 					flattenBlocks(b).forEach((block) => {
-						clonedWrapper.appendChild(block);
+						wrapper.appendChild(block);
 					});
 					appendCurrentParaToParagraphs();
-					paragraphs.push(clonedWrapper);
+					paragraphs.push(wrapper);
 				})();
 				break;
 			case 'BR':
