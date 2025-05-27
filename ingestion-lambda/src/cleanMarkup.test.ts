@@ -7,13 +7,20 @@ describe('cleanBodyTextMarkup', () => {
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});
 
+	it('will strip attributes from processed tags', () => {
+		// nb. there's no strong reason for this at the moment, but adding this test to help document the behaviour
+		const input = '<p attr="val" style="inline styles">This is a test string.</p>';
+		const expectedOutput = '<p>This is a test string.</p>';
+		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
+	});
+
 	it('should wrap all nodes in <p> tags', () => {
 		const input = 'This is a <strong>test</strong> string.';
 		expect(cleanBodyTextMarkup(input)).toBe(`<p>${input}</p>`);
 	});
 
 	it('should not duplicate <p> tags', () => {
-		const input = '<p>This is a test string.</p>';
+		const input = '<p attr="val" style="inline styles">This is a test string.</p>';
 		const expectedOutput = '<p>This is a test string.</p>';
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});
