@@ -36,7 +36,7 @@ import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
-import { isOpenAsTicker, openTicker } from './openTicker.ts';
+import { openTicker } from './openTicker.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
@@ -94,7 +94,7 @@ export function App() {
 	const { view, itemId: selectedItemId, query } = config;
 	const { status } = state;
 
-	const isPoppedOut = isOpenAsTicker();
+	const isPoppedOut = config.ticker;
 
 	const dismissDisclaimer = (persist?: boolean) => {
 		setDisplayDisclaimer(false);
