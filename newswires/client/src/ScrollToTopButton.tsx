@@ -59,7 +59,7 @@ export const ScrollToTopButton = ({
 
 	// Accumulate counts of newly loaded stories
 	useEffect(() => {
-		if (!queryData) return;
+		if (!queryData) {return;}
 		const newCount = queryData.results.filter((r) => r.isFromRefresh).length;
 		setIncomingStories((currentCount) => currentCount + newCount);
 	}, [queryData, queryData?.results]);
@@ -86,7 +86,7 @@ export const ScrollToTopButton = ({
 
 	// Recalculate position on show, scroll, or resize
 	useEffect(() => {
-		if (!visible) return;
+		if (!visible) {return;}
 
 		window.addEventListener('resize', updatePosition);
 
@@ -105,7 +105,7 @@ export const ScrollToTopButton = ({
 		return () => {
 			window.removeEventListener('resize', updatePosition);
 			scrollEl.removeEventListener('scroll', updatePosition);
-			if (resizeObs) resizeObs.disconnect();
+			if (resizeObs) {resizeObs.disconnect();}
 		};
 	}, [visible, containerRef, euiTheme.size.s, updatePosition]);
 
@@ -121,7 +121,7 @@ export const ScrollToTopButton = ({
 		}
 	};
 
-	if (!visible) return null;
+	if (!visible) {return null;}
 
 	return (
 		<EuiPortal>

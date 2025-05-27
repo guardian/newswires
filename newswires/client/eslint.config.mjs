@@ -8,7 +8,10 @@ export default [
 	...storybook.configs['flat/recommended'],
 	{
 		rules: {
-      "@typescript-eslint/switch-exhaustiveness-check": "error",
+      "@typescript-eslint/switch-exhaustiveness-check": [
+        "error",
+        {considerDefaultExhaustiveForUnions: true},
+      ],
 			'no-restricted-syntax': [
 				'error',
 				{
