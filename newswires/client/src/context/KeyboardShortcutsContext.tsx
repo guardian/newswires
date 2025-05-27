@@ -47,16 +47,22 @@ export function KeyboardShortcutsProvider({
 		(event: KeyboardEvent): void => {
 			const key = event.key;
 
-			if (!isKeyWithShortcut(key)) {return;}
+			if (!isKeyWithShortcut(key)) {
+				return;
+			}
 
-			if (!(event.target instanceof HTMLElement)) {return;}
+			if (!(event.target instanceof HTMLElement)) {
+				return;
+			}
 			const target = event.target;
 			const isTextInput =
 				target instanceof HTMLTextAreaElement ||
 				target instanceof HTMLInputElement ||
 				target.isContentEditable;
 
-			if (isTextInput) {return;}
+			if (isTextInput) {
+				return;
+			}
 
 			if (view == 'item') {
 				switch (key) {
