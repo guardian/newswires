@@ -299,8 +299,9 @@ const WirePreviewCard = ({
 				<h3
 					css={css`
 						font-weight: ${hasBeenViewed
-							? theme.euiTheme.font.weight.regular
-							: theme.euiTheme.font.weight.medium};
+							? theme.euiTheme.font.weight.medium
+							: theme.euiTheme.font.weight.semiBold};
+						font-size: 1.15rem;
 					`}
 				>
 					{mainHeadingContent}
@@ -314,9 +315,7 @@ const WirePreviewCard = ({
 					css={css`
 						grid-area: time;
 						padding-left: 5px;
-						font-weight: ${hasBeenViewed
-							? theme.euiTheme.font.weight.regular
-							: theme.euiTheme.font.weight.medium};
+						font-weight: ${theme.euiTheme.font.weight.regular};
 						justify-self: end;
 						text-align: right;
 						font-variant-numeric: tabular-nums;
