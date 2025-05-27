@@ -20,3 +20,4 @@ vite.config.d.ts
 .vscode
 .bsp
 .metals
+.scala-build/
