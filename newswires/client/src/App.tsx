@@ -89,6 +89,7 @@ const Alert = ({
 export function App() {
 	const { config, state, handleEnterQuery, handleRetry } = useSearch();
 
+	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
 	);
@@ -192,14 +193,19 @@ export function App() {
 						<EuiHeader position="fixed">
 							<EuiHeaderSection side={'left'}>
 								<EuiHeaderSectionItem>
-									<SideNav />
+									<SideNav
+										navIsOpen={sideNavIsOpen}
+										setNavIsOpen={setSideNavIsOpen}
+									/>
 								</EuiHeaderSectionItem>
 								<EuiShowFor sizes={['xs']}>
-									<EuiScreenReaderOnly>
-										<h1>
-											<AppTitle />
-										</h1>
-									</EuiScreenReaderOnly>
+									{!sideNavIsOpen && (
+										<EuiScreenReaderOnly>
+											<h1>
+												<AppTitle />
+											</h1>
+										</EuiScreenReaderOnly>
+									)}
 								</EuiShowFor>
 								<EuiShowFor sizes={['s', 'm', 'l', 'xl']}>
 									<EuiHeaderSectionItem>
