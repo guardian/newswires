@@ -15,6 +15,7 @@ import {
 	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
+	EuiScreenReaderOnly,
 	EuiShowFor,
 	EuiText,
 	EuiTitle,
@@ -193,12 +194,20 @@ export function App() {
 								<EuiHeaderSectionItem>
 									<SideNav />
 								</EuiHeaderSectionItem>
+								<EuiShowFor sizes={['xs']}>
+									<EuiScreenReaderOnly>
+										<h1>
+											<AppTitle />
+										</h1>
+									</EuiScreenReaderOnly>
+								</EuiShowFor>
 								<EuiShowFor sizes={['s', 'm', 'l', 'xl']}>
 									<EuiHeaderSectionItem>
 										<EuiTitle
 											size={'s'}
 											css={css`
 												padding-bottom: 3px;
+
 												${largeMaxBreakpoint} {
 													margin-right: 8px;
 												}

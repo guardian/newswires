@@ -237,10 +237,10 @@ export const SideNav = () => {
 									padding: 7px;
 								`}
 							>
-								<h1>
+								<h2>
 									<AppTitle />
 									<BetaBadge size={'medium'} />
-								</h1>
+								</h2>
 							</EuiTitle>
 						</>
 					</EuiShowFor>
