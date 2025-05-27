@@ -15,7 +15,7 @@ import {
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { AppTitle } from './AppTitle.tsx';
 import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
@@ -57,8 +57,13 @@ function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
 }
 
-export const SideNav = () => {
-	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
+export const SideNav = ({
+	navIsOpen,
+	setNavIsOpen,
+}: {
+	navIsOpen: boolean;
+	setNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
 	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
 
 	const {
@@ -237,10 +242,10 @@ export const SideNav = () => {
 									padding: 7px;
 								`}
 							>
-								<h2>
+								<h1>
 									<AppTitle />
 									<BetaBadge size={'medium'} />
-								</h2>
+								</h1>
 							</EuiTitle>
 						</>
 					</EuiShowFor>
