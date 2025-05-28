@@ -23,7 +23,7 @@ const tooltipBaseStyle = css`
 	color: #fff;
 	padding: 5px 8px;
 	border-radius: 4px;
-	font-size: 12px;
+	font-size: 0.9rem;
 	white-space: nowrap;
 	z-index: 9999; /* Ensures the tooltip appears above everything */
 `;
