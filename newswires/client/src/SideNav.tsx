@@ -103,7 +103,7 @@ export const SideNav = ({
 				colour: 'black',
 			},
 			...Object.entries(supplierData).map(([supplier, { label, colour }]) => ({
-				label,
+				label: label === 'Minor' ? 'Minor agencies' : label,
 				isActive:
 					activeSuppliers.includes(supplier) || activeSuppliers.length === 0,
 				colour: colour,
