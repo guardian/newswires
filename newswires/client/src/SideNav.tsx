@@ -8,17 +8,20 @@ import {
 	EuiHeaderSectionItemButton,
 	EuiIcon,
 	EuiPinnableListGroup,
+	EuiShowFor,
 	EuiSwitch,
 	EuiText,
+	EuiTitle,
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { AppTitle } from './AppTitle.tsx';
+import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { openTicker } from './openTicker.ts';
-import { SearchBox } from './SearchBox';
 import type { Query } from './sharedTypes';
 import { recognisedSuppliers, supplierData } from './suppliers.ts';
 
@@ -54,8 +57,13 @@ function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
 }
 
-export const SideNav = () => {
-	const [navIsOpen, setNavIsOpen] = useState<boolean>(false);
+export const SideNav = ({
+	navIsOpen,
+	setNavIsOpen,
+}: {
+	navIsOpen: boolean;
+	setNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
 	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
 
 	const {
@@ -226,7 +234,21 @@ export const SideNav = () => {
 				`}
 			>
 				<div style={{ height: '90%', overflowY: 'auto' }}>
-					<SearchBox />
+					<EuiShowFor sizes={['xs']}>
+						<>
+							<EuiTitle
+								size={'s'}
+								css={css`
+									padding: 7px;
+								`}
+							>
+								<h1>
+									<AppTitle />
+									<BetaBadge size={'medium'} />
+								</h1>
+							</EuiTitle>
+						</>
+					</EuiShowFor>
 					<EuiCollapsibleNavGroup title="Presets">
 						<EuiPinnableListGroup
 							onPinClick={() => {}}

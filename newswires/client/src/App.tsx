@@ -1,5 +1,4 @@
 import {
-	EuiBetaBadge,
 	EuiButton,
 	EuiButtonEmpty,
 	EuiButtonIcon,
@@ -9,7 +8,6 @@ import {
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
 	EuiIcon,
-	EuiLink,
 	EuiModal,
 	EuiModalBody,
 	EuiModalFooter,
@@ -17,15 +15,20 @@ import {
 	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
+	EuiScreenReaderOnly,
 	EuiShowFor,
 	EuiText,
 	EuiTitle,
 	EuiToast,
+	useEuiMaxBreakpoint,
+	useEuiMinBreakpoint,
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
+import { AppTitle } from './AppTitle.tsx';
+import { BetaBadge } from './BetaBadge.tsx';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
 	loadOrSetInLocalStorage,
@@ -38,6 +41,7 @@ import { FeedbackContent } from './FeedbackContent.tsx';
 import { ItemData } from './ItemData.tsx';
 import { openTicker } from './openTicker.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
+import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
 import { Tooltip } from './Tooltip.tsx';
@@ -85,6 +89,7 @@ const Alert = ({
 export function App() {
 	const { config, state, handleEnterQuery, handleRetry } = useSearch();
 
+	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
 	);
@@ -111,10 +116,9 @@ export function App() {
 		};
 	}, [handleShortcutKeyUp]);
 
-	const breakpoints = {
-		sm: '@media (max-width: 600px)',
-		md: '@media (min-width: 900px)',
-	};
+	const largeMinBreakpoint = useEuiMinBreakpoint('l');
+	const largeMaxBreakpoint = useEuiMaxBreakpoint('l');
+	const smallMinBreakpoint = useEuiMinBreakpoint('s');
 
 	return (
 		<EuiProvider colorMode="light">
@@ -174,7 +178,7 @@ export function App() {
 					css={css`
 						${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
 						`padding-top: 40px;
-						  ${breakpoints.sm} {
+						  ${smallMinBreakpoint} {
 							padding-top: 72px;
 						  }
 						`}
@@ -187,87 +191,96 @@ export function App() {
 				>
 					{!isPoppedOut && (
 						<EuiHeader position="fixed">
-							<EuiHeaderSection>
+							<EuiHeaderSection side={'left'}>
 								<EuiHeaderSectionItem>
-									<SideNav />
+									<SideNav
+										navIsOpen={sideNavIsOpen}
+										setNavIsOpen={setSideNavIsOpen}
+									/>
 								</EuiHeaderSectionItem>
-								<EuiHeaderSectionItem>
-									<EuiTitle
-										size={'s'}
-										css={css`
-											padding-bottom: 3px;
-										`}
-									>
-										<h1>
-											<EuiLink
-												href="/feed"
-												external={false}
-												css={css`
-													color: inherit;
-													font-weight: inherit;
-												`}
-											>
-												Newswires
-											</EuiLink>
-											<EuiShowFor sizes={['xs', 's']}>
-												<EuiBetaBadge
-													iconType={'beaker'}
-													label="Currently under construction"
-													aria-label="(Under construction)"
-													color={'accent'}
-													size="m"
-													css={css`
-														margin-left: 8px;
-													`}
-												/>
-											</EuiShowFor>
-											<EuiShowFor sizes={['m', 'l', 'xl']}>
-												<EuiBetaBadge
-													label="Under construction"
-													aria-label="(Under construction)"
-													title="Currently under construction"
-													color={'accent'}
-													size="s"
-													css={css`
-														margin-left: 8px;
-													`}
-												/>
-											</EuiShowFor>
-										</h1>
-									</EuiTitle>
+								<EuiShowFor sizes={['xs']}>
+									{!sideNavIsOpen && (
+										<EuiScreenReaderOnly>
+											<h1>
+												<AppTitle />
+											</h1>
+										</EuiScreenReaderOnly>
+									)}
+								</EuiShowFor>
+								<EuiShowFor sizes={['s', 'm', 'l', 'xl']}>
+									<EuiHeaderSectionItem>
+										<EuiTitle
+											size={'s'}
+											css={css`
+												padding-bottom: 3px;
+
+												${largeMaxBreakpoint} {
+													margin-right: 8px;
+												}
+												${largeMinBreakpoint} {
+													width: 298px;
+												}
+											`}
+										>
+											<h1>
+												<AppTitle />
+												<EuiShowFor sizes={['xs', 's']}>
+													<BetaBadge size={'small'} />
+												</EuiShowFor>
+												<EuiShowFor sizes={['m', 'l', 'xl']}>
+													<BetaBadge size={'medium'} />
+												</EuiShowFor>
+											</h1>
+										</EuiTitle>
+									</EuiHeaderSectionItem>
+								</EuiShowFor>
+							</EuiHeaderSection>
+
+							<EuiHeaderSection grow={true}>
+								<EuiHeaderSectionItem
+									css={css`
+										flex: 1 1 100%;
+									`}
+								>
+									<SearchBox />
 								</EuiHeaderSectionItem>
 							</EuiHeaderSection>
 
-							<EuiHeaderSectionItem>
-								<EuiFlexGroup
-									gutterSize="xs"
-									css={css`
-										margin-left: 8px;
-									`}
-								>
-									<EuiShowFor sizes={['xs', 's']}>
-										<Tooltip tooltipContent={'Open new ticker'} position="left">
-											<EuiButtonIcon
-												aria-label="New ticker"
-												display="base"
+							<EuiHeaderSection side={'right'}>
+								<EuiHeaderSectionItem>
+									<EuiFlexGroup
+										gutterSize="xs"
+										css={css`
+											margin-left: 8px;
+										`}
+									>
+										<EuiShowFor sizes={['xs', 's']}>
+											<Tooltip
+												tooltipContent={'Open new ticker'}
+												position="left"
+											>
+												<EuiButtonIcon
+													aria-label="New ticker"
+													display="base"
+													size="s"
+													iconType={'popout'}
+													onClick={() => openTicker(config.query)}
+												/>
+											</Tooltip>
+										</EuiShowFor>
+										<EuiShowFor sizes={['m', 'l', 'xl']}>
+											<EuiButton
 												size="s"
 												iconType={'popout'}
 												onClick={() => openTicker(config.query)}
-											/>
-										</Tooltip>
-									</EuiShowFor>
-									<EuiShowFor sizes={['m', 'l', 'xl']}>
-										<EuiButton
-											size="s"
-											iconType={'popout'}
-											onClick={() => openTicker(config.query)}
-										>
-											New ticker
-										</EuiButton>
-									</EuiShowFor>
-									<SettingsMenu />
-								</EuiFlexGroup>
-							</EuiHeaderSectionItem>
+											>
+												New ticker
+											</EuiButton>
+										</EuiShowFor>
+										<SettingsMenu />
+									</EuiFlexGroup>
+								</EuiHeaderSectionItem>
+							</EuiHeaderSection>
 						</EuiHeader>
 					)}
 					{isPoppedOut && (
