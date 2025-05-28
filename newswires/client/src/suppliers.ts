@@ -48,7 +48,7 @@ const allSupplierData: Record<
 		colour: reutersBrand,
 	},
 	MINOR_AGENCIES: {
-		label: 'Minor agencies',
+		label: 'Minor',
 		shortLabel: 'Min.',
 		colour: '#39756a',
 	},
