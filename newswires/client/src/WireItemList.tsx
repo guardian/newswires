@@ -298,8 +298,10 @@ const WirePreviewCard = ({
 				<h3
 					css={css`
 						font-weight: ${hasBeenViewed
-							? theme.euiTheme.font.weight.regular
-							: theme.euiTheme.font.weight.medium};
+							? theme.euiTheme.font.weight.medium
+							: theme.euiTheme.font.weight.semiBold};
+						${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
+						font-size: 1.15rem;
 					`}
 				>
 					{mainHeadingContent}
@@ -314,8 +316,8 @@ const WirePreviewCard = ({
 						grid-area: time;
 						padding-left: 5px;
 						font-weight: ${hasBeenViewed
-							? theme.euiTheme.font.weight.regular
-							: theme.euiTheme.font.weight.medium};
+							? theme.euiTheme.font.weight.light
+							: theme.euiTheme.font.weight.regular};
 						justify-self: end;
 						text-align: right;
 						font-variant-numeric: tabular-nums;
@@ -346,6 +348,7 @@ const WirePreviewCard = ({
 						css={css`
 							margin-top: 0.5rem;
 							grid-area: content;
+							${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
 							font-weight: ${hasBeenViewed
 								? theme.euiTheme.font.weight.light
 								: theme.euiTheme.font.weight.regular};
