@@ -1,9 +1,10 @@
 import { SUPPLIERS_TO_EXCLUDE } from './app-configuration';
+import { darkShadeOf } from './colour-utils';
 import { type SupplierInfo, type SupplierName } from './sharedTypes';
 
-export const reutersBrand = '#fb8023';
-export const APBrand = '#eb483b';
-export const AFPBrand = '#325aff';
+export const reutersBrand = '#c35604';
+export const APBrand = '#D8132A';
+export const AFPBrand = darkShadeOf('#325aff', 0.9);
 export const PABrand = '#6352ba';
 export const AAPBrand = '#013a81';
 
