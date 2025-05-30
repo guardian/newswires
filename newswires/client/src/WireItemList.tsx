@@ -17,8 +17,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
-import type { WireData } from './sharedTypes.ts';
-import { getSupplierInfo } from './suppliers.ts';
+import type { SupplierInfo, WireData } from './sharedTypes.ts';
 
 export const WireItemList = ({
 	wires,
@@ -180,7 +179,7 @@ const WirePreviewCard = ({
 	previousItemId,
 }: {
 	id: number;
-	supplier: string;
+	supplier: SupplierInfo;
 	ingestedAt: string;
 	content: WireData['content'];
 	highlight: string | undefined;
@@ -223,15 +222,12 @@ const WirePreviewCard = ({
 		method: 'transparent',
 	});
 
-	const supplierInfo = getSupplierInfo(supplier);
+	const supplierLabel = showSecondaryFeedContent
+		? supplier.label
+		: supplier.shortLabel;
+	const supplierColour = supplier.colour;
 
-	const supplierLabel =
-		(showSecondaryFeedContent
-			? supplierInfo?.label
-			: supplierInfo?.shortLabel) ?? supplier;
-	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
-
-	const mainHeadingContent = decideMainHeadingContent(supplier, content);
+	const mainHeadingContent = decideMainHeadingContent(supplier.name, content);
 
 	const hasBeenViewed = viewedItemIds.includes(id.toString());
 

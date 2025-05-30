@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
+import { transformWireItemQueryResult } from './context/transformQueryResponse.ts';
 import { Item } from './Item';
 import { pandaFetch } from './panda-session';
-import { type WireData, WireDataSchema } from './sharedTypes';
+import { type WireData, WireDataFromAPISchema } from './sharedTypes';
 
 export const ItemData = ({ id }: { id: string }) => {
 	const { handleDeselectItem, handlePreviousItem, handleNextItem, config } =
@@ -28,10 +29,10 @@ export const ItemData = ({ id }: { id: string }) => {
 				return res.json();
 			})
 			.then((data) => {
-				const maybeWireData = WireDataSchema.safeParse(data);
+				const maybeWireData = WireDataFromAPISchema.safeParse(data);
 				if (maybeWireData.success) {
 					setError(undefined);
-					setItemData(maybeWireData.data);
+					setItemData(transformWireItemQueryResult(maybeWireData.data));
 				} else {
 					setError('Invalid data received');
 				}

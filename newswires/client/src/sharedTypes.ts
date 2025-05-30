@@ -31,7 +31,7 @@ const FingerpostContentSchema = z
 	})
 	.partial();
 
-export const WireDataSchema = z.object({
+export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
 	externalId: z.string(),
@@ -44,15 +44,54 @@ export const WireDataSchema = z.object({
 	isFromRefresh: z.boolean().default(false),
 });
 
-export type WireData = z.infer<typeof WireDataSchema>;
+export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;
 
 export const WiresQueryResponseSchema = z.object({
-	results: z.array(WireDataSchema),
+	results: z.array(WireDataFromAPISchema),
 	totalCount: z.number(),
 	// keywordCounts: z.record(z.string(), z.number()),
 });
 
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
+
+export const suppliers = [
+	'REUTERS',
+	'AP',
+	'AAP',
+	'AFP',
+	'PA',
+	'GUAP',
+	'GUREUTERS',
+	'MINOR_AGENCIES',
+	'UNKNOWN',
+] as const;
+
+const SupplierNameSchema = z.enum(suppliers);
+
+export type SupplierName = z.infer<typeof SupplierNameSchema>;
+
+const SupplierInfoSchema = z.object({
+	name: SupplierNameSchema,
+	label: z.string(),
+	shortLabel: z.string(),
+	colour: z.string(),
+});
+
+export type SupplierInfo = z.infer<typeof SupplierInfoSchema>;
+
+export const WireDataSchema = WireDataFromAPISchema.extend({
+	supplier: SupplierInfoSchema,
+});
+
+export type WireData = z.infer<typeof WireDataSchema>;
+
+export const WiresQueryDataSchema = z.object({
+	results: z.array(WireDataSchema),
+	totalCount: z.number(),
+	// keywordCounts: z.record(z.string(), z.number()),
+});
+
+export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
 
 const DateRange = z.object({
 	start: z.string(),

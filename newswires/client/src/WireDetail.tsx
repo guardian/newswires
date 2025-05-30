@@ -25,7 +25,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { WireData } from './sharedTypes';
-import { AP, getSupplierInfo } from './suppliers.ts';
+import { AP } from './suppliers.ts';
 import { Tooltip } from './Tooltip.tsx';
 
 function TitleContentForItem({
@@ -235,11 +235,6 @@ export const WireDetail = ({
 		[keywords],
 	);
 
-	const supplierInfo = getSupplierInfo(wire.supplier);
-
-	const supplierLabel = supplierInfo?.label ?? wire.supplier;
-	const supplierColour = supplierInfo?.colour ?? theme.euiTheme.colors.text;
-
 	return (
 		<>
 			<EuiFlexGroup justifyContent="spaceBetween">
@@ -251,8 +246,8 @@ export const WireDetail = ({
 								slug={slug}
 								ingestedAt={convertToLocalDate(wire.ingestedAt)}
 								supplierDetails={{
-									label: supplierLabel,
-									colour: supplierColour,
+									label: wire.supplier.label,
+									colour: wire.supplier.colour,
 								}}
 							/>
 						</h2>
@@ -304,7 +299,7 @@ export const WireDetail = ({
 							<EuiSpacer size="m" />
 						</>
 					)}
-					{safeAbstract && wire.supplier === AP && (
+					{safeAbstract && wire.supplier.name === AP && (
 						<>
 							<p>(abstract) {safeAbstract}</p>
 							<EuiSpacer size="m" />

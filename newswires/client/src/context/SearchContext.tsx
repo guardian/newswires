@@ -13,7 +13,7 @@ import type { Config, Query } from '../sharedTypes.ts';
 import {
 	ConfigSchema,
 	QuerySchema,
-	WiresQueryResponseSchema,
+	WiresQueryDataSchema,
 } from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
@@ -39,7 +39,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
 		status: z.literal('initialised'),
 		error: z.string().optional(),
-		queryData: WiresQueryResponseSchema.optional(),
+		queryData: WiresQueryDataSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
@@ -47,7 +47,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
 		status: z.literal('loading'),
 		error: z.string().optional(),
-		queryData: WiresQueryResponseSchema.optional(),
+		queryData: WiresQueryDataSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
@@ -55,7 +55,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
 		status: z.literal('success'),
 		error: z.string().optional(),
-		queryData: WiresQueryResponseSchema,
+		queryData: WiresQueryDataSchema,
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
@@ -63,7 +63,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
 		status: z.literal('error'),
 		error: z.string(),
-		queryData: WiresQueryResponseSchema.optional(),
+		queryData: WiresQueryDataSchema.optional(),
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
@@ -71,7 +71,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
 		status: z.literal('offline'),
 		error: z.string(),
-		queryData: WiresQueryResponseSchema,
+		queryData: WiresQueryDataSchema,
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
@@ -87,11 +87,11 @@ const _ActionSchema = z.discriminatedUnion('type', [
 	z.object({
 		type: z.literal('FETCH_SUCCESS'),
 		query: QuerySchema,
-		data: WiresQueryResponseSchema,
+		data: WiresQueryDataSchema,
 	}),
 	z.object({
 		type: z.literal('APPEND_RESULTS'),
-		data: WiresQueryResponseSchema,
+		data: WiresQueryDataSchema,
 	}),
 	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
 	z.object({ type: z.literal('RETRY') }),
@@ -99,7 +99,7 @@ const _ActionSchema = z.discriminatedUnion('type', [
 	z.object({
 		type: z.literal('UPDATE_RESULTS'),
 		query: QuerySchema,
-		data: WiresQueryResponseSchema,
+		data: WiresQueryDataSchema,
 	}),
 	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
 ]);
@@ -404,7 +404,9 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			handleEnterQuery({
 				...currentConfig.query,
 				// if all the suppliers are active, we don't need to specify them in the query
-				supplier: recognisedSuppliers.every((s) => newSuppliers.includes(s))
+				supplier: recognisedSuppliers.every((s) =>
+					newSuppliers.includes(s.name),
+				)
 					? []
 					: newSuppliers,
 			});

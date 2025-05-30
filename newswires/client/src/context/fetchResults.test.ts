@@ -1,6 +1,8 @@
 import { pandaFetch } from '../panda-session';
+import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
 import { paramsToQuerystring } from '../urlState';
 import { fetchResults } from './fetchResults.ts';
+import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
 jest.mock('../urlState', () => ({
 	paramsToQuerystring: jest.fn(() => '?queryString'),
@@ -9,7 +11,9 @@ jest.mock('../urlState', () => ({
 jest.mock('../panda-session', () => ({
 	pandaFetch: jest.fn(() =>
 		Promise.resolve({
-			json: jest.fn().mockResolvedValue({ results: [], totalCount: 0 }),
+			json: jest
+				.fn()
+				.mockResolvedValue({ results: [sampleWireResponse], totalCount: 0 }),
 			ok: true,
 		}),
 	),
@@ -92,6 +96,15 @@ describe('fetchResults', () => {
 			},
 			true,
 			{ beforeId: '123' },
+		);
+	});
+
+	it('should transform the results using transformWireItemQueryResult', async () => {
+		const mockQuery = { q: 'value' };
+		const results = await fetchResults(mockQuery);
+		expect(results.results).toHaveLength(1);
+		expect(results.results[0]).toEqual(
+			transformWireItemQueryResult(sampleWireResponse),
 		);
 	});
 });
