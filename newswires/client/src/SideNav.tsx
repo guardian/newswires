@@ -12,6 +12,7 @@ import {
 	EuiSwitch,
 	EuiText,
 	EuiTitle,
+	useEuiTheme,
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -65,6 +66,8 @@ export const SideNav = ({
 	setNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
 	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
+
+	const theme = useEuiTheme();
 
 	const {
 		state,
@@ -217,8 +220,9 @@ export const SideNav = ({
 					}
 
 					.hover-only-icon:hover {
-						background-color: rgba(0, 119, 204, 0.1);
-						color: rgb(0, 97, 166);
+						background-color: ${theme.euiTheme.colors
+							.backgroundBaseInteractiveHover};
+						color: ${theme.euiTheme.colors.textPrimary};
 					}
 
 					.euiListGroupItem:hover .hover-only-icon,

@@ -3,7 +3,6 @@ import {
 	EuiScreenReaderOnly,
 	EuiText,
 	EuiTextBlockTruncate,
-	useEuiBackgroundColor,
 	useEuiTheme,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
@@ -217,13 +216,15 @@ const WirePreviewCard = ({
 	}, [view, id, previousItemId, isSmallScreen, isPoppedOut]);
 
 	const theme = useEuiTheme();
-	const accentBgColor = useEuiBackgroundColor('subdued', {
-		method: 'transparent',
-	});
+	const accentBgColor = theme.euiTheme.colors.backgroundBaseSubdued;
 
 	const mainHeadingContent = decideMainHeadingContent(supplier.name, content);
 
 	const hasBeenViewed = viewedItemIds.includes(id.toString());
+
+	const textColour = hasBeenViewed
+		? theme.euiTheme.colors.textSubdued
+		: 'inherit';
 
 	const cardGrid = css`
 		display: grid;
@@ -290,7 +291,7 @@ const WirePreviewCard = ({
 						font-weight: ${hasBeenViewed
 							? theme.euiTheme.font.weight.medium
 							: theme.euiTheme.font.weight.semiBold};
-						${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
+						color: ${textColour};
 						font-size: 1.15rem;
 					`}
 				>
@@ -340,7 +341,7 @@ const WirePreviewCard = ({
 						css={css`
 							margin-top: 0.5rem;
 							grid-area: content;
-							${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
+							color: ${textColour};
 							font-weight: ${hasBeenViewed
 								? theme.euiTheme.font.weight.light
 								: theme.euiTheme.font.weight.regular};

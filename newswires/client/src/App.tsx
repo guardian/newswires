@@ -35,6 +35,7 @@ import {
 	saveToLocalStorage,
 } from './context/localStorage.tsx';
 import { useSearch } from './context/SearchContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
 import { FeedbackContent } from './FeedbackContent.tsx';
@@ -90,6 +91,8 @@ const Alert = ({
 export function App() {
 	const { config, state, handleEnterQuery, handleRetry } = useSearch();
 
+	const { isDarkMode } = useUserSettings();
+
 	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
@@ -125,10 +128,11 @@ export function App() {
 		<>
 			<Global styles={fontStyles} />
 
-			<EuiProvider colorMode="light">
+			<EuiProvider colorMode={isDarkMode ? 'dark' : 'light'}>
 				<EuiPageTemplate
 					css={css`
 						height: 100vh;
+						background-color: var(--backgroundBasePrimary);
 					`}
 				>
 					{displayDisclaimer && (

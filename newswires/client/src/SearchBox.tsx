@@ -1,4 +1,4 @@
-import { EuiFieldSearch } from '@elastic/eui';
+import { EuiFieldSearch, useEuiTheme } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext.tsx';
@@ -18,6 +18,8 @@ export function SearchBox() {
 		[handleEnterQuery],
 	);
 
+	const theme = useEuiTheme();
+
 	return (
 		<StopShortcutPropagationWrapper>
 			<EuiFieldSearch
@@ -34,12 +36,13 @@ export function SearchBox() {
 				fullWidth={true}
 				css={css`
 					border: none;
-					background-color: #edf1f8;
+					background-color: ${theme.euiTheme.colors.backgroundLightPrimary};
 					transition: background-color 0.2s ease;
 					max-width: 580px;
 
 					&:focus {
-						background-color: #ffffff;
+						background-color: ${theme.euiTheme.colors
+							.backgroundLightAccentSecondary};
 					}
 				`}
 			/>
