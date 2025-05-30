@@ -23,7 +23,7 @@ import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { openTicker } from './openTicker.ts';
 import type { Query } from './sharedTypes';
-import { recognisedSuppliers, supplierData } from './suppliers.ts';
+import { recognisedSuppliers } from './suppliers.ts';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q, preset, categoryCode, dateRange } = query;
@@ -102,14 +102,14 @@ export const SideNav = ({
 				},
 				colour: 'black',
 			},
-			...Object.entries(supplierData).map(([supplier, { label, colour }]) => ({
+			...recognisedSuppliers.map(({ name, label, colour }) => ({
 				label: label === 'Minor' ? 'Minor agencies' : label,
 				isActive:
-					activeSuppliers.includes(supplier) || activeSuppliers.length === 0,
+					activeSuppliers.includes(name) || activeSuppliers.length === 0,
 				colour: colour,
-				onClick: () => toggleSupplier(supplier),
+				onClick: () => toggleSupplier(name),
 				onTickerClick: () => {
-					openTicker({ ...config.query, supplier: [supplier] });
+					openTicker({ ...config.query, supplier: [name] });
 				},
 			})),
 		],

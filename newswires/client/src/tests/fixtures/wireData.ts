@@ -24,13 +24,24 @@ export const sampleFingerpostContent = {
 	bodyText: 'Sample body text.',
 };
 
-export const sampleWireData: WireData = {
+export const sampleWireResponse = {
 	id: 1,
-	supplier: 'TestSupplier',
+	supplier: 'UNKNOWN',
 	externalId: 'external-123',
-	ingestedAt: '2025-01-01T00:00:00.00000Z', // UTC dates to make sure the reducer is converting dates to the local timezone.
+	ingestedAt: '2025-01-01T00:00:00Z',
 	categoryCodes: ['category1', 'category2'],
 	content: sampleFingerpostContent,
 	highlight: 'Sample Highlight',
 	isFromRefresh: false,
+};
+
+export const sampleWireData: WireData = {
+	...sampleWireResponse,
+	supplier: {
+		name: 'UNKNOWN',
+		label: 'Unknown Supplier',
+		shortLabel: 'Unknown',
+		colour: '#000000',
+	},
+	ingestedAt: '2025-01-01T00:00:00+00:00',
 };
