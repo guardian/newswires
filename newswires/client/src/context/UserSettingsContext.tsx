@@ -8,6 +8,8 @@ interface UserSettingsContextShape {
 	toggleShowSecondaryFeedContent: () => void;
 	resizablePanelsDirection: 'vertical' | 'horizontal';
 	toggleResizablePanelsDirection: () => void;
+	isDarkMode: boolean;
+	toggleDarkMode: () => void;
 }
 
 const UserSettingsContext = createContext<UserSettingsContextShape | null>(
@@ -37,6 +39,9 @@ export const UserSettingsContextProvider = ({
 			'horizontal',
 		),
 	);
+	const [isDarkMode, setIsDarkMode] = useState<boolean>(
+		loadOrSetInLocalStorage<boolean>('isDarkMode', z.boolean(), false),
+	);
 
 	const toggleShowSecondaryFeedContent = () => {
 		setShowSecondaryFeedContent(!showSecondaryFeedContent);
@@ -59,6 +64,14 @@ export const UserSettingsContextProvider = ({
 		});
 	};
 
+	const toggleDarkMode = () => {
+		setIsDarkMode(!isDarkMode);
+		saveToLocalStorage<boolean>('isDarkMode', !isDarkMode);
+		sendTelemetryEvent('toggleDarkMode', {
+			isDarkMode: !isDarkMode ? 'on' : 'off',
+		});
+	};
+
 	return (
 		<UserSettingsContext.Provider
 			value={{
@@ -66,6 +79,8 @@ export const UserSettingsContextProvider = ({
 				toggleShowSecondaryFeedContent,
 				resizablePanelsDirection,
 				toggleResizablePanelsDirection,
+				isDarkMode,
+				toggleDarkMode,
 			}}
 		>
 			{children}

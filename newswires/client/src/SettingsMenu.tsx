@@ -16,6 +16,8 @@ export const SettingsMenu = () => {
 		toggleResizablePanelsDirection,
 		showSecondaryFeedContent,
 		toggleShowSecondaryFeedContent,
+		isDarkMode,
+		toggleDarkMode,
 	} = useUserSettings();
 
 	const [isPopoverOpen, setPopover] = useState(false);
@@ -77,7 +79,31 @@ export const SettingsMenu = () => {
 						</div>
 					),
 				},
+				{ name: 'Experimental features', icon: 'beaker', panel: 1 },
 				{ name: 'Close', icon: 'cross', onClick: closePopover },
+			],
+		},
+		{
+			id: 1,
+			title: 'Experimental features',
+			items: [
+				{
+					renderItem: () => (
+						<div style={{ padding: 16 }}>
+							<EuiFormRow hasChildLabel={true}>
+								<EuiSwitch
+									name="switch"
+									id="darkModeSwitch"
+									label="Dark mode "
+									checked={isDarkMode}
+									onChange={() => {
+										toggleDarkMode();
+									}}
+								/>
+							</EuiFormRow>
+						</div>
+					),
+				},
 			],
 		},
 	];
