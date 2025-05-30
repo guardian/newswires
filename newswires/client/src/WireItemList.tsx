@@ -1,5 +1,4 @@
 import {
-	EuiBadge,
 	EuiButton,
 	EuiScreenReaderOnly,
 	EuiText,
@@ -12,12 +11,12 @@ import { css, keyframes } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
-import { lightShadeOf } from './colour-utils.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
 import type { SupplierInfo, WireData } from './sharedTypes.ts';
+import { SupplierBadge } from './SupplierBadge.tsx';
 
 export const WireItemList = ({
 	wires,
@@ -222,11 +221,6 @@ const WirePreviewCard = ({
 		method: 'transparent',
 	});
 
-	const supplierLabel = showSecondaryFeedContent
-		? supplier.label
-		: supplier.shortLabel;
-	const supplierColour = supplier.colour;
-
 	const mainHeadingContent = decideMainHeadingContent(supplier.name, content);
 
 	const hasBeenViewed = viewedItemIds.includes(id.toString());
@@ -328,17 +322,19 @@ const WirePreviewCard = ({
 							</EuiText>
 						))}
 				</div>
-				<EuiBadge
-					title={`${supplierLabel} supplier`}
+				<div
 					css={css`
 						grid-area: supplier;
 						justify-self: end;
 						margin-top: ${showSecondaryFeedContent ? '0.5rem' : '0'};
 					`}
-					color={hasBeenViewed ? lightShadeOf(supplierColour) : supplierColour}
 				>
-					{supplierLabel}
-				</EuiBadge>
+					<SupplierBadge
+						supplier={supplier}
+						isPrimary={!hasBeenViewed}
+						isCondensed={!showSecondaryFeedContent}
+					/>{' '}
+				</div>
 				{showSecondaryFeedContent && (
 					<div
 						css={css`

@@ -24,7 +24,8 @@ import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
-import type { WireData } from './sharedTypes';
+import type { SupplierInfo, WireData } from './sharedTypes';
+import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -32,31 +33,21 @@ function TitleContentForItem({
 	slug,
 	headline,
 	ingestedAt,
-	supplierDetails,
+	supplier,
 }: {
 	slug?: string;
 	headline?: string;
 	ingestedAt: Moment;
-	supplierDetails?: {
-		label: string;
-		colour: string;
-	};
+	supplier: SupplierInfo;
 }) {
 	return (
 		<>
 			<EuiText size={'xs'}>
-				{slug && <>{slug} &#183; </>}
+				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
 				<Tooltip tooltipContent={ingestedAt.format()}>
 					{ingestedAt.fromNow()}
 				</Tooltip>
-			</EuiText>{' '}
-			{supplierDetails && (
-				<>
-					<EuiBadge color={supplierDetails.colour}>
-						{supplierDetails.label}
-					</EuiBadge>{' '}
-				</>
-			)}
+			</EuiText>
 			{headline && headline.length > 0 ? headline : (slug ?? 'No title')}
 		</>
 	);
@@ -245,10 +236,7 @@ export const WireDetail = ({
 								headline={headline}
 								slug={slug}
 								ingestedAt={convertToLocalDate(wire.ingestedAt)}
-								supplierDetails={{
-									label: wire.supplier.label,
-									colour: wire.supplier.colour,
-								}}
+								supplier={wire.supplier}
 							/>
 						</h2>
 					</EuiTitle>
