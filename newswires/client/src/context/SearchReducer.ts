@@ -1,8 +1,7 @@
 import dateMath from '@elastic/datemath';
 import { isEqual as deepIsEqual } from 'lodash';
 import moment from 'moment-timezone';
-import { convertToLocalDateString } from '../dateHelpers.ts';
-import type { Query, WireData, WiresQueryResponse } from '../sharedTypes.ts';
+import type { Query, WiresQueryData } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
 
@@ -22,19 +21,11 @@ export const safeReducer = (
 	};
 };
 
-const transformQueryResults = (data: WireData[]) =>
-	data.map((item) => {
-		return {
-			...item,
-			ingestedAt: convertToLocalDateString(item.ingestedAt),
-		};
-	});
-
 function mergeQueryData(
-	existing: WiresQueryResponse | undefined,
-	newData: WiresQueryResponse,
+	existing: WiresQueryData | undefined,
+	newData: WiresQueryData,
 	{ dateRange }: Query,
-): WiresQueryResponse {
+): WiresQueryData {
 	if (existing) {
 		const existingIds = new Set(existing.results.map((item) => item.id));
 
@@ -72,9 +63,9 @@ function mergeQueryData(
 }
 
 function appendQueryData(
-	existing: WiresQueryResponse | undefined,
-	newData: WiresQueryResponse,
-): WiresQueryResponse {
+	existing: WiresQueryData | undefined,
+	newData: WiresQueryData,
+): WiresQueryData {
 	if (existing) {
 		return {
 			...newData,
@@ -113,7 +104,7 @@ export const SearchReducer = (state: State, action: Action): State => {
 				...state,
 				queryData: {
 					...action.data,
-					results: transformQueryResults(action.data.results),
+					results: action.data.results,
 				},
 				successfulQueryHistory: getUpdatedHistory(
 					state.successfulQueryHistory,
@@ -141,7 +132,7 @@ export const SearchReducer = (state: State, action: Action): State => {
 							state.queryData,
 							{
 								...action.data,
-								results: transformQueryResults(action.data.results),
+								results: action.data.results,
 							},
 							action.query,
 						),
@@ -156,7 +147,7 @@ export const SearchReducer = (state: State, action: Action): State => {
 				status: 'success',
 				queryData: appendQueryData(state.queryData, {
 					...action.data,
-					results: transformQueryResults(action.data.results),
+					results: action.data.results,
 				}),
 			};
 		case 'FETCH_ERROR':

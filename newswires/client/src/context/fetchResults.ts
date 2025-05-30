@@ -1,7 +1,8 @@
 import { pandaFetch } from '../panda-session.ts';
-import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
+import type { Query, WiresQueryData } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
+import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
 export const fetchResults = async (
 	query: Query,
@@ -10,7 +11,7 @@ export const fetchResults = async (
 		beforeId?: string;
 	} = {},
 	abortController?: AbortController,
-): Promise<WiresQueryResponse> => {
+): Promise<WiresQueryData> => {
 	const queryString = paramsToQuerystring(query, true, additionalParams);
 	const response = await pandaFetch(`/api/search${queryString}`, {
 		headers: {
@@ -34,7 +35,10 @@ export const fetchResults = async (
 				`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
 			);
 		}
-		return parseResult.data;
+		return {
+			...parseResult.data,
+			results: parseResult.data.results.map(transformWireItemQueryResult),
+		};
 	} catch (e) {
 		throw new Error(e instanceof Error ? e.message : 'Unknown error');
 	}

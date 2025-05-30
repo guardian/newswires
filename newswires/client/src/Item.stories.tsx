@@ -4,8 +4,9 @@ import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
+import type { WireData } from './sharedTypes';
 
-const sampleItemData = {
+const sampleItemData: WireData = {
 	id: 12345,
 	content: {
 		subhead: 'Sample Wire Story',
@@ -26,7 +27,12 @@ const sampleItemData = {
 	},
 	highlight:
 		'<p>This is a sample news wire story.</p><p>It contains multiple paragraphs, <a href="#">a link</a>, and some <mark>highlighted</mark> text.</p>',
-	supplier: 'Reuters',
+	supplier: {
+		name: 'REUTERS',
+		label: 'Reuters',
+		shortLabel: 'Reu',
+		colour: '#000000',
+	},
 	externalId: 'RTRS.2021.01.01.12345',
 	ingestedAt: '2025-02-26T09:58:22.000Z',
 	categoryCodes: ['C:US', 'C:CA'],

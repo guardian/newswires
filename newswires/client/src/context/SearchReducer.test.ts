@@ -160,12 +160,12 @@ describe('SearchReducer', () => {
 					{
 						...sampleWireData,
 						id: 4,
-						ingestedAt: '2025-01-01T02:07:00.00000Z',
+						ingestedAt: '2025-01-01T02:07:00+00:00',
 					},
 					{
 						...sampleWireData,
 						id: 3,
-						ingestedAt: '2025-01-01T02:06:00.00000Z',
+						ingestedAt: '2025-01-01T02:06:00+00:00',
 					},
 				],
 				totalCount: 2,
