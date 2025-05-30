@@ -38,11 +38,17 @@ function shade(components: number[], intensity: number) {
 
 const withTint = (intensity: number) => (hex: number[]) => tint(hex, intensity);
 
-const _withShade = (intensity: number) => (hex: number[]) =>
+const withShade = (intensity: number) => (hex: number[]) =>
 	shade(hex, intensity);
 
 export function lightShadeOf(colour: string) {
 	const components = parseColor(colour);
 
 	return hexValue(withTint(0.6)(components));
+}
+
+export function darkShadeOf(colour: string, shade: number) {
+	const components = parseColor(colour);
+
+	return hexValue(withShade(shade)(components));
 }
