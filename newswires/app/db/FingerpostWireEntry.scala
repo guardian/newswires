@@ -6,6 +6,7 @@ import play.api.libs.json._
 import scalikejdbc._
 
 import java.time.{Instant, ZonedDateTime}
+import scala.util.{Failure, Success, Try}
 
 case class FingerpostWireSubjects(
     code: List[String]
@@ -113,16 +114,26 @@ object FingerpostWireEntry
   )(rs: WrappedResultSet): FingerpostWireEntry = {
     val fingerpostContent = Json.parse(rs.string(fm.content)).as[FingerpostWire]
     val maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
+
+    val id = rs.long(fm.id)
+
     val categoryCodes = maybeCategoryCodes match {
       case Some(array) =>
-        array.getArray
-          .asInstanceOf[Array[String]]
-          .toList
+        Try(
+          array.getArray
+            .asInstanceOf[Array[String]]
+            .toList
+        ) match {
+          case Success(list) => list
+          case Failure(_) =>
+            logger.warn(s"Invalid category codes (Story ID ${rs.long(fm.id)})")
+            Nil
+        }
       case None => Nil
     }
 
     FingerpostWireEntry(
-      id = rs.long(fm.id),
+      id,
       supplier = rs.string(fm.supplier),
       externalId = rs.string(fm.externalId),
       ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
