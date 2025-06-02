@@ -9,7 +9,8 @@ describe('cleanBodyTextMarkup', () => {
 
 	it('will strip attributes from processed tags', () => {
 		// nb. there's no strong reason for this at the moment, but adding this test to help document the behaviour
-		const input = '<p attr="val" style="inline styles">This is a test string.</p>';
+		const input =
+			'<p attr="val" style="inline styles">This is a test string.</p>';
 		const expectedOutput = '<p>This is a test string.</p>';
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});
@@ -20,7 +21,8 @@ describe('cleanBodyTextMarkup', () => {
 	});
 
 	it('should not duplicate <p> tags', () => {
-		const input = '<p attr="val" style="inline styles">This is a test string.</p>';
+		const input =
+			'<p attr="val" style="inline styles">This is a test string.</p>';
 		const expectedOutput = '<p>This is a test string.</p>';
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});

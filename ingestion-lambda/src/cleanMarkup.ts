@@ -3,7 +3,10 @@ import { HTMLElement, parse, TextNode } from 'node-html-parser';
 import type { Logger } from '../../shared/lambda-logging';
 import { createLogger } from '../../shared/lambda-logging';
 
-export function cleanBodyTextMarkup(bodyText: string, logger: Logger = createLogger({})): string {
+export function cleanBodyTextMarkup(
+	bodyText: string,
+	logger: Logger = createLogger({}),
+): string {
 	if (bodyText.trim().length === 0) {
 		return '';
 	}
@@ -13,8 +16,16 @@ export function cleanBodyTextMarkup(bodyText: string, logger: Logger = createLog
 	flattenBlocks(root).forEach((block) => {
 		wrapper.appendChild(block);
 	});
-	if (originalInnerText.replaceAll(/\s/g, '') !== wrapper.innerText.replaceAll(/\s/g, '')) {
-		logger.warn({message: 'Warning: bodyText markup was not cleaned correctly, reverting to original markup', originalInnerText, newInnerText: wrapper.innerText});
+	if (
+		originalInnerText.replaceAll(/\s/g, '') !==
+		wrapper.innerText.replaceAll(/\s/g, '')
+	) {
+		logger.warn({
+			message:
+				'Warning: bodyText markup was not cleaned correctly, reverting to original markup',
+			originalInnerText,
+			newInnerText: wrapper.innerText,
+		});
 		return bodyText;
 	}
 	return wrapper.innerHTML;
