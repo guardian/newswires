@@ -5,6 +5,7 @@ interface FeatureSwitches {
 export interface AppConfiguration {
 	switches: FeatureSwitches;
 	stage: string;
+	sendTelemetryAsDev: boolean;
 }
 
 declare global {
