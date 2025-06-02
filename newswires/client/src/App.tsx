@@ -40,7 +40,6 @@ import { Feed } from './Feed';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { ItemData } from './ItemData.tsx';
-import { openTicker } from './openTicker.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
@@ -88,7 +87,8 @@ const Alert = ({
 };
 
 export function App() {
-	const { config, state, handleEnterQuery, handleRetry } = useSearch();
+	const { config, state, handleEnterQuery, handleRetry, openTicker } =
+		useSearch();
 
 	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
