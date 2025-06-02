@@ -12,7 +12,6 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
-import { openTicker } from './openTicker.ts';
 import { Tooltip } from './Tooltip.tsx';
 
 const presetLabel = (preset: string) => {
@@ -161,6 +160,7 @@ export const SearchSummary = () => {
 	const {
 		state: { queryData, status, lastUpdate },
 		config,
+		openTicker,
 	} = useSearch();
 	const isPoppedOut = config.ticker;
 
