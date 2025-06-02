@@ -1,8 +1,10 @@
 import guardian from '@guardian/eslint-config';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
 export default [
 	...guardian.configs.recommended,
 	...guardian.configs.jest,
+	eslintPluginPrettierRecommended,
 	{
 		rules: {
 			'@typescript-eslint/no-unused-vars': [
