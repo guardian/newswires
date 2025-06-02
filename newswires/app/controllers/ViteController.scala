@@ -1,6 +1,8 @@
 package controllers
 
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.pandomainauth.action.UserRequest
+import com.gu.pandomainauth.model.User
 import com.gu.permissions.PermissionsProvider
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
@@ -17,7 +19,8 @@ import scala.io.Source
 
 case class ClientConfig(
     switches: Map[String, Boolean],
-    stage: String
+    stage: String,
+    sendTelemetryAsDev: Boolean
 )
 
 object ClientConfig {
@@ -50,7 +53,7 @@ class ViteController(
 
   private def injectClientCodeIntoPageBody(
       html: String
-  )(implicit request: Request[AnyContent]): String = {
+  )(implicit request: UserRequest[AnyContent]): String = {
     def injectCsrf[A](
         body: String
     )(implicit request: Request[A]): String = {
@@ -61,12 +64,16 @@ class ViteController(
         .replaceAll("@csrf\\.value", csrf.value)
     }
 
-    def injectClientConfig(body: String): String = {
+    def injectClientConfig[A](
+        body: String
+    )(implicit request: UserRequest[A]): String = {
       val config =
         views.html.fragments.clientConfig(
           ClientConfig(
             FeatureSwitchProvider.clientSideSwitchStates,
-            stage = configuration.get[String]("stage")
+            stage = configuration.get[String]("stage"),
+            sendTelemetryAsDev =
+              request.user.email.startsWith("pete.faulconbridge@")
           )
         )
 
@@ -80,7 +87,7 @@ class ViteController(
     }
 
     val withInjectedCsrf = injectCsrf(html)(request)
-    injectClientConfig(withInjectedCsrf)
+    injectClientConfig(withInjectedCsrf)(request)
 
   }
 
@@ -118,7 +125,7 @@ class ViteController(
 
   private def proxyAsset(
       resource: String,
-      request: Request[AnyContent]
+      request: UserRequest[AnyContent]
   ): Future[Result] = {
     val query =
       if (request.rawQueryString.nonEmpty) "?" + request.rawQueryString

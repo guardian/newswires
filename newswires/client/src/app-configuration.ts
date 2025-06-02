@@ -14,6 +14,7 @@ const configLookup: AppConfiguration = isJest
 				ShowGuSuppliers: false,
 			},
 			stage: 'test',
+			sendTelemetryAsDev: true,
 		}
 	: window.configuration;
 
@@ -23,4 +24,6 @@ export const SUPPLIERS_TO_EXCLUDE = showGuSuppliers
 	? []
 	: ['GUAP', 'GUREUTERS'];
 
-export const stage = configLookup.stage;
+export const STAGE = configLookup.stage;
+
+export const SEND_TELEMETRY_AS_DEV = configLookup.sendTelemetryAsDev;
