@@ -2,12 +2,13 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { stage } from './app-configuration.ts';
 import { App } from './App.tsx';
-import './icons';
 import { KeyboardShortcutsProvider } from './context/KeyboardShortcutsContext.tsx';
 import { SearchContextProvider } from './context/SearchContext.tsx';
 import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
 import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
+import './icons';
 import { createTelemetryEventSender } from './telemetry.ts';
+import { TelemetryPixel } from './TelemetryPixel.tsx';
 
 const { sendTelemetryEvent } = createTelemetryEventSender(stage);
 
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')!).render(
 			<UserSettingsContextProvider>
 				<SearchContextProvider>
 					<KeyboardShortcutsProvider>
+						<TelemetryPixel stage={stage} />
 						<App />
 					</KeyboardShortcutsProvider>
 				</SearchContextProvider>
