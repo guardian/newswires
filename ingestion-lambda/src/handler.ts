@@ -14,7 +14,7 @@ import {
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
 	processFingerpostPACategoryCodes,
-	processReutersDestinationCodes,
+	processReutersDestinationCodes, processReutersTopicCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
@@ -89,7 +89,7 @@ export const processCategoryCodes = (
 		case 'REUTERS':
 			return [
 				...catCodes,
-				...subjectCodes,
+				...processReutersTopicCodes(subjectCodes),
 				...processReutersDestinationCodes(destinationCodes),
 			];
 		case 'AP':

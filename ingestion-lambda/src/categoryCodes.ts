@@ -1,4 +1,5 @@
 import nlp from 'compromise';
+import {businessTopicCodes, worldTopicCodes} from "./topicCodes";
 import {lexicon, ukPlaces} from "./ukPlaces";
 
 interface CategoryCode {
@@ -47,6 +48,23 @@ export function processReutersDestinationCodes(original: string[]): string[] {
 	return original
 		.filter((_) => supportedDestinations.includes(_))
 		.map((_) => `REUTERS:${_}`);
+}
+
+export function processReutersTopicCodes(original: string[]): string[] {
+	const worldOccurrences = countCommonOccurrences(original, worldTopicCodes);
+	const businessOccurrences = countCommonOccurrences(original, businessTopicCodes);
+
+	const difference = worldOccurrences - businessOccurrences;
+
+	if (difference >= -2 || difference <= 2) {
+		return ['PRESET:world', 'PRESET:business', ...original]
+	} else if (worldOccurrences > businessOccurrences) {
+		return ['PRESET:world', ...original]
+	} else if (worldOccurrences < businessOccurrences) {
+		return ['PRESET:business', ...original]
+	} else {
+		return ['PRESET:world', 'PRESET:business', ...original]
+	}
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
@@ -148,4 +166,11 @@ export function inferRegionCategoryFromText(content: string | undefined): string
 	);
 
 	return isUk ? 'N2:GB' : undefined;
+}
+
+function countCommonOccurrences(array1: string[], array2: string[]): number {
+	const setA = new Set(array1);
+	const setB = new Set(array2);
+	const intersection = new Set([...setA].filter(x => setB.has(x)));
+	return intersection.size;
 }
