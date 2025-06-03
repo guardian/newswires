@@ -18,28 +18,28 @@ object SearchPresets {
 
   // format: off
   /**
-    * Main config table for AP world ('NY:for') preset in Fip system.
-    * (nb. 'NY' here is a Fip header, and doesn't seem to stand for New York)
+   * Main config table for AP world ('NY:for') preset in Fip system.
+   * (nb. 'NY' here is a Fip header, and doesn't seem to stand for New York)
 
-      > ; Category Codes
-      >  2	JC=a*				>w4apapi#NY:for
-      >  2	JC=d*				>w4apapi#NY:fea
-      >  2	JC=e*				>w4apapi#NY:fea
-      >  2	JC=f*				>w4apapi#NY:fin
-      >  2	JC=i*				>w4apapi#NY:for
-      >  2	JC=s*				>w4apapi#NY:spt
-      >  2	JC=t*				>w4apapi#NY:fea
-      >  2	JC=w*				>w4apapi#NY:for
-      > ; Default
-      >  2	JC=*				>w4apapi#NY:for
+   > ; Category Codes
+   >  2	JC=a*				>w4apapi#NY:for
+   >  2	JC=d*				>w4apapi#NY:fea
+   >  2	JC=e*				>w4apapi#NY:fea
+   >  2	JC=f*				>w4apapi#NY:fin
+   >  2	JC=i*				>w4apapi#NY:for
+   >  2	JC=s*				>w4apapi#NY:spt
+   >  2	JC=t*				>w4apapi#NY:fea
+   >  2	JC=w*				>w4apapi#NY:for
+   > ; Default
+   >  2	JC=*				>w4apapi#NY:for
 
-    * The fingerpost system runs top to bottom, and '>' tells it to stop once it finds a match, so an item with
-    * category code 'JC:ae' would be bucketed as 'NY:for' and not 'NY:fea', and an item with category code 'JC:ew'
-    * would be bucketed as 'NY:fea' rather than 'NY:for'.
-    * We're inclined to exclude sports, entertainment, finance, and technology news from this preset instead, even
-    * if they have e.g. code 'a' (US news) code, because they're likely to be less relevant to International desk.
-    * However, we should remain open to changing this in response to user feedback.
-    */
+   * The fingerpost system runs top to bottom, and '>' tells it to stop once it finds a match, so an item with
+   * category code 'JC:ae' would be bucketed as 'NY:for' and not 'NY:fea', and an item with category code 'JC:ew'
+   * would be bucketed as 'NY:fea' rather than 'NY:for'.
+   * We're inclined to exclude sports, entertainment, finance, and technology news from this preset instead, even
+   * if they have e.g. code 'a' (US news) code, because they're likely to be less relevant to International desk.
+   * However, we should remain open to changing this in response to user feedback.
+   */
   // format: on
   private val ApWorld = List(
     SearchParams(
@@ -128,14 +128,22 @@ object SearchPresets {
       suppliersIncl = List("PA"),
       categoryCodesIncl = List(
         "paCat:HHH",
-        "paCat:FFF",
-        "paCat:GXX",
         "paCat:SCN",
         "paCat:IFN",
         "paCat:QFF",
         "paCat:PPP"
-      ),
-      categoryCodesExcl = List("MCC:SPO")
+      )
+    )
+  )
+
+  private val PaBusiness = List(
+    SearchParams(
+      text = None,
+      suppliersIncl = List("PA"),
+      categoryCodesIncl = List(
+        "paCat:FFF",
+        "paCat:GXX"
+      )
     )
   )
 
@@ -181,7 +189,8 @@ object SearchPresets {
   private val AllUk =
     PaHome ::: MinorAgenciesUk
 
-  private val AllBusiness = ReutersBusiness ::: ApBusiness ::: AapBusiness
+  private val AllBusiness =
+    ReutersBusiness ::: ApBusiness ::: AapBusiness ::: PaBusiness
 }
 
 object Categories {
