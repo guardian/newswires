@@ -10,7 +10,10 @@ export type TelemetryEventSender = (
 	value?: boolean | number,
 ) => void;
 
-export const createTelemetryEventSender = (stage: string) => {
+export const createTelemetryEventSender = (
+	stage: string,
+	sendTelemetryAsDev: boolean,
+) => {
 	const telemetryDomain =
 		stage === 'PROD' ? 'gutools.co.uk' : 'code.dev-gutools.co.uk';
 
@@ -29,6 +32,7 @@ export const createTelemetryEventSender = (stage: string) => {
 			z.string(),
 			uuidv4(),
 		);
+		const isDevUser = sendTelemetryAsDev;
 
 		const event = {
 			app: 'newswires',
@@ -36,7 +40,7 @@ export const createTelemetryEventSender = (stage: string) => {
 			eventTime: new Date().toISOString(),
 			type,
 			value,
-			tags: { ...tags, browserUUID },
+			tags: { ...tags, browserUUID, isDevUser },
 		};
 		telemetryEventService.addEvent(event);
 	};
