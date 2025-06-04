@@ -10,14 +10,15 @@ export type TelemetryEventSender = (
 	value?: boolean | number,
 ) => void;
 
-export const createTelemetryEventSender = (stage: string) => {
+export function getTelemetryUrl(stage: string): string {
 	const telemetryDomain =
 		stage === 'PROD' ? 'gutools.co.uk' : 'code.dev-gutools.co.uk';
+	return `https://user-telemetry.${telemetryDomain}`;
+}
 
-	const telemetryEventService = new UserTelemetryEventSender(
-		`https://user-telemetry.${telemetryDomain}`,
-		100,
-	);
+export const createTelemetryEventSender = (stage: string) => {
+	const telemetryUrl = getTelemetryUrl(stage);
+	const telemetryEventService = new UserTelemetryEventSender(telemetryUrl, 100);
 
 	const sendTelemetryEvent: TelemetryEventSender = (
 		type: string,
