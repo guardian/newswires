@@ -1,5 +1,5 @@
 import nlp from 'compromise';
-import { countryNames, countryNamesMap } from './countries';
+import { alpha2CountriesMap, countryNames, countryNamesMap } from './countries';
 import { ukLexicon, ukPlaces } from './ukPlaces';
 
 interface CategoryCode {
@@ -7,7 +7,7 @@ interface CategoryCode {
 	code: string;
 }
 
-function dedupeStrings(arr: string[]): string[] {
+export function dedupeStrings(arr: string[]): string[] {
 	return Array.from(new Set(arr));
 }
 
@@ -58,6 +58,30 @@ export function processReutersDestinationCodes(original: string[]): string[] {
 	return original
 		.filter((_) => supportedDestinations.includes(_))
 		.map((_) => `REUTERS:${_}`);
+}
+
+export function remapReutersCountryCodes(original: string[]): string[] {
+	const codes = original.flatMap((code) => {
+		const categoryCodeValue = code.split(':')[1]?.toUpperCase();
+		const maybeCountryData = alpha2CountriesMap[categoryCodeValue ?? ''];
+		if (maybeCountryData) {
+			return [
+				`experimentalCountryCode:${maybeCountryData['alpha-2']}`,
+				`experimentalRegionName:${maybeCountryData.region}`,
+				maybeCountryData['sub-region'] !== ''
+					? `experimentalSubRegionName:${maybeCountryData['sub-region']}`
+					: undefined,
+				maybeCountryData['intermediate-region'] !== ''
+					? `experimentalIntermediateRegionName:${maybeCountryData['intermediate-region']}`
+					: undefined,
+			];
+		} else {
+			return [];
+		}
+	});
+	return dedupeStrings(
+		codes.filter((i): i is string => i !== undefined),
+	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {

@@ -6,6 +6,7 @@ import {
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
+	remapReutersCountryCodes,
 } from './categoryCodes';
 import { processCategoryCodes } from './handler';
 
@@ -17,6 +18,30 @@ describe('processReutersDestinationCodes', () => {
 		expect(processReutersDestinationCodes(['RWSA', 'RNP'])).toEqual([
 			'REUTERS:RWSA',
 		]);
+	});
+});
+
+describe('remapReutersCountryCodes', () => {
+	it('should return an empty array if provided no ISO Alpha-2 country codes', () => {
+		expect(
+			remapReutersCountryCodes(['N2:football', 'N2:Paris', 'N2:France']),
+		).toEqual([]);
+	});
+	it('should return an empty array if provided with an empty array', () => {
+		expect(remapReutersCountryCodes([])).toEqual([]);
+	});
+	it('should return an array of remapped Reuters country codes, plus region codes for those countries', () => {
+		const remapped = remapReutersCountryCodes(['N2:GB', 'N2:FR']);
+		[
+			'experimentalCountryCode:GB',
+			'experimentalRegionName:Europe',
+			'experimentalSubRegionName:Northern Europe',
+			'experimentalCountryCode:FR',
+			'experimentalSubRegionName:Western Europe',
+		].forEach((code) => {
+			expect(remapped).toContain(code);
+		});
+		expect(remapped).toHaveLength(5);
 	});
 });
 

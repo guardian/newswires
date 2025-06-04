@@ -9,6 +9,7 @@ import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import {
+	dedupeStrings,
 	inferRegionCategoryFromText,
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
@@ -16,6 +17,7 @@ import {
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
+	remapReutersCountryCodes,
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
@@ -93,10 +95,7 @@ export const processCategoryCodes = (
 				...subjectCodes,
 				...processReutersDestinationCodes(destinationCodes),
 				...regionCodes,
-			];
-			return [
-				...subjectCodes,
-				...processReutersDestinationCodes(destinationCodes),
+				...remapReutersCountryCodes(subjectCodes),
 			];
 		case 'AP':
 			return [
@@ -277,12 +276,14 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						const supplier =
 							lookupSupplier(content['source-feed']) ?? 'Unknown';
 
-						const categoryCodes = processCategoryCodes(
-							supplier,
-							content.subjects?.code ?? [],
-							content.destinations?.code ?? [],
-							`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
-							content.priority,
+						const categoryCodes = dedupeStrings(
+							processCategoryCodes(
+								supplier,
+								content.subjects?.code ?? [],
+								content.destinations?.code ?? [],
+								`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
+								content.priority,
+							),
 						);
 
 						const result = await sql`

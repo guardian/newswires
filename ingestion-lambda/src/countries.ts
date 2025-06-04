@@ -94,3 +94,8 @@ export const countryNamesMap: Record<string, CountryData> = {
 	...additional,
 };
 export const countryNames = Object.keys(countryNamesMap);
+
+export const alpha2CountriesMap: Record<string, CountryData> =
+	Object.fromEntries(
+		countriesData.map((country) => [country['alpha-2'], country]),
+	);
