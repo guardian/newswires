@@ -1,10 +1,14 @@
 import nlp from 'compromise';
 import { countryNames, countryNamesMap } from './countries';
-import { lexicon, ukPlaces } from './ukPlaces';
+import { ukLexicon, ukPlaces } from './ukPlaces';
 
 interface CategoryCode {
 	prefix: string;
 	code: string;
+}
+
+function dedupeStrings(arr: string[]): string[] {
+	return Array.from(new Set(arr));
 }
 
 /**
@@ -137,7 +141,7 @@ export function inferRegionCategoryFromText(
 		return [];
 	}
 
-	const doc = nlp(content, lexicon) as {
+	const doc = nlp(content, ukLexicon) as {
 		places: () => { out: (format: string) => unknown };
 	};
 
@@ -147,16 +151,18 @@ export function inferRegionCategoryFromText(
 		return [];
 	}
 
-	const places = (rawPlaces as string[])
-		.flatMap((place) => place.split(/[,\n]/))
-		.map((place) =>
-			place
-				.trim()
-				.toLowerCase()
-				.replaceAll(/['’]s$/g, '')
-				.replaceAll(/\/>/g, ''),
-		)
-		.filter((place) => !!place && place.length > 0);
+	const places = dedupeStrings(
+		(rawPlaces as string[])
+			.flatMap((place) => place.split(/[,\n]/))
+			.map((place) =>
+				place
+					.trim()
+					.toLowerCase()
+					.replaceAll(/['’]s$/g, '')
+					.replaceAll(/\/>/g, ''),
+			)
+			.filter((place) => !!place && place.length > 0),
+	);
 
 	const isUk = places.some((place) =>
 		ukPlaces.some((ukPlace) => place.includes(ukPlace)),
@@ -164,21 +170,28 @@ export function inferRegionCategoryFromText(
 
 	const maybeIsUkTag = isUk ? 'N2:GB' : undefined;
 
-	const countriesMentioned = places
-		.filter((place) => countryNames.includes(place))
-		.map((country) => countryNamesMap[country])
+	const countryNamesMentioned = countryNames.filter((countryName) =>
+		places.some((place) => place.includes(countryName)),
+	);
+
+	const countriesMentioned = countryNamesMentioned
+		.map((country) => {
+			return countryNamesMap[country];
+		})
 		.filter((country) => !!country);
 
-	const countryTags: string[] = countriesMentioned.flatMap((country) => [
+	const countryTags = countriesMentioned.flatMap((country) => [
 		`experimentalCountryCode:${country['alpha-2']}`,
 		`experimentalRegionName:${country.region}`,
+		country['sub-region'] !== ''
+			? `experimentalSubRegionName:${country['sub-region']}`
+			: undefined,
+		country['intermediate-region'] !== ''
+			? `experimentalIntermediateRegionName:${country['intermediate-region']}`
+			: undefined,
 	]);
 
-	return Array.from(
-		new Set(
-			[...countryTags, maybeIsUkTag].filter(
-				(i): i is string => i !== undefined,
-			),
-		),
+	return dedupeStrings(
+		[...countryTags, maybeIsUkTag].filter((i): i is string => i !== undefined),
 	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 }

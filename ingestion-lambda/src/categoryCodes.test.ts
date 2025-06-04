@@ -302,6 +302,43 @@ describe('inferRegionCategoryFromText', () => {
 			'US and EU leaders meet in Paris to discuss international trade agreements.';
 		expect(inferRegionCategoryFromText(content)).toHaveLength(0);
 	});
+
+	it('should return experimentalCountryCode:TR when Turkey is mentioned', () => {
+		const content = 'Ankara has been the capital of Turkey for some time.';
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalCountryCode:TR',
+		);
+	});
+
+	it('should add country codes, region names, sub-region names and intermediate regions when they are available', () => {
+		const content = 'Turks and Caicos Islands';
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalCountryCode:TC',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalRegionName:Americas',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalSubRegionName:Latin America and the Caribbean',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalIntermediateRegionName:Caribbean',
+		);
+	});
+
+	it('should not try to add codes (e.g. intermediate regions) when they are unavailable for the relevant country', () => {
+		const content = 'The capital of France is Paris.';
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalCountryCode:FR',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalRegionName:Europe',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalSubRegionName:Western Europe',
+		);
+		expect(inferRegionCategoryFromText(content)).toHaveLength(3);
+	});
 });
 
 describe('processCategoryCodes', () => {

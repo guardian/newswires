@@ -10,6 +10,7 @@ import {
 	EuiDescriptionListTitle,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiIcon,
 	EuiSpacer,
 	EuiText,
 	EuiTitle,
@@ -130,6 +131,91 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 							<p>
 								* nb. Category labels are a best approximation, please let us
 								know if you spot any that don&apos;t look right!
+							</p>
+						</EuiText>
+					</figcaption>
+				</figure>
+			)}
+		</Disclosure>
+	);
+}
+
+function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
+	const { handleEnterQuery, config } = useSearch();
+
+	const isCodeInSearch = (code: string) => {
+		const categoryCodesInSearch = config.query.categoryCode ?? [];
+		return categoryCodesInSearch.includes(code);
+	};
+
+	const categoryCodeTableItems: CategoryCodeTableItem[] = categoryCodes.map(
+		(code) => ({
+			code: code,
+			labels: code.split(':')[1] ?? '',
+			isSelected: isCodeInSearch(code),
+		}),
+	);
+
+	const handleCategoryClick = (categoryCode: string) => {
+		const codes = config.query.categoryCode ?? [];
+		handleEnterQuery({
+			...config.query,
+			categoryCode: codes.includes(categoryCode)
+				? codes.filter((s) => s !== categoryCode)
+				: [...codes, categoryCode],
+		});
+	};
+
+	const columns: Array<EuiBasicTableColumn<CategoryCodeTableItem>> = [
+		{
+			field: 'labels',
+			name: 'Geographical category*',
+		},
+		{
+			field: 'isSelected',
+			name: 'Filter by?',
+			align: 'right',
+			render: (isSelected, item) => (
+				<EuiButtonIcon
+					color={isSelected ? 'primary' : 'accent'}
+					onClick={() => handleCategoryClick(item.code)}
+					iconType={isSelected ? 'check' : 'plusInCircle'}
+					aria-label="Toggle selection"
+				/>
+			),
+		},
+	];
+
+	return (
+		<Disclosure
+			title={
+				<span
+					css={css`
+						display: flex;
+						align-items: center;
+						gap: 0.5rem;
+					`}
+				>
+					<EuiIcon type={'beaker'} color="accent" />
+					Experimental geographical categories ({categoryCodeTableItems.length})
+				</span>
+			}
+		>
+			{categoryCodeTableItems.length === 0 ? (
+				'No category code information available'
+			) : (
+				<figure>
+					<EuiBasicTable
+						items={categoryCodeTableItems}
+						columns={columns}
+						tableLayout="auto"
+					/>
+					<EuiSpacer size={'s'} />
+					<figcaption>
+						<EuiText size={'xs'}>
+							<p>
+								<strong>nb.</strong> Geographical tagging is totally
+								experimental at the moment!
 							</p>
 						</EuiText>
 					</figcaption>
@@ -346,8 +432,17 @@ export const WireDetail = ({
 						<EuiDescriptionListDescription>
 							<MetaTable wire={wire} />
 							<EuiSpacer />
-							<CategoryCodeTable categoryCodes={categoryCodes} />
+							<CategoryCodeTable
+								categoryCodes={categoryCodes.filter(
+									(code) => !code.startsWith('experimental'),
+								)}
+							/>
 							<EuiSpacer />
+							<GeographyCodeTable
+								categoryCodes={categoryCodes.filter((code) =>
+									code.startsWith('experimental'),
+								)}
+							/>
 						</EuiDescriptionListDescription>
 					</EuiDescriptionList>
 				</div>

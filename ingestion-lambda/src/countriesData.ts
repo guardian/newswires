@@ -1,4 +1,4 @@
-interface CountryData {
+export interface CountryData {
 	name: string;
 	'alpha-2': string;
 	'alpha-3': string;
@@ -3253,4 +3253,4 @@ export const countriesData: CountryData[] = [
 		'sub-region-code': '202',
 		'intermediate-region-code': '014',
 	},
-];
+] as const;
