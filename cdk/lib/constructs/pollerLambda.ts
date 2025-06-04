@@ -125,9 +125,11 @@ export class PollerLambda {
 			}
 			// fixed frequency polling
 			const period = Duration.minutes(15); // fixed frequency polling (because 15mins is max delay for SQS)
-			const threshold = Math.floor((period.toSeconds() / pollerConfig.idealFrequencyInSeconds) * 0.8); // * 0.8 to allow for some slack
-			return {stalledAlarmThreshold: threshold, stalledAlarmPeriod: period};
-		})()
+			const threshold = Math.floor(
+				(period.toSeconds() / pollerConfig.idealFrequencyInSeconds) * 0.8,
+			); // * 0.8 to allow for some slack
+			return { stalledAlarmThreshold: threshold, stalledAlarmPeriod: period };
+		})();
 
 		// alarm if the lambda is not invoked often enough (i.e. stalled)
 		new GuAlarm(scope, `${pollerId}LambdaStalledAlarm`, {

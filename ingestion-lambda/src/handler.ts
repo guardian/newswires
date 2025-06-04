@@ -248,7 +248,10 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 
 						const content = {
 							...snsMessageContent,
-							body_text: cleanBodyTextMarkup(snsMessageContent.body_text ?? '', logger),
+							body_text: cleanBodyTextMarkup(
+								snsMessageContent.body_text ?? '',
+								logger,
+							),
 						};
 
 						const supplier =

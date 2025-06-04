@@ -28,9 +28,9 @@ jobs:
       - name: Setup node for CDK
         uses: actions/setup-node@v4
         with:
-          cache: "npm"
-          cache-dependency-path: "./package-lock.json"
-          node-version-file: ".nvmrc"
+          cache: 'npm'
+          cache-dependency-path: './package-lock.json'
+          node-version-file: '.nvmrc'
 
       # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
@@ -69,10 +69,6 @@ jobs:
       - name: Build Newswires app and UI
         working-directory: newswires
         run: |
-          pushd client
-          npm run format:ci
-          popd
-
           sbt clean scalafmtCheckAll compile test Debian/packageBin normalisePackageName
 
       - name: Upload to Riff-Raff
@@ -80,7 +76,7 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          projectName: "Editorial Tools::News Wires"
+          projectName: 'Editorial Tools::News Wires'
           configPath: cdk/cdk.out/riff-raff.yaml
           contentDirectories: |
             cdk.out:

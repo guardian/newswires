@@ -1,5 +1,5 @@
 import nlp from 'compromise';
-import {lexicon, ukPlaces} from "./ukPlaces";
+import { lexicon, ukPlaces } from './ukPlaces';
 
 interface CategoryCode {
 	prefix: string;
@@ -42,7 +42,13 @@ function replacePrefixesFromLookup(
 }
 
 export function processReutersDestinationCodes(original: string[]): string[] {
-	const supportedDestinations: string[] = ['RWS', 'RNA', 'RWSA', 'REULB', 'RBN'];
+	const supportedDestinations: string[] = [
+		'RWS',
+		'RNA',
+		'RWSA',
+		'REULB',
+		'RBN',
+	];
 
 	return original
 		.filter((_) => supportedDestinations.includes(_))
@@ -123,7 +129,9 @@ export function processUnknownFingerpostCategoryCodes(
 	return deduped;
 }
 
-export function inferRegionCategoryFromText(content: string | undefined): string | undefined {
+export function inferRegionCategoryFromText(
+	content: string | undefined,
+): string | undefined {
 	if (!content) {
 		return undefined;
 	}
