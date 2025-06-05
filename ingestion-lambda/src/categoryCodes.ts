@@ -1,9 +1,14 @@
 import nlp from 'compromise';
-import { lexicon, ukPlaces } from './ukPlaces';
+import { alpha2CountriesMap, countryNames, countryNamesMap } from './countries';
+import { ukLexicon, ukPlaces } from './ukPlaces';
 
 interface CategoryCode {
 	prefix: string;
 	code: string;
+}
+
+export function dedupeStrings(arr: string[]): string[] {
+	return Array.from(new Set(arr));
 }
 
 /**
@@ -53,6 +58,30 @@ export function processReutersDestinationCodes(original: string[]): string[] {
 	return original
 		.filter((_) => supportedDestinations.includes(_))
 		.map((_) => `REUTERS:${_}`);
+}
+
+export function remapReutersCountryCodes(original: string[]): string[] {
+	const codes = original.flatMap((code) => {
+		const categoryCodeValue = code.split(':')[1]?.toUpperCase();
+		const maybeCountryData = alpha2CountriesMap[categoryCodeValue ?? ''];
+		if (maybeCountryData) {
+			return [
+				`experimentalCountryCode:${maybeCountryData['alpha-2']}`,
+				`experimentalRegionName:${maybeCountryData.region}`,
+				maybeCountryData['sub-region'] !== ''
+					? `experimentalSubRegionName:${maybeCountryData['sub-region']}`
+					: undefined,
+				maybeCountryData['intermediate-region'] !== ''
+					? `experimentalIntermediateRegionName:${maybeCountryData['intermediate-region']}`
+					: undefined,
+			];
+		} else {
+			return [];
+		}
+	});
+	return dedupeStrings(
+		codes.filter((i): i is string => i !== undefined),
+	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
@@ -131,29 +160,62 @@ export function processUnknownFingerpostCategoryCodes(
 
 export function inferRegionCategoryFromText(
 	content: string | undefined,
-): string | undefined {
+): string[] {
 	if (!content) {
-		return undefined;
+		return [];
 	}
 
-	const doc = nlp(content, lexicon) as {
+	const doc = nlp(content, ukLexicon) as {
 		places: () => { out: (format: string) => unknown };
 	};
 
 	const rawPlaces = doc.places().out('array');
 
 	if (!Array.isArray(rawPlaces)) {
-		return undefined;
+		return [];
 	}
 
-	const places = (rawPlaces as string[])
-		.flatMap((place) => place.split(/[,\n]/))
-		.map((place) => place.trim().toLowerCase())
-		.filter((place) => !!place && place.length > 0);
+	const places = dedupeStrings(
+		(rawPlaces as string[])
+			.flatMap((place) => place.split(/[,\n]/))
+			.map((place) =>
+				place
+					.trim()
+					.toLowerCase()
+					.replaceAll(/['’]s$/g, '')
+					.replaceAll(/\/>/g, ''),
+			)
+			.filter((place) => !!place && place.length > 0),
+	);
 
 	const isUk = places.some((place) =>
 		ukPlaces.some((ukPlace) => place.includes(ukPlace)),
 	);
 
-	return isUk ? 'N2:GB' : undefined;
+	const maybeIsUkTag = isUk ? 'N2:GB' : undefined;
+
+	const countryNamesMentioned = countryNames.filter((countryName) =>
+		places.some((place) => place.includes(countryName)),
+	);
+
+	const countriesMentioned = countryNamesMentioned
+		.map((country) => {
+			return countryNamesMap[country];
+		})
+		.filter((country) => !!country);
+
+	const countryTags = countriesMentioned.flatMap((country) => [
+		`experimentalCountryCode:${country['alpha-2']}`,
+		`experimentalRegionName:${country.region}`,
+		country['sub-region'] !== ''
+			? `experimentalSubRegionName:${country['sub-region']}`
+			: undefined,
+		country['intermediate-region'] !== ''
+			? `experimentalIntermediateRegionName:${country['intermediate-region']}`
+			: undefined,
+	]);
+
+	return dedupeStrings(
+		[...countryTags, maybeIsUkTag].filter((i): i is string => i !== undefined),
+	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 }

@@ -6,6 +6,7 @@ import {
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
+	remapReutersCountryCodes,
 } from './categoryCodes';
 import { processCategoryCodes } from './handler';
 
@@ -14,6 +15,33 @@ describe('processReutersDestinationCodes', () => {
 		expect(processReutersDestinationCodes(['RWSA', 'RNP'])).toEqual([
 			'REUTERS:RWSA',
 		]);
+		expect(processReutersDestinationCodes(['RWSA', 'RNP'])).toEqual([
+			'REUTERS:RWSA',
+		]);
+	});
+});
+
+describe('remapReutersCountryCodes', () => {
+	it('should return an empty array if provided no ISO Alpha-2 country codes', () => {
+		expect(
+			remapReutersCountryCodes(['N2:football', 'N2:Paris', 'N2:France']),
+		).toEqual([]);
+	});
+	it('should return an empty array if provided with an empty array', () => {
+		expect(remapReutersCountryCodes([])).toEqual([]);
+	});
+	it('should return an array of remapped Reuters country codes, plus region codes for those countries', () => {
+		const remapped = remapReutersCountryCodes(['N2:GB', 'N2:FR']);
+		[
+			'experimentalCountryCode:GB',
+			'experimentalRegionName:Europe',
+			'experimentalSubRegionName:Northern Europe',
+			'experimentalCountryCode:FR',
+			'experimentalSubRegionName:Western Europe',
+		].forEach((code) => {
+			expect(remapped).toContain(code);
+		});
+		expect(remapped).toHaveLength(5);
 	});
 });
 
@@ -255,49 +283,86 @@ describe('processUnknownFingerpostCategoryCodes', () => {
 
 describe('inferRegionCategoryFromText', () => {
 	it('should return undefined if provided with an string', () => {
-		expect(inferRegionCategoryFromText('')).toEqual(undefined);
+		expect(inferRegionCategoryFromText('')).toHaveLength(0);
 	});
 
 	it('should return N2:GB when a UK country is mentioned', () => {
 		const content =
 			'Prime Minister visits Scotland to address economic concerns in rural areas.';
-		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toContain('N2:GB');
 	});
 
 	it('should return N2:GB for a UK city is mentioned', () => {
 		const content =
 			'Manchester sees surge in tech sector jobs as new startups attract global investment.';
-		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toContain('N2:GB');
 	});
 
 	it('should return N2:GB for a UK region is mentioned', () => {
 		const content =
 			'Heavy rainfall causes flooding in the Lake District, prompting emergency response.';
-		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toContain('N2:GB');
 	});
 
 	it('should return N2:GB even with varied casing and punctuation in text', () => {
 		const content =
 			'BREAKING: london officials respond to transportation delays across the city.';
-		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toContain('N2:GB');
 	});
 
 	it('should return N2:GB when a London borough is mentioned', () => {
 		const content =
 			'Hackney council launches initiative to support local small businesses amid rising rents.';
-		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toContain('N2:GB');
 	});
 
 	it('should return N2:GB when a UK landmark is mentioned', () => {
 		const content =
 			'Thousands of tourists expected at Stonehenge for the summer solstice celebrations.';
-		expect(inferRegionCategoryFromText(content)).toEqual('N2:GB');
+		expect(inferRegionCategoryFromText(content)).toContain('N2:GB');
 	});
 
 	it('should return undefined when only non-UK places are mentioned', () => {
 		const content =
 			'US and EU leaders meet in Paris to discuss international trade agreements.';
-		expect(inferRegionCategoryFromText(content)).toEqual(undefined);
+		expect(inferRegionCategoryFromText(content)).toHaveLength(0);
+	});
+
+	it('should return experimentalCountryCode:TR when Turkey is mentioned', () => {
+		const content = 'Ankara has been the capital of Turkey for some time.';
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalCountryCode:TR',
+		);
+	});
+
+	it('should add country codes, region names, sub-region names and intermediate regions when they are available', () => {
+		const content = 'Turks and Caicos Islands';
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalCountryCode:TC',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalRegionName:Americas',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalSubRegionName:Latin America and the Caribbean',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalIntermediateRegionName:Caribbean',
+		);
+	});
+
+	it('should not try to add codes (e.g. intermediate regions) when they are unavailable for the relevant country', () => {
+		const content = 'The capital of France is Paris.';
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalCountryCode:FR',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalRegionName:Europe',
+		);
+		expect(inferRegionCategoryFromText(content)).toContain(
+			'experimentalSubRegionName:Western Europe',
+		);
+		expect(inferRegionCategoryFromText(content)).toHaveLength(3);
 	});
 });
 
