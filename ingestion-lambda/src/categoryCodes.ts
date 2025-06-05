@@ -50,6 +50,26 @@ function replacePrefixesFromLookup(
 	return { prefix: newPrefix, code };
 }
 
+const worldTopicCodes: string[] = [];
+
+export function processReutersTopicCodes(
+	topicCodes: string[],
+	destinationCodes: string[],
+): string[] {
+	const isWorldDestinationCode =
+		destinationCodes.includes('REUTERS:RWS') ||
+		destinationCodes.includes('REUTERS:RWSA');
+
+	if (
+		isWorldDestinationCode &&
+		topicCodes.filter((_) => worldTopicCodes.includes(_)).length > 0
+	) {
+		return ['REUTERS:WORLD'];
+	} else {
+		return [];
+	}
+}
+
 export function processReutersDestinationCodes(original: string[]): string[] {
 	const supportedDestinations: string[] = [
 		'RWS',
