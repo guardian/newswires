@@ -215,7 +215,19 @@ function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 						<EuiText size={'xs'}>
 							<p>
 								<strong>nb.</strong> Geographical tagging is totally
-								experimental at the moment!
+								experimental at the moment! Please let us know if you have any
+								feedback.
+							</p>
+							<p>
+								The two letter country codes are using the{' '}
+								<a
+									href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									ISO alpha-2 scheme
+								</a>{' '}
+								.
 							</p>
 						</EuiText>
 					</figcaption>
