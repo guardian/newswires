@@ -693,7 +693,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Tags": [
           {
             "Key": "App",
@@ -1850,7 +1850,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Tags": [
           {
             "Key": "App",
@@ -2542,7 +2542,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Tags": [
           {
             "Key": "App",
@@ -3626,7 +3626,7 @@ dpkg -i /newswires/newswires.deb",
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Tags": [
           {
             "Key": "App",
