@@ -98,9 +98,13 @@ export const processCategoryCodes = (
 				...catCodes,
 				...subjectCodes,
 				...extractedDestinationCodes,
+<<<<<<< HEAD
 				...processReutersTopicCodes(subjectCodes, destinationCodes),
 				...regionCodes,
 				...remapReutersCountryCodes(subjectCodes),
+=======
+				...processReutersTopicCodes(subjectCodes, extractedDestinationCodes),
+>>>>>>> 201abda (Backend: update World presets)
 			];
 		}
 		case 'AP':

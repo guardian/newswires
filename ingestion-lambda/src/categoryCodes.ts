@@ -1,10 +1,15 @@
 import nlp from 'compromise';
+<<<<<<< HEAD
 import {
 	alpha2CountriesMap,
 	findCountriesInText,
 	stripDiacriticsAndQuoteMarks,
 } from './countries';
 import { ukLexicon, ukPlaces } from './data/ukPlaces';
+=======
+import { worldTopicCodes } from '../topicCodes';
+import { lexicon, ukPlaces } from './ukPlaces';
+>>>>>>> 201abda (Backend: update World presets)
 
 interface CategoryCode {
 	prefix: string;
@@ -49,8 +54,6 @@ function replacePrefixesFromLookup(
 	const newPrefix = lookup[prefix] ?? prefix;
 	return { prefix: newPrefix, code };
 }
-
-const worldTopicCodes: string[] = [];
 
 export function processReutersTopicCodes(
 	topicCodes: string[],
