@@ -1,4 +1,5 @@
 import { act, render } from '@testing-library/react';
+import type { Query } from '../sharedTypes.ts';
 import { disableLogs, flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
@@ -18,7 +19,11 @@ global.fetch = jest.fn(() =>
 ) as jest.Mock;
 
 describe('SearchContext', () => {
+	let mockSendTelemetryEvent: jest.Mock;
+
 	const renderWithContext = async () => {
+		mockSendTelemetryEvent = jest.fn();
+
 		const contextRef = { current: null as SearchContextShape | null };
 
 		const TestComponent: React.FC = () => {
@@ -28,7 +33,7 @@ describe('SearchContext', () => {
 
 		act(() => {
 			render(
-				<TelemetryContextProvider sendTelemetryEvent={console.log}>
+				<TelemetryContextProvider sendTelemetryEvent={mockSendTelemetryEvent}>
 					<SearchContextProvider>
 						<TestComponent />
 					</SearchContextProvider>
@@ -45,6 +50,7 @@ describe('SearchContext', () => {
 		jest.clearAllMocks();
 		localStorage.clear();
 		disableLogs();
+		window.open = jest.fn();
 	});
 
 	it('should fetch data and initialise the state', async () => {
@@ -63,6 +69,86 @@ describe('SearchContext', () => {
 		expect(contextRef.current.state.successfulQueryHistory).toEqual([]);
 	});
 
+	it('should handle search query', async () => {
+		const contextRef = await renderWithContext();
+		if (!contextRef.current) {
+			throw new Error('Context ref was null after render.');
+		}
+
+		const q: Query = {
+			q: 'text search term',
+			supplier: ['A', 'B'],
+		};
+
+		act(() => {
+			contextRef.current?.handleEnterQuery(q);
+		});
+
+		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
+		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
+			'NEWSWIRES_ENTER_SEARCH',
+			expect.objectContaining({
+				'search-query_q': '"text search term"',
+				'search-query_supplier': '["A","B"]',
+			}),
+		);
+		expect(contextRef.current.config.query).toBe(q);
+	});
+
+	it('should handle ticker', async () => {
+		const contextRef = await renderWithContext();
+		if (!contextRef.current) {
+			throw new Error('Context ref was null after render.');
+		}
+
+		const expectedUrl = '/ticker/feed?q=text+search+term&supplier=A&supplier=B';
+		const expectedWindowFeatures =
+			'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no';
+
+		const q: Query = {
+			q: 'text search term',
+			supplier: ['A', 'B'],
+		};
+
+		act(() => {
+			contextRef.current?.openTicker(q);
+		});
+
+		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
+		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
+			'NEWSWIRES_OPEN_TICKER',
+			expect.objectContaining({
+				'search-query_q': '"text search term"',
+				'search-query_supplier': '["A","B"]',
+			}),
+		);
+		expect(window.open).toHaveBeenCalledTimes(1);
+		expect(window.open).toHaveBeenCalledWith(
+			expectedUrl,
+			'_blank',
+			expectedWindowFeatures,
+		);
+	});
+
+	it('should load more stories', async () => {
+		const contextRef = await renderWithContext();
+		if (!contextRef.current) {
+			throw new Error('Context ref was null after render.');
+		}
+
+		await act(async () => {
+			await contextRef.current?.loadMoreResults('1');
+		});
+
+		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
+		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
+			'NEWSWIRES_LOAD_MORE',
+			expect.objectContaining({
+				beforeId: '1',
+			}),
+		);
+	});
+
 	it('should toggle the auto update flag', async () => {
 		const contextRef = await renderWithContext();
 
@@ -76,6 +162,11 @@ describe('SearchContext', () => {
 			contextRef.current?.toggleAutoUpdate();
 		});
 
+		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
+		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
+			'NEWSWIRES_TOGGLE_AUTO_UPDATE',
+			expect.any(Object),
+		);
 		expect(contextRef.current.state.autoUpdate).toBe(false);
 	});
 
