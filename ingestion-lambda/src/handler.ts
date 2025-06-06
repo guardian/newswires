@@ -15,6 +15,7 @@ import {
 	processFingerpostAPCategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
+	processReutersTopicCodes,
 	processUnknownFingerpostCategoryCodes,
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
@@ -86,12 +87,16 @@ export const processCategoryCodes = (
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 
 	switch (supplier) {
-		case 'REUTERS':
+		case 'REUTERS': {
+			const extractedDestinationCodes =
+				processReutersDestinationCodes(destinationCodes);
 			return [
 				...catCodes,
 				...subjectCodes,
-				...processReutersDestinationCodes(destinationCodes),
+				...extractedDestinationCodes,
+				...processReutersTopicCodes(subjectCodes, extractedDestinationCodes),
 			];
+		}
 		case 'AP':
 			return [...catCodes, ...processFingerpostAPCategoryCodes(subjectCodes)];
 		case 'AAP':
