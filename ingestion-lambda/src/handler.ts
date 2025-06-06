@@ -94,7 +94,7 @@ export const processCategoryCodes = (
 				...catCodes,
 				...subjectCodes,
 				...extractedDestinationCodes,
-				...processReutersTopicCodes(subjectCodes, destinationCodes),
+				...processReutersTopicCodes(subjectCodes, extractedDestinationCodes),
 			];
 		}
 		case 'AP':

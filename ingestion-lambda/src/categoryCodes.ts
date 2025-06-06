@@ -1,4 +1,5 @@
 import nlp from 'compromise';
+import { worldTopicCodes } from '../topicCodes';
 import { lexicon, ukPlaces } from './ukPlaces';
 
 interface CategoryCode {
@@ -40,8 +41,6 @@ function replacePrefixesFromLookup(
 	const newPrefix = lookup[prefix] ?? prefix;
 	return { prefix: newPrefix, code };
 }
-
-const worldTopicCodes: string[] = [];
 
 export function processReutersTopicCodes(
 	topicCodes: string[],
