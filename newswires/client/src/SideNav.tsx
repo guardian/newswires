@@ -222,14 +222,9 @@ export const SideNav = ({
 					}
 
 					.euiListGroupItem:hover .hover-only-icon,
-					.euiListGroupItem:hover:focus-within .hover-only-icon {
+					.euiListGroupItem:focus-within .hover-only-icon {
 						opacity: 1;
 						pointer-events: auto;
-					}
-
-					.euiListGroupItem:focus-within .hover-only-icon {
-						opacity: 0;
-						pointer-events: none;
 					}
 				`}
 			>
