@@ -21,7 +21,6 @@ import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
-import { openTicker } from './openTicker.ts';
 import type { Query } from './sharedTypes';
 import { recognisedSuppliers } from './suppliers.ts';
 
@@ -73,6 +72,7 @@ export const SideNav = ({
 		toggleAutoUpdate,
 		activeSuppliers,
 		toggleSupplier,
+		openTicker,
 	} = useSearch();
 
 	const searchHistory = state.successfulQueryHistory;
@@ -113,7 +113,7 @@ export const SideNav = ({
 				},
 			})),
 		],
-		[activeSuppliers, handleEnterQuery, toggleSupplier, config],
+		[activeSuppliers, handleEnterQuery, toggleSupplier, config, openTicker],
 	);
 
 	const presetItems = useMemo(() => {
@@ -160,7 +160,7 @@ export const SideNav = ({
 				},
 			};
 		}) as EuiPinnableListGroupItemProps[];
-	}, [activePreset, config, handleEnterQuery]);
+	}, [activePreset, config, handleEnterQuery, openTicker]);
 
 	const supplierItems: EuiPinnableListGroupItemProps[] = suppliers.map(
 		({ label, colour, isActive, onClick, onTickerClick }) => ({

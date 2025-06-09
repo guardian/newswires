@@ -119,6 +119,7 @@ export type SearchContextShape = {
 	handleNextItem: () => void;
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
+	openTicker: (query: Query) => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
 	activeSuppliers: string[];
 	toggleSupplier: (supplier: string) => void;
@@ -376,11 +377,38 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	};
 
 	const loadMoreResults = async (beforeId: string): Promise<void> => {
+		sendTelemetryEvent('NEWSWIRES_LOAD_MORE', {
+			beforeId,
+		});
+
 		return fetchResults(currentConfig.query, { beforeId })
 			.then((data) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
 			})
 			.catch(handleFetchError);
+	};
+
+	const openTicker = (query: Query) => {
+		sendTelemetryEvent(
+			'NEWSWIRES_OPEN_TICKER',
+			Object.fromEntries(
+				Object.entries(query).map(([key, value]) => [
+					`search-query_${key}`,
+					JSON.stringify(value),
+				]),
+			),
+		);
+
+		window.open(
+			configToUrl({
+				query,
+				view: 'feed',
+				itemId: undefined,
+				ticker: true,
+			}),
+			'_blank',
+			'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no',
+		);
 	};
 
 	const activeSuppliers = useMemo(
@@ -431,6 +459,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				previousItemId,
 				activeSuppliers,
 				toggleSupplier,
+				openTicker,
 			}}
 		>
 			{children}
