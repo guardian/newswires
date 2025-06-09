@@ -10,7 +10,8 @@ import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import {
 	dedupeStrings,
-	inferRegionCategoryFromText,
+	inferGBCategoryFromText,
+	inferGeographicalCategoriesFromText,
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
@@ -86,7 +87,7 @@ export const processCategoryCodes = (
 	priority?: string,
 ) => {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
-	const regionCodes = inferRegionCategoryFromText(bodyText);
+	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
 
 	switch (supplier) {
 		case 'REUTERS':
@@ -122,6 +123,7 @@ export const processCategoryCodes = (
 				...subjectCodes,
 				...catCodes,
 				...regionCodes,
+				...inferGBCategoryFromText(bodyText),
 			];
 			return updatedSubjectCodes.filter((_) => _.length > 0);
 		}

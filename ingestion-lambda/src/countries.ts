@@ -1,12 +1,12 @@
-import type { CountryData } from './countriesData';
-import { countriesData } from './countriesData';
+import type { Alpha2Code, CountryData } from './countriesData';
+import { countriesData, isAlpha2Code } from './countriesData';
 
 /* 
 	Source: https://github.com/fastdatascience/country_named_entity_recognition/blob/main/country_named_entity_recognition/country_finder.py
 	nb. this has been used 'as-is' from the original source for development purposes
 	and should be properly evaluated before use in production
 */
-const countryNameVariants = {
+const countryNameVariants: Partial<Record<Alpha2Code, string[]>> = {
 	VN: ['Vietnam'],
 	US: ['USA', 'the US', 'U.S', 'U.S.'],
 	CZ: ['Czech Rep', 'Czech Republic'],
@@ -67,35 +67,61 @@ const countryNameVariants = {
 		'Occupied Palestine',
 	],
 	CN: ['Macau'],
-};
-
-const countryNameVariantsMap: Record<string, CountryData> = Object.fromEntries(
-	Object.entries(countryNameVariants)
-		.flatMap(([code, names]) =>
-			names.map((name) => [
-				name.toLowerCase(),
-				countriesData.find((_) => _['alpha-2'] === code),
-			]),
-		)
-		.filter(
-			(data): data is [string, CountryData] => data[1] !== undefined,
-		) /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */,
-);
-
-const additional = {
-	turkey: countriesData[countriesData.findIndex((_) => _['alpha-2'] === 'TR')],
-} as Record<string, CountryData>;
-
-export const countryNamesMap: Record<string, CountryData> = {
-	...countryNameVariantsMap,
-	...Object.fromEntries(
-		countriesData.map((country) => [country.name.toLowerCase(), country]),
-	),
-	...additional,
-};
-export const countryNames = Object.keys(countryNamesMap);
+} as const;
 
 export const alpha2CountriesMap: Record<string, CountryData> =
 	Object.fromEntries(
 		countriesData.map((country) => [country['alpha-2'], country]),
 	);
+
+export function stripDiacriticsAndQuoteMarks(str: string) {
+	return str
+		.normalize('NFD')
+		.replace(/\p{Diacritic}/gu, '')
+		.replace(/['"`“‘”’]/g, '');
+	// remove diacritics and quote marks
+}
+
+export function createRegexFromCountryName(name: string): RegExp {
+	const normalised = stripDiacriticsAndQuoteMarks(name).replace(/\s+/g, '\\s?');
+	return new RegExp(`\\b${normalised}\\b`, 'i');
+}
+
+function createRegexMap(
+	countriesData: readonly CountryData[],
+	variants: Partial<Record<Alpha2Code, string[]>>,
+): Record<Alpha2Code, RegExp[]> {
+	const countryRegexesMap = Object.fromEntries(
+		countriesData.map((data) => [
+			data['alpha-2'],
+			[createRegexFromCountryName(data.name)],
+		]),
+	) as Record<Alpha2Code, RegExp[]>;
+	/*
+	Add some overrides that don't fit the pattern used for the rest.
+	*/
+	countryRegexesMap['JE'] = [/(?<!\bnew\s+)jersey/i]; // count 'jersey' as the name of a country, but not 'new jersey'
+	countryRegexesMap['TR'].push(/\bTurkey\b/); // we don't want to match `turkey` in *lowercase* because that's more likely to be the bird
+	countryRegexesMap['US'].push(/\bthe\s+united\s+states\b/i); // match 'the united states' (i.e. missing the 'of america' part)
+
+	for (const country of countriesData) {
+		const variantNames = variants[country['alpha-2']] ?? [];
+		variantNames.forEach((name) =>
+			countryRegexesMap[country['alpha-2']].push(
+				createRegexFromCountryName(name),
+			),
+		);
+	}
+	return countryRegexesMap;
+}
+
+export function findCountriesInText(text: string): Alpha2Code[] {
+	const countryRegexesMap = createRegexMap(countriesData, countryNameVariants);
+
+	return Object.entries(countryRegexesMap)
+		.filter(([_countryCode, regexes]) =>
+			regexes.some((regex) => regex.test(text)),
+		)
+		.map(([countryCode, _]) => countryCode)
+		.filter(isAlpha2Code);
+}

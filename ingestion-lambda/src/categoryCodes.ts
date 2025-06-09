@@ -1,5 +1,9 @@
 import nlp from 'compromise';
-import { alpha2CountriesMap, countryNames, countryNamesMap } from './countries';
+import {
+	alpha2CountriesMap,
+	findCountriesInText,
+	stripDiacriticsAndQuoteMarks,
+} from './countries';
 import { ukLexicon, ukPlaces } from './ukPlaces';
 
 interface CategoryCode {
@@ -63,25 +67,12 @@ export function processReutersDestinationCodes(original: string[]): string[] {
 export function remapReutersCountryCodes(original: string[]): string[] {
 	const codes = original.flatMap((code) => {
 		const categoryCodeValue = code.split(':')[1]?.toUpperCase();
-		const maybeCountryData = alpha2CountriesMap[categoryCodeValue ?? ''];
-		if (maybeCountryData) {
-			return [
-				`experimentalCountryCode:${maybeCountryData['alpha-2']}`,
-				`experimentalRegionName:${maybeCountryData.region}`,
-				maybeCountryData['sub-region'] !== ''
-					? `experimentalSubRegionName:${maybeCountryData['sub-region']}`
-					: undefined,
-				maybeCountryData['intermediate-region'] !== ''
-					? `experimentalIntermediateRegionName:${maybeCountryData['intermediate-region']}`
-					: undefined,
-			];
-		} else {
-			return [];
-		}
+		const maybeCountryData = categoryCodeValue
+			? generateGeographicalCategoryCodes(categoryCodeValue)
+			: [];
+		return maybeCountryData;
 	});
-	return dedupeStrings(
-		codes.filter((i): i is string => i !== undefined),
-	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
+	return dedupeStrings(codes);
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
@@ -158,9 +149,7 @@ export function processUnknownFingerpostCategoryCodes(
 	return deduped;
 }
 
-export function inferRegionCategoryFromText(
-	content: string | undefined,
-): string[] {
+export function inferGBCategoryFromText(content: string | undefined): string[] {
 	if (!content) {
 		return [];
 	}
@@ -194,28 +183,59 @@ export function inferRegionCategoryFromText(
 
 	const maybeIsUkTag = isUk ? 'N2:GB' : undefined;
 
-	const countryNamesMentioned = countryNames.filter((countryName) =>
-		places.some((place) => place.includes(countryName)),
-	);
-
-	const countriesMentioned = countryNamesMentioned
-		.map((country) => {
-			return countryNamesMap[country];
-		})
-		.filter((country) => !!country);
-
-	const countryTags = countriesMentioned.flatMap((country) => [
-		`experimentalCountryCode:${country['alpha-2']}`,
-		`experimentalRegionName:${country.region}`,
-		country['sub-region'] !== ''
-			? `experimentalSubRegionName:${country['sub-region']}`
-			: undefined,
-		country['intermediate-region'] !== ''
-			? `experimentalIntermediateRegionName:${country['intermediate-region']}`
-			: undefined,
-	]);
+	const maybeAdditionalTags = isUk
+		? generateGeographicalCategoryCodes('GB')
+		: [];
 
 	return dedupeStrings(
-		[...countryTags, maybeIsUkTag].filter((i): i is string => i !== undefined),
+		[maybeIsUkTag, ...maybeAdditionalTags].filter(
+			(i): i is string => i !== undefined,
+		),
 	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
+}
+
+export function inferGeographicalCategoriesFromText(
+	content: string | undefined,
+): string[] {
+	if (!content) {
+		return [];
+	}
+
+	const contentToProcess = stripDiacriticsAndQuoteMarks(content);
+
+	/**
+	 * Potential outliers in terms of performance, for this function:
+	 * AP weather reports: https://newswires.code.dev-gutools.co.uk/item/2550286?q=BC-WEA--Global+Forecast-Fahrenheit&start=now/d
+	 */
+	const countryTags = findCountriesInText(contentToProcess).flatMap(
+		generateGeographicalCategoryCodes,
+	);
+
+	return dedupeStrings(countryTags);
+}
+
+function generateGeographicalCategoryCodes(
+	alpha2CountryCode: string,
+): string[] {
+	const countryData = alpha2CountriesMap[alpha2CountryCode];
+	if (!countryData) {
+		return [];
+	}
+
+	const codes: string[] = [
+		`experimentalCountryCode:${countryData['alpha-2']}`,
+		`experimentalRegionName:${countryData.region}`,
+	];
+
+	if (countryData['sub-region']) {
+		codes.push(`experimentalSubRegionName:${countryData['sub-region']}`);
+	}
+
+	if (countryData['intermediate-region']) {
+		codes.push(
+			`experimentalIntermediateRegionName:${countryData['intermediate-region']}`,
+		);
+	}
+
+	return codes;
 }

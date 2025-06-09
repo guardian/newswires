@@ -1,21 +1,21 @@
-export interface CountryData {
-	name: string;
-	'alpha-2': string;
-	'alpha-3': string;
-	'country-code': string;
-	'iso_3166-2': string;
-	region: string | null;
-	'sub-region': string | null;
-	'intermediate-region': string | null;
-	'region-code': string | null;
-	'sub-region-code': string | null;
-	'intermediate-region-code': string | null;
-}
+// interface CountryData {
+// 	name: string;
+// 	'alpha-2': string;
+// 	'alpha-3': string;
+// 	'country-code': string;
+// 	'iso_3166-2': string;
+// 	region: string | null;
+// 	'sub-region': string | null;
+// 	'intermediate-region': string | null;
+// 	'region-code': string | null;
+// 	'sub-region-code': string | null;
+// 	'intermediate-region-code': string | null;
+// }
 
 // taken from: https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.json
 // nb. this has been used 'as-is' from the original source for development purposes
 // and should be properly evaluated before use in production
-export const countriesData: CountryData[] = [
+export const countriesData = [
 	{
 		name: 'Afghanistan',
 		'alpha-2': 'AF',
@@ -3254,3 +3254,11 @@ export const countriesData: CountryData[] = [
 		'intermediate-region-code': '014',
 	},
 ] as const;
+
+export type CountryData = (typeof countriesData)[number];
+
+export type Alpha2Code = CountryData['alpha-2'];
+
+export const isAlpha2Code = (code: string): code is Alpha2Code => {
+	return countriesData.some((country) => country['alpha-2'] === code);
+};
