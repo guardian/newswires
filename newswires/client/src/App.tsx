@@ -246,6 +246,7 @@ export function App() {
 									<EuiHeaderSectionItem
 										css={css`
 											flex: 1 1 100%;
+											max-width: 580px;
 										`}
 									>
 										<SearchBox />

@@ -36,7 +36,6 @@ export function SearchBox() {
 					border: none;
 					background-color: #edf1f8;
 					transition: background-color 0.2s ease;
-					max-width: 580px;
 
 					&:focus {
 						background-color: #ffffff;
