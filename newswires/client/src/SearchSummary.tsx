@@ -22,6 +22,8 @@ const presetLabel = (preset: string) => {
 			return 'World';
 		case 'all-uk':
 			return 'UK';
+		case 'all-sport':
+			return 'Sport';
 		case 'all-business':
 			return 'Business';
 		default:

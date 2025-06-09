@@ -6782,7 +6782,14 @@ export const lookupTables: Array<{
 			'paCat:PPS': 'Scottish Parliament news',
 			'paCat:SCN': 'Scottish news',
 			'paCat:IFN': 'Irish news',
-			// Football
+			// Sport news
+			'paCat:SRS': 'General Sports (General sports news)',
+			'paCat:SSS': 'General Sports (General sports news)',
+			'paCat:SSO': 'Soccer News',
+			'paCat:SCR': 'Cricket News',
+			'paCat:SRR': 'Racing News',
+			'paCat:SST': 'Scottish sports',
+			// Football results
 			'paCat:RFC': 'Collated Results (Full-time scores and match details)',
 			'paCat:RSA': 'Soccer Attendance (Match attendance figures)',
 			'paCat:RSF': 'Soccer Full Time (Final match results)',
@@ -6803,8 +6810,9 @@ export const lookupTables: Array<{
 			'paCat:STB': 'Soccer Tables (various formats)',
 			'paCat:STC': 'Soccer Tables (various formats)',
 			'paCat:STD': 'Soccer Tables (various formats)',
-			'paCat:SSO': 'Soccer News',
-			// Rugby
+			'paCat:SSP': 'Soccer Fixtures',
+			// Rugby results
+			'paCat:RRI': 'Rugby Results (Match results)',
 			'paCat:RRE': 'Rugby Results (Match results)',
 			'paCat:RRG': 'Rugby Results (Match results)',
 			'paCat:RRL': 'Rugby League (League-specific results)',
@@ -6813,32 +6821,32 @@ export const lookupTables: Array<{
 			'paCat:RDJ': 'Rugby Union Collated Summaries',
 			'paCat:SDF': 'Rugby League/Union Tables',
 			'paCat:SDT': 'Rugby League/Union Tables',
-			// Cricket
+			'paCat:STE': 'Rugby Tables',
+			'paCat:STF': 'Rugby Tables',
+			// Cricket results
 			'paCat:RCK': 'Cricket Results (Match scores and details)',
+			'paCat:RCB': 'Cricket Scores',
 			'paCat:RDG': 'Cricket Scores',
-			'paCat:RDC': 'Cricket News',
-			'paCat:SCR': 'Cricket News',
+			'paCat:RDC': 'Cricket Scores',
 			'paCat:SRX': 'Cricket Tables',
 			'paCat:SRY': 'Cricket Tables',
-			// Racing
+			// Racing results
 			'paCat:RRR': 'Racing Results',
 			'paCat:RDR': 'Racing Results',
 			'paCat:SRN': 'Racing Results',
-			'paCat:SRR': 'Racing Results',
-			'paCat:RRT': 'Racing News',
-			'paCat:SRZ': 'Racing News',
-			'paCat:STR': 'Racing News',
+			'paCat:RRT': 'Racing',
+			'paCat:SRZ': 'Racing Results',
+			'paCat:STR': 'Racing',
 			'paCat:SDQ': 'Race Cards',
 			'paCat:SDP': 'Race Cards',
 			'paCat:SDR': 'Race Cards',
 			'paCat:SDS': 'Race Cards',
-			'paCat:SGN': 'Greyhound News',
+			'paCat:SGN': 'Greyhound',
 			'paCat:SGR': 'Greyhound Results',
 			// General Sports
 			'paCat:RGA': 'General Sports (General sports news)',
-			'paCat:RSR': 'General Sports (General sports news)',
-			'paCat:SRS': 'General Sports (General sports news)',
-			'paCat:SSF': 'General Sports (General sports news)',
+			'paCat:RSR': 'General Sports (General sports results)',
+			'paCat:SSF': 'General Sports (General sports fixtures)',
 			'paCat:RGD': 'General Sports Data (General sports statistics)',
 			'paCat:RFD': 'Football Data (General football information)',
 			'paCat:RCD': 'Cricket Data (General cricket information)',
@@ -6851,9 +6859,7 @@ export const lookupTables: Array<{
 			// Other
 			'paCat:SSD': 'Rugby Scores (Rugby match scores)',
 			'paCat:SSG': 'Goal Flash (Soccer goal updates)',
-			'paCat:SSS': 'Soccer Scores (Soccer match scores)',
 			'paCat:SRD': 'Sports Data (General sports statistics)',
-			'paCat:SST': 'Scottish sports',
 		},
 	},
 ];
