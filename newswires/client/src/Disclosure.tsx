@@ -1,12 +1,13 @@
 import { EuiIcon } from '@elastic/eui';
 import { css } from '@emotion/react';
+import type React from 'react';
 
 export const Disclosure = ({
 	title,
 	defaultOpen,
 	children,
 }: {
-	title: string;
+	title: string | React.ReactElement;
 	defaultOpen?: boolean;
 	children: React.ReactNode;
 }) => {
@@ -29,7 +30,7 @@ export const Disclosure = ({
 						transition: transform 0.3s;
 					}
 				}
-				details[open] summary svg {
+				details[open] summary svg.disclosure-arrow {
 					/* rotate 90 degrees */
 					transform: rotate(90deg);
 				}
@@ -37,7 +38,7 @@ export const Disclosure = ({
 		>
 			<details open={defaultOpen}>
 				<summary>
-					<EuiIcon type="arrowRight" />
+					<EuiIcon className={'disclosure-arrow'} type="arrowRight" />
 					<span>{title}</span>
 				</summary>
 				<div

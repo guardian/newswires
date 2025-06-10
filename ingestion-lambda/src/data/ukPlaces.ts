@@ -399,6 +399,6 @@ export const ukPlaces = [
  * Provide UK places to help compromise extract both well-known landmarks
  * (e.g. "Stonehenge") and less commonly detected locations (e.g. "Hackney").
  */
-export const lexicon: Record<string, string> = Object.fromEntries(
+export const ukLexicon: Record<string, string> = Object.fromEntries(
 	ukPlaces.map((_) => [_, 'Place']),
 );

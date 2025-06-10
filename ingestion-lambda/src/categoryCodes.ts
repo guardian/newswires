@@ -1,9 +1,18 @@
 import nlp from 'compromise';
-import { lexicon, ukPlaces } from './ukPlaces';
+import {
+	alpha2CountriesMap,
+	findCountriesInText,
+	stripDiacriticsAndQuoteMarks,
+} from './countries';
+import { ukLexicon, ukPlaces } from './data/ukPlaces';
 
 interface CategoryCode {
 	prefix: string;
 	code: string;
+}
+
+export function dedupeStrings(arr: string[]): string[] {
+	return Array.from(new Set(arr));
 }
 
 /**
@@ -53,6 +62,17 @@ export function processReutersDestinationCodes(original: string[]): string[] {
 	return original
 		.filter((_) => supportedDestinations.includes(_))
 		.map((_) => `REUTERS:${_}`);
+}
+
+export function remapReutersCountryCodes(original: string[]): string[] {
+	const codes = original.flatMap((code) => {
+		const categoryCodeValue = code.split(':')[1]?.toUpperCase();
+		const maybeCountryData = categoryCodeValue
+			? generateGeographicalCategoryCodes(categoryCodeValue)
+			: [];
+		return maybeCountryData;
+	});
+	return dedupeStrings(codes);
 }
 
 export function processFingerpostAPCategoryCodes(original: string[]): string[] {
@@ -129,31 +149,93 @@ export function processUnknownFingerpostCategoryCodes(
 	return deduped;
 }
 
-export function inferRegionCategoryFromText(
-	content: string | undefined,
-): string | undefined {
+export function inferGBCategoryFromText(content: string | undefined): string[] {
 	if (!content) {
-		return undefined;
+		return [];
 	}
 
-	const doc = nlp(content, lexicon) as {
+	const doc = nlp(content, ukLexicon) as {
 		places: () => { out: (format: string) => unknown };
 	};
 
 	const rawPlaces = doc.places().out('array');
 
 	if (!Array.isArray(rawPlaces)) {
-		return undefined;
+		return [];
 	}
 
-	const places = (rawPlaces as string[])
-		.flatMap((place) => place.split(/[,\n]/))
-		.map((place) => place.trim().toLowerCase())
-		.filter((place) => !!place && place.length > 0);
+	const places = dedupeStrings(
+		(rawPlaces as string[])
+			.flatMap((place) => place.split(/[,\n]/))
+			.map((place) =>
+				place
+					.trim()
+					.toLowerCase()
+					.replaceAll(/['’]s$/g, '')
+					.replaceAll(/\/>/g, ''),
+			)
+			.filter((place) => !!place && place.length > 0),
+	);
 
 	const isUk = places.some((place) =>
 		ukPlaces.some((ukPlace) => place.includes(ukPlace)),
 	);
 
-	return isUk ? 'N2:GB' : undefined;
+	const maybeIsUkTag = isUk ? 'N2:GB' : undefined;
+
+	const maybeAdditionalTags = isUk
+		? generateGeographicalCategoryCodes('GB')
+		: [];
+
+	return dedupeStrings(
+		[maybeIsUkTag, ...maybeAdditionalTags].filter(
+			(i): i is string => i !== undefined,
+		),
+	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
+}
+
+export function inferGeographicalCategoriesFromText(
+	content: string | undefined,
+): string[] {
+	if (!content) {
+		return [];
+	}
+
+	const contentToProcess = stripDiacriticsAndQuoteMarks(content);
+
+	/**
+	 * Potential outliers in terms of performance, for this function:
+	 * AP weather reports: https://newswires.code.dev-gutools.co.uk/item/2550286?q=BC-WEA--Global+Forecast-Fahrenheit&start=now/d
+	 */
+	const countryTags = findCountriesInText(contentToProcess).flatMap(
+		generateGeographicalCategoryCodes,
+	);
+
+	return dedupeStrings(countryTags);
+}
+
+function generateGeographicalCategoryCodes(
+	alpha2CountryCode: string,
+): string[] {
+	const countryData = alpha2CountriesMap[alpha2CountryCode];
+	if (!countryData) {
+		return [];
+	}
+
+	const codes: string[] = [
+		`experimentalCountryCode:${countryData['alpha-2']}`,
+		`experimentalRegionName:${countryData.region}`,
+	];
+
+	if (countryData['sub-region']) {
+		codes.push(`experimentalSubRegionName:${countryData['sub-region']}`);
+	}
+
+	if (countryData['intermediate-region']) {
+		codes.push(
+			`experimentalIntermediateRegionName:${countryData['intermediate-region']}`,
+		);
+	}
+
+	return codes;
 }

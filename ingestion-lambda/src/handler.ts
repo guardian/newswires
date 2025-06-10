@@ -9,13 +9,16 @@ import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import {
-	inferRegionCategoryFromText,
+	dedupeStrings,
+	inferGBCategoryFromText,
+	inferGeographicalCategoriesFromText,
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
+	remapReutersCountryCodes,
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
@@ -84,6 +87,7 @@ export const processCategoryCodes = (
 	priority?: string,
 ) => {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
+	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
 
 	switch (supplier) {
 		case 'REUTERS':
@@ -91,26 +95,43 @@ export const processCategoryCodes = (
 				...catCodes,
 				...subjectCodes,
 				...processReutersDestinationCodes(destinationCodes),
+				...regionCodes,
+				...remapReutersCountryCodes(subjectCodes),
 			];
 		case 'AP':
-			return [...catCodes, ...processFingerpostAPCategoryCodes(subjectCodes)];
+			return [
+				...catCodes,
+				...processFingerpostAPCategoryCodes(subjectCodes),
+				...regionCodes,
+			];
 		case 'AAP':
-			return [...catCodes, ...processFingerpostAAPCategoryCodes(subjectCodes)];
+			return [
+				...catCodes,
+				...processFingerpostAAPCategoryCodes(subjectCodes),
+				...regionCodes,
+			];
 		case 'AFP':
-			return [...catCodes, ...processFingerpostAFPCategoryCodes(subjectCodes)];
+			return [
+				...catCodes,
+				...processFingerpostAFPCategoryCodes(subjectCodes),
+				...regionCodes,
+			];
 		case 'PA':
 			return [...catCodes, ...processFingerpostPACategoryCodes(subjectCodes)];
 		case 'MINOR_AGENCIES': {
-			const region = inferRegionCategoryFromText(bodyText);
-			const updatedSubjectCodes = region
-				? [...subjectCodes, region]
-				: subjectCodes;
-			return [...catCodes, ...updatedSubjectCodes.filter((_) => _.length > 0)];
+			const updatedSubjectCodes = [
+				...subjectCodes,
+				...catCodes,
+				...regionCodes,
+				...inferGBCategoryFromText(bodyText),
+			];
+			return updatedSubjectCodes.filter((_) => _.length > 0);
 		}
 		default:
 			return [
 				...catCodes,
 				...processUnknownFingerpostCategoryCodes(subjectCodes, supplier),
+				...regionCodes,
 			];
 	}
 };
@@ -257,12 +278,14 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						const supplier =
 							lookupSupplier(content['source-feed']) ?? 'Unknown';
 
-						const categoryCodes = processCategoryCodes(
-							supplier,
-							content.subjects?.code ?? [],
-							content.destinations?.code ?? [],
-							`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
-							content.priority,
+						const categoryCodes = dedupeStrings(
+							processCategoryCodes(
+								supplier,
+								content.subjects?.code ?? [],
+								content.destinations?.code ?? [],
+								`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
+								content.priority,
+							),
 						);
 
 						const result = await sql`
