@@ -4,7 +4,7 @@ import {
 	findCountriesInText,
 	stripDiacriticsAndQuoteMarks,
 } from './countries';
-import { ukLexicon, ukPlaces } from './ukPlaces';
+import { ukLexicon, ukPlaces } from './data/ukPlaces';
 
 interface CategoryCode {
 	prefix: string;
