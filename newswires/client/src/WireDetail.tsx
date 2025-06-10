@@ -196,7 +196,7 @@ function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 						gap: 0.5rem;
 					`}
 				>
-					<EuiIcon type={'beaker'} color="accent" />
+					<EuiIcon type={'flask'} color="accent" />
 					Experimental geographical categories ({categoryCodeTableItems.length})
 				</span>
 			}
