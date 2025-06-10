@@ -26,3 +26,4 @@ dist-ssr
 .bsp
 
 *storybook.log
+storybook-static/

@@ -12,19 +12,15 @@ function getAbsolutePath(value: string): any {
 const config: StorybookConfig = {
 	stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
 	addons: [
-		{
-			name: getAbsolutePath('@storybook/addon-essentials'),
-			options: {
-				docs: false,
-			},
-		},
 		getAbsolutePath('@storybook/addon-onboarding'),
 		getAbsolutePath('@chromatic-com/storybook'),
-		getAbsolutePath('@storybook/addon-interactions'),
 	],
 	framework: {
 		name: getAbsolutePath('@storybook/react-vite'),
 		options: {},
+	},
+	core: {
+		disableTelemetry: true,
 	},
 };
 export default config;
