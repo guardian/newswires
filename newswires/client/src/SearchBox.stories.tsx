@@ -1,5 +1,5 @@
 import { EuiProvider } from '@elastic/eui';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { setUpIcons } from './icons';
