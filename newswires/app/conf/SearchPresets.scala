@@ -5,6 +5,7 @@ import db.SearchParams
 object SearchPresets {
   def get(name: String): Option[List[SearchParams]] = name match {
     case "reuters-world"        => Some(ReutersWorld)
+    case "reuters-schedule"     => Some(ReutersSchedule)
     case "ap-world"             => Some(ApWorld)
     case "aap-world"            => Some(AapWorld)
     case "all-world"            => Some(AllWorld)
@@ -48,6 +49,16 @@ object SearchPresets {
       keywordIncl = List("World news"),
       categoryCodesIncl = List("apCat:i", "apCat:a", "apCat:w"),
       categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
+    )
+  )
+
+  private val ReutersSchedule = List(
+    SearchParams(
+      text = Some("\"REUTERS NEWS SCHEDULE\""),
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "MCC:DED"
+      )
     )
   )
 
@@ -188,7 +199,7 @@ object SearchPresets {
   )
 
   private val AllWorld =
-    ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
+    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 
   private val AllUk =
     PaHome ::: MinorAgenciesUk
