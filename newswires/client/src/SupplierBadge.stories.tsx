@@ -1,5 +1,5 @@
 import { EuiProvider } from '@elastic/eui';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { setUpIcons } from './icons';
 import { SupplierBadge } from './SupplierBadge';
 import { supplierData } from './suppliers';
