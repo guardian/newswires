@@ -8,7 +8,6 @@ import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
 import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
 import './icons';
 import { createTelemetryEventSender } from './telemetry.ts';
-import { TelemetryPixel } from './TelemetryPixel.tsx';
 
 const { sendTelemetryEvent } = createTelemetryEventSender(stage);
 
@@ -25,7 +24,6 @@ createRoot(document.getElementById('root')!).render(
 			<UserSettingsContextProvider>
 				<SearchContextProvider>
 					<KeyboardShortcutsProvider>
-						<TelemetryPixel stage={stage} />
 						<App />
 					</KeyboardShortcutsProvider>
 				</SearchContextProvider>
