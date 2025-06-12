@@ -17,6 +17,7 @@ import {
 	processFingerpostAPCategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
+	processReutersTopicCodes,
 	processUnknownFingerpostCategoryCodes,
 	remapReutersCountryCodes,
 } from './categoryCodes';
@@ -90,14 +91,18 @@ export const processCategoryCodes = (
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
 
 	switch (supplier) {
-		case 'REUTERS':
+		case 'REUTERS': {
+			const extractedDestinationCodes =
+				processReutersDestinationCodes(destinationCodes);
 			return [
 				...catCodes,
 				...subjectCodes,
-				...processReutersDestinationCodes(destinationCodes),
+				...extractedDestinationCodes,
+				...processReutersTopicCodes(subjectCodes, extractedDestinationCodes),
 				...regionCodes,
 				...remapReutersCountryCodes(subjectCodes),
 			];
+		}
 		case 'AP':
 			return [
 				...catCodes,

@@ -1,4 +1,5 @@
 import nlp from 'compromise';
+import { worldTopicCodes } from '../topicCodes';
 import {
 	alpha2CountriesMap,
 	findCountriesInText,
@@ -48,6 +49,24 @@ function replacePrefixesFromLookup(
 ): CategoryCode {
 	const newPrefix = lookup[prefix] ?? prefix;
 	return { prefix: newPrefix, code };
+}
+
+export function processReutersTopicCodes(
+	topicCodes: string[],
+	destinationCodes: string[],
+): string[] {
+	const isWorldDestinationCode =
+		destinationCodes.includes('REUTERS:RWS') ||
+		destinationCodes.includes('REUTERS:RWSA');
+
+	if (
+		isWorldDestinationCode &&
+		topicCodes.filter((_) => worldTopicCodes.includes(_)).length > 0
+	) {
+		return ['REUTERS:WORLD'];
+	} else {
+		return [];
+	}
 }
 
 export function processReutersDestinationCodes(original: string[]): string[] {

@@ -5,6 +5,7 @@ import db.SearchParams
 object SearchPresets {
   def get(name: String): Option[List[SearchParams]] = name match {
     case "reuters-world"        => Some(ReutersWorld)
+    case "reuters-schedule"     => Some(ReutersSchedule)
     case "ap-world"             => Some(ApWorld)
     case "aap-world"            => Some(AapWorld)
     case "all-world"            => Some(AllWorld)
@@ -51,17 +52,31 @@ object SearchPresets {
     )
   )
 
+  private val ReutersSchedule = List(
+    SearchParams(
+      text = Some("\"REUTERS NEWS SCHEDULE\""),
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "MCC:DED"
+      )
+    )
+  )
+
   private val ReutersWorld = List(
     SearchParams(
       text = None,
       suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "REUTERS:RWS",
-        "REUTERS:RWSA"
-      ),
+      categoryCodesIncl = List("REUTERS:WORLD"),
       categoryCodesExcl = List(
         "MCC:SPO"
       )
+    ),
+    SearchParams(
+      text = None,
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = Categories.otherTopicCodes,
+      categoryCodesExcl =
+        Categories.businessRelatedTopicCodes ++ Categories.sportsRelatedTopicCodes
     ),
     SearchParams(
       text = None,
@@ -184,7 +199,7 @@ object SearchPresets {
   )
 
   private val AllWorld =
-    ApWorld ::: ReutersWorld ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
+    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 
   private val AllUk =
     PaHome ::: MinorAgenciesUk
@@ -725,6 +740,138 @@ object Categories {
     "N2:NO EQUIVALENT"
   )
 
+  private[conf] val sportsRelatedTopicCodes = List(
+    "N2:DOP",
+    "N2:FO1",
+    "N2:MMA",
+    "N2:NBA",
+    "N2:NFL",
+    "N2:NHL",
+    "N2:SNO",
+    "N2:SPO",
+    "N2:ALPS",
+    "N2:Sports",
+    "N2:ANGL",
+    "N2:ARCH",
+    "N2:ATHL",
+    "N2:AUSR",
+    "N2:BADM",
+    "N2:BASE",
+    "N2:BASK",
+    "N2:BIAT",
+    "N2:BILL",
+    "N2:BOAR",
+    "N2:BOBS",
+    "N2:BOWL",
+    "N2:BOXI",
+    "N2:CANO",
+    "N2:CLMB",
+    "N2:CRIC",
+    "N2:CURL",
+    "N2:CYCL",
+    "N2:DIVE",
+    "N2:DNCG",
+    "N2:DRTS",
+    "N2:EQUE",
+    "N2:FENC",
+    "N2:FIGS",
+    "N2:FSKI",
+    "N2:GOLF",
+    "N2:GYMN",
+    "N2:HAND",
+    "N2:HOCK",
+    "N2:HORS",
+    "N2:ICEH",
+    "N2:JAIA",
+    "N2:JUDO",
+    "N2:KARA",
+    "N2:LACR",
+    "N2:LUGE",
+    "N2:MOCR",
+    "N2:MOCY",
+    "N2:MODE",
+    "N2:MORA",
+    "N2:MTHN",
+    "N2:NETB",
+    "N2:NORS",
+    "N2:RALL",
+    "N2:ROWI",
+    "N2:RUGL",
+    "N2:RUGU",
+    "N2:SDOG",
+    "N2:SHOO",
+    "N2:SKAT",
+    "N2:SKEL",
+    "N2:SKIJ",
+    "N2:SNOO",
+    "N2:SOCC",
+    "N2:SOFT",
+    "N2:SPEE",
+    "N2:SQUA",
+    "N2:STSK",
+    "N2:SUMO",
+    "N2:SWIM",
+    "N2:TABT",
+    "N2:TAEK",
+    "N2:TENN",
+    "N2:TENP",
+    "N2:TRIA",
+    "N2:VOLL",
+    "N2:WATP",
+    "N2:WATS",
+    "N2:WEIG",
+    "N2:WRES",
+    "N2:XCTY",
+    "N2:YACH",
+    "N2:AQSPO",
+    "N2:BVOLL",
+    "N2:CHESS",
+    "N2:MARTS",
+    "N2:ORENT",
+    "N2:PBOAT",
+    "N2:SBOAT",
+    "N2:SPOLO",
+    "N2:SPOOL",
+    "N2:SRFNG",
+    "N2:SYNCS"
+  )
+
+  private[conf] val otherTopicCodes = List(
+    // Arts/Culture/Entertainment
+    "N2:ART",
+    "N2:BKS",
+    "N2:ENT",
+    "N2:FLM",
+    "N2:LIF",
+    "N2:CLEB",
+    "N2:FASH",
+    "N2:MSIC",
+    "N2:TELE",
+    "N2:THTR",
+    "N2:TOUR",
+    "N2:VGAME",
+    // Religion
+    "N2:BUD",
+    "N2:JUD",
+    "N2:REL",
+    "N2:CHRI",
+    "N2:HIND",
+    "N2:ISLM",
+    // Odd
+    "N2:ODD",
+    // Science/Technology
+    "N2:ENV",
+    "N2:GMO",
+    "N2:HEA",
+    "N2:SCI",
+    "N2:WWW",
+    "N2:AWLQ",
+    "N2:ITEC",
+    "N2:LSCI",
+    "N2:NATU",
+    "N2:SPEX"
+  )
+
   private[conf] val businessRelatedNewsCode = List(
     "subj:04004002",
     "subj:04004003",
@@ -893,6 +1040,7 @@ object Categories {
     "subj:09015000",
     "subj:09016000"
   )
+
   private[conf] val sportsRelatedNewsCodes = List(
     "subj:15000000",
     "subj:15001000",
