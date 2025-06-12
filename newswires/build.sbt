@@ -12,7 +12,7 @@ scalaVersion := "2.13.16"
 
 libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "5.0.0"
-libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "7.0.0"
+libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "9.0.2"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "4.0.0"
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "7.4"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
