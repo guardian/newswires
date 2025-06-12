@@ -27,6 +27,7 @@ import {
 import { css, Global } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
+import { stage } from './app-configuration.ts';
 import { AppTitle } from './AppTitle.tsx';
 import { BetaBadge } from './BetaBadge.tsx';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
@@ -44,6 +45,7 @@ import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav';
+import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { defaultQuery } from './urlState';
 
@@ -197,6 +199,7 @@ export function App() {
 						{!isPoppedOut && (
 							<EuiHeader position="fixed">
 								<EuiHeaderSection side={'left'}>
+									<TelemetryPixel stage={stage} />
 									<EuiHeaderSectionItem>
 										<SideNav
 											navIsOpen={sideNavIsOpen}
