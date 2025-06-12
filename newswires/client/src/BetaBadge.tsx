@@ -5,7 +5,7 @@ export const BetaBadge = ({ size }: { size: 'small' | 'medium' }) => {
 	if (size === 'small') {
 		return (
 			<EuiBetaBadge
-				iconType={'beaker'}
+				iconType={'flask'}
 				label="Currently under construction"
 				aria-label="(Under construction)"
 				color={'accent'}

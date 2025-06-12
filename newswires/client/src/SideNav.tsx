@@ -301,7 +301,7 @@ export const SideNav = ({
 				<div>
 					<EuiCallOut
 						title="Please use with caution"
-						iconType="iInCircle"
+						iconType="info"
 						color="primary"
 					>
 						This product is in early testing, actively being developed, and may

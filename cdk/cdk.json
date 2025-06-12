@@ -1,5 +1,5 @@
 {
-	"app": "ts-node-dev bin/cdk.ts",
+	"app": "tsx bin/cdk.ts",
 	"context": {
 		"aws-cdk:enableDiffNoFail": "true",
 		"@aws-cdk/core:stackRelativeExports": "true"

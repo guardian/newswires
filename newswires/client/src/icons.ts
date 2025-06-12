@@ -7,7 +7,6 @@ import { icon as arrowRight } from '@elastic/eui/es/components/icon/assets/arrow
 import { icon as arrowUp } from '@elastic/eui/es/components/icon/assets/arrow_up';
 import { icon as arrowEnd } from '@elastic/eui/es/components/icon/assets/arrowEnd';
 import { icon as arrowStart } from '@elastic/eui/es/components/icon/assets/arrowStart';
-import { icon as beaker } from '@elastic/eui/es/components/icon/assets/beaker'; // nb. might be renamed 'flask' in newer versions?
 import { icon as boxesHorizontal } from '@elastic/eui/es/components/icon/assets/boxes_horizontal';
 import { icon as boxesVertical } from '@elastic/eui/es/components/icon/assets/boxes_vertical';
 import { icon as calendar } from '@elastic/eui/es/components/icon/assets/calendar';
@@ -21,9 +20,10 @@ import { icon as empty } from '@elastic/eui/es/components/icon/assets/empty';
 import { icon as error } from '@elastic/eui/es/components/icon/assets/error';
 import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad';
 import { icon as filter } from '@elastic/eui/es/components/icon/assets/filter';
+import { icon as flask } from '@elastic/eui/es/components/icon/assets/flask';
 import { icon as gear } from '@elastic/eui/es/components/icon/assets/gear';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
-import { icon as iInCircle } from '@elastic/eui/es/components/icon/assets/iInCircle';
+import { icon as info } from '@elastic/eui/es/components/icon/assets/info';
 import { icon as kqlFunction } from '@elastic/eui/es/components/icon/assets/kql_function';
 import { icon as launch } from '@elastic/eui/es/components/icon/assets/launch';
 import { icon as link } from '@elastic/eui/es/components/icon/assets/link';
@@ -73,13 +73,13 @@ const icons = {
 	sortRight,
 	sortLeft,
 	pin,
-	iInCircle,
+	info,
 	kqlFunction,
 	filter,
 	plusInCircle,
 	error,
 	gear,
-	beaker,
+	flask,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

@@ -143,7 +143,7 @@ export function App() {
 									title={'Please use with caution'}
 									id="disclaimer-title"
 								>
-									<EuiIcon type="iInCircle" size="xl" /> Please use with caution
+									<EuiIcon type="info" size="xl" /> Please use with caution
 								</EuiModalHeaderTitle>
 							</EuiModalHeader>
 
