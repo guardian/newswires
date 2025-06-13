@@ -22,7 +22,8 @@ class QueryController(
     val configuration: Configuration,
     val wsClient: WSClient,
     val permissionsProvider: PermissionsProvider,
-    val panDomainSettings: PanDomainAuthSettingsRefresher
+    val panDomainSettings: PanDomainAuthSettingsRefresher,
+    val featureSwitchProvider: FeatureSwitchProvider
 ) extends BaseController
     with Logging
     with AppAuthActions {
@@ -47,7 +48,7 @@ class QueryController(
       request.getQueryString("preset").flatMap(SearchPresets.get)
 
     val suppliersToExcludeByDefault =
-      if (FeatureSwitchProvider.ShowGuSuppliers.isOn) Nil
+      if (featureSwitchProvider.ShowGuSuppliers.isOn()) Nil
       else List("GuReuters", "GuAP")
 
     val queryParams = SearchParams(
