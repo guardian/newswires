@@ -50,6 +50,7 @@ const presets = [
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
 	{ id: 'all-business', name: 'Business' },
+	{ id: 'all-sport', name: 'Sport' },
 ];
 
 function presetName(presetId: string): string | undefined {
