@@ -19,6 +19,7 @@ import play.api.{BuiltInComponentsFromContext, Logging, Mode}
 import play.filters.HttpFiltersComponents
 import play.filters.gzip.GzipFilter
 import router.Routes
+import service.FeatureSwitchProvider
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
@@ -73,8 +74,9 @@ class AppComponents(context: Context)
     s3Client = s3v1Client
   )
 
+  val stage = configuration.get[String]("stage")
+
   private val permissionsProvider = {
-    val stage = configuration.get[String]("stage")
     val permissionsStage = stage match {
       case "dev" =>
         "CODE" // Local dev uses CODE permissions. Stage is set to lowercase 'dev' my our AppLoader.
@@ -88,6 +90,8 @@ class AppComponents(context: Context)
       )
     )
   }
+
+  private val featureSwitchProvider = new FeatureSwitchProvider(stage)
 
   private val authController = new AuthController(
     controllerComponents,
@@ -106,7 +110,8 @@ class AppComponents(context: Context)
     assetsFinder = assetsFinder,
     mode = context.environment.mode,
     addToken = csrfAddToken,
-    permissionsProvider = permissionsProvider
+    permissionsProvider = permissionsProvider,
+    featureSwitchProvider = featureSwitchProvider
   )
 
   private val managementController = new ManagementController(
@@ -118,7 +123,8 @@ class AppComponents(context: Context)
     configuration = configuration,
     wsClient = wsClient,
     permissionsProvider = permissionsProvider,
-    panDomainSettings = panDomainSettings
+    panDomainSettings = panDomainSettings,
+    featureSwitchProvider = featureSwitchProvider
   )
 
   override lazy val httpErrorHandler = new JsonHttpErrorHandler(environment)

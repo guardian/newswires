@@ -6,29 +6,28 @@ sealed trait SwitchState
 case object On extends SwitchState
 case object Off extends SwitchState
 
-object FeatureSwitchProvider {
+class FeatureSwitchProvider(stage: String) {
 
   case class FeatureSwitch(
       name: String,
       description: String,
       exposeToClient: Boolean = false,
-      private val safeState: SwitchState
-  ) {
-    def isOn: Boolean =
-      safeState == On // currently we're only using safeState to determine state
-  }
+      private val safeState: SwitchState,
+      isOn: () => Boolean
+  )
 
   val ShowGuSuppliers: FeatureSwitch =
     FeatureSwitch(
       name = "ShowGuSuppliers",
       safeState = Off,
       description = "Show suppliers from the Guardian",
-      exposeToClient = true
+      exposeToClient = true,
+      isOn = () => stage.toUpperCase() != "PROD"
     )
 
   private val switches = List(
     ShowGuSuppliers
   )
   def clientSideSwitchStates: Map[String, Boolean] =
-    switches.filter(_.exposeToClient).map(s => s.name -> s.isOn).toMap
+    switches.filter(_.exposeToClient).map(s => s.name -> s.isOn()).toMap
 }

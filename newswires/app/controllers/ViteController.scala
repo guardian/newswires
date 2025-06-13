@@ -8,7 +8,6 @@ import play.api.mvc._
 import play.api.{Configuration, Mode}
 import play.filters.csrf.CSRFAddToken
 import service.FeatureSwitchProvider
-import service.FeatureSwitchProvider.FeatureSwitch
 import views.html.helper.CSRF
 
 import java.net.URL
@@ -35,7 +34,8 @@ class ViteController(
     assetsFinder: AssetsFinder,
     mode: Mode,
     addToken: CSRFAddToken,
-    val permissionsProvider: PermissionsProvider
+    val permissionsProvider: PermissionsProvider,
+    val featureSwitchProvider: FeatureSwitchProvider
 )(implicit executionContext: ExecutionContext)
     extends BaseController
     with AppAuthActions {
@@ -65,7 +65,7 @@ class ViteController(
       val config =
         views.html.fragments.clientConfig(
           ClientConfig(
-            FeatureSwitchProvider.clientSideSwitchStates,
+            featureSwitchProvider.clientSideSwitchStates,
             stage = configuration.get[String]("stage")
           )
         )
