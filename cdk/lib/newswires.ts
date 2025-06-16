@@ -263,6 +263,7 @@ export class Newswires extends GuStack {
 					}),
 				],
 			},
+			instanceMetricGranularity: this.stage === 'PROD' ? '1Minute' : '5Minute',
 		});
 
 		// Add the domain name
