@@ -13,11 +13,8 @@
 		"lint:ci": "eslint lib/** bin/** --no-error-on-unmatched-pattern"
 	},
 	"devDependencies": {
-		"@guardian/cdk": "61.1.2",
+		"@guardian/cdk": "61.8.1",
 		"@guardian/prettier": "^8.0.1",
-		"aws-cdk": "2.175.1",
-		"aws-cdk-lib": "2.175.1",
-		"constructs": "10.4.2",
 		"prettier": "^3.3.3",
 		"source-map-support": "0.5.21",
 		"ts-node": "^10.9.2"

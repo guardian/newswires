@@ -16,6 +16,7 @@ import {
 	InstanceSize,
 	InstanceType,
 	Port,
+	SecurityGroup,
 } from 'aws-cdk-lib/aws-ec2';
 import { Schedule } from 'aws-cdk-lib/aws-events';
 import { LoggingFormat } from 'aws-cdk-lib/aws-lambda';
@@ -51,6 +52,19 @@ export class Newswires extends GuStack {
 		const { domainName, enableMonitoring } = props;
 
 		const vpc = GuVpc.fromIdParameter(this, 'VPC');
+
+		// A temporary security group with a fixed logical ID, replicating the one removed from GuCDK v61.5.0.
+		const tempSecurityGroup = new SecurityGroup(this, 'WazuhSecurityGroup', {
+			vpc,
+			// Must keep the same description, else CloudFormation will try to replace the security group
+			// See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-securitygroup.html#cfn-ec2-securitygroup-groupdescription.
+			description: 'Allow outbound traffic from wazuh agent to manager',
+		});
+		this.overrideLogicalId(tempSecurityGroup, {
+			logicalId: 'WazuhSecurityGroup',
+			reason:
+				"Part one of updating to GuCDK 61.5.0+ whilst using Riff-Raff's ASG deployment type",
+		});
 
 		const privateSubnets = GuVpc.subnetsFromParameter(this, {
 			type: SubnetType.PRIVATE,
@@ -263,6 +277,7 @@ export class Newswires extends GuStack {
 					}),
 				],
 			},
+			instanceMetricGranularity: this.stage === 'PROD' ? '1Minute' : '5Minute',
 		});
 
 		// Add the domain name
