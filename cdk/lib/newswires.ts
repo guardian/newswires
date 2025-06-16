@@ -2,7 +2,11 @@ import type { Alarms } from '@guardian/cdk';
 import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
 import type { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
-import { GuParameter, GuStack } from '@guardian/cdk/lib/constructs/core';
+import {
+	// GuArnParameter,
+	GuParameter,
+	GuStack,
+} from '@guardian/cdk/lib/constructs/core';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
@@ -11,6 +15,13 @@ import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { aws_logs, Duration } from 'aws-cdk-lib';
+// import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+// import {
+// 	AllowedMethods,
+// 	Distribution,
+// 	OriginProtocolPolicy,
+// } from 'aws-cdk-lib/aws-cloudfront';
+// import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
 	InstanceClass,
 	InstanceSize,
@@ -266,11 +277,50 @@ export class Newswires extends GuStack {
 			instanceMetricGranularity: this.stage === 'PROD' ? '1Minute' : '5Minute',
 		});
 
+		// const cloudfrontBucket = new GuS3Bucket(
+		// 	this,
+		// 	`cloudfront-bucket-${this.stage}`,
+		// 	{
+		// 		app,
+		// 		lifecycleRules: [
+		// 			{
+		// 				expiration: Duration.days(90),
+		// 			},
+		// 		],
+		// 	},
+		// );
+		//
+		// const newswiresCertificate = Certificate.fromCertificateArn(
+		// 	this,
+		// 	'newswiresCertificate',
+		// 	new GuArnParameter(this, 'newswiresCloudfrontCertificate', {
+		// 		description:
+		// 			'The ARN of the certificate for the newswires service Cloudfront distribution',
+		// 	}).valueAsString,
+		// );
+		//
+		// const newswiresCloudFrontDistro = new Distribution(
+		// 	this,
+		// 	'newswires-cloudfront',
+		// 	{
+		// 		defaultBehavior: {
+		// 			origin: new LoadBalancerV2Origin(newswiresApp.loadBalancer, {
+		// 				protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+		// 			}),
+		// 			allowedMethods: AllowedMethods.ALLOW_ALL,
+		// 		},
+		// 		logBucket: cloudfrontBucket,
+		// 		certificate: newswiresCertificate,
+		// 		// certificate: newswiresApp.certificate,
+		// 	},
+		// );
+
 		// Add the domain name
 		new GuCname(this, 'DnsRecord', {
 			app: app,
 			domainName: domainName,
 			ttl: Duration.minutes(1),
+			// resourceRecord: newswiresCloudFrontDistro.domainName,
 			resourceRecord: newswiresApp.loadBalancer.loadBalancerDnsName,
 		});
 
