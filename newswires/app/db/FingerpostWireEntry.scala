@@ -287,7 +287,8 @@ object FingerpostWireEntry
       }
 
     List(
-      clausesJoinedWithOr,
+      keywordsQuery,
+      categoryCodesInclQuery,
       keywordsExclQuery,
       search.text.map(query =>
         sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
