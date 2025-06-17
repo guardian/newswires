@@ -35,7 +35,7 @@ describe('getErrorMessage', () => {
 
 	it("should handle the various things you can (but almost certainly shouldn't) throw in JavaScript", () => {
 		expect(throwCatchAndReturnErrorMessage('string error')).toBe(
-			'"string error"',
+			'string error',
 		);
 		expect(throwCatchAndReturnErrorMessage(42)).toBe('42');
 		expect(throwCatchAndReturnErrorMessage(true)).toBe('true');
