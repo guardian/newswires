@@ -53,7 +53,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
   }
 
-  it should "concatenate keywords and category codes with 'or'" in {
+  it should "concatenate keywords and category codes with 'and'" in {
     val searchParams =
       SearchParams(
         text = None,
@@ -70,7 +70,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       )
 
     whereClause should matchWhereClause(
-      "WHERE ((fm.content -> 'keywords') ??| ? or fm.category_codes && ?)",
+      "WHERE (fm.content -> 'keywords') ??| ? and fm.category_codes && ?",
       List(
         List("keyword1", "keyword2"),
         List("category1", "category2")
