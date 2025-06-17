@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import { getErrorMessage } from '../../../../shared/getErrorMessage';
 
 function loadFromLocalStorage<T>(
 	key: string,
@@ -16,7 +17,7 @@ function loadFromLocalStorage<T>(
 		}
 		return parsed.data;
 	} catch (e) {
-		console.error(e);
+		console.error(getErrorMessage(e));
 		return null;
 	}
 }
@@ -25,7 +26,7 @@ export function saveToLocalStorage<T>(key: string, data: T) {
 	try {
 		localStorage.setItem(key, JSON.stringify(data));
 	} catch (e) {
-		console.error(e);
+		console.error(getErrorMessage(e));
 	}
 }
 
