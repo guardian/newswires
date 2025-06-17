@@ -1,6 +1,7 @@
 import dateMath from '@elastic/datemath';
 import { isEqual as deepIsEqual } from 'lodash';
 import moment from 'moment-timezone';
+import { getErrorMessage } from '../../../../shared/getErrorMessage.ts';
 import type { Query, WiresQueryData } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
@@ -15,7 +16,7 @@ export const safeReducer = (
 			return {
 				...state,
 				status: 'error',
-				error: `Error processing action (${action.type}) ${error instanceof Error ? error.message : 'Unknown error'}`,
+				error: `Error processing action (${action.type}) ${getErrorMessage(error)}`,
 			};
 		}
 	};

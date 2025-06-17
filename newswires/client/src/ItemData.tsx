@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { transformWireItemQueryResult } from './context/transformQueryResponse.ts';
 import { Item } from './Item';
@@ -38,14 +39,9 @@ export const ItemData = ({ id }: { id: string }) => {
 				}
 			})
 			.catch((e) => {
-				console.error(e);
-				setError(
-					e instanceof Error
-						? e.message
-						: typeof e === 'string'
-							? e
-							: 'unknown error',
-				);
+				const errorMessage = getErrorMessage(e);
+				console.error(errorMessage);
+				setError(errorMessage);
 			});
 	}, [id, config.query.q]);
 
