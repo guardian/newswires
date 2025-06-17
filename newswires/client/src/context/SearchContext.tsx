@@ -9,6 +9,7 @@ import {
 	useState,
 } from 'react';
 import { z } from 'zod';
+import { getErrorMessage } from '../../../../shared/getErrorMessage.ts';
 import type { Config, Query } from '../sharedTypes.ts';
 import {
 	ConfigSchema,
@@ -150,14 +151,11 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	});
 
 	function handleFetchError(error: ErrorEvent) {
-		if (error instanceof Error) {
+		if (error instanceof Error && error.name === 'AbortError') {
 			// we don't want to treat aborts as errors
-			if (error.name !== 'AbortError') {
-				dispatch({ type: 'FETCH_ERROR', error: error.message });
-			}
-		} else {
-			dispatch({ type: 'FETCH_ERROR', error: 'unknown error' });
+			return;
 		}
+		dispatch({ type: 'FETCH_ERROR', error: getErrorMessage(error) });
 	}
 
 	const pushConfigState = useCallback(
