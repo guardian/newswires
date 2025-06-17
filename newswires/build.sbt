@@ -16,7 +16,7 @@ libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "7.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "4.0.0"
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "7.4"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
-libraryDependencies += "org.postgresql" % "postgresql" % "42.7.5"
+libraryDependencies += "org.postgresql" % "postgresql" % "42.7.7"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
