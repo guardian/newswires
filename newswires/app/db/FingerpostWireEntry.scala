@@ -290,9 +290,17 @@ object FingerpostWireEntry
       keywordsQuery,
       categoryCodesInclQuery,
       keywordsExclQuery,
-      search.text.map(query =>
-        sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-      ),
+      search.text match {
+        case Some(SearchTerm(query, SearchConfig.Simple)) =>
+          Some(
+            sqls"to_tsvector('simple', content->>'body_text') @@ websearch_to_tsquery('simple', $query)"
+          )
+        case Some(SearchTerm(query, SearchConfig.English)) =>
+          Some(
+            sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+          )
+        case _ => None
+      },
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       dateRangeQuery,
@@ -362,7 +370,7 @@ object FingerpostWireEntry
   def query(
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
-      maybeTextSearch: Option[String],
+      maybeSearchTerm: Option[SearchTerm],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
@@ -376,8 +384,8 @@ object FingerpostWireEntry
       maybeSinceId = maybeSinceId
     )
 
-    val highlightsClause = maybeTextSearch match {
-      case Some(query) =>
+    val highlightsClause = maybeSearchTerm match {
+      case Some(SearchTerm(query, _)) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }

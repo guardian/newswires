@@ -1,7 +1,19 @@
 package db
 
+sealed trait SearchConfig
+
+object SearchConfig {
+  case object English extends SearchConfig
+  case object Simple extends SearchConfig
+}
+
+case class SearchTerm(
+    value: String,
+    searchConfig: SearchConfig = SearchConfig.English
+)
+
 case class SearchParams(
-    text: Option[String],
+    text: Option[SearchTerm],
     start: Option[String] = None,
     end: Option[String] = None,
     keywordIncl: List[String] = Nil,
@@ -13,8 +25,9 @@ case class SearchParams(
 ) {
   def merge(o: SearchParams): SearchParams = {
     val mergedText = (text, o.text) match {
-      case (Some(l), Some(r)) => Some(s"$l $r")
-      case _                  => text orElse o.text
+      case (Some(SearchTerm(l, _)), Some(SearchTerm(r, _))) =>
+        Some(SearchTerm(s"$l $r"))
+      case _ => text orElse o.text
     }
     SearchParams(
       text = mergedText,

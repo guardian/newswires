@@ -4,7 +4,16 @@ private[conf] object CategoryCodes {
   object Sport {
     val AFP = "afpCat:SPO"
     val AP = "apCat:s"
-    val PA = "paCat:SSS"
+    val PA: List[String] = List(
+      "paCat:SRS", // General Sport News
+      "paCat:SSS", // General Sport News
+      "paCat:SSO", // Soccer News
+      "paCat:SCR", // Cricket News
+      "paCat:SRR", // Racing News
+      "paCat:SST" // Scottish sports
+    )
+    val AAP: List[String] = Categories.sportsRelatedNewsCodes
+    val REUTERS: List[String] = Categories.sportRelatedTopicCodes
   }
 
   object Soccer {
@@ -689,102 +698,6 @@ object Categories {
     "N2:SYNCS"
   )
 
-  private[conf] val sportsRelatedTopicCodes = List(
-    "N2:DOP",
-    "N2:FO1",
-    "N2:MMA",
-    "N2:NBA",
-    "N2:NFL",
-    "N2:NHL",
-    "N2:SNO",
-    "N2:SPO",
-    "N2:ALPS",
-    "N2:Sports",
-    "N2:ANGL",
-    "N2:ARCH",
-    "N2:ATHL",
-    "N2:AUSR",
-    "N2:BADM",
-    "N2:BASE",
-    "N2:BASK",
-    "N2:BIAT",
-    "N2:BILL",
-    "N2:BOAR",
-    "N2:BOBS",
-    "N2:BOWL",
-    "N2:BOXI",
-    "N2:CANO",
-    "N2:CLMB",
-    "N2:CRIC",
-    "N2:CURL",
-    "N2:CYCL",
-    "N2:DIVE",
-    "N2:DNCG",
-    "N2:DRTS",
-    "N2:EQUE",
-    "N2:FENC",
-    "N2:FIGS",
-    "N2:FSKI",
-    "N2:GOLF",
-    "N2:GYMN",
-    "N2:HAND",
-    "N2:HOCK",
-    "N2:HORS",
-    "N2:ICEH",
-    "N2:JAIA",
-    "N2:JUDO",
-    "N2:KARA",
-    "N2:LACR",
-    "N2:LUGE",
-    "N2:MOCR",
-    "N2:MOCY",
-    "N2:MODE",
-    "N2:MORA",
-    "N2:MTHN",
-    "N2:NETB",
-    "N2:NORS",
-    "N2:RALL",
-    "N2:ROWI",
-    "N2:RUGL",
-    "N2:RUGU",
-    "N2:SDOG",
-    "N2:SHOO",
-    "N2:SKAT",
-    "N2:SKEL",
-    "N2:SKIJ",
-    "N2:SNOO",
-    "N2:SOCC",
-    "N2:SOFT",
-    "N2:SPEE",
-    "N2:SQUA",
-    "N2:STSK",
-    "N2:SUMO",
-    "N2:SWIM",
-    "N2:TABT",
-    "N2:TAEK",
-    "N2:TENN",
-    "N2:TENP",
-    "N2:TRIA",
-    "N2:VOLL",
-    "N2:WATP",
-    "N2:WATS",
-    "N2:WEIG",
-    "N2:WRES",
-    "N2:XCTY",
-    "N2:YACH",
-    "N2:AQSPO",
-    "N2:BVOLL",
-    "N2:CHESS",
-    "N2:MARTS",
-    "N2:ORENT",
-    "N2:PBOAT",
-    "N2:SBOAT",
-    "N2:SPOLO",
-    "N2:SPOOL",
-    "N2:SRFNG",
-    "N2:SYNCS"
-  )
-
   private[conf] val otherTopicCodes = List(
     // Arts/Culture/Entertainment
     "N2:ART",
@@ -821,7 +734,7 @@ object Categories {
     "N2:SPEX"
   )
 
-  private[conf] val businessRelatedNewsCode = List(
+  private[conf] val businessRelatedNewsCodes = List(
     "subj:04004002",
     "subj:04004003",
     "subj:04004004",
