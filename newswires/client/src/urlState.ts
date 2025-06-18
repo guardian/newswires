@@ -73,7 +73,7 @@ export function urlToConfig(location: {
 
 	const pageSegments = page.split('/');
 
-	if (page.includes('feed')) {
+	if (page === '' || page.includes('feed')) {
 		return { view: 'feed', query, ticker: page.includes('ticker') };
 	} else if (
 		page.includes('item/') &&
