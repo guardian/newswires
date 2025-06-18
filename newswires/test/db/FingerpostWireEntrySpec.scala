@@ -36,7 +36,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
   it should "generate a where clause for a single field" in {
     val searchParams =
       SearchParams(
-        text = Some("text1")
+        text = Some(SearchTerm("text1"))
       )
 
     val whereClause =
@@ -81,7 +81,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
   it should "join other clauses using 'and'" in {
     val searchParams =
       SearchParams(
-        text = Some("text1"),
+        text = Some(SearchTerm("text1")),
         start = Some("2025-03-10T00:00:00.000Z"),
         end = Some("2025-03-10T23:59:59.999Z"),
         suppliersExcl = List("supplier1", "supplier2"),
@@ -174,7 +174,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
 
     val savedSearchParamList = List(
       SearchParams(
-        text = Some("News Summary"),
+        text = Some(SearchTerm("News Summary")),
         suppliersIncl = List("REUTERS"),
         categoryCodesIncl = List(
           "MCC:OEC"

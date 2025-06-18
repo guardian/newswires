@@ -1,66 +1,27 @@
 package conf
 
-import db.SearchParams
+import conf.Suppliers.{AAP, AFP, AP, MINOR_AGENCIES, PA, REUTERS}
+import db.{SearchConfig, SearchParams, SearchTerm}
 
 object SearchPreset {
   def apply(
       supplier: String,
-      categoryCode: String
-  ): SearchParams =
-    SearchParams(
-      text = None,
-      suppliersIncl = List(supplier),
-      categoryCodesIncl = List(categoryCode)
-    )
-
-  def apply(
-      supplier: String,
-      categoryCode: String,
-      text: Option[String]
-  ): SearchParams =
-    SearchParams(
-      text = text,
-      suppliersIncl = List(supplier),
-      categoryCodesIncl = List(categoryCode)
-    )
-
-  def apply(
-      supplier: String,
-      categoryCode: String,
-      keyword: String
-  ): SearchParams =
-    SearchParams(
-      text = None,
-      suppliersIncl = List(supplier),
-      categoryCodesIncl = List(categoryCode),
-      keywordIncl = List(keyword)
-    )
-
-  def apply(
-      supplier: String,
-      categoryCode: String,
-      keyword: String,
-      text: Option[String]
-  ): SearchParams =
-    SearchParams(
-      text = text,
-      suppliersIncl = List(supplier),
-      categoryCodesIncl = List(categoryCode),
-      keywordIncl = List(keyword)
-    )
-
-  def apply(
-      supplier: String,
-      categoryCodes: List[String],
-      categoryCodesExcl: List[String] = List(),
+      categoryCode: Option[String] = None,
+      categoryCodes: List[String] = Nil,
+      categoryCodesExcl: List[String] = Nil,
       text: Option[String] = None,
-      keyword: List[String] = Nil
+      keyword: Option[String] = None,
+      keywordExcl: List[String] = Nil
   ): SearchParams =
     SearchParams(
-      text = text,
+      text = text.map(SearchTerm(_, SearchConfig.Simple)),
       suppliersIncl = List(supplier),
-      keywordIncl = keyword,
-      categoryCodesIncl = categoryCodes,
+      keywordIncl = keyword.toList,
+      keywordExcl = keywordExcl,
+      categoryCodesIncl = categoryCode match {
+        case Some(value) => List(value)
+        case None        => categoryCodes
+      },
       categoryCodesExcl = categoryCodesExcl
     )
 }
@@ -91,6 +52,10 @@ object SearchPresets {
     case _                      => None
   }
 
+  /*
+   * World
+   */
+
   // format: off
   /**
    * Main config table for AP world ('NY:for') preset in Fip system.
@@ -118,49 +83,37 @@ object SearchPresets {
   // format: on
   private val ApWorld = List(
     SearchPreset(
-      "AP",
-      keyword = List("World news"),
+      AP,
+      keyword = Some("World news"),
       categoryCodes = List("apCat:i", "apCat:a", "apCat:w"),
       categoryCodesExcl = List("apCat:s", "apCat:e", "apCat:f")
     )
   )
 
   private val ReutersSchedule = List(
-    SearchParams(
+    SearchPreset(
+      REUTERS,
       text = Some("\"REUTERS NEWS SCHEDULE\""),
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "MCC:DED"
-      )
+      categoryCodes = List("MCC:DED")
     )
   )
 
   private val ReutersWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List("REUTERS:WORLD"),
-      categoryCodesExcl = List(
-        "MCC:SPO"
-      )
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("REUTERS:WORLD"),
+      categoryCodesExcl = List("MCC:SPO")
     ),
-    SearchParams(
-      text = None,
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = Categories.otherTopicCodes,
+    SearchPreset(
+      REUTERS,
+      categoryCodes = Categories.otherTopicCodes,
       categoryCodesExcl =
-        Categories.businessRelatedTopicCodes ++ Categories.sportsRelatedTopicCodes
+        Categories.businessRelatedTopicCodes ++ Categories.sportRelatedTopicCodes
     ),
-    SearchParams(
-      text = None,
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "MCC:OVR",
-        "MCC:QFE",
-        "MCCL:OVR",
-        "MCCL:OSM",
-        "N2:US"
-      ),
+    SearchPreset(
+      REUTERS,
+      categoryCodes =
+        List("MCC:OVR", "MCC:QFE", "MCCL:OVR", "MCCL:OSM", "N2:US"),
       categoryCodesExcl = List(
         "MCC:DED",
         "MCC:SPO",
@@ -171,286 +124,251 @@ object SearchPresets {
         "N2:ECI"
       )
     ),
-    SearchParams(
-      text = Some("News Summary"),
-      suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "MCC:OEC"
-      ),
-      categoryCodesExcl = List(
-        "N2:GB",
-        "N2:COM",
-        "N2:ECI"
-      )
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("MCC:OEC"),
+      categoryCodesExcl = List("N2:GB", "N2:COM", "N2:ECI"),
+      text = Some("News Summary")
     )
   )
 
   private val AapWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("AAP"),
+    SearchPreset(
+      AAP,
       keywordExcl = List("Sports"),
       categoryCodesExcl = Categories.sportsRelatedNewsCodes
     )
   )
 
   private val AfpWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("AFP"),
-      categoryCodesExcl = List("afpCat:SPO")
-    )
+    SearchPreset(AFP, categoryCodesExcl = List("afpCat:SPO"))
   )
 
   private val MinorAgenciesWorld = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("MINOR_AGENCIES"),
-      categoryCodesExcl = List("N2:GB")
-    )
+    SearchPreset(MINOR_AGENCIES, categoryCodesExcl = List("N2:GB"))
   )
+
+  private val AllWorld =
+    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
+
+  /*
+   * UK
+   */
 
   private val PaHome = List(
     SearchPreset(
-      "PA",
-      List(
-        "paCat:HHH",
-        "paCat:SCN",
-        "paCat:IFN",
-        "paCat:QFF",
-        "paCat:PPP"
-      )
-    )
-  )
-
-  private val PaBusiness = List(
-    SearchPreset(
-      "PA",
-      List(
-        "paCat:FFF",
-        "paCat:GXX"
-      )
+      PA,
+      categoryCodes =
+        List("paCat:HHH", "paCat:SCN", "paCat:IFN", "paCat:QFF", "paCat:PPP")
     )
   )
 
   private val MinorAgenciesUk = List(
-    SearchPreset("MINOR_AGENCIES", "N2:GB")
+    SearchPreset(MINOR_AGENCIES, Some("N2:GB"))
+  )
+
+  private val AllUk =
+    PaHome ::: MinorAgenciesUk
+
+  /*
+   * Business
+   */
+
+  private val PaBusiness = List(
+    SearchPreset(PA, categoryCodes = List("paCat:FFF", "paCat:GXX"))
   )
 
   private val ReutersBusiness = List(
     SearchPreset(
-      "REUTERS",
+      REUTERS,
       categoryCodes = Categories.businessRelatedTopicCodes,
       categoryCodesExcl = List("MCC:SPO")
     )
   )
 
   private val ApBusiness = List(
-    SearchParams(
-      text = None,
-      suppliersIncl = List("AP"),
-      categoryCodesIncl = List("apCat:f"),
+    SearchPreset(
+      AP,
+      categoryCodes = List("apCat:f"),
       categoryCodesExcl = List("apCat:s", "apCat:e")
     )
   )
 
   private val AapBusiness = List(
-    SearchPreset("AAP", Categories.businessRelatedNewsCode)
+    SearchPreset(AAP, categoryCodes = Categories.businessRelatedNewsCodes)
   )
-
-  private val ReutersSport = List(
-    SearchPreset("REUTERS", Categories.sportRelatedTopicCodes)
-  )
-
-  private val PaSport = List(
-    SearchPreset(
-      "PA",
-      List(
-        "paCat:SRS", // General Sport News
-        "paCat:SSS", // General Sport News
-        "paCat:SSO", // Soccer News
-        "paCat:SCR", // Cricket News
-        "paCat:SRR", // Racing News
-        "paCat:SST" // Scottish sports
-      )
-    )
-  )
-
-  private val AfpSport = List(SearchPreset("AFP", CategoryCodes.Sport.AFP))
-
-  private val AapSport = List(
-    SearchPreset(
-      "AAP",
-      keyword = List("Sports"),
-      categoryCodes = Categories.sportsRelatedNewsCodes
-    )
-  )
-
-  private val ApSport = List(SearchPreset("AP", CategoryCodes.Sport.AP))
-
-  private val AllWorld =
-    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
-
-  private val AllUk =
-    PaHome ::: MinorAgenciesUk
 
   private val AllBusiness =
     ReutersBusiness ::: ApBusiness ::: AapBusiness ::: PaBusiness
+
+  /*
+   * Sports
+   */
+
+  private val ReutersSport = List(
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS)
+  )
+
+  private val PaSport = List(
+    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA)
+  )
+
+  private val AfpSport = List(
+    SearchPreset(AFP, Some(CategoryCodes.Sport.AFP))
+  )
+
+  private val AapSport = List(
+    SearchPreset(
+      AAP,
+      keyword = Some("Sports"),
+      categoryCodes = CategoryCodes.Sport.AAP
+    )
+  )
+
+  private val ApSport = List(SearchPreset(AP, Some(CategoryCodes.Sport.AP)))
 
   private val AllSport =
     ReutersSport ::: PaSport ::: AfpSport ::: AapSport ::: ApSport
 
   private val Soccer = List(
-    SearchPreset("REUTERS", CategoryCodes.Soccer.REUTERS),
-    SearchPreset("PA", CategoryCodes.Soccer.PA),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("soccer")),
-    SearchPreset("AAP", CategoryCodes.Soccer.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Soccer")
+    SearchPreset(REUTERS, Some(CategoryCodes.Soccer.REUTERS)),
+    SearchPreset(PA, Some(CategoryCodes.Soccer.PA)),
+    SearchPreset(AFP, Some(CategoryCodes.Sport.AFP), text = Some("soccer")),
+    SearchPreset(AAP, Some(CategoryCodes.Soccer.AAP)),
+    SearchPreset(AP, Some(CategoryCodes.Sport.AP), keyword = Some("Soccer"))
   )
 
   private val Cricket = List(
-    SearchPreset("REUTERS", CategoryCodes.Cricket.REUTERS),
-    SearchPreset("PA", CategoryCodes.Cricket.PA),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("cricket")),
-    SearchPreset("AAP", CategoryCodes.Cricket.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Cricket")
+    SearchPreset(REUTERS, Some(CategoryCodes.Cricket.REUTERS)),
+    SearchPreset(PA, Some(CategoryCodes.Cricket.PA)),
+    SearchPreset(AFP, Some(CategoryCodes.Sport.AFP), text = Some("cricket")),
+    SearchPreset(AAP, Some(CategoryCodes.Cricket.AAP)),
+    SearchPreset(AP, Some(CategoryCodes.Sport.AP), keyword = Some("Cricket"))
   )
 
   private val RugbyLeague = List(
-    SearchPreset("REUTERS", CategoryCodes.RugbyLeague.REUTERS),
+    SearchPreset(REUTERS, Some(CategoryCodes.RugbyLeague.REUTERS)),
     SearchPreset(
-      "PA",
-      categoryCodes = List(
-        "paCat:SRS",
-        "paCat:SSS"
-      ),
-      categoryCodesExcl = List("paCat:SSO", "paCat:SCR", "paCat:SRR"),
+      PA,
+      categoryCodes = List("paCat:SRS", "paCat:SSS"),
       text = Some("rugby league")
     ),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("rugby league")),
-    SearchPreset("AAP", CategoryCodes.RugbyLeague.AAP),
     SearchPreset(
-      "AP",
-      CategoryCodes.Sport.AP,
+      AFP,
+      Some(CategoryCodes.Sport.AFP),
+      text = Some("rugby league")
+    ),
+    SearchPreset(AAP, Some(CategoryCodes.RugbyLeague.AAP)),
+    SearchPreset(
+      AP,
+      Some(CategoryCodes.Sport.AP),
       text = Some("rugby league"),
-      keyword = "Rugby"
+      keyword = Some("Rugby")
     )
   )
 
   private val RugbyUnion = List(
-    SearchPreset("REUTERS", CategoryCodes.RugbyUnion.REUTERS),
+    SearchPreset(REUTERS, Some(CategoryCodes.RugbyUnion.REUTERS)),
     SearchPreset(
-      "PA",
-      categoryCodes = List(
-        "paCat:SRS",
-        "paCat:SSS"
-      ),
-      categoryCodesExcl = List("paCat:SSO", "paCat:SCR", "paCat:SRR"),
+      PA,
+      categoryCodes = List("paCat:SRS", "paCat:SSS"),
       text = Some("rugby union")
     ),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("rugby union")),
-    SearchPreset("AAP", CategoryCodes.RugbyUnion.AAP),
     SearchPreset(
-      "AP",
-      CategoryCodes.Sport.AP,
+      AFP,
+      Some(CategoryCodes.Sport.AFP),
+      text = Some("rugby union")
+    ),
+    SearchPreset(AAP, Some(CategoryCodes.RugbyUnion.AAP)),
+    SearchPreset(
+      AP,
+      Some(CategoryCodes.Sport.AP),
       text = Some("rugby union"),
-      keyword = "Rugby"
+      keyword = Some("Rugby")
     )
   )
 
   private val Tennis = List(
-    SearchPreset("REUTERS", CategoryCodes.Tennis.REUTERS),
+    SearchPreset(REUTERS, Some(CategoryCodes.Tennis.REUTERS)),
     SearchPreset(
-      "PA",
-      categoryCodes = List(
-        "paCat:SRS",
-        "paCat:SSS"
-      ),
-      categoryCodesExcl = List("paCat:SSO", "paCat:SCR", "paCat:SRR"),
+      PA,
+      categoryCodes = List("paCat:SRS", "paCat:SSS"),
       text = Some("tennis")
     ),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("tennis")),
-    SearchPreset("AAP", CategoryCodes.Tennis.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Tennis")
+    SearchPreset(AFP, Some(CategoryCodes.Sport.AFP), text = Some("tennis")),
+    SearchPreset(AAP, Some(CategoryCodes.Tennis.AAP)),
+    SearchPreset(AP, Some(CategoryCodes.Sport.AP), keyword = Some("Tennis"))
   )
 
   private val Cycling = List(
-    SearchPreset("REUTERS", CategoryCodes.Cycling.REUTERS),
+    SearchPreset(REUTERS, Some(CategoryCodes.Cycling.REUTERS)),
     SearchPreset(
-      "PA",
-      categoryCodes = List(
-        "paCat:SRS",
-        "paCat:SSS"
-      ),
-      categoryCodesExcl = List("paCat:SSO", "paCat:SCR", "paCat:SRR"),
+      PA,
+      categoryCodes = List("paCat:SRS", "paCat:SSS"),
       text = Some("cycling")
     ),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("cycling")),
-    SearchPreset("AAP", CategoryCodes.Cycling.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Cycling")
+    SearchPreset(AFP, Some(CategoryCodes.Sport.AFP), text = Some("cycling")),
+    SearchPreset(AAP, Some(CategoryCodes.Cycling.AAP)),
+    SearchPreset(AP, Some(CategoryCodes.Sport.AP), keyword = Some("Cycling"))
   )
 
   private val F1 = List(
-    SearchPreset("REUTERS", CategoryCodes.F1.REUTERS),
+    SearchPreset(REUTERS, Some(CategoryCodes.F1.REUTERS)),
     SearchPreset(
-      "PA",
-      categoryCodes = List(
-        "paCat:SRS",
-        "paCat:SSS"
-      ),
-      categoryCodesExcl = List("paCat:SSO", "paCat:SCR", "paCat:SRR"),
+      PA,
+      categoryCodes = List("paCat:SRS", "paCat:SSS"),
       text = Some("f1 \"formula one\"")
     ),
     SearchPreset(
-      "AFP",
-      CategoryCodes.Sport.AFP,
+      AFP,
+      Some(CategoryCodes.Sport.AFP),
       text = Some("f1 \"formula one\"")
     ),
-    SearchPreset("AAP", CategoryCodes.F1.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Formula One racing")
+    SearchPreset(AAP, Some(CategoryCodes.F1.AAP)),
+    SearchPreset(
+      AP,
+      Some(CategoryCodes.Sport.AP),
+      keyword = Some("Formula One racing")
+    )
   )
 
   private val Golf = List(
-    SearchPreset("REUTERS", CategoryCodes.Golf.REUTERS),
+    SearchPreset(REUTERS, Some(CategoryCodes.Golf.REUTERS)),
     SearchPreset(
-      "PA",
-      categoryCodes = List(
-        "paCat:SRS",
-        "paCat:SSS"
-      ),
-      categoryCodesExcl = List("paCat:SSO", "paCat:SCR", "paCat:SRR"),
+      PA,
+      categoryCodes = List("paCat:SRS", "paCat:SSS"),
       text = Some("golf")
     ),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("golf")),
-    SearchPreset("AAP", CategoryCodes.Golf.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Golf")
+    SearchPreset(AFP, Some(CategoryCodes.Sport.AFP), text = Some("golf")),
+    SearchPreset(AAP, Some(CategoryCodes.Golf.AAP)),
+    SearchPreset(AP, Some(CategoryCodes.Sport.AP), keyword = Some("Golf"))
   )
 
   private val Boxing = List(
-    SearchPreset("REUTERS", CategoryCodes.Boxing.REUTERS),
+    SearchPreset(REUTERS, Some(CategoryCodes.Boxing.REUTERS)),
     SearchPreset(
-      "PA",
-      categoryCodes = List(
-        "paCat:SRS",
-        "paCat:SSS"
-      ),
-      categoryCodesExcl = List("paCat:SSO", "paCat:SCR", "paCat:SRR"),
+      PA,
+      categoryCodes = List("paCat:SRS", "paCat:SSS"),
       text = Some("\"boxing\"")
     ),
-    SearchPreset("AFP", CategoryCodes.Sport.AFP, text = Some("\"boxing\"")),
-    SearchPreset("AAP", CategoryCodes.Boxing.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Boxing")
+    SearchPreset(AFP, Some(CategoryCodes.Sport.AFP), text = Some("\"boxing\"")),
+    SearchPreset(AAP, Some(CategoryCodes.Boxing.AAP)),
+    SearchPreset(AP, Some(CategoryCodes.Sport.AP), keyword = Some("Boxing"))
   )
 
   private val Racing = List(
-    SearchPreset("REUTERS", CategoryCodes.Racing.REUTERS),
-    SearchPreset("PA", CategoryCodes.Racing.PA),
+    SearchPreset(REUTERS, Some(CategoryCodes.Racing.REUTERS)),
+    SearchPreset(PA, Some(CategoryCodes.Racing.PA)),
     SearchPreset(
-      "AFP",
-      CategoryCodes.Sport.AFP,
+      AFP,
+      Some(CategoryCodes.Sport.AFP),
       text = Some("\"horse racing\"")
     ),
-    SearchPreset("AAP", CategoryCodes.Racing.AAP),
-    SearchPreset("AP", CategoryCodes.Sport.AP, keyword = "Horse racing")
+    SearchPreset(AAP, Some(CategoryCodes.Racing.AAP)),
+    SearchPreset(
+      AP,
+      Some(CategoryCodes.Sport.AP),
+      keyword = Some("Horse racing")
+    )
   )
 }
