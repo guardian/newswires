@@ -10,11 +10,12 @@ object SearchPreset {
       categoryCodes: List[String] = Nil,
       categoryCodesExcl: List[String] = Nil,
       text: Option[String] = None,
+      searchTerm: Option[SearchTerm] = None,
       keyword: Option[String] = None,
       keywordExcl: List[String] = Nil
   ): SearchParams =
     SearchParams(
-      text = text.map(SearchTerm(_, SearchConfig.Simple)),
+      text = searchTerm orElse text.map(SearchTerm(_, SearchConfig.Simple)),
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList,
       keywordExcl = keywordExcl,
@@ -128,7 +129,8 @@ object SearchPresets {
       REUTERS,
       categoryCodes = List("MCC:OEC"),
       categoryCodesExcl = List("N2:GB", "N2:COM", "N2:ECI"),
-      text = Some("News Summary")
+      searchTerm =
+        Some(SearchTerm("News Summary", SearchConfig.Simple, "headline"))
     )
   )
 

@@ -8,8 +8,9 @@ object SearchConfig {
 }
 
 case class SearchTerm(
-    value: String,
-    searchConfig: SearchConfig = SearchConfig.English
+    query: String,
+    searchConfig: SearchConfig = SearchConfig.English,
+    field: String = "body_text"
 )
 
 case class SearchParams(
@@ -25,7 +26,7 @@ case class SearchParams(
 ) {
   def merge(o: SearchParams): SearchParams = {
     val mergedText = (text, o.text) match {
-      case (Some(SearchTerm(l, _)), Some(SearchTerm(r, _))) =>
+      case (Some(SearchTerm(l, _, _)), Some(SearchTerm(r, _, _))) =>
         Some(SearchTerm(s"$l $r"))
       case _ => text orElse o.text
     }
