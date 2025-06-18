@@ -17,5 +17,7 @@ const generateProject = (name) => {
 module.exports = {
 	verbose: true,
 	testEnvironment: 'node',
-	projects: ['cdk', 'ingestion-lambda', 'poller-lambdas'].map(generateProject),
+	projects: ['cdk', 'ingestion-lambda', 'poller-lambdas', 'shared'].map(
+		generateProject,
+	),
 };

@@ -5,6 +5,7 @@ import {
 	EuiLoadingSpinner,
 } from '@elastic/eui';
 import { useCallback, useState } from 'react';
+import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { composerPageForId, sendToComposer } from './send-to-composer.ts';
 import type { WireData } from './sharedTypes.ts';
@@ -98,11 +99,8 @@ export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
 				});
 			})
 			.catch((cause) => {
-				if (cause instanceof Error) {
-					setFailureReason(cause.message);
-				} else if (typeof cause === 'string') {
-					setFailureReason(cause);
-				}
+				setFailureReason(getErrorMessage(cause));
+
 				sendTelemetryEvent('NEWSWIRES_SEND_TO_COMPOSER', {
 					itemId: itemData.id,
 					status: 'failed',

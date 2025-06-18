@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getErrorMessage } from '../../../../shared/getErrorMessage';
 
 const AuthSchema = z.object({
 	access_token: z.string(),
@@ -33,7 +34,7 @@ export async function auth(
 		);
 		return access_token;
 	} catch (error) {
-		console.error(error);
+		console.error(getErrorMessage(error));
 		throw new Error('Failed to get auth token from Reuters');
 	}
 }

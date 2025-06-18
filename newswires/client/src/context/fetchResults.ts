@@ -19,27 +19,24 @@ export const fetchResults = async (
 		},
 		signal: abortController?.signal ?? undefined,
 	});
-	try {
-		const data = (await response.json()) as unknown;
-		if (!response.ok) {
-			throw new Error(
-				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- this is the expected shape from Play but you never know
-				(data as { error: { exception: { description: string } } }).error
-					.exception.description ?? 'Unknown error',
-			);
-		}
 
-		const parseResult = WiresQueryResponseSchema.safeParse(data);
-		if (!parseResult.success) {
-			throw new Error(
-				`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
-			);
-		}
-		return {
-			...parseResult.data,
-			results: parseResult.data.results.map(transformWireItemQueryResult),
-		};
-	} catch (e) {
-		throw new Error(e instanceof Error ? e.message : 'Unknown error');
+	const data = (await response.json()) as unknown;
+	if (!response.ok) {
+		throw new Error(
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- this is the expected shape from Play but you never know
+			(data as { error: { exception: { description: string } } }).error
+				.exception.description ?? 'Unknown error',
+		);
 	}
+
+	const parseResult = WiresQueryResponseSchema.safeParse(data);
+	if (!parseResult.success) {
+		throw new Error(
+			`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
+		);
+	}
+	return {
+		...parseResult.data,
+		results: parseResult.data.results.map(transformWireItemQueryResult),
+	};
 };
