@@ -1,7 +1,9 @@
 package db
 
+import conf.SearchTerm
+
 case class SearchParams(
-    text: Option[String],
+    text: Option[SearchTerm],
     start: Option[String] = None,
     end: Option[String] = None,
     keywordIncl: List[String] = Nil,
@@ -10,20 +12,4 @@ case class SearchParams(
     suppliersExcl: List[String] = Nil,
     categoryCodesIncl: List[String] = Nil,
     categoryCodesExcl: List[String] = Nil
-) {
-  def merge(o: SearchParams): SearchParams = {
-    val mergedText = (text, o.text) match {
-      case (Some(l), Some(r)) => Some(s"$l $r")
-      case _                  => text orElse o.text
-    }
-    SearchParams(
-      text = mergedText,
-      keywordIncl = keywordIncl ++ o.keywordIncl,
-      keywordExcl = keywordExcl ++ o.keywordExcl,
-      suppliersIncl = suppliersIncl ++ o.suppliersIncl,
-      suppliersExcl = suppliersExcl ++ o.suppliersExcl,
-      categoryCodesIncl = categoryCodesIncl ++ o.categoryCodesIncl,
-      categoryCodesExcl = categoryCodesExcl ++ o.categoryCodesExcl
-    )
-  }
-}
+)
