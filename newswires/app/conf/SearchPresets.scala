@@ -48,6 +48,8 @@ object SearchPresets {
     case "golf"                 => Some(Golf)
     case "boxing"               => Some(Boxing)
     case "racing"               => Some(Racing)
+    case "athletics"            => Some(Athletics)
+    case "olympics"             => Some(Olympics)
     case _                      => None
   }
 
@@ -249,5 +251,21 @@ object SearchPresets {
     SearchPreset(AFP, CategoryCodes.Sport.AFP, text = Some(SimpleSearchQueries.RACING)),
     SearchPreset(AAP, CategoryCodes.Racing.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Horse racing"))
+  )
+
+  private val Athletics = List(
+    SearchPreset(REUTERS, CategoryCodes.Athletics.REUTERS),
+    SearchPreset(PA, categoryCodes = List("paCat:SRS", "paCat:SSS"), text = Some(SimpleSearchQueries.ATHLETICS)),
+    SearchPreset(AFP, CategoryCodes.Sport.AFP, text = Some(SimpleSearchQueries.ATHLETICS)),
+    SearchPreset(AAP, CategoryCodes.Athletics.AAP),
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Track and field"))
+  )
+
+  private val Olympics = List(
+    SearchPreset(REUTERS, categoryCodes = List("subj:15073000"), text = Some(SimpleSearchQueries.OLYMPICS)),
+    SearchPreset(PA, categoryCodes = List("paCat:SRS", "paCat:SSS"), text = Some(SimpleSearchQueries.OLYMPICS)),
+    SearchPreset(AFP, CategoryCodes.Sport.AFP, text = Some(SimpleSearchQueries.OLYMPICS)),
+    SearchPreset(AAP, CategoryCodes.Olympics.AAP),
+    SearchPreset(AP, CategoryCodes.Sport.AP, text = Some(SimpleSearchQueries.OLYMPICS))
   )
 }
