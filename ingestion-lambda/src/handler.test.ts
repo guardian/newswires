@@ -57,7 +57,8 @@ describe('safeBodyParse', () => {
 			"firstVersion": "2025-03-13T15:45:04.000Z",
 			"versionCreated": "2025-03-13T15:45:04.000Z",
 			"keywords": "keyword1+keyword2",
-			"body_text": "\\n \\n  <p>test paragraph 1.</p>\\n\\n<p>test paragraph 2. \\u00a0 \\n</p>\\n\\n<p>test paragraph 3.<p>"
+			"body_text": "\\n \\n  <p>test paragraph 1.</p>\\n\\n<p>test paragraph 2. \\u00a0 \\n</p>\\n\\n<p>test paragraph 3.<p>",
+			"unique-name": "123456789"
 		}`;
 
 		expect(safeBodyParse(body)).toEqual({
@@ -68,6 +69,7 @@ describe('safeBodyParse', () => {
 				'<br /><p>test paragraph 1.</p><br /><p>test paragraph 2.   <br /></p><br /><p>test paragraph 3.<p>',
 			version: '1',
 			versionCreated: '2025-03-13T15:45:04.000Z',
+			'unique-name': '123456789',
 		});
 	});
 
@@ -77,7 +79,8 @@ describe('safeBodyParse', () => {
 			"firstVersion": "2025-03-13T15:45:04.000Z",
 			"versionCreated": "2025-03-13T15:45:04.000Z",
 			"keywords": "keyword1+keyword2",
-			"body_text": "bla \\“bla bla\\”."
+			"body_text": "bla \\“bla bla\\”.",
+			"unique-name": "123456789"
 		}`;
 
 		expect(safeBodyParse(body)).toEqual({
@@ -87,6 +90,7 @@ describe('safeBodyParse', () => {
 			body_text: 'bla “bla bla”.',
 			version: '1',
 			versionCreated: '2025-03-13T15:45:04.000Z',
+			'unique-name': '123456789',
 		});
 	});
 
@@ -96,7 +100,8 @@ describe('safeBodyParse', () => {
 			"firstVersion": "2025-03-13T15:45:04.000Z",
 			"versionCreated": "2025-03-13T15:45:04.000Z",
 			"keywords": "keyword1+keyword2",
-			"body_text": "bla	bla bla."
+			"body_text": "bla	bla bla.",
+			"unique-name": "123456789"
 		}`; //             ^
 		// bad char here   |
 		expect(safeBodyParse(body)).toEqual({
@@ -106,6 +111,7 @@ describe('safeBodyParse', () => {
 			body_text: 'bla bla bla.', // note tab char is now space char
 			version: '1',
 			versionCreated: '2025-03-13T15:45:04.000Z',
+			'unique-name': '123456789',
 		});
 	});
 
@@ -117,7 +123,8 @@ describe('safeBodyParse', () => {
 			"keywords": "keyword1+keyword2",
 			"body_text": "bla
 bla
-bla."
+bla.",
+			"unique-name": "123456789"
 		}`;
 		expect(safeBodyParse(body)).toEqual({
 			firstVersion: '2025-03-13T15:45:04.000Z',
@@ -126,6 +133,7 @@ bla."
 			body_text: 'bla bla bla.', // note newline char is now space char
 			version: '1',
 			versionCreated: '2025-03-13T15:45:04.000Z',
+			'unique-name': '123456789',
 		});
 	});
 });

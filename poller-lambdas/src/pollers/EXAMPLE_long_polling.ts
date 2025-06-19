@@ -22,6 +22,7 @@ export const EXAMPLE_long_polling = (async ({
 			{
 				externalId: 'foo',
 				body: {
+					'unique-name': 'example-foo',
 					body_text: 'foo',
 					keywords: [],
 					imageIds: [],
@@ -30,6 +31,7 @@ export const EXAMPLE_long_polling = (async ({
 			{
 				externalId: 'bar',
 				body: {
+					'unique-name': 'example-bar',
 					body_text: 'bar',
 					keywords: [],
 					imageIds: [],
