@@ -154,6 +154,7 @@ function itemResponseToIngestionLambdaInput(
 		'source-feed': 'Reuters-Newswires',
 		usn: item.usn,
 		version: item.version,
+		'unique-name': item.versionedGuid,
 		type: item.type,
 		firstVersion: item.firstCreated,
 		versionCreated: item.versionCreated,
