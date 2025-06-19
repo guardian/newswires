@@ -44,4 +44,6 @@ object SimpleSearchQueries {
   val GOLF = "golf"
   val BOXING = "boxing -\"boxing gym\""
   val RACING = "horse racing"
+  val ATHLETICS = "athletics OR \"track and field\""
+  val OLYMPICS = "olympics OR \"olympic games\""
 }

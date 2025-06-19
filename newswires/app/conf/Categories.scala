@@ -97,6 +97,15 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = List("subj:15030000")
   }
 
+  object Athletics {
+    val REUTERS: List[String] = List("N2:ATHL")
+    val AAP: List[String] = List("subj:15005000")
+  }
+
+  object Olympics {
+    val AAP: List[String] = List("subj:15073001", "subj:15073002")
+  }
+
   object Other {
     val REUTERS: List[String] = Categories.otherTopicCodes
     val AP: List[String] = List("apCat:e")
