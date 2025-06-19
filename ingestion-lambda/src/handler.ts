@@ -242,22 +242,13 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						sqsMessageId,
 					});
 					try {
-						const externalId = messageAttributes['Message-Id']?.stringValue;
+						const snsMessageContent = safeBodyParse(body);
 
-						if (!externalId) {
-							await s3Client.send(
-								new PutObjectCommand({
-									Bucket: BUCKET_NAME,
-									Key: `GuMissingExternalId/${sqsMessageId}.json`,
-									Body: JSON.stringify({
-										externalId,
-										messageAttributes,
-										body,
-									}),
-								}),
-							);
+						const externalId = snsMessageContent['unique-name'];
+
+						if (!externalId || externalId.trim().length === 0) {
 							throw new Error(
-								`Message (sqsMessageId: ${sqsMessageId}) is missing fingerpost Message-Id attribute`,
+								`Message (sqsMessageId: ${sqsMessageId}) is missing required unique-name field`,
 							);
 						}
 
@@ -269,8 +260,6 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 								Body: body,
 							}),
 						);
-
-						const snsMessageContent = safeBodyParse(body);
 
 						const content = {
 							...snsMessageContent,
@@ -317,6 +306,33 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						}
 					} catch (e) {
 						const reason = e instanceof Error ? e.message : 'Unknown error';
+
+						const keyPrefix =
+							messageAttributes['Message-Id']?.stringValue ??
+							`GuMissingExternalId/${sqsMessageId}`;
+
+						const key = `${keyPrefix}.json`;
+
+						await s3Client.send(
+							new PutObjectCommand({
+								Bucket: BUCKET_NAME,
+								Key: key,
+								Body: JSON.stringify({
+									sqsMessageId,
+									messageAttributes,
+									body,
+								}),
+							}),
+						);
+
+						logger.error({
+							message: `Failed to process message for ${sqsMessageId}. Payload saved to S3: ${key}.`,
+							error: reason,
+							eventType: 'INGESTION_FAILURE',
+							sqsMessageId,
+							s3Key: `${key}`,
+						});
+
 						return {
 							status: 'failure',
 							reason,
