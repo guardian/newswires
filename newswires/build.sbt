@@ -42,7 +42,7 @@ buildInfoKeys := Seq[BuildInfoKey](
 )
 
 /* Start of fix for CVE-2020-36518 in Jackson See:https://github.com/orgs/playframework/discussions/11222 */
-val jacksonVersion = "2.13.4" // or 2.12.7
+val jacksonVersion = "2.13.5" // or 2.12.7
 val jacksonDatabindVersion = "2.13.4.2" // or 2.12.7.1
 
 val jacksonOverrides = Seq(
