@@ -72,7 +72,7 @@ libraryDependencies += "org.codehaus.janino" % "janino" % "3.1.12"
 
 // Quietly remove logback from the classpath and replace with a no-op logger for nice, quiet tests :)
 // based on https://stackoverflow.com/q/41429625
-libraryDependencies += "org.slf4j" % "slf4j-nop" % "2.0.12" % Test
+libraryDependencies += "org.slf4j" % "slf4j-nop" % "2.0.17" % Test
 (Test / dependencyClasspath) ~= {
   _.filterNot(_.data.name.contains("logback-classic"))
 }
