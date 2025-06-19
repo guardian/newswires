@@ -1,5 +1,6 @@
 package db
 
+import conf.{SearchConfig, SearchTerm}
 import helpers.WhereClauseMatcher.matchWhereClause
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -174,7 +175,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
 
     val savedSearchParamList = List(
       SearchParams(
-        text = Some(SearchTerm("News Summary")),
+        text =
+          Some(SearchTerm("News Summary", SearchConfig.Simple, "headline")),
         suppliersIncl = List("REUTERS"),
         categoryCodesIncl = List(
           "MCC:OEC"
@@ -186,19 +188,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
         )
       ),
       SearchParams(
-        text = None,
-        suppliersIncl = List("REUTERS"),
-        categoryCodesIncl = List(
-          "MCC:OVR",
-          "MCCL:OVR",
-          "MCCL:OSM",
-          "N2:US"
-        ),
-        categoryCodesExcl = List(
-          "N2:GB",
-          "N2:COM",
-          "N2:ECI"
-        )
+        text = Some(SearchTerm("soccer", SearchConfig.Simple)),
+        suppliersIncl = List("AFP"),
+        categoryCodesIncl = List("afpCat:SPO")
       )
     )
 
@@ -215,25 +207,23 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
         |  SELECT FROM fingerpost_wire_entry sourceFeedsExcl
         |  WHERE fm.id = sourceFeedsExcl.id
         |    AND  upper(sourceFeedsExcl.supplier) in (upper(?))
-        |) and fm.ingested_at >= CAST(? AS timestamptz)) and ((fm.category_codes && ? and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
+        |) and fm.ingested_at >= CAST(? AS timestamptz)) and ((fm.category_codes && ? and to_tsvector('simple', lower(fm.content->>?)) @@ websearch_to_tsquery('simple', lower(?)) and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
         |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
         |  WHERE fm.id = categoryCodesExcl.id
         |    AND categoryCodesExcl.category_codes && ?
-        |)) or (fm.category_codes && ? and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
-        |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
-        |  WHERE fm.id = categoryCodesExcl.id
-        |    AND categoryCodesExcl.category_codes && ?
-        |)))""".stripMargin,
+        |)) or ((fm.category_codes && ? and to_tsvector('simple', lower(fm.content->>?)) @@ websearch_to_tsquery('simple', lower(?)) and upper(fm.supplier) in (upper(?)))))""".stripMargin,
       List(
         "supplier1",
         "2025-03-10T00:00:00.000Z",
         List("MCC:OEC"),
+        "headline",
         "News Summary",
         "REUTERS",
         List("N2:GB", "N2:COM", "N2:ECI"),
-        List("MCC:OVR", "MCCL:OVR", "MCCL:OSM", "N2:US"),
-        "REUTERS",
-        List("N2:GB", "N2:COM", "N2:ECI")
+        List("afpCat:SPO"),
+        "body_text",
+        "soccer",
+        "AFP"
       )
     )
   }

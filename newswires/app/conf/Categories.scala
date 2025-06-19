@@ -1,9 +1,37 @@
 package conf
 
 private[conf] object CategoryCodes {
+  object World {
+    val REUTERS: List[String] = List("REUTERS:WORLD")
+    val AFP: List[String] = List("afpCat:SPO")
+    val AP: List[String] = List("apCat:i", "apCat:a", "apCat:w")
+    val PA: List[String] = List(
+      "paCat:SRS", // General Sport News
+      "paCat:SSS", // General Sport News
+      "paCat:SSO", // Soccer News
+      "paCat:SCR", // Cricket News
+      "paCat:SRR", // Racing News
+      "paCat:SST" // Scottish sports
+    )
+    val AAP: List[String] = Categories.sportsRelatedNewsCodes
+  }
+
+  object UK {
+    val PA: List[String] =
+      List("paCat:HHH", "paCat:SCN", "paCat:IFN", "paCat:QFF", "paCat:PPP")
+    val MINOR_AGENCIES: List[String] = List("N2:GB")
+  }
+
+  object Business {
+    val AP: List[String] = List("apCat:f")
+    val PA: List[String] = List("paCat:FFF", "paCat:GXX")
+    val AAP: List[String] = Categories.businessRelatedNewsCodes
+    val REUTERS: List[String] = Categories.businessRelatedTopicCodes
+  }
+
   object Sport {
-    val AFP = "afpCat:SPO"
-    val AP = "apCat:s"
+    val AFP: List[String] = List("afpCat:SPO")
+    val AP: List[String] = List("apCat:s")
     val PA: List[String] = List(
       "paCat:SRS", // General Sport News
       "paCat:SSS", // General Sport News
@@ -17,56 +45,61 @@ private[conf] object CategoryCodes {
   }
 
   object Soccer {
-    val REUTERS = "N2:SOCC"
-    val PA = "paCat:SSO"
-    val AAP = "subj:15054000"
+    val REUTERS: List[String] = List("N2:SOCC")
+    val PA: List[String] = List("paCat:SSO")
+    val AAP: List[String] = List("subj:15054000")
   }
 
   object Cricket {
-    val REUTERS = "N2:CRIC"
-    val PA = "paCat:SCR"
-    val AAP = "subj:15017000"
+    val REUTERS: List[String] = List("N2:CRIC")
+    val PA: List[String] = List("paCat:SCR")
+    val AAP: List[String] = List("subj:15017000")
   }
 
   object RugbyUnion {
-    val REUTERS = "N2:RUGU"
-    val AAP = "subj:15049000"
+    val REUTERS: List[String] = List("N2:RUGU")
+    val AAP: List[String] = List("subj:15049000")
   }
 
   object Tennis {
-    val REUTERS = "N2:TENN"
-    val AAP = "subj:15065000"
+    val REUTERS: List[String] = List("N2:TENN")
+    val AAP: List[String] = List("subj:15065000")
   }
 
   object Cycling {
-    val REUTERS = "N2:CYCL"
-    val AAP = "subj:15019000"
+    val REUTERS: List[String] = List("N2:CYCL")
+    val AAP: List[String] = List("subj:15019000")
   }
 
   object F1 {
-    val REUTERS = "N2:FO1"
-    val AAP = "subj:15046001"
+    val REUTERS: List[String] = List("N2:FO1")
+    val AAP: List[String] = List("subj:15046001")
   }
 
   object Golf {
-    val REUTERS = "N2:GOLF"
-    val AAP = "subj:15027000"
+    val REUTERS: List[String] = List("N2:GOLF")
+    val AAP: List[String] = List("subj:15027000")
   }
 
   object Boxing {
-    val REUTERS = "N2:BOXI"
-    val AAP = "subj:15014000"
+    val REUTERS: List[String] = List("N2:BOXI")
+    val AAP: List[String] = List("subj:15014000")
   }
 
   object RugbyLeague {
-    val REUTERS = "N2:RUGL"
-    val AAP = "subj:15048000"
+    val REUTERS: List[String] = List("N2:RUGL")
+    val AAP: List[String] = List("subj:15048000")
   }
 
   object Racing {
-    val REUTERS = "N2:HORS"
-    val PA = "paCat:SRR"
-    val AAP = "subj:15030000"
+    val REUTERS: List[String] = List("N2:HORS")
+    val PA: List[String] = List("paCat:SRR")
+    val AAP: List[String] = List("subj:15030000")
+  }
+
+  object Other {
+    val REUTERS: List[String] = Categories.otherTopicCodes
+    val AP: List[String] = List("apCat:e")
   }
 }
 
