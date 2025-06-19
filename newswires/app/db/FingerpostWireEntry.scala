@@ -1,5 +1,6 @@
 package db
 
+import conf.{SearchConfig, SearchTerm}
 import db.CustomMappers.textArray
 import play.api.Logging
 import play.api.libs.json._
@@ -293,7 +294,7 @@ object FingerpostWireEntry
       search.text match {
         case Some(SearchTerm(query, SearchConfig.Simple, field)) =>
           Some(
-            sqls"to_tsvector('simple', ${syn.content}->>$field) @@ websearch_to_tsquery('simple', $query)"
+            sqls"to_tsvector('simple', lower(${syn.content}->>$field)) @@ websearch_to_tsquery('simple', lower($query))"
           )
         case Some(SearchTerm(query, SearchConfig.English, _)) =>
           Some(

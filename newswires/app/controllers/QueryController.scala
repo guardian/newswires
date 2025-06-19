@@ -3,17 +3,11 @@ package controllers
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
-import conf.SearchPresets
-import db.{FingerpostWireEntry, SearchParams, SearchTerm}
+import conf.{SearchPresets, SearchTerm}
+import db.{FingerpostWireEntry, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{
-  Action,
-  AnyContent,
-  BaseController,
-  ControllerComponents,
-  Request
-}
+import play.api.mvc._
 import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
 
