@@ -2,9 +2,9 @@
 
 //> using jvm corretto:17
 
-//> using dep com.lihaoyi::ujson:4.1.0
-//> using dep org.flywaydb:flyway-core:11.7.2
-//> using dep org.flywaydb:flyway-database-postgresql:11.7.2
+//> using dep com.lihaoyi::ujson:4.2.1
+//> using dep org.flywaydb:flyway-core:11.9.1
+//> using dep org.flywaydb:flyway-database-postgresql:11.9.1
 //> using dep org.postgresql:postgresql:42.7.5
 //> using dep software.amazon.awssdk:rds:2.31.61
 //> using dep software.amazon.awssdk:secretsmanager:2.31.61
@@ -141,12 +141,14 @@ def remoteFlyway(stage: String): Flyway = {
 
   val secretData = ujson.read(response.secretString())
 
-  val rds = RdsClient.builder()
-  .credentialsProvider(credentials)
-  .region(Region.EU_WEST_1)
-  .build()
+  val rds = RdsClient
+    .builder()
+    .credentialsProvider(credentials)
+    .region(Region.EU_WEST_1)
+    .build()
 
-  val generateTokenRequest =  GenerateAuthenticationTokenRequest.builder()
+  val generateTokenRequest = GenerateAuthenticationTokenRequest
+    .builder()
     .credentialsProvider(credentials)
     .username("postgres")
     .port(5432)
@@ -169,8 +171,8 @@ val command = args.lift(0) match {
 
 val (env, flyway) = args.lift(1).map(_.toLowerCase()) match {
   case Some("local") => ("local", localFlyway)
-  case Some("code") => ("code", remoteFlyway("CODE"))
-  case Some("prod") => ("prod", remoteFlyway("PROD"))
+  case Some("code")  => ("code", remoteFlyway("CODE"))
+  case Some("prod")  => ("prod", remoteFlyway("PROD"))
   case o =>
     val msg = o.fold("No environment specified!")(env => s"Unknown env $env!")
     println(s"$msg Try again with one of `local`, `code` or `prod`")

@@ -14,12 +14,12 @@ libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "5.0.0"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "7.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "4.0.0"
-libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "7.4"
+libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.7"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.9" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test
 
 lazy val root = (project in file(".")).enablePlugins(
@@ -42,8 +42,8 @@ buildInfoKeys := Seq[BuildInfoKey](
 )
 
 /* Start of fix for CVE-2020-36518 in Jackson See:https://github.com/orgs/playframework/discussions/11222 */
-val jacksonVersion = "2.13.4" // or 2.12.7
-val jacksonDatabindVersion = "2.13.4.2" // or 2.12.7.1
+val jacksonVersion = "2.13.5" // or 2.12.7
+val jacksonDatabindVersion = "2.13.5" // or 2.12.7.1
 
 val jacksonOverrides = Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
@@ -72,7 +72,7 @@ libraryDependencies += "org.codehaus.janino" % "janino" % "3.1.12"
 
 // Quietly remove logback from the classpath and replace with a no-op logger for nice, quiet tests :)
 // based on https://stackoverflow.com/q/41429625
-libraryDependencies += "org.slf4j" % "slf4j-nop" % "2.0.12" % Test
+libraryDependencies += "org.slf4j" % "slf4j-nop" % "2.0.17" % Test
 (Test / dependencyClasspath) ~= {
   _.filterNot(_.data.name.contains("logback-classic"))
 }
