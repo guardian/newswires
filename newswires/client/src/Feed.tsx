@@ -6,6 +6,7 @@ import {
 	EuiPageTemplate,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
@@ -17,11 +18,35 @@ export interface FeedProps {
 	direction?: string;
 }
 
+const baseStyles = css`
+	padding-bottom: 12px;
+`;
+
+const columnStyles = css`
+	flex-direction: column;
+`;
+
 export const Feed = ({ containerRef, direction }: FeedProps) => {
 	const { state, config } = useSearch();
 	const { status, queryData } = state;
 
 	const isPoppedOut = config.ticker;
+
+	const [isColumn, setIsColumn] = useState(false);
+
+	useEffect(() => {
+		const el = containerRef?.current;
+		if (!el) return;
+
+		const observer = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				setIsColumn(entry.contentRect.width < 450);
+			}
+		});
+
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [containerRef]);
 
 	return (
 		<EuiPageTemplate.Section
@@ -63,17 +88,13 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 				queryData.results.length > 0 && (
 					<>
 						<div>
-							<EuiFlexGroup
-								css={css`
-									padding-bottom: 12px;
-								`}
-							>
+							<EuiFlexGroup css={[baseStyles, isColumn && columnStyles]}>
 								<EuiFlexItem style={{ flex: 1 }}>
 									<SearchSummary />
 								</EuiFlexItem>
 								{!isPoppedOut && (
 									<EuiFlexItem grow={false}>
-										<DatePicker />
+										<DatePicker width={isColumn ? 'full' : 'auto'} />
 									</EuiFlexItem>
 								)}
 							</EuiFlexGroup>
