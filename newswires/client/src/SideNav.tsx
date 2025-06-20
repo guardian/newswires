@@ -12,10 +12,11 @@ import {
 	EuiSwitch,
 	EuiText,
 	EuiTitle,
-	useIsWithinMinBreakpoint,
+	useEuiMinBreakpoint,
+	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { AppTitle } from './AppTitle.tsx';
 import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
@@ -59,12 +60,15 @@ function presetName(presetId: string): string | undefined {
 
 export const SideNav = ({
 	navIsOpen,
+	navIsDocked,
 	setNavIsOpen,
 }: {
 	navIsOpen: boolean;
+	navIsDocked: boolean;
 	setNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-	const isOnLargerScreen = useIsWithinMinBreakpoint('m');
+	const largeMinBreakpoint = useEuiMinBreakpoint('l');
+	const isLargeScreen = useIsWithinBreakpoints(['l']);
 
 	const {
 		state,
@@ -195,16 +199,27 @@ export const SideNav = ({
 		}),
 	);
 
+	useEffect(() => {
+		if (isLargeScreen) {
+			setNavIsOpen(false);
+		}
+	}, [isLargeScreen, setNavIsOpen]);
+
 	return (
 		<>
 			<EuiCollapsibleNav
 				isOpen={navIsOpen}
-				isDocked={isOnLargerScreen}
+				isDocked={navIsDocked}
 				size={300}
 				button={
 					<EuiHeaderSectionItemButton
 						aria-label="Toggle main navigation"
 						onClick={() => setNavIsOpen((isOpen) => !isOpen)}
+						css={css`
+							${largeMinBreakpoint} {
+								display: none;
+							}
+						`}
 					>
 						<EuiIcon type={'menu'} size="m" aria-hidden="true" />
 					</EuiHeaderSectionItemButton>
