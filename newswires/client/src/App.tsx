@@ -7,6 +7,7 @@ import {
 	EuiHeader,
 	EuiHeaderSection,
 	EuiHeaderSectionItem,
+	EuiHeaderSectionItemButton,
 	EuiIcon,
 	EuiModal,
 	EuiModalBody,
@@ -93,6 +94,7 @@ export function App() {
 		useSearch();
 
 	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
+	const [sideNavIsDocked, setSideNavIsDocked] = useState<boolean>(true);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
 	);
@@ -201,8 +203,22 @@ export function App() {
 								<EuiHeaderSection side={'left'}>
 									<TelemetryPixel stage={stage} />
 									<EuiHeaderSectionItem>
+										<EuiHeaderSectionItemButton
+											aria-label="Toggle main navigation"
+											onClick={() =>
+												setSideNavIsDocked((isDocked) => !isDocked)
+											}
+											css={css`
+												${largeMaxBreakpoint} {
+													display: none;
+												}
+											`}
+										>
+											<EuiIcon type={'menu'} size="m" aria-hidden="true" />
+										</EuiHeaderSectionItemButton>
 										<SideNav
 											navIsOpen={sideNavIsOpen}
+											navIsDocked={sideNavIsDocked}
 											setNavIsOpen={setSideNavIsOpen}
 										/>
 									</EuiHeaderSectionItem>
@@ -222,12 +238,8 @@ export function App() {
 												css={css`
 													padding-bottom: 3px;
 
-													${largeMaxBreakpoint} {
-														margin-right: 8px;
-													}
-
 													${largeMinBreakpoint} {
-														width: 298px;
+														width: 258px;
 													}
 												`}
 											>
