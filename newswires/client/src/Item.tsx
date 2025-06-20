@@ -3,11 +3,13 @@ import {
 	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiHorizontalRule,
-	EuiPageTemplate,
 	EuiSplitPanel,
 	EuiSwitch,
+	EuiText,
+	EuiTitle,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
 import { type WireData } from './sharedTypes';
 import { Tooltip } from './Tooltip.tsx';
@@ -46,13 +48,46 @@ export const Item = ({
 	}, [headingRef, itemData?.id]);
 
 	return (
-		<EuiSplitPanel.Outer>
+		<EuiSplitPanel.Outer
+			direction="column"
+			css={css`
+				min-height: 100%;
+			`}
+		>
 			{error && (
-				<EuiPageTemplate.EmptyPrompt>
-					<p>{error}</p>
-				</EuiPageTemplate.EmptyPrompt>
+				<EuiSplitPanel.Inner
+					css={css`
+						flex: 1;
+						display: flex;
+						flex-direction: column;
+						padding: 16px;
+						position: relative;
+					`}
+				>
+					<div
+						css={css`
+							align-self: flex-end;
+						`}
+					>
+						<Tooltip tooltipContent="Close story" position="left">
+							<EuiButtonIcon
+								iconType="cross"
+								onClick={handleDeselectItem}
+								aria-label="Close story"
+							/>
+						</Tooltip>
+					</div>
+					<EuiHorizontalRule margin="s" />
+
+					<EuiText textAlign="left">
+						<EuiTitle size="xs">
+							<h2>Item Not Found</h2>
+						</EuiTitle>
+						<p>Stories are available for 14 days before being removed.</p>
+					</EuiText>
+				</EuiSplitPanel.Inner>
 			)}
-			{itemData && (
+			{!error && itemData && (
 				<>
 					<EuiSplitPanel.Inner>
 						<EuiFlexGroup
