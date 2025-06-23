@@ -45,7 +45,7 @@ class QueryController(
       if (featureSwitchProvider.ShowGuSuppliers.isOn()) Nil
       else List("GuReuters", "GuAP")
 
-    val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm(_))
+    val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
 
     val queryParams = SearchParams(
       text = maybeSearchTerm,

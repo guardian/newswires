@@ -281,11 +281,16 @@ object FingerpostWireEntry
       categoryCodesInclQuery,
       keywordsExclQuery,
       search.text match {
-        case Some(SearchTerm(query, SearchConfig.Simple, field)) =>
+        case Some(SearchTerm.Simple(query, field)) =>
+          val tsvectorColumn = field match {
+            case "headline"  => "headline_tsv_simple"
+            case "body_text" => "body_text_tsv_simple"
+
+          }
           Some(
-            sqls"to_tsvector('simple', lower(${syn.content}->>$field)) @@ websearch_to_tsquery('simple', lower($query))"
+            sqls"$tsvectorColumn @@ websearch_to_tsquery('simple', lower($query))"
           )
-        case Some(SearchTerm(query, SearchConfig.English, _)) =>
+        case Some(SearchTerm.English(query)) =>
           Some(
             sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
           )
@@ -375,7 +380,7 @@ object FingerpostWireEntry
     )
 
     val highlightsClause = maybeSearchTerm match {
-      case Some(SearchTerm(query, _, _)) =>
+      case Some(SearchTerm.English(query)) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }

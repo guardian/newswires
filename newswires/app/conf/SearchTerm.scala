@@ -14,11 +14,21 @@ object SearchConfig {
   case object Simple extends SearchConfig
 }
 
-case class SearchTerm(
-    query: String,
-    searchConfig: SearchConfig = SearchConfig.English,
-    field: String = "body_text"
-)
+sealed trait SearchTerm {
+  def query: String
+  def searchConfig: SearchConfig
+}
+
+object SearchTerm {
+  case class English(query: String) extends SearchTerm {
+    val searchConfig: SearchConfig = SearchConfig.English
+  }
+
+  case class Simple(query: String, field: String = "body_text")
+      extends SearchTerm {
+    val searchConfig: SearchConfig = SearchConfig.Simple
+  }
+}
 
 /*
  * web-style query syntax:
@@ -35,8 +45,7 @@ object SimpleSearchQueries {
   // Sport preset
   val SOCCER = "soccer"
   val CRICKET = "cricket"
-  val RUGBY_UNION =
-    "(\"rugby league\" \"rugby union\") OR (rugby -\"rugby league\")"
+  val RUGBY_UNION = "\"rugby union\" OR (rugby -\"rugby league\")"
   val RUGBY_LEAGUE = "\"rugby league\""
   val TENNIS = "tennis"
   val CYCLING = "cycling"
