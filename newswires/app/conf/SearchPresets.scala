@@ -12,12 +12,13 @@ object SearchPreset {
       categoryCodes: List[String] = Nil,
       categoryCodesExcl: List[String] = Nil,
       keyword: Option[String] = None,
+      keywords: List[String] = Nil,
       keywordExcl: List[String] = Nil
   ): SearchParams =
     SearchParams(
       text = None,
       suppliersIncl = List(supplier),
-      keywordIncl = keyword.toList,
+      keywordIncl = keyword.toList ::: keywords,
       keywordExcl = keywordExcl,
       categoryCodesIncl = categoryCodes,
       categoryCodesExcl = categoryCodesExcl
@@ -117,7 +118,7 @@ object SearchPresets {
   private val ApWorld = List(
     SearchPreset(
       AP,
-      keyword = Some("World news"),
+      keywords = List("World news", "U.S. news"),
       categoryCodes = CategoryCodes.World.AP,
       categoryCodesExcl = CategoryCodes.Sport.AP ::: CategoryCodes.Business.AP ::: CategoryCodes.Other.AP
     )
