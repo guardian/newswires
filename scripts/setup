@@ -5,19 +5,53 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=${DIR}/..
 
+OVERWRITE_CONFIG_FLAG=$1
+
+
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+
+# Define key-value pairs as an array of strings
+config_pairs=(
+  'host="newswires.local.dev-gutools.co.uk"'
+  'pan-domain-settings-bucket="pan-domain-auth-settings"'
+  'pandomain.domain="local.dev-gutools.co.uk"'
+  'pandomain.settingsFileKey="local.dev-gutools.co.uk.settings"'
+  'devEmails="your.email.here@"'
+)
+
+overwrite_config() {
+  for pair in "${config_pairs[@]}"; do
+      echo "$pair" >> ~/.gu/newswires.conf
+  done
+}
+
+update_config_without_overwrite() {
+  for pair in "${config_pairs[@]}"; do
+    # Split the key out (everything before the first '=') so we can check if it already exists, to avoid overwriting
+    # existing values in the config file.
+    key="${pair%%=*}"
+    if ! grep -q "^$key" ~/.gu/newswires.conf; then
+      echo "$pair" >> ~/.gu/newswires.conf
+    fi
+  done
+}
+
 setup_config() {
-  echo "Getting config"
+  echo "Setting config"
   mkdir -p ~/.gu
 
-  cat > ~/.gu/newswires.conf <<EOF
-host=newswires.local.dev-gutools.co.uk
+  # Ensure the config file exists
+  touch ~/.gu/newswires.conf
 
-pan-domain-settings-bucket="pan-domain-auth-settings"
-pandomain.domain = "local.dev-gutools.co.uk"
-pandomain.settingsFileKey = "local.dev-gutools.co.uk.settings"
-
-
-EOF
+  if [ "$1" == "overwrite" ]; then
+    overwrite_config
+  else
+    update_config_without_overwrite
+  fi
+  
+  echo "Config written to ~/.gu/newswires.conf"
 }
 
 setup_nginx() {
@@ -36,6 +70,21 @@ setup_dependencies() {
   npm install
   popd
 }
+
+# ensure there's a flag of either 'overwrite' or 'no-overwrite' (or 'o'/'n' for short)
+if [[ "$OVERWRITE_CONFIG_FLAG" == "--overwrite" || "$OVERWRITE_CONFIG_FLAG" == "-o" ]]; then
+  setup_config "overwrite"
+elif [[ "$OVERWRITE_CONFIG_FLAG" == "--no-overwrite" || "$OVERWRITE_CONFIG_FLAG" == "-n" ]]; then
+  setup_config "no-overwrite"
+else
+  printf "${RED}Missing argument${NC}\n"
+  echo "Usage: $0 [--overwrite|-o or --no-overwrite|-n]"
+  echo "If 'overwrite' is specified, the config will be overwritten with a new one."
+  echo "If 'no-overwrite' is specified, the config will be updated with new values only if they do not already exist."
+  exit 1
+fi
+
+
 
 source "$ROOT_DIR/scripts/check-requirements"
 setup_nginx
