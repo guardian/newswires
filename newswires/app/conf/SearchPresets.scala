@@ -126,7 +126,7 @@ object SearchPresets {
   private val ReutersSchedule = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, "headline"),
+      searchTerm = SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, SearchField.Headline),
       categoryCodes = List("MCC:DED")
     )
   )
@@ -153,7 +153,7 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("News Summary", "headline"),
+      searchTerm = SearchTerm.Simple("News Summary", SearchField.Headline),
       categoryCodes = List("MCC:OEC"),
       categoryCodesExcl = List("N2:GB", "N2:COM", "N2:ECI")
     )

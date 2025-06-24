@@ -1,6 +1,6 @@
 package db
 
-import conf.{SearchConfig, SearchTerm}
+import conf.{SearchField, SearchTerm}
 import helpers.WhereClauseMatcher.matchWhereClause
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -175,7 +175,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
 
     val savedSearchParamList = List(
       SearchParams(
-        text = Some(SearchTerm.Simple("News Summary", "headline")),
+        text = Some(SearchTerm.Simple("News Summary", SearchField.Headline)),
         suppliersIncl = List("REUTERS"),
         categoryCodesIncl = List(
           "MCC:OEC"
