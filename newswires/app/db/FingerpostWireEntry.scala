@@ -1,6 +1,6 @@
 package db
 
-import conf.{SearchConfig, SearchTerm}
+import conf.{SearchConfig, SearchField, SearchTerm}
 import db.CustomMappers.textArray
 import play.api.Logging
 import play.api.libs.json._
@@ -283,8 +283,8 @@ object FingerpostWireEntry
       search.text match {
         case Some(SearchTerm.Simple(query, field)) =>
           val tsvectorColumn = field match {
-            case "headline"  => "headline_tsv_simple"
-            case "body_text" => "body_text_tsv_simple"
+            case SearchField.Headline => "headline_tsv_simple"
+            case SearchField.BodyText => "body_text_tsv_simple"
 
           }
           Some(

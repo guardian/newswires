@@ -19,12 +19,19 @@ sealed trait SearchTerm {
   def searchConfig: SearchConfig
 }
 
+sealed trait SearchField
+
+object SearchField {
+  case object Headline extends SearchField
+  case object BodyText extends SearchField
+}
+
 object SearchTerm {
   case class English(query: String) extends SearchTerm {
     val searchConfig: SearchConfig = SearchConfig.English
   }
 
-  case class Simple(query: String, field: String = "body_text")
+  case class Simple(query: String, field: SearchField = SearchField.BodyText)
       extends SearchTerm {
     val searchConfig: SearchConfig = SearchConfig.Simple
   }
