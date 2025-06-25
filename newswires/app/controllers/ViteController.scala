@@ -65,9 +65,9 @@ class ViteController(
         .replaceAll("@csrf\\.value", csrf.value)
     }
 
-    def injectClientConfig[A](
+    def injectClientConfig(
         body: String
-    )(implicit request: UserRequest[A]): String = {
+    ): String = {
       val config =
         views.html.fragments.clientConfig(
           ClientConfig(
@@ -87,7 +87,7 @@ class ViteController(
     }
 
     val withInjectedCsrf = injectCsrf(html)(request)
-    injectClientConfig(withInjectedCsrf)(request)
+    injectClientConfig(withInjectedCsrf)
 
   }
 
