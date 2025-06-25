@@ -1,6 +1,8 @@
 package controllers
 
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.pandomainauth.action.UserRequest
+import com.gu.pandomainauth.model.User
 import com.gu.permissions.PermissionsProvider
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
@@ -16,7 +18,8 @@ import scala.io.Source
 
 case class ClientConfig(
     switches: Map[String, Boolean],
-    stage: String
+    stage: String,
+    sendTelemetryAsDev: Boolean
 )
 
 object ClientConfig {
@@ -47,10 +50,11 @@ class ViteController(
   }
   private val headersToKeep =
     Seq(CACHE_CONTROL, ETAG, DATE, ACCESS_CONTROL_ALLOW_ORIGIN)
+  private val devEmails = configuration.get[String]("devEmails").split(",")
 
   private def injectClientCodeIntoPageBody(
       html: String
-  )(implicit request: Request[AnyContent]): String = {
+  )(implicit request: UserRequest[AnyContent]): String = {
     def injectCsrf[A](
         body: String
     )(implicit request: Request[A]): String = {
@@ -61,12 +65,15 @@ class ViteController(
         .replaceAll("@csrf\\.value", csrf.value)
     }
 
-    def injectClientConfig(body: String): String = {
+    def injectClientConfig(
+        body: String
+    ): String = {
       val config =
         views.html.fragments.clientConfig(
           ClientConfig(
             featureSwitchProvider.clientSideSwitchStates,
-            stage = configuration.get[String]("stage")
+            stage = configuration.get[String]("stage"),
+            sendTelemetryAsDev = devEmails.exists(request.user.email.startsWith)
           )
         )
 
@@ -118,7 +125,7 @@ class ViteController(
 
   private def proxyAsset(
       resource: String,
-      request: Request[AnyContent]
+      request: UserRequest[AnyContent]
   ): Future[Result] = {
     val query =
       if (request.rawQueryString.nonEmpty) "?" + request.rawQueryString

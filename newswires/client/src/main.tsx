@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { stage } from './app-configuration.ts';
+import { SEND_TELEMETRY_AS_DEV, STAGE } from './app-configuration.ts';
 import { App } from './App.tsx';
 import { KeyboardShortcutsProvider } from './context/KeyboardShortcutsContext.tsx';
 import { SearchContextProvider } from './context/SearchContext.tsx';
@@ -9,7 +9,10 @@ import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
 import './icons';
 import { createTelemetryEventSender } from './telemetry.ts';
 
-const { sendTelemetryEvent } = createTelemetryEventSender(stage);
+const { sendTelemetryEvent } = createTelemetryEventSender(
+	STAGE,
+	SEND_TELEMETRY_AS_DEV,
+);
 
 const toolsDomain = window.location.hostname.substring(
 	window.location.hostname.indexOf('.'),

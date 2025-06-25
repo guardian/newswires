@@ -28,7 +28,7 @@ import {
 import { css, Global } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import { stage } from './app-configuration.ts';
+import { STAGE } from './app-configuration.ts';
 import { AppTitle } from './AppTitle.tsx';
 import { BetaBadge } from './BetaBadge.tsx';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
@@ -201,7 +201,7 @@ export function App() {
 						{!isPoppedOut && (
 							<EuiHeader position="fixed">
 								<EuiHeaderSection side={'left'}>
-									<TelemetryPixel stage={stage} />
+									<TelemetryPixel stage={STAGE} />
 									<EuiHeaderSectionItem>
 										<EuiHeaderSectionItemButton
 											aria-label="Toggle main navigation"

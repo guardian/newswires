@@ -16,7 +16,10 @@ export function getTelemetryUrl(stage: string): string {
 	return `https://user-telemetry.${telemetryDomain}`;
 }
 
-export const createTelemetryEventSender = (stage: string) => {
+export const createTelemetryEventSender = (
+	stage: string,
+	sendTelemetryAsDev: boolean,
+) => {
 	const telemetryUrl = getTelemetryUrl(stage);
 	const telemetryEventService = new UserTelemetryEventSender(telemetryUrl, 100);
 
@@ -30,6 +33,7 @@ export const createTelemetryEventSender = (stage: string) => {
 			z.string(),
 			uuidv4(),
 		);
+		const isDevUser = sendTelemetryAsDev;
 
 		const event = {
 			app: 'newswires',
@@ -37,7 +41,7 @@ export const createTelemetryEventSender = (stage: string) => {
 			eventTime: new Date().toISOString(),
 			type,
 			value,
-			tags: { ...tags, browserUUID },
+			tags: { ...tags, browserUUID, isDevUser },
 		};
 		telemetryEventService.addEvent(event);
 	};
