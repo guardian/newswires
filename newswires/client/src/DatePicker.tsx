@@ -15,7 +15,7 @@ import {
 import type { TimeRange } from './dateHelpers.ts';
 import { timeRangeOption } from './dateHelpers.ts';
 
-export const DatePicker = () => {
+export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 	const { config, handleEnterQuery } = useSearch();
 
 	/*
@@ -50,7 +50,7 @@ export const DatePicker = () => {
 			{/* Wrap date picker so StopShortcutPropagationWrapper can catch and stop its keyboard events */}
 			<div>
 				<EuiSuperDatePicker
-					width={'auto'}
+					width={width}
 					compressed={true}
 					start={
 						config.query.dateRange
