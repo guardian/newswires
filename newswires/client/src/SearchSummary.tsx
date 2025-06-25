@@ -1,6 +1,7 @@
 import {
 	EuiBadge,
 	EuiBeacon,
+	EuiButtonEmpty,
 	EuiButtonIcon,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
@@ -163,6 +164,7 @@ export const SearchSummary = () => {
 		state: { queryData, status, lastUpdate },
 		config,
 		openTicker,
+		setSideNavIsOpen,
 	} = useSearch();
 	const isPoppedOut = config.ticker;
 
@@ -264,6 +266,21 @@ export const SearchSummary = () => {
 					</Tooltip>
 				)}
 			<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
+
+			{isPoppedOut && (
+				<EuiButtonEmpty
+					size="xs"
+					iconType={'menu'}
+					onClick={() => setSideNavIsOpen(true)}
+					css={css`
+						margin-left: 4px;
+						color: #07101f;
+						background-color: #e3e8f2;
+					`}
+				>
+					Open filters
+				</EuiButtonEmpty>
+			)}
 		</div>
 	);
 };
