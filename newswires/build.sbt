@@ -42,8 +42,8 @@ buildInfoKeys := Seq[BuildInfoKey](
 )
 
 /* Start of fix for CVE-2020-36518 in Jackson See:https://github.com/orgs/playframework/discussions/11222 */
-val jacksonVersion = "2.13.5" // or 2.12.7
-val jacksonDatabindVersion = "2.13.5" // or 2.12.7.1
+val jacksonVersion = "2.19.1" // or 2.12.7
+val jacksonDatabindVersion = "2.19.1" // or 2.12.7.1
 
 val jacksonOverrides = Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
