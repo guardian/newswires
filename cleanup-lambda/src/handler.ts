@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../shared/getErrorMessage';
 import { createDbConnection } from '../../shared/rds';
 import { TABLE_NAME } from './database';
 
@@ -13,7 +14,7 @@ export const main = async (): Promise<void> => {
 
 		console.log(`Deleted ${result.count} records`);
 	} catch (error) {
-		console.error('Error deleting old records:', error);
+		console.error('Error deleting old records:', getErrorMessage(error));
 	} finally {
 		await sql.end();
 	}

@@ -4,6 +4,7 @@ import {
 	INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
 	SUCCESSFUL_INGESTION_EVENT_TYPE,
 } from '../../shared/constants';
+import { getErrorMessage } from '../../shared/getErrorMessage';
 import { createLogger } from '../../shared/lambda-logging';
 import { createDbConnection } from '../../shared/rds';
 import type { IngestorInputBody } from '../../shared/types';
@@ -316,7 +317,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							});
 						}
 					} catch (e) {
-						const reason = e instanceof Error ? e.message : 'Unknown error';
+						const reason = getErrorMessage(e);
 						return {
 							status: 'failure',
 							reason,
