@@ -537,6 +537,18 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
     },
+    "NewswiresIngestionLambdaArnOutput": {
+      "Description": "ARN of the ingestion lambda function",
+      "Export": {
+        "Name": "NewswiresIngestionLambdaFunctionArn-TEST",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "IngestionLambdaTESTC02B3E43",
+          "Arn",
+        ],
+      },
+    },
   },
   "Parameters": {
     "AMINewswires": {

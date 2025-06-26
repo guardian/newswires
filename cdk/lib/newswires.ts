@@ -10,7 +10,7 @@ import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
-import { aws_logs, Duration } from 'aws-cdk-lib';
+import { aws_logs, CfnOutput, Duration } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
 	AllowedMethods,
@@ -336,5 +336,11 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
+
+		new CfnOutput(this, 'NewswiresIngestionLambdaArnOutput', {
+			value: ingestionLambda.functionArn,
+			description: 'ARN of the ingestion lambda function',
+			exportName: `NewswiresIngestionLambdaFunctionArn-${this.stage}`,
+		});
 	}
 }
