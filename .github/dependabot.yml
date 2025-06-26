@@ -17,6 +17,11 @@ updates:
         update-types:
           - "version-update:semver-major"
           - "version-update:semver-minor"
+      # We can't upgrade to react 19 until eui does
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "@types/react"
+      - dependency-name: "@types/react-dom"
     groups:
       cdk-dependencies:
         patterns:
@@ -28,22 +33,6 @@ updates:
           - "*"
         exclude-patterns:
           - "@guardian/cdk"
-          - "typescript"
-
-  - package-ecosystem: "npm"
-    directory: "/newswires/client"
-    schedule:
-      interval: "weekly"
-    ignore:
-      - dependency-name: "@types/node"
-        update-types:
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
-    groups:
-      client:
-        patterns:
-          - "*"
-        exclude-patterns:
           - "typescript"
 
   - package-ecosystem: "github-actions"
