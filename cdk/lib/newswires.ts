@@ -46,7 +46,11 @@ const app = 'newswires';
 
 export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
-		super(scope, id, { ...props, app });
+		super(scope, id, {
+			...props,
+			app,
+			description: `${props.stage} stack for the Newswires app`,
+		});
 
 		const { domainName, enableMonitoring } = props;
 

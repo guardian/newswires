@@ -2,6 +2,7 @@
 
 exports[`The Newswires stack matches the snapshot 1`] = `
 {
+  "Description": "TEST stack for the Newswires app",
   "Metadata": {
     "gu:cdk:constructs": [
       "GuVpcParameter",
