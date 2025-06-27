@@ -44,6 +44,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
+		loadingMore: z.boolean().default(false),
 	}),
 	z.object({
 		status: z.literal('loading'),
@@ -52,6 +53,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
+		loadingMore: z.boolean().default(false),
 	}),
 	z.object({
 		status: z.literal('success'),
@@ -60,6 +62,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
+		loadingMore: z.boolean().default(false),
 	}),
 	z.object({
 		status: z.literal('error'),
@@ -68,6 +71,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
+		loadingMore: z.boolean().default(false),
 	}),
 	z.object({
 		status: z.literal('offline'),
@@ -76,6 +80,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		successfulQueryHistory: SearchHistorySchema,
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
+		loadingMore: z.boolean().default(false),
 	}),
 ]);
 
@@ -85,6 +90,7 @@ export type State = z.infer<typeof _StateSchema>;
 // Action Schema
 const _ActionSchema = z.discriminatedUnion('type', [
 	z.object({ type: z.literal('ENTER_QUERY') }),
+	z.object({ type: z.literal('LOADING_MORE') }),
 	z.object({
 		type: z.literal('FETCH_SUCCESS'),
 		query: QuerySchema,
@@ -117,7 +123,7 @@ export type SearchContextShape = {
 	handleRetry: () => void;
 	handleSelectItem: (item: string) => void;
 	handleDeselectItem: () => void;
-	handleNextItem: () => void;
+	handleNextItem: () => Promise<void>;
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
 	openTicker: (query: Query) => void;
@@ -152,6 +158,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		successfulQueryHistory: [],
 		status: 'loading',
 		autoUpdate: true,
+		loadingMore: false,
 	});
 
 	function handleFetchError(error: ErrorEvent) {
@@ -327,22 +334,29 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		}
 	};
 
-	const handleNextItem = () => {
+	const handleNextItem = async () => {
 		const results = state.queryData?.results;
 		const currentItemId = currentConfig.itemId;
+
 		if (!results || !currentItemId) {
 			return;
 		}
+
 		const currentIndex = results.findIndex(
 			(wire) => wire.id.toString() === currentItemId,
 		);
+
 		if (currentIndex === -1) {
-			return undefined;
+			return;
 		}
+
 		const nextIndex = currentIndex + 1;
+
 		if (nextIndex >= results.length) {
-			return undefined;
+			await loadMoreResults(results[currentIndex].id.toString(), true);
+			return;
 		}
+
 		handleSelectItem(results[nextIndex].id.toString());
 	};
 
@@ -378,7 +392,14 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'TOGGLE_AUTO_UPDATE' });
 	};
 
-	const loadMoreResults = async (beforeId: string): Promise<void> => {
+	const loadMoreResults = async (
+		beforeId: string,
+		selectNextItem: boolean = false,
+	): Promise<void> => {
+		dispatch({
+			type: 'LOADING_MORE',
+		});
+
 		sendTelemetryEvent('NEWSWIRES_LOAD_MORE', {
 			beforeId,
 		});
@@ -386,6 +407,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		return fetchResults(currentConfig.query, { beforeId })
 			.then((data) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
+
+				if (selectNextItem) {
+					handleSelectItem(data.results[0].id.toString());
+				}
 			})
 			.catch(handleFetchError);
 	};

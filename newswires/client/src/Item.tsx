@@ -3,6 +3,7 @@ import {
 	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiHorizontalRule,
+	EuiLoadingSpinner,
 	EuiSplitPanel,
 	EuiSwitch,
 	EuiText,
@@ -11,6 +12,7 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
+import { useSearch } from './context/SearchContext.tsx';
 import { type WireData } from './sharedTypes';
 import { Tooltip } from './Tooltip.tsx';
 import { WireDetail } from './WireDetail';
@@ -26,10 +28,11 @@ export const Item = ({
 	itemData: WireData | undefined;
 	handleDeselectItem: () => void;
 	handlePreviousItem: () => void;
-	handleNextItem: () => void;
+	handleNextItem: () => Promise<void>;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const { state } = useSearch();
 
 	const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -105,13 +108,19 @@ export const Item = ({
 									aria-label="Previous story"
 								/>
 							</Tooltip>
-							<Tooltip tooltipContent="Next story">
-								<EuiButtonIcon
-									iconType="arrowRight"
-									onClick={handleNextItem}
-									aria-label="Next story"
-								/>
-							</Tooltip>
+							{state.loadingMore ? (
+								<EuiLoadingSpinner size="m" />
+							) : (
+								<Tooltip tooltipContent="Next story">
+									<EuiButtonIcon
+										iconType="arrowRight"
+										onClick={() => {
+											void handleNextItem();
+										}}
+										aria-label="Next story"
+									/>
+								</Tooltip>
+							)}
 							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
 								<Tooltip tooltipContent="Close story" position="left">
 									<EuiButtonIcon
