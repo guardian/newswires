@@ -64,7 +64,6 @@ describe('SearchContext', () => {
 		expect(contextRef.current.state.status).toEqual('success');
 		expect(contextRef.current.state.queryData).toEqual({
 			results: [],
-			totalCount: 0,
 		});
 		expect(contextRef.current.state.successfulQueryHistory).toEqual([]);
 	});

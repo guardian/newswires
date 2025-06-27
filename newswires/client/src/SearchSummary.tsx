@@ -189,7 +189,7 @@ const SummaryBadge = ({
 const Summary = ({
 	searchSummaryLabel,
 }: {
-	searchSummaryLabel: string | boolean;
+	searchSummaryLabel: string | undefined;
 }) => {
 	const { config } = useSearch();
 	const {
@@ -224,7 +224,7 @@ const Summary = ({
 					`}
 					className="sr-only"
 				>
-					Search summary:
+					Active filters:
 				</h2>
 			)}
 			{dateRange && !isDefaultDateRange(dateRange) && (
@@ -267,7 +267,9 @@ export const SearchSummary = () => {
 	} = useSearch();
 	const isPoppedOut = config.ticker;
 
-	const [searchSummary, setSearchSummary] = useState('No results found');
+	const [searchSummary, setSearchSummary] = useState<string | undefined>(
+		'No results found',
+	);
 
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
 
@@ -293,10 +295,8 @@ export const SearchSummary = () => {
 	}, [isPoppedOut, config.query]);
 
 	useEffect(() => {
-		if (queryData && queryData.totalCount > 0) {
-			setSearchSummary(
-				`Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`,
-			);
+		if (queryData && queryData.results.length > 0) {
+			setSearchSummary(undefined);
 		} else {
 			setSearchSummary('No results found');
 		}
@@ -364,7 +364,7 @@ export const SearchSummary = () => {
 						/>
 					</Tooltip>
 				)}
-			<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
+			<Summary searchSummaryLabel={isPoppedOut ? undefined : searchSummary} />
 
 			{isPoppedOut && (
 				<EuiButtonEmpty

@@ -18,13 +18,7 @@ import { Link } from './Link.tsx';
 import type { SupplierInfo, WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 
-export const WireItemList = ({
-	wires,
-	totalCount,
-}: {
-	wires: WireData[];
-	totalCount: number;
-}) => {
+export const WireItemList = ({ wires }: { wires: WireData[] }) => {
 	const { config, loadMoreResults, previousItemId } = useSearch();
 
 	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
@@ -64,17 +58,15 @@ export const WireItemList = ({
 					),
 				)}
 			</ul>
-			{wires.length < totalCount && (
-				<EuiButton
-					isLoading={isLoadingMore}
-					css={css`
-						margin-top: 12px;
-					`}
-					onClick={handleLoadMoreResults}
-				>
-					{isLoadingMore ? 'Loading' : 'Load more'}
-				</EuiButton>
-			)}
+			<EuiButton
+				isLoading={isLoadingMore}
+				css={css`
+					margin-top: 12px;
+				`}
+				onClick={handleLoadMoreResults}
+			>
+				{isLoadingMore ? 'Loading' : 'Load more'}
+			</EuiButton>
 		</>
 	);
 };

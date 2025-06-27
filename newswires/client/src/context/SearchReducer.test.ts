@@ -26,7 +26,6 @@ describe('SearchReducer', () => {
 		status: 'success',
 		queryData: {
 			results: [{ ...sampleWireData, ingestedAt: '2025-01-01T00:00:00+00:00' }],
-			totalCount: 1,
 		},
 	};
 
@@ -34,7 +33,6 @@ describe('SearchReducer', () => {
 		status: 'offline',
 		queryData: {
 			results: [{ ...sampleWireData, ingestedAt: '2025-01-01T00:00:00+00:00' }],
-			totalCount: 1,
 		},
 		successfulQueryHistory: [],
 		error: 'Network error',
@@ -45,7 +43,6 @@ describe('SearchReducer', () => {
 		status: 'error',
 		queryData: {
 			results: [{ ...sampleWireData, ingestedAt: '2025-01-01T00:00:00+00:00' }],
-			totalCount: 1,
 		},
 		successfulQueryHistory: [],
 		error: 'Fetch error',
@@ -55,7 +52,7 @@ describe('SearchReducer', () => {
 	it('should handle FETCH_SUCCESS action in loading state', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
-			data: { results: [sampleWireData], totalCount: 1 },
+			data: { results: [sampleWireData] },
 			query: { q: 'test' },
 		};
 
@@ -63,7 +60,6 @@ describe('SearchReducer', () => {
 
 		expect(newState.status).toBe('success');
 		expect(newState.queryData?.results).toHaveLength(1);
-		expect(newState.queryData?.totalCount).toBe(1);
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
 			id: 1,
@@ -113,7 +109,6 @@ describe('SearchReducer', () => {
 							id: 2,
 						},
 					],
-					totalCount: 1,
 				},
 				query: { q: 'test' },
 			};
@@ -122,7 +117,6 @@ describe('SearchReducer', () => {
 
 			expect(newState.status).toBe('success');
 			expect(newState.queryData?.results).toHaveLength(2);
-			expect(newState.queryData?.totalCount).toBe(2);
 			expect(newState.queryData?.results).toContainEqual({
 				...sampleWireData,
 				id: 2,
@@ -145,7 +139,6 @@ describe('SearchReducer', () => {
 					{ ...sampleWireData, id: 1, ingestedAt: '2025-01-01T02:00:00+00:00' },
 					{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T02:05:00+00:00' },
 				],
-				totalCount: 2,
 			},
 		};
 
@@ -168,7 +161,6 @@ describe('SearchReducer', () => {
 						ingestedAt: '2025-01-01T02:06:00+00:00',
 					},
 				],
-				totalCount: 2,
 			},
 			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
 		};
@@ -189,7 +181,6 @@ describe('SearchReducer', () => {
 
 		expect(newState.status).toBe('success');
 		expect(newState.queryData?.results).toHaveLength(3);
-		expect(newState.queryData?.totalCount).toBe(3);
 
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
@@ -225,19 +216,17 @@ describe('SearchReducer', () => {
 				results: [
 					{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T00:00:00+00:00' },
 				],
-				totalCount: 2,
 			},
 		};
 
 		const action: Action = {
 			type: 'APPEND_RESULTS',
-			data: { results: [{ ...sampleWireData, id: 1 }], totalCount: 1 },
+			data: { results: [{ ...sampleWireData, id: 1 }] },
 		};
 
 		const newState = SearchReducer(state, action);
 
 		expect(newState.status).toBe('success');
-		expect(newState.queryData?.totalCount).toBe(2);
 		expect(newState.queryData?.results).toHaveLength(2);
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
