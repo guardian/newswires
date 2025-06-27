@@ -1,8 +1,13 @@
+import type { EuiSelectableOption } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBeacon,
 	EuiButtonEmpty,
 	EuiButtonIcon,
+	EuiContextMenuPanel,
+	EuiPopover,
+	EuiSelectable,
+	useGeneratedHtmlId,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -13,24 +18,9 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
+import type { Preset } from './presets.ts';
+import { presetFilterOptions, presetLabel } from './presets.ts';
 import { Tooltip } from './Tooltip.tsx';
-
-const presetLabel = (preset: string) => {
-	switch (preset) {
-		case 'all-presets':
-			return 'All';
-		case 'all-world':
-			return 'World';
-		case 'all-uk':
-			return 'UK';
-		case 'all-sport':
-			return 'Sport';
-		case 'all-business':
-			return 'Business';
-		default:
-			return preset;
-	}
-};
 
 type SearchTermBadgeLabel =
 	| 'Search term'
@@ -40,30 +30,43 @@ type SearchTermBadgeLabel =
 	| 'Category'
 	| '(NOT) Category';
 
-const Summary = ({
-	searchSummaryLabel,
+const SummaryBadge = ({
+	label,
+	value,
+	valueLabel,
+	filterOptions = [],
 }: {
-	searchSummaryLabel: string | boolean;
+	label: SearchTermBadgeLabel;
+	value?: string;
+	valueLabel?: string;
+	filterOptions?: Preset[];
 }) => {
+	const [options, setOptions] = useState<EuiSelectableOption[]>(
+		filterOptions.map((option: Preset) => {
+			return {
+				key: option.id,
+				label: option.name,
+				checked: option.id === value ? 'on' : undefined,
+			} as EuiSelectableOption;
+		}),
+	);
+
+	const [isPopoverOpen, setPopover] = useState(false);
+	const contextMenuPopoverId = useGeneratedHtmlId({
+		prefix: 'badgeContextMenuPopover',
+	});
+
+	const handleBadgeClick = () => {
+		setPopover(!isPopoverOpen);
+	};
+
+	const closePopover = () => {
+		setPopover(false);
+	};
+
 	const { config, handleEnterQuery, toggleSupplier } = useSearch();
-	const {
-		q,
-		preset,
-		supplier: suppliers,
-		dateRange,
-		categoryCode,
-		categoryCodeExcl,
-	} = config.query;
 
-	const displayCategoryCodes = (categoryCode ?? []).length > 0;
-	const displayExcludedCategoryCodes =
-		categoryCodeExcl && categoryCodeExcl.length > 0;
-	const displaySuppliers = (suppliers ?? []).length > 0;
-
-	const displayFilters: boolean =
-		!!q || !!preset || displayCategoryCodes || displaySuppliers;
-
-	const handleBadgeClick = (label: SearchTermBadgeLabel, value: string) => {
+	const handleRemoveBadge = (label: SearchTermBadgeLabel, value: string) => {
 		const categoryCodes = config.query.categoryCode ?? [];
 		const categoryCodesExcl = config.query.categoryCodeExcl ?? [];
 
@@ -106,22 +109,105 @@ const Summary = ({
 		}
 	};
 
-	const renderBadge = (label: SearchTermBadgeLabel, value: string) =>
-		value ? (
-			<EuiBadge
-				key={value}
-				title={`Filtered by ${label}: ${value}`}
-				iconType="cross"
-				iconSide="right"
-				iconOnClickAriaLabel={`Remove ${label} filter from results`}
-				iconOnClick={() => {
-					handleBadgeClick(label, value);
-				}}
+	if (!value) return null;
+
+	const valueLabelToDisplay = valueLabel ?? value;
+
+	const badge = (
+		<EuiBadge
+			key={value}
+			title={`Filtered by ${label}: ${value}`}
+			iconType="cross"
+			iconSide="right"
+			iconOnClickAriaLabel={`Remove ${label} filter from results`}
+			iconOnClick={() => {
+				handleRemoveBadge(label, value);
+			}}
+			onClick={() => handleBadgeClick()}
+			onClickAriaLabel={'Open filter options'}
+		>
+			<strong>{label}</strong>
+			{valueLabelToDisplay !== '' ? `: ${valueLabelToDisplay}` : ''}
+		</EuiBadge>
+	);
+
+	if (filterOptions.length === 0) {
+		return badge;
+	}
+
+	const handleChange = (updatedOptions: EuiSelectableOption[]) => {
+		setOptions(updatedOptions);
+
+		const selectedOption: EuiSelectableOption | undefined = updatedOptions.find(
+			(option) => option.checked === 'on',
+		);
+
+		handleEnterQuery({
+			...config.query,
+			preset: selectedOption?.key,
+		});
+	};
+
+	return (
+		<EuiPopover
+			id={contextMenuPopoverId}
+			button={badge}
+			isOpen={isPopoverOpen}
+			closePopover={closePopover}
+			panelPaddingSize="none"
+			anchorPosition="downLeft"
+		>
+			<EuiContextMenuPanel
+				css={css`
+					padding: 4px;
+				`}
 			>
-				<strong>{label}</strong>
-				{value !== '' ? `: ${value}` : ''}
-			</EuiBadge>
-		) : null;
+				<EuiSelectable
+					singleSelection={true}
+					aria-label="Find a data view"
+					searchable
+					searchProps={{
+						compressed: true,
+						placeholder: `Search ${label} options`,
+						autoFocus: true,
+					}}
+					options={options}
+					onChange={handleChange}
+				>
+					{(list, search) => (
+						<>
+							{search}
+							{list}
+						</>
+					)}
+				</EuiSelectable>
+			</EuiContextMenuPanel>
+		</EuiPopover>
+	);
+};
+
+const Summary = ({
+	searchSummaryLabel,
+}: {
+	searchSummaryLabel: string | boolean;
+}) => {
+	const { config } = useSearch();
+	const {
+		q,
+		preset,
+		supplier: suppliers,
+		dateRange,
+		categoryCode,
+		categoryCodeExcl,
+	} = config.query;
+
+	const displayCategoryCodes = (categoryCode ?? []).length > 0;
+	const displayExcludedCategoryCodes =
+		categoryCodeExcl && categoryCodeExcl.length > 0;
+	const displaySuppliers = (suppliers ?? []).length > 0;
+
+	const displayFilters: boolean =
+		!!q || !!preset || displayCategoryCodes || displaySuppliers;
 
 	return (
 		<>
@@ -141,20 +227,33 @@ const Summary = ({
 					Search summary:
 				</h2>
 			)}
-			{dateRange &&
-				!isDefaultDateRange(dateRange) &&
-				renderBadge(
-					'Time range',
-					deriveDateMathRangeLabel(dateRange.start, dateRange.end),
-				)}
-			{q && renderBadge('Search term', q)}
-			{preset && renderBadge('Preset', presetLabel(preset))}
+			{dateRange && !isDefaultDateRange(dateRange) && (
+				<SummaryBadge
+					label="Time range"
+					value={deriveDateMathRangeLabel(dateRange.start, dateRange.end)}
+				/>
+			)}
+			{q && <SummaryBadge label="Search term" value={q} />}
+			{preset && (
+				<SummaryBadge
+					label="Preset"
+					value={preset}
+					valueLabel={presetLabel(preset)}
+					filterOptions={presetFilterOptions(preset)}
+				/>
+			)}
 			{displaySuppliers &&
-				suppliers!.map((supplier) => renderBadge('Supplier', supplier))}
+				suppliers!.map((supplier) => (
+					<SummaryBadge key={supplier} label="Supplier" value={supplier} />
+				))}
 			{displayCategoryCodes &&
-				categoryCode!.map((code) => renderBadge('Category', code))}
+				categoryCode!.map((code) => (
+					<SummaryBadge key={code} label="Category" value={code} />
+				))}
 			{displayExcludedCategoryCodes &&
-				categoryCodeExcl.map((code) => renderBadge('(NOT) Category', code))}
+				categoryCodeExcl.map((code) => (
+					<SummaryBadge key={code} label="(NOT) Category" value={code} />
+				))}
 		</>
 	);
 };
