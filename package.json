@@ -29,7 +29,7 @@
 		"@guardian/prettier": "8.0.1",
 		"@guardian/tsconfig": "1.0.0",
 		"@types/jest": "30.0.0",
-		"@types/node": "22.4.2",
+		"@types/node": "22.15.33",
 		"esbuild": "^0.25.1",
 		"eslint": "9.29.0",
 		"eslint-plugin-prettier": "5.5.1",
