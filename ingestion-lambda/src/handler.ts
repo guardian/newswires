@@ -1,5 +1,5 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
+import type { SESEvent, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import {
 	INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
 	SUCCESSFUL_INGESTION_EVENT_TYPE,
@@ -220,12 +220,23 @@ export const safeBodyParse = (body: string): IngestorInputBody => {
 	});
 };
 
-export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
+function isSESEvent(event: SQSEvent | SESEvent): event is SESEvent {
+	return event.Records.some((record) => 'ses' in record);
+}
+
+export const main = async (
+	event: SQSEvent | SESEvent,
+): Promise<SQSBatchResponse | void> => {
+	const logger = createLogger({});
+
+	if (isSESEvent(event)) {
+		logger.log({ message: 'received SES event', event });
+		return;
+	}
+
 	const records = event.Records;
 
 	const sql = await createDbConnection();
-
-	const logger = createLogger({});
 
 	try {
 		console.log(`Processing ${records.length} messages`);
