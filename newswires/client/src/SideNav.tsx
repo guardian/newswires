@@ -21,6 +21,7 @@ import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
+import { presets } from './presets.ts';
 import type { Query } from './sharedTypes';
 import { recognisedSuppliers } from './suppliers.ts';
 
@@ -44,14 +45,6 @@ function decideLabelForQueryBadge(query: Query): string {
 
 	return labels.filter((label) => label.length > 0).join(' ');
 }
-
-const presets = [
-	{ id: 'all-presets', name: 'All' },
-	{ id: 'all-world', name: 'World' },
-	{ id: 'all-uk', name: 'UK' },
-	{ id: 'all-business', name: 'Business' },
-	{ id: 'all-sport', name: 'Sport' },
-];
 
 function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
@@ -121,9 +114,10 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 		const togglePreset = (preset: string) =>
 			activePreset === preset || preset === 'all-presets' ? undefined : preset;
 
-		return presets.map(({ id: presetId, name }) => {
+		return presets.map(({ id: presetId, name, filterOptions }) => {
 			const isActive =
 				activePreset === presetId ||
+				!!filterOptions.find((_) => _.id === activePreset) ||
 				(presetId === 'all-presets' && !activePreset);
 
 			return {
