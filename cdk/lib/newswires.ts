@@ -10,7 +10,7 @@ import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
-import { aws_logs, Duration } from 'aws-cdk-lib';
+import { aws_logs, CfnOutput, Duration } from 'aws-cdk-lib';
 import {
 	InstanceClass,
 	InstanceSize,
@@ -46,7 +46,11 @@ const app = 'newswires';
 
 export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
-		super(scope, id, { ...props, app });
+		super(scope, id, {
+			...props,
+			app,
+			description: `${props.stage} stack for the Newswires app`,
+		});
 
 		const { domainName, enableMonitoring } = props;
 
@@ -72,8 +76,7 @@ export class Newswires extends GuStack {
 				subnets: privateSubnets,
 			},
 			engine: DatabaseInstanceEngine.postgres({
-				version: PostgresEngineVersion.of('16.4', '16'),
-				// version: PostgresEngineVersion.VER_16, // FIXME temporary, until VER_16 defaults to 16.4
+				version: PostgresEngineVersion.VER_16, // FIXME temporary, until VER_16 defaults to 16.4
 			}),
 			storageType: StorageType.GP3,
 			iops: 3000, // the default for gp3 - not required but nice to declare
@@ -278,5 +281,11 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
+
+		new CfnOutput(this, 'NewswiresIngestionLambdaArnOutput', {
+			value: ingestionLambda.functionArn,
+			description: 'ARN of the ingestion lambda function',
+			exportName: `NewswiresIngestionLambdaFunctionArn-${this.stage}`,
+		});
 	}
 }

@@ -2,6 +2,7 @@
 
 exports[`The Newswires stack matches the snapshot 1`] = `
 {
+  "Description": "TEST stack for the Newswires app",
   "Metadata": {
     "gu:cdk:constructs": [
       "GuVpcParameter",
@@ -55,6 +56,18 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Fn::GetAtt": [
           "LoadBalancerNewswires3B8BBCB3",
           "DNSName",
+        ],
+      },
+    },
+    "NewswiresIngestionLambdaArnOutput": {
+      "Description": "ARN of the ingestion lambda function",
+      "Export": {
+        "Name": "NewswiresIngestionLambdaFunctionArn-TEST",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "IngestionLambdaTESTC02B3E43",
+          "Arn",
         ],
       },
     },
@@ -1400,7 +1413,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "DeletionProtection": true,
         "EnableIAMDatabaseAuthentication": true,
         "Engine": "postgres",
-        "EngineVersion": "16.4",
+        "EngineVersion": "16",
         "Iops": 3000,
         "MasterUserPassword": {
           "Fn::Join": [
