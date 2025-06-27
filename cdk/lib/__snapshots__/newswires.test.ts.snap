@@ -1413,7 +1413,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "DeletionProtection": true,
         "EnableIAMDatabaseAuthentication": true,
         "Engine": "postgres",
-        "EngineVersion": "16.4",
+        "EngineVersion": "16",
         "Iops": 3000,
         "MasterUserPassword": {
           "Fn::Join": [
