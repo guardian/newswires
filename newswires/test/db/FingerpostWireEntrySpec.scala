@@ -1,5 +1,6 @@
 package db
 
+import conf.{SearchField, SearchTerm}
 import helpers.WhereClauseMatcher.matchWhereClause
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -36,7 +37,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
   it should "generate a where clause for a single field" in {
     val searchParams =
       SearchParams(
-        text = Some("text1")
+        text = Some(SearchTerm.English("text1"))
       )
 
     val whereClause =
@@ -53,7 +54,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     )
   }
 
-  it should "concatenate keywords and category codes with 'or'" in {
+  it should "concatenate keywords and category codes with 'and'" in {
     val searchParams =
       SearchParams(
         text = None,
@@ -70,7 +71,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       )
 
     whereClause should matchWhereClause(
-      "WHERE ((fm.content -> 'keywords') ??| ? or fm.category_codes && ?)",
+      "WHERE (fm.content -> 'keywords') ??| ? and fm.category_codes && ?",
       List(
         List("keyword1", "keyword2"),
         List("category1", "category2")
@@ -81,7 +82,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
   it should "join other clauses using 'and'" in {
     val searchParams =
       SearchParams(
-        text = Some("text1"),
+        text = Some(SearchTerm.English("text1")),
         start = Some("2025-03-10T00:00:00.000Z"),
         end = Some("2025-03-10T23:59:59.999Z"),
         suppliersExcl = List("supplier1", "supplier2"),
@@ -174,7 +175,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
 
     val savedSearchParamList = List(
       SearchParams(
-        text = Some("News Summary"),
+        text = Some(SearchTerm.Simple("News Summary", SearchField.Headline)),
         suppliersIncl = List("REUTERS"),
         categoryCodesIncl = List(
           "MCC:OEC"
@@ -186,19 +187,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
         )
       ),
       SearchParams(
-        text = None,
-        suppliersIncl = List("REUTERS"),
-        categoryCodesIncl = List(
-          "MCC:OVR",
-          "MCCL:OVR",
-          "MCCL:OSM",
-          "N2:US"
-        ),
-        categoryCodesExcl = List(
-          "N2:GB",
-          "N2:COM",
-          "N2:ECI"
-        )
+        text = Some(SearchTerm.Simple("soccer")),
+        suppliersIncl = List("AFP"),
+        categoryCodesIncl = List("afpCat:SPO")
       )
     )
 
@@ -215,25 +206,23 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
         |  SELECT FROM fingerpost_wire_entry sourceFeedsExcl
         |  WHERE fm.id = sourceFeedsExcl.id
         |    AND  upper(sourceFeedsExcl.supplier) in (upper(?))
-        |) and fm.ingested_at >= CAST(? AS timestamptz)) and ((fm.category_codes && ? and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
+        |) and fm.ingested_at >= CAST(? AS timestamptz)) and ((fm.category_codes && ? and ? @@ websearch_to_tsquery('simple', lower(?)) and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
         |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
         |  WHERE fm.id = categoryCodesExcl.id
         |    AND categoryCodesExcl.category_codes && ?
-        |)) or (fm.category_codes && ? and  upper(fm.supplier) in (upper(?)) and NOT EXISTS (
-        |  SELECT FROM fingerpost_wire_entry categoryCodesExcl
-        |  WHERE fm.id = categoryCodesExcl.id
-        |    AND categoryCodesExcl.category_codes && ?
-        |)))""".stripMargin,
+        |)) or ((fm.category_codes && ? and ? @@ websearch_to_tsquery('simple', lower(?)) and upper(fm.supplier) in (upper(?)))))""".stripMargin,
       List(
         "supplier1",
         "2025-03-10T00:00:00.000Z",
         List("MCC:OEC"),
+        "headline_tsv_simple",
         "News Summary",
         "REUTERS",
         List("N2:GB", "N2:COM", "N2:ECI"),
-        List("MCC:OVR", "MCCL:OVR", "MCCL:OSM", "N2:US"),
-        "REUTERS",
-        List("N2:GB", "N2:COM", "N2:ECI")
+        List("afpCat:SPO"),
+        "body_text_tsv_simple",
+        "soccer",
+        "AFP"
       )
     )
   }

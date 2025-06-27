@@ -3,17 +3,11 @@ package controllers
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
-import conf.SearchPresets
+import conf.{SearchPresets, SearchTerm}
 import db.{FingerpostWireEntry, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{
-  Action,
-  AnyContent,
-  BaseController,
-  ControllerComponents,
-  Request
-}
+import play.api.mvc._
 import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
 
@@ -51,8 +45,10 @@ class QueryController(
       if (featureSwitchProvider.ShowGuSuppliers.isOn()) Nil
       else List("GuReuters", "GuAP")
 
+    val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
+
     val queryParams = SearchParams(
-      text = maybeFreeTextQuery,
+      text = maybeSearchTerm,
       start = maybeStart,
       end = maybeEnd,
       keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
@@ -71,7 +67,7 @@ class QueryController(
         FingerpostWireEntry.query(
           searchParams = queryParams,
           savedSearchParamList = maybePreset.getOrElse(Nil),
-          maybeTextSearch = maybeFreeTextQuery,
+          maybeSearchTerm = maybeSearchTerm,
           maybeBeforeId = maybeBeforeId,
           maybeSinceId = maybeSinceId,
           pageSize = 30

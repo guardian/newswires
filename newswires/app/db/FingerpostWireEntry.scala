@@ -1,5 +1,6 @@
 package db
 
+import conf.{SearchConfig, SearchField, SearchTerm}
 import db.CustomMappers.textArray
 import play.api.Logging
 import play.api.libs.json._
@@ -275,23 +276,26 @@ object FingerpostWireEntry
       case _ => None
     }
 
-    // grr annoying but broadly I think subjects(/categoryCodes) and keywords are the same "axis" to search on
-    val clausesJoinedWithOr =
-      List(
-        keywordsQuery,
-        categoryCodesInclQuery
-      ).flatten match {
-        case Nil => None
-        case clauses =>
-          Some(sqls.joinWithOr(clauses: _*))
-      }
-
     List(
-      clausesJoinedWithOr,
+      keywordsQuery,
+      categoryCodesInclQuery,
       keywordsExclQuery,
-      search.text.map(query =>
-        sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-      ),
+      search.text match {
+        case Some(SearchTerm.Simple(query, field)) =>
+          val tsvectorColumn = field match {
+            case SearchField.Headline => "headline_tsv_simple"
+            case SearchField.BodyText => "body_text_tsv_simple"
+
+          }
+          Some(
+            sqls"$tsvectorColumn @@ websearch_to_tsquery('simple', lower($query))"
+          )
+        case Some(SearchTerm.English(query)) =>
+          Some(
+            sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+          )
+        case _ => None
+      },
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       dateRangeQuery,
@@ -361,7 +365,7 @@ object FingerpostWireEntry
   def query(
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
-      maybeTextSearch: Option[String],
+      maybeSearchTerm: Option[SearchTerm],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       pageSize: Int = 250
@@ -375,8 +379,8 @@ object FingerpostWireEntry
       maybeSinceId = maybeSinceId
     )
 
-    val highlightsClause = maybeTextSearch match {
-      case Some(query) =>
+    val highlightsClause = maybeSearchTerm match {
+      case Some(SearchTerm.English(query)) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
