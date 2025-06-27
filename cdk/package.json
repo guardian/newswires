@@ -13,7 +13,7 @@
 		"lint:ci": "eslint lib/** bin/** --no-error-on-unmatched-pattern"
 	},
 	"devDependencies": {
-		"@guardian/cdk": "61.8.1",
+		"@guardian/cdk": "61.8.2",
 		"@guardian/prettier": "^8.0.1",
 		"prettier": "^3.3.3",
 		"source-map-support": "0.5.21",
