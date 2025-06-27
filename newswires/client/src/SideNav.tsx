@@ -8,7 +8,6 @@ import {
 	EuiHeaderSectionItemButton,
 	EuiIcon,
 	EuiPinnableListGroup,
-	EuiShowFor,
 	EuiSwitch,
 	EuiText,
 	EuiTitle,
@@ -58,17 +57,10 @@ function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
 }
 
-export const SideNav = ({
-	navIsOpen,
-	navIsDocked,
-	setNavIsOpen,
-}: {
-	navIsOpen: boolean;
-	navIsDocked: boolean;
-	setNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 	const largeMinBreakpoint = useEuiMinBreakpoint('l');
 	const isLargeScreen = useIsWithinBreakpoints(['l']);
+	const isExtraSmallScreen = useIsWithinBreakpoints(['xs']);
 
 	const {
 		state,
@@ -78,7 +70,11 @@ export const SideNav = ({
 		activeSuppliers,
 		toggleSupplier,
 		openTicker,
+		sideNavIsOpen: navIsOpen,
+		setSideNavIsOpen: setNavIsOpen,
 	} = useSearch();
+
+	const isPoppedOut = config.ticker;
 
 	const searchHistory = state.successfulQueryHistory;
 
@@ -212,17 +208,19 @@ export const SideNav = ({
 				isDocked={navIsDocked}
 				size={300}
 				button={
-					<EuiHeaderSectionItemButton
-						aria-label="Toggle main navigation"
-						onClick={() => setNavIsOpen((isOpen) => !isOpen)}
-						css={css`
-							${largeMinBreakpoint} {
-								display: none;
-							}
-						`}
-					>
-						<EuiIcon type={'menu'} size="m" aria-hidden="true" />
-					</EuiHeaderSectionItemButton>
+					!isPoppedOut ? (
+						<EuiHeaderSectionItemButton
+							aria-label="Toggle main navigation"
+							onClick={() => setNavIsOpen((isOpen) => !isOpen)}
+							css={css`
+								${largeMinBreakpoint} {
+									display: none;
+								}
+							`}
+						>
+							<EuiIcon type={'menu'} size="m" aria-hidden="true" />
+						</EuiHeaderSectionItemButton>
+					) : undefined
 				}
 				onClose={() => setNavIsOpen(false)}
 				css={css`
@@ -245,21 +243,20 @@ export const SideNav = ({
 				`}
 			>
 				<div style={{ height: '90%', overflowY: 'auto' }}>
-					<EuiShowFor sizes={['xs']}>
-						<>
-							<EuiTitle
-								size={'s'}
-								css={css`
-									padding: 7px;
-								`}
-							>
-								<h1>
-									<AppTitle />
-									<BetaBadge size={'medium'} />
-								</h1>
-							</EuiTitle>
-						</>
-					</EuiShowFor>
+					{(isPoppedOut || isExtraSmallScreen) && (
+						<EuiTitle
+							size={'s'}
+							css={css`
+								padding: 7px;
+							`}
+						>
+							<h1>
+								<AppTitle />
+								<BetaBadge size={'medium'} />
+							</h1>
+						</EuiTitle>
+					)}
+
 					<EuiCollapsibleNavGroup title="Presets">
 						<EuiPinnableListGroup
 							onPinClick={() => {}}

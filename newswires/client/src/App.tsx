@@ -90,10 +90,15 @@ const Alert = ({
 };
 
 export function App() {
-	const { config, state, handleEnterQuery, handleRetry, openTicker } =
-		useSearch();
+	const {
+		config,
+		state,
+		handleEnterQuery,
+		handleRetry,
+		openTicker,
+		sideNavIsOpen,
+	} = useSearch();
 
-	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
 	const [sideNavIsDocked, setSideNavIsDocked] = useState<boolean>(true);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
@@ -198,6 +203,7 @@ export function App() {
 							${status === 'loading' && 'background: white;'}
 						`}
 					>
+						{isPoppedOut && <SideNav navIsDocked={false} />}
 						{!isPoppedOut && (
 							<EuiHeader position="fixed">
 								<EuiHeaderSection side={'left'}>
@@ -216,11 +222,7 @@ export function App() {
 										>
 											<EuiIcon type={'menu'} size="m" aria-hidden="true" />
 										</EuiHeaderSectionItemButton>
-										<SideNav
-											navIsOpen={sideNavIsOpen}
-											navIsDocked={sideNavIsDocked}
-											setNavIsOpen={setSideNavIsOpen}
-										/>
+										<SideNav navIsDocked={sideNavIsDocked} />
 									</EuiHeaderSectionItem>
 									<EuiShowFor sizes={['xs']}>
 										{!sideNavIsOpen && (
