@@ -119,10 +119,16 @@ export function App() {
 	};
 
 	useEffect(() => {
-		window.addEventListener('keyup', handleShortcutKeyUp);
+		window.addEventListener(
+			'keyup',
+			(event: KeyboardEvent) => void handleShortcutKeyUp(event),
+		);
 
 		return () => {
-			window.removeEventListener('keyup', handleShortcutKeyUp);
+			window.removeEventListener(
+				'keyup',
+				(event: KeyboardEvent) => void handleShortcutKeyUp(event),
+			);
 		};
 	}, [handleShortcutKeyUp]);
 

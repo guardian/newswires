@@ -19,6 +19,7 @@ describe('SearchReducer', () => {
 		status: 'loading',
 		successfulQueryHistory: [],
 		autoUpdate: true,
+		loadingMore: false,
 	};
 
 	const successState: State = {
@@ -39,6 +40,7 @@ describe('SearchReducer', () => {
 		successfulQueryHistory: [],
 		error: 'Network error',
 		autoUpdate: true,
+		loadingMore: false,
 	};
 
 	const errorState: State = {
@@ -50,6 +52,7 @@ describe('SearchReducer', () => {
 		successfulQueryHistory: [],
 		error: 'Fetch error',
 		autoUpdate: true,
+		loadingMore: false,
 	};
 
 	it('should handle FETCH_SUCCESS action in loading state', () => {

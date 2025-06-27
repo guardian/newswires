@@ -150,6 +150,7 @@ export const SearchReducer = (state: State, action: Action): State => {
 					...action.data,
 					results: action.data.results,
 				}),
+				loadingMore: false,
 			};
 		case 'FETCH_ERROR':
 			switch (state.status) {
@@ -182,6 +183,11 @@ export const SearchReducer = (state: State, action: Action): State => {
 			return {
 				...state,
 				status: 'loading',
+			};
+		case 'LOADING_MORE':
+			return {
+				...state,
+				loadingMore: true,
 			};
 		default:
 			return state;
