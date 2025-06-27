@@ -17,6 +17,18 @@ deployments:
       templateStagePaths:
         CODE: WiresFeeds-CODE.template.json
         PROD: WiresFeeds-PROD.template.json
+  cfn-us-east-1-editorial-feeds-newswires-cloud-front-certificate:
+    type: cloud-formation
+    regions:
+      - us-east-1
+    stacks:
+      - editorial-feeds
+    app: newswires-cloud-front-certificate
+    contentDirectory: cdk.out
+    parameters:
+      templateStagePaths:
+        CODE: Newswires-CloudFront-CODE.template.json
+        PROD: Newswires-CloudFront-PROD.template.json
   lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda:
     type: aws-lambda
     stacks:
@@ -111,6 +123,7 @@ deployments:
       - lambda-upload-eu-west-1-editorial-feeds-apPoller_poller_lambda
       - asg-upload-eu-west-1-editorial-feeds-newswires
       - cfn-eu-west-1-editorial-feeds-wires-feeds
+      - cfn-us-east-1-editorial-feeds-newswires-cloud-front-certificate
   lambda-update-eu-west-1-editorial-feeds-ingestion-lambda:
     type: aws-lambda
     stacks:

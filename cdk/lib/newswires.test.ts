@@ -32,6 +32,8 @@ describe('The Newswires stack', () => {
 			enableMonitoring: true,
 			fingerpostQueue: mockFingerpostQueue,
 			sourceQueue: mockSourceQueue,
+			certificateArn:
+				'arn:aws:acm:us-east-1:000000000000:certificate/TEST-CERT-ID',
 		});
 		const template = Template.fromStack(stack);
 		expect(template.toJSON()).toMatchSnapshot();
