@@ -399,18 +399,18 @@ object FingerpostWireEntry
       .list()
       .apply()
 
-    val countQuery =
-      sql"""| SELECT COUNT(*)
-            | FROM ${FingerpostWireEntry as syn}
-            | $whereClause
-            | """.stripMargin
-
-    logger.info(
-      s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
-    )
-
-    val totalCount: Long =
-      countQuery.map(_.long(1)).single().apply().getOrElse(0)
+//    val countQuery =
+//      sql"""| SELECT COUNT(*)
+//            | FROM ${FingerpostWireEntry as syn}
+//            | $whereClause
+//            | """.stripMargin
+//
+//    logger.info(
+//      s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
+//    )
+//
+    val totalCount: Long = 0
+//      countQuery.map(_.long(1)).single().apply().getOrElse(0)
 
 //    val keywordCounts = getKeywords(additionalWhereClauses =
 //      commonWhereClauses

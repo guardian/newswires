@@ -39,12 +39,8 @@ function mergeQueryData(
 					})
 				: existing.results;
 
-		const filteredOutCount =
-			existing.results.length - filteredExistingResults.length;
-
 		return {
 			...newData,
-			totalCount: existing.totalCount + newData.totalCount - filteredOutCount,
 			results: [
 				...newData.results
 					.filter((newItem) => !existingIds.has(newItem.id))
@@ -70,7 +66,6 @@ function appendQueryData(
 	if (existing) {
 		return {
 			...newData,
-			totalCount: existing.totalCount,
 			results: [...existing.results, ...newData.results],
 		};
 	} else {
