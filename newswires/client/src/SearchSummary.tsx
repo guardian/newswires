@@ -124,7 +124,7 @@ const SummaryBadge = ({
 				handleRemoveBadge(label, value);
 			}}
 			onClick={() => handleBadgeClick()}
-			onClickAriaLabel={''}
+			onClickAriaLabel={'Open filter options'}
 		>
 			<strong>{label}</strong>
 			{valueLabelToDisplay !== '' ? `: ${valueLabelToDisplay}` : ''}
