@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`The Newswires stack matches the snapshot 1`] = `
 {
@@ -64,6 +64,18 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     "AMINewswires": {
       "Description": "Amazon Machine Image ID for the app newswires. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
+    },
+    "AssetParametersd41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9ArtifactHashBC7A89B8": {
+      "Description": "Artifact hash for asset "d41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9"",
+      "Type": "String",
+    },
+    "AssetParametersd41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9S3BucketC1107A9A": {
+      "Description": "S3 bucket for asset "d41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9"",
+      "Type": "String",
+    },
+    "AssetParametersd41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9S3VersionKey428D45FC": {
+      "Description": "S3 key for asset version "d41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9"",
+      "Type": "String",
     },
     "DistributionBucketName": {
       "Default": "/account/services/artifact.bucket",
@@ -208,6 +220,118 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::CertificateManager::Certificate",
       "UpdateReplacePolicy": "Retain",
+    },
+    "CustomCrossRegionExportReaderCustomResourceProviderHandler46647B68": {
+      "DependsOn": [
+        "CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParametersd41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9S3BucketC1107A9A",
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersd41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9S3VersionKey428D45FC",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParametersd41c8e6342cd078b5ea5aec11522bdb605eae00f4bb98a3fb0b44c827e9b5ca9S3VersionKey428D45FC",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "ssm:AddTagsToResource",
+                    "ssm:RemoveTagsFromResource",
+                    "ssm:GetParameters",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":ssm:eu-west-1:",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":parameter/cdk/exports/Newswires/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "Inline",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
     },
     "DefaultSecurityGroupNewswires91CCC0BF": {
       "Properties": {
@@ -374,6 +498,26 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "Guardian::DNS::RecordSet",
     },
+    "ExportsReader8B249524": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ReaderProps": {
+          "imports": {
+            "/cdk/exports/Newswires/NewswiresCloudFrontCertificateuseast1RefcloudfrontcertificateTEST727745A81E6F953A": "{{resolve:ssm:/cdk/exports/Newswires/NewswiresCloudFrontCertificateuseast1RefcloudfrontcertificateTEST727745A81E6F953A}}",
+          },
+          "prefix": "Newswires",
+          "region": "eu-west-1",
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomCrossRegionExportReaderCustomResourceProviderHandler46647B68",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::CrossRegionExportReader",
+      "UpdateReplacePolicy": "Delete",
+    },
     "GetDistributablePolicyNewswires3D555C70": {
       "Properties": {
         "PolicyDocument": {
@@ -481,11 +625,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:kinesis:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:kinesis:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -517,11 +657,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -888,11 +1024,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -911,11 +1043,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -995,11 +1123,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":rds-db:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":rds-db:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1188,11 +1312,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":rds-db:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":rds-db:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1703,11 +1823,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1726,11 +1842,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1996,11 +2108,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2019,11 +2127,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2043,11 +2147,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":rds-db:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":rds-db:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2237,11 +2337,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -2488,11 +2584,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -2573,11 +2665,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -2627,11 +2715,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -2663,11 +2747,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -2848,11 +2928,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2871,11 +2947,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -3002,11 +3074,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3038,11 +3106,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3094,11 +3158,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3132,11 +3192,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3502,7 +3558,12 @@ dpkg -i /newswires/newswires.deb",
             },
           ],
           "ViewerCertificate": {
-            "AcmCertificateArn": "arn:aws:acm:us-east-1:000000000000:certificate/TEST-CERT-ID",
+            "AcmCertificateArn": {
+              "Fn::GetAtt": [
+                "ExportsReader8B249524",
+                "/cdk/exports/Newswires/NewswiresCloudFrontCertificateuseast1RefcloudfrontcertificateTEST727745A81E6F953A",
+              ],
+            },
             "MinimumProtocolVersion": "TLSv1.2_2021",
             "SslSupportMethod": "sni-only",
           },
@@ -3689,11 +3750,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3774,11 +3831,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3828,11 +3881,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3864,11 +3913,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4049,11 +4094,7 @@ dpkg -i /newswires/newswires.deb",
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -4072,11 +4113,7 @@ dpkg -i /newswires/newswires.deb",
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -4203,11 +4240,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4239,11 +4272,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4295,11 +4324,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4333,11 +4358,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },

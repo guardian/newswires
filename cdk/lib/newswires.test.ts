@@ -3,7 +3,7 @@ import { GuStack } from '@guardian/cdk/lib/constructs/core';
 import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
-import { Newswires } from './newswires';
+import { Newswires, NewswiresCloudFrontCertificate } from './newswires';
 
 class MockWiresFeedsStack extends GuStack {
 	public readonly mockSourceQueue: Queue;
@@ -22,9 +22,25 @@ describe('The Newswires stack', () => {
 		const { mockFingerpostQueue, mockSourceQueue } = new MockWiresFeedsStack(
 			app,
 			'mockWiresFeeds',
-			{ stack: 'editorial-feeds', stage: 'TEST' },
+			{
+				stack: 'editorial-feeds',
+				stage: 'TEST',
+				env: {
+					region: 'eu-west-1',
+				},
+			},
 		);
 
+		const cloudfrontStack = new NewswiresCloudFrontCertificate(
+			app,
+			'NewswiresCloudFrontCertificate',
+			{
+				stack: 'editorial-feeds',
+				stage: 'TEST',
+				domainName: 'newswires.TEST.dev-gutools.co.uk',
+				env: { region: 'us-east-1' },
+			},
+		);
 		const stack = new Newswires(app, 'Newswires', {
 			stack: 'editorial-feeds',
 			stage: 'TEST',
@@ -32,10 +48,13 @@ describe('The Newswires stack', () => {
 			enableMonitoring: true,
 			fingerpostQueue: mockFingerpostQueue,
 			sourceQueue: mockSourceQueue,
-			certificateArn:
-				'arn:aws:acm:us-east-1:000000000000:certificate/TEST-CERT-ID',
+			certificateArn: cloudfrontStack.certificateArn,
+			env: {
+				region: 'eu-west-1',
+			},
 		});
-		const template = Template.fromStack(stack);
-		expect(template.toJSON()).toMatchSnapshot();
+
+		const newswiresStackTemplate = Template.fromStack(stack);
+		expect(newswiresStackTemplate.toJSON()).toMatchSnapshot();
 	});
 });

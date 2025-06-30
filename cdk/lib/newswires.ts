@@ -2,16 +2,15 @@ import type { Alarms } from '@guardian/cdk';
 import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
 import type { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
-import { GuParameter, GuStack } from '@guardian/cdk/lib/constructs/core';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
+import { GuParameter, GuStack } from '@guardian/cdk/lib/constructs/core';
 import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
 import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
-import { aws_logs, Duration } from 'aws-cdk-lib';
-import { aws_certificatemanager as acm } from 'aws-cdk-lib';
+import { aws_certificatemanager as acm, aws_logs, Duration } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
 	AllowedMethods,
