@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`The Newswires stack matches the snapshot 1`] = `
 {
@@ -1400,7 +1400,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "DeletionProtection": true,
         "EnableIAMDatabaseAuthentication": true,
         "Engine": "postgres",
-        "EngineVersion": "16.4",
+        "EngineVersion": "16",
         "Iops": 3000,
         "MasterUserPassword": {
           "Fn::Join": [
