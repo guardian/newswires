@@ -336,6 +336,7 @@ export class NewswiresCloudFrontCertificate extends GuStack {
 			env: {
 				region: 'us-east-1',
 			},
+			crossRegionReferences: true,
 			...props,
 		});
 
