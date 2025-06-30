@@ -1,6 +1,6 @@
-import 'source-map-support/register';
 import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
 import { App } from 'aws-cdk-lib';
+import 'source-map-support/register';
 import { STACK } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { pollerIdToLambdaAppName, POLLERS_CONFIG } from '../../shared/pollers';
@@ -13,37 +13,59 @@ const env = {
 	region: 'eu-west-1',
 };
 
-const codeWiresFeeds = new WiresFeeds(app, 'WiresFeeds-CODE', {
-	env,
-	stack: STACK,
-	stage: 'CODE',
-});
+type SharedStackProps = {
+	app: App;
+	stack: string;
+	stage: string;
+	domainName: string;
+	enableMonitoring: boolean;
+};
 
-const prodWiresFeeds = new WiresFeeds(app, 'WiresFeeds-PROD', {
-	env,
-	stack: STACK,
-	stage: 'PROD',
-});
+export function createStacks({
+	app,
+	stack,
+	stage,
+	domainName,
+	enableMonitoring,
+}: SharedStackProps) {
+	const wiresFeedsStack = new WiresFeeds(app, `WiresFeeds-${stage}`, {
+		env,
+		stack,
+		stage,
+	});
 
-new Newswires(app, 'Newswires-CODE', {
-	env,
+	const newswiresStack = new Newswires(app, `Newswires-${stage}`, {
+		env,
+		stack,
+		stage,
+		domainName,
+		enableMonitoring,
+		sourceQueue: wiresFeedsStack.sourceQueue,
+		fingerpostQueue: wiresFeedsStack.fingerpostQueue,
+	});
+
+	newswiresStack.addDependency(wiresFeedsStack);
+
+	return {
+		wiresFeedsStack,
+		newswiresStack,
+	};
+}
+
+createStacks({
+	app,
 	stack: STACK,
 	stage: 'CODE',
 	domainName: 'newswires.code.dev-gutools.co.uk',
 	enableMonitoring: false,
-	sourceQueue: codeWiresFeeds.sourceQueue,
-	fingerpostQueue: codeWiresFeeds.fingerpostQueue,
-}).addDependency(codeWiresFeeds);
-
-new Newswires(app, 'Newswires-PROD', {
-	env,
+});
+createStacks({
+	app,
 	stack: STACK,
 	stage: 'PROD',
 	domainName: 'newswires.gutools.co.uk',
 	enableMonitoring: true,
-	sourceQueue: prodWiresFeeds.sourceQueue,
-	fingerpostQueue: prodWiresFeeds.fingerpostQueue,
-}).addDependency(prodWiresFeeds);
+});
 
 export const riffraff = new RiffRaffYamlFile(app);
 

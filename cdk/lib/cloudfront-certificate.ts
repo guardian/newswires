@@ -2,7 +2,7 @@ import { GuStack, type GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import type { App } from 'aws-cdk-lib';
 import { aws_certificatemanager as acm } from 'aws-cdk-lib';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { app } from './constants';
+import { appName } from './constants';
 
 export type CloudFrontProps = GuStackProps & {
 	domainName: string;
@@ -11,7 +11,7 @@ export type CloudFrontProps = GuStackProps & {
 export class NewswiresCloudfrontCertificate extends GuStack {
 	constructor(scope: App, id: string, props: CloudFrontProps) {
 		super(scope, id, {
-			app,
+			app: appName,
 			env: {
 				region: 'us-east-1',
 			},
@@ -19,7 +19,7 @@ export class NewswiresCloudfrontCertificate extends GuStack {
 			...props,
 		});
 
-		const stageStackApp = `${this.stage}/${this.stack}/${app}`;
+		const stageStackApp = `${this.stage}/${this.stack}/${appName}`;
 
 		const acmCertificate = new acm.Certificate(
 			this,
