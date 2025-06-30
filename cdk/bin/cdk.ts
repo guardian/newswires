@@ -4,6 +4,7 @@ import 'source-map-support/register';
 import { STACK } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { pollerIdToLambdaAppName, POLLERS_CONFIG } from '../../shared/pollers';
+import { NewswiresCloudfrontCertificate } from '../lib/cloudfront-certificate';
 import { Newswires } from '../lib/newswires';
 import { WiresFeeds } from '../lib/wires-feeds';
 
@@ -46,9 +47,20 @@ export function createStacks({
 
 	newswiresStack.addDependency(wiresFeedsStack);
 
+	const cloudfrontCertificateStack = new NewswiresCloudfrontCertificate(
+		app,
+		`NewswiresCloudFrontCertificate-${stage}`,
+		{
+			stack,
+			stage,
+			domainName,
+		},
+	);
+
 	return {
 		wiresFeedsStack,
 		newswiresStack,
+		cloudfrontCertificateStack,
 	};
 }
 

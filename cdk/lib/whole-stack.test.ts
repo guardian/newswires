@@ -13,13 +13,18 @@ describe('createStacks', () => {
 			enableMonitoring: true,
 		};
 
-		const { wiresFeedsStack, newswiresStack } = createStacks({
-			...stackProps,
-		});
+		const { wiresFeedsStack, newswiresStack, cloudfrontCertificateStack } =
+			createStacks({
+				...stackProps,
+			});
 
 		const wiresFeedsTemplate = Template.fromStack(wiresFeedsStack);
 		expect(wiresFeedsTemplate.toJSON()).toMatchSnapshot();
 		const newswiresTemplate = Template.fromStack(newswiresStack);
 		expect(newswiresTemplate.toJSON()).toMatchSnapshot();
+		const cloudfrontCertificateTemplate = Template.fromStack(
+			cloudfrontCertificateStack,
+		);
+		expect(cloudfrontCertificateTemplate.toJSON()).toMatchSnapshot();
 	});
 });
