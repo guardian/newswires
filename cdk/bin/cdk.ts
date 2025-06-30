@@ -45,8 +45,6 @@ export function createStacks({
 		fingerpostQueue: wiresFeedsStack.fingerpostQueue,
 	});
 
-	newswiresStack.addDependency(wiresFeedsStack);
-
 	const cloudfrontCertificateStack = new NewswiresCloudfrontCertificate(
 		app,
 		`NewswiresCloudFrontCertificate-${stage}`,
@@ -56,6 +54,9 @@ export function createStacks({
 			domainName,
 		},
 	);
+
+	newswiresStack.addDependency(wiresFeedsStack);
+	newswiresStack.addDependency(cloudfrontCertificateStack);
 
 	return {
 		wiresFeedsStack,

@@ -33,6 +33,7 @@ import {
 	PostgresEngineVersion,
 	StorageType,
 } from 'aws-cdk-lib/aws-rds';
+import { ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
@@ -293,6 +294,7 @@ export class Newswires extends GuStack {
 						expiration: Duration.days(90),
 					},
 				],
+				objectOwnership: ObjectOwnership.OBJECT_WRITER,
 			},
 		);
 

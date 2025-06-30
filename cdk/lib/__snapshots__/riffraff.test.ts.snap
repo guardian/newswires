@@ -111,6 +111,7 @@ deployments:
       - lambda-upload-eu-west-1-editorial-feeds-apPoller_poller_lambda
       - asg-upload-eu-west-1-editorial-feeds-newswires
       - cfn-eu-west-1-editorial-feeds-wires-feeds
+      - cfn-us-east-1-editorial-feeds-newswires-cloudfront-certificate
   lambda-update-eu-west-1-editorial-feeds-ingestion-lambda:
     type: aws-lambda
     stacks:
