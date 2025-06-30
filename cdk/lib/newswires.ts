@@ -61,12 +61,18 @@ export class Newswires extends GuStack {
 
 		const databaseName = 'newswires';
 
+		const instanceSize =
+			this.stage === 'PROD' ? InstanceSize.MEDIUM : InstanceSize.SMALL;
+
+		// multiAz on if this is PROD
+		const multiAz = this.stage === 'PROD';
+
 		const database = new GuDatabase(this, 'NewswiresDB', {
 			app,
-			instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.SMALL),
+			instanceType: InstanceType.of(InstanceClass.T4G, instanceSize),
 			allowExternalConnection: true,
 			databaseName,
-			multiAz: false,
+			multiAz,
 			devxBackups: true,
 			vpcSubnets: {
 				subnets: privateSubnets,
