@@ -46,6 +46,13 @@ export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
 		super(scope, id, { ...props, app: appName });
 
+		new GuParameter(this, 'CloudFrontCertificateArn', {
+			description: `The ARN of the CloudFront certificate for ${props.domainName}, for consumption by the Newswires app stack.`,
+			fromSSM: true,
+			default: `/${this.stage}/${this.stack}/${appName}/cloudfront/certificateArn`,
+			type: 'String',
+		});
+
 		const { domainName, enableMonitoring } = props;
 
 		const vpc = GuVpc.fromIdParameter(this, 'VPC');

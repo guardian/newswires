@@ -481,6 +481,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
 {
   "Metadata": {
     "gu:cdk:constructs": [
+      "GuParameter",
       "GuVpcParameter",
       "GuSubnetListParameter",
       "GuSecurityGroup",
@@ -540,6 +541,11 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     "AMINewswires": {
       "Description": "Amazon Machine Image ID for the app newswires. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
+    },
+    "CloudFrontCertificateArn": {
+      "Default": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
+      "Description": "The ARN of the CloudFront certificate for newswires.TEST.dev-gutools.co.uk, for consumption by the Newswires app stack.",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "DistributionBucketName": {
       "Default": "/account/services/artifact.bucket",
