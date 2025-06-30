@@ -135,7 +135,7 @@ function MaybeSecondaryCardContent({
 		return <p>{subhead}</p>;
 	}
 	const maybeBodyTextPreview = bodyText
-		? sanitizeHtml(bodyText.replace(/<br \/>/g, '&nbsp;'), {
+		? sanitizeHtml(bodyText.replace(/(<br \/>|<\/p>)/g, '&nbsp;'), {
 				allowedTags: [],
 				allowedAttributes: {},
 			}).slice(0, 300)
