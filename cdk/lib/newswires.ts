@@ -56,7 +56,7 @@ export class Newswires extends GuStack {
 
 		const certificateArn = new GuParameter(this, 'CloudFrontCertificateArn', {
 			description: `The ARN of the CloudFront certificate for ${props.domainName}, for consumption by the Newswires app stack.`,
-			fromSSM: false,
+			fromSSM: true,
 			default: `/${this.stage}/${this.stack}/${appName}/cloudfront/certificateArn`,
 			type: 'String',
 		});

@@ -546,7 +546,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     "CloudFrontCertificateArn": {
       "Default": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
       "Description": "The ARN of the CloudFront certificate for newswires.TEST.dev-gutools.co.uk, for consumption by the Newswires app stack.",
-      "Type": "String",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "DistributionBucketName": {
       "Default": "/account/services/artifact.bucket",
