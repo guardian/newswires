@@ -31,7 +31,7 @@ import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
-import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
+import { app, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';
 
@@ -41,8 +41,6 @@ export type NewswiresProps = GuStackProps & {
 	domainName: string;
 	enableMonitoring: boolean;
 };
-
-const app = 'newswires';
 
 export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
