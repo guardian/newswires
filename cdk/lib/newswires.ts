@@ -11,6 +11,13 @@ import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { aws_logs, Duration } from 'aws-cdk-lib';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import {
+	AllowedMethods,
+	Distribution,
+	OriginProtocolPolicy,
+} from 'aws-cdk-lib/aws-cloudfront';
+import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
 	InstanceClass,
 	InstanceSize,
@@ -46,9 +53,9 @@ export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
 		super(scope, id, { ...props, app: appName });
 
-		new GuParameter(this, 'CloudFrontCertificateArn', {
+		const certificateArn = new GuParameter(this, 'CloudFrontCertificateArn', {
 			description: `The ARN of the CloudFront certificate for ${props.domainName}, for consumption by the Newswires app stack.`,
-			fromSSM: true,
+			fromSSM: false,
 			default: `/${this.stage}/${this.stack}/${appName}/cloudfront/certificateArn`,
 			type: 'String',
 		});
@@ -276,12 +283,46 @@ export class Newswires extends GuStack {
 			instanceMetricGranularity: this.stage === 'PROD' ? '1Minute' : '5Minute',
 		});
 
+		const cloudFrontLogsBucket = new GuS3Bucket(
+			this,
+			`newswires-cloudfront-bucket-${this.stage}`,
+			{
+				app: appName,
+				lifecycleRules: [
+					{
+						expiration: Duration.days(90),
+					},
+				],
+			},
+		);
+
+		const cloudfrontCertificate = Certificate.fromCertificateArn(
+			this,
+			`newswires-cloudfront-certificate-${this.stage}`,
+			certificateArn.valueAsString,
+		);
+
+		const newswiresCloudFrontDistro = new Distribution(
+			this,
+			`newswires-cloudfront-distro-${this.stage}`,
+			{
+				defaultBehavior: {
+					origin: new LoadBalancerV2Origin(newswiresApp.loadBalancer, {
+						protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+					}),
+					allowedMethods: AllowedMethods.ALLOW_ALL,
+				},
+				logBucket: cloudFrontLogsBucket,
+				certificate: cloudfrontCertificate,
+			},
+		);
+
 		// Add the domain name
 		new GuCname(this, 'DnsRecord', {
 			app: appName,
 			domainName: domainName,
 			ttl: Duration.minutes(1),
-			resourceRecord: newswiresApp.loadBalancer.loadBalancerDnsName,
+			resourceRecord: newswiresCloudFrontDistro.domainName,
 		});
 
 		database.grantConnect(newswiresApp.autoScalingGroup);
