@@ -100,10 +100,7 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 							</EuiFlexGroup>
 						</div>
 
-						<WireItemList
-							wires={queryData.results}
-							totalCount={queryData.totalCount}
-						/>
+						<WireItemList wires={queryData.results} />
 
 						<ScrollToTopButton
 							threshold={300}

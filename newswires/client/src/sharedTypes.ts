@@ -48,7 +48,7 @@ export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;
 
 export const WiresQueryResponseSchema = z.object({
 	results: z.array(WireDataFromAPISchema),
-	totalCount: z.number(),
+	// totalCount: z.number(),
 	// keywordCounts: z.record(z.string(), z.number()),
 });
 
@@ -87,7 +87,7 @@ export type WireData = z.infer<typeof WireDataSchema>;
 
 export const WiresQueryDataSchema = z.object({
 	results: z.array(WireDataSchema),
-	totalCount: z.number(),
+	// totalCount: z.number(),
 	// keywordCounts: z.record(z.string(), z.number()),
 });
 
