@@ -14,6 +14,7 @@ import { aws_logs, Duration } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
 	AllowedMethods,
+	CachePolicy,
 	Distribution,
 	OriginProtocolPolicy,
 	OriginRequestPolicy,
@@ -315,6 +316,7 @@ export class Newswires extends GuStack {
 					}),
 					allowedMethods: AllowedMethods.ALLOW_ALL,
 					originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+					cachePolicy: CachePolicy.CACHING_DISABLED,
 				},
 				logBucket: cloudFrontLogsBucket,
 				certificate: cloudfrontCertificate,
