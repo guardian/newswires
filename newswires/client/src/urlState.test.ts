@@ -289,7 +289,7 @@ describe('configToUrl', () => {
 			ticker: false,
 			itemId: undefined,
 		});
-		expect(url).toBe('/feed?start=now%2Fd');
+		expect(url).toBe('/feed');
 	});
 
 	it('converts item config to querystring', () => {
@@ -453,13 +453,13 @@ describe('paramsToQuerystring', () => {
 		const query = {
 			q: 'abc',
 			dateRange: {
-				start: 'now/d',
-				end: 'now/d',
+				start: 'now-3d',
+				end: 'now',
 			},
 		};
 
 		const url = paramsToQuerystring(query);
-		expect(url).toBe('?q=abc&start=now%2Fd');
+		expect(url).toBe('?q=abc&start=now-3d&end=now');
 	});
 
 	it('converts relative date range to an absolute date range', () => {
