@@ -286,6 +286,18 @@ object FingerpostWireEntry
       case _ => None
     }
 
+    val hasDataFormattingQuery = search.hasDataFormatting match {
+      case Some(true) =>
+        Some(
+          sqls"(${syn.content}->'dataformat') IS NOT NULL"
+        )
+      case Some(false) =>
+        Some(
+          sqls"(${syn.content}->'dataformat') IS NULL"
+        )
+      case None => None
+    }
+
     List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -309,7 +321,8 @@ object FingerpostWireEntry
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       dateRangeQuery,
-      categoryCodesExclQuery
+      categoryCodesExclQuery,
+      hasDataFormattingQuery
     ).flatten
   }
 

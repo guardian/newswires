@@ -112,6 +112,7 @@ export const QuerySchema = z.object({
 	categoryCodeExcl: z.array(z.string()).optional(),
 	preset: z.string().optional(),
 	dateRange: DateRange.optional(),
+	hasDataFormatting: z.boolean().optional(),
 });
 
 export type Query = z.infer<typeof QuerySchema>;

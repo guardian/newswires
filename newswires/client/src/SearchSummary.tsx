@@ -28,7 +28,8 @@ type SearchTermBadgeLabel =
 	| 'Preset'
 	| 'Supplier'
 	| 'Category'
-	| '(NOT) Category';
+	| '(NOT) Category'
+	| 'Has data formatting';
 
 const SummaryBadge = ({
 	label,
@@ -104,6 +105,12 @@ const SummaryBadge = ({
 					categoryCodeExcl: categoryCodesExcl.filter(
 						(s: string) => s !== value,
 					),
+				});
+				break;
+			case 'Has data formatting':
+				handleEnterQuery({
+					...config.query,
+					hasDataFormatting: undefined,
 				});
 				break;
 		}
@@ -199,6 +206,7 @@ const Summary = ({
 		dateRange,
 		categoryCode,
 		categoryCodeExcl,
+		hasDataFormatting,
 	} = config.query;
 
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
@@ -254,6 +262,12 @@ const Summary = ({
 				categoryCodeExcl.map((code) => (
 					<SummaryBadge key={code} label="(NOT) Category" value={code} />
 				))}
+			{hasDataFormatting !== undefined && (
+				<SummaryBadge
+					label="Has data formatting"
+					value={hasDataFormatting ? 'true' : 'false'}
+				/>
+			)}
 		</>
 	);
 };
