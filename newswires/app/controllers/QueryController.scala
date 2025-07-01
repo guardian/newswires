@@ -36,7 +36,8 @@ class QueryController(
       maybeStart: Option[String],
       maybeEnd: Option[String],
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
+      maybeSinceId: Option[Int],
+      hasDataFormatting: Option[Boolean]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val maybePreset =
       request.getQueryString("preset").flatMap(SearchPresets.get)
@@ -59,7 +60,8 @@ class QueryController(
         .map(_.toList)
         .getOrElse(Nil) ++ suppliersToExcludeByDefault,
       categoryCodesIncl = categoryCode,
-      categoryCodesExcl = categoryCodeExcl
+      categoryCodesExcl = categoryCodeExcl,
+      hasDataFormatting = hasDataFormatting
     )
 
     Ok(

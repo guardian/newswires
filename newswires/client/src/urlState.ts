@@ -18,6 +18,7 @@ export const defaultQuery: Query = {
 		start: DEFAULT_DATE_RANGE.start,
 		end: DEFAULT_DATE_RANGE.end,
 	},
+	hasDataFormatting: undefined,
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -26,6 +27,21 @@ export const defaultConfig: Config = Object.freeze({
 	itemId: undefined,
 	ticker: false,
 });
+
+function maybeStringToBooleanOrUndefined(
+	value: string | null,
+): boolean | undefined {
+	if (value === null) {
+		return undefined;
+	}
+	if (value === 'true') {
+		return true;
+	}
+	if (value === 'false') {
+		return false;
+	}
+	return undefined;
+}
 
 export function urlToConfig(location: {
 	pathname: string;
@@ -55,6 +71,9 @@ export function urlToConfig(location: {
 	const categoryCode = urlSearchParams.getAll('categoryCode');
 	const categoryCodeExcl = urlSearchParams.getAll('categoryCodeExcl');
 	const preset = urlSearchParams.get('preset') ?? undefined;
+	const hasDataFormatting = maybeStringToBooleanOrUndefined(
+		urlSearchParams.get('hasDataFormatting'),
+	);
 
 	const query: Query = {
 		q:
@@ -69,6 +88,7 @@ export function urlToConfig(location: {
 		categoryCodeExcl,
 		preset,
 		dateRange: { start, end },
+		hasDataFormatting,
 	};
 
 	const pageSegments = page.split('/');
@@ -165,6 +185,8 @@ export const paramsToQuerystring = (
 				if (items.length > 0) {
 					return [...acc, ...items];
 				}
+			} else if (typeof v === 'boolean') {
+				return [...acc, [k, v.toString()]];
 			}
 			return acc;
 		},
