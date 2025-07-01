@@ -36,6 +36,11 @@ export const Item = ({
 
 	const headingRef = useRef<HTMLHeadingElement>(null);
 
+	const isFirst = state.queryData?.results[0]?.id === itemData?.id;
+	const isLast =
+		state.queryData?.results[state.queryData.totalCount - 1]?.id ===
+		itemData?.id;
+
 	// scroll to heading when a new item is selected
 	useEffect(() => {
 		if (headingRef.current) {
@@ -106,6 +111,7 @@ export const Item = ({
 									iconType="arrowLeft"
 									onClick={handlePreviousItem}
 									aria-label="Previous story"
+									disabled={isFirst}
 								/>
 							</Tooltip>
 							{state.loadingMore ? (
@@ -118,6 +124,7 @@ export const Item = ({
 											void handleNextItem();
 										}}
 										aria-label="Next story"
+										disabled={isLast}
 									/>
 								</Tooltip>
 							)}
