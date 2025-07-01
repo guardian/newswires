@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const FingerpostContentSchema = z
 	.object({
@@ -102,11 +102,11 @@ export const QuerySchema = z.object({
 	q: z.string(),
 	supplier: z.array(z.string()).optional(),
 	supplierExcl: z.array(z.string()).optional(),
-	keywords: z.ostring(),
-	keywordsExcl: z.ostring(),
+	keywords: z.string().optional(),
+	keywordsExcl: z.string().optional(),
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
-	preset: z.ostring(),
+	preset: z.string().optional(),
 	dateRange: DateRange.optional(),
 });
 

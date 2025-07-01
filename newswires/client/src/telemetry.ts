@@ -1,7 +1,7 @@
 import type { IUserTelemetryEvent } from '@guardian/user-telemetry-client';
 import { UserTelemetryEventSender } from '@guardian/user-telemetry-client';
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { loadOrSetInLocalStorage } from './context/localStorage';
 
 export type TelemetryEventSender = (

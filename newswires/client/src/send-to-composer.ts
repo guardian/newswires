@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { pandaFetch } from './panda-session.ts';
 import type { WireData } from './sharedTypes.ts';
 

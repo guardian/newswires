@@ -1,5 +1,5 @@
 import { parse } from 'node-html-parser';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
 import { REUTERS_POLLING_FREQUENCY_IN_SECONDS } from '../../../../shared/pollers';
 import type { IngestorInputBody } from '../../../../shared/types';
@@ -292,7 +292,7 @@ export const reutersPoller = (async ({
 					externalId: itemId,
 					supplier: 'Reuters',
 					eventType: POLLER_FAILURE_EVENT_TYPE,
-					errors: parsedItemResult.error.errors,
+					errors: z.treeifyError(parsedItemResult.error),
 					message: `Failed to parse item response for ${itemId}; retrying`,
 				});
 				await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -303,7 +303,7 @@ export const reutersPoller = (async ({
 						externalId: itemId,
 						supplier: 'Reuters',
 						eventType: POLLER_FAILURE_EVENT_TYPE,
-						errors: retryParsedItemResult.error.errors,
+						errors: z.treeifyError(retryParsedItemResult.error),
 						message: `Failed to parse item response for ${itemId} on retry`,
 					});
 					return;

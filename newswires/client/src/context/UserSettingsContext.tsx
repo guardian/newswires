@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { loadOrSetInLocalStorage, saveToLocalStorage } from './localStorage';
 import { useTelemetry } from './TelemetryContext';
 

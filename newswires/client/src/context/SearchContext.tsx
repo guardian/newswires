@@ -8,7 +8,7 @@ import {
 	useReducer,
 	useState,
 } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { getErrorMessage } from '../../../../shared/getErrorMessage.ts';
 import type { Config, Query } from '../sharedTypes.ts';
 import {
@@ -320,6 +320,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			view: 'feed',
 			query: currentConfig.query,
 			ticker: currentConfig.ticker,
+			itemId: undefined,
 		});
 
 		if (currentConfig.itemId) {
