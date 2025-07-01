@@ -408,7 +408,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			.then((data) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
 
-				if (selectNextItem) {
+				if (selectNextItem && data.results.length > 0) {
 					handleSelectItem(data.results[0].id.toString());
 				}
 			})
