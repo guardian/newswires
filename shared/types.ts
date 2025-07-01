@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const OptionalStringOrArrayAsArrayOfStrings = z
 	.union([z.string(), z.array(z.string())])
@@ -13,7 +13,11 @@ const OptionalStringOrArrayAsArrayOfStrings = z
 		return [val];
 	});
 
-const FingerpostFeedPayloadSchema = z.object({
+/**
+ * looseObject because we want to preserve additional properties that are not defined in the schema
+ * Useful to be able to test new fields
+ */
+const FingerpostFeedPayloadSchema = z.looseObject({
 	uri: z.string().optional(),
 	'source-feed': z.string().optional(),
 	usn: z.string().optional(),
@@ -61,10 +65,10 @@ const FingerpostFeedPayloadSchema = z.object({
 
 export const IngestorInputBodySchema = FingerpostFeedPayloadSchema.extend({
 	originalContentText: z.string().optional(),
-	imageIds:  z.array(z.string()).default([]),
+	imageIds: z.array(z.string()).default([]),
 });
 
-const WireEntryContentSchema = IngestorInputBodySchema.omit({
+const _WireEntryContentSchema = IngestorInputBodySchema.omit({
 	keywords: true,
 }).extend({
 	keywords: z.array(z.string()),
@@ -72,4 +76,4 @@ const WireEntryContentSchema = IngestorInputBodySchema.omit({
 
 export type FingerpostFeedPayload = z.infer<typeof FingerpostFeedPayloadSchema>;
 export type IngestorInputBody = z.infer<typeof IngestorInputBodySchema>;
-export type WireEntryContent = z.infer<typeof WireEntryContentSchema>;
+export type WireEntryContent = z.infer<typeof _WireEntryContentSchema>;
