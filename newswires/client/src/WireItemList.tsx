@@ -9,7 +9,7 @@ import {
 } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
 import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
@@ -25,21 +25,14 @@ export const WireItemList = ({
 	wires: WireData[];
 	totalCount: number;
 }) => {
-	const { config, loadMoreResults, previousItemId } = useSearch();
-
-	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+	const { config, loadMoreResults, previousItemId, state } = useSearch();
 
 	const selectedWireId = config.itemId;
 
 	const handleLoadMoreResults = () => {
 		if (wires.length > 0) {
-			setIsLoadingMore(true);
-
 			const beforeId = Math.min(...wires.map((wire) => wire.id)).toString();
-
-			void loadMoreResults(beforeId).finally(() => {
-				setIsLoadingMore(false);
-			});
+			void loadMoreResults(beforeId);
 		}
 	};
 
@@ -66,13 +59,13 @@ export const WireItemList = ({
 			</ul>
 			{wires.length < totalCount && (
 				<EuiButton
-					isLoading={isLoadingMore}
+					isLoading={state.loadingMore}
 					css={css`
 						margin-top: 12px;
 					`}
 					onClick={handleLoadMoreResults}
 				>
-					{isLoadingMore ? 'Loading' : 'Load more'}
+					{state.loadingMore ? 'Loading' : 'Load more'}
 				</EuiButton>
 			)}
 		</>

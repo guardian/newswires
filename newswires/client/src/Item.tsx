@@ -3,6 +3,7 @@ import {
 	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiHorizontalRule,
+	EuiLoadingSpinner,
 	EuiSplitPanel,
 	EuiSwitch,
 	EuiText,
@@ -11,6 +12,7 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
+import { useSearch } from './context/SearchContext.tsx';
 import { type WireData } from './sharedTypes';
 import { Tooltip } from './Tooltip.tsx';
 import { WireDetail } from './WireDetail';
@@ -26,12 +28,18 @@ export const Item = ({
 	itemData: WireData | undefined;
 	handleDeselectItem: () => void;
 	handlePreviousItem: () => void;
-	handleNextItem: () => void;
+	handleNextItem: () => Promise<void>;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const { state } = useSearch();
 
 	const headingRef = useRef<HTMLHeadingElement>(null);
+
+	const isFirst = state.queryData?.results[0]?.id === itemData?.id;
+	const isLast =
+		state.queryData?.results[state.queryData.totalCount - 1]?.id ===
+		itemData?.id;
 
 	// scroll to heading when a new item is selected
 	useEffect(() => {
@@ -103,15 +111,23 @@ export const Item = ({
 									iconType="arrowLeft"
 									onClick={handlePreviousItem}
 									aria-label="Previous story"
+									disabled={isFirst}
 								/>
 							</Tooltip>
-							<Tooltip tooltipContent="Next story">
-								<EuiButtonIcon
-									iconType="arrowRight"
-									onClick={handleNextItem}
-									aria-label="Next story"
-								/>
-							</Tooltip>
+							{state.loadingMore ? (
+								<EuiLoadingSpinner size="m" />
+							) : (
+								<Tooltip tooltipContent="Next story">
+									<EuiButtonIcon
+										iconType="arrowRight"
+										onClick={() => {
+											void handleNextItem();
+										}}
+										aria-label="Next story"
+										disabled={isLast}
+									/>
+								</Tooltip>
+							)}
 							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
 								<Tooltip tooltipContent="Close story" position="left">
 									<EuiButtonIcon

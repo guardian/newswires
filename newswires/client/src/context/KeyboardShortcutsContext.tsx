@@ -28,7 +28,7 @@ const stopShortcutPropagation = (
 };
 
 type KeyboardShortcutsContextShape = {
-	handleShortcutKeyUp: (event: KeyboardEvent) => void;
+	handleShortcutKeyUp: (event: KeyboardEvent) => Promise<void>;
 	stopShortcutPropagation: KeyboardEventHandler<HTMLElement>;
 };
 
@@ -46,7 +46,7 @@ export function KeyboardShortcutsProvider({
 	const { view } = config;
 
 	const handleShortcutKeyUp = useCallback(
-		(event: KeyboardEvent): void => {
+		async (event: KeyboardEvent): Promise<void> => {
 			const key = event.key;
 
 			if (!isKeyWithShortcut(key)) {
@@ -75,8 +75,7 @@ export function KeyboardShortcutsProvider({
 						handlePreviousItem();
 						break;
 					case 'ArrowRight':
-						handleNextItem();
-						break;
+						return await handleNextItem();
 				}
 			}
 		},
