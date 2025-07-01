@@ -3860,6 +3860,9 @@ dpkg -i /newswires/newswires.deb",
     "newswirescloudfrontdistroTESTEF1A4E5C": {
       "Properties": {
         "DistributionConfig": {
+          "Aliases": [
+            "newswires.TEST.dev-gutools.co.uk",
+          ],
           "DefaultCacheBehavior": {
             "AllowedMethods": [
               "GET",

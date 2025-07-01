@@ -316,6 +316,7 @@ export class Newswires extends GuStack {
 				},
 				logBucket: cloudFrontLogsBucket,
 				certificate: cloudfrontCertificate,
+				domainNames: [domainName],
 			},
 		);
 
