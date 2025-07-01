@@ -1,7 +1,7 @@
 import { EuiEmptyPrompt, EuiResizableContainer } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useRef, useState } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
 	loadOrSetInLocalStorage,
 	saveToLocalStorage,

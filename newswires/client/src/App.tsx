@@ -27,7 +27,7 @@ import {
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
 import { useEffect, useState } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { STAGE } from './app-configuration.ts';
 import { AppTitle } from './AppTitle.tsx';
 import { BetaBadge } from './BetaBadge.tsx';

@@ -259,6 +259,7 @@ describe('configToUrl', () => {
 				subject: [],
 			},
 			ticker: false,
+			itemId: undefined,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&supplier=REUTERS');
@@ -273,6 +274,7 @@ describe('configToUrl', () => {
 				subject: [],
 			},
 			ticker: true,
+			itemId: undefined,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/ticker/feed?q=abc&supplier=REUTERS');
@@ -285,6 +287,7 @@ describe('configToUrl', () => {
 			view: 'feed',
 			query: defaultQuery,
 			ticker: false,
+			itemId: undefined,
 		});
 		expect(url).toBe('/feed?start=now%2Fd');
 	});
@@ -367,6 +370,7 @@ describe('configToUrl', () => {
 			view: 'feed' as const,
 			query: { q: 'abc', supplierExcl: ['AP', 'PA', 'REUTERS'] },
 			ticker: false,
+			itemId: undefined,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
@@ -379,6 +383,7 @@ describe('configToUrl', () => {
 			view: 'feed' as const,
 			query: { q: 'abc', keywords: 'Sports,Politics' },
 			ticker: false,
+			itemId: undefined,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&keywords=Sports%2CPolitics');
@@ -389,6 +394,7 @@ describe('configToUrl', () => {
 			view: 'feed' as const,
 			query: { q: 'abc', keywordsExcl: 'Sports,Politics' },
 			ticker: false,
+			itemId: undefined,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
@@ -399,6 +405,7 @@ describe('configToUrl', () => {
 			view: 'feed' as const,
 			query: { q: 'abc', categoryCode: ['medtop:08000000', 'medtop:20001340'] },
 			ticker: false,
+			itemId: undefined,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(
@@ -414,6 +421,7 @@ describe('configToUrl', () => {
 				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
 			},
 			ticker: false,
+			itemId: undefined,
 		};
 		const url = configToUrl(config);
 		expect(url).toBe(

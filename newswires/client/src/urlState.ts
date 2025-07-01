@@ -74,7 +74,12 @@ export function urlToConfig(location: {
 	const pageSegments = page.split('/');
 
 	if (page === '' || page.includes('feed')) {
-		return { view: 'feed', query, ticker: page.includes('ticker') };
+		return {
+			view: 'feed',
+			query,
+			ticker: page.includes('ticker'),
+			itemId: undefined,
+		};
 	} else if (
 		page.includes('item/') &&
 		(pageSegments.length === 2 || pageSegments.length === 3)
