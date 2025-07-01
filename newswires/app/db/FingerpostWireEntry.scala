@@ -26,6 +26,16 @@ object FingerpostWireSubjects {
     Format(reads, writes)
 }
 
+case class Dataformat(
+    noOfColumns: Option[String],
+    notFipTopusCategory: Option[String],
+    indesignTags: Option[String]
+)
+
+object Dataformat {
+  implicit val format: OFormat[Dataformat] = Json.format[Dataformat]
+}
+
 case class FingerpostWire(
     uri: Option[String],
     sourceFeed: Option[String],
@@ -42,13 +52,13 @@ case class FingerpostWire(
     priority: Option[String],
     subjects: Option[FingerpostWireSubjects],
     keywords: Option[List[String]],
-    language: Option[String],
     usage: Option[String],
-    location: Option[String],
     ednote: Option[String],
     mediaCatCodes: Option[String],
     `abstract`: Option[String],
-    bodyText: Option[String]
+    bodyText: Option[String],
+    composerCompatible: Option[Boolean],
+    dataformat: Option[Dataformat]
 )
 object FingerpostWire {
   // rename a couple of fields

@@ -1,7 +1,11 @@
 import { z } from 'zod/v4';
 
+/**
+ * looseObject because we want to preserve additional properties that are not defined in the schema
+ * Useful to be able to test new fields
+ */
 const FingerpostContentSchema = z
-	.object({
+	.looseObject({
 		uri: z.string(),
 		sourceFeed: z.string(),
 		usn: z.string(),
