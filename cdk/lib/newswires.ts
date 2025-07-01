@@ -16,6 +16,7 @@ import {
 	AllowedMethods,
 	Distribution,
 	OriginProtocolPolicy,
+	OriginRequestPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
@@ -313,6 +314,7 @@ export class Newswires extends GuStack {
 						protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
 					}),
 					allowedMethods: AllowedMethods.ALLOW_ALL,
+					originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
 				},
 				logBucket: cloudFrontLogsBucket,
 				certificate: cloudfrontCertificate,
