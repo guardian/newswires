@@ -132,7 +132,11 @@ const processDateRange = (
 	} else {
 		return {
 			...config,
-			start: config.dateRange?.start,
+			start:
+				config.dateRange?.start &&
+				config.dateRange.start !== DEFAULT_DATE_RANGE.start
+					? config.dateRange.start
+					: undefined,
 			end:
 				config.dateRange?.end && config.dateRange.end !== DEFAULT_DATE_RANGE.end
 					? config.dateRange.end
