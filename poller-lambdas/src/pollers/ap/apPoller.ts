@@ -140,7 +140,7 @@ async function getFeed(
 		throw new Error(feed.error?.message);
 	}
 	if (!isFeedListData(feed)) {
-		throw new Error('Unexpected response from API');
+		throw new Error(`Unexpected response from API`);
 	}
 	return { feed, timeReceived };
 }
@@ -193,6 +193,7 @@ function itemWithContentToDesiredOutput({
 		body: {
 			'source-feed': 'AP-Newswires',
 			version: feedItem.version?.toString() ?? '0',
+			'unique-name': externalId,
 			type: type,
 			status: pubstatus,
 			firstVersion: firstcreated,

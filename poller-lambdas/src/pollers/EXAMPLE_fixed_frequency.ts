@@ -16,6 +16,7 @@ export const EXAMPLE_fixed_frequency = (async ({ secret, input, logger }) => {
 			{
 				externalId: 'foo',
 				body: {
+					'unique-name': 'example',
 					body_text: 'foo',
 					keywords: [],
 					imageIds: [],

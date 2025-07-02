@@ -22,6 +22,7 @@ const FingerpostFeedPayloadSchema = z.looseObject({
 	'source-feed': z.string().optional(),
 	usn: z.string().optional(),
 	version: z.string().optional(),
+	'unique-name': z.string(),
 	type: z.string().optional(), // this is 'text' in every entry we have in the CODE db on 1st Nov 2024 (175553 entries at time of checking)
 	format: z.string().optional(), // "GOA-WIRES-NINJS" in all records
 	mimeType: z.string().optional(), // application/ninjs+json
