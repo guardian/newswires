@@ -31,7 +31,7 @@ import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
-import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
+import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';
 
@@ -42,11 +42,9 @@ export type NewswiresProps = GuStackProps & {
 	enableMonitoring: boolean;
 };
 
-const app = 'newswires';
-
 export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
-		super(scope, id, { ...props, app });
+		super(scope, id, { ...props, app: appName });
 
 		const { domainName, enableMonitoring } = props;
 
@@ -54,10 +52,10 @@ export class Newswires extends GuStack {
 
 		const privateSubnets = GuVpc.subnetsFromParameter(this, {
 			type: SubnetType.PRIVATE,
-			app,
+			app: appName,
 		});
 
-		const stageStackApp = `${this.stage}/${this.stack}/${app}`;
+		const stageStackApp = `${this.stage}/${this.stack}/${appName}`;
 
 		const databaseName = 'newswires';
 
@@ -68,7 +66,7 @@ export class Newswires extends GuStack {
 		const multiAz = this.stage === 'PROD';
 
 		const database = new GuDatabase(this, 'NewswiresDB', {
-			app,
+			app: appName,
 			instanceType: InstanceType.of(InstanceClass.T4G, instanceSize),
 			allowExternalConnection: true,
 			databaseName,
@@ -87,7 +85,7 @@ export class Newswires extends GuStack {
 		});
 
 		const feedsBucket = new GuS3Bucket(this, `feeds-bucket-${this.stage}`, {
-			app,
+			app: appName,
 			versioned: true,
 		});
 
@@ -211,7 +209,7 @@ export class Newswires extends GuStack {
 			type: 'String',
 		});
 
-		const alarmSnsTopic = new Topic(this, `${app}-email-alarm-topic`);
+		const alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
 
 		const scaling = {
 			minimumInstances: 1,
@@ -240,7 +238,7 @@ export class Newswires extends GuStack {
 		);
 
 		const newswiresApp = new GuPlayApp(this, {
-			app,
+			app: appName,
 			access: { scope: AccessScope.PUBLIC },
 			privateSubnets,
 			instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.SMALL),
@@ -250,12 +248,12 @@ export class Newswires extends GuStack {
 			monitoringConfiguration,
 			userData: {
 				distributable: {
-					fileName: `${app}.deb`,
-					executionStatement: `dpkg -i /${app}/${app}.deb`,
+					fileName: `${appName}.deb`,
+					executionStatement: `dpkg -i /${appName}/${appName}.deb`,
 				},
 			},
 			scaling,
-			applicationLogging: { enabled: true, systemdUnitName: app },
+			applicationLogging: { enabled: true, systemdUnitName: appName },
 			imageRecipe: 'editorial-tools-jammy-java17',
 			roleConfiguration: {
 				additionalPolicies: [
@@ -273,7 +271,7 @@ export class Newswires extends GuStack {
 
 		// Add the domain name
 		new GuCname(this, 'DnsRecord', {
-			app: app,
+			app: appName,
 			domainName: domainName,
 			ttl: Duration.minutes(1),
 			resourceRecord: newswiresApp.loadBalancer.loadBalancerDnsName,

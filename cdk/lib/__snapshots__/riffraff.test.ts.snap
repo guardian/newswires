@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`generated riff-raff.yaml matches the snapshot 1`] = `
 "allowedStages:
@@ -190,5 +190,17 @@ deployments:
     dependencies:
       - cfn-eu-west-1-editorial-feeds-newswires
     contentDirectory: newswires
+  cfn-us-east-1-editorial-feeds-newswires-cloudfront-certificate:
+    type: cloud-formation
+    regions:
+      - us-east-1
+    stacks:
+      - editorial-feeds
+    app: newswires-cloudfront-certificate
+    contentDirectory: cdk.out
+    parameters:
+      templateStagePaths:
+        CODE: NewswiresCloudFrontCertificate-CODE.template.json
+        PROD: NewswiresCloudFrontCertificate-PROD.template.json
 "
 `;
