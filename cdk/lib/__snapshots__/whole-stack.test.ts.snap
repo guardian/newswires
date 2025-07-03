@@ -481,6 +481,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
 {
   "Metadata": {
     "gu:cdk:constructs": [
+      "GuParameter",
       "GuVpcParameter",
       "GuSubnetListParameter",
       "GuSecurityGroup",
@@ -521,6 +522,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuHttpsApplicationListener",
       "GuAlb5xxPercentageAlarm",
       "GuUnhealthyInstancesAlarm",
+      "GuS3Bucket",
       "GuCname",
     ],
     "gu:cdk:version": "TEST",
@@ -540,6 +542,11 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     "AMINewswires": {
       "Description": "Amazon Machine Image ID for the app newswires. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
+    },
+    "CloudFrontCertificateArn": {
+      "Default": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
+      "Description": "The ARN of the CloudFront certificate for newswires.TEST.dev-gutools.co.uk, for consumption by the Newswires app stack.",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "DistributionBucketName": {
       "Default": "/account/services/artifact.bucket",
@@ -840,8 +847,8 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "ResourceRecords": [
           {
             "Fn::GetAtt": [
-              "LoadBalancerNewswires3B8BBCB3",
-              "DNSName",
+              "newswirescloudfrontdistroTESTEF1A4E5C",
+              "DomainName",
             ],
           },
         ],
@@ -3800,6 +3807,139 @@ dpkg -i /newswires/newswires.deb",
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
     },
+    "newswirescloudfrontbucketTESTNewswiresB8AD8EC9": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "ExpirationInDays": 90,
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "OwnershipControls": {
+          "Rules": [
+            {
+              "ObjectOwnership": "ObjectWriter",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "newswirescloudfrontdistroTESTEF1A4E5C": {
+      "Properties": {
+        "DistributionConfig": {
+          "Aliases": [
+            "newswires.TEST.dev-gutools.co.uk",
+          ],
+          "DefaultCacheBehavior": {
+            "AllowedMethods": [
+              "GET",
+              "HEAD",
+              "OPTIONS",
+              "PUT",
+              "PATCH",
+              "POST",
+              "DELETE",
+            ],
+            "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+            "Compress": true,
+            "OriginRequestPolicyId": "216adef6-5c7f-47e4-b989-5492eafa07d3",
+            "TargetOriginId": "NewswiresTESTnewswirescloudfrontdistroTESTOrigin122A6E28A",
+            "ViewerProtocolPolicy": "allow-all",
+          },
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Logging": {
+            "Bucket": {
+              "Fn::GetAtt": [
+                "newswirescloudfrontbucketTESTNewswiresB8AD8EC9",
+                "RegionalDomainName",
+              ],
+            },
+          },
+          "Origins": [
+            {
+              "CustomOriginConfig": {
+                "OriginProtocolPolicy": "https-only",
+                "OriginSSLProtocols": [
+                  "TLSv1.2",
+                ],
+              },
+              "DomainName": {
+                "Fn::GetAtt": [
+                  "LoadBalancerNewswires3B8BBCB3",
+                  "DNSName",
+                ],
+              },
+              "Id": "NewswiresTESTnewswirescloudfrontdistroTESTOrigin122A6E28A",
+            },
+          ],
+          "ViewerCertificate": {
+            "AcmCertificateArn": {
+              "Ref": "CloudFrontCertificateArn",
+            },
+            "MinimumProtocolVersion": "TLSv1.2_2021",
+            "SslSupportMethod": "sni-only",
+          },
+        },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::CloudFront::Distribution",
+    },
     "newswiresemailalarmtopicB2906D97": {
       "Properties": {
         "Tags": [
@@ -4652,24 +4792,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     "gu:cdk:version": "TEST",
   },
   "Resources": {
-    "CloudFrontCertificateArn4A1CDCF9": {
-      "Properties": {
-        "Description": "The ARN of the CloudFront certificate for newswires.TEST.dev-gutools.co.uk, for consumption by the Newswires app stack.",
-        "Name": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
-        "Tags": {
-          "App": "newswires",
-          "Stack": "editorial-feeds",
-          "Stage": "TEST",
-          "gu:cdk:version": "TEST",
-          "gu:repo": "guardian/newswires",
-        },
-        "Type": "String",
-        "Value": {
-          "Ref": "cloudfrontcertificateTEST727745A8",
-        },
-      },
-      "Type": "AWS::SSM::Parameter",
-    },
     "cloudfrontcertificateTEST727745A8": {
       "Properties": {
         "DomainName": "newswires.TEST.dev-gutools.co.uk",

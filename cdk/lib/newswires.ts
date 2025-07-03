@@ -11,6 +11,15 @@ import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { aws_logs, Duration } from 'aws-cdk-lib';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import {
+	AllowedMethods,
+	CachePolicy,
+	Distribution,
+	OriginProtocolPolicy,
+	OriginRequestPolicy,
+} from 'aws-cdk-lib/aws-cloudfront';
+import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
 	InstanceClass,
 	InstanceSize,
@@ -26,6 +35,7 @@ import {
 	PostgresEngineVersion,
 	StorageType,
 } from 'aws-cdk-lib/aws-rds';
+import { ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
@@ -45,6 +55,13 @@ export type NewswiresProps = GuStackProps & {
 export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
 		super(scope, id, { ...props, app: appName });
+
+		const certificateArn = new GuParameter(this, 'CloudFrontCertificateArn', {
+			description: `The ARN of the CloudFront certificate for ${props.domainName}, for consumption by the Newswires app stack.`,
+			fromSSM: true,
+			default: `/${this.stage}/${this.stack}/${appName}/cloudfront/certificateArn`,
+			type: 'String',
+		});
 
 		const { domainName, enableMonitoring } = props;
 
@@ -269,12 +286,50 @@ export class Newswires extends GuStack {
 			instanceMetricGranularity: this.stage === 'PROD' ? '1Minute' : '5Minute',
 		});
 
+		const cloudFrontLogsBucket = new GuS3Bucket(
+			this,
+			`newswires-cloudfront-bucket-${this.stage}`,
+			{
+				app: appName,
+				lifecycleRules: [
+					{
+						expiration: Duration.days(90),
+					},
+				],
+				objectOwnership: ObjectOwnership.OBJECT_WRITER,
+			},
+		);
+
+		const cloudfrontCertificate = Certificate.fromCertificateArn(
+			this,
+			`newswires-cloudfront-certificate-${this.stage}`,
+			certificateArn.valueAsString,
+		);
+
+		const newswiresCloudFrontDistro = new Distribution(
+			this,
+			`newswires-cloudfront-distro-${this.stage}`,
+			{
+				defaultBehavior: {
+					origin: new LoadBalancerV2Origin(newswiresApp.loadBalancer, {
+						protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+					}),
+					allowedMethods: AllowedMethods.ALLOW_ALL,
+					originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+					cachePolicy: CachePolicy.CACHING_DISABLED,
+				},
+				logBucket: cloudFrontLogsBucket,
+				certificate: cloudfrontCertificate,
+				domainNames: [domainName],
+			},
+		);
+
 		// Add the domain name
 		new GuCname(this, 'DnsRecord', {
 			app: appName,
 			domainName: domainName,
 			ttl: Duration.minutes(1),
-			resourceRecord: newswiresApp.loadBalancer.loadBalancerDnsName,
+			resourceRecord: newswiresCloudFrontDistro.domainName,
 		});
 
 		database.grantConnect(newswiresApp.autoScalingGroup);

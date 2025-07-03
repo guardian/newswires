@@ -7,24 +7,6 @@ exports[`NewswiresCloudFrontCertificate matches the snapshot 1`] = `
     "gu:cdk:version": "TEST",
   },
   "Resources": {
-    "CloudFrontCertificateArn4A1CDCF9": {
-      "Properties": {
-        "Description": "The ARN of the CloudFront certificate for newswires.TEST.dev-gutools.co.uk, for consumption by the Newswires app stack.",
-        "Name": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
-        "Tags": {
-          "App": "newswires",
-          "Stack": "editorial-feeds",
-          "Stage": "TEST",
-          "gu:cdk:version": "TEST",
-          "gu:repo": "guardian/newswires",
-        },
-        "Type": "String",
-        "Value": {
-          "Ref": "cloudfrontcertificateTEST727745A8",
-        },
-      },
-      "Type": "AWS::SSM::Parameter",
-    },
     "cloudfrontcertificateTEST727745A8": {
       "Properties": {
         "DomainName": "newswires.TEST.dev-gutools.co.uk",
