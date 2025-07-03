@@ -7,6 +7,7 @@ import {
 import { getErrorMessage } from '../../shared/getErrorMessage';
 import { createLogger } from '../../shared/lambda-logging';
 import { createDbConnection } from '../../shared/rds';
+import { BUCKET_NAME, s3Client } from '../../shared/s3';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import {
@@ -24,7 +25,6 @@ import {
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
-import { BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
 
 interface OperationFailure {
