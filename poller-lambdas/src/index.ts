@@ -1,3 +1,4 @@
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import {
 	GetSecretValueCommand,
 	PutSecretValueCommand,
@@ -12,6 +13,7 @@ import { getErrorMessage } from '../../shared/getErrorMessage';
 import { createLogger } from '../../shared/lambda-logging';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
+import { BUCKET_NAME, s3Client } from '../../shared/s3';
 import { queueNextInvocation, secretsManager, sqs } from './aws';
 import { getEnvironmentVariableOrCrash } from './config';
 import { apPoller } from './pollers/ap/apPoller';
@@ -76,14 +78,37 @@ const pollerWrapper =
 								},
 							},
 						};
-						await sqs.send(new SendMessageCommand(message)).catch((error) => {
-							logger.error({
-								message: `Sending to queue failed for ${externalId}`,
-								error: getErrorMessage(error),
-								queueMessage: JSON.stringify(message),
+						await sqs
+							.send(new SendMessageCommand(message))
+							.catch(async (error) => {
+								if (
+									'Type' in error &&
+									// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- we've checked it above...
+									error['Type'] === 'InvalidParameterValue'
+								) {
+									const key = `OVERSIZED_MESSAGES/${externalId}.json`;
+									await s3Client.send(
+										new PutObjectCommand({
+											Bucket: BUCKET_NAME,
+											Key: key,
+											Body: JSON.stringify(message, null, 2),
+										}),
+									);
+									logger.error({
+										// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access --- should be okay, and will be undefined if not present which is okay for now
+										message: `Sending to ingestion queue failed due to ${error.Error?.Message}. Failed message saved to S3 at: ${key}`,
+										externalId,
+										s3Key: key,
+									});
+								} else {
+									logger.error({
+										message: `Sending to queue failed for ${externalId}`,
+										error: getErrorMessage(error),
+										queueMessage: JSON.stringify(message),
+									});
+									throw error; // we still expect this to be terminal for the poller lambda
+								}
 							});
-							throw error; // we still expect this to be terminal for the poller lambda
-						});
 					}
 
 					if (isFixedFrequencyPollOutput(output)) {
