@@ -29,18 +29,18 @@
 		"@guardian/prettier": "8.0.1",
 		"@guardian/tsconfig": "1.0.0",
 		"@types/jest": "30.0.0",
-		"@types/node": "22.15.34",
+		"@types/node": "22.15.35",
 		"esbuild": "^0.25.1",
-		"eslint": "9.30.0",
+		"eslint": "9.30.1",
 		"eslint-plugin-prettier": "5.5.1",
 		"husky": "^9.1.7",
-		"jest": "30.0.3",
+		"jest": "30.0.4",
 		"lint-staged": "16.1.2",
 		"prettier": "3.6.2",
 		"ts-jest": "29.4.0",
 		"tsx": "^4.20.3",
 		"typescript": "5.5.2",
-		"vite": "^7.0.0"
+		"vite": "^7.0.2"
 	},
 	"prettier": "@guardian/prettier",
 	"lint-staged": {
@@ -48,6 +48,6 @@
 	},
 	"dependencies": {
 		"node-html-parser": "7.0.1",
-		"zod": "3.25.67"
+		"zod": "3.25.74"
 	}
 }
