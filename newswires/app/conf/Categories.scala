@@ -44,6 +44,15 @@ private[conf] object CategoryCodes {
     val REUTERS: List[String] = Categories.sportRelatedTopicCodes
   }
 
+  object SportsResults {
+    val PA: List[String] = Categories.sportsResultsCodes
+    val REUTERS: List[String] = List(
+      "M:LB", // Olympics results
+      "M:LJ" // Sports Results
+    )
+    val AP: List[String] = List("apCat:r") // Racing
+  }
+
   object Soccer {
     val REUTERS: List[String] = List("N2:SOCC")
     val PA: List[String] = List("paCat:SSO")
@@ -1531,5 +1540,79 @@ object Categories {
     "subj:15101000",
     "subj:15102000",
     "subj:15103000"
+  )
+
+  private[conf] val sportsResultsCodes = List(
+    // Football results
+    "paCat:RFC",
+    "paCat:RSA",
+    "paCat:RSF",
+    "paCat:RSH",
+    "paCat:RSP",
+    "paCat:RSD",
+    "paCat:RRB",
+    "paCat:SOD",
+    "paCat:SOS",
+    "paCat:RRD",
+    "paCat:SDA",
+    "paCat:SJA",
+    "paCat:SDB",
+    "paCat:SDC",
+    "paCat:SDD",
+    "paCat:SJB",
+    "paCat:STA",
+    "paCat:STB",
+    "paCat:STC",
+    "paCat:STD",
+    "paCat:SSP",
+    // Rugby results
+    "paCat:RRI",
+    "paCat:RRE",
+    "paCat:RRG",
+    "paCat:RRL",
+    "paCat:RRF",
+    "paCat:RRU",
+    "paCat:RDJ",
+    "paCat:SDF",
+    "paCat:SDT",
+    "paCat:STE",
+    "paCat:STF",
+    // Cricket results
+    "paCat:RCK",
+    "paCat:RCB",
+    "paCat:RDG",
+    "paCat:RDC",
+    "paCat:SRX",
+    "paCat:SRY",
+    // Racing results
+    "paCat:RRR",
+    "paCat:RDR",
+    "paCat:SRN",
+    "paCat:RRT",
+    "paCat:SRZ",
+    "paCat:STR",
+    "paCat:SDQ",
+    "paCat:SDP",
+    "paCat:SDR",
+    "paCat:SDS",
+    "paCat:SGN",
+    "paCat:SGR",
+    // General Sports
+    "paCat:RGA",
+    "paCat:RSR",
+    "paCat:SSF",
+    "paCat:RGD",
+    "paCat:RFD",
+    "paCat:RCD",
+    // Minor Results
+    "paCat:NMS",
+    "paCat:RMS",
+    // Fixtures
+    "paCat:SFF",
+    "paCat:SFU",
+    // Other
+    "paCat:SSD",
+    "paCat:SSG",
+    "paCat:SRD"
   )
 }

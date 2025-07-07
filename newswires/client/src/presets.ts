@@ -64,6 +64,7 @@ export const presets = [
 	{ id: 'all-uk', name: 'UK', filterOptions: [] },
 	{ id: 'all-business', name: 'Business', filterOptions: [] },
 	{ id: 'all-sport', name: 'Sport', filterOptions: sportPresets },
+	{ id: 'no-sport', name: 'No Sport', filterOptions: [] },
 ];
 
 export const presetFilterOptions = (presetId: string) => {
