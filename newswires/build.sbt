@@ -41,29 +41,18 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-/* Start of fix for CVE-2020-36518 in Jackson See:https://github.com/orgs/playframework/discussions/11222 */
-val jacksonVersion = "2.13.5" // or 2.12.7
-val jacksonDatabindVersion = "2.13.5" // or 2.12.7.1
+val jacksonVersion = "2.19.1"
 
-val jacksonOverrides = Seq(
+dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
   "com.fasterxml.jackson.core" % "jackson-annotations",
+  "com.fasterxml.jackson.core" % "jackson-databind",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310"
-).map(_ % jacksonVersion)
-
-val jacksonDatabindOverrides = Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion
-)
-
-val akkaSerializationJacksonOverrides = Seq(
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion)
-
-dependencyOverrides ++= jacksonDatabindOverrides ++ jacksonOverrides ++ akkaSerializationJacksonOverrides
-/* End of fix for CVE-2020-36518 in Jackson */
 
 // needed to parse conditional statements in `logback.xml`
 // i.e. to only log to disk in DEV
