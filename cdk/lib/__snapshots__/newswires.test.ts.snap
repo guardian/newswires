@@ -551,6 +551,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Expression": "100*(m1+m2)/m3",
             "Id": "expr_1",
             "Label": "% of 5XX responses served for newswires (load balancer and instances combined)",
+            "ReturnData": true,
           },
           {
             "Id": "m1",
@@ -2532,6 +2533,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 ],
               ],
             },
+            "ReturnData": true,
           },
           {
             "Id": "m1",
@@ -3746,6 +3748,7 @@ dpkg -i /newswires/newswires.deb",
                 ],
               ],
             },
+            "ReturnData": true,
           },
           {
             "Id": "m1",
