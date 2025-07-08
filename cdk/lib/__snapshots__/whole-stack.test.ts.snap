@@ -1020,6 +1020,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Expression": "100*(m1+m2)/m3",
             "Id": "expr_1",
             "Label": "% of 5XX responses served for newswires (load balancer and instances combined)",
+            "ReturnData": true,
           },
           {
             "Id": "m1",
@@ -2957,6 +2958,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 ],
               ],
             },
+            "ReturnData": true,
           },
           {
             "Id": "m1",
@@ -4131,6 +4133,7 @@ dpkg -i /newswires/newswires.deb",
                 ],
               ],
             },
+            "ReturnData": true,
           },
           {
             "Id": "m1",
