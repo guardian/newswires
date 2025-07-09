@@ -8,6 +8,7 @@ import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
 import db.FingerpostWireEntry
 import models.{NextPage, QueryParams, SearchParams}
+import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -101,6 +102,16 @@ class QueryController(
         case None        => NotFound
       }
     }
+
+  def redirectToIncopyImport(id: Int): Action[AnyContent] = authAction {
+    // TODO record that copy was fetched
+    FingerpostWireEntry.getRaw(id) match {
+      case Some(entry) =>
+        val compressedEncodedEntry = Base64Encoder.compressAndEncode(entry)
+        Found(s"newswires://wire-entry?data=$compressedEncodedEntry")
+      case None => NotFound
+    }
+  }
 
   def linkToComposer(id: Int): Action[AnyContent] = apiAuthAction {
     request: UserRequest[AnyContent] =>
