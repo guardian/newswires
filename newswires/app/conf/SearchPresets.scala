@@ -141,9 +141,8 @@ object SearchPresets {
     ),
     SearchPreset(
       REUTERS,
-      categoryCodes = List("MCC:OVR", "MCC:QFE", "MCCL:OVR", "MCCL:OSM", "N2:US"),
+      categoryCodes = List("MCC:OVR", "MCC:QFE", "MCCL:OVR", "MCCL:OSM", "MCC:DED", "N2:US"),
       categoryCodesExcl = List(
-        "MCC:DED",
         "MCC:SPO",
         "MCC:OEC",
         "MCCL:OEC",
