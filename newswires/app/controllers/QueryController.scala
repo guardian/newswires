@@ -105,7 +105,7 @@ class QueryController(
 
   def redirectToIncopyImport(id: Int): Action[AnyContent] = authAction {
     // TODO record that copy was fetched
-    FingerpostWireEntry.getRaw(id) match {
+    FingerpostWireEntry.get(id, None).map(Json.toJson(_).toString()) match {
       case Some(entry) =>
         val compressedEncodedEntry = Base64Encoder.compressAndEncode(entry)
         // eww - TODO pick a better way of doing this lol. host header maybe?

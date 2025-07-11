@@ -129,6 +129,16 @@ object FingerpostWireEntry
       .flatten
   }
 
+  case class QueryResponse(
+      results: List[FingerpostWireEntry],
+      totalCount: Long
+//      keywordCounts: Map[String, Int]
+  )
+
+  private object QueryResponse {
+    implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
+  }
+
   def getRaw(id: Int): Option[String] = DB readOnly { implicit session =>
     sql"""| SELECT $selectAllStatement
           | FROM ${FingerpostWireEntry as syn}
