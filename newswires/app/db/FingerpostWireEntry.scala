@@ -1,12 +1,12 @@
 package db
 
-import conf.{SearchConfig, SearchField, SearchTerm}
+import conf.{SearchField, SearchTerm}
 import db.CustomMappers.textArray
 import play.api.Logging
 import play.api.libs.json._
 import scalikejdbc._
 
-import java.time.{Instant, ZonedDateTime}
+import java.time.Instant
 
 case class FingerpostWireSubjects(
     code: List[String]
