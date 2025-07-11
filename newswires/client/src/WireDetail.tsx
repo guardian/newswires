@@ -561,6 +561,16 @@ export const WireDetail = ({
 						<EuiDescriptionListDescription>
 							<ComposerConnection itemData={wire} key={wire.id} />
 						</EuiDescriptionListDescription>
+						<EuiDescriptionListTitle>Incopy</EuiDescriptionListTitle>
+						<EuiDescriptionListDescription>
+							<a
+								target="_blank"
+								href={`/api/item/${wire.id}/incopy`}
+								rel="noreferrer"
+							>
+								Fetch to incopy
+							</a>
+						</EuiDescriptionListDescription>
 						<EuiDescriptionListTitle>Metadata</EuiDescriptionListTitle>
 						<EuiDescriptionListDescription>
 							<MetaTable wire={wire} />
