@@ -108,7 +108,9 @@ class QueryController(
     FingerpostWireEntry.getRaw(id) match {
       case Some(entry) =>
         val compressedEncodedEntry = Base64Encoder.compressAndEncode(entry)
-        Found(s"newswires://wire-entry?data=$compressedEncodedEntry")
+        // eww - TODO pick a better way of doing this lol. host header maybe?
+        val domain = s"newswires.${panDomainSettings.domain}"
+        Found(s"newswires://$domain?data=$compressedEncodedEntry")
       case None => NotFound
     }
   }
