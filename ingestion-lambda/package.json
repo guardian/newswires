@@ -11,8 +11,8 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
-		"@aws-sdk/client-s3": "3.839.0",
-		"@aws-sdk/rds-signer": "3.839.0",
+		"@aws-sdk/client-s3": "3.844.0",
+		"@aws-sdk/rds-signer": "3.844.0",
 		"compromise": "^14.14.4",
 		"postgres": "3.4.7"
 	},
