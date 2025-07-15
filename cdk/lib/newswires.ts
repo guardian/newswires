@@ -293,7 +293,7 @@ export class Newswires extends GuStack {
 				app: appName,
 				lifecycleRules: [
 					{
-						expiration: Duration.days(90),
+						expiration: Duration.days(30),
 					},
 				],
 				objectOwnership: ObjectOwnership.OBJECT_WRITER,
