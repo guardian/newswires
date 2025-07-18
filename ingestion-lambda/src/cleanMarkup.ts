@@ -33,7 +33,13 @@ export function cleanBodyTextMarkup(
 
 function flattenBlocks(block: Node): Node[] {
 	if (block.childNodes.length === 0) {
-		if (block instanceof TextNode && block.textContent.trim().length === 0) {
+		const isEmptyTextNode =
+			block instanceof TextNode && block.textContent.trim().length === 0;
+		const isEmptyParagraph =
+			block instanceof HTMLElement &&
+			block.tagName === 'P' &&
+			block.innerHTML.trim().length === 0;
+		if (isEmptyParagraph || isEmptyTextNode) {
 			return [];
 		}
 		const newP = new HTMLElement('p', {});
