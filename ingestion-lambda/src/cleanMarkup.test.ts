@@ -73,7 +73,7 @@ describe('cleanBodyTextMarkup', () => {
 	});
 
 	it('should remove empty <p> tags', () => {
-		const input = '<p>  </p><div><p>   </p></div>';
+		const input = '<p>  </p><div><p>   </p></div><p></p>';
 		const expectedOutput = '<div></div>';
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});
