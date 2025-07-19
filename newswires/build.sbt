@@ -22,6 +22,8 @@ libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.9" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test
 
+libraryDependencies += "com.github.blemale" %% "scaffeine" % "5.3.0"
+
 lazy val root = (project in file(".")).enablePlugins(
   PlayScala,
   PlayVite,
