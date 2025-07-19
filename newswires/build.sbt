@@ -24,6 +24,8 @@ libraryDependencies += "io.circe" %% "circe-parser" % "0.14.14"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.9" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test
 
+libraryDependencies += "com.github.blemale" %% "scaffeine" % "5.3.0"
+
 lazy val root = (project in file(".")).enablePlugins(
   PlayScala,
   PlayVite,
