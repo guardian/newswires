@@ -386,23 +386,18 @@ object FingerpostWireEntry
   }
 
   def query(
-      searchParams: SearchParams,
-      savedSearchParamList: List[SearchParams],
-      maybeSearchTerm: Option[SearchTerm],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int],
-      pageSize: Int = 250
+      queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
-    val effectivePageSize = clamp(0, pageSize, 250)
+    val effectivePageSize = clamp(0, queryParams.pageSize, 250)
 
     val whereClause = buildWhereClause(
-      searchParams,
-      savedSearchParamList,
-      maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId
+      queryParams.searchParams,
+      queryParams.savedSearchParamList,
+      maybeBeforeId = queryParams.maybeBeforeId,
+      maybeSinceId = queryParams.maybeSinceId
     )
 
-    val highlightsClause = maybeSearchTerm match {
+    val highlightsClause = queryParams.maybeSearchTerm match {
       case Some(SearchTerm.English(query)) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
