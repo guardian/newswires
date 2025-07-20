@@ -389,10 +389,16 @@ object FingerpostWireEntry
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
 
+    val orderByClause = maybeSinceId match {
+      case Some(NextPage(_)) =>
+        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
+      case _ => sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
+    }
+
     sqls"""| SELECT $selectAllStatement $highlightsClause
                       | FROM ${FingerpostWireEntry as syn}
                       | $whereClause
-                      | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+                      | $orderByClause
                       | LIMIT $effectivePageSize
                       | """.stripMargin
   }
@@ -404,7 +410,7 @@ object FingerpostWireEntry
       queryParams.searchParams,
       queryParams.savedSearchParamList,
       maybeBeforeId = queryParams.maybeBeforeId,
-      maybeSinceId = queryParams.maybeSinceId
+      maybeSinceId = queryParams.maybeSinceId.map(_.sinceId)
     )
 
     val query = sql"${buildSearchQuery(queryParams, whereClause)}"

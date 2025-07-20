@@ -236,7 +236,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
       maybeBeforeId = None,
-      maybeSinceId = Some(123)
+      maybeSinceId = None
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -244,4 +244,31 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
     query.value should include("ORDER BY fm.ingested_at DESC")
   }
 
+  it should "order results by descending ingestion_at when using MostRecent update type with maybeSinceId" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(None),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeId = None,
+      maybeSinceId = Some(MostRecent(123))
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.value should include("ORDER BY fm.ingested_at DESC")
+  }
+
+  it should "order results by *ascending* ingestion_at when using NextPage update type with maybeSinceId" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(None),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeId = None,
+      maybeSinceId = Some(NextPage(123))
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.value should include("ORDER BY fm.ingested_at ASC")
+  }
 }
