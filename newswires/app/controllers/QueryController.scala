@@ -5,8 +5,8 @@ import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
-import db.FingerpostWireEntry.QueryResponse
-import db.{FingerpostWireEntry, QueryParams, SearchParams}
+import db.FingerpostWireEntry._
+import db.{FingerpostWireEntry, QueryParams, QueryResponse, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._

@@ -10,7 +10,7 @@ import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
 import conf.Database
 import controllers._
-import db.FingerpostWireEntry.QueryResponse
+import db.QueryResponse
 import db.QueryParams
 import lib.RequestLoggingFilter
 import play.api.ApplicationLoader.Context
