@@ -170,16 +170,6 @@ object FingerpostWireEntry
       .apply()
   }
 
-  case class QueryResponse(
-      results: List[FingerpostWireEntry],
-      totalCount: Long
-//      keywordCounts: Map[String, Int]
-  )
-
-  private object QueryResponse {
-    implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
-  }
-
   private def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
@@ -385,17 +375,13 @@ object FingerpostWireEntry
     }
   }
 
-  def query(
-      queryParams: QueryParams
-  ): QueryResponse = DB readOnly { implicit session =>
+  private[db] def buildSearchQuery(
+      queryParams: QueryParams,
+      whereClause: SQLSyntax
+  ): SQLSyntax = {
     val effectivePageSize = clamp(0, queryParams.pageSize, 250)
 
-    val whereClause = buildWhereClause(
-      queryParams.searchParams,
-      queryParams.savedSearchParamList,
-      maybeBeforeId = queryParams.maybeBeforeId,
-      maybeSinceId = queryParams.maybeSinceId
-    )
+    val maybeSinceId = queryParams.maybeSinceId
 
     val highlightsClause = queryParams.maybeSearchTerm match {
       case Some(SearchTerm.English(query)) =>
@@ -403,12 +389,25 @@ object FingerpostWireEntry
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
 
-    val query = sql"""| SELECT $selectAllStatement $highlightsClause
+    sqls"""| SELECT $selectAllStatement $highlightsClause
                       | FROM ${FingerpostWireEntry as syn}
                       | $whereClause
                       | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
                       | LIMIT $effectivePageSize
                       | """.stripMargin
+  }
+
+  def query(
+      queryParams: QueryParams
+  ): QueryResponse = DB readOnly { implicit session =>
+    val whereClause = buildWhereClause(
+      queryParams.searchParams,
+      queryParams.savedSearchParamList,
+      maybeBeforeId = queryParams.maybeBeforeId,
+      maybeSinceId = queryParams.maybeSinceId
+    )
+
+    val query = sql"${buildSearchQuery(queryParams, whereClause)}"
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 

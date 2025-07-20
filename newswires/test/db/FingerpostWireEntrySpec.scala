@@ -4,6 +4,7 @@ import conf.{SearchField, SearchTerm}
 import helpers.WhereClauseMatcher.matchWhereClause
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
 
@@ -226,4 +227,21 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
       )
     )
   }
+
+  behavior of "FingerpostWireEntry.generateWhereClause"
+
+  it should "order results by descending ingestion_at by default" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(None),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeId = None,
+      maybeSinceId = Some(123)
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.value should include("ORDER BY fm.ingested_at DESC")
+  }
+
 }
