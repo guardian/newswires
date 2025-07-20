@@ -5,7 +5,7 @@ import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import db.FingerpostWireEntry._
-import db.{FingerpostWireEntry, QueryParams, SearchParams}
+import db.{FingerpostWireEntry, NextPage, QueryParams, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -70,7 +70,7 @@ class QueryController(
       savedSearchParamList = maybePreset.getOrElse(Nil),
       maybeSearchTerm = maybeSearchTerm,
       maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId,
+      maybeSinceId = maybeSinceId.map(NextPage(_)),
       pageSize = 30
     )
 
