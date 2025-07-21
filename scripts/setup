@@ -78,7 +78,7 @@ elif [[ "$OVERWRITE_CONFIG_FLAG" == "--no-overwrite" || "$OVERWRITE_CONFIG_FLAG"
   setup_config "no-overwrite"
 else
   printf "${RED}Missing argument${NC}\n"
-  echo "Usage: $0 [--overwrite|-o or --no-overwrite|-n]"
+  echo "Usage: $0 [--overwrite | -o or --no-overwrite | -n]"
   echo "If 'overwrite' is specified, the config will be overwritten with a new one."
   echo "If 'no-overwrite' is specified, the config will be updated with new values only if they do not already exist."
   exit 1
