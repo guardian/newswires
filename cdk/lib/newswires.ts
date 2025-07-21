@@ -208,6 +208,22 @@ export class Newswires extends GuStack {
 		scheduledCleanupLambda.connections.allowTo(database, Port.tcp(5432));
 		database.grantConnect(scheduledCleanupLambda);
 
+		// Create email filter lambda for SES processing (for 'sport.copy' emails)
+		const emailFilterLambda = new GuLambdaFunction(
+			this,
+			`EmailFilterLambda-${this.stage}`,
+			{
+				app: 'email-filter-lambda',
+				runtime: LAMBDA_RUNTIME,
+				architecture: LAMBDA_ARCHITECTURE,
+				handler: 'handler.main',
+				fileName: 'email-filter-lambda.zip',
+				reservedConcurrentExecutions: 2, // email filter doesn't need high concurrency
+				timeout: Duration.seconds(30),
+				loggingFormat: LoggingFormat.TEXT,
+			},
+		);
+
 		const panDomainSettingsBucket = new GuParameter(
 			this,
 			'PanDomainSettingsBucket',
@@ -341,6 +357,12 @@ export class Newswires extends GuStack {
 			value: ingestionLambda.functionArn,
 			description: 'ARN of the ingestion lambda function',
 			exportName: `NewswiresIngestionLambdaFunctionArn-${this.stage}`,
+		});
+
+		new CfnOutput(this, 'NewswiresEmailFilterLambdaArnOutput', {
+			value: emailFilterLambda.functionArn,
+			description: 'ARN of the email filter lambda function',
+			exportName: `NewswiresEmailFilterLambdaFunctionArn-${this.stage}`,
 		});
 	}
 }
