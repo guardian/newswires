@@ -1,6 +1,6 @@
 <sup>Looking for the repository containing the current Fingerpost wires? Try [editorial-wires](https://github.com/guardian/editorial-wires) instead (Guardian employees only, sorry!)</sup>
 
-# newswires
+# Newswires
 
 For more details, see
 
@@ -16,15 +16,17 @@ Before running any of the projects locally, run the setup script to check depend
 
 ### Newswires (API and UI)
 
-This can either be run against the CODE database (requires AWS credentials from Janus), or against a local database (requires Docker):
+This can either be run against the CODE database, or against a local database (requires Docker). Both options currently require
+having AWS credentials configured, to allows for fetching [pan-domain-auth](https://github.com/guardian/pan-domain-authentication)
+keys and -- when run with the `--use-CODE` flag -- tunnelling to the CODE database.
 
 ```sh
-# Running against the CODE db (requires AWS credentials from Janus)
+# Running against the CODE db
 ./scripts/start --use-CODE
 ```
 
 ```sh
-# Running against a local db (requires Docker to be installed)
+# Running against a local db (requires Docker)
 ./scripts/start
 ```
 
