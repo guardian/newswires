@@ -23,6 +23,7 @@ import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
+import { useTelemetry } from './context/TelemetryContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { SupplierInfo, WireData } from './sharedTypes';
@@ -321,6 +322,7 @@ function CopyButton({
 	id: number;
 	headlineText: string;
 }) {
+	const { sendTelemetryEvent } = useTelemetry();
 	const { config } = useSearch();
 	const [copied, setCopied] = useState(false);
 
@@ -343,6 +345,10 @@ function CopyButton({
 					}),
 				}),
 			]);
+			sendTelemetryEvent('NEWSWIRES_COPY_ITEM_BUTTON', {
+				itemId: id,
+				status: 'success',
+			});
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
