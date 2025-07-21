@@ -332,9 +332,17 @@ function CopyButton({
 				itemId: id.toString(),
 			});
 			const fullUrl = `${window.location.origin}${wireUrl}`;
-			const textToCopy = `${headlineText}\n${fullUrl}`;
 
-			await navigator.clipboard.writeText(textToCopy);
+			await navigator.clipboard.write([
+				new ClipboardItem({
+					'text/plain': new Blob([`${headlineText}\n${fullUrl}`], {
+						type: 'text/plain',
+					}),
+					'text/html': new Blob([`<a href="${fullUrl}">${headlineText}</a>`], {
+						type: 'text/html',
+					}),
+				}),
+			]);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
