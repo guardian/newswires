@@ -35,16 +35,19 @@ function TitleContentForItem({
 	headline,
 	ingestedAt,
 	supplier,
+	wordCount,
 }: {
 	slug?: string;
 	headline?: string;
 	ingestedAt: Moment;
 	supplier: SupplierInfo;
+	wordCount: number;
 }) {
 	return (
 		<>
 			<EuiText size={'xs'}>
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
+				<span>{wordCount} words &#183; </span>
 				<Tooltip tooltipContent={ingestedAt.format()}>
 					{ingestedAt.fromNow()}
 				</Tooltip>
@@ -324,6 +327,18 @@ export const WireDetail = ({
 		[keywords],
 	);
 
+	const wordCount = useMemo(() => {
+		return wire.content.bodyText
+			? sanitizeHtml(wire.content.bodyText, {
+					allowedTags: [],
+					allowedAttributes: {},
+				})
+					.trim()
+					.split(/\s+/)
+					.filter((word) => word.length > 0).length
+			: 0;
+	}, [wire]);
+
 	return (
 		<>
 			<EuiFlexGroup justifyContent="spaceBetween">
@@ -335,6 +350,7 @@ export const WireDetail = ({
 								slug={slug}
 								ingestedAt={convertToLocalDate(wire.ingestedAt)}
 								supplier={wire.supplier}
+								wordCount={wordCount}
 							/>
 						</h2>
 					</EuiTitle>
