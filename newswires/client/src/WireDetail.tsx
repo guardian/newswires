@@ -335,16 +335,24 @@ function CopyButton({
 			});
 			const fullUrl = `${window.location.origin}${wireUrl}`;
 
+			const htmlLink = document.createElement('a');
+			htmlLink.href = fullUrl;
+			htmlLink.innerText = headlineText;
+
+			const htmlLinkBlob = htmlLink.outerHTML;
+			htmlLink.remove();
+
 			await navigator.clipboard.write([
 				new ClipboardItem({
 					'text/plain': new Blob([`${headlineText}\n${fullUrl}`], {
 						type: 'text/plain',
 					}),
-					'text/html': new Blob([`<a href="${fullUrl}">${headlineText}</a>`], {
+					'text/html': new Blob([htmlLinkBlob], {
 						type: 'text/html',
 					}),
 				}),
 			]);
+
 			sendTelemetryEvent('NEWSWIRES_COPY_ITEM_BUTTON', {
 				itemId: id,
 				status: 'success',
