@@ -392,15 +392,16 @@ object FingerpostWireEntry
     val orderByClause = maybeSinceId match {
       case Some(NextPage(_)) =>
         sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
-      case _ => sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
+      case _ =>
+        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
     }
 
     sqls"""| SELECT $selectAllStatement $highlightsClause
-                      | FROM ${FingerpostWireEntry as syn}
-                      | $whereClause
-                      | $orderByClause
-                      | LIMIT $effectivePageSize
-                      | """.stripMargin
+           | FROM ${FingerpostWireEntry as syn}
+           | $whereClause
+           | $orderByClause
+           | LIMIT $effectivePageSize
+           | """.stripMargin
   }
 
   def query(
@@ -439,7 +440,10 @@ object FingerpostWireEntry
 //      commonWhereClauses
 //    ) // TODO do this in parallel
 
-    QueryResponse(results, totalCount /*, keywordCounts*/ )
+    QueryResponse(
+      results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
+      totalCount /*, keywordCounts*/
+    )
   }
 
   def getKeywords(
