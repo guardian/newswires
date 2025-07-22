@@ -18,42 +18,68 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
+import { useTelemetry } from './context/TelemetryContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import type { SupplierInfo, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
 import { Tooltip } from './Tooltip.tsx';
+import { configToUrl } from './urlState.ts';
 
 function TitleContentForItem({
+	id,
 	slug,
 	headline,
 	ingestedAt,
 	supplier,
 	wordCount,
 }: {
+	id: number;
 	slug?: string;
 	headline?: string;
 	ingestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
 }) {
+	const headlineText =
+		headline && headline.length > 0 ? headline : (slug ?? 'No title');
+
 	return (
-		<>
-			<EuiText size={'xs'}>
+		<div
+			css={css`
+				display: flex;
+				flex-direction: column-reverse;
+			`}
+		>
+			<div
+				css={css`
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+				`}
+			>
+				<EuiTitle size="xs">
+					<h2>
+						<EuiText size={'xs'}></EuiText>
+						{headlineText}
+					</h2>
+				</EuiTitle>
+				<CopyButton id={id} headlineText={headlineText} />
+			</div>
+			<h3>
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
 				<span>{wordCount} words &#183; </span>
 				<Tooltip tooltipContent={ingestedAt.format()}>
 					{ingestedAt.fromNow()}
 				</Tooltip>
-			</EuiText>
-			{headline && headline.length > 0 ? headline : (slug ?? 'No title')}
-		</>
+			</h3>
+		</div>
 	);
 }
 
@@ -292,6 +318,70 @@ function MetaTable({ wire }: { wire: WireData }) {
 	);
 }
 
+function CopyButton({
+	id,
+	headlineText,
+}: {
+	id: number;
+	headlineText: string;
+}) {
+	const { sendTelemetryEvent } = useTelemetry();
+	const { config } = useSearch();
+	const [copied, setCopied] = useState(false);
+
+	const handleCopy = async () => {
+		try {
+			const wireUrl = configToUrl({
+				...config,
+				view: 'item',
+				itemId: id.toString(),
+			});
+			const fullUrl = `${window.location.origin}${wireUrl}`;
+
+			const htmlLink = document.createElement('a');
+			htmlLink.href = fullUrl;
+			htmlLink.innerText = headlineText;
+
+			const htmlLinkBlob = htmlLink.outerHTML;
+			htmlLink.remove();
+
+			await navigator.clipboard.write([
+				new ClipboardItem({
+					'text/plain': new Blob([`${headlineText}\n${fullUrl}`], {
+						type: 'text/plain',
+					}),
+					'text/html': new Blob([htmlLinkBlob], {
+						type: 'text/html',
+					}),
+				}),
+			]);
+
+			sendTelemetryEvent('NEWSWIRES_COPY_ITEM_BUTTON', {
+				itemId: id,
+				status: 'success',
+			});
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch (err) {
+			console.error('Failed to copy to clipboard:', err);
+		}
+	};
+
+	return (
+		<Tooltip
+			tooltipContent={copied ? 'Copied!' : 'Copy headline and URL'}
+			position="left"
+		>
+			<EuiButtonIcon
+				aria-label="Copy headline and URL"
+				size="xs"
+				iconType={copied ? 'check' : 'link'}
+				onClick={() => void handleCopy()}
+			/>
+		</Tooltip>
+	);
+}
+
 export const WireDetail = ({
 	wire,
 	isShowingJson,
@@ -341,21 +431,21 @@ export const WireDetail = ({
 
 	return (
 		<>
-			<EuiFlexGroup justifyContent="spaceBetween">
-				<EuiFlexItem grow={true}>
-					<EuiTitle size="xs">
-						<h2>
-							<TitleContentForItem
-								headline={headline}
-								slug={slug}
-								ingestedAt={convertToLocalDate(wire.ingestedAt)}
-								supplier={wire.supplier}
-								wordCount={wordCount}
-							/>
-						</h2>
-					</EuiTitle>
-				</EuiFlexItem>
-			</EuiFlexGroup>
+			<div
+				css={css`
+					display: flex;
+					align-items: end;
+				`}
+			>
+				<TitleContentForItem
+					id={wire.id}
+					headline={headline}
+					slug={slug}
+					ingestedAt={convertToLocalDate(wire.ingestedAt)}
+					supplier={wire.supplier}
+					wordCount={wordCount}
+				/>
+			</div>
 			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
