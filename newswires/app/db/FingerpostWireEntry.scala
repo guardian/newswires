@@ -378,7 +378,7 @@ object FingerpostWireEntry
   private[db] def buildSearchQuery(
       queryParams: QueryParams,
       whereClause: SQLSyntax
-  ): SQLSyntax = {
+  ): SQL[Nothing, NoExtractor] = {
     val effectivePageSize = clamp(0, queryParams.pageSize, 250)
 
     val maybeSinceId = queryParams.maybeSinceId
@@ -396,7 +396,7 @@ object FingerpostWireEntry
         sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
     }
 
-    sqls"""| SELECT $selectAllStatement $highlightsClause
+    sql"""| SELECT $selectAllStatement $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
            | $whereClause
            | $orderByClause
@@ -414,7 +414,7 @@ object FingerpostWireEntry
       maybeSinceId = queryParams.maybeSinceId.map(_.sinceId)
     )
 
-    val query = sql"${buildSearchQuery(queryParams, whereClause)}"
+    val query = buildSearchQuery(queryParams, whereClause)
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
