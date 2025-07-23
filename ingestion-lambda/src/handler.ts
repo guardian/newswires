@@ -239,39 +239,39 @@ export const main = async (
 			logger.log({ message: 'No email object keys found in SES event', event });
 			return;
 		}
-		emailObjectKeys.forEach((emailObjectKey) => {
-			logger.log({
-				message: `Processing email object key: ${emailObjectKey}`,
-				eventType: 'INGESTION_PROCESSING_SES_EMAIL_OBJECT',
-				emailObjectKey,
-			});
-			s3Client
-				.send(
-					new GetObjectCommand({
-						Bucket: COPY_EMAIL_BUCKET_NAME,
-						Key: emailObjectKey,
-					}),
-				)
-				.then((response) => {
+		await Promise.all(
+			emailObjectKeys.map(async (emailObjectKey) => {
+				logger.log({
+					message: `Processing email object key: ${emailObjectKey}`,
+					eventType: 'INGESTION_PROCESSING_SES_EMAIL_OBJECT',
+					emailObjectKey,
+				});
+				try {
+					const response = await s3Client.send(
+						new GetObjectCommand({
+							Bucket: COPY_EMAIL_BUCKET_NAME,
+							Key: emailObjectKey,
+						}),
+					);
 					if (!response.Body) {
 						throw new Error(
 							`No body found in S3 response for email object key: ${emailObjectKey}`,
 						);
 					}
-					return response.Body.transformToString();
-				})
-				.then((body) => {
-					console.log(body.length);
-				})
-				.catch((error) => {
-					logger.error({
-						message: `Error processing email object key: ${emailObjectKey}`,
-						error: getErrorMessage(error),
-						eventType: 'INGESTION_ERROR_PROCESSING_SES_EMAIL_OBJECT',
+					const body = await response.Body.transformToString();
+					logger.log({
+						message: `Successfully retrieved email object from S3: ${emailObjectKey}, with body length: ${body.length}`,
+						eventType: 'INGESTION_RETRIEVED_SES_EMAIL_OBJECT',
 						emailObjectKey,
 					});
-				});
-		});
+				} catch (error) {
+					logger.error({
+						message: `Failed to get email object from S3: ${emailObjectKey}`,
+						error: getErrorMessage(error),
+					});
+				}
+			}),
+		);
 		return;
 	}
 

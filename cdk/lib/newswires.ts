@@ -41,7 +41,7 @@ import {
 } from 'aws-cdk-lib/aws-rds';
 import { ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { ReceiptRuleSet } from 'aws-cdk-lib/aws-ses';
-import { Lambda, LambdaInvocationType } from 'aws-cdk-lib/aws-ses-actions';
+import { Lambda, LambdaInvocationType, S3 } from 'aws-cdk-lib/aws-ses-actions';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
@@ -198,6 +198,13 @@ export class Newswires extends GuStack {
 					/**
 					 * @todo we'll need to change the invocation type if/when we want to make the lambda blocking
 					 */
+					invocationType: LambdaInvocationType.EVENT,
+				}),
+				new S3({
+					bucket: copyEmailBucket,
+				}),
+				new Lambda({
+					function: ingestionLambda,
 					invocationType: LambdaInvocationType.EVENT,
 				}),
 			],
