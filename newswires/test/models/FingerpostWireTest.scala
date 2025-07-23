@@ -3,6 +3,8 @@ package models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.libs.json.{JsSuccess, Json}
+import io.circe.parser.decode
+import io.circe.syntax.EncoderOps
 
 class FingerpostWireTest extends AnyFlatSpec {
 
@@ -83,9 +85,17 @@ class FingerpostWireTest extends AnyFlatSpec {
                           |  "byline" : "Jane Doe",
                           |  "priority" : "high",
                           |  "subjects" : {
-                          |    "code" : [ "POL", "INT", "UK" ]
+                          |    "code" : [
+                          |      "POL",
+                          |      "INT",
+                          |      "UK"
+                          |    ]
                           |  },
-                          |  "keywords" : [ "breaking", "government", "security" ],
+                          |  "keywords" : [
+                          |    "breaking",
+                          |    "government",
+                          |    "security"
+                          |  ],
                           |  "usage" : "editorial",
                           |  "ednote" : "Sensitive content – embargo until 10 AM",
                           |  "mediaCatCodes" : "MC123",
@@ -99,32 +109,26 @@ class FingerpostWireTest extends AnyFlatSpec {
                           |  }
                           |}""".stripMargin
   it should "serialise json" in {
-    Json.prettyPrint(Json.toJson(exampleWire)) shouldEqual exampleWireJson
+    exampleWire.asJson.spaces2 shouldEqual exampleWireJson
   }
 
   it should "deserialise json" in {
-    Json.fromJson[FingerpostWire](
-      Json.parse(exampleWireJson)
-    ) shouldEqual JsSuccess(exampleWire)
+    decode[FingerpostWire](exampleWireJson) shouldEqual Right(exampleWire)
   }
 
   it should "transform source-feed to sourceFeed" in {
-    Json.fromJson[FingerpostWire](
-      Json.parse(
-        """{
+    decode[FingerpostWire](
+      """{
         |"source-feed": "newswire-feed"
         |}""".stripMargin
-      )
-    ) shouldEqual JsSuccess(emptyWire.copy(sourceFeed = Some("newswire-feed")))
+    ) shouldEqual Right(emptyWire.copy(sourceFeed = Some("newswire-feed")))
   }
 
   it should "transform body_text to bodyText" in {
-    Json.fromJson[FingerpostWire](
-      Json.parse(
-        """{
+    decode[FingerpostWire](
+      """{
         |"body_text": "body text"
         |}""".stripMargin
-      )
-    ) shouldEqual JsSuccess(emptyWire.copy(bodyText = Some("body text")))
+    ) shouldEqual Right(emptyWire.copy(bodyText = Some("body text")))
   }
 }

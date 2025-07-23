@@ -1,5 +1,7 @@
 package models
 
+import io.circe.{Decoder, Encoder, JsonObject, _}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import play.api.libs.json.{Format, JsArray, JsObject, JsString, Json}
 
 case class FingerpostWireSubjects(
@@ -18,4 +20,9 @@ object FingerpostWireSubjects {
   private val writes = Json.writes[FingerpostWireSubjects]
   implicit val format: Format[FingerpostWireSubjects] =
     Format(reads, writes)
+
+  implicit val jsonDecoder: Decoder[FingerpostWireSubjects] = deriveDecoder
+
+  implicit val jsonEncoder: Encoder[FingerpostWireSubjects] =
+    deriveEncoder[FingerpostWireSubjects]
 }

@@ -1,5 +1,8 @@
 package models
 
+import io.circe._
+import io.circe.generic.semiauto._
+import io.circe.generic.extras._
 import play.api.libs.json.{Format, JsObject, Json, Reads}
 
 case class FingerpostWire(
@@ -38,4 +41,28 @@ object FingerpostWire {
     }
   private val writes = Json.writes[FingerpostWire]
   implicit val format: Format[FingerpostWire] = Format(reads, writes)
+  implicit val jsonDecoder: Decoder[FingerpostWire] =
+    deriveDecoder[FingerpostWire].prepare(
+      _.withFocus {
+        _.mapObject(obj => {
+          obj
+            .add(
+              "sourceFeed",
+              obj("source-feed").getOrElse(
+                obj("sourceFeed").getOrElse(io.circe.Json.Null)
+              )
+            )
+            .add(
+              "bodyText",
+              obj("body_text").getOrElse(
+                obj("bodyText").getOrElse(io.circe.Json.Null)
+              )
+            )
+            .remove("source-feed")
+            .remove("body_text")
+        })
+      }
+    )
+  implicit val jsonEncoder: Encoder[FingerpostWire] =
+    deriveEncoder[FingerpostWire]
 }

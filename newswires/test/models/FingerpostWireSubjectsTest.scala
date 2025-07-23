@@ -3,24 +3,26 @@ package models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.libs.json.{JsSuccess, Json}
+import io.circe.parser.decode
+import io.circe.syntax.EncoderOps
 
 class FingerpostWireSubjectsTest extends AnyFlatSpec {
   val exampleFingerpostWireSubjects =
     FingerpostWireSubjects(code = List("a", "b"))
   val exampleJson = """{
-                      |  "code" : [ "a", "b" ]
+                      |  "code" : [
+                      |    "a",
+                      |    "b"
+                      |  ]
                       |}""".stripMargin
   it should "serialise json" in {
-    Json.prettyPrint(
-      Json.toJson(exampleFingerpostWireSubjects)
-    ) shouldEqual exampleJson
-
+    exampleFingerpostWireSubjects.asJson.spaces2 shouldEqual exampleJson
   }
 
   it should "deserialise json" in {
-    Json.fromJson[FingerpostWireSubjects](
-      Json.parse(exampleJson)
-    ) shouldEqual JsSuccess(exampleFingerpostWireSubjects)
+    decode[FingerpostWireSubjects](
+      exampleJson
+    ) shouldEqual Right(exampleFingerpostWireSubjects)
   }
 
   it should "deserialise json with an empty code" in {
