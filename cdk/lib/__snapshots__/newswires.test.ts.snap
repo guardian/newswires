@@ -905,6 +905,9 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Environment": {
           "Variables": {
             "APP": "ingestion-lambda",
+            "COPY_EMAIL_BUCKET_NAME": {
+              "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
+            },
             "DATABASE_ENDPOINT_ADDRESS": {
               "Fn::GetAtt": [
                 "NewswiresDBNewswires2A5A9AC6",
@@ -1219,6 +1222,36 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                       {
                         "Fn::GetAtt": [
                           "feedsbucketTESTNewswires116BDB0E",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "NewswiresCopyEmailBucketNewswires26C541A0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "NewswiresCopyEmailBucketNewswires26C541A0",
                           "Arn",
                         ],
                       },

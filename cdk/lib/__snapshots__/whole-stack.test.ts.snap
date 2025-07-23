@@ -1366,6 +1366,9 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "Environment": {
           "Variables": {
             "APP": "ingestion-lambda",
+            "COPY_EMAIL_BUCKET_NAME": {
+              "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
+            },
             "DATABASE_ENDPOINT_ADDRESS": {
               "Fn::GetAtt": [
                 "NewswiresDBNewswires2A5A9AC6",
@@ -1672,6 +1675,36 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                       {
                         "Fn::GetAtt": [
                           "feedsbucketTESTNewswires116BDB0E",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "NewswiresCopyEmailBucketNewswires26C541A0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "NewswiresCopyEmailBucketNewswires26C541A0",
                           "Arn",
                         ],
                       },

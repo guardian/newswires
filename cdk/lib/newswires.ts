@@ -112,7 +112,7 @@ export class Newswires extends GuStack {
 			versioned: true,
 		});
 
-		new GuS3Bucket(this, 'NewswiresCopyEmailBucket', {
+		const copyEmailBucket = new GuS3Bucket(this, 'NewswiresCopyEmailBucket', {
 			app: appName,
 			lifecycleRules: [
 				{
@@ -136,6 +136,7 @@ export class Newswires extends GuStack {
 				fileName: 'ingestion-lambda.zip',
 				environment: {
 					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+					COPY_EMAIL_BUCKET_NAME: copyEmailBucket.bucketName,
 					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
 					DATABASE_PORT: database.dbInstanceEndpointPort,
 					DATABASE_NAME: databaseName,
@@ -222,6 +223,8 @@ export class Newswires extends GuStack {
 		);
 
 		feedsBucket.grantWrite(ingestionLambda);
+
+		copyEmailBucket.grantRead(ingestionLambda);
 
 		database.grantConnect(ingestionLambda);
 
