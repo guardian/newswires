@@ -38,12 +38,14 @@ function TitleContentForItem({
 	headline,
 	ingestedAt,
 	supplier,
+	wordCount,
 }: {
 	id: number;
 	slug?: string;
 	headline?: string;
 	ingestedAt: Moment;
 	supplier: SupplierInfo;
+	wordCount: number;
 }) {
 	const headlineText =
 		headline && headline.length > 0 ? headline : (slug ?? 'No title');
@@ -72,6 +74,7 @@ function TitleContentForItem({
 			</div>
 			<h3>
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
+				<span>{wordCount} words &#183; </span>
 				<Tooltip tooltipContent={ingestedAt.format()}>
 					{ingestedAt.fromNow()}
 				</Tooltip>
@@ -414,6 +417,18 @@ export const WireDetail = ({
 		[keywords],
 	);
 
+	const wordCount = useMemo(() => {
+		return wire.content.bodyText
+			? sanitizeHtml(wire.content.bodyText, {
+					allowedTags: [],
+					allowedAttributes: {},
+				})
+					.trim()
+					.split(/\s+/)
+					.filter((word) => word.length > 0).length
+			: 0;
+	}, [wire]);
+
 	return (
 		<>
 			<div
@@ -428,6 +443,7 @@ export const WireDetail = ({
 					slug={slug}
 					ingestedAt={convertToLocalDate(wire.ingestedAt)}
 					supplier={wire.supplier}
+					wordCount={wordCount}
 				/>
 			</div>
 			<EuiSpacer size="s" />
