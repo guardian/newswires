@@ -31,6 +31,20 @@ deployments:
       fileName: ingestion-lambda.zip
     actions:
       - uploadLambda
+  lambda-upload-eu-west-1-editorial-feeds-email-filter-lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: email-filter-lambda
+    contentDirectory: email-filter-lambda
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: email-filter-lambda.zip
+    actions:
+      - uploadLambda
   lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda:
     type: aws-lambda
     stacks:
@@ -106,6 +120,7 @@ deployments:
           Encrypted: 'true'
     dependencies:
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
+      - lambda-upload-eu-west-1-editorial-feeds-email-filter-lambda
       - lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda
       - lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda
       - lambda-upload-eu-west-1-editorial-feeds-apPoller_poller_lambda
@@ -124,6 +139,22 @@ deployments:
       bucketSsmLookup: true
       lookupByTags: true
       fileName: ingestion-lambda.zip
+    actions:
+      - updateLambda
+    dependencies:
+      - cfn-eu-west-1-editorial-feeds-newswires
+  lambda-update-eu-west-1-editorial-feeds-email-filter-lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: email-filter-lambda
+    contentDirectory: email-filter-lambda
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: email-filter-lambda.zip
     actions:
       - updateLambda
     dependencies:

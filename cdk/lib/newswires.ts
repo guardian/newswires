@@ -3,7 +3,11 @@ import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
 import type { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
-import { GuParameter, GuStack } from '@guardian/cdk/lib/constructs/core';
+import {
+	GuParameter,
+	GuStack,
+	GuStringParameter,
+} from '@guardian/cdk/lib/constructs/core';
 import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
 import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
@@ -36,6 +40,8 @@ import {
 	StorageType,
 } from 'aws-cdk-lib/aws-rds';
 import { ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { ReceiptRuleSet } from 'aws-cdk-lib/aws-ses';
+import { Lambda, LambdaInvocationType } from 'aws-cdk-lib/aws-ses-actions';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
@@ -143,6 +149,58 @@ export class Newswires extends GuStack {
 		);
 
 		ingestionLambda.connections.allowTo(database, Port.tcp(5432));
+
+		// Create email filter lambda for SES processing (for 'sport.copy' emails)
+		const emailFilterLambda = new GuLambdaFunction(
+			this,
+			`EmailFilterLambda-${this.stage}`,
+			{
+				app: 'email-filter-lambda',
+				runtime: LAMBDA_RUNTIME,
+				architecture: LAMBDA_ARCHITECTURE,
+				handler: 'handler.main',
+				fileName: 'email-filter-lambda.zip',
+				reservedConcurrentExecutions: 2, // email filter doesn't need high concurrency
+				timeout: Duration.seconds(30),
+				loggingFormat: LoggingFormat.TEXT,
+			},
+		);
+
+		const incomingEmailAddress = new GuStringParameter(
+			this,
+			`incoming-copy-email-address`,
+			{
+				fromSSM: true,
+				default: `/fingerpost/${this.stage}/incomingCopyEmailAddress`,
+			},
+		).valueAsString;
+
+		/** There can only be one active ruleset at a time. And you can only activate a ruleset as a manual action in
+		 * the AWS console. So we have manually created and activated a ruleset called "default", which CODE and PROD
+		 * can then add rules to.
+		 * nb. Rules are also added to this ruleset by the `editorial-wires` project.
+		 * @see https://github.com/guardian/editorial-wires
+		 */
+		const activeRuleSet = ReceiptRuleSet.fromReceiptRuleSetName(
+			this,
+			'ses-ruleset',
+			'default',
+		);
+
+		activeRuleSet.addRule('incoming-copy-email-rule', {
+			receiptRuleName: `${appName}-incoming-copy-email-rule-${this.stage}`,
+			recipients: [incomingEmailAddress],
+			scanEnabled: true, // scan for spam and viruses
+			actions: [
+				new Lambda({
+					function: emailFilterLambda,
+					/**
+					 * @todo we'll need to change the invocation type if/when we want to make the lambda blocking
+					 */
+					invocationType: LambdaInvocationType.EVENT,
+				}),
+			],
+		});
 
 		const eventSourceProps = {
 			/**
@@ -350,6 +408,12 @@ export class Newswires extends GuStack {
 			value: ingestionLambda.functionArn,
 			description: 'ARN of the ingestion lambda function',
 			exportName: `NewswiresIngestionLambdaFunctionArn-${this.stage}`,
+		});
+
+		new CfnOutput(this, 'NewswiresEmailFilterLambdaArnOutput', {
+			value: emailFilterLambda.functionArn,
+			description: 'ARN of the email filter lambda function',
+			exportName: `NewswiresEmailFilterLambdaFunctionArn-${this.stage}`,
 		});
 	}
 }
