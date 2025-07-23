@@ -24,6 +24,7 @@ import {
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
+import { parseEmail } from './parseEmail';
 import { COPY_EMAIL_BUCKET_NAME, FEED_BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
 
@@ -259,10 +260,14 @@ export const main = async (
 						);
 					}
 					const body = await response.Body.transformToString();
+					const { from, subject, text } = await parseEmail(body);
 					logger.log({
-						message: `Successfully retrieved email object from S3: ${emailObjectKey}, with body length: ${body.length}`,
-						eventType: 'INGESTION_RETRIEVED_SES_EMAIL_OBJECT',
+						message: `Parsed email from ${from} with subject "${subject}"`,
+						eventType: 'INGESTION_PARSED_SES_EMAIL',
 						emailObjectKey,
+						from,
+						subject,
+						text,
 					});
 				} catch (error) {
 					logger.error({
