@@ -487,6 +487,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuSecurityGroup",
       "GuDatabase",
       "GuS3Bucket",
+      "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
       "GuScheduledLambda",
@@ -1857,6 +1858,49 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "ToPort": 9000,
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "NewswiresCopyEmailBucketNewswires26C541A0": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "ExpirationInDays": 14,
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
     },
     "NewswiresDBNewswires2A5A9AC6": {
       "DeletionPolicy": "Snapshot",

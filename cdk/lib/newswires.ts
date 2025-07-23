@@ -106,6 +106,15 @@ export class Newswires extends GuStack {
 			versioned: true,
 		});
 
+		new GuS3Bucket(this, 'NewswiresCopyEmailBucket', {
+			app: appName,
+			lifecycleRules: [
+				{
+					expiration: Duration.days(14),
+				},
+			],
+		});
+
 		const ingestionLambda = new GuLambdaFunction(
 			this,
 			`IngestionLambda-${this.stage}`,
