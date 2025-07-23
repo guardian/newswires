@@ -19,3 +19,7 @@ export const s3Client = new S3Client(awsOptions);
 export const FEED_BUCKET_NAME: string = isRunningLocally
 	? 'local-feeds-bucket'
 	: getFromEnv('FEEDS_BUCKET_NAME');
+
+export const COPY_EMAIL_BUCKET_NAME: string = isRunningLocally
+	? 'local-emails-bucket'
+	: getFromEnv('COPY_EMAIL_BUCKET_NAME');

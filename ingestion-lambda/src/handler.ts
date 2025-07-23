@@ -1,4 +1,4 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SESEvent, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import {
 	INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
@@ -24,7 +24,7 @@ import {
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
-import { FEED_BUCKET_NAME, s3Client } from './s3';
+import { COPY_EMAIL_BUCKET_NAME, FEED_BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
 
 interface OperationFailure {
@@ -231,6 +231,47 @@ export const main = async (
 
 	if (isSESEvent(event)) {
 		logger.log({ message: 'received SES event', event });
+
+		const emailObjectKeys = event.Records.map(
+			(record) => record.ses.mail.messageId,
+		);
+		if (emailObjectKeys.length === 0) {
+			logger.log({ message: 'No email object keys found in SES event', event });
+			return;
+		}
+		emailObjectKeys.forEach((emailObjectKey) => {
+			logger.log({
+				message: `Processing email object key: ${emailObjectKey}`,
+				eventType: 'INGESTION_PROCESSING_SES_EMAIL_OBJECT',
+				emailObjectKey,
+			});
+			s3Client
+				.send(
+					new GetObjectCommand({
+						Bucket: COPY_EMAIL_BUCKET_NAME,
+						Key: emailObjectKey,
+					}),
+				)
+				.then((response) => {
+					if (!response.Body) {
+						throw new Error(
+							`No body found in S3 response for email object key: ${emailObjectKey}`,
+						);
+					}
+					return response.Body.transformToString();
+				})
+				.then((body) => {
+					console.log(body.length);
+				})
+				.catch((error) => {
+					logger.error({
+						message: `Error processing email object key: ${emailObjectKey}`,
+						error: getErrorMessage(error),
+						eventType: 'INGESTION_ERROR_PROCESSING_SES_EMAIL_OBJECT',
+						emailObjectKey,
+					});
+				});
+		});
 		return;
 	}
 
