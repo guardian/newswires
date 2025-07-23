@@ -16,6 +16,6 @@ const awsOptions = isRunningLocally
 
 export const s3Client = new S3Client(awsOptions);
 
-export const BUCKET_NAME: string = isRunningLocally
+export const FEED_BUCKET_NAME: string = isRunningLocally
 	? 'local-feeds-bucket'
 	: getFromEnv('FEEDS_BUCKET_NAME');

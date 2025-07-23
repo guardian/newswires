@@ -24,7 +24,7 @@ import {
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
-import { BUCKET_NAME, s3Client } from './s3';
+import { FEED_BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
 
 interface OperationFailure {
@@ -259,7 +259,7 @@ export const main = async (
 						if (!externalId) {
 							await s3Client.send(
 								new PutObjectCommand({
-									Bucket: BUCKET_NAME,
+									Bucket: FEED_BUCKET_NAME,
 									Key: `GuMissingExternalId/${sqsMessageId}.json`,
 									Body: JSON.stringify({
 										externalId,
@@ -276,7 +276,7 @@ export const main = async (
 						// todo -- consider storing s3 object version in db
 						await s3Client.send(
 							new PutObjectCommand({
-								Bucket: BUCKET_NAME,
+								Bucket: FEED_BUCKET_NAME,
 								Key: `${externalId}.json`,
 								Body: body,
 							}),
