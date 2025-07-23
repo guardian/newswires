@@ -540,30 +540,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
     },
-    "NewswiresEmailFilterLambdaArnOutput": {
-      "Description": "ARN of the email filter lambda function",
-      "Export": {
-        "Name": "NewswiresEmailFilterLambdaFunctionArn-TEST",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "EmailFilterLambdaTEST857F2A66",
-          "Arn",
-        ],
-      },
-    },
-    "NewswiresIngestionLambdaArnOutput": {
-      "Description": "ARN of the ingestion lambda function",
-      "Export": {
-        "Name": "NewswiresIngestionLambdaFunctionArn-TEST",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "IngestionLambdaTESTC02B3E43",
-          "Arn",
-        ],
-      },
-    },
   },
   "Parameters": {
     "AMINewswires": {
