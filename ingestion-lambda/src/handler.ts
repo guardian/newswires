@@ -230,7 +230,11 @@ export const main = async (
 	const logger = createLogger({});
 
 	if (isSESEvent(event)) {
-		logger.log({ message: 'received SES event', event });
+		logger.log({
+			message: 'received SES event',
+			event,
+			objectKeys: event.Records.map((record) => record.ses.mail.messageId),
+		});
 		return;
 	}
 
