@@ -26,9 +26,9 @@ class FingerpostWireSubjectsTest extends AnyFlatSpec {
   }
 
   it should "deserialise json with an empty code" in {
-    Json.fromJson[FingerpostWireSubjects](Json.parse("""{
+    decode[FingerpostWireSubjects]("""{
         | "code": ""
-        |}""".stripMargin)) shouldEqual JsSuccess(
+        |}""".stripMargin) shouldEqual Right(
       FingerpostWireSubjects(code = List())
     )
   }
