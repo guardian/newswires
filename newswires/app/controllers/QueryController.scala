@@ -82,7 +82,7 @@ class QueryController(
       maybeLimit: Option[Int]
   ): Action[AnyContent] = apiAuthAction {
     val results = FingerpostWireEntry.getKeywords(maybeInLastHours, maybeLimit)
-    Ok(Json.toJson(results))
+    Ok(results.asJson.spaces2)
   }
 
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =

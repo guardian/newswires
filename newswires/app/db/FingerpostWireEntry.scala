@@ -1,15 +1,14 @@
 package db
 
-import conf.{SearchConfig, SearchField, SearchTerm}
+import conf.{SearchField, SearchTerm}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{FingerpostWire, FingerpostWireSubjects}
+import models.FingerpostWire
 import play.api.Logging
-import play.api.libs.json._
 import scalikejdbc._
-
-import java.time.{Instant, ZonedDateTime}
+import io.circe.parser._
+import java.time.Instant
 
 case class FingerpostWireEntry(
     id: Long,
@@ -62,7 +61,7 @@ object FingerpostWireEntry
   def apply(
       fm: ResultName[FingerpostWireEntry]
   )(rs: WrappedResultSet): FingerpostWireEntry = {
-    val fingerpostContent = Json.parse(rs.string(fm.content)).as[FingerpostWire]
+    val fingerpostContent = decode[FingerpostWire](rs.string(fm.content)).toOption.get
     val maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
     val categoryCodes = maybeCategoryCodes match {
       case Some(array) =>

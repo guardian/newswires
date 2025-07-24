@@ -2,7 +2,6 @@ package models
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.libs.json.{JsSuccess, Json}
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 
