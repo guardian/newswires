@@ -1,11 +1,28 @@
 package db
 
 import conf.{SearchField, SearchTerm}
+import db.FingerpostWireEntry.QueryResponse
 import helpers.WhereClauseMatcher.matchWhereClause
+import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import play.api.libs.json.{JsSuccess, Json}
 
-class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
+class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
+
+  behavior of "FingerpostWireEntry Json encoders / decoders"
+
+  it should "serialise json" in {
+    Json.prettyPrint(
+      Json.toJson[FingerpostWireEntry](fingerpostWireEntry)
+    ) shouldEqual fingerpostWireEntryJson
+  }
+
+  it should "deserialise json" in {
+    Json.fromJson[FingerpostWireEntry](
+      Json.parse(fingerpostWireEntryJson)
+    ) shouldEqual JsSuccess(fingerpostWireEntry)
+  }
 
   behavior of "FingerpostWireEntry.generateWhereClause"
 
