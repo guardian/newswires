@@ -1,4 +1,4 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SESEvent, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import {
 	INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
@@ -24,7 +24,8 @@ import {
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
-import { BUCKET_NAME, s3Client } from './s3';
+import { parseEmail } from './parseEmail';
+import { COPY_EMAIL_BUCKET_NAME, FEED_BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
 
 interface OperationFailure {
@@ -231,6 +232,51 @@ export const main = async (
 
 	if (isSESEvent(event)) {
 		logger.log({ message: 'received SES event', event });
+
+		const emailObjectKeys = event.Records.map(
+			(record) => record.ses.mail.messageId,
+		);
+		if (emailObjectKeys.length === 0) {
+			logger.log({ message: 'No email object keys found in SES event', event });
+			return;
+		}
+		await Promise.all(
+			emailObjectKeys.map(async (emailObjectKey) => {
+				logger.log({
+					message: `Processing email object key: ${emailObjectKey}`,
+					eventType: 'INGESTION_PROCESSING_SES_EMAIL_OBJECT',
+					emailObjectKey,
+				});
+				try {
+					const response = await s3Client.send(
+						new GetObjectCommand({
+							Bucket: COPY_EMAIL_BUCKET_NAME,
+							Key: emailObjectKey,
+						}),
+					);
+					if (!response.Body) {
+						throw new Error(
+							`No body found in S3 response for email object key: ${emailObjectKey}`,
+						);
+					}
+					const body = await response.Body.transformToString();
+					const { from, subject, text } = await parseEmail(body);
+					logger.log({
+						message: `Parsed email from ${from} with subject "${subject}"`,
+						eventType: 'INGESTION_PARSED_SES_EMAIL',
+						emailObjectKey,
+						from,
+						subject,
+						text,
+					});
+				} catch (error) {
+					logger.error({
+						message: `Failed to get email object from S3: ${emailObjectKey}`,
+						error: getErrorMessage(error),
+					});
+				}
+			}),
+		);
 		return;
 	}
 
@@ -259,7 +305,7 @@ export const main = async (
 						if (!externalId) {
 							await s3Client.send(
 								new PutObjectCommand({
-									Bucket: BUCKET_NAME,
+									Bucket: FEED_BUCKET_NAME,
 									Key: `GuMissingExternalId/${sqsMessageId}.json`,
 									Body: JSON.stringify({
 										externalId,
@@ -276,7 +322,7 @@ export const main = async (
 						// todo -- consider storing s3 object version in db
 						await s3Client.send(
 							new PutObjectCommand({
-								Bucket: BUCKET_NAME,
+								Bucket: FEED_BUCKET_NAME,
 								Key: `${externalId}.json`,
 								Body: body,
 							}),

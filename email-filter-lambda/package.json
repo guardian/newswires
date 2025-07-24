@@ -10,7 +10,5 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {},
-	"devDependencies": {
-		"@types/aws-lambda": "8.10.150"
-	}
+	"devDependencies": {}
 }

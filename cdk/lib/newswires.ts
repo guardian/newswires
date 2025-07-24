@@ -41,7 +41,7 @@ import {
 } from 'aws-cdk-lib/aws-rds';
 import { ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { ReceiptRuleSet } from 'aws-cdk-lib/aws-ses';
-import { Lambda, LambdaInvocationType } from 'aws-cdk-lib/aws-ses-actions';
+import { Lambda, LambdaInvocationType, S3 } from 'aws-cdk-lib/aws-ses-actions';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
@@ -112,7 +112,7 @@ export class Newswires extends GuStack {
 			versioned: true,
 		});
 
-		new GuS3Bucket(this, 'NewswiresCopyEmailBucket', {
+		const copyEmailBucket = new GuS3Bucket(this, 'NewswiresCopyEmailBucket', {
 			app: appName,
 			lifecycleRules: [
 				{
@@ -136,6 +136,7 @@ export class Newswires extends GuStack {
 				fileName: 'ingestion-lambda.zip',
 				environment: {
 					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+					COPY_EMAIL_BUCKET_NAME: copyEmailBucket.bucketName,
 					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
 					DATABASE_PORT: database.dbInstanceEndpointPort,
 					DATABASE_NAME: databaseName,
@@ -199,6 +200,13 @@ export class Newswires extends GuStack {
 					 */
 					invocationType: LambdaInvocationType.EVENT,
 				}),
+				new S3({
+					bucket: copyEmailBucket,
+				}),
+				new Lambda({
+					function: ingestionLambda,
+					invocationType: LambdaInvocationType.EVENT,
+				}),
 			],
 		});
 
@@ -222,6 +230,8 @@ export class Newswires extends GuStack {
 		);
 
 		feedsBucket.grantWrite(ingestionLambda);
+
+		copyEmailBucket.grantRead(ingestionLambda);
 
 		database.grantConnect(ingestionLambda);
 
