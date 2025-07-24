@@ -27,9 +27,6 @@ object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
 
-  implicit val format: OFormat[FingerpostWireEntry] =
-    Json.format[FingerpostWireEntry]
-
   implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
     deriveEncoder[FingerpostWireEntry]
 
