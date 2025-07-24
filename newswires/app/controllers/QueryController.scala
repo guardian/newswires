@@ -5,6 +5,7 @@ import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import db.{FingerpostWireEntry, SearchParams}
+import io.circe.syntax.EncoderOps
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -65,16 +66,14 @@ class QueryController(
     )
 
     Ok(
-      Json.toJson(
-        FingerpostWireEntry.query(
-          searchParams = queryParams,
-          savedSearchParamList = maybePreset.getOrElse(Nil),
-          maybeSearchTerm = maybeSearchTerm,
-          maybeBeforeId = maybeBeforeId,
-          maybeSinceId = maybeSinceId,
-          pageSize = 30
-        )
-      )
+      FingerpostWireEntry.query(
+        searchParams = queryParams,
+        savedSearchParamList = maybePreset.getOrElse(Nil),
+        maybeSearchTerm = maybeSearchTerm,
+        maybeBeforeId = maybeBeforeId,
+        maybeSinceId = maybeSinceId,
+        pageSize = 30
+      ).asJson.spaces2
     )
   }
 

@@ -120,7 +120,11 @@ object FingerpostWireEntry
   )
 
   private object QueryResponse {
-    implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
+    implicit val jsonEncoder: Encoder[QueryResponse] =
+      deriveEncoder[QueryResponse]
+
+    implicit val jsonDecoder: Decoder[QueryResponse] =
+      deriveDecoder[QueryResponse]
   }
 
   private def processSearchParams(
