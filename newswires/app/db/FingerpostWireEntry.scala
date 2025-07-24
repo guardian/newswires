@@ -2,7 +2,9 @@ package db
 
 import conf.{SearchConfig, SearchField, SearchTerm}
 import db.CustomMappers.textArray
-import models.FingerpostWire
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import models.{FingerpostWire, FingerpostWireSubjects}
 import play.api.Logging
 import play.api.libs.json._
 import scalikejdbc._
@@ -27,6 +29,12 @@ object FingerpostWireEntry
 
   implicit val format: OFormat[FingerpostWireEntry] =
     Json.format[FingerpostWireEntry]
+
+  implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
+    deriveEncoder[FingerpostWireEntry]
+
+  implicit val jsonDecoder: Decoder[FingerpostWireEntry] =
+    deriveDecoder[FingerpostWireEntry]
 
   override val columns =
     Seq(

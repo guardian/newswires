@@ -142,9 +142,17 @@ trait models {
       |    "byline" : "Jane Doe",
       |    "priority" : "high",
       |    "subjects" : {
-      |      "code" : [ "POL", "INT", "UK" ]
+      |      "code" : [
+      |        "POL",
+      |        "INT",
+      |        "UK"
+      |      ]
       |    },
-      |    "keywords" : [ "breaking", "government", "security" ],
+      |    "keywords" : [
+      |      "breaking",
+      |      "government",
+      |      "security"
+      |    ],
       |    "usage" : "editorial",
       |    "ednote" : "Sensitive content – embargo until 10 AM",
       |    "mediaCatCodes" : "MC123",
@@ -159,7 +167,9 @@ trait models {
       |  },
       |  "composerId" : "composerId",
       |  "composerSentBy" : "composerSentBy",
-      |  "categoryCodes" : [ "code" ],
+      |  "categoryCodes" : [
+      |    "code"
+      |  ],
       |  "highlight" : "highlight"
       |}""".stripMargin
 
