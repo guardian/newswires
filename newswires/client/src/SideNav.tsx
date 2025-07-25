@@ -12,6 +12,7 @@ import {
 	EuiText,
 	EuiTitle,
 	useEuiMinBreakpoint,
+	useEuiTheme,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -54,6 +55,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 	const largeMinBreakpoint = useEuiMinBreakpoint('l');
 	const isLargeScreen = useIsWithinBreakpoints(['l']);
 	const isExtraSmallScreen = useIsWithinBreakpoints(['xs']);
+	const theme = useEuiTheme();
 
 	const {
 		state,
@@ -98,8 +100,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 			},
 			...recognisedSuppliers.map(({ name, label, colour }) => ({
 				label: label === 'Minor' ? 'Minor agencies' : label,
-				isActive:
-					activeSuppliers.includes(name) || activeSuppliers.length === 0,
+				isActive: activeSuppliers.includes(name),
 				colour: colour,
 				onClick: () => toggleSupplier(name),
 				onTickerClick: () => {
@@ -132,12 +133,14 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 				iconType: () => (
 					<div
 						css={css`
-							width: 0.5rem;
-							height: 1.5rem;
+							width: 1rem;
+							height: 1rem;
+							border-radius: 50%;
 
 							margin-right: 12px;
+							border: 2px solid ${theme.euiTheme.colors.primary};
 							background-color: ${isActive
-								? 'rgb(0, 119, 204)'
+								? theme.euiTheme.colors.primary
 								: 'transparent'};
 						`}
 					/>
@@ -155,7 +158,13 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 				},
 			};
 		}) as EuiPinnableListGroupItemProps[];
-	}, [activePreset, config, handleEnterQuery, openTicker]);
+	}, [
+		activePreset,
+		config,
+		handleEnterQuery,
+		openTicker,
+		theme.euiTheme.colors.primary,
+	]);
 
 	const supplierItems: EuiPinnableListGroupItemProps[] = suppliers.map(
 		({ label, colour, isActive, onClick, onTickerClick }) => ({
@@ -166,13 +175,32 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 			iconType: () => (
 				<div
 					css={css`
-						width: 0.5rem;
-						height: 1.5rem;
+						width: 1rem;
+						height: 1rem;
 
 						margin-right: 12px;
+						border: 2px solid ${colour};
+						color: ${isActive ? 'white' : 'transparent'};
 						background-color: ${isActive ? colour : 'transparent'};
+						display: flex;
+						align-items: center;
+						justify-content: center;
 					`}
-				/>
+				>
+					<svg
+						viewBox="0 0 24 24"
+						width="100%"
+						height="100%"
+						stroke="currentColor"
+						strokeWidth="5"
+						fill="none"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						className="css-i6dzq1"
+					>
+						<polyline points="20 6 9 17 4 12"></polyline>
+					</svg>
+				</div>
 			),
 			color: isActive ? 'primary' : 'subdued',
 			pinnable: false,
@@ -257,7 +285,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 							listItems={presetItems}
 							maxWidth="none"
 							color="subdued"
-							gutterSize="s"
+							gutterSize="none"
 							size="s"
 						/>
 					</EuiCollapsibleNavGroup>
@@ -267,7 +295,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 							listItems={supplierItems}
 							maxWidth="none"
 							color="subdued"
-							gutterSize="s"
+							gutterSize="none"
 							size="s"
 						/>
 					</EuiCollapsibleNavGroup>
@@ -298,7 +326,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 					</EuiCollapsibleNavGroup>
 				</div>
 
-				<div style={{ padding: '20px 10px' }}>
+				<div style={{ padding: '10px 5px' }}>
 					<EuiSwitch
 						label="Auto-update"
 						checked={state.autoUpdate}
