@@ -6,6 +6,7 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import db.FingerpostWireEntry._
 import db.{FingerpostWireEntry, NextPage, QueryParams, SearchParams}
+import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -98,6 +99,18 @@ class QueryController(
         case None        => NotFound
       }
     }
+
+  def redirectToIncopyImport(id: Int): Action[AnyContent] = authAction {
+    // TODO record that copy was fetched
+    FingerpostWireEntry.get(id, None).map(Json.toJson(_).toString()) match {
+      case Some(entry) =>
+        val compressedEncodedEntry = Base64Encoder.compressAndEncode(entry)
+        // eww - TODO pick a better way of doing this lol. host header maybe?
+        val domain = s"newswires.${panDomainSettings.domain}"
+        Found(s"newswires://$domain?data=$compressedEncodedEntry")
+      case None => NotFound
+    }
+  }
 
   def linkToComposer(id: Int): Action[AnyContent] = apiAuthAction {
     request: UserRequest[AnyContent] =>
