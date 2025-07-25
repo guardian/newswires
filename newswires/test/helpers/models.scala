@@ -169,7 +169,9 @@ trait models {
       |  "categoryCodes" : [
       |    "code"
       |  ],
-      |  "highlight" : "highlight"
+      |  "highlight" : "highlight",
+      |  "toolLinks" : [
+      |  ]
       |}""".stripMargin
 
 }

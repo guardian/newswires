@@ -5,98 +5,40 @@ import {
 	EuiLoadingSpinner,
 	EuiSpacer,
 	EuiText,
-	EuiTitle,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useCallback, useState } from 'react';
 import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useTelemetry } from './context/TelemetryContext.tsx';
+import { convertToLocalDate } from './dateHelpers.ts';
 import composerLogoUrl from './icons/composer.svg';
 import incopyLogoUrl from './icons/incopy.svg';
 import { composerPageForId, sendToComposer } from './send-to-composer.ts';
-import type { WireData } from './sharedTypes.ts';
+import type { ToolLink, WireData } from './sharedTypes.ts';
+import { Tooltip } from './Tooltip.tsx';
 
 type SendState = 'sending' | 'sent' | 'failed' | 'unsent';
 
-const ComposerSendStatus = ({
-	state,
-	sentBy,
-	failureReason,
-}: {
-	state: SendState;
-	sentBy: string | undefined;
-	failureReason: string | undefined;
-}) => {
-	if (state === 'sent' && sentBy) {
-		return (
-			<p>
-				Sent to Composer by: <a href={`mailto:${sentBy}`}>{sentBy}</a>
-			</p>
-		);
-	}
-	if (state === 'sent') {
-		return <p>Sent to Composer</p>;
-	}
-	if (state === 'failed') {
-		return (
-			<p>Failed to send to Composer: {failureReason ?? 'unknown failure'}</p>
-		);
-	}
-	return <p>Not in Composer</p>;
-};
-
-const SendOrVisitInComposerButton = ({
-	sendState,
-	composerId,
-	send,
-}: {
-	sendState: SendState;
-	composerId: undefined | string;
-	send: () => void;
-}) => {
-	if (sendState === 'sent' && composerId) {
-		return (
-			<EuiButton
-				href={composerPageForId(composerId)}
-				target="_blank"
-				iconType="link"
-			>
-				Open in Composer
-			</EuiButton>
-		);
-	}
-	if (sendState === 'sent' || sendState === 'failed') {
-		return <EuiButton iconType="error">Send to Composer failed</EuiButton>;
-	}
-	if (sendState === 'sending') {
-		return <EuiLoadingSpinner size="l" />;
-	}
-
-	return (
-		// TODO why does the icon have a black fill? Why not the primary colour, like the native eui icons?
-		<EuiButton onClick={send} iconType={composerLogoUrl}>
-			Send to Composer
-		</EuiButton>
-	);
-};
-
-export const ToolsConnection = ({ itemData }: { itemData: WireData }) => {
+const SendOrVisitInComposerButton = ({ itemData }: { itemData: WireData }) => {
 	const { sendTelemetryEvent } = useTelemetry();
-	const [composerId, setComposerId] = useState(itemData.composerId);
-	const [sentBy, setSentBy] = useState(itemData.composerSentBy);
+	const previousSend = itemData.toolLinks?.find(
+		(toolLink) => toolLink.tool === 'composer',
+	);
+	const [composerId, setComposerId] = useState<string | undefined>(
+		previousSend?.ref,
+	);
 	const [failureReason, setFailureReason] = useState<string | undefined>();
 
 	const [sendState, setSendState] = useState<SendState>(
-		itemData.composerId ? 'sent' : 'unsent',
+		previousSend?.ref ? 'sent' : 'unsent',
 	);
-
 	const send = useCallback(() => {
 		setSendState('sending');
 
 		sendToComposer(itemData)
-			.then(({ composerId, sentBy }) => {
+			// FIXME update the toollinks list!
+			.then(({ composerId }) => {
 				setComposerId(composerId);
-				setSentBy(sentBy);
 				window.open(composerPageForId(composerId));
 				setSendState('sent');
 				sendTelemetryEvent('NEWSWIRES_SEND_TO_COMPOSER', {
@@ -116,40 +58,74 @@ export const ToolsConnection = ({ itemData }: { itemData: WireData }) => {
 			});
 	}, [itemData, sendTelemetryEvent]);
 
-	const people = ['Mateusz Karpow', 'Andrew Nowak', 'Pete Faulconbridge'];
+	if (sendState === 'sent' && composerId) {
+		return (
+			<EuiButton
+				href={composerPageForId(composerId)}
+				target="_blank"
+				iconType="link"
+			>
+				Open in Composer
+			</EuiButton>
+		);
+	}
+	if (sendState === 'sent' || sendState === 'failed') {
+		return (
+			<>
+				<EuiButton iconType="error" disabled>
+					Send to Composer failed
+				</EuiButton>
+				<EuiText size="xs" color="danger">
+					{failureReason}
+				</EuiText>
+			</>
+		);
+	}
+	if (sendState === 'sending') {
+		return <EuiLoadingSpinner size="l" />;
+	}
 
+	return (
+		// TODO why does the icon have a black fill? Why not the primary colour, like the native eui icons?
+		<EuiButton onClick={send} iconType={composerLogoUrl}>
+			Send to Composer
+		</EuiButton>
+	);
+};
+
+const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
+	const sentAt = convertToLocalDate(toolLink.sentAt);
+
+	return (
+		<li key={toolLink.id}>
+			<EuiText size="xs">
+				Sent to {toolLink.tool} by {toolLink.sentBy} at{' '}
+				<Tooltip tooltipContent={sentAt.format()}>{sentAt.fromNow()}</Tooltip>
+			</EuiText>
+		</li>
+	);
+};
+
+export const ToolsConnection = ({ itemData }: { itemData: WireData }) => {
 	return (
 		<>
 			<EuiFlexGroup justifyContent="spaceBetween">
 				<EuiFlexItem grow={false}>
-					{/*<ComposerSendStatus*/}
-					{/*	state={sendState}*/}
-					{/*	sentBy={sentBy}*/}
-					{/*	failureReason={failureReason}*/}
-					{/*/>*/}
-
-					<EuiTitle>
-						<h3>Tools</h3>
-					</EuiTitle>
-					<EuiSpacer size="xs" />
-
-					<ul>
-						{people.map((name) => (
-							<li key={name}>
-								<EuiText size="xs">Sent by {name} at 24 Jul 2025 16:19</EuiText>
-							</li>
-						))}
-					</ul>
+					{itemData.toolLinks?.length ? (
+						<ul>
+							{itemData.toolLinks.map((toolLink) => (
+								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
+							))}
+						</ul>
+					) : (
+						<></>
+					)}
 				</EuiFlexItem>
 
 				<EuiFlexItem grow={false}>
-					<SendOrVisitInComposerButton
-						sendState={sendState}
-						composerId={composerId}
-						send={send}
-					/>
+					<SendOrVisitInComposerButton itemData={itemData} />
 
-					<EuiSpacer size="s"></EuiSpacer>
+					<EuiSpacer size="s" />
 
 					<EuiButton
 						href={`/api/item/${itemData.id}/incopy`}

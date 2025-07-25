@@ -27,7 +27,8 @@ case class FingerpostWireEntry(
     composerId: Option[String],
     composerSentBy: Option[String],
     categoryCodes: List[String],
-    highlight: Option[String] = None
+    highlight: Option[String] = None,
+    toolLinks: List[ToolLink] = Nil
 )
 
 object FingerpostWireEntry
@@ -55,7 +56,7 @@ object FingerpostWireEntry
     )
   val syn = this.syntax("fm")
 
-  private val selectAllStatement = sqls"""
+  private lazy val selectAllStatement = sqls"""
     |   ${FingerpostWireEntry.syn.result.id},
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
@@ -116,27 +117,24 @@ object FingerpostWireEntry
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     val highlightsClause = maybeFreeTextQuery match {
       case Some(query) =>
-        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
-      case None => sqls", '' AS ${syn.resultName.highlight}"
+        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
+      case None => sqls"'' AS ${syn.resultName.highlight}"
     }
-    sql"""| SELECT $selectAllStatement $highlightsClause
-          | FROM ${FingerpostWireEntry as syn}
-          | WHERE ${FingerpostWireEntry.syn.id} = $id
-          |""".stripMargin
-      .map(FingerpostWireEntry.fromDb(syn.resultName))
-      .single()
-      .apply()
-      .flatten
-  }
+    val q =
+      sql"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+            | FROM ${FingerpostWireEntry as syn} LEFT JOIN ${ToolLink as ToolLink.syn} ON ${syn.id} = ${ToolLink.syn.wireId}
+            | WHERE ${FingerpostWireEntry.syn.id} = $id
+            |""".stripMargin
+        .one(FingerpostWireEntry.fromDb(syn.resultName))
+        .toMany(ToolLink.opt(ToolLink.syn.resultName))
+        .map { (wire, toolLinks) =>
+          wire.map(_.copy(toolLinks = toolLinks.toList))
+        }
+        .single()
 
-  case class QueryResponse(
-      results: List[FingerpostWireEntry],
-      totalCount: Long
-//      keywordCounts: Map[String, Int]
-  )
+    println(q.statement)
 
-  private object QueryResponse {
-    implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
+    q.apply().flatten
   }
 
   def getRaw(id: Int): Option[String] = DB readOnly { implicit session =>
