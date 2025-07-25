@@ -83,14 +83,15 @@ case class FingerpostWireEntry(
     composerId: Option[String],
     composerSentBy: Option[String],
     categoryCodes: List[String],
-    highlight: Option[String] = None
+    highlight: Option[String] = None,
+    toolLinks: List[ToolLink] = Nil
 )
 
 object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
 
-  implicit val format: OFormat[FingerpostWireEntry] =
+  implicit lazy val format: OFormat[FingerpostWireEntry] =
     Json.format[FingerpostWireEntry]
 
   override val columns =
@@ -108,7 +109,7 @@ object FingerpostWireEntry
     )
   val syn = this.syntax("fm")
 
-  private val selectAllStatement = sqls"""
+  private lazy val selectAllStatement = sqls"""
     |   ${FingerpostWireEntry.syn.result.id},
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
@@ -158,16 +159,22 @@ object FingerpostWireEntry
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     val highlightsClause = maybeFreeTextQuery match {
       case Some(query) =>
-        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
-      case None => sqls", '' AS ${syn.resultName.highlight}"
+        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
+      case None => sqls"'' AS ${syn.resultName.highlight}"
     }
-    sql"""| SELECT $selectAllStatement $highlightsClause
-          | FROM ${FingerpostWireEntry as syn}
+    val q =
+      sql"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+          | FROM ${FingerpostWireEntry as syn} LEFT JOIN ${ToolLink as ToolLink.syn} ON ${syn.id} = ${ToolLink.syn.wireId}
           | WHERE ${FingerpostWireEntry.syn.id} = $id
           |""".stripMargin
-      .map(FingerpostWireEntry(syn.resultName))
-      .single()
-      .apply()
+        .one(FingerpostWireEntry(syn.resultName))
+        .toMany(ToolLink.opt(ToolLink.syn.resultName))
+        .map { (wire, toolLinks) => wire.copy(toolLinks = toolLinks.toList) }
+        .single()
+
+    println(q.statement)
+
+    q.apply()
   }
 
   case class QueryResponse(
