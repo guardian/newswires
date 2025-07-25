@@ -21,7 +21,6 @@ import type { Moment } from 'moment';
 import { useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
-import { ComposerConnection } from './ComposerConnection.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
@@ -30,6 +29,7 @@ import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
+import { ToolsConnection } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
@@ -474,6 +474,16 @@ export const WireDetail = ({
 						</h3>
 					)}
 					<EuiSpacer size="m" />
+					<div
+						css={css`
+							border: 1px solid black;
+							border-radius: 12px;
+							padding: 12px;
+						`}
+					>
+						<ToolsConnection itemData={wire} key={wire.id} />
+					</div>
+					<EuiSpacer size="m" />
 					{ednote && (
 						<>
 							<EuiCallOut size="s" title={ednote} color="success" />
@@ -557,20 +567,7 @@ export const WireDetail = ({
 								</EuiDescriptionListDescription>
 							</>
 						)}
-						<EuiDescriptionListTitle>Composer</EuiDescriptionListTitle>
-						<EuiDescriptionListDescription>
-							<ComposerConnection itemData={wire} key={wire.id} />
-						</EuiDescriptionListDescription>
-						<EuiDescriptionListTitle>Incopy</EuiDescriptionListTitle>
-						<EuiDescriptionListDescription>
-							<a
-								target="_blank"
-								href={`/api/item/${wire.id}/incopy`}
-								rel="noreferrer"
-							>
-								Fetch to incopy
-							</a>
-						</EuiDescriptionListDescription>
+
 						<EuiDescriptionListTitle>Metadata</EuiDescriptionListTitle>
 						<EuiDescriptionListDescription>
 							<MetaTable wire={wire} />
