@@ -3,10 +3,16 @@ import {
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiLoadingSpinner,
+	EuiSpacer,
+	EuiText,
+	EuiTitle,
 } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { useCallback, useState } from 'react';
 import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useTelemetry } from './context/TelemetryContext.tsx';
+import composerLogoUrl from './icons/composer.svg';
+import incopyLogoUrl from './icons/incopy.svg';
 import { composerPageForId, sendToComposer } from './send-to-composer.ts';
 import type { WireData } from './sharedTypes.ts';
 
@@ -67,13 +73,14 @@ const SendOrVisitInComposerButton = ({
 	}
 
 	return (
-		<EuiButton onClick={send} iconType="launch">
+		// TODO why does the icon have a black fill? Why not the primary colour, like the native eui icons?
+		<EuiButton onClick={send} iconType={composerLogoUrl}>
 			Send to Composer
 		</EuiButton>
 	);
 };
 
-export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
+export const ToolsConnection = ({ itemData }: { itemData: WireData }) => {
 	const { sendTelemetryEvent } = useTelemetry();
 	const [composerId, setComposerId] = useState(itemData.composerId);
 	const [sentBy, setSentBy] = useState(itemData.composerSentBy);
@@ -109,22 +116,59 @@ export const ComposerConnection = ({ itemData }: { itemData: WireData }) => {
 			});
 	}, [itemData, sendTelemetryEvent]);
 
+	const people = ['Mateusz Karpow', 'Andrew Nowak', 'Pete Faulconbridge'];
+
 	return (
 		<>
-			<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
-				<EuiFlexItem>
-					<ComposerSendStatus
-						state={sendState}
-						sentBy={sentBy}
-						failureReason={failureReason}
-					/>
+			<EuiFlexGroup justifyContent="spaceBetween">
+				<EuiFlexItem grow={false}>
+					{/*<ComposerSendStatus*/}
+					{/*	state={sendState}*/}
+					{/*	sentBy={sentBy}*/}
+					{/*	failureReason={failureReason}*/}
+					{/*/>*/}
+
+					<EuiTitle>
+						<h3>Tools</h3>
+					</EuiTitle>
+					<EuiSpacer size="xs" />
+
+					<ul>
+						{people.map((name) => (
+							<li key={name}>
+								<EuiText size="xs">Sent by {name} at 24 Jul 2025 16:19</EuiText>
+							</li>
+						))}
+					</ul>
 				</EuiFlexItem>
+
 				<EuiFlexItem grow={false}>
 					<SendOrVisitInComposerButton
 						sendState={sendState}
 						composerId={composerId}
 						send={send}
 					/>
+
+					<EuiSpacer size="s"></EuiSpacer>
+
+					<EuiButton
+						href={`/api/item/${itemData.id}/incopy`}
+						target="_blank"
+						// I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck:
+						css={css`
+							& > span {
+								justify-content: start;
+							}
+							& > span > span {
+								width: 100%;
+								justify-items: center;
+							}
+						`}
+						rel="noreferrer"
+						iconType={incopyLogoUrl}
+					>
+						Send to InCopy
+					</EuiButton>
 				</EuiFlexItem>
 			</EuiFlexGroup>
 		</>
