@@ -170,16 +170,6 @@ object FingerpostWireEntry
       .apply()
   }
 
-  case class QueryResponse(
-      results: List[FingerpostWireEntry],
-      totalCount: Long
-//      keywordCounts: Map[String, Int]
-  )
-
-  private object QueryResponse {
-    implicit val writes: OWrites[QueryResponse] = Json.writes[QueryResponse]
-  }
-
   private def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
@@ -385,35 +375,46 @@ object FingerpostWireEntry
     }
   }
 
-  def query(
-      searchParams: SearchParams,
-      savedSearchParamList: List[SearchParams],
-      maybeSearchTerm: Option[SearchTerm],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int],
-      pageSize: Int = 250
-  ): QueryResponse = DB readOnly { implicit session =>
-    val effectivePageSize = clamp(0, pageSize, 250)
+  private[db] def buildSearchQuery(
+      queryParams: QueryParams,
+      whereClause: SQLSyntax
+  ): SQL[Nothing, NoExtractor] = {
+    val effectivePageSize = clamp(0, queryParams.pageSize, 250)
 
-    val whereClause = buildWhereClause(
-      searchParams,
-      savedSearchParamList,
-      maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId
-    )
+    val maybeSinceId = queryParams.maybeSinceId
 
-    val highlightsClause = maybeSearchTerm match {
+    val highlightsClause = queryParams.maybeSearchTerm match {
       case Some(SearchTerm.English(query)) =>
         sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls", '' AS ${syn.resultName.highlight}"
     }
 
-    val query = sql"""| SELECT $selectAllStatement $highlightsClause
-                      | FROM ${FingerpostWireEntry as syn}
-                      | $whereClause
-                      | ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
-                      | LIMIT $effectivePageSize
-                      | """.stripMargin
+    val orderByClause = maybeSinceId match {
+      case Some(NextPage(_)) =>
+        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
+      case _ =>
+        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
+    }
+
+    sql"""| SELECT $selectAllStatement $highlightsClause
+           | FROM ${FingerpostWireEntry as syn}
+           | $whereClause
+           | $orderByClause
+           | LIMIT $effectivePageSize
+           | """.stripMargin
+  }
+
+  def query(
+      queryParams: QueryParams
+  ): QueryResponse = DB readOnly { implicit session =>
+    val whereClause = buildWhereClause(
+      queryParams.searchParams,
+      queryParams.savedSearchParamList,
+      maybeBeforeId = queryParams.maybeBeforeId,
+      maybeSinceId = queryParams.maybeSinceId.map(_.sinceId)
+    )
+
+    val query = buildSearchQuery(queryParams, whereClause)
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
@@ -439,7 +440,10 @@ object FingerpostWireEntry
 //      commonWhereClauses
 //    ) // TODO do this in parallel
 
-    QueryResponse(results, totalCount /*, keywordCounts*/ )
+    QueryResponse(
+      results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
+      totalCount /*, keywordCounts*/
+    )
   }
 
   def getKeywords(

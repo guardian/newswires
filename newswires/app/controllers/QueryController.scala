@@ -4,7 +4,8 @@ import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
-import db.{FingerpostWireEntry, SearchParams}
+import db.FingerpostWireEntry._
+import db.{FingerpostWireEntry, NextPage, QueryParams, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -48,7 +49,7 @@ class QueryController(
 
     val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
 
-    val queryParams = SearchParams(
+    val searchParams = SearchParams(
       text = maybeSearchTerm,
       start = maybeStart,
       end = maybeEnd,
@@ -64,15 +65,19 @@ class QueryController(
       hasDataFormatting = hasDataFormatting
     )
 
+    val queryParams = QueryParams(
+      searchParams = searchParams,
+      savedSearchParamList = maybePreset.getOrElse(Nil),
+      maybeSearchTerm = maybeSearchTerm,
+      maybeBeforeId = maybeBeforeId,
+      maybeSinceId = maybeSinceId.map(NextPage(_)),
+      pageSize = 30
+    )
+
     Ok(
       Json.toJson(
         FingerpostWireEntry.query(
-          searchParams = queryParams,
-          savedSearchParamList = maybePreset.getOrElse(Nil),
-          maybeSearchTerm = maybeSearchTerm,
-          maybeBeforeId = maybeBeforeId,
-          maybeSinceId = maybeSinceId,
-          pageSize = 30
+          queryParams
         )
       )
     )

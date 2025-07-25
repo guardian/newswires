@@ -1,8 +1,8 @@
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{
   AWSCredentialsProviderChain,
   DefaultAWSCredentialsProviderChain
 }
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
