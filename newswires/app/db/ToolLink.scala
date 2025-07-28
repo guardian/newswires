@@ -1,7 +1,7 @@
 package db
 
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.{Decoder, Encoder, Json}
+import io.circe.{Decoder, Encoder}
 import scalikejdbc._
 
 import java.time.Instant
@@ -56,4 +56,28 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] {
     deriveEncoder[ToolLink].mapJson(_.dropNullValues)
 
   implicit val jsonDecoder: Decoder[ToolLink] = deriveDecoder[ToolLink]
+
+  def insertComposerLink(
+      newswiresId: Int,
+      composerId: String,
+      sentBy: String,
+      sentAt: Instant
+  ): Int = DB localTx { implicit session =>
+    val composerUrl =
+      s"https://composer.code.dev-gutools.co.uk/content/$composerId"
+    val tl = ToolLink.column
+    sql"""| INSERT INTO $table
+          |  (${tl.wireId}, ${tl.tool}, ${tl.sentBy}, ${tl.sentAt}, ${tl.ref})
+          | VALUES ($newswiresId, 'composer', $sentBy, $sentAt, $composerUrl)
+          | """.stripMargin.update().apply()
+  }
+
+  def insertIncopyLink(newswiresId: Int, sentBy: String, sentAt: Instant): Int =
+    DB localTx { implicit session =>
+      val tl = ToolLink.column
+      sql"""| INSERT INTO $table
+          |  (${tl.wireId}, ${tl.tool}, ${tl.sentBy}, ${tl.sentAt})
+          | VALUES ($newswiresId, 'incopy', $sentBy, $sentAt)
+          | """.stripMargin.update().apply()
+    }
 }
