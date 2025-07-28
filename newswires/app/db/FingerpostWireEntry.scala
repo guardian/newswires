@@ -60,32 +60,34 @@ object FingerpostWireEntry
 
   def apply(
       fm: ResultName[FingerpostWireEntry]
-  )(rs: WrappedResultSet): FingerpostWireEntry = {
-    val fingerpostContent = decode[FingerpostWire](rs.string(fm.content)).toOption.get
-    val maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
-    val categoryCodes = maybeCategoryCodes match {
-      case Some(array) =>
-        array.getArray
-          .asInstanceOf[Array[String]]
-          .toList
-      case None => Nil
+  )(rs: WrappedResultSet): Option[FingerpostWireEntry] = {
+    for {
+      fingerpostContent <- decode[FingerpostWire](rs.string(fm.content)).toOption
+      maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
+      categoryCodes = maybeCategoryCodes match {
+        case Some(array) =>
+          array.getArray
+            .asInstanceOf[Array[String]]
+            .toList
+        case None => Nil
+      }
+    } yield {
+      FingerpostWireEntry(
+        id = rs.long(fm.id),
+        supplier = rs.string(fm.supplier),
+        externalId = rs.string(fm.externalId),
+        ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
+        content = fingerpostContent,
+        composerId = rs.stringOpt(fm.composerId),
+        composerSentBy = rs.stringOpt(fm.composerSentBy),
+        categoryCodes = categoryCodes,
+        highlight = rs
+          .stringOpt(fm.column("highlight"))
+          .filter(
+            _.contains("<mark>")
+          ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
+      )
     }
-
-    FingerpostWireEntry(
-      id = rs.long(fm.id),
-      supplier = rs.string(fm.supplier),
-      externalId = rs.string(fm.externalId),
-      ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
-      content = fingerpostContent,
-      composerId = rs.stringOpt(fm.composerId),
-      composerSentBy = rs.stringOpt(fm.composerSentBy),
-      categoryCodes = categoryCodes,
-      highlight = rs
-        .stringOpt(fm.column("highlight"))
-        .filter(
-          _.contains("<mark>")
-        ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
-    )
   }
 
   private def clamp(low: Int, x: Int, high: Int): Int =
@@ -107,6 +109,7 @@ object FingerpostWireEntry
       .map(FingerpostWireEntry(syn.resultName))
       .single()
       .apply()
+      .collect({case Some(fingerPostWireEntry) => fingerPostWireEntry})
   }
 
   case class QueryResponse(
@@ -117,7 +120,7 @@ object FingerpostWireEntry
 
   private object QueryResponse {
     implicit val jsonEncoder: Encoder[QueryResponse] =
-      deriveEncoder[QueryResponse]
+      deriveEncoder[QueryResponse].mapJson(_.dropNullValues)
 
     implicit val jsonDecoder: Decoder[QueryResponse] =
       deriveDecoder[QueryResponse]
@@ -364,6 +367,7 @@ object FingerpostWireEntry
       .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()
+      .collect({case Some(fingerpostWireEntry) => fingerpostWireEntry})
 
     val countQuery =
       sql"""| SELECT COUNT(*)
