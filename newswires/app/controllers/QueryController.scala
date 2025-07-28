@@ -6,14 +6,16 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import db.FingerpostWireEntry
 import models.{NextPage, QueryParams, SearchParams}
+import db._
 import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
+
+import java.time.Instant
 
 class QueryController(
     val controllerComponents: ControllerComponents,
@@ -104,16 +106,22 @@ class QueryController(
     }
 
   def redirectToIncopyImport(id: Int): Action[AnyContent] = authAction {
-    // TODO record that copy was fetched
-    FingerpostWireEntry.get(id, None) match {
-      case Some(entry) =>
-        val serialised = entry.asJson.spaces2
-        val compressedEncodedEntry = Base64Encoder.compressAndEncode(serialised)
-        // eww - TODO pick a better way of doing this lol. host header maybe?
-        val domain = s"newswires.${panDomainSettings.domain}"
-        Found(s"newswires://$domain?data=$compressedEncodedEntry")
-      case None => NotFound
-    }
+    request: UserRequest[AnyContent] =>
+      FingerpostWireEntry.get(id, None) match {
+        case Some(entry) =>
+          val serialised = entry.asJson.spaces2
+          ToolLink.insertIncopyLink(
+            id,
+            request.user.username,
+            sentAt = Instant.now()
+          )
+          val compressedEncodedEntry =
+            Base64Encoder.compressAndEncode(serialised)
+          // eww - TODO pick a better way of doing this lol. host header maybe?
+          val domain = s"newswires.${panDomainSettings.domain}"
+          Found(s"newswires://$domain?data=$compressedEncodedEntry")
+        case None => NotFound
+      }
   }
 
   def linkToComposer(id: Int): Action[AnyContent] = apiAuthAction {
@@ -121,8 +129,12 @@ class QueryController(
       request.body.asJson
         .flatMap(_.asOpt[ComposerLinkRequest])
         .map(params =>
-          FingerpostWireEntry
-            .insertComposerId(id, params.composerId, params.sentBy)
+          ToolLink.insertComposerLink(
+            id,
+            params.composerId,
+            params.sentBy,
+            sentAt = Instant.now()
+          )
         ) match {
         case Some(1) => Accepted
         case Some(0) =>

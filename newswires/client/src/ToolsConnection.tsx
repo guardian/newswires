@@ -99,7 +99,8 @@ const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
 	return (
 		<li key={toolLink.id}>
 			<EuiText size="xs">
-				Sent to {toolLink.tool} by {toolLink.sentBy} at{' '}
+				Sent to {toolLink.tool} by {toolLink.sentBy}
+				{' • '}
 				<Tooltip tooltipContent={sentAt.format()}>{sentAt.fromNow()}</Tooltip>
 			</EuiText>
 		</li>
@@ -109,19 +110,7 @@ const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
 export const ToolsConnection = ({ itemData }: { itemData: WireData }) => {
 	return (
 		<>
-			<EuiFlexGroup justifyContent="spaceBetween">
-				<EuiFlexItem grow={false}>
-					{itemData.toolLinks?.length ? (
-						<ul>
-							{itemData.toolLinks.map((toolLink) => (
-								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
-							))}
-						</ul>
-					) : (
-						<></>
-					)}
-				</EuiFlexItem>
-
+			<EuiFlexGroup>
 				<EuiFlexItem grow={false}>
 					<SendOrVisitInComposerButton itemData={itemData} />
 
@@ -145,6 +134,18 @@ export const ToolsConnection = ({ itemData }: { itemData: WireData }) => {
 					>
 						Send to InCopy
 					</EuiButton>
+				</EuiFlexItem>
+
+				<EuiFlexItem grow={false}>
+					{itemData.toolLinks?.length ? (
+						<ul>
+							{itemData.toolLinks.map((toolLink) => (
+								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
+							))}
+						</ul>
+					) : (
+						<></>
+					)}
 				</EuiFlexItem>
 			</EuiFlexGroup>
 		</>
