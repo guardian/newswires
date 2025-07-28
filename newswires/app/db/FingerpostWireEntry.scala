@@ -24,8 +24,8 @@ case class FingerpostWireEntry(
     externalId: String,
     ingestedAt: Instant,
     content: FingerpostWire,
-    composerId: Option[String],
-    composerSentBy: Option[String],
+    @deprecated composerId: Option[String],
+    @deprecated composerSentBy: Option[String],
     categoryCodes: List[String],
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil
@@ -460,20 +460,5 @@ object FingerpostWireEntry
         .apply()
         .toMap // TODO would a list be better?
     }
-  }
-
-  def insertComposerId(
-      newswiresId: Int,
-      composerId: String,
-      sentBy: String
-  ): Int = DB localTx { implicit session =>
-    sql"""| UPDATE ${FingerpostWireEntry as syn}
-          | SET composer_id = $composerId, composer_sent_by = $sentBy
-          | WHERE id = $newswiresId
-          |   AND composer_id IS NULL
-          |   AND composer_sent_by IS NULL
-          | """.stripMargin
-      .update()
-      .apply()
   }
 }
