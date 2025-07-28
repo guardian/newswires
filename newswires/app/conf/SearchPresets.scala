@@ -1,7 +1,7 @@
 package conf
 
 import conf.Suppliers._
-import db.SearchParams
+import models.SearchParams
 
 // Increase max line length to improve readability of search presets
 // scalafmt: { maxColumn = 120 }

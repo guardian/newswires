@@ -1,5 +1,6 @@
-package db
+package models
 
+import db.FingerpostWireEntry
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 

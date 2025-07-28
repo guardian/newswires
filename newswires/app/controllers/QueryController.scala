@@ -6,7 +6,8 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import db.{FingerpostWireEntry, NextPage, QueryParams, SearchParams}
+import db.FingerpostWireEntry
+import models.{NextPage, QueryParams, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -76,9 +77,12 @@ class QueryController(
     )
 
     Ok(
-        FingerpostWireEntry.query(
+      FingerpostWireEntry
+        .query(
           queryParams
-        ).asJson.spaces2
+        )
+        .asJson
+        .spaces2
     )
   }
 

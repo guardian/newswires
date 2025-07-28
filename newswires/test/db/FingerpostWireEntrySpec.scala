@@ -7,6 +7,7 @@ import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
+import models.{MostRecent, NextPage, QueryParams, SearchParams}
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {

@@ -4,10 +4,17 @@ import conf.{SearchField, SearchTerm}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.FingerpostWire
+import models.{
+  FingerpostWire,
+  NextPage,
+  QueryParams,
+  QueryResponse,
+  SearchParams
+}
 import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
+
 import java.time.Instant
 
 case class FingerpostWireEntry(
@@ -62,7 +69,9 @@ object FingerpostWireEntry
       fm: ResultName[FingerpostWireEntry]
   )(rs: WrappedResultSet): Option[FingerpostWireEntry] = {
     for {
-      fingerpostContent <- decode[FingerpostWire](rs.string(fm.content)).toOption
+      fingerpostContent <- decode[FingerpostWire](
+        rs.string(fm.content)
+      ).toOption
       maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
       categoryCodes = maybeCategoryCodes match {
         case Some(array) =>
@@ -109,7 +118,7 @@ object FingerpostWireEntry
       .map(FingerpostWireEntry(syn.resultName))
       .single()
       .apply()
-      .collect({case Some(fingerPostWireEntry) => fingerPostWireEntry})
+      .collect({ case Some(fingerPostWireEntry) => fingerPostWireEntry })
   }
 
   private def processSearchParams(
@@ -364,7 +373,7 @@ object FingerpostWireEntry
       .map(FingerpostWireEntry(syn.resultName))
       .list()
       .apply()
-      .collect({case Some(fingerpostWireEntry) => fingerpostWireEntry})
+      .collect({ case Some(fingerpostWireEntry) => fingerpostWireEntry })
 
     val countQuery =
       sql"""| SELECT COUNT(*)
