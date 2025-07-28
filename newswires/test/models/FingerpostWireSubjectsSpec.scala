@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 
-class FingerpostWireSubjectsTest extends AnyFlatSpec {
+class FingerpostWireSubjectsSpec extends AnyFlatSpec {
   val exampleFingerpostWireSubjects =
     FingerpostWireSubjects(code = List("a", "b"))
   val exampleJson = """{

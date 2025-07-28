@@ -7,7 +7,7 @@ import play.api.libs.json.{JsSuccess, Json}
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 
-class FingerpostWireTest extends AnyFlatSpec with models {
+class FingerpostWireSpec extends AnyFlatSpec with models {
 
   it should "serialise json" in {
     exampleWire.asJson.spaces2 shouldEqual exampleWireJson
