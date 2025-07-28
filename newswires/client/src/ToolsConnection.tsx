@@ -19,7 +19,13 @@ import { Tooltip } from './Tooltip.tsx';
 
 type SendState = 'sending' | 'sent' | 'failed' | 'unsent';
 
-const SendOrVisitInComposerButton = ({ itemData }: { itemData: WireData }) => {
+const SendOrVisitInComposerButton = ({
+	itemData,
+	addToolLink,
+}: {
+	itemData: WireData;
+	addToolLink: (toolLink: ToolLink) => void;
+}) => {
 	const { sendTelemetryEvent } = useTelemetry();
 	const previousSend = itemData.toolLinks?.find(
 		(toolLink) => toolLink.tool === 'composer',
@@ -41,6 +47,15 @@ const SendOrVisitInComposerButton = ({ itemData }: { itemData: WireData }) => {
 				setComposerId(composerId);
 				window.open(composerPageForId(composerId));
 				setSendState('sent');
+				addToolLink({
+					// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
+					id: Math.floor(Math.random() * 0xfffffffff),
+					wireId: itemData.id,
+					tool: 'composer',
+					sentBy: 'you',
+					sentAt: new Date().toISOString(),
+					ref: composerPageForId(composerId),
+				});
 				sendTelemetryEvent('NEWSWIRES_SEND_TO_COMPOSER', {
 					composerId,
 					itemId: itemData.id,
@@ -56,7 +71,7 @@ const SendOrVisitInComposerButton = ({ itemData }: { itemData: WireData }) => {
 				});
 				setSendState('failed');
 			});
-	}, [itemData, sendTelemetryEvent]);
+	}, [itemData, sendTelemetryEvent, addToolLink]);
 
 	if (sendState === 'sent' && composerId) {
 		return (
@@ -107,17 +122,36 @@ const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
 	);
 };
 
-export const ToolsConnection = ({ itemData }: { itemData: WireData }) => {
+export const ToolsConnection = ({
+	itemData,
+	addToolLink,
+}: {
+	itemData: WireData;
+	addToolLink: (toolLink: ToolLink) => void;
+}) => {
 	return (
 		<>
 			<EuiFlexGroup>
 				<EuiFlexItem grow={false}>
-					<SendOrVisitInComposerButton itemData={itemData} />
+					<SendOrVisitInComposerButton
+						itemData={itemData}
+						addToolLink={addToolLink}
+					/>
 
 					<EuiSpacer size="s" />
 
 					<EuiButton
 						href={`/api/item/${itemData.id}/incopy`}
+						onClick={() =>
+							addToolLink({
+								// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
+								id: Math.floor(Math.random() * 0xfffffffff),
+								wireId: itemData.id,
+								tool: 'incopy',
+								sentBy: 'you',
+								sentAt: new Date().toISOString(),
+							})
+						}
 						target="_blank"
 						// I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck:
 						css={css`
