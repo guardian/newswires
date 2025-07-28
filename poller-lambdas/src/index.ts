@@ -2,8 +2,6 @@ import {
 	GetSecretValueCommand,
 	PutSecretValueCommand,
 } from '@aws-sdk/client-secrets-manager';
-import type { SendMessageCommandInput } from '@aws-sdk/client-sqs';
-import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import {
 	POLLER_FAILURE_EVENT_TYPE,
 	POLLER_INVOCATION_EVENT_TYPE,
@@ -12,7 +10,7 @@ import { getErrorMessage } from '../../shared/getErrorMessage';
 import { createLogger } from '../../shared/lambda-logging';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
-import { sqs } from '../../shared/sqs';
+import { putToS3AndQueueIngestion } from '../../shared/putToS3AndQueueIngestion';
 import { queueNextInvocation, secretsManager } from './aws';
 import { getEnvironmentVariableOrCrash } from './config';
 import { apPoller } from './pollers/ap/apPoller';
@@ -65,26 +63,22 @@ const pollerWrapper =
 						console.log(
 							`Sending message to ingestion lambda with id: ${externalId}.`,
 						);
-						const message: SendMessageCommandInput = {
-							QueueUrl: getEnvironmentVariableOrCrash(
-								POLLER_LAMBDA_ENV_VAR_KEYS.INGESTION_LAMBDA_QUEUE_URL,
-							),
-							MessageBody: JSON.stringify(body),
-							MessageAttributes: {
-								'Message-Id': {
-									StringValue: externalId,
-									DataType: 'String',
-								},
-							},
-						};
-						await sqs.send(new SendMessageCommand(message)).catch((error) => {
-							logger.error({
-								message: `Sending to queue failed for ${externalId}`,
-								error: getErrorMessage(error),
-								queueMessage: JSON.stringify(message),
-							});
-							throw error; // we still expect this to be terminal for the poller lambda
+						const putToS3Result = await putToS3AndQueueIngestion({
+							externalId,
+							keyPrefix: 'poller-lambdas',
+							body: JSON.stringify(body),
 						});
+						if (putToS3Result.status === 'failure') {
+							logger.error({
+								message: `Failed to put object to S3 and queue ingestion for externalId "${externalId}": ${putToS3Result.reason}`,
+								eventType: 'POLLER_LAMBDA_S3_FAILURE',
+								sqsMessageId: record.messageId,
+								externalId,
+							});
+							throw new Error(
+								`Failed to put object to S3 for externalId "${externalId}"`,
+							);
+						}
 					}
 
 					if (isFixedFrequencyPollOutput(output)) {

@@ -1,57 +1,59 @@
-import type { SendMessageCommandInput } from '@aws-sdk/client-sqs';
-import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
-import { getErrorMessage } from '../../shared/getErrorMessage';
+import { getFromEnv } from '../../shared/config';
 import { createLogger } from '../../shared/lambda-logging';
-import { sqs } from '../../shared/sqs';
+import { putToS3AndQueueIngestion } from '../../shared/putToS3AndQueueIngestion';
+import { putToS3 } from '../../shared/s3';
 
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
-	const logger = createLogger({});
 	const results = await Promise.all(
 		event.Records.map(
 			async ({ messageId: sqsMessageId, messageAttributes, body }) => {
-				const externalId = messageAttributes['Message-Id']?.stringValue ?? '';
-				try {
-					const message: SendMessageCommandInput = {
-						QueueUrl: getEnvironmentVariableOrCrash(
-							'INGESTION_LAMBDA_QUEUE_URL',
-						),
-						MessageBody: body,
-						MessageAttributes: {
-							'Message-Id': {
-								StringValue: externalId,
-								DataType: 'String',
-							},
-						},
-					};
-					await sqs.send(new SendMessageCommand(message)).catch((error) => {
-						logger.error({
-							message: `Sending to queue failed for ${externalId}`,
-							error: getErrorMessage(error),
-							queueMessage: JSON.stringify(message),
-						});
-						throw error;
+				const logger = createLogger({ sqsMessageId });
+				const externalId = messageAttributes['Message-Id']?.stringValue;
+				const hasExternalId = externalId && externalId.trim().length > 0;
+				const objectKey = hasExternalId
+					? `${externalId}.json`
+					: `GuMissingExternalId/${sqsMessageId}.json`;
+
+				if (hasExternalId) {
+					const putToS3Result = await putToS3AndQueueIngestion({
+						externalId,
+						keyPrefix: 'fingerpost-queueing-lambda',
+						body,
 					});
-					return undefined;
-				} catch (error) {
+					if (putToS3Result.status === 'success') {
+						return undefined; // We only return batchItemFailures for failed messages
+					}
+				} else {
+					logger.warn({
+						message: `Message with sqsMessageId ${sqsMessageId} has no externalId. Saved to ${objectKey} but not sending to ingestion queue.`,
+						eventType: 'FINGERPOST_QUEUEING_LAMBDA_NO_EXTERNAL_ID',
+						sqsMessageId,
+						objectKey,
+					});
+					const putToS3Result = await putToS3({
+						bucketName: getFromEnv('FEEDS_BUCKET_NAME'),
+						key: objectKey,
+						body,
+					});
+					if (putToS3Result.status === 'success') {
+						return undefined; // We only return batchItemFailures for failed messages
+					}
 					logger.error({
-						message: `Error processing SQS message (sqsMessageId: ${sqsMessageId}): ${getErrorMessage(error)}. Reporting to SQS as failed.`,
+						message: `Failed to put object to S3 with key "${objectKey}" in bucket "${getFromEnv(
+							'FEEDS_BUCKET_NAME',
+						)}" for message with sqsMessageId ${sqsMessageId}.`,
+						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_FAILURE',
+						sqsMessageId,
+						objectKey,
+						reason: putToS3Result.reason,
 					});
-					return { itemIdentifier: sqsMessageId };
 				}
+
+				return { itemIdentifier: sqsMessageId };
 			},
 		),
 	);
 	const batchItemFailures = results.filter((result) => result !== undefined);
 	return { batchItemFailures };
 };
-
-function getEnvironmentVariableOrCrash(key: string) {
-	const maybeValue = process.env[key];
-	if (maybeValue) {
-		return maybeValue;
-	}
-	throw Error(
-		`Environment variable '${key}' was expected to be set, but was in fact ${maybeValue}.`,
-	);
-}
