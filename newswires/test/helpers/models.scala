@@ -1,7 +1,6 @@
 package helpers
 
 import db.FingerpostWireEntry
-import db.FingerpostWireEntry.QueryResponse
 import models.{Dataformat, FingerpostWire, FingerpostWireSubjects}
 
 import java.time.Instant

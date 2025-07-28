@@ -7,6 +7,7 @@ import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
+import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
@@ -240,5 +241,49 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         "AFP"
       )
     )
+  }
+
+  behavior of "FingerpostWireEntry.buildSearchQuery"
+
+  it should "order results by descending ingestion_at by default" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(None),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeId = None,
+      maybeSinceId = None
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.statement should include("ORDER BY fm.ingested_at DESC")
+  }
+
+  it should "order results by descending ingestion_at when using MostRecent update type with maybeSinceId" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(None),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeId = None,
+      maybeSinceId = Some(MostRecent(123))
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.statement should include("ORDER BY fm.ingested_at DESC")
+  }
+
+  it should "order results by *ascending* ingestion_at when using NextPage update type with maybeSinceId" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(None),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeId = None,
+      maybeSinceId = Some(NextPage(123))
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.statement should include("ORDER BY fm.ingested_at ASC")
   }
 }
