@@ -2,6 +2,7 @@
 	"name": "ingestion-lambda",
 	"version": "1.0.0",
 	"description": "",
+	"type": "module",
 	"scripts": {
 		"dev": "tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
@@ -11,13 +12,11 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
-		"@aws-sdk/client-s3": "3.848.0",
 		"@aws-sdk/rds-signer": "3.848.0",
 		"compromise": "^14.14.4",
 		"postgres": "3.4.7"
 	},
 	"devDependencies": {
-		"@types/aws-lambda": "8.10.152",
 		"lorem-ipsum": "2.0.8"
 	}
 }
