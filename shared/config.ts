@@ -1,3 +1,5 @@
+import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
+
 /**
  * Is this application running locally, or in AWS?
  * LAMBDA_TASK_ROOT & AWS_EXECUTION_ENV are set when running in AWS
@@ -6,20 +8,6 @@
 export const isRunningLocally =
 	!process.env.LAMBDA_TASK_ROOT && !process.env.AWS_EXECUTION_ENV;
 
-export const DATABASE_NAME: string = isRunningLocally
-	? 'newswires'
-	: getFromEnv('DATABASE_NAME');
-
-export const DATABASE_ENDPOINT_ADDRESS: string = isRunningLocally
-	? 'localhost'
-	: getFromEnv('DATABASE_ENDPOINT_ADDRESS');
-
-export const DATABASE_PORT: number = isRunningLocally
-	? 5432
-	: parseInt(getFromEnv('DATABASE_PORT'));
-
-export const DATABASE_USERNAME = 'postgres';
-
 export function getFromEnv(key: string): string {
 	const value = process.env[key];
 	if (!value) {
@@ -27,3 +15,12 @@ export function getFromEnv(key: string): string {
 	}
 	return value;
 }
+
+export const remoteAwsConfig = isRunningLocally
+	? {
+			region: 'eu-west-1',
+			credentials: fromNodeProviderChain({
+				profile: 'editorial-feeds',
+			}),
+		}
+	: {};

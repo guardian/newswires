@@ -13,6 +13,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
+      "GuLambdaFunction",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -392,6 +393,319 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "TTL": 60,
       },
       "Type": "Guardian::DNS::RecordSet",
+    },
+    "FingerpostQueueingLambdaTEST60860D74": {
+      "DependsOn": [
+        "FingerpostQueueingLambdaTESTServiceRoleDefaultPolicy50D0B801",
+        "FingerpostQueueingLambdaTESTServiceRole3745BFBA",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "editorial-feeds/TEST/fingerpost-queueing-lambda/fingerpost-queueing-lambda.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "fingerpost-queueing-lambda",
+            "FEEDS_BUCKET_NAME": {
+              "Ref": "feedsbucketTESTNewswires116BDB0E",
+            },
+            "INGESTION_LAMBDA_QUEUE_URL": {
+              "Fn::ImportValue": "mockWiresFeeds:ExportsOutputRefMockSourceQueue20B4D8C006FBA8DA",
+            },
+            "STACK": "editorial-feeds",
+            "STAGE": "TEST",
+          },
+        },
+        "Handler": "handler.main",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+        },
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "FingerpostQueueingLambdaTESTServiceRole3745BFBA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "fingerpost-queueing-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "FingerpostQueueingLambdaTESTServiceRole3745BFBA": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "fingerpost-queueing-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "FingerpostQueueingLambdaTESTServiceRoleDefaultPolicy50D0B801": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/editorial-feeds/TEST/fingerpost-queueing-lambda/fingerpost-queueing-lambda.zip",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/fingerpost-queueing-lambda",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/fingerpost-queueing-lambda/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:GetQueueUrl",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockFingerpostQueue05E3D7ECArnA85146B3",
+              },
+            },
+            {
+              "Action": [
+                "sqs:SendMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSourceQueue20B4D8C0ArnCE5A6D0C",
+              },
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "feedsbucketTESTNewswires116BDB0E",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "feedsbucketTESTNewswires116BDB0E",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "FingerpostQueueingLambdaTESTServiceRoleDefaultPolicy50D0B801",
+        "Roles": [
+          {
+            "Ref": "FingerpostQueueingLambdaTESTServiceRole3745BFBA",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "FingerpostQueueingLambdaTESTSqsEventSourcemockWiresFeedsMockFingerpostQueue19AE08DAED2C2118": {
+      "Properties": {
+        "EventSourceArn": {
+          "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockFingerpostQueue05E3D7ECArnA85146B3",
+        },
+        "FunctionName": {
+          "Ref": "FingerpostQueueingLambdaTEST60860D74",
+        },
+        "FunctionResponseTypes": [
+          "ReportBatchItemFailures",
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "fingerpost-queueing-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::Lambda::EventSourceMapping",
     },
     "GetDistributablePolicyNewswires3D555C70": {
       "Properties": {
@@ -959,19 +1273,9 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             },
             {
               "Action": [
-                "sqs:ReceiveMessage",
-                "sqs:ChangeMessageVisibility",
-                "sqs:GetQueueUrl",
-                "sqs:DeleteMessage",
-                "sqs:GetQueueAttributes",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockFingerpostQueue05E3D7ECArnA85146B3",
-              },
-            },
-            {
-              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
                 "s3:DeleteObject*",
                 "s3:PutObject",
                 "s3:PutObjectLegalHold",
@@ -1050,42 +1354,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
-    },
-    "IngestionLambdaTESTSqsEventSourcemockWiresFeedsMockFingerpostQueue19AE08DA454EF2E1": {
-      "Properties": {
-        "EventSourceArn": {
-          "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockFingerpostQueue05E3D7ECArnA85146B3",
-        },
-        "FunctionName": {
-          "Ref": "IngestionLambdaTESTC02B3E43",
-        },
-        "FunctionResponseTypes": [
-          "ReportBatchItemFailures",
-        ],
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "ingestion-lambda",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-      },
-      "Type": "AWS::Lambda::EventSourceMapping",
     },
     "IngestionLambdaTESTSqsEventSourcemockWiresFeedsMockSourceQueue17F9CFF698B624D6": {
       "Properties": {

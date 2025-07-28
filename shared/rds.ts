@@ -1,12 +1,20 @@
 import { Signer } from '@aws-sdk/rds-signer';
 import postgres from 'postgres';
-import {
-	DATABASE_ENDPOINT_ADDRESS,
-	DATABASE_NAME,
-	DATABASE_PORT,
-	DATABASE_USERNAME,
-	isRunningLocally,
-} from './config';
+import { getFromEnv, isRunningLocally } from './config';
+
+export const DATABASE_NAME: string = isRunningLocally
+	? 'newswires'
+	: getFromEnv('DATABASE_NAME');
+
+export const DATABASE_ENDPOINT_ADDRESS: string = isRunningLocally
+	? 'localhost'
+	: getFromEnv('DATABASE_ENDPOINT_ADDRESS');
+
+export const DATABASE_PORT: number = isRunningLocally
+	? 5432
+	: parseInt(getFromEnv('DATABASE_PORT'));
+
+export const DATABASE_USERNAME = 'postgres';
 
 const sharedConfig = {
 	port: DATABASE_PORT,
