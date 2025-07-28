@@ -1,9 +1,5 @@
 import { getErrorMessage } from '../../shared/getErrorMessage';
-import type {
-	IngestorInputBody,
-	OperationResult,
-	ProcessedObject,
-} from '../../shared/types';
+import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import {
 	dedupeStrings,
@@ -20,6 +16,7 @@ import {
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { lookupSupplier } from './suppliers';
+import type { OperationResult, ProcessedObject } from './types';
 
 const isCurlyQuoteFailure = (e: SyntaxError): boolean => {
 	return !!e.message.match(/Unexpected token '[“‘”’]'/);
