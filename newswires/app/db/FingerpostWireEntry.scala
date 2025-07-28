@@ -6,6 +6,7 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
   FingerpostWire,
+  FingerpostWireSubjects,
   NextPage,
   QueryParams,
   QueryResponse,
@@ -65,13 +66,13 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.content}
     |""".stripMargin
 
-  def apply(
+  def fromDb(
       fm: ResultName[FingerpostWireEntry]
   )(rs: WrappedResultSet): Option[FingerpostWireEntry] = {
-    for {
+    (for {
       fingerpostContent <- decode[FingerpostWire](
         rs.string(fm.content)
-      ).toOption
+      )
       maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
       categoryCodes = maybeCategoryCodes match {
         case Some(array) =>
@@ -96,7 +97,14 @@ object FingerpostWireEntry
             _.contains("<mark>")
           ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
       )
-    }
+    }).left
+      .map(error => {
+        logger.error(
+          s"Error parsing record ${rs.long(fm.id)}: ${error.getMessage}",
+          error.getCause
+        )
+      })
+      .toOption
   }
 
   private def clamp(low: Int, x: Int, high: Int): Int =
@@ -115,10 +123,10 @@ object FingerpostWireEntry
           | FROM ${FingerpostWireEntry as syn}
           | WHERE ${FingerpostWireEntry.syn.id} = $id
           |""".stripMargin
-      .map(FingerpostWireEntry(syn.resultName))
+      .map(FingerpostWireEntry.fromDb(syn.resultName))
       .single()
       .apply()
-      .collect({ case Some(fingerPostWireEntry) => fingerPostWireEntry })
+      .flatten
   }
 
   private def processSearchParams(
@@ -370,10 +378,10 @@ object FingerpostWireEntry
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
     val results = query
-      .map(FingerpostWireEntry(syn.resultName))
+      .map(FingerpostWireEntry.fromDb(syn.resultName))
       .list()
       .apply()
-      .collect({ case Some(fingerpostWireEntry) => fingerpostWireEntry })
+      .flatten
 
     val countQuery =
       sql"""| SELECT COUNT(*)
