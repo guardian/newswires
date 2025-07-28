@@ -26,7 +26,7 @@ import { useTelemetry } from './context/TelemetryContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
-import type { SupplierInfo, WireData } from './sharedTypes';
+import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
 import { ToolsConnection } from './ToolsConnection.tsx';
@@ -386,9 +386,11 @@ function CopyButton({
 export const WireDetail = ({
 	wire,
 	isShowingJson,
+	addToolLink,
 }: {
 	wire: WireData;
 	isShowingJson: boolean;
+	addToolLink: (toolLink: ToolLink) => void;
 }) => {
 	const theme = useEuiTheme();
 	const { categoryCodes } = wire;
@@ -481,7 +483,11 @@ export const WireDetail = ({
 							padding: 12px;
 						`}
 					>
-						<ToolsConnection itemData={wire} key={wire.id} />
+						<ToolsConnection
+							itemData={wire}
+							key={wire.id}
+							addToolLink={addToolLink}
+						/>
 					</div>
 					<EuiSpacer size="m" />
 					{ednote && (
