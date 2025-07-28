@@ -51,5 +51,5 @@ object FingerpostWire {
       }
     )
   implicit val jsonEncoder: Encoder[FingerpostWire] =
-    deriveEncoder[FingerpostWire]
+    deriveEncoder[FingerpostWire].mapJson(_.dropNullValues)
 }

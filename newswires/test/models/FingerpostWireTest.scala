@@ -13,6 +13,10 @@ class FingerpostWireTest extends AnyFlatSpec with models {
     exampleWire.asJson.spaces2 shouldEqual exampleWireJson
   }
 
+  it should "serialise json and remove null fields" in {
+    emptyWire.asJson.noSpaces shouldEqual "{}"
+  }
+
   it should "deserialise json" in {
     decode[FingerpostWire](exampleWireJson) shouldEqual Right(exampleWire)
   }

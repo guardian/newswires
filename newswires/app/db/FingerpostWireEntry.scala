@@ -27,7 +27,7 @@ object FingerpostWireEntry
     with Logging {
 
   implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
-    deriveEncoder[FingerpostWireEntry]
+    deriveEncoder[FingerpostWireEntry].mapJson(_.dropNullValues)
 
   implicit val jsonDecoder: Decoder[FingerpostWireEntry] =
     deriveDecoder[FingerpostWireEntry]

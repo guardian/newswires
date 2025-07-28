@@ -11,5 +11,5 @@ case class Dataformat(
 
 object Dataformat {
   implicit val jsonDecoder: Decoder[Dataformat] = deriveDecoder[Dataformat]
-  implicit val jsonEncoder: Encoder[Dataformat] = deriveEncoder[Dataformat]
+  implicit val jsonEncoder: Encoder[Dataformat] = deriveEncoder[Dataformat].mapJson(_.dropNullValues)
 }
