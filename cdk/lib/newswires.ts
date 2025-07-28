@@ -121,6 +121,42 @@ export class Newswires extends GuStack {
 			],
 		});
 
+		const fingerpostQueueingLambda = new GuLambdaFunction(
+			this,
+			`FingerpostQueueingLambda-${this.stage}`,
+			{
+				app: 'fingerpost-queueing-lambda',
+				runtime: LAMBDA_RUNTIME,
+				architecture: LAMBDA_ARCHITECTURE,
+				handler: 'handler.main',
+				fileName: 'fingerpost-queueing-lambda.zip',
+				environment: {
+					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+					INGESTION_LAMBDA_QUEUE_URL: props.sourceQueue.queueUrl,
+				},
+			},
+		);
+
+		const eventSourceProps = {
+			/**
+			 * This is required to allow us to deal with failures of particular
+			 * records handed to a lambda by an SQS queue. Without this, the
+			 * lambda will retry the entire batch of records, which is not what
+			 * we want.
+			 *
+			 * See https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#services-sqs-batchfailurereporting
+			 *
+			 */
+			reportBatchItemFailures: true,
+		};
+
+		fingerpostQueueingLambda.addEventSource(
+			new SqsEventSource(props.fingerpostQueue, eventSourceProps),
+		);
+		props.sourceQueue.grantSendMessages(fingerpostQueueingLambda);
+
+		feedsBucket.grantWrite(fingerpostQueueingLambda);
+
 		const ingestionLambda = new GuLambdaFunction(
 			this,
 			`IngestionLambda-${this.stage}`,
@@ -202,27 +238,11 @@ export class Newswires extends GuStack {
 			],
 		});
 
-		const eventSourceProps = {
-			/**
-			 * This is required to allow us to deal with failures of particular
-			 * records handed to a lambda by an SQS queue. Without this, the
-			 * lambda will retry the entire batch of records, which is not what
-			 * we want.
-			 *
-			 * See https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#services-sqs-batchfailurereporting
-			 *
-			 */
-			reportBatchItemFailures: true,
-		};
 		ingestionLambda.addEventSource(
 			new SqsEventSource(props.sourceQueue, eventSourceProps),
 		);
-		ingestionLambda.addEventSource(
-			new SqsEventSource(props.fingerpostQueue, eventSourceProps),
-		);
 
-		feedsBucket.grantWrite(ingestionLambda);
-
+		feedsBucket.grantReadWrite(ingestionLambda);
 		database.grantConnect(ingestionLambda);
 
 		new MetricFilter(this, 'IngestionSourceFeeds', {

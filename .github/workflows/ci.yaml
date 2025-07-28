@@ -72,6 +72,12 @@ jobs:
           npm run build
           zip -FSjr "dist/poller-lambdas.zip" "dist/index.js"
 
+      - name: Build fingerpost-queueing-lambda
+        working-directory: fingerpost-queueing-lambda
+        run: |
+          npm run build
+          zip -FSjr "dist/fingerpost-queueing-lambda.zip" "dist/handler.js"
+
       - name: Build Newswires app and UI
         working-directory: newswires
         run: |
@@ -95,5 +101,7 @@ jobs:
               - email-filter-lambda/dist/email-filter-lambda.zip
             poller-lambdas:
               - poller-lambdas/dist/poller-lambdas.zip
+            fingerpost-queueing-lambda:
+              - fingerpost-queueing-lambda/dist/fingerpost-queueing-lambda.zip
             newswires:
               - newswires/target/newswires.deb

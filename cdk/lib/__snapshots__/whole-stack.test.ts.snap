@@ -491,6 +491,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
       "GuLambdaFunction",
+      "GuLambdaFunction",
       "GuStringParameter",
       "GuScheduledLambda",
       "GuParameter",
@@ -1086,6 +1087,311 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::IAM::Policy",
     },
+    "FingerpostQueueingLambdaTEST60860D74": {
+      "DependsOn": [
+        "FingerpostQueueingLambdaTESTServiceRoleDefaultPolicy50D0B801",
+        "FingerpostQueueingLambdaTESTServiceRole3745BFBA",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "editorial-feeds/TEST/fingerpost-queueing-lambda/fingerpost-queueing-lambda.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "fingerpost-queueing-lambda",
+            "FEEDS_BUCKET_NAME": {
+              "Ref": "feedsbucketTESTNewswires116BDB0E",
+            },
+            "INGESTION_LAMBDA_QUEUE_URL": {
+              "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputRefsourcequeue87B8A5585572F786",
+            },
+            "STACK": "editorial-feeds",
+            "STAGE": "TEST",
+          },
+        },
+        "Handler": "handler.main",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+        },
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "FingerpostQueueingLambdaTESTServiceRole3745BFBA",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "fingerpost-queueing-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "FingerpostQueueingLambdaTESTServiceRole3745BFBA": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "fingerpost-queueing-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "FingerpostQueueingLambdaTESTServiceRoleDefaultPolicy50D0B801": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/editorial-feeds/TEST/fingerpost-queueing-lambda/fingerpost-queueing-lambda.zip",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/fingerpost-queueing-lambda",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/fingerpost-queueing-lambda/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:GetQueueUrl",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttfingerpostqueueF09A4E0AArnACC6D365",
+              },
+            },
+            {
+              "Action": [
+                "sqs:SendMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttsourcequeue87B8A558ArnDD4E9030",
+              },
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "feedsbucketTESTNewswires116BDB0E",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "feedsbucketTESTNewswires116BDB0E",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "FingerpostQueueingLambdaTESTServiceRoleDefaultPolicy50D0B801",
+        "Roles": [
+          {
+            "Ref": "FingerpostQueueingLambdaTESTServiceRole3745BFBA",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "FingerpostQueueingLambdaTESTSqsEventSourceWiresFeedsTESTfingerpostqueue9DDEE7D584E929B3": {
+      "Properties": {
+        "EventSourceArn": {
+          "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttfingerpostqueueF09A4E0AArnACC6D365",
+        },
+        "FunctionName": {
+          "Ref": "FingerpostQueueingLambdaTEST60860D74",
+        },
+        "FunctionResponseTypes": [
+          "ReportBatchItemFailures",
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "fingerpost-queueing-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::Lambda::EventSourceMapping",
+    },
     "GetDistributablePolicyNewswires3D555C70": {
       "Properties": {
         "PolicyDocument": {
@@ -1636,19 +1942,9 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             },
             {
               "Action": [
-                "sqs:ReceiveMessage",
-                "sqs:ChangeMessageVisibility",
-                "sqs:GetQueueUrl",
-                "sqs:DeleteMessage",
-                "sqs:GetQueueAttributes",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttfingerpostqueueF09A4E0AArnACC6D365",
-              },
-            },
-            {
-              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
                 "s3:DeleteObject*",
                 "s3:PutObject",
                 "s3:PutObjectLegalHold",
@@ -1723,42 +2019,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::IAM::Policy",
-    },
-    "IngestionLambdaTESTSqsEventSourceWiresFeedsTESTfingerpostqueue9DDEE7D534E434E7": {
-      "Properties": {
-        "EventSourceArn": {
-          "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttfingerpostqueueF09A4E0AArnACC6D365",
-        },
-        "FunctionName": {
-          "Ref": "IngestionLambdaTESTC02B3E43",
-        },
-        "FunctionResponseTypes": [
-          "ReportBatchItemFailures",
-        ],
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "ingestion-lambda",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-      },
-      "Type": "AWS::Lambda::EventSourceMapping",
     },
     "IngestionLambdaTESTSqsEventSourceWiresFeedsTESTsourcequeueCC994E221E2D583A": {
       "Properties": {
