@@ -150,16 +150,6 @@ object FingerpostWireEntry
       .flatten
   }
 
-  def getRaw(id: Int): Option[String] = DB readOnly { implicit session =>
-    sql"""| SELECT $selectAllStatement
-          | FROM ${FingerpostWireEntry as syn}
-          | WHERE ${FingerpostWireEntry.syn.id} = $id
-          |""".stripMargin
-      .map(rs => rs.string(syn.resultName.content))
-      .single()
-      .apply()
-  }
-
   private def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
