@@ -98,8 +98,12 @@ class QueryController(
   }
 
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
-    apiAuthAction {
-      FingerpostWireEntry.get(id, maybeFreeTextQuery) match {
+    apiAuthAction { request: UserRequest[AnyContent] =>
+      FingerpostWireEntry.get(
+        id,
+        maybeFreeTextQuery,
+        requestingUser = Some(request.user.username)
+      ) match {
         case Some(entry) => Ok(entry.asJson.spaces2)
         case None        => NotFound
       }
