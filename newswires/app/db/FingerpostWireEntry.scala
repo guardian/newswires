@@ -111,30 +111,43 @@ object FingerpostWireEntry
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
 
+  private def replaceToolLinkUserWithYou(
+      requestingUser: Option[String]
+  )(toolLink: ToolLink): ToolLink = {
+    requestingUser match {
+      case Some(username) if username == toolLink.sentBy =>
+        toolLink.copy(sentBy = "you")
+      case _ => toolLink
+    }
+  }
+
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[String]
+      maybeFreeTextQuery: Option[String],
+      requestingUser: Option[String] = None
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     val highlightsClause = maybeFreeTextQuery match {
       case Some(query) =>
         sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls"'' AS ${syn.resultName.highlight}"
     }
-    val q =
-      sql"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
-            | FROM ${FingerpostWireEntry as syn} LEFT JOIN ${ToolLink as ToolLink.syn} ON ${syn.id} = ${ToolLink.syn.wireId}
-            | WHERE ${FingerpostWireEntry.syn.id} = $id
-            |""".stripMargin
-        .one(FingerpostWireEntry.fromDb(syn.resultName))
-        .toMany(ToolLink.opt(ToolLink.syn.resultName))
-        .map { (wire, toolLinks) =>
-          wire.map(_.copy(toolLinks = toolLinks.toList))
-        }
-        .single()
-
-    println(q.statement)
-
-    q.apply().flatten
+    sql"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+          | FROM ${FingerpostWireEntry as syn} LEFT JOIN ${ToolLink as ToolLink.syn} ON ${syn.id} = ${ToolLink.syn.wireId}
+          | WHERE ${FingerpostWireEntry.syn.id} = $id
+          |""".stripMargin
+      .one(FingerpostWireEntry.fromDb(syn.resultName))
+      .toMany(ToolLink.opt(ToolLink.syn.resultName))
+      // add in the toollinks, but replace the username with "you" if it's the same as the person requesting this wire
+      .map { (wire, toolLinks) =>
+        wire.map(
+          _.copy(toolLinks =
+            toolLinks.toList.map(replaceToolLinkUserWithYou(requestingUser))
+          )
+        )
+      }
+      .single()
+      .apply()
+      .flatten
   }
 
   def getRaw(id: Int): Option[String] = DB readOnly { implicit session =>
