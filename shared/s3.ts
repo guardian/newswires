@@ -1,5 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import { getFromEnv, isRunningLocally } from '../../shared/config';
+import { getFromEnv, isRunningLocally } from './config';
 
 // We use localstack to mock AWS services if we are running locally.
 const awsOptions = isRunningLocally
