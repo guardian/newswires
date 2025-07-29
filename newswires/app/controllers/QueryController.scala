@@ -136,7 +136,7 @@ class QueryController(
           ToolLink.insertComposerLink(
             id,
             params.composerId,
-            params.sentBy,
+            request.user.username,
             sentAt = Instant.now()
           )
         ) match {
@@ -163,7 +163,7 @@ class QueryController(
 
 }
 
-case class ComposerLinkRequest(composerId: String, sentBy: String)
+case class ComposerLinkRequest(composerId: String)
 object ComposerLinkRequest {
   implicit val format: OFormat[ComposerLinkRequest] =
     Json.format[ComposerLinkRequest]
