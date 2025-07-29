@@ -11,6 +11,7 @@ import {
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiIcon,
+	EuiPanel,
 	EuiSpacer,
 	EuiText,
 	EuiTitle,
@@ -475,19 +476,13 @@ export const WireDetail = ({
 						</h3>
 					)}
 					<EuiSpacer size="m" />
-					<div
-						css={css`
-							border: 1px solid black;
-							border-radius: 12px;
-							padding: 12px;
-						`}
-					>
+					<EuiPanel hasBorder hasShadow={false}>
 						<ToolsConnection
 							itemData={wire}
 							key={wire.id}
 							addToolLink={addToolLink}
 						/>
-					</div>
+					</EuiPanel>
 					<EuiSpacer size="m" />
 					{ednote && (
 						<>
