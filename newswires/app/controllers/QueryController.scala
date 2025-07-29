@@ -109,6 +109,8 @@ class QueryController(
       }
     }
 
+  private val host = configuration.get[String]("host")
+
   def redirectToIncopyImport(id: Int): Action[AnyContent] = authAction {
     request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(id, None) match {
@@ -121,9 +123,7 @@ class QueryController(
           )
           val compressedEncodedEntry =
             Base64Encoder.compressAndEncode(serialised)
-          // eww - TODO pick a better way of doing this lol. host header maybe?
-          val domain = s"newswires.${panDomainSettings.domain}"
-          Found(s"newswires://$domain?data=$compressedEncodedEntry")
+          Found(s"newswires://$host?data=$compressedEncodedEntry")
         case None => NotFound
       }
   }
