@@ -42,7 +42,6 @@ const SendOrVisitInComposerButton = ({
 		setSendState('sending');
 
 		sendToComposer(itemData)
-			// FIXME update the toollinks list!
 			.then(({ composerId }) => {
 				setComposerId(composerId);
 				window.open(composerPageForId(composerId));
