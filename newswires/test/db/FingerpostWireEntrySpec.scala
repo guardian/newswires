@@ -1,12 +1,28 @@
 package db
 
 import conf.{SearchField, SearchTerm}
+import io.circe.parser.decode
 import helpers.WhereClauseMatcher.matchWhereClause
+import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import io.circe.syntax.EncoderOps
+import models.{MostRecent, NextPage, QueryParams, SearchParams}
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
-class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers {
+class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
+
+  behavior of "FingerpostWireEntry Json encoders / decoders"
+
+  it should "serialise json" in {
+    fingerpostWireEntry.asJson.spaces2 shouldEqual fingerpostWireEntryJson
+  }
+
+  it should "deserialise json" in {
+    decode[FingerpostWireEntry](fingerpostWireEntryJson) shouldEqual Right(
+      fingerpostWireEntry
+    )
+  }
 
   behavior of "FingerpostWireEntry.generateWhereClause"
 

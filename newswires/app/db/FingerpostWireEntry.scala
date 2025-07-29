@@ -1,78 +1,22 @@
 package db
 
-import conf.{SearchConfig, SearchField, SearchTerm}
+import conf.{SearchField, SearchTerm}
 import db.CustomMappers.textArray
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import models.{
+  FingerpostWire,
+  FingerpostWireSubjects,
+  NextPage,
+  QueryParams,
+  QueryResponse,
+  SearchParams
+}
 import play.api.Logging
-import play.api.libs.json._
 import scalikejdbc._
+import io.circe.parser._
 
-import java.time.{Instant, ZonedDateTime}
-
-case class FingerpostWireSubjects(
-    code: List[String]
-)
-object FingerpostWireSubjects {
-  // some wires arrive with no code, but represent that by an empty string
-  // instead of an empty array :( preprocess them into an empty array
-  private val reads =
-    Json.reads[FingerpostWireSubjects].preprocess { case JsObject(obj) =>
-      JsObject(obj.map {
-        case ("code", JsString("")) => ("code", JsArray.empty)
-        case other                  => other
-      })
-    }
-  private val writes = Json.writes[FingerpostWireSubjects]
-  implicit val format: Format[FingerpostWireSubjects] =
-    Format(reads, writes)
-}
-
-case class Dataformat(
-    noOfColumns: Option[String],
-    notFipTopusCategory: Option[String],
-    indesignTags: Option[String]
-)
-
-object Dataformat {
-  implicit val format: OFormat[Dataformat] = Json.format[Dataformat]
-}
-
-case class FingerpostWire(
-    uri: Option[String],
-    sourceFeed: Option[String],
-    usn: Option[String],
-    version: Option[String],
-    status: Option[String],
-    firstVersion: Option[String],
-    versionCreated: Option[String],
-    dateTimeSent: Option[String],
-    slug: Option[String],
-    headline: Option[String],
-    subhead: Option[String],
-    byline: Option[String],
-    priority: Option[String],
-    subjects: Option[FingerpostWireSubjects],
-    keywords: Option[List[String]],
-    usage: Option[String],
-    ednote: Option[String],
-    mediaCatCodes: Option[String],
-    `abstract`: Option[String],
-    bodyText: Option[String],
-    composerCompatible: Option[Boolean],
-    dataformat: Option[Dataformat]
-)
-object FingerpostWire {
-  // rename a couple of fields
-  private val reads: Reads[FingerpostWire] =
-    Json.reads[FingerpostWire].preprocess { case JsObject(obj) =>
-      JsObject(obj.map {
-        case ("source-feed", value) => ("sourceFeed", value)
-        case ("body_text", value)   => ("bodyText", value)
-        case other                  => other
-      })
-    }
-  private val writes = Json.writes[FingerpostWire]
-  implicit val format: Format[FingerpostWire] = Format(reads, writes)
-}
+import java.time.Instant
 
 case class FingerpostWireEntry(
     id: Long,
@@ -90,8 +34,11 @@ object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
 
-  implicit val format: OFormat[FingerpostWireEntry] =
-    Json.format[FingerpostWireEntry]
+  implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
+    deriveEncoder[FingerpostWireEntry].mapJson(_.dropNullValues)
+
+  implicit val jsonDecoder: Decoder[FingerpostWireEntry] =
+    deriveDecoder[FingerpostWireEntry]
 
   override val columns =
     Seq(
@@ -119,34 +66,45 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.content}
     |""".stripMargin
 
-  def apply(
+  def fromDb(
       fm: ResultName[FingerpostWireEntry]
-  )(rs: WrappedResultSet): FingerpostWireEntry = {
-    val fingerpostContent = Json.parse(rs.string(fm.content)).as[FingerpostWire]
-    val maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
-    val categoryCodes = maybeCategoryCodes match {
-      case Some(array) =>
-        array.getArray
-          .asInstanceOf[Array[String]]
-          .toList
-      case None => Nil
-    }
-
-    FingerpostWireEntry(
-      id = rs.long(fm.id),
-      supplier = rs.string(fm.supplier),
-      externalId = rs.string(fm.externalId),
-      ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
-      content = fingerpostContent,
-      composerId = rs.stringOpt(fm.composerId),
-      composerSentBy = rs.stringOpt(fm.composerSentBy),
-      categoryCodes = categoryCodes,
-      highlight = rs
-        .stringOpt(fm.column("highlight"))
-        .filter(
-          _.contains("<mark>")
-        ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
-    )
+  )(rs: WrappedResultSet): Option[FingerpostWireEntry] = {
+    (for {
+      fingerpostContent <- decode[FingerpostWire](
+        rs.string(fm.content)
+      )
+      maybeCategoryCodes = rs.arrayOpt(fm.categoryCodes)
+      categoryCodes = maybeCategoryCodes match {
+        case Some(array) =>
+          array.getArray
+            .asInstanceOf[Array[String]]
+            .toList
+        case None => Nil
+      }
+    } yield {
+      FingerpostWireEntry(
+        id = rs.long(fm.id),
+        supplier = rs.string(fm.supplier),
+        externalId = rs.string(fm.externalId),
+        ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
+        content = fingerpostContent,
+        composerId = rs.stringOpt(fm.composerId),
+        composerSentBy = rs.stringOpt(fm.composerSentBy),
+        categoryCodes = categoryCodes,
+        highlight = rs
+          .stringOpt(fm.column("highlight"))
+          .filter(
+            _.contains("<mark>")
+          ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
+      )
+    }).left
+      .map(error => {
+        logger.error(
+          s"Error parsing record ${rs.long(fm.id)}: ${error.getMessage}",
+          error.getCause
+        )
+      })
+      .toOption
   }
 
   private def clamp(low: Int, x: Int, high: Int): Int =
@@ -165,9 +123,10 @@ object FingerpostWireEntry
           | FROM ${FingerpostWireEntry as syn}
           | WHERE ${FingerpostWireEntry.syn.id} = $id
           |""".stripMargin
-      .map(FingerpostWireEntry(syn.resultName))
+      .map(FingerpostWireEntry.fromDb(syn.resultName))
       .single()
       .apply()
+      .flatten
   }
 
   private def processSearchParams(
@@ -419,9 +378,10 @@ object FingerpostWireEntry
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
     val results = query
-      .map(FingerpostWireEntry(syn.resultName))
+      .map(FingerpostWireEntry.fromDb(syn.resultName))
       .list()
       .apply()
+      .flatten
 
     val countQuery =
       sql"""| SELECT COUNT(*)

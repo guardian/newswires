@@ -4,8 +4,10 @@ import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
+import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import db.{FingerpostWireEntry, NextPage, QueryParams, SearchParams}
+import db.FingerpostWireEntry
+import models.{NextPage, QueryParams, SearchParams}
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -75,11 +77,12 @@ class QueryController(
     )
 
     Ok(
-      Json.toJson(
-        FingerpostWireEntry.query(
+      FingerpostWireEntry
+        .query(
           queryParams
         )
-      )
+        .asJson
+        .spaces2
     )
   }
 
@@ -88,13 +91,13 @@ class QueryController(
       maybeLimit: Option[Int]
   ): Action[AnyContent] = apiAuthAction {
     val results = FingerpostWireEntry.getKeywords(maybeInLastHours, maybeLimit)
-    Ok(Json.toJson(results))
+    Ok(results.asJson.spaces2)
   }
 
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
     apiAuthAction {
       FingerpostWireEntry.get(id, maybeFreeTextQuery) match {
-        case Some(entry) => Ok(Json.toJson(entry))
+        case Some(entry) => Ok(entry.asJson.spaces2)
         case None        => NotFound
       }
     }
