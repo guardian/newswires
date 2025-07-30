@@ -9,6 +9,7 @@ import { css } from '@emotion/react';
 import { useCallback, useState } from 'react';
 import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useTelemetry } from './context/TelemetryContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
 import composerLogoUrl from './icons/composer.svg';
 import incopyLogoUrl from './icons/incopy.svg';
@@ -133,6 +134,7 @@ export const ToolsConnection = ({
 	itemData: WireData;
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
+	const { showIncopyImport } = useUserSettings();
 	return (
 		<>
 			<EuiFlexGroup direction="column" gutterSize="s">
@@ -143,37 +145,39 @@ export const ToolsConnection = ({
 							addToolLink={addToolLink}
 						/>
 
-						<EuiButton
-							href={`/api/item/${itemData.id}/incopy`}
-							onClick={() =>
-								addToolLink({
-									// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
-									id: Math.floor(Math.random() * 0xfffffffff),
-									wireId: itemData.id,
-									tool: 'incopy',
-									sentBy: 'you',
-									sentAt: new Date().toISOString(),
-								})
-							}
-							target="_blank"
-							css={css`
-								flex-basis: fit-content;
-								flex-shrink: 0;
+						{showIncopyImport && (
+							<EuiButton
+								href={`/api/item/${itemData.id}/incopy`}
+								onClick={() =>
+									addToolLink({
+										// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
+										id: Math.floor(Math.random() * 0xfffffffff),
+										wireId: itemData.id,
+										tool: 'incopy',
+										sentBy: 'you',
+										sentAt: new Date().toISOString(),
+									})
+								}
+								target="_blank"
+								css={css`
+									flex-basis: fit-content;
+									flex-shrink: 0;
 
-								/* I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck: */
-								& > span {
-									justify-content: start;
-								}
-								& > span > span {
-									width: 100%;
-									justify-items: center;
-								}
-							`}
-							rel="noreferrer"
-							iconType={incopyLogoUrl}
-						>
-							Send to InCopy
-						</EuiButton>
+									/* I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck: */
+									& > span {
+										justify-content: start;
+									}
+									& > span > span {
+										width: 100%;
+										justify-items: center;
+									}
+								`}
+								rel="noreferrer"
+								iconType={incopyLogoUrl}
+							>
+								Send to InCopy
+							</EuiButton>
+						)}
 					</EuiFlexGroup>
 				</EuiFlexItem>
 				{itemData.toolLinks?.length ? (

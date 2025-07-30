@@ -8,6 +8,8 @@ interface UserSettingsContextShape {
 	toggleShowSecondaryFeedContent: () => void;
 	resizablePanelsDirection: 'vertical' | 'horizontal';
 	toggleResizablePanelsDirection: () => void;
+	showIncopyImport: boolean;
+	toggleShowIncopyImport: () => void;
 }
 
 const UserSettingsContext = createContext<UserSettingsContextShape | null>(
@@ -37,6 +39,17 @@ export const UserSettingsContextProvider = ({
 			'horizontal',
 		),
 	);
+	const [showIncopyImport, setShowIncopyImport] = useState<boolean>(
+		loadOrSetInLocalStorage<boolean>('showIncopyImport', z.boolean(), false),
+	);
+
+	const toggleShowIncopyImport = () => {
+		setShowIncopyImport(!showIncopyImport);
+		saveToLocalStorage<boolean>('showIncopyImport', !showIncopyImport);
+		sendTelemetryEvent('showIncopyImport', {
+			showIncopyImport: !showIncopyImport ? 'on' : 'off',
+		});
+	};
 
 	const toggleShowSecondaryFeedContent = () => {
 		setShowSecondaryFeedContent(!showSecondaryFeedContent);
@@ -66,6 +79,8 @@ export const UserSettingsContextProvider = ({
 				toggleShowSecondaryFeedContent,
 				resizablePanelsDirection,
 				toggleResizablePanelsDirection,
+				showIncopyImport,
+				toggleShowIncopyImport,
 			}}
 		>
 			{children}

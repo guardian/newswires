@@ -16,6 +16,8 @@ export const SettingsMenu = () => {
 		toggleResizablePanelsDirection,
 		showSecondaryFeedContent,
 		toggleShowSecondaryFeedContent,
+		showIncopyImport,
+		toggleShowIncopyImport,
 	} = useUserSettings();
 
 	const [isPopoverOpen, setPopover] = useState(false);
@@ -27,6 +29,9 @@ export const SettingsMenu = () => {
 		prefix: 'embeddedCodeSwitchId',
 	});
 	const embeddedCodeSwitchId__2 = useGeneratedHtmlId({
+		prefix: 'embeddedCodeSwitchId',
+	});
+	const embeddedCodeSwitchId__3 = useGeneratedHtmlId({
 		prefix: 'embeddedCodeSwitchId',
 	});
 
@@ -71,6 +76,23 @@ export const SettingsMenu = () => {
 									checked={resizablePanelsDirection === 'vertical'}
 									onChange={() => {
 										toggleResizablePanelsDirection();
+									}}
+								/>
+							</EuiFormRow>
+						</div>
+					),
+				},
+				{
+					renderItem: () => (
+						<div style={{ padding: 16 }}>
+							<EuiFormRow hasChildLabel={true}>
+								<EuiSwitch
+									name="switch"
+									id={embeddedCodeSwitchId__3}
+									label="COMING SOON: send wire to InCopy"
+									checked={showIncopyImport}
+									onChange={() => {
+										toggleShowIncopyImport();
 									}}
 								/>
 							</EuiFormRow>
