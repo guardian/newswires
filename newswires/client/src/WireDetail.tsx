@@ -36,6 +36,7 @@ import { configToUrl } from './urlState.ts';
 function TitleContentForItem({
 	id,
 	slug,
+	subhead,
 	headline,
 	ingestedAt,
 	supplier,
@@ -43,11 +44,14 @@ function TitleContentForItem({
 }: {
 	id: number;
 	slug?: string;
+	subhead?: string;
 	headline?: string;
 	ingestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
 }) {
+	const theme = useEuiTheme();
+
 	const headlineText =
 		headline && headline.length > 0 ? headline : (slug ?? 'No title');
 
@@ -56,8 +60,18 @@ function TitleContentForItem({
 			css={css`
 				display: flex;
 				flex-direction: column-reverse;
+				justify-content: start;
 			`}
 		>
+			{subhead && subhead.length > 1 && (
+				<h3
+					css={css`
+						font-weight: ${theme.euiTheme.font.weight.bold};
+					`}
+				>
+					{subhead}
+				</h3>
+			)}
 			<div
 				css={css`
 					display: flex;
@@ -66,10 +80,7 @@ function TitleContentForItem({
 				`}
 			>
 				<EuiTitle size="xs">
-					<h2>
-						<EuiText size={'xs'}></EuiText>
-						{headlineText}
-					</h2>
+					<h2>{headlineText}</h2>
 				</EuiTitle>
 				<CopyButton id={id} headlineText={headlineText} />
 			</div>
@@ -434,21 +445,42 @@ export const WireDetail = ({
 
 	return (
 		<>
-			<div
-				css={css`
-					display: flex;
-					align-items: end;
-				`}
-			>
-				<TitleContentForItem
-					id={wire.id}
-					headline={headline}
-					slug={slug}
-					ingestedAt={convertToLocalDate(wire.ingestedAt)}
-					supplier={wire.supplier}
-					wordCount={wordCount}
-				/>
-			</div>
+			<EuiFlexGroup direction="row" justifyContent="spaceBetween">
+				<EuiFlexItem
+					css={css`
+						flex-basis: fit-content;
+						flex-shrink: 1;
+					`}
+				>
+					<TitleContentForItem
+						id={wire.id}
+						headline={headline}
+						subhead={wire.content.subhead}
+						slug={slug}
+						ingestedAt={convertToLocalDate(wire.ingestedAt)}
+						supplier={wire.supplier}
+						wordCount={wordCount}
+					/>
+				</EuiFlexItem>
+
+				<EuiPanel
+					hasBorder
+					hasShadow={false}
+					grow={false}
+					css={css`
+						height: fit-content;
+						flex-basis: 50%;
+						max-width: fit-content;
+						flex-shrink: 1;
+					`}
+				>
+					<ToolsConnection
+						itemData={wire}
+						key={wire.id}
+						addToolLink={addToolLink}
+					/>
+				</EuiPanel>
+			</EuiFlexGroup>
 			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
@@ -466,24 +498,6 @@ export const WireDetail = ({
 					`}
 				>
 					<EuiSpacer size="xs" />
-					{wire.content.subhead && wire.content.subhead.length > 1 && (
-						<h3
-							css={css`
-								font-weight: ${theme.euiTheme.font.weight.bold};
-							`}
-						>
-							{wire.content.subhead}
-						</h3>
-					)}
-					<EuiSpacer size="m" />
-					<EuiPanel hasBorder hasShadow={false}>
-						<ToolsConnection
-							itemData={wire}
-							key={wire.id}
-							addToolLink={addToolLink}
-						/>
-					</EuiPanel>
-					<EuiSpacer size="m" />
 					{ednote && (
 						<>
 							<EuiCallOut size="s" title={ednote} color="success" />

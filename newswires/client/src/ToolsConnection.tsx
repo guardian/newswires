@@ -3,7 +3,6 @@ import {
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiLoadingSpinner,
-	EuiSpacer,
 	EuiText,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -38,6 +37,11 @@ const SendOrVisitInComposerButton = ({
 	const [sendState, setSendState] = useState<SendState>(
 		previousSend?.ref ? 'sent' : 'unsent',
 	);
+
+	const style = css`
+		flex-basis: fit-content;
+		flex-shrink: 0;
+	`;
 	const send = useCallback(() => {
 		setSendState('sending');
 
@@ -78,6 +82,7 @@ const SendOrVisitInComposerButton = ({
 				href={composerPageForId(composerId)}
 				target="_blank"
 				iconType="link"
+				css={style}
 			>
 				Open in Composer
 			</EuiButton>
@@ -86,7 +91,7 @@ const SendOrVisitInComposerButton = ({
 	if (sendState === 'sent' || sendState === 'failed') {
 		return (
 			<>
-				<EuiButton iconType="error" disabled>
+				<EuiButton iconType="error" disabled css={style}>
 					Send to Composer failed
 				</EuiButton>
 				<EuiText size="xs" color="danger">
@@ -101,7 +106,7 @@ const SendOrVisitInComposerButton = ({
 
 	return (
 		// TODO why does the icon have a black fill? Why not the primary colour, like the native eui icons?
-		<EuiButton onClick={send} iconType={composerLogoUrl}>
+		<EuiButton onClick={send} iconType={composerLogoUrl} css={style}>
 			Send to Composer
 		</EuiButton>
 	);
@@ -130,56 +135,58 @@ export const ToolsConnection = ({
 }) => {
 	return (
 		<>
-			<EuiFlexGroup>
+			<EuiFlexGroup direction="column" gutterSize="s">
 				<EuiFlexItem grow={false}>
-					<SendOrVisitInComposerButton
-						itemData={itemData}
-						addToolLink={addToolLink}
-					/>
+					<EuiFlexGroup direction="row" wrap gutterSize="s">
+						<SendOrVisitInComposerButton
+							itemData={itemData}
+							addToolLink={addToolLink}
+						/>
 
-					<EuiSpacer size="s" />
+						<EuiButton
+							href={`/api/item/${itemData.id}/incopy`}
+							onClick={() =>
+								addToolLink({
+									// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
+									id: Math.floor(Math.random() * 0xfffffffff),
+									wireId: itemData.id,
+									tool: 'incopy',
+									sentBy: 'you',
+									sentAt: new Date().toISOString(),
+								})
+							}
+							target="_blank"
+							css={css`
+								flex-basis: fit-content;
+								flex-shrink: 0;
 
-					<EuiButton
-						href={`/api/item/${itemData.id}/incopy`}
-						onClick={() =>
-							addToolLink({
-								// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
-								id: Math.floor(Math.random() * 0xfffffffff),
-								wireId: itemData.id,
-								tool: 'incopy',
-								sentBy: 'you',
-								sentAt: new Date().toISOString(),
-							})
-						}
-						target="_blank"
-						// I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck:
-						css={css`
-							& > span {
-								justify-content: start;
-							}
-							& > span > span {
-								width: 100%;
-								justify-items: center;
-							}
-						`}
-						rel="noreferrer"
-						iconType={incopyLogoUrl}
-					>
-						Send to InCopy
-					</EuiButton>
+								/* I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck: */
+								& > span {
+									justify-content: start;
+								}
+								& > span > span {
+									width: 100%;
+									justify-items: center;
+								}
+							`}
+							rel="noreferrer"
+							iconType={incopyLogoUrl}
+						>
+							Send to InCopy
+						</EuiButton>
+					</EuiFlexGroup>
 				</EuiFlexItem>
-
-				<EuiFlexItem grow={false}>
-					{itemData.toolLinks?.length ? (
+				{itemData.toolLinks?.length ? (
+					<EuiFlexItem grow={false}>
 						<ul>
 							{itemData.toolLinks.map((toolLink) => (
 								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
 							))}
 						</ul>
-					) : (
-						<></>
-					)}
-				</EuiFlexItem>
+					</EuiFlexItem>
+				) : (
+					<></>
+				)}
 			</EuiFlexGroup>
 		</>
 	);
