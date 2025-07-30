@@ -68,11 +68,13 @@ graph TB
 
             %% Queues and Topics
             FingerpostSNS[Fingerpost SNS]
+            FingerpostQueueingLambda[Fingerpost Queueing Lambda]
             SourceQ[/Source Queue/]
 
             %% Ingestion flows
             ReutersPoller --> SourceQ
             APPoller --> SourceQ
+            FingerpostQueueingLambda --> SourceQ
             SourceQ --> Ingestion
             Ingestion --> FeedsBucket
         end
@@ -101,7 +103,7 @@ graph TB
     Reuters <-- "fixed schedule" --> ReutersPoller
     AP <-- "long polling" --> APPoller
     Fingerpost -- pushes --> FingerpostSNS
-    FingerpostSNS --> SourceQ
+    FingerpostSNS --> FingerpostQueueingLambda
     Users --> ALB
 
     %% Styling
@@ -112,7 +114,7 @@ graph TB
     classDef compute stroke:#f96
 
     class Reuters,AP,Fingerpost,Users external
-    class ReutersPoller,APPoller,Ingestion,Cleanup lambda
+    class ReutersPoller,APPoller,Ingestion,Cleanup,FingerpostQueueingLambda lambda
     class SourceQ queue
     class FeedsBucket,DB storage
     class ASG,ALB compute

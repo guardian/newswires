@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+npm run build -w fingerpost-queueing-lambda
+
+zip -FSjr "fingerpost-queueing-lambda/dist/fingerpost-queueing-lambda.zip" "fingerpost-queueing-lambda/dist/handler.js"
+
+aws lambda update-function-code \
+    --function-name editorial-feeds-CODE-news-FingerpostQueueingLambda-WeVGK7LpTRSR \
+    --profile editorial-feeds \
+    --region eu-west-1 \
+    --zip-file "fileb://fingerpost-queueing-lambda/dist/fingerpost-queueing-lambda.zip"

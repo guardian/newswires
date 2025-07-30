@@ -7,7 +7,7 @@ import {
 	POLLER_LAMBDA_ENV_VAR_KEYS,
 	POLLERS_CONFIG,
 } from '../shared/pollers';
-import { sqs } from './src/aws';
+import { sqs } from '../shared/sqs';
 import { handlers } from './src/index';
 import type { HandlerInputSqsPayload } from './src/types';
 
