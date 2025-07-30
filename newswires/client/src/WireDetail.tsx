@@ -506,6 +506,16 @@ export const WireDetail = ({
 									& p {
 										margin-bottom: ${theme.euiTheme.size.s};
 									}
+									table {
+										border-collapse: collapse;
+										width: 80%;
+										outline: 1px solid #a9a9a9;
+									}
+									tr,
+									td {
+										border: 1px solid #ddd;
+										padding: 8px;
+									}
 								`}
 								data-pinboard-selection-target
 							/>
