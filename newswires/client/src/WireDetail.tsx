@@ -512,9 +512,13 @@ export const WireDetail = ({
 										outline: 1px solid #a9a9a9;
 									}
 									tr,
+									th,
 									td {
 										border: 1px solid #ddd;
-										padding: 8px;
+									}
+									th,
+									td {
+										padding: 10px;
 									}
 								`}
 								data-pinboard-selection-target
