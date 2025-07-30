@@ -30,7 +30,26 @@ export function cleanBodyTextMarkup(
 	}
 	return wrapper.innerHTML;
 }
-
+function recurse(block: Node): Node {
+	if (block instanceof HTMLElement) {
+		block.childNodes.forEach((child) => {
+			if (child instanceof HTMLElement) {
+				recurse(child);
+			}
+		});
+	}
+	return block;
+}
+function parseTableBlock(block: Node): Node {
+	if (block instanceof HTMLElement && block.tagName === 'TABLE') {
+		const newTable = new HTMLElement('table', {});
+		block.childNodes.forEach((child) => {
+			newTable.appendChild(child);
+		})
+		return newTable;
+	}
+	return block;
+}
 function flattenBlocks(block: Node): Node[] {
 	if (block.childNodes.length === 0) {
 		const isEmptyTextNode =
@@ -88,7 +107,7 @@ function flattenBlocks(block: Node): Node[] {
 			case 'DL':
 			case 'OL':
 			case 'TABLE':
-				paragraphs.push(b);
+				paragraphs.push(parseTableBlock(b));
 				break;
 			default:
 				currentPara.appendChild(b);
