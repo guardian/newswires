@@ -2931,6 +2931,9 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Environment": {
           "Variables": {
             "APP": "apPoller_poller_lambda",
+            "FEEDS_BUCKET_NAME": {
+              "Ref": "feedsbucketTESTNewswires116BDB0E",
+            },
             "INGESTION_LAMBDA_QUEUE_URL": {
               "Fn::ImportValue": "mockWiresFeeds:ExportsOutputRefMockSourceQueue20B4D8C006FBA8DA",
             },
@@ -3459,6 +3462,40 @@ exports[`The Newswires stack matches the snapshot 1`] = `
               "Resource": {
                 "Ref": "apPollerSecret4DA8E7BD",
               },
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "feedsbucketTESTNewswires116BDB0E",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "feedsbucketTESTNewswires116BDB0E",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
             },
             {
               "Action": [
@@ -4146,6 +4183,9 @@ dpkg -i /newswires/newswires.deb",
         "Environment": {
           "Variables": {
             "APP": "reuters_poller_lambda",
+            "FEEDS_BUCKET_NAME": {
+              "Ref": "feedsbucketTESTNewswires116BDB0E",
+            },
             "INGESTION_LAMBDA_QUEUE_URL": {
               "Fn::ImportValue": "mockWiresFeeds:ExportsOutputRefMockSourceQueue20B4D8C006FBA8DA",
             },
@@ -4674,6 +4714,40 @@ dpkg -i /newswires/newswires.deb",
               "Resource": {
                 "Ref": "reutersSecretA9E37489",
               },
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "feedsbucketTESTNewswires116BDB0E",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "feedsbucketTESTNewswires116BDB0E",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
             },
             {
               "Action": [
