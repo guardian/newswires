@@ -1,4 +1,3 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { SESEvent, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import {
 	INGESTION_PROCESSING_SQS_MESSAGE_EVENT_TYPE,
@@ -7,6 +6,7 @@ import {
 import { getErrorMessage } from '../../shared/getErrorMessage';
 import { createLogger } from '../../shared/lambda-logging';
 import { createDbConnection } from '../../shared/rds';
+import { BUCKET_NAME, putToS3 } from '../../shared/s3';
 import type { IngestorInputBody } from '../../shared/types';
 import { IngestorInputBodySchema } from '../../shared/types';
 import {
@@ -24,7 +24,6 @@ import {
 } from './categoryCodes';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import { tableName } from './database';
-import { BUCKET_NAME, s3Client } from './s3';
 import { lookupSupplier } from './suppliers';
 
 interface OperationFailure {
@@ -257,30 +256,26 @@ export const main = async (
 						const externalId = messageAttributes['Message-Id']?.stringValue;
 
 						if (!externalId) {
-							await s3Client.send(
-								new PutObjectCommand({
-									Bucket: BUCKET_NAME,
-									Key: `GuMissingExternalId/${sqsMessageId}.json`,
-									Body: JSON.stringify({
-										externalId,
-										messageAttributes,
-										body,
-									}),
+							await putToS3({
+								bucketName: BUCKET_NAME,
+								key: `GuMissingExternalId/${sqsMessageId}.json`,
+								body: JSON.stringify({
+									externalId,
+									messageAttributes,
+									body,
 								}),
-							);
+							});
 							throw new Error(
 								`Message (sqsMessageId: ${sqsMessageId}) is missing fingerpost Message-Id attribute`,
 							);
 						}
 
 						// todo -- consider storing s3 object version in db
-						await s3Client.send(
-							new PutObjectCommand({
-								Bucket: BUCKET_NAME,
-								Key: `${externalId}.json`,
-								Body: body,
-							}),
-						);
+						await putToS3({
+							bucketName: BUCKET_NAME,
+							key: `${externalId}.json`,
+							body,
+						});
 
 						const snsMessageContent = safeBodyParse(body);
 
