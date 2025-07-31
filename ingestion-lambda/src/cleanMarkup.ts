@@ -30,7 +30,15 @@ export function cleanBodyTextMarkup(
 	}
 	return wrapper.innerHTML;
 }
-
+function parseTableBlock(block: Node): Node {
+	if (block instanceof HTMLElement && block.tagName === 'TABLE') {
+		block.querySelectorAll('br').forEach((br) => {
+			br.remove();
+		});
+		return block;
+	}
+	return block;
+}
 function flattenBlocks(block: Node): Node[] {
 	if (block.childNodes.length === 0) {
 		const isEmptyTextNode =
@@ -88,7 +96,7 @@ function flattenBlocks(block: Node): Node[] {
 			case 'DL':
 			case 'OL':
 			case 'TABLE':
-				paragraphs.push(b);
+				paragraphs.push(parseTableBlock(b));
 				break;
 			default:
 				currentPara.appendChild(b);
