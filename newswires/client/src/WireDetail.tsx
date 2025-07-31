@@ -26,6 +26,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
+import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
@@ -400,7 +401,7 @@ export const WireDetail = ({
 
 	const safeBodyText = useMemo(() => {
 		return wire.content.bodyText
-			? sanitizeHtml(wire.content.bodyText)
+			? htmlFormatBody(wire.content.bodyText)
 			: undefined;
 	}, [wire]);
 
@@ -504,6 +505,20 @@ export const WireDetail = ({
 								css={css`
 									& p {
 										margin-bottom: ${theme.euiTheme.size.s};
+									}
+									table {
+										border-collapse: collapse;
+										width: 80%;
+										outline: 1px solid #a9a9a9;
+									}
+									tr,
+									th,
+									td {
+										border: 1px solid #ddd;
+									}
+									th,
+									td {
+										padding: 10px;
 									}
 								`}
 								data-pinboard-selection-target
