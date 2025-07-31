@@ -70,6 +70,7 @@ export const LoadedItem: Story = {
 		handleDeselectItem: () => console.log('deselect clicked'),
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
+		addToolLink: () => console.log('add tool link'),
 	},
 };
 
@@ -80,6 +81,7 @@ export const WithError: Story = {
 		handleDeselectItem: () => console.log('deselect clicked'),
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
+		addToolLink: () => console.log('add tool link'),
 	},
 };
 

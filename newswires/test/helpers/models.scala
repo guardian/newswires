@@ -1,6 +1,6 @@
 package helpers
 
-import db.FingerpostWireEntry
+import db.{FingerpostWireEntry, ToolLink}
 import models.{Dataformat, FingerpostWire, FingerpostWireSubjects}
 
 import java.time.Instant
@@ -117,7 +117,18 @@ trait models {
     composerId = Some("composerId"),
     composerSentBy = Some("composerSentBy"),
     categoryCodes = List("code"),
-    highlight = Some("highlight")
+    highlight = Some("highlight"),
+    toolLinks = List(
+      ToolLink(
+        id = 1L,
+        wireId = 1L,
+        tool = "composer",
+        sentBy = "jane.doe",
+        // 2010-01-01T00:00:00.000Z
+        sentAt = Instant.ofEpochMilli(1262304000000L),
+        ref = Some("https://composer.example/abcdef")
+      )
+    )
   )
 
   val fingerpostWireEntryJson =
@@ -169,7 +180,17 @@ trait models {
       |  "categoryCodes" : [
       |    "code"
       |  ],
-      |  "highlight" : "highlight"
+      |  "highlight" : "highlight",
+      |  "toolLinks" : [
+      |    {
+      |      "id" : 1,
+      |      "wireId" : 1,
+      |      "tool" : "composer",
+      |      "sentBy" : "jane.doe",
+      |      "sentAt" : "2010-01-01T00:00:00Z",
+      |      "ref" : "https://composer.example/abcdef"
+      |    }
+      |  ]
       |}""".stripMargin
 
 }
