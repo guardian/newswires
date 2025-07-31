@@ -1,6 +1,6 @@
 package helpers
 
-import db.FingerpostWireEntry
+import db.{FingerpostWireEntry, ToolLink}
 import models.{Dataformat, FingerpostWire, FingerpostWireSubjects}
 
 import java.time.Instant
@@ -117,7 +117,27 @@ trait models {
     composerId = Some("composerId"),
     composerSentBy = Some("composerSentBy"),
     categoryCodes = List("code"),
-    highlight = Some("highlight")
+    highlight = Some("highlight"),
+    toolLinks = List(
+      ToolLink(
+        id = 1L,
+        wireId = 1L,
+        tool = "composer",
+        sentBy = "jane.doe",
+        // 2010-01-01T00:00:00.000Z
+        sentAt = Instant.ofEpochMilli(1262304000000L),
+        ref = Some("https://composer.example/abcdef")
+      ),
+      ToolLink(
+        id = 2L,
+        wireId = 1L,
+        tool = "incopy",
+        sentBy = "jane.doe",
+        // 2010-01-01T00:00:01.000Z
+        sentAt = Instant.ofEpochMilli(1262304001000L),
+        ref = None
+      )
+    )
   )
 
   val fingerpostWireEntryJson =
@@ -171,6 +191,21 @@ trait models {
       |  ],
       |  "highlight" : "highlight",
       |  "toolLinks" : [
+      |    {
+      |      "id" : 1,
+      |      "wireId" : 1,
+      |      "tool" : "composer",
+      |      "sentBy" : "jane.doe",
+      |      "sentAt" : "2010-01-01T00:00:00Z",
+      |      "ref" : "https://composer.example/abcdef"
+      |    },
+      |    {
+      |      "id" : 2,
+      |      "wireId" : 1,
+      |      "tool" : "incopy",
+      |      "sentBy" : "jane.doe",
+      |      "sentAt" : "2010-01-01T00:00:01Z"
+      |    }
       |  ]
       |}""".stripMargin
 
