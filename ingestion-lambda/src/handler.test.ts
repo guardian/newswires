@@ -1,16 +1,14 @@
-import type { SQSEvent, SQSRecord } from 'aws-lambda';
+import type { SESEvent, SQSEvent, SQSRecord } from 'aws-lambda';
 import type postgres from 'postgres';
 import type { Row, RowList } from 'postgres';
 import * as rdsModule from '../../shared/rds';
 import * as s3Module from '../../shared/s3';
-import type { OperationResult } from '../../shared/types';
 import { main } from './handler';
 
 type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
 // mock the s3 sdk module
 jest.mock('../../shared/s3', () => ({
-	getFromS3: jest.fn(),
 	putToS3: jest.fn(),
 	BUCKET_NAME: 'test-bucket',
 }));
@@ -19,21 +17,13 @@ jest.mock('../../shared/rds', () => ({
 	initialiseDbConnection: jest.fn(),
 }));
 
-const mockGetFromS3 = s3Module.getFromS3 as jest.MockedFunction<
-	typeof s3Module.getFromS3
+const mockPutToS3 = s3Module.putToS3 as jest.MockedFunction<
+	typeof s3Module.putToS3
 >;
 const mockInitialiseDbConnection =
 	rdsModule.initialiseDbConnection as jest.MockedFunction<
 		typeof rdsModule.initialiseDbConnection
 	>;
-
-const validJsonFromSuccessfulS3: OperationResult<{ body: string }> = {
-	status: 'success',
-	body: JSON.stringify({
-		'source-feed': 'AP-Newswires',
-		slug: 'test-slug',
-	}),
-};
 
 function generateMockSQSRecord({
 	bodyPayload,
@@ -65,9 +55,6 @@ describe('handler.main', () => {
 	});
 
 	it('should process SQS messages and return no batchItemFailures if everything succeeds', async () => {
-		// Mock S3 to return a valid JSON body
-		mockGetFromS3.mockResolvedValue(validJsonFromSuccessfulS3);
-
 		// Mock database to simulate successful insertion
 		mockInitialiseDbConnection.mockResolvedValue({
 			sql: (() =>
@@ -95,7 +82,7 @@ describe('handler.main', () => {
 		expect(result?.batchItemFailures.length).toBe(0);
 	});
 
-	it('should handle mixed success and failure scenarios', async () => {
+	it('should return failed messages when content processing fails', async () => {
 		// Mock database to simulate successful insertion
 		mockInitialiseDbConnection.mockResolvedValue({
 			sql: (() =>
@@ -147,8 +134,7 @@ describe('handler.main', () => {
 		// Create a valid record and a record that will fail due to invalid JSON from S3
 		const validSQSRecord: SQSRecord = generateMockSQSRecord({
 			bodyPayload: {
-				externalId: 'ext-valid',
-				objectKey: 'path/to/valid-object.json',
+				slug: 'test-slug',
 			},
 			externalId: 'ext-valid',
 			messageId: 'VALID_RECORD_ID',
@@ -156,8 +142,7 @@ describe('handler.main', () => {
 
 		const invalidJsonRecord: SQSRecord = generateMockSQSRecord({
 			bodyPayload: {
-				externalId: 'ext-invalid',
-				objectKey: 'path/to/invalid-object.json',
+				slug: 'test-slug',
 			},
 			externalId: '',
 			messageId: 'FAILING_RECORD_ID',
@@ -177,9 +162,6 @@ describe('handler.main', () => {
 	});
 
 	it('should handle database writing failures', async () => {
-		// Mock S3 to return valid JSON for both records
-		mockGetFromS3.mockResolvedValue(validJsonFromSuccessfulS3);
-
 		const mockSql = jest.fn();
 		mockSql
 			.mockResolvedValueOnce('table-name') // First call to format table name
@@ -196,8 +178,7 @@ describe('handler.main', () => {
 		// Create two valid records that will both pass S3 and processing steps
 		const successRecord: SQSRecord = generateMockSQSRecord({
 			bodyPayload: {
-				externalId: 'ext-success',
-				objectKey: 'path/to/success-object.json',
+				slug: 'test-slug',
 			},
 			externalId: 'ext-success',
 			messageId: 'SUCCESS_RECORD_ID',
@@ -205,8 +186,7 @@ describe('handler.main', () => {
 
 		const dbFailRecord: SQSRecord = generateMockSQSRecord({
 			bodyPayload: {
-				externalId: 'ext-db-fail',
-				objectKey: 'path/to/db-fail-object.json',
+				slug: 'test-slug',
 			},
 			externalId: 'ext-db-fail',
 			messageId: 'DB_FAIL_RECORD_ID',
@@ -224,5 +204,76 @@ describe('handler.main', () => {
 		);
 
 		expect(mockSql).toHaveBeenCalledTimes(4); // Each insert operation calls the sql function twice (to format table name and then run the query)
+	});
+
+	it('should handle S3 storage failures gracefully', async () => {
+		// Mock database to simulate successful connection
+		mockInitialiseDbConnection.mockResolvedValue({
+			sql: (() =>
+				Promise.resolve([
+					{ id: 1 },
+				] as unknown as SuccessfulSqlInsertReturnType)) as unknown as postgres.Sql,
+			closeDbConnection: jest.fn(),
+		});
+
+		// Mock S3 to fail when storing the raw body
+		mockPutToS3.mockRejectedValueOnce(new Error('S3 storage failed'));
+
+		const validSQSRecord: SQSRecord = generateMockSQSRecord({
+			bodyPayload: { slug: 'test-slug' },
+			externalId: 'ext-123',
+			messageId: 'S3_FAIL_RECORD_ID',
+		});
+
+		const mockSQSEvent: SQSEvent = {
+			Records: [validSQSRecord],
+		};
+
+		const result = await main(mockSQSEvent);
+
+		expect(result).toBeDefined();
+		expect(result?.batchItemFailures.length).toBe(1);
+		expect(result?.batchItemFailures[0]?.itemIdentifier).toBe(
+			'S3_FAIL_RECORD_ID',
+		);
+	});
+
+	it('should throw if the initial database connection fails', async () => {
+		mockInitialiseDbConnection.mockRejectedValue(
+			new Error('Database connection failed'),
+		);
+
+		const validSQSRecord: SQSRecord = generateMockSQSRecord({
+			bodyPayload: { slug: 'test-slug' },
+			externalId: 'ext-123',
+			messageId: 'DB_CONNECTION_FAIL',
+		});
+
+		const mockSQSEvent: SQSEvent = {
+			Records: [validSQSRecord],
+		};
+
+		// Database connection failure should cause the entire handler to fail
+		await expect(main(mockSQSEvent)).rejects.toThrow(
+			'Database connection failed',
+		);
+	});
+
+	it('should return early when it receives an SES event', async () => {
+		const sesEvent = {
+			Records: [
+				{
+					ses: {
+						mail: { commonHeaders: { subject: 'Test' } },
+					},
+					eventSource: 'aws:ses',
+				},
+			],
+		} as unknown as SESEvent;
+
+		const result = await main(sesEvent);
+
+		expect(result).toBeUndefined();
+		expect(mockInitialiseDbConnection).not.toHaveBeenCalled();
 	});
 });
