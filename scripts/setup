@@ -22,6 +22,9 @@ config_pairs=(
 )
 
 overwrite_config() {
+  # first, delete existing config contents
+  echo > ~/.gu/newswires.conf
+  # then write new contents
   for pair in "${config_pairs[@]}"; do
       echo "$pair" >> ~/.gu/newswires.conf
   done
