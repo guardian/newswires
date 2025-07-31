@@ -121,20 +121,29 @@ object FingerpostWireEntry
     }
   }
 
-  def get(
+  private[db] def buildSingleGetQuery(
       id: Int,
-      maybeFreeTextQuery: Option[String],
-      requestingUser: Option[String] = None
-  ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
+      maybeFreeTextQuery: Option[String]
+  ): SQLSyntax = {
     val highlightsClause = maybeFreeTextQuery match {
       case Some(query) =>
         sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
       case None => sqls"'' AS ${syn.resultName.highlight}"
     }
-    sql"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
-          | FROM ${FingerpostWireEntry as syn} LEFT JOIN ${ToolLink as ToolLink.syn} ON ${syn.id} = ${ToolLink.syn.wireId}
-          | WHERE ${FingerpostWireEntry.syn.id} = $id
-          |""".stripMargin
+    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+           | FROM ${FingerpostWireEntry as syn}
+           | LEFT JOIN ${ToolLink as ToolLink.syn}
+           |   ON ${syn.id} = ${ToolLink.syn.wireId}
+           | WHERE ${FingerpostWireEntry.syn.id} = $id
+           |""".stripMargin
+  }
+
+  def get(
+      id: Int,
+      maybeFreeTextQuery: Option[String],
+      requestingUser: Option[String] = None
+  ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
+    sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
       .toMany(ToolLink.opt(ToolLink.syn.resultName))
       // add in the toollinks, but replace the username with "you" if it's the same as the person requesting this wire

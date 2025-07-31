@@ -2,7 +2,7 @@ package db
 
 import conf.{SearchField, SearchTerm}
 import io.circe.parser.decode
-import helpers.WhereClauseMatcher.matchWhereClause
+import helpers.SqlSnippetMatcher.matchSqlSnippet
 import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -24,7 +24,40 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  behavior of "FingerpostWireEntry.generateWhereClause"
+  behavior of "FingerpostWireEntry.buildSingleGetQuery"
+
+  it should "generates the expected query for a lookup" in {
+    val id = 153
+    val getQuery =
+      FingerpostWireEntry.buildSingleGetQuery(id, maybeFreeTextQuery = None)
+
+    getQuery should matchSqlSnippet(
+      expectedClause = """ SELECT
+          |   fm.id as i_on_fm,
+          |   fm.external_id as ei_on_fm,
+          |   fm.ingested_at as ia_on_fm,
+          |   fm.supplier as s_on_fm,
+          |   fm.composer_id as ci_on_fm,
+          |   fm.composer_sent_by as csb_on_fm,
+          |   fm.category_codes as cc_on_fm,
+          |   fm.content as c_on_fm
+          |, '' AS h_on_fm,
+          |tl.id as i_on_tl,
+          |tl.wire_id as wi_on_tl,
+          |tl.tool as t_on_tl,
+          |tl.sent_by as sb_on_tl,
+          |tl.sent_at as sa_on_tl,
+          |tl.ref as r_on_tl
+          | FROM fingerpost_wire_entry fm
+          | LEFT JOIN tool_link tl
+          |   ON fm.id = tl.wire_id
+          | WHERE fm.id = ?
+          |""".stripMargin,
+      expectedParams = List(153)
+    )
+  }
+
+  behavior of "FingerpostWireEntry.buildWhereClause"
 
   it should "generate an empty where clause for a empty set of search params" in {
     val searchParams = SearchParams(
@@ -45,7 +78,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None
       )
 
-    whereClause should matchWhereClause(
+    whereClause should matchSqlSnippet(
       expectedClause = "",
       expectedParams = Nil
     )
@@ -65,7 +98,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None
       )
 
-    whereClause should matchWhereClause(
+    whereClause should matchSqlSnippet(
       "WHERE websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
       expectedParams = List("text1")
     )
@@ -87,7 +120,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None
       )
 
-    whereClause should matchWhereClause(
+    whereClause should matchSqlSnippet(
       "WHERE (fm.content -> 'keywords') ??| ? and fm.category_codes && ?",
       List(
         List("keyword1", "keyword2"),
@@ -115,7 +148,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None
       )
 
-    whereClause should matchWhereClause(
+    whereClause should matchSqlSnippet(
       """WHERE fm.id < ? and NOT EXISTS (
         |  SELECT FROM fingerpost_wire_entry keywordsExcl
         |  WHERE fm.id = keywordsExcl.id
@@ -156,7 +189,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None
       )
 
-    whereClause should matchWhereClause(
+    whereClause should matchSqlSnippet(
       "WHERE fm.ingested_at >= CAST(? AS timestamptz)",
       List("2025-03-10T00:00:00.000Z")
     )
@@ -176,7 +209,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None
       )
 
-    whereClause should matchWhereClause(
+    whereClause should matchSqlSnippet(
       "WHERE fm.ingested_at <= CAST(? AS timestamptz)",
       List("2025-03-10T23:59:59.999Z")
     )
@@ -218,7 +251,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None
       )
 
-    whereClause should matchWhereClause(
+    whereClause should matchSqlSnippet(
       """WHERE (NOT EXISTS (
         |  SELECT FROM fingerpost_wire_entry sourceFeedsExcl
         |  WHERE fm.id = sourceFeedsExcl.id
