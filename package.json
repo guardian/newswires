@@ -31,16 +31,16 @@
 		"@types/jest": "30.0.0",
 		"@types/node": "22.15.35",
 		"esbuild": "^0.25.8",
-		"eslint": "9.31.0",
+		"eslint": "9.32.0",
 		"eslint-plugin-prettier": "5.5.3",
 		"husky": "^9.1.7",
-		"jest": "30.0.4",
+		"jest": "30.0.5",
 		"lint-staged": "16.1.2",
 		"prettier": "3.6.2",
 		"ts-jest": "29.4.0",
 		"tsx": "^4.20.3",
 		"typescript": "5.5.2",
-		"vite": "^7.0.5"
+		"vite": "^7.0.6"
 	},
 	"prettier": "@guardian/prettier",
 	"lint-staged": {
@@ -48,6 +48,6 @@
 	},
 	"dependencies": {
 		"node-html-parser": "7.0.1",
-		"zod": "4.0.5"
+		"zod": "4.0.10"
 	}
 }
