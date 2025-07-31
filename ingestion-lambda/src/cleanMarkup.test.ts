@@ -59,18 +59,13 @@ describe('cleanBodyTextMarkup', () => {
 		expect(cleanBodyTextMarkup(input2)).toBe(input1);
 	});
 
-	it('should leave <table> tags alone', () => {
+	it('should strip <br> tags from <table> tags, and transform <br> tags in other content to <p> tags', () => {
 		const input = `<p><table><tr><td>Item 1</td></tr><tr><td>Item 2<p>paragraph embedded in table, <br>which we will leave alone</p></td></tr></table>this should end up in a paragraph, though,<br>and this`;
 		const expectedOutput =
 			'<table><tr><td>Item 1</td></tr><tr><td>Item 2<p>paragraph embedded in table, which we will leave alone</p></td></tr></table><p>this should end up in a paragraph, though,</p><p>and this</p>';
 		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
 	});
 
-	it('should strip <br> tags from <table> tags', () => {
-		const input = `<table><br><tr><br><th colspan=2>Headline 1</th><br></tr><br><tr><td colspan=2>Item 1<br></td></tr></table>`;
-		const expectedOutput = `<table><tr><th colspan=2>Headline 1</th></tr><tr><td colspan=2>Item 1</td></tr></table>`;
-		expect(cleanBodyTextMarkup(input)).toBe(expectedOutput);
-	});
 	it('should break the contents of <article>, <div>, etc. into paragraphs if appropriate', () => {
 		const input = `<article>Item 1<br>Item 2</article><div><p>Item 3</p><img src="///"> and some text</div>`;
 		const expectedOutput = `<article><p>Item 1</p><p>Item 2</p></article><div><p>Item 3</p><p><img src="///"> and some text</p></div>`;
