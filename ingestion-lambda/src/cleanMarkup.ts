@@ -32,7 +32,9 @@ export function cleanBodyTextMarkup(
 }
 function parseTableBlock(block: Node): Node {
 	if (block instanceof HTMLElement && block.tagName === 'TABLE') {
-		block.querySelectorAll('br').forEach((br) => { br.remove(); });
+		block.querySelectorAll('br').forEach((br) => {
+			br.remove();
+		});
 		return block;
 	}
 	return block;
