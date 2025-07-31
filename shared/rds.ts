@@ -24,11 +24,11 @@ const sharedConfig = {
 
 const signer = new Signer(sharedConfig);
 
-export async function createDbConnection() {
+export async function initialiseDbConnection() {
 	const token = isRunningLocally ? 'postgres' : await signer.getAuthToken();
 	const ssl = isRunningLocally ? 'prefer' : 'require';
 
-	return postgres({
+	const sql = postgres({
 		...sharedConfig,
 		database: DATABASE_NAME,
 		password: token,
@@ -36,4 +36,12 @@ export async function createDbConnection() {
 		idle_timeout: 10,
 		max_lifetime: 60 * 15, // todo -- import from cdk max lambda timeout config?
 	});
+
+	async function closeDbConnection() {
+		await sql.end();
+	}
+	return {
+		sql,
+		closeDbConnection,
+	};
 }

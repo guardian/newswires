@@ -9,7 +9,7 @@ import {
 	processUnknownFingerpostCategoryCodes,
 	remapReutersCountryCodes,
 } from './categoryCodes';
-import { processCategoryCodes } from './handler';
+import { processCategoryCodes } from './processContentObject';
 
 describe('processReutersDestinationCodes', () => {
 	it('should return formatted custom cat codes for known destinations and ignores the rest', () => {

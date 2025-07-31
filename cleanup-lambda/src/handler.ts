@@ -1,9 +1,9 @@
 import { getErrorMessage } from '../../shared/getErrorMessage';
-import { createDbConnection } from '../../shared/rds';
+import { initialiseDbConnection } from '../../shared/rds';
 import { TABLE_NAME } from './database';
 
 export const main = async (): Promise<void> => {
-	const sql = await createDbConnection();
+	const { sql, closeDbConnection } = await initialiseDbConnection();
 
 	try {
 		const result = await sql`
@@ -16,6 +16,6 @@ export const main = async (): Promise<void> => {
 	} catch (error) {
 		console.error('Error deleting old records:', getErrorMessage(error));
 	} finally {
-		await sql.end();
+		await closeDbConnection();
 	}
 };
