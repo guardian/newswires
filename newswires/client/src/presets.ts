@@ -59,7 +59,7 @@ export const sportPresets: Preset[] = [
 ];
 
 export const presets = [
-	{ id: 'all-presets', name: 'All', filterOptions: [] },
+	{ id: 'all-presets', name: 'Everything', filterOptions: [] },
 	{ id: 'all-world', name: 'World', filterOptions: [] },
 	{ id: 'all-uk', name: 'UK', filterOptions: [] },
 	{ id: 'all-business', name: 'Business', filterOptions: [] },
