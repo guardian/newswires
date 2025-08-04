@@ -17,6 +17,20 @@ deployments:
       templateStagePaths:
         CODE: WiresFeeds-CODE.template.json
         PROD: WiresFeeds-PROD.template.json
+  lambda-upload-eu-west-1-editorial-feeds-fingerpost-queueing-lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: fingerpost-queueing-lambda
+    contentDirectory: fingerpost-queueing-lambda
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: fingerpost-queueing-lambda.zip
+    actions:
+      - uploadLambda
   lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda:
     type: aws-lambda
     stacks:
@@ -119,6 +133,7 @@ deployments:
           Recipe: editorial-tools-jammy-java17
           Encrypted: 'true'
     dependencies:
+      - lambda-upload-eu-west-1-editorial-feeds-fingerpost-queueing-lambda
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
       - lambda-upload-eu-west-1-editorial-feeds-email-filter-lambda
       - lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda
@@ -127,6 +142,22 @@ deployments:
       - asg-upload-eu-west-1-editorial-feeds-newswires
       - cfn-eu-west-1-editorial-feeds-wires-feeds
       - cfn-us-east-1-editorial-feeds-newswires-cloudfront-certificate
+  lambda-update-eu-west-1-editorial-feeds-fingerpost-queueing-lambda:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: fingerpost-queueing-lambda
+    contentDirectory: fingerpost-queueing-lambda
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: fingerpost-queueing-lambda.zip
+    actions:
+      - updateLambda
+    dependencies:
+      - cfn-eu-west-1-editorial-feeds-newswires
   lambda-update-eu-west-1-editorial-feeds-ingestion-lambda:
     type: aws-lambda
     stacks:
