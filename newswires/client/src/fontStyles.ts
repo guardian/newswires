@@ -30,28 +30,6 @@ export const fontStyles = css`
 				format('woff2'),
 			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/full-not-hinted/GuardianTextSans-Medium.woff')
 				format('woff');
-		font-weight: 450;
-		font-style: normal;
-		font-display: swap;
-	}
-	@font-face {
-		font-family: 'GuardianTextSans';
-		src:
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/full-not-hinted/GuardianTextSans-MediumItalic.woff2')
-				format('woff2'),
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/full-not-hinted/GuardianTextSans-MediumItalic.woff')
-				format('woff');
-		font-weight: 450;
-		font-style: italic;
-		font-display: swap;
-	}
-	@font-face {
-		font-family: 'GuardianTextSans';
-		src:
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/full-not-hinted/GuardianTextSans-Medium.woff2')
-				format('woff2'),
-			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/full-not-hinted/GuardianTextSans-Medium.woff')
-				format('woff');
 		font-weight: 500;
 		font-style: normal;
 		font-display: swap;
@@ -74,7 +52,7 @@ export const fontStyles = css`
 				format('woff2'),
 			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/full-not-hinted/GuardianTextSans-Bold.woff')
 				format('woff');
-		font-weight: 600;
+		font-weight: 700;
 		font-style: normal;
 		font-display: swap;
 	}
@@ -85,7 +63,7 @@ export const fontStyles = css`
 				format('woff2'),
 			url('https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/full-not-hinted/GuardianTextSans-BoldItalic.woff')
 				format('woff');
-		font-weight: 600;
+		font-weight: 700;
 		font-style: italic;
 		font-display: swap;
 	}
