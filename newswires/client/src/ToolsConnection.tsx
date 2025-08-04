@@ -14,6 +14,7 @@ import { convertToLocalDate } from './dateHelpers.ts';
 import composerLogoUrl from './icons/composer.svg';
 import incopyLogoUrl from './icons/incopy.svg';
 import { composerPageForId, sendToComposer } from './send-to-composer.ts';
+import { sendToIncopy } from './send-to-incopy.ts';
 import type { ToolLink, WireData } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -127,6 +128,49 @@ const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
 	);
 };
 
+const SendToIncopyButton = ({
+	itemData,
+	addToolLink,
+}: {
+	itemData: WireData;
+	addToolLink: (toolLink: ToolLink) => void;
+}) => {
+	return (
+		<EuiButton
+			onClick={() =>
+				void sendToIncopy(itemData.id).then(() => {
+					addToolLink({
+						// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
+						id: Math.floor(Math.random() * 0xfffffffff),
+						wireId: itemData.id,
+						tool: 'incopy',
+						sentBy: 'you',
+						sentAt: new Date().toISOString(),
+					});
+				})
+			}
+			target="_blank"
+			css={css`
+				flex-basis: fit-content;
+				flex-shrink: 0;
+
+				/* I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck: */
+				& > span {
+					justify-content: start;
+				}
+				& > span > span {
+					width: 100%;
+					justify-items: center;
+				}
+			`}
+			rel="noreferrer"
+			iconType={incopyLogoUrl}
+		>
+			Send to InCopy
+		</EuiButton>
+	);
+};
+
 export const ToolsConnection = ({
 	itemData,
 	addToolLink,
@@ -146,37 +190,10 @@ export const ToolsConnection = ({
 						/>
 
 						{showIncopyImport && (
-							<EuiButton
-								href={`/api/item/${itemData.id}/incopy`}
-								onClick={() =>
-									addToolLink({
-										// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
-										id: Math.floor(Math.random() * 0xfffffffff),
-										wireId: itemData.id,
-										tool: 'incopy',
-										sentBy: 'you',
-										sentAt: new Date().toISOString(),
-									})
-								}
-								target="_blank"
-								css={css`
-									flex-basis: fit-content;
-									flex-shrink: 0;
-
-									/* I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck: */
-									& > span {
-										justify-content: start;
-									}
-									& > span > span {
-										width: 100%;
-										justify-items: center;
-									}
-								`}
-								rel="noreferrer"
-								iconType={incopyLogoUrl}
-							>
-								Send to InCopy
-							</EuiButton>
+							<SendToIncopyButton
+								itemData={itemData}
+								addToolLink={addToolLink}
+							/>
 						)}
 					</EuiFlexGroup>
 				</EuiFlexItem>

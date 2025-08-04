@@ -111,19 +111,19 @@ class QueryController(
 
   private val host = configuration.get[String]("host")
 
-  def redirectToIncopyImport(id: Int): Action[AnyContent] = authAction {
+  def getIncopyImportUrl(id: Int): Action[AnyContent] = apiAuthAction {
     request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(id, None) match {
         case Some(entry) =>
-          val serialised = entry.asJson.spaces2
           ToolLink.insertIncopyLink(
             id,
             request.user.username,
             sentAt = Instant.now()
           )
+          val serialised = entry.asJson.spaces2
           val compressedEncodedEntry =
             Base64Encoder.compressAndEncode(serialised)
-          Found(s"newswires://$host?data=$compressedEncodedEntry")
+          Ok(s"newswires://$host?data=$compressedEncodedEntry")
         case None => NotFound
       }
   }
