@@ -13,6 +13,8 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
+      "GuLambdaFunction",
+      "GuStringParameter",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -61,18 +63,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         ],
       },
     },
-    "NewswiresIngestionLambdaArnOutput": {
-      "Description": "ARN of the ingestion lambda function",
-      "Export": {
-        "Name": "NewswiresIngestionLambdaFunctionArn-TEST",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "IngestionLambdaTESTC02B3E43",
-          "Arn",
-        ],
-      },
-    },
   },
   "Parameters": {
     "AMINewswires": {
@@ -108,6 +98,10 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "Default": "/account/vpc/primary/id",
       "Description": "Virtual Private Cloud to run EC2 instances within. Should NOT be the account default VPC.",
       "Type": "AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>",
+    },
+    "incomingcopyemailaddress": {
+      "Default": "/fingerpost/TEST/incomingCopyEmailAddress",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "newswiresPrivateSubnets": {
       "Default": "/account/vpc/primary/subnets/private",
@@ -392,6 +386,236 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "TTL": 60,
       },
       "Type": "Guardian::DNS::RecordSet",
+    },
+    "EmailFilterLambdaTEST857F2A66": {
+      "DependsOn": [
+        "EmailFilterLambdaTESTServiceRoleDefaultPolicyB576E11D",
+        "EmailFilterLambdaTESTServiceRole30894B90",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "editorial-feeds/TEST/email-filter-lambda/email-filter-lambda.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "email-filter-lambda",
+            "STACK": "editorial-feeds",
+            "STAGE": "TEST",
+          },
+        },
+        "Handler": "handler.main",
+        "LoggingConfig": {
+          "LogFormat": "Text",
+        },
+        "MemorySize": 512,
+        "ReservedConcurrentExecutions": 2,
+        "Role": {
+          "Fn::GetAtt": [
+            "EmailFilterLambdaTESTServiceRole30894B90",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "email-filter-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "EmailFilterLambdaTESTAllowSes64B087DC": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "EmailFilterLambdaTEST857F2A66",
+            "Arn",
+          ],
+        },
+        "Principal": "ses.amazonaws.com",
+        "SourceAccount": {
+          "Ref": "AWS::AccountId",
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "EmailFilterLambdaTESTServiceRole30894B90": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "email-filter-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "EmailFilterLambdaTESTServiceRoleDefaultPolicyB576E11D": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/editorial-feeds/TEST/email-filter-lambda/email-filter-lambda.zip",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/email-filter-lambda",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/email-filter-lambda/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "EmailFilterLambdaTESTServiceRoleDefaultPolicyB576E11D",
+        "Roles": [
+          {
+            "Ref": "EmailFilterLambdaTESTServiceRole30894B90",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "GetDistributablePolicyNewswires3D555C70": {
       "Properties": {
@@ -4490,6 +4714,38 @@ dpkg -i /newswires/newswires.deb",
       },
       "Type": "AWS::SecretsManager::Secret",
       "UpdateReplacePolicy": "Delete",
+    },
+    "sesrulesetincomingcopyemailrule9911D056": {
+      "DependsOn": [
+        "EmailFilterLambdaTESTAllowSes64B087DC",
+      ],
+      "Properties": {
+        "Rule": {
+          "Actions": [
+            {
+              "LambdaAction": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "EmailFilterLambdaTEST857F2A66",
+                    "Arn",
+                  ],
+                },
+                "InvocationType": "Event",
+              },
+            },
+          ],
+          "Enabled": true,
+          "Name": "newswires-incoming-copy-email-rule-TEST",
+          "Recipients": [
+            {
+              "Ref": "incomingcopyemailaddress",
+            },
+          ],
+          "ScanEnabled": true,
+        },
+        "RuleSetName": "default",
+      },
+      "Type": "AWS::SES::ReceiptRule",
     },
   },
 }

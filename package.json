@@ -7,7 +7,8 @@
 		"ingestion-lambda",
 		"cleanup-lambda",
 		"poller-lambdas",
-		"newswires/client"
+		"newswires/client",
+		"email-filter-lambda"
 	],
 	"scripts": {
 		"test": "npm run test --workspaces --if-present",

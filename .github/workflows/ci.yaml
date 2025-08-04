@@ -60,6 +60,12 @@ jobs:
           npm run build
           zip -FSjr "dist/cleanup-lambda.zip" "dist/handler.js"
 
+      - name: Build email-filter-lambda
+        working-directory: email-filter-lambda
+        run: |
+          npm run build
+          zip -FSjr "dist/email-filter-lambda.zip" "dist/handler.js"
+
       - name: Build poller-lambdas
         working-directory: poller-lambdas
         run: |
@@ -85,6 +91,8 @@ jobs:
               - ingestion-lambda/dist/ingestion-lambda.zip
             cleanup-lambda:
               - cleanup-lambda/dist/cleanup-lambda.zip
+            email-filter-lambda:
+              - email-filter-lambda/dist/email-filter-lambda.zip
             poller-lambdas:
               - poller-lambdas/dist/poller-lambdas.zip
             newswires:
