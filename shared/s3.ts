@@ -6,6 +6,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getFromEnv, isRunningLocally } from './config';
 import { getErrorMessage } from './getErrorMessage';
+import { createLogger } from './lambda-logging';
 import type { OperationResult } from './types';
 
 // We use localstack to mock AWS services if we are running locally.
@@ -23,6 +24,8 @@ const awsOptions = isRunningLocally
 
 const s3Client = new S3Client(awsOptions);
 
+const logger = createLogger({});
+
 export async function getFromS3({
 	bucketName,
 	key,
@@ -30,8 +33,10 @@ export async function getFromS3({
 	bucketName: string;
 	key: string;
 }): Promise<OperationResult<{ body: string }>> {
-	console.log({
+	logger.log({
 		message: `Getting object from S3 bucket "${bucketName}" with key "${key}"`,
+		key,
+		bucketName,
 	});
 	try {
 		const response = await s3Client.send(
@@ -71,8 +76,10 @@ export async function putToS3({
 		Key: key,
 		Body: body,
 	});
-	console.log({
+	logger.log({
 		message: `Putting object to S3 bucket "${bucketName}" with key "${key}"`,
+		key,
+		bucketName,
 	});
 	try {
 		const response = await s3Client.send(command);
