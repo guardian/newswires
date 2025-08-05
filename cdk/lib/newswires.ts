@@ -264,6 +264,7 @@ export class Newswires extends GuStack {
 
 		feedsBucket.grantReadWrite(ingestionLambda);
 		database.grantConnect(ingestionLambda);
+		emailBucket.grantRead(ingestionLambda);
 
 		const alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
 

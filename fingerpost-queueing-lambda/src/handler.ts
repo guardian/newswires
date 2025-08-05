@@ -16,6 +16,14 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 					? `${externalId}.json`
 					: `GuMissingExternalId/${sqsMessageId}.json`;
 
+				logger.log({
+					message: `Processing message with sqsMessageId ${sqsMessageId} and externalId ${externalId}`,
+					eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING',
+					sqsMessageId,
+					objectKey,
+					externalId,
+				});
+
 				if (hasExternalId) {
 					const putToS3Result = await putToS3AndQueueIngestion({
 						externalId,
