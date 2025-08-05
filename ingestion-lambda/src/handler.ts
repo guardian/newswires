@@ -5,10 +5,11 @@ import type {
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
+import { getFromEnv, isRunningLocally } from '../../shared/config';
 import { findVerificationFailures } from '../../shared/findVerificationFailures';
 import { createLogger } from '../../shared/lambda-logging';
 import { initialiseDbConnection } from '../../shared/rds';
-import { EMAIL_BUCKET_NAME, FEEDS_BUCKET_NAME } from '../../shared/s3';
+import { FEEDS_BUCKET_NAME } from '../../shared/s3';
 import type { BatchItemFailure, OperationResult } from '../../shared/types';
 import { putItemToDb } from './db';
 import { getItemFromS3 } from './getItemFromS3';
@@ -77,6 +78,10 @@ function isSESRecord(
 ): record is SESEventRecord {
 	return 'ses' in record;
 }
+
+const EMAIL_BUCKET_NAME: string = isRunningLocally
+	? 'local-email-bucket'
+	: getFromEnv('EMAIL_BUCKET_NAME');
 
 export const main = async (
 	event: SQSEvent | SESEvent,
