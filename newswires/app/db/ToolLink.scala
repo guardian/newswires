@@ -60,11 +60,12 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] {
   def insertComposerLink(
       newswiresId: Int,
       composerId: String,
+      composerHost: String,
       sentBy: String,
       sentAt: Instant
   ): Int = DB localTx { implicit session =>
     val composerUrl =
-      s"https://composer.code.dev-gutools.co.uk/content/$composerId"
+      s"https://$composerHost/content/$composerId"
     val tl = ToolLink.column
     sql"""| INSERT INTO $table
           |  (${tl.wireId}, ${tl.tool}, ${tl.sentBy}, ${tl.sentAt}, ${tl.ref})
