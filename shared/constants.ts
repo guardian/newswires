@@ -11,3 +11,4 @@ export const POLLER_FAILURE_EVENT_TYPE = 'POLLER_FAILURE';
 export const POLLER_INVOCATION_EVENT_TYPE = 'POLLER_INVOCATION';
 
 export const DATABASE_TABLE_NAME = 'fingerpost_wire_entry';
+export const TOOL_LINK_TABLE_NAME = 'tool_link';
