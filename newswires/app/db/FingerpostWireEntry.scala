@@ -24,10 +24,11 @@ case class FingerpostWireEntry(
     externalId: String,
     ingestedAt: Instant,
     content: FingerpostWire,
-    composerId: Option[String],
-    composerSentBy: Option[String],
+    @deprecated composerId: Option[String],
+    @deprecated composerSentBy: Option[String],
     categoryCodes: List[String],
-    highlight: Option[String] = None
+    highlight: Option[String] = None,
+    toolLinks: List[ToolLink] = Nil
 )
 
 object FingerpostWireEntry
@@ -55,7 +56,7 @@ object FingerpostWireEntry
     )
   val syn = this.syntax("fm")
 
-  private val selectAllStatement = sqls"""
+  private lazy val selectAllStatement = sqls"""
     |   ${FingerpostWireEntry.syn.result.id},
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
@@ -110,20 +111,49 @@ object FingerpostWireEntry
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
 
-  def get(
+  private def replaceToolLinkUserWithYou(
+      requestingUser: Option[String]
+  )(toolLink: ToolLink): ToolLink = {
+    requestingUser match {
+      case Some(username) if username == toolLink.sentBy =>
+        toolLink.copy(sentBy = "you")
+      case _ => toolLink
+    }
+  }
+
+  private[db] def buildSingleGetQuery(
       id: Int,
       maybeFreeTextQuery: Option[String]
-  ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
+  ): SQLSyntax = {
     val highlightsClause = maybeFreeTextQuery match {
       case Some(query) =>
-        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
-      case None => sqls", '' AS ${syn.resultName.highlight}"
+        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
+      case None => sqls"'' AS ${syn.resultName.highlight}"
     }
-    sql"""| SELECT $selectAllStatement $highlightsClause
-          | FROM ${FingerpostWireEntry as syn}
-          | WHERE ${FingerpostWireEntry.syn.id} = $id
-          |""".stripMargin
-      .map(FingerpostWireEntry.fromDb(syn.resultName))
+    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+           | FROM ${FingerpostWireEntry as syn}
+           | LEFT JOIN ${ToolLink as ToolLink.syn}
+           |   ON ${syn.id} = ${ToolLink.syn.wireId}
+           | WHERE ${FingerpostWireEntry.syn.id} = $id
+           |""".stripMargin
+  }
+
+  def get(
+      id: Int,
+      maybeFreeTextQuery: Option[String],
+      requestingUser: Option[String] = None
+  ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
+    sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
+      .one(FingerpostWireEntry.fromDb(syn.resultName))
+      .toMany(ToolLink.opt(ToolLink.syn.resultName))
+      // add in the toollinks, but replace the username with "you" if it's the same as the person requesting this wire
+      .map { (wire, toolLinks) =>
+        wire.map(
+          _.copy(toolLinks =
+            toolLinks.toList.map(replaceToolLinkUserWithYou(requestingUser))
+          )
+        )
+      }
       .single()
       .apply()
       .flatten
@@ -442,20 +472,5 @@ object FingerpostWireEntry
         .apply()
         .toMap // TODO would a list be better?
     }
-  }
-
-  def insertComposerId(
-      newswiresId: Int,
-      composerId: String,
-      sentBy: String
-  ): Int = DB localTx { implicit session =>
-    sql"""| UPDATE ${FingerpostWireEntry as syn}
-          | SET composer_id = $composerId, composer_sent_by = $sentBy
-          | WHERE id = $newswiresId
-          |   AND composer_id IS NULL
-          |   AND composer_sent_by IS NULL
-          | """.stripMargin
-      .update()
-      .apply()
   }
 }
