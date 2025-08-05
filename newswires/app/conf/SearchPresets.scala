@@ -72,6 +72,7 @@ object SearchPresets {
     case "all-business"         => Some(AllBusiness)
     case "all-sport"            => Some(AllSport)
     case "soccer"               => Some(Soccer)
+    case "no-soccer"            => Some(NoSoccer)
     case "cricket"              => Some(Cricket)
     case "rugby-league"         => Some(RugbyLeague)
     case "rugby-union"          => Some(RugbyUnion)
@@ -304,4 +305,16 @@ object SearchPresets {
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
     SearchPreset.fromText(AP, text = SimpleSearchQueries.OLYMPICS, CategoryCodes.Sport.AP)
   )
+
+  private val NoSoccer =  Cricket :::
+                          RugbyLeague :::
+                          RugbyUnion :::
+                          Tennis :::
+                          Cycling :::
+                          F1 :::
+                          Golf :::
+                          Boxing :::
+                          Racing :::
+                          Athletics :::
+                          Olympics
 }
