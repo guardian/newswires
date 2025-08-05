@@ -253,6 +253,7 @@ export class Newswires extends GuStack {
 
 		feedsBucket.grantReadWrite(ingestionLambda);
 		database.grantConnect(ingestionLambda);
+		emailBucket.grantRead(ingestionLambda);
 
 		new MetricFilter(this, 'IngestionSourceFeeds', {
 			logGroup: LogGroup.fromLogGroupName(
