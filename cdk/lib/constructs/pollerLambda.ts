@@ -1,6 +1,7 @@
 import { GuAlarm } from '@guardian/cdk/lib/constructs/cloudwatch';
 import type { GuStack } from '@guardian/cdk/lib/constructs/core';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
+import type { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import { aws_sqs, Duration } from 'aws-cdk-lib';
 import {
 	ComparisonOperator,
@@ -23,6 +24,7 @@ interface PollerLambdaProps {
 	pollerConfig: PollerConfig;
 	ingestionLambdaQueue: aws_sqs.Queue;
 	alarmSnsTopicName: string;
+	feedsBucket: GuS3Bucket;
 }
 
 export class PollerLambda {
@@ -33,6 +35,7 @@ export class PollerLambda {
 			ingestionLambdaQueue,
 			pollerConfig,
 			alarmSnsTopicName,
+			feedsBucket,
 		}: PollerLambdaProps,
 	) {
 		const lambdaAppName = pollerIdToLambdaAppName(pollerId);
@@ -81,6 +84,7 @@ export class PollerLambda {
 					ingestionLambdaQueue.queueUrl,
 				[POLLER_LAMBDA_ENV_VAR_KEYS.OWN_QUEUE_URL]: lambdaQueue.queueUrl,
 				[POLLER_LAMBDA_ENV_VAR_KEYS.SECRET_NAME]: secret.secretName,
+				FEEDS_BUCKET_NAME: feedsBucket.bucketName,
 			},
 			throttlingMonitoring: {
 				snsTopicName: alarmSnsTopicName,
@@ -105,6 +109,8 @@ export class PollerLambda {
 
 		secret.grantRead(lambda);
 		secret.grantWrite(lambda);
+
+		feedsBucket.grantWrite(lambda);
 
 		// wire up lambda to process its own queue
 		lambda.addEventSource(new SqsEventSource(lambdaQueue, { batchSize: 1 }));
