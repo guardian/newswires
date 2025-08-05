@@ -1,55 +1,54 @@
 {
-  "name": "newswires",
-  "version": "1.0.0",
-  "description": "Newswires feed app",
-  "workspaces": [
-    "cdk",
-    "ingestion-lambda",
-    "cleanup-lambda",
-    "poller-lambdas",
-    "newswires/client",
-    "email-filter-lambda",
-    "fingerpost-queueing-lambda"
-  ],
-  "scripts": {
-    "test": "npm run test --workspaces --if-present",
-    "synth": "npm run synth --workspace=cdk",
-    "typecheck": "npm run typecheck --workspaces",
-    "build": "npm run build --workspaces --if-present",
-    "lint": "npm run lint --workspaces",
-    "lint:ci": "npm run lint:ci --workspaces",
-    "dev": "npm run dev --workspace=ingestion-lambda",
-    "storybook": "npm run storybook --workspace=newswires/client",
-    "prepare": "husky"
-  },
-  "repository": {
-    "type": "git",
-    "url": "github.com/guardian/newswires"
-  },
-  "devDependencies": {
-    "@guardian/eslint-config": "12.0.0",
-    "@guardian/prettier": "8.0.1",
-    "@guardian/tsconfig": "1.0.0",
-    "@types/jest": "30.0.0",
-    "@types/node": "22.15.35",
-    "esbuild": "^0.25.8",
-    "eslint": "9.31.0",
-    "eslint-plugin-prettier": "5.5.3",
-    "husky": "^9.1.7",
-    "jest": "30.0.4",
-    "lint-staged": "16.1.2",
-    "prettier": "3.6.2",
-    "ts-jest": "29.4.0",
-    "tsx": "^4.20.3",
-    "typescript": "5.5.2",
-    "vite": "^7.0.5"
-  },
-  "prettier": "@guardian/prettier",
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "jest --findRelatedTests --passWithNoTests"
-  },
-  "dependencies": {
-    "node-html-parser": "7.0.1",
-    "zod": "4.0.5"
-  }
+	"name": "newswires",
+	"version": "1.0.0",
+	"description": "Newswires feed app",
+	"workspaces": [
+		"cdk",
+		"ingestion-lambda",
+		"cleanup-lambda",
+		"poller-lambdas",
+		"newswires/client",
+		"email-filter-lambda",
+		"fingerpost-queueing-lambda"
+	],
+	"scripts": {
+		"test": "npm run test --workspaces --if-present",
+		"synth": "npm run synth --workspace=cdk",
+		"typecheck": "npm run typecheck --workspaces",
+		"build": "npm run build --workspaces --if-present",
+		"lint": "npm run lint --workspaces",
+		"lint:ci": "npm run lint:ci --workspaces",
+		"dev": "npm run dev --workspace=ingestion-lambda",
+		"prepare": "husky"
+	},
+	"repository": {
+		"type": "git",
+		"url": "github.com/guardian/newswires"
+	},
+	"devDependencies": {
+		"@guardian/eslint-config": "12.0.0",
+		"@guardian/prettier": "8.0.1",
+		"@guardian/tsconfig": "1.0.0",
+		"@types/jest": "30.0.0",
+		"@types/node": "22.15.35",
+		"esbuild": "^0.25.8",
+		"eslint": "9.31.0",
+		"eslint-plugin-prettier": "5.5.3",
+		"husky": "^9.1.7",
+		"jest": "30.0.4",
+		"lint-staged": "16.1.2",
+		"prettier": "3.6.2",
+		"ts-jest": "29.4.0",
+		"tsx": "^4.20.3",
+		"typescript": "5.5.2",
+		"vite": "^7.0.5"
+	},
+	"prettier": "@guardian/prettier",
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx}": "jest --findRelatedTests --passWithNoTests"
+	},
+	"dependencies": {
+		"node-html-parser": "7.0.1",
+		"zod": "4.0.5"
+	}
 }
