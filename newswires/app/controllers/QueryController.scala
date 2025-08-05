@@ -109,7 +109,8 @@ class QueryController(
       }
     }
 
-  private val host = configuration.get[String]("host")
+  private val newswiresHost = configuration.get[String]("host")
+  private val composerHost = newswiresHost.replace("newswires", "composer")
 
   def getIncopyImportUrl(id: Int): Action[AnyContent] = apiAuthAction {
     request: UserRequest[AnyContent] =>
@@ -123,7 +124,7 @@ class QueryController(
           val serialised = entry.asJson.spaces2
           val compressedEncodedEntry =
             Base64Encoder.compressAndEncode(serialised)
-          Ok(s"newswires://$host?data=$compressedEncodedEntry")
+          Ok(s"newswires://$newswiresHost?data=$compressedEncodedEntry")
         case None => NotFound
       }
   }
@@ -134,9 +135,10 @@ class QueryController(
         .flatMap(_.asOpt[ComposerLinkRequest])
         .map(params =>
           ToolLink.insertComposerLink(
-            id,
-            params.composerId,
-            request.user.username,
+            newswiresId = id,
+            composerId = params.composerId,
+            composerHost = composerHost,
+            sentBy = request.user.username,
             sentAt = Instant.now()
           )
         ) match {
