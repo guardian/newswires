@@ -306,15 +306,15 @@ object SearchPresets {
     SearchPreset.fromText(AP, text = SimpleSearchQueries.OLYMPICS, CategoryCodes.Sport.AP)
   )
 
-  private val NoSoccer =  Cricket :::
-                          RugbyLeague :::
-                          RugbyUnion :::
-                          Tennis :::
-                          Cycling :::
-                          F1 :::
-                          Golf :::
-                          Boxing :::
-                          Racing :::
-                          Athletics :::
-                          Olympics
+  private val NoSoccer = Cricket :::
+    RugbyLeague :::
+    RugbyUnion :::
+    Tennis :::
+    Cycling :::
+    F1 :::
+    Golf :::
+    Boxing :::
+    Racing :::
+    Athletics :::
+    Olympics
 }
