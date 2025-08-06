@@ -74,9 +74,10 @@ export const main = async (
 						}
 
 						// todo -- consider storing s3 object version in db
+						const s3Key = `${externalId}.json`;
 						await putToS3({
 							bucketName: BUCKET_NAME,
-							key: `${externalId}.json`,
+							key: s3Key,
 							body,
 						});
 
@@ -94,8 +95,8 @@ export const main = async (
 
 						const result = await sql`
                             INSERT INTO ${sql(tableName)}
-                                (external_id, supplier, content, category_codes)
-                            VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}) ON CONFLICT (external_id) DO NOTHING
+                                (external_id, supplier, content, category_codes, s3key)
+                            VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}) ON CONFLICT (external_id) DO NOTHING
 							RETURNING id`;
 
 						if (result.length === 0) {
