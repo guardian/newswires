@@ -1,0 +1,31 @@
+import { getErrorMessage } from '../../shared/getErrorMessage';
+import { BUCKET_NAME, getFromS3 } from '../../shared/s3';
+import type { OperationResult } from '../../shared/types';
+
+export async function getItemFromS3({
+	objectKey,
+	bucketName = BUCKET_NAME,
+}: {
+	objectKey: string;
+	bucketName?: string;
+}): Promise<OperationResult<{ body: string }>> {
+	return getFromS3({
+		bucketName,
+		key: objectKey,
+	})
+		.then((resp) => {
+			if (resp.status === 'success') {
+				return {
+					status: 'success' as const,
+					body: resp.body,
+				};
+			}
+			throw new Error(resp.reason);
+		})
+		.catch((error) => {
+			return {
+				status: 'failure' as const,
+				reason: `Error getting object from S3 (key: ${objectKey}): ${getErrorMessage(error)}`,
+			};
+		});
+}

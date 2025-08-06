@@ -77,6 +77,7 @@ const _WireEntryContentSchema = IngestorInputBodySchema.omit({
 export type FingerpostFeedPayload = z.infer<typeof FingerpostFeedPayloadSchema>;
 export type IngestorInputBody = z.infer<typeof IngestorInputBodySchema>;
 export type WireEntryContent = z.infer<typeof _WireEntryContentSchema>;
+
 export type ProcessedMessageData = {
 	externalId: string;
 	objectKey: string;
@@ -98,8 +99,6 @@ type BaseOperationSuccess = {
 };
 
 export type OperationSuccess<T> = BaseOperationSuccess & T;
-
-export type NoExtraData = Record<string, never>;
 
 export type OperationResult<T> = OperationFailure | OperationSuccess<T>;
 
