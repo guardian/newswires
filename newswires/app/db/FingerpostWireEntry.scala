@@ -28,7 +28,8 @@ case class FingerpostWireEntry(
     @deprecated composerSentBy: Option[String],
     categoryCodes: List[String],
     highlight: Option[String] = None,
-    toolLinks: List[ToolLink] = Nil
+    toolLinks: List[ToolLink] = Nil,
+    s3key: Option[String]
 )
 
 object FingerpostWireEntry
@@ -52,7 +53,8 @@ object FingerpostWireEntry
       "composer_sent_by",
       "category_codes",
       "combined_textsearch",
-      "highlight"
+      "highlight",
+      "s3key"
     )
   val syn = this.syntax("fm")
 
@@ -64,7 +66,8 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.composerId},
     |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.categoryCodes},
-    |   ${FingerpostWireEntry.syn.result.content}
+    |   ${FingerpostWireEntry.syn.result.content},
+    |   ${FingerpostWireEntry.syn.result.s3key}
     |""".stripMargin
 
   def fromDb(
@@ -96,7 +99,8 @@ object FingerpostWireEntry
           .stringOpt(fm.column("highlight"))
           .filter(
             _.contains("<mark>")
-          ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
+          ), // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
+        s3key = rs.stringOpt(fm.s3key)
       )
     }).left
       .map(error => {
