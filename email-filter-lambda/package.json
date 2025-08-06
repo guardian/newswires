@@ -11,6 +11,6 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"@types/aws-lambda": "8.10.150"
+		"@types/aws-lambda": "8.10.152"
 	}
 }
