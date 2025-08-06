@@ -33,6 +33,21 @@ class QueryController(
   ): List[String] =
     request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
 
+  def copy(): Action[AnyContent] = {
+    query(
+      maybeFreeTextQuery = None,
+      maybeKeywords = None,
+      suppliers = List("UNAUTHED_EMAIL_FEED"),
+      categoryCode = Nil,
+      categoryCodeExcl = Nil,
+      maybeStart = None,
+      maybeEnd = None,
+      maybeBeforeId = None,
+      maybeSinceId = None,
+      hasDataFormatting = None
+    )
+  }
+
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[String],
