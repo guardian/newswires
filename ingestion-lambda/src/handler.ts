@@ -73,6 +73,7 @@ export const main = async (
 					const dbResult = await putItemToDb({
 						processedObject: contentResults,
 						externalId: processedMessage.externalId,
+						s3Key: processedMessage.objectKey,
 						sql,
 						logger,
 					});
