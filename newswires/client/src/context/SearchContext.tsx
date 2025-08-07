@@ -6,6 +6,7 @@ import {
 	useEffect,
 	useMemo,
 	useReducer,
+	useRef,
 	useState,
 } from 'react';
 import { z } from 'zod/v4';
@@ -216,14 +217,6 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 		const abortController = new AbortController();
 
-		if (state.status === 'loading') {
-			fetchResults(currentConfig.query, {}, abortController)
-				.then((data) => {
-					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });
-				})
-				.catch(handleFetchError);
-		}
-
 		if (state.status === 'success' || state.status === 'offline') {
 			pollingInterval = setInterval(() => {
 				if (state.autoUpdate) {
@@ -261,20 +254,33 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		state.queryData?.results,
 	]);
 
+	const abortController = useRef<AbortController | undefined>();
+
 	const handleEnterQuery = useCallback(
 		(query: Query) => {
-			sendTelemetryEvent(
-				'NEWSWIRES_ENTER_SEARCH',
-				Object.fromEntries(
-					Object.entries(query).map(([key, value]) => [
-						`search-query_${key}`,
-						JSON.stringify(value),
-					]),
-				),
-			);
 			dispatch({
 				type: 'ENTER_QUERY',
 			});
+			if (abortController.current) {
+				abortController.current.abort();
+			}
+			abortController.current = new AbortController();
+			const startTime = performance.now();
+			fetchResults(currentConfig.query, {}, abortController.current)
+				.then((data) => {
+					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });
+
+					const telemetryTags: Record<string, string | number> =
+						Object.fromEntries(
+							Object.entries(query).map(([key, value]) => [
+								`search-query_${key}`,
+								JSON.stringify(value),
+							]),
+						);
+					telemetryTags['duration'] = Math.round(performance.now() - startTime);
+					sendTelemetryEvent('NEWSWIRES_ENTER_SEARCH', telemetryTags);
+				})
+				.catch(handleFetchError);
 			if (currentConfig.view === 'item') {
 				pushConfigState({
 					...currentConfig,
@@ -296,6 +302,11 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		},
 		[currentConfig, pushConfigState, sendTelemetryEvent],
 	);
+	const isFirstLoad = useRef(true);
+	if (isFirstLoad.current) {
+		isFirstLoad.current = false;
+		handleEnterQuery(currentConfig.query);
+	}
 
 	const handleRetry = () => {
 		dispatch({ type: 'RETRY' });
