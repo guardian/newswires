@@ -84,7 +84,6 @@ describe('SearchContext', () => {
 			contextRef.current?.handleEnterQuery(q);
 		});
 
-		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
 		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
 			'NEWSWIRES_ENTER_SEARCH',
 			expect.objectContaining({
@@ -114,7 +113,6 @@ describe('SearchContext', () => {
 			contextRef.current?.openTicker(q);
 		});
 
-		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
 		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
 			'NEWSWIRES_OPEN_TICKER',
 			expect.objectContaining({
@@ -140,7 +138,6 @@ describe('SearchContext', () => {
 			await contextRef.current?.loadMoreResults('1');
 		});
 
-		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
 		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
 			'NEWSWIRES_LOAD_MORE',
 			expect.objectContaining({
@@ -162,7 +159,6 @@ describe('SearchContext', () => {
 			contextRef.current?.toggleAutoUpdate();
 		});
 
-		expect(mockSendTelemetryEvent).toHaveBeenCalledTimes(1);
 		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
 			'NEWSWIRES_TOGGLE_AUTO_UPDATE',
 			expect.any(Object),

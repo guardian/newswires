@@ -9,6 +9,7 @@ import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
 import conf.Database
 import controllers._
+import db.{FingerpostWireEntry}
 import lib.RequestLoggingFilter
 import play.api.ApplicationLoader.Context
 import play.api.http.JsonHttpErrorHandler
@@ -19,10 +20,17 @@ import play.api.{BuiltInComponentsFromContext, Logging, Mode}
 import play.filters.HttpFiltersComponents
 import play.filters.gzip.GzipFilter
 import router.Routes
-import service.FeatureSwitchProvider
+import service.{
+  FeatureSwitchProvider,
+  QueryCache,
+  QueryCacheProvider,
+  ScaffeineCache
+}
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
+
+import scala.concurrent.duration.DurationInt
 
 class AppComponents(context: Context)
     extends BuiltInComponentsFromContext(context)
@@ -93,6 +101,11 @@ class AppComponents(context: Context)
 
   private val featureSwitchProvider = new FeatureSwitchProvider(stage)
 
+  private val queryCache: QueryCache = new ScaffeineCache
+
+  private val queryCacheProvider =
+    new QueryCacheProvider(queryCache, FingerpostWireEntry)
+
   private val authController = new AuthController(
     controllerComponents,
     configuration,
@@ -124,7 +137,8 @@ class AppComponents(context: Context)
     wsClient = wsClient,
     permissionsProvider = permissionsProvider,
     panDomainSettings = panDomainSettings,
-    featureSwitchProvider = featureSwitchProvider
+    featureSwitchProvider = featureSwitchProvider,
+    queryCacheProvider = queryCacheProvider
   )
 
   override lazy val httpErrorHandler = new JsonHttpErrorHandler(environment)

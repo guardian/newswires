@@ -217,8 +217,21 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		const abortController = new AbortController();
 
 		if (state.status === 'loading') {
+			const start = performance.now();
 			fetchResults(currentConfig.query, {}, abortController)
 				.then((data) => {
+					sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
+						...Object.fromEntries(
+							Object.entries(currentConfig.query).map(([key, value]) => [
+								`search-query_${key}`,
+								JSON.stringify(value),
+							]),
+						),
+						duration: performance.now() - start,
+						resultsCount: data.results.length,
+						resultsIds: data.results.map((wire) => wire.id).join(','),
+						totalCount: data.totalCount,
+					});
 					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });
 				})
 				.catch(handleFetchError);
@@ -259,6 +272,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		state.autoUpdate,
 		currentConfig.query,
 		state.queryData?.results,
+		sendTelemetryEvent,
 	]);
 
 	const handleEnterQuery = useCallback(
