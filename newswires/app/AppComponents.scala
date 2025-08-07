@@ -5,13 +5,11 @@ import com.amazonaws.auth.{
 }
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.github.blemale.scaffeine.{Cache, Scaffeine}
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
 import conf.Database
 import controllers._
-import db.FingerpostWireEntry.QueryResponse
-import db.QueryParams
+import db.{FingerpostWireEntry}
 import lib.RequestLoggingFilter
 import play.api.ApplicationLoader.Context
 import play.api.http.JsonHttpErrorHandler
@@ -22,7 +20,12 @@ import play.api.{BuiltInComponentsFromContext, Logging, Mode}
 import play.filters.HttpFiltersComponents
 import play.filters.gzip.GzipFilter
 import router.Routes
-import service.FeatureSwitchProvider
+import service.{
+  FeatureSwitchProvider,
+  QueryCache,
+  QueryCacheProvider,
+  ScaffeineCache
+}
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ssm.SsmClient
@@ -98,12 +101,10 @@ class AppComponents(context: Context)
 
   private val featureSwitchProvider = new FeatureSwitchProvider(stage)
 
-  private val queryCache: Cache[QueryParams, QueryResponse] =
-    Scaffeine()
-      .recordStats()
-      .expireAfterWrite(1.minute)
-      .maximumSize(500)
-      .build[QueryParams, QueryResponse]()
+  private val queryCache: QueryCache = new ScaffeineCache
+
+  private val queryCacheProvider =
+    new QueryCacheProvider(queryCache, FingerpostWireEntry)
 
   private val authController = new AuthController(
     controllerComponents,
@@ -137,7 +138,7 @@ class AppComponents(context: Context)
     permissionsProvider = permissionsProvider,
     panDomainSettings = panDomainSettings,
     featureSwitchProvider = featureSwitchProvider,
-    queryCache = queryCache
+    queryCacheProvider = queryCacheProvider
   )
 
   override lazy val httpErrorHandler = new JsonHttpErrorHandler(environment)
