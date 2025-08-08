@@ -6,6 +6,7 @@ export interface AppConfiguration {
 	switches: FeatureSwitches;
 	stage: string;
 	sendTelemetryAsDev: boolean;
+	gitCommitId: string;
 }
 
 declare global {

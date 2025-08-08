@@ -19,7 +19,8 @@ import scala.io.Source
 case class ClientConfig(
     switches: Map[String, Boolean],
     stage: String,
-    sendTelemetryAsDev: Boolean
+    sendTelemetryAsDev: Boolean,
+    gitCommitId: String = buildinfo.BuildInfo.gitCommitId
 )
 
 object ClientConfig {

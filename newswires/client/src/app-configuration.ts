@@ -15,6 +15,7 @@ const configLookup: AppConfiguration = isJest
 			},
 			stage: 'test',
 			sendTelemetryAsDev: true,
+			gitCommitId: 'test-commit-id',
 		}
 	: window.configuration;
 
@@ -27,3 +28,5 @@ export const SUPPLIERS_TO_EXCLUDE = showGuSuppliers
 export const STAGE = configLookup.stage;
 
 export const SEND_TELEMETRY_AS_DEV = configLookup.sendTelemetryAsDev;
+
+export const GIT_COMMIT_ID = configLookup.gitCommitId;
