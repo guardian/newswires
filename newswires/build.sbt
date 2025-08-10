@@ -15,14 +15,14 @@ libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "5.0.0"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "7.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "4.0.0"
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
-libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
+libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.4"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.7"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.14"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.14"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.9" % "test"
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test"
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
 
 lazy val root = (project in file(".")).enablePlugins(
   PlayScala,
