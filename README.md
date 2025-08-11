@@ -30,6 +30,12 @@ keys and -- when run with the `--use-CODE` flag -- tunnelling to the CODE databa
 ./scripts/start
 ```
 
+### Finger post queueing lambda
+```sh
+docker compose up
+npm run dev -w fingerpost-queueing-lambda
+```
+
 ### Ingestion Lambda
 
 ```sh
