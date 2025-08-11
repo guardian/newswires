@@ -1288,6 +1288,22 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
+    "IngestionLambdaTESTAllowSes499F8EFF": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "IngestionLambdaTESTC02B3E43",
+            "Arn",
+          ],
+        },
+        "Principal": "ses.amazonaws.com",
+        "SourceAccount": {
+          "Ref": "AWS::AccountId",
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
     "IngestionLambdaTESTC02B3E43": {
       "DependsOn": [
         "IngestionLambdaTESTServiceRoleDefaultPolicy92C2CE04",
@@ -1318,6 +1334,9 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "NewswiresDBNewswires2A5A9AC6",
                 "Endpoint.Port",
               ],
+            },
+            "EMAIL_BUCKET_NAME": {
+              "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
             },
             "FEEDS_BUCKET_NAME": {
               "Ref": "feedsbucketTESTNewswires116BDB0E",
@@ -2057,6 +2076,47 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
+    },
+    "NewswiresCopyEmailBucketNewswiresPolicy10030196": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:PutObject",
+              "Condition": {
+                "StringEquals": {
+                  "aws:SourceAccount": {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ses.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "NewswiresCopyEmailBucketNewswires26C541A0",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
     },
     "NewswiresDBNewswires2A5A9AC6": {
       "DeletionPolicy": "Snapshot",
@@ -5177,6 +5237,8 @@ dpkg -i /newswires/newswires.deb",
     "sesrulesetincomingcopyemailrule9911D056": {
       "DependsOn": [
         "EmailFilterLambdaTESTAllowSes64B087DC",
+        "IngestionLambdaTESTAllowSes499F8EFF",
+        "NewswiresCopyEmailBucketNewswiresPolicy10030196",
       ],
       "Properties": {
         "Rule": {
@@ -5186,6 +5248,25 @@ dpkg -i /newswires/newswires.deb",
                 "FunctionArn": {
                   "Fn::GetAtt": [
                     "EmailFilterLambdaTEST857F2A66",
+                    "Arn",
+                  ],
+                },
+                "InvocationType": "Event",
+              },
+            },
+            {
+              "S3Action": {
+                "BucketName": {
+                  "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
+                },
+                "ObjectKeyPrefix": "",
+              },
+            },
+            {
+              "LambdaAction": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "IngestionLambdaTESTC02B3E43",
                     "Arn",
                   ],
                 },

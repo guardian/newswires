@@ -12,7 +12,5 @@
 		"@aws-sdk/rds-signer": "3.848.0",
 		"postgres": "3.4.7"
 	},
-	"devDependencies": {
-		"@types/aws-lambda": "8.10.152"
-	}
+	"devDependencies": {}
 }

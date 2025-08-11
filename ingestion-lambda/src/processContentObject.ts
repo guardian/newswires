@@ -200,7 +200,9 @@ export const safeBodyParse = (body: string): IngestorInputBody => {
 	});
 };
 
-export function processContent(body: string): OperationResult<ProcessedObject> {
+export function processFingerpostJsonContent(
+	body: string,
+): OperationResult<ProcessedObject> {
 	try {
 		const parsedContent = safeBodyParse(body);
 

@@ -103,7 +103,8 @@ export type OperationSuccess<T> = BaseOperationSuccess & T;
 export type OperationResult<T> = OperationFailure | OperationSuccess<T>;
 
 export type BatchItemFailure = OperationFailure & {
-	sqsMessageId: string;
+	messageId: string;
+	recordType: 'SES' | 'SQS';
 };
 
 export type BatchItemResult = BaseOperationSuccess | BatchItemFailure;

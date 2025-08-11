@@ -1,4 +1,9 @@
-import type { SESEvent, SQSEvent, SQSRecord } from 'aws-lambda';
+import type {
+	SESEvent,
+	SQSBatchResponse,
+	SQSEvent,
+	SQSRecord,
+} from 'aws-lambda';
 import type postgres from 'postgres';
 import type { Row, RowList } from 'postgres';
 import * as loggingModule from '../../shared/lambda-logging';
@@ -6,6 +11,7 @@ import * as rdsModule from '../../shared/rds';
 import * as s3Module from '../../shared/s3';
 import type { OperationResult } from '../../shared/types';
 import { main } from './handler';
+import { sampleMimeEmailData } from './processEmailContent.test';
 
 type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
@@ -13,7 +19,8 @@ type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 jest.mock('../../shared/s3', () => ({
 	getFromS3: jest.fn(),
 	putToS3: jest.fn(),
-	BUCKET_NAME: 'test-bucket',
+	FEEDS_BUCKET_NAME: 'test-feeds-bucket',
+	EMAIL_BUCKET_NAME: 'test-email-bucket',
 }));
 // and the postgres sql module
 jest.mock('../../shared/rds', () => ({
@@ -156,7 +163,7 @@ describe('handler.main', () => {
 		// Verify S3 was only called once (for the valid record)
 		expect(mockGetFromS3).toHaveBeenCalledTimes(1);
 		expect(mockGetFromS3).toHaveBeenCalledWith({
-			bucketName: 'test-bucket',
+			bucketName: 'test-feeds-bucket',
 			key: 'path/to/object.json',
 		});
 	});
@@ -212,11 +219,11 @@ describe('handler.main', () => {
 		// Verify S3 was called for both records
 		expect(mockGetFromS3).toHaveBeenCalledTimes(2);
 		expect(mockGetFromS3).toHaveBeenCalledWith({
-			bucketName: 'test-bucket',
+			bucketName: 'test-feeds-bucket',
 			key: 'path/to/valid-object.json',
 		});
 		expect(mockGetFromS3).toHaveBeenCalledWith({
-			bucketName: 'test-bucket',
+			bucketName: 'test-feeds-bucket',
 			key: 'path/to/invalid-object.json',
 		});
 	});
@@ -292,21 +299,78 @@ describe('handler.main', () => {
 		);
 	});
 
-	it('should return early when it receives an SES event', async () => {
+	it('should be able to process an SES event', async () => {
+		mockGetFromS3.mockResolvedValue({
+			status: 'success',
+			body: sampleMimeEmailData(),
+		});
+
+		const mockSql = jest.fn();
+		mockSql.mockResolvedValue([{ id: 1 }]);
+
+		mockInitialiseDbConnection.mockResolvedValue({
+			sql: mockSql as unknown as postgres.Sql,
+			closeDbConnection: jest.fn(),
+		});
+
 		const sesEvent = {
 			Records: [
 				{
 					ses: {
-						mail: { commonHeaders: { subject: 'Test' } },
+						mail: { commonHeaders: { subject: 'Test' }, messageId: '123' },
+						receipt: {
+							spamVerdict: { status: 'PASS' },
+							virusVerdict: { status: 'PASS' },
+							spfVerdict: { status: 'PASS' },
+							dkimVerdict: { status: 'PASS' },
+							dmarcVerdict: { status: 'PASS' },
+						},
 					},
 					eventSource: 'aws:ses',
 				},
 			],
 		} as unknown as SESEvent;
 
-		const result = await main(sesEvent);
+		const result = (await main(sesEvent)) as SQSBatchResponse;
 
-		expect(result).toBeUndefined();
-		expect(mockInitialiseDbConnection).not.toHaveBeenCalled();
+		expect(result.batchItemFailures).toHaveLength(0);
+		expect(mockInitialiseDbConnection).toHaveBeenCalled();
+	});
+
+	it('should fail if SES verification contains non-PASS values', async () => {
+		mockGetFromS3.mockResolvedValue({
+			status: 'success',
+			body: sampleMimeEmailData(),
+		});
+
+		const mockSql = jest.fn();
+		mockSql.mockResolvedValue([{ id: 1 }]);
+
+		mockInitialiseDbConnection.mockResolvedValue({
+			sql: mockSql as unknown as postgres.Sql,
+			closeDbConnection: jest.fn(),
+		});
+
+		const sesEvent = {
+			Records: [
+				{
+					ses: {
+						mail: { commonHeaders: { subject: 'Test' }, messageId: '123' },
+						receipt: {
+							spamVerdict: { status: 'GRAY' },
+							virusVerdict: { status: 'PASS' },
+							spfVerdict: { status: 'PASS' },
+							dkimVerdict: { status: 'PASS' },
+							dmarcVerdict: { status: 'PASS' },
+						},
+					},
+					eventSource: 'aws:ses',
+				},
+			],
+		} as unknown as SESEvent;
+
+		const result = (await main(sesEvent)) as SQSBatchResponse;
+
+		expect(result.batchItemFailures).toEqual([{ itemIdentifier: '123' }]);
 	});
 });
