@@ -35,6 +35,16 @@ const FingerpostContentSchema = z
 	})
 	.partial();
 
+export const ToolLinkSchema = z.object({
+	id: z.number(),
+	wireId: z.number(),
+	tool: z.enum(['composer', 'incopy']),
+	sentBy: z.string(),
+	sentAt: z.string(),
+	ref: z.string().optional(),
+});
+export type ToolLink = z.infer<typeof ToolLinkSchema>;
+
 export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
@@ -42,10 +52,11 @@ export const WireDataFromAPISchema = z.object({
 	ingestedAt: z.string(),
 	categoryCodes: z.array(z.string()),
 	content: FingerpostContentSchema,
-	composerId: z.string().optional(),
-	composerSentBy: z.string().optional(),
+	composerId: z.string().optional(), //deprecated
+	composerSentBy: z.string().optional(), //deprecated
 	highlight: z.string().optional(),
 	isFromRefresh: z.boolean().default(false),
+	toolLinks: z.array(ToolLinkSchema).optional(),
 });
 
 export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;

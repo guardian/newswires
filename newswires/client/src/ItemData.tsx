@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { transformWireItemQueryResult } from './context/transformQueryResponse.ts';
 import { Item } from './Item';
 import { pandaFetch } from './panda-session';
+import type { ToolLink } from './sharedTypes';
 import { type WireData, WireDataFromAPISchema } from './sharedTypes';
 
 export const ItemData = ({ id }: { id: string }) => {
@@ -12,6 +13,17 @@ export const ItemData = ({ id }: { id: string }) => {
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
+
+	const addToolLink = useCallback(
+		(toolLink: ToolLink) => {
+			setItemData((prevItem) => {
+				if (!prevItem) return;
+				const links: ToolLink[] = [...(prevItem.toolLinks ?? []), toolLink];
+				return { ...prevItem, toolLinks: links };
+			});
+		},
+		[setItemData],
+	);
 
 	useEffect(() => {
 		// fetch item data from /api/item/:id
@@ -48,6 +60,7 @@ export const ItemData = ({ id }: { id: string }) => {
 	return (
 		<Item
 			itemData={itemData}
+			addToolLink={addToolLink}
 			error={error}
 			handleDeselectItem={handleDeselectItem}
 			handlePreviousItem={handlePreviousItem}

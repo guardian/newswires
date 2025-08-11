@@ -6,13 +6,16 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import db.FingerpostWireEntry
 import models.{NextPage, QueryParams, SearchParams}
+import db._
+import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
+
+import java.time.Instant
 
 class QueryController(
     val controllerComponents: ControllerComponents,
@@ -95,20 +98,49 @@ class QueryController(
   }
 
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
-    apiAuthAction {
-      FingerpostWireEntry.get(id, maybeFreeTextQuery) match {
+    apiAuthAction { request: UserRequest[AnyContent] =>
+      FingerpostWireEntry.get(
+        id,
+        maybeFreeTextQuery,
+        requestingUser = Some(request.user.username)
+      ) match {
         case Some(entry) => Ok(entry.asJson.spaces2)
         case None        => NotFound
       }
     }
+
+  private val newswiresHost = configuration.get[String]("host")
+  private val composerHost = newswiresHost.replace("newswires", "composer")
+
+  def getIncopyImportUrl(id: Int): Action[AnyContent] = apiAuthAction {
+    request: UserRequest[AnyContent] =>
+      FingerpostWireEntry.get(id, None) match {
+        case Some(entry) =>
+          ToolLink.insertIncopyLink(
+            id,
+            request.user.username,
+            sentAt = Instant.now()
+          )
+          val serialised = entry.asJson.spaces2
+          val compressedEncodedEntry =
+            Base64Encoder.compressAndEncode(serialised)
+          Ok(s"newswires://$newswiresHost?data=$compressedEncodedEntry")
+        case None => NotFound
+      }
+  }
 
   def linkToComposer(id: Int): Action[AnyContent] = apiAuthAction {
     request: UserRequest[AnyContent] =>
       request.body.asJson
         .flatMap(_.asOpt[ComposerLinkRequest])
         .map(params =>
-          FingerpostWireEntry
-            .insertComposerId(id, params.composerId, params.sentBy)
+          ToolLink.insertComposerLink(
+            newswiresId = id,
+            composerId = params.composerId,
+            composerHost = composerHost,
+            sentBy = request.user.username,
+            sentAt = Instant.now()
+          )
         ) match {
         case Some(1) => Accepted
         case Some(0) =>
@@ -133,7 +165,7 @@ class QueryController(
 
 }
 
-case class ComposerLinkRequest(composerId: String, sentBy: String)
+case class ComposerLinkRequest(composerId: String)
 object ComposerLinkRequest {
   implicit val format: OFormat[ComposerLinkRequest] =
     Json.format[ComposerLinkRequest]
