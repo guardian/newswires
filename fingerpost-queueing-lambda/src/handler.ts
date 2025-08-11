@@ -9,7 +9,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 		event.Records.map(
 			async ({ messageId: sqsMessageId, messageAttributes, body }) => {
 				const logger = createLogger({ sqsMessageId });
-				logger.log({message: "Processing SQS message"});
+				logger.log({ message: 'Processing SQS message' });
 				const externalId = messageAttributes['Message-Id']?.stringValue;
 				const hasExternalId = externalId && externalId.trim().length > 0;
 				const objectKey = hasExternalId
