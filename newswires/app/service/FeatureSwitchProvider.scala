@@ -22,7 +22,7 @@ class FeatureSwitchProvider(stage: String) {
       safeState = Off,
       description = "Show suppliers from the Guardian",
       exposeToClient = true,
-      isOn = () => stage.toUpperCase() != "PROD"
+      isOn = () => false
     )
 
   private val switches = List(
