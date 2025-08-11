@@ -16,6 +16,10 @@ export function getFromEnv(key: string): string {
 	return value;
 }
 
+export function getOptionalFromEnv(key: string): string | undefined {
+	return process.env[key];
+}
+
 export const remoteAwsConfig = isRunningLocally
 	? {
 			region: 'eu-west-1',

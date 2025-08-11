@@ -1,7 +1,8 @@
 #!/bin/bash
 
 export AWS_DEFAULT_REGION=eu-west-1
+export EDGE_PORT=4566
 
 # Create our  s3 for localstack
 awslocal s3 mb s3://local-feeds-bucket || true
-awslocal --endpoint-url=http://localhost:4566 sqs create-queue --queue-name local-ingestion-queue --region eu-west-1 --attributes VisibilityTimeout=30
+awslocal --endpoint-url=http://localhost:$EDGE_PORT sqs create-queue --queue-name local-ingestion-queue --region $AWS_DEFAULT_REGION --attributes VisibilityTimeout=30

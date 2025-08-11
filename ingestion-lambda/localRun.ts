@@ -1,64 +1,52 @@
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
+import {
+	Message,
+  ReceiveMessageCommand,
+} from "@aws-sdk/client-sqs";
+import { getFromEnv } from '../shared/config';
 import { main } from './src/handler';
+import { sqs } from '../shared/sqs';
 
-const exampleDocs = [{
-	externalId: '0004793a823c2dbe9b1f07c7494d1bca_0a1aza0c0',
-	objectKey: '0004793a823c2dbe9b1f07c7494d1bca_0a1aza0c0.json',
-}, {
-	externalId: '0004793a823c2dbe9b1f07c7494d1bca_1a1aza0c0',
-	objectKey: '0004793a823c2dbe9b1f07c7494d1bca_1a1aza0c0.json',
-},
-{
-	externalId: '0004793a823c2dbe9b1f07c7494d1bca_2a1aza0c0',
-	objectKey: '0004793a823c2dbe9b1f07c7494d1bca_2a1aza0c0.json',
-},
-{
-	externalId: '0004793a823c2dbe9b1f07c7494d1bca_2a1aza0c0',
-	objectKey: '0004793a823c2dbe9b1f07c7494d1bca_2a1aza0c0.json',
-},
-{
-	externalId: '0007ba5855d65dd83ebf357b95f3185f_0a1aza0c0',
-	objectKey: '0007ba5855d65dd83ebf357b95f3185f_0a1aza0c0.json',
-},
-{
-	externalId: '000a9a3cdbc64616832787791196eeac_3a1aza0c0',
-	objectKey: '000a9a3cdbc64616832787791196eeac_3a1aza0c0.json',
-},
-{
-	externalId: '0019c974d9e01c9398cfda7ece55aa46_2a1aza0c0',
-	objectKey: '0019c974d9e01c9398cfda7ece55aa46_2a1aza0c0.json',
-}
-]
+const SQS_QUEUE_URL = getFromEnv("INGESTION_LAMBDA_QUEUE_URL");
+
+const receiveMessage = (queueUrl: string) =>
+  sqs.send(
+    new ReceiveMessageCommand({
+      AttributeNames: ["All"],
+      MaxNumberOfMessages: 10,
+      MessageAttributeNames: ["All"],
+      QueueUrl: queueUrl,
+      WaitTimeSeconds: 20,
+      VisibilityTimeout: 20,
+    }),
+  );
 
 run();
 
-function run() {
-	
-	const dummyEvent: SQSEvent = {
-		Records: exampleDocs.map((doc) => createSQSRecord(doc))
-	};
-	console.log(
-		`Invoking ingestion lambda with dummy event: ${JSON.stringify(
-			dummyEvent,
-		)}`,
-	);
-	main(dummyEvent).then(console.log).catch(console.error);
+async function run() {
+	const { Messages } = await receiveMessage(SQS_QUEUE_URL);
+
+	if (!Messages) {
+		console.log('No messages received from SQS queue. You can run the `fingerpost-queuing-lambda` app to populate this');
+		return;
+	}
+	const Records = Messages.map((message) => {
+		return createSQSRecord(message)
+	})
+	const event: SQSEvent = { Records };
+	main(event).then(console.log).catch(console.error);
+
 }
 
 
-
-function createSQSRecord(doc: {
-	externalId: string;
-	objectKey: string;
-}) : SQSRecord {
+function createSQSRecord(message: Message) : SQSRecord {
 	const randomSqsMessageId = Math.random().toString(36).substring(7);
 
 	const recordThatShouldSucceed: SQSRecord = {
-		messageId: randomSqsMessageId,
-		body: JSON.stringify(doc),
-		messageAttributes: {
-			'Message-Id': { stringValue: doc.externalId, dataType: 'String' },
-		},
+		messageId: message.MessageId || randomSqsMessageId,
+		body: message.Body || {},
+
+		messageAttributes: message.MessageAttributes || {},
 	} as unknown as SQSRecord;
 	return recordThatShouldSucceed;
 
