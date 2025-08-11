@@ -92,6 +92,10 @@ export async function putToS3({
 	}
 }
 
-export const BUCKET_NAME: string = isRunningLocally
+export const FEEDS_BUCKET_NAME: string = isRunningLocally
 	? 'local-feeds-bucket'
 	: getFromEnv('FEEDS_BUCKET_NAME');
+
+export const EMAIL_BUCKET_NAME: string = isRunningLocally
+	? 'local-email-bucket'
+	: getFromEnv('EMAIL_BUCKET_NAME');
