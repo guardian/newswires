@@ -6,7 +6,6 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
   FingerpostWire,
-  FingerpostWireSubjects,
   NextPage,
   QueryParams,
   QueryResponse,
@@ -29,7 +28,7 @@ case class FingerpostWireEntry(
     categoryCodes: List[String],
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil,
-    s3key: Option[String]
+    s3Key: Option[String]
 )
 
 object FingerpostWireEntry
@@ -67,7 +66,7 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.categoryCodes},
     |   ${FingerpostWireEntry.syn.result.content},
-    |   ${FingerpostWireEntry.syn.result.s3key}
+    |   ${FingerpostWireEntry.syn.result.s3Key}
     |""".stripMargin
 
   def fromDb(
@@ -100,7 +99,7 @@ object FingerpostWireEntry
           .filter(
             _.contains("<mark>")
           ), // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
-        s3key = rs.stringOpt(fm.s3key)
+        s3Key = rs.stringOpt(fm.s3Key)
       )
     }).left
       .map(error => {
