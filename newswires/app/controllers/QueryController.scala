@@ -63,9 +63,10 @@ class QueryController(
     val maybePreset =
       request.getQueryString("preset").flatMap(SearchPresets.get)
 
-    val suppliersToExcludeByDefault =
-      if (featureSwitchProvider.ShowGuSuppliers.isOn()) Nil
-      else List("GuReuters", "GuAP")
+    val suppliersToExcludeByDefault: List[String] = List(
+      "UNAUTHED_EMAIL_FEED"
+    ) ++ (if (featureSwitchProvider.ShowGuSuppliers.isOn()) List.empty
+          else List("GuReuters", "GuAP"))
 
     val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
 
@@ -79,7 +80,9 @@ class QueryController(
       suppliersExcl = request.queryString
         .get("supplierExcl")
         .map(_.toList)
-        .getOrElse(Nil) ++ suppliersToExcludeByDefault,
+        .getOrElse(Nil) ++ suppliersToExcludeByDefault.filterNot(
+        suppliers.contains
+      ),
       categoryCodesIncl = categoryCode,
       categoryCodesExcl = categoryCodeExcl,
       hasDataFormatting = hasDataFormatting
