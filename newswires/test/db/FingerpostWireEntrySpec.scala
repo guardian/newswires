@@ -1,6 +1,6 @@
 package db
 
-import conf.{SearchField, SearchTerm}
+import conf.{SearchField, SearchPresets, SearchTerm}
 import io.circe.parser.decode
 import helpers.SqlSnippetMatcher.matchSqlSnippet
 import helpers.models
@@ -8,6 +8,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
 import models.{MostRecent, NextPage, QueryParams, SearchParams}
+import db.FingerpostWireEntry.{buildSearchQuery, buildWhereClause}
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
@@ -319,5 +320,54 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
 
     query.statement should include("ORDER BY fm.ingested_at ASC")
+  }
+
+  ignore should "format and output the full sql query" in {
+    // This is meant as a handy way to get the full sql for a query from the Scala parameter list.
+    // The parameters are just an example, change them for whatever you want to test.
+    // Handy to get the full query with parameters inserted, so it can be pasted into a `psql` session,
+    // for example for testing changes, or inspecting the query planner with an EXPLAIN query.
+
+    val sp = SearchParams(
+      text = None
+    )
+    val queryParams = QueryParams(
+      searchParams = sp,
+      savedSearchParamList =
+        SearchPresets.get("all-world").get ++ SearchPresets.get("all-uk").get,
+      maybeSearchTerm = None,
+      maybeBeforeId = None,
+      maybeSinceId = None,
+      pageSize = 20
+    )
+
+    val whereClause = buildWhereClause(
+      queryParams.searchParams,
+      queryParams.savedSearchParamList,
+      maybeBeforeId = queryParams.maybeBeforeId,
+      maybeSinceId = queryParams.maybeSinceId.map(_.sinceId)
+    )
+
+    val query = buildSearchQuery(queryParams, whereClause)
+
+    // Replace the parameter placeholders with the corresponding values
+    // WARNING
+    // This is a textbook example of how to get hit by a SQL injection attack - this should be used
+    // for troubleshooting only, and if any part of the query comes from an untrusted source,
+    // you really need to scan the output to check that no part is attempting to perform malicious actions.
+    val fmted = query.parameters.foldLeft(
+      query.statement.replaceAll("\\?\\?", "?")
+    )((statement, param) => {
+      val matcher = "\\?(?![|?])"
+      param match {
+        case p: Int    => statement.replaceFirst(matcher, s"$p ")
+        case p: String => statement.replaceFirst(matcher, s"'$p' ")
+        case ps: List[String] =>
+          statement.replaceFirst(matcher, ps.mkString("ARRAY['", "','", "'] "))
+      }
+    })
+
+    println(s"explain analyze $fmted;")
+
   }
 }
