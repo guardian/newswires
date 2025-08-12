@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
+		"dev": "FEEDS_BUCKET_NAME=local-feeds-bucket INGESTION_LAMBDA_QUEUE_URL=http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/local-ingestion-queue tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
 		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",

@@ -7,9 +7,10 @@ import {
 	POLLER_LAMBDA_ENV_VAR_KEYS,
 	POLLERS_CONFIG,
 } from '../shared/pollers';
-import { sqs } from '../shared/sqs';
+import { fakeSQS } from '../shared/sqs';
 import { handlers } from './src/index';
 import type { HandlerInputSqsPayload } from './src/types';
+
 
 const fakeInvoke = async (
 	handler: (sqsEvent: HandlerInputSqsPayload) => Promise<void>,
@@ -103,7 +104,7 @@ const fakeInvoke = async (
 };
 
 void (async () => {
-	if (sqs instanceof SQSClient) {
+	if (fakeSQS instanceof SQSClient) {
 		throw Error(
 			'SQS appears to be using a real client - this file should be using a FAKE local SQS client',
 		);
@@ -141,7 +142,7 @@ void (async () => {
 	await fakeInvoke(
 		handler,
 		input,
-		sqs.queueData,
+		fakeSQS.queueData,
 		ownQueueUrl,
 		ingestionQueueUrl,
 	);

@@ -9,6 +9,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 		event.Records.map(
 			async ({ messageId: sqsMessageId, messageAttributes, body }) => {
 				const logger = createLogger({ sqsMessageId });
+				logger.log({ message: 'Processing SQS message' });
 				const externalId = messageAttributes['Message-Id']?.stringValue;
 				const hasExternalId = externalId && externalId.trim().length > 0;
 				const objectKey = hasExternalId
@@ -24,6 +25,13 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 					if (putToS3Result.status === 'success') {
 						return undefined; // We only return batchItemFailures for failed messages
 					}
+					logger.error({
+						message: `Failed to put object to S3 and queue ingestion for externalId "${externalId}" with sqsMessageId ${sqsMessageId}.`,
+						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_AND_QUEUE_FAILURE',
+						sqsMessageId,
+						externalId,
+						reason: putToS3Result.reason,
+					});
 				} else {
 					logger.warn({
 						message: `Message with sqsMessageId ${sqsMessageId} has no externalId. Saved to ${objectKey} but not sending to ingestion queue.`,
