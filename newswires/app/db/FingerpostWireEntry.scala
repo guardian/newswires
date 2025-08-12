@@ -53,7 +53,7 @@ object FingerpostWireEntry
       "category_codes",
       "combined_textsearch",
       "highlight",
-      "s3key"
+      "s3_key"
     )
   val syn = this.syntax("fm")
 
