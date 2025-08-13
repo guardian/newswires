@@ -6,7 +6,6 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
   FingerpostWire,
-  FingerpostWireSubjects,
   NextPage,
   QueryParams,
   QueryResponse,
@@ -28,7 +27,8 @@ case class FingerpostWireEntry(
     @deprecated composerSentBy: Option[String],
     categoryCodes: List[String],
     highlight: Option[String] = None,
-    toolLinks: List[ToolLink] = Nil
+    toolLinks: List[ToolLink] = Nil,
+    s3Key: Option[String]
 )
 
 object FingerpostWireEntry
@@ -52,7 +52,8 @@ object FingerpostWireEntry
       "composer_sent_by",
       "category_codes",
       "combined_textsearch",
-      "highlight"
+      "highlight",
+      "s3_key"
     )
   val syn = this.syntax("fm")
 
@@ -64,7 +65,8 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.composerId},
     |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.categoryCodes},
-    |   ${FingerpostWireEntry.syn.result.content}
+    |   ${FingerpostWireEntry.syn.result.content},
+    |   ${FingerpostWireEntry.syn.result.s3Key}
     |""".stripMargin
 
   def fromDb(
@@ -96,7 +98,8 @@ object FingerpostWireEntry
           .stringOpt(fm.column("highlight"))
           .filter(
             _.contains("<mark>")
-          ) // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
+          ), // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
+        s3Key = rs.stringOpt(fm.s3Key)
       )
     }).left
       .map(error => {

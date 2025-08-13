@@ -137,7 +137,8 @@ trait models {
         sentAt = Instant.ofEpochMilli(1262304001000L),
         ref = None
       )
-    )
+    ),
+    s3Key = Some("key.json")
   )
 
   val fingerpostWireEntryJson =
@@ -206,7 +207,8 @@ trait models {
       |      "sentBy" : "jane.doe",
       |      "sentAt" : "2010-01-01T00:00:01Z"
       |    }
-      |  ]
+      |  ],
+      |  "s3Key" : "key.json"
       |}""".stripMargin
 
 }
