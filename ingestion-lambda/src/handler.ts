@@ -1,17 +1,49 @@
 import type {
 	SESEvent,
+	SESEventRecord,
 	SQSBatchResponse,
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
+import { getFromEnv, isRunningLocally } from '../../shared/config';
+import { findVerificationFailures } from '../../shared/findVerificationFailures';
 import { createLogger } from '../../shared/lambda-logging';
 import { initialiseDbConnection } from '../../shared/rds';
+import { FEEDS_BUCKET_NAME } from '../../shared/s3';
 import type { BatchItemFailure, OperationResult } from '../../shared/types';
 import { putItemToDb } from './db';
 import { getItemFromS3 } from './getItemFromS3';
-import { processContent } from './processContentObject';
+import { processFingerpostJsonContent } from './processContentObject';
+import { processEmailContent } from './processEmailContent';
 
-function processMessage(
+function processSESRecord(record: SESEventRecord): OperationResult<{
+	externalId: string;
+	objectKey: string;
+}> {
+	const { ses } = record;
+
+	const { hasFailures, failedChecks } = findVerificationFailures(ses.receipt);
+
+	if (hasFailures) {
+		return {
+			status: 'failure',
+			reason: `Email verification failed: ${failedChecks
+				.map((check) => `${check.name}=${check.status}`)
+				.join(', ')}`,
+		};
+	}
+
+	const messageId = ses.mail.messageId;
+	const externalId = `EMAIL-${messageId}`;
+	const objectKey = messageId;
+	return {
+		status: 'success',
+		externalId,
+		objectKey,
+	};
+}
+
+function processSQSRecord(
 	record: SQSRecord,
 ): OperationResult<{ externalId: string; objectKey: string }> {
 	const { externalId, objectKey } = JSON.parse(record.body) as unknown as {
@@ -31,19 +63,30 @@ function processMessage(
 	};
 }
 
-function isSESEvent(event: SQSEvent | SESEvent): event is SESEvent {
-	return event.Records.some((record) => 'ses' in record);
+function processRecord(
+	record: SESEventRecord | SQSRecord,
+): OperationResult<{ externalId: string; objectKey: string }> {
+	if (isSESRecord(record)) {
+		return processSESRecord(record);
+	} else {
+		return processSQSRecord(record);
+	}
 }
+
+function isSESRecord(
+	record: SESEventRecord | SQSRecord,
+): record is SESEventRecord {
+	return 'ses' in record;
+}
+
+const EMAIL_BUCKET_NAME: string = isRunningLocally
+	? 'local-email-bucket'
+	: getFromEnv('EMAIL_BUCKET_NAME');
 
 export const main = async (
 	event: SQSEvent | SESEvent,
 ): Promise<SQSBatchResponse | void> => {
 	const logger = createLogger({});
-
-	if (isSESEvent(event)) {
-		logger.log({ message: 'received SES event', event });
-		return;
-	}
 
 	const records = event.Records;
 	const { sql, closeDbConnection } = await initialiseDbConnection();
@@ -51,25 +94,33 @@ export const main = async (
 		const results: Array<OperationResult<{ didCreateNewItem: boolean }>> =
 			await Promise.all(
 				records.map(async (record) => {
+					const isSES = isSESRecord(record);
 					const failureWith = (reason: string): BatchItemFailure => ({
 						status: 'failure',
-						sqsMessageId: record.messageId,
+						messageId: isSES ? record.ses.mail.messageId : record.messageId,
+						recordType: isSES ? 'SES' : 'SQS',
 						reason,
 					});
-					const processedMessage = processMessage(record);
+					const processedMessage = processRecord(record);
 					if (processedMessage.status === 'failure') {
 						return failureWith(processedMessage.reason);
 					}
+
 					const s3Result = await getItemFromS3({
 						objectKey: processedMessage.objectKey,
+						bucketName: isSES ? EMAIL_BUCKET_NAME : FEEDS_BUCKET_NAME,
 					});
 					if (s3Result.status === 'failure') {
 						return failureWith(s3Result.reason);
 					}
-					const contentResults = processContent(s3Result.body);
+
+					const contentResults = isSES
+						? await processEmailContent(s3Result.body)
+						: processFingerpostJsonContent(s3Result.body);
 					if (contentResults.status === 'failure') {
 						return failureWith(contentResults.reason);
 					}
+
 					const dbResult = await putItemToDb({
 						processedObject: contentResults,
 						externalId: processedMessage.externalId,
@@ -92,14 +143,14 @@ export const main = async (
 			`Processed ${records.length} messages with ${allFailures.length} failures`,
 		);
 
-		const batchItemFailures = allFailures.map(({ sqsMessageId, reason }) => {
+		const batchItemFailures = allFailures.map(({ messageId, reason }) => {
 			logger.error({
-				message: `Failed to process message for ${sqsMessageId}: ${reason}`,
+				message: `Failed to process message for ${messageId}: ${reason}`,
 				eventType: 'INGESTION_FAILURE',
-				sqsMessageId,
+				messageId,
 				reason,
 			});
-			return { itemIdentifier: sqsMessageId };
+			return { itemIdentifier: messageId };
 		});
 
 		console.log(

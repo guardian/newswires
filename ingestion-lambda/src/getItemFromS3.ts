@@ -1,13 +1,13 @@
 import { getErrorMessage } from '../../shared/getErrorMessage';
-import { BUCKET_NAME, getFromS3 } from '../../shared/s3';
+import { getFromS3 } from '../../shared/s3';
 import type { OperationResult } from '../../shared/types';
 
 export async function getItemFromS3({
 	objectKey,
-	bucketName = BUCKET_NAME,
+	bucketName,
 }: {
 	objectKey: string;
-	bucketName?: string;
+	bucketName: string;
 }): Promise<OperationResult<{ body: string }>> {
 	return getFromS3({
 		bucketName,

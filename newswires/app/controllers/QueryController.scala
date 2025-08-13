@@ -33,6 +33,21 @@ class QueryController(
   ): List[String] =
     request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
 
+  def copy(): Action[AnyContent] = {
+    query(
+      maybeFreeTextQuery = None,
+      maybeKeywords = None,
+      suppliers = List("UNAUTHED_EMAIL_FEED"),
+      categoryCode = Nil,
+      categoryCodeExcl = Nil,
+      maybeStart = None,
+      maybeEnd = None,
+      maybeBeforeId = None,
+      maybeSinceId = None,
+      hasDataFormatting = None
+    )
+  }
+
   def query(
       maybeFreeTextQuery: Option[String],
       maybeKeywords: Option[String],
@@ -48,11 +63,14 @@ class QueryController(
     val maybePreset =
       request.getQueryString("preset").flatMap(SearchPresets.get)
 
-    val suppliersToExcludeByDefault =
-      if (featureSwitchProvider.ShowGuSuppliers.isOn()) Nil
-      else List("GuReuters", "GuAP")
-
     val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
+
+    val suppliersExcl = QueryController.effectiveSuppliersToExclude(
+      suppliersExclFromRequest =
+        request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil),
+      suppliersToInclude = suppliers,
+      showGuSuppliers = featureSwitchProvider.ShowGuSuppliers.isOn()
+    )
 
     val searchParams = SearchParams(
       text = maybeSearchTerm,
@@ -61,10 +79,7 @@ class QueryController(
       keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
       keywordExcl = paramToList(request, "keywordsExcl"),
       suppliersIncl = suppliers,
-      suppliersExcl = request.queryString
-        .get("supplierExcl")
-        .map(_.toList)
-        .getOrElse(Nil) ++ suppliersToExcludeByDefault,
+      suppliersExcl = suppliersExcl,
       categoryCodesIncl = categoryCode,
       categoryCodesExcl = categoryCodeExcl,
       hasDataFormatting = hasDataFormatting
@@ -163,6 +178,22 @@ class QueryController(
       }
   }
 
+}
+
+object QueryController {
+  private[controllers] def effectiveSuppliersToExclude(
+      suppliersExclFromRequest: List[String],
+      suppliersToInclude: List[String],
+      showGuSuppliers: Boolean
+  ): List[String] = {
+    val suppliersToExcludeByDefault =
+      if (showGuSuppliers) List("UNAUTHED_EMAIL_FEED")
+      else List("GuReuters", "GuAP", "UNAUTHED_EMAIL_FEED")
+
+    suppliersExclFromRequest ++ suppliersToExcludeByDefault.filterNot(
+      suppliersToInclude.contains
+    )
+  }
 }
 
 case class ComposerLinkRequest(composerId: String)
