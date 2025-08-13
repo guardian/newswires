@@ -1512,7 +1512,8 @@ export function matchesPreset(content: ProcessedContent, preset: Record<Supplier
 export function matchesSearchCriteria(content: ProcessedContent, criteria: SearchCriteria): boolean {
     const matchesCategory = criteria.categoryCodes.length === 0 || content.categoryCodes.some(code => criteria.categoryCodes.includes(code));
     const matchesKeywords = criteria.keywords.length === 0 || content.keywords.some(keyword => criteria.keywords.includes(keyword));
-    return matchesCategory && matchesKeywords;
+    const matchesCategoryExclude = criteria.categoryCodesExclude.length === 0 || !content.categoryCodes.some(code => criteria.categoryCodesExclude.includes(code));
+    return matchesCategory && matchesKeywords && matchesCategoryExclude;
 }
 export type Supplier = 'PA' | 'MINOR_AGENCIES' | 'REUTERS' | "AP" | "AAP" | "AFP";
 

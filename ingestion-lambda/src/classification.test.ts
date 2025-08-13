@@ -9,6 +9,14 @@ describe('classification', () => {
         };
         expect(classification(content)).toEqual(['all-uk']);
     });
+    it('should correctly classify a content item that matches multiple presets', () => {
+        const content: ProcessedContent = {
+            categoryCodes: ['paCat:HHH', 'paCat:GXX'],
+            supplier: 'PA',
+            keywords: []
+        };
+        expect(classification(content)).toEqual(['all-uk', 'all-business']);
+    } )
     it('should return an empty array if no classification matches', () => {
         const content: ProcessedContent = {
             categoryCodes: ['paCat:XYZ'],
@@ -101,7 +109,7 @@ describe('matchesSearchCriteria', () => {
     });
     it('should not match content against categoryCodes when the category code is in the exclude list', () => {
         const content: ProcessedContent = {
-            categoryCodes: ['paCat:XYZ'],
+            categoryCodes: ['paCat:HHH', 'paCat:XYZ'],
             supplier: 'PA',
             keywords: []
         };
