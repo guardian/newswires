@@ -10,7 +10,7 @@ import * as rdsModule from '../../shared/rds';
 import * as s3Module from '../../shared/s3';
 import type { OperationResult } from '../../shared/types';
 import { main } from './handler';
-import { sampleMimeEmailData } from './processEmailContent.test';
+import { sampleMimeEmailData } from './sampleMimeEmailData';
 
 type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
@@ -277,7 +277,7 @@ describe('handler.main', () => {
 	it('should be able to process an SES event', async () => {
 		mockGetFromS3.mockResolvedValue({
 			status: 'success',
-			body: sampleMimeEmailData(),
+			body: sampleMimeEmailData,
 		});
 
 		const mockSql = jest.fn();
@@ -315,7 +315,7 @@ describe('handler.main', () => {
 	it('should fail if SES verification contains non-PASS values', async () => {
 		mockGetFromS3.mockResolvedValue({
 			status: 'success',
-			body: sampleMimeEmailData(),
+			body: sampleMimeEmailData,
 		});
 
 		const mockSql = jest.fn();
