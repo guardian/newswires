@@ -34,7 +34,10 @@ describe('matchesPreset', () => {
         }
         ],
         MINOR_AGENCIES: [],
-        SUPPLIER_S: []
+        REUTERS: [],
+        AP: [],
+        AAP: [],
+        AFP: []
     }
     it('should return true if the content has matches one of the search criteria', () => {
         const content: ProcessedContent = {
@@ -95,6 +98,23 @@ describe('matchesSearchCriteria', () => {
 
         const result = matchesSearchCriteria(content, criteria);
         expect(result).toBe(true);
+    });
+    it('should not match content against categoryCodes when the category code is in the exclude list', () => {
+        const content: ProcessedContent = {
+            categoryCodes: ['paCat:XYZ'],
+            supplier: 'PA',
+            keywords: []
+        };
+
+        const criteria: SearchCriteria = {
+            categoryCodes: ['paCat:HHH', 'paCat:SCN'],
+            categoryCodesExclude: ['paCat:XYZ'],
+            keywords: [],
+            keywordsExclude: []
+        };
+
+        const result = matchesSearchCriteria(content, criteria);
+        expect(result).toBe(false);
     });
     it('should not match content against categoryCodes and suppliers when category code is not present', () => {
         const content: ProcessedContent = {
