@@ -23,13 +23,18 @@ const presets: Record<string, Record<Supplier, SearchCriteria[]>> = {
     'all-uk': allUK
 }
 export function classification(content: ProcessedContent): string[] {
-   const supplier = content.supplier;
-   const searchCriteria = allUK[supplier] || [];
-   const matches = searchCriteria.reduce((bool, criteria) => matchesSearchCriteria(content, criteria) || bool, false);
-   if(matches) {
-    return ['all-uk']
-   }
-   return []
+   return Object.entries(presets).reduce<string[]>((acc, [preset, supplierToSearchCriteria]) => {
+       if(matchesPreset(content, supplierToSearchCriteria)) {
+           acc.push(preset)
+       }
+       return acc
+   }, [])
+}
+
+export function matchesPreset(content: ProcessedContent, preset: Record<Supplier, SearchCriteria[]>): boolean {
+    const supplier = content.supplier;
+    const searchCriteria = preset[supplier] || [];
+    return searchCriteria.reduce((bool, criteria) => matchesSearchCriteria(content, criteria) || bool, false);
 }
 
 export function matchesSearchCriteria(content: ProcessedContent, criteria: SearchCriteria): boolean {
@@ -37,7 +42,7 @@ export function matchesSearchCriteria(content: ProcessedContent, criteria: Searc
     const matchesKeywords = criteria.keywords.length === 0 || content.keywords.some(keyword => criteria.keywords.includes(keyword));
     return matchesCategory && matchesKeywords;
 }
-type Supplier = 'PA' | 'MINOR_AGENCIES';
+export type Supplier = 'PA' | 'MINOR_AGENCIES' | 'SUPPLIER_S';
 
 export type ProcessedContent = {
     categoryCodes: string[],

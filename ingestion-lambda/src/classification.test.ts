@@ -1,23 +1,80 @@
-import { classification, matchesSearchCriteria, ProcessedContent, SearchCriteria } from "./classification";
+import { classification, matchesPreset, matchesSearchCriteria, ProcessedContent, SearchCriteria, Supplier } from "./classification";
 
 describe('classification', () => {
-    it('should return the first matching criteria', () => {
+    it('should correctly classify a content item', () => {
         const content: ProcessedContent = {
             categoryCodes: ['paCat:HHH'],
             supplier: 'PA',
             keywords: []
         };
-        const result = classification(content);
-        expect(result).toEqual(['all-uk']);
+        expect(classification(content)).toEqual(['all-uk']);
     });
-    it('should return an empty array when no criteria match', () => {
+    it('should return an empty array if no classification matches', () => {
         const content: ProcessedContent = {
             categoryCodes: ['paCat:XYZ'],
             supplier: 'PA',
             keywords: []
         };
-        const result = classification(content);
-        expect(result).toEqual([]);
+        expect(classification(content)).toEqual([]);
+    });
+})
+describe('matchesPreset', () => {
+    const examplePreset: Record<Supplier, SearchCriteria[]> = {
+        'PA': [{
+            categoryCodes: ['paCat:HHH', 'paCat:SCN'],
+            categoryCodesExclude: [],
+            keywords: [],
+            keywordsExclude: []
+        },
+        {
+            categoryCodes: ['N2:GB'],
+            categoryCodesExclude: [],
+            keywords: [],
+            keywordsExclude: []
+        }
+        ],
+        MINOR_AGENCIES: [],
+        SUPPLIER_S: []
+    }
+    it('should return true if the content has matches one of the search criteria', () => {
+        const content: ProcessedContent = {
+            categoryCodes: ['paCat:HHH'],
+            supplier: 'PA',
+            keywords: []
+        };
+        expect(matchesPreset(content, examplePreset)).toEqual(true);
+    });
+    it('should return true if the content has matches a different search criteria', () => {
+        const content: ProcessedContent = {
+            categoryCodes: ['N2:GB'],
+            supplier: 'PA',
+            keywords: []
+        };
+        expect(matchesPreset(content, examplePreset)).toEqual(true);
+    });
+    it('should return false if the content has no matches for the search criteria', () => {
+        const content: ProcessedContent = {
+            categoryCodes: ['paCat:XYZ'],
+            supplier: 'PA',
+            keywords: []
+        };
+        expect(matchesPreset(content, examplePreset)).toEqual(false);
+    });
+    it('should return false if the content has a supplier with no search criteria', () => {
+        const content: ProcessedContent = {
+            categoryCodes: ['paCat:XYZ'],
+            supplier: 'MINOR_AGENCIES',
+            keywords: []
+        };
+        expect(matchesPreset(content, examplePreset)).toEqual(false);
+    });
+    it('should return false array when no criteria match', () => {
+        const content: ProcessedContent = {
+            categoryCodes: ['paCat:XYZ'],
+            supplier: 'PA',
+            keywords: []
+        };
+        expect(matchesPreset(content, examplePreset)).toEqual(false);
     });
 });
 
@@ -90,4 +147,5 @@ describe('matchesSearchCriteria', () => {
         const result = matchesSearchCriteria(content, criteria);
         expect(result).toBe(false);
     });
+
 });
