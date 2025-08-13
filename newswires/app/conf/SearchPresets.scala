@@ -133,7 +133,7 @@ object SearchPresets {
   )
 
   private val ReutersWorld = List(
-    SearchPreset(REUTERS, categoryCodes = CategoryCodes.World.REUTERS, categoryCodesExcl = List("MCC:SPO")),
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.World.REUTERS),
     SearchPreset(
       REUTERS,
       categoryCodes = CategoryCodes.Other.REUTERS,
