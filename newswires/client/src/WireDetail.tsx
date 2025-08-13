@@ -80,10 +80,10 @@ function TitleContentForItem({
 					gap: 0.5rem;
 				`}
 			>
+				<CopyButton id={id} headlineText={headlineText} />
 				<EuiTitle size="xs">
 					<h2>{headlineText}</h2>
 				</EuiTitle>
-				<CopyButton id={id} headlineText={headlineText} />
 			</div>
 			<h3>
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
@@ -445,20 +445,24 @@ export const WireDetail = ({
 	}, [wire]);
 
 	return (
-		<>
+		<div
+			css={css`
+				container-type: inline-size;
+			`}
+		>
 			<div
 				css={css`
 					display: flex;
+					flex-direction: column;
 					justify-content: space-between;
 					gap: ${theme.euiTheme.size.s};
+
+					@container (width >= 700px) {
+						flex-direction: row;
+					}
 				`}
 			>
-				<div
-					css={css`
-						flex-basis: fit-content;
-						flex-shrink: 1;
-					`}
-				>
+				<div>
 					<TitleContentForItem
 						id={wire.id}
 						headline={headline}
@@ -475,10 +479,8 @@ export const WireDetail = ({
 					hasShadow={false}
 					grow={false}
 					css={css`
-						height: fit-content;
-						flex-basis: 50%;
-						max-width: fit-content;
 						flex-shrink: 1;
+						align-self: flex-end;
 					`}
 				>
 					<ToolsConnection
@@ -608,6 +610,6 @@ export const WireDetail = ({
 					</EuiDescriptionList>
 				</div>
 			)}
-		</>
+		</div>
 	);
 };
