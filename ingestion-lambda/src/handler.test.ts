@@ -1,5 +1,7 @@
 import type {
 	SESEvent,
+	SESEventRecord,
+	SESReceiptStatus,
 	SQSBatchResponse,
 	SQSEvent,
 	SQSRecord,
@@ -313,25 +315,11 @@ describe('handler.main', () => {
 			closeDbConnection: jest.fn(),
 		});
 
-		const sesEvent = {
-			Records: [
-				{
-					ses: {
-						mail: { commonHeaders: { subject: 'Test' }, messageId: '123' },
-						receipt: {
-							spamVerdict: { status: 'PASS' },
-							virusVerdict: { status: 'PASS' },
-							spfVerdict: { status: 'PASS' },
-							dkimVerdict: { status: 'PASS' },
-							dmarcVerdict: { status: 'PASS' },
-						},
-					},
-					eventSource: 'aws:ses',
-				},
-			],
+		const passingSesEvent = {
+			Records: [createSesRecord('PASS')],
 		} as unknown as SESEvent;
 
-		const result = (await main(sesEvent)) as SQSBatchResponse;
+		const result = (await main(passingSesEvent)) as SQSBatchResponse;
 
 		expect(result.batchItemFailures).toHaveLength(0);
 		expect(mockInitialiseDbConnection).toHaveBeenCalled();
@@ -351,26 +339,30 @@ describe('handler.main', () => {
 			closeDbConnection: jest.fn(),
 		});
 
-		const sesEvent = {
-			Records: [
-				{
-					ses: {
-						mail: { commonHeaders: { subject: 'Test' }, messageId: '123' },
-						receipt: {
-							spamVerdict: { status: 'GRAY' },
-							virusVerdict: { status: 'PASS' },
-							spfVerdict: { status: 'PASS' },
-							dkimVerdict: { status: 'PASS' },
-							dmarcVerdict: { status: 'PASS' },
-						},
-					},
-					eventSource: 'aws:ses',
-				},
-			],
+		const failingSesEvent = {
+			Records: [createSesRecord('GRAY')],
 		} as unknown as SESEvent;
 
-		const result = (await main(sesEvent)) as SQSBatchResponse;
+		const result = (await main(failingSesEvent)) as SQSBatchResponse;
 
 		expect(result.batchItemFailures).toEqual([{ itemIdentifier: '123' }]);
 	});
 });
+
+function createSesRecord(
+	spamStatus: SESReceiptStatus['status'],
+): SESEventRecord {
+	return {
+		ses: {
+			mail: { commonHeaders: { subject: 'Test' }, messageId: '123' },
+			receipt: {
+				spamVerdict: { status: spamStatus },
+				virusVerdict: { status: 'PASS' },
+				spfVerdict: { status: 'PASS' },
+				dkimVerdict: { status: 'PASS' },
+				dmarcVerdict: { status: 'PASS' },
+			},
+		},
+		eventSource: 'aws:ses',
+	} as unknown as SESEventRecord;
+}
