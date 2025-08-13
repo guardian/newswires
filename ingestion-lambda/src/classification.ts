@@ -1439,11 +1439,27 @@ const CategoryCodes = {
             'paCat:SCR',
             'paCat:SRR',
             'paCat:SST'
-        ]
+        ],
+        AAP: sportsRelatedNewsCodes,
+        REUTERS: sportRelatedTopicCodes
     },
     OTHER:{
         REUTERS: otherTopicCodes,
         AP: ['apCat:e']
+    },
+    WORLD: {
+        REUTERS: ["REUTERS:WORLD"],
+        AFP: ["afpCat:SPO"],
+        AP: ["apCat:i", "apCat:a", "apCat:w"],
+        PA: [
+            "paCat:SRS", // General Sport News
+            "paCat:SSS", // General Sport News
+            "paCat:SSO", // Soccer News
+            "paCat:SCR", // Cricket News
+            "paCat:SRR", // Racing News
+            "paCat:SST" // Scottish sports
+        ],
+        AAP: sportsRelatedNewsCodes
     }
 }
 
@@ -1490,9 +1506,141 @@ const allBusiness: Record<string, SearchCriteria[]> = {
     keywordsExclude: []
   }]
 }
+
+// ApWorld
+const ApWorld: Record<Supplier, SearchCriteria[]> = {
+    AP: [{
+        categoryCodes: CategoryCodes.WORLD.AP,
+        categoryCodesExclude: [
+            ...CategoryCodes.SPORT.AP,
+            ...CategoryCodes.BUSINESS.AP,
+            ...CategoryCodes.OTHER.AP
+        ],
+        keywords: ["World news", "U.S. news"],
+        keywordsExclude: []
+    }],
+    PA: [],
+    MINOR_AGENCIES: [],
+    REUTERS: [],
+    AAP: [],
+    AFP: []
+};
+
+// ReutersSchedule
+const ReutersSchedule: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: ["MCC:DED"],
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        // Optional: add searchTerm property if your TS interface supports it
+        // searchTerm: { type: 'Simple', value: SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, field: SearchField.Headline }
+    }],
+    PA: [],
+    MINOR_AGENCIES: [],
+    AP: [],
+    AAP: [],
+    AFP: []
+};
+
+// ReutersWorld
+const ReutersWorld: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [
+        {
+            categoryCodes: CategoryCodes.WORLD.REUTERS,
+            categoryCodesExclude: [],
+            keywords: [],
+            keywordsExclude: []
+        },
+        {
+            categoryCodes: CategoryCodes.WORLD.REUTERS,
+            categoryCodesExclude: [
+                ...CategoryCodes.WORLD.REUTERS,
+                ...CategoryCodes.WORLD.REUTERS
+            ],
+            keywords: [],
+            keywordsExclude: []
+        },
+        {
+            categoryCodes: ["MCC:OVR", "MCC:QFE", "MCCL:OVR", "MCCL:OSM", "MCC:DED", "N2:US"],
+            categoryCodesExclude: ["MCC:SPO", "MCC:OEC", "MCCL:OEC", "N2:GB", "N2:COM", "N2:ECI"],
+            keywords: [],
+            keywordsExclude: []
+        },
+        {
+            categoryCodes: ["MCC:OEC"],
+            categoryCodesExclude: ["N2:GB", "N2:COM", "N2:ECI"],
+            keywords: [],
+            keywordsExclude: [],
+            // Optional searchTerm property:
+            // searchTerm: { type: 'Simple', value: 'News Summary', field: SearchField.Headline }
+        }
+    ],
+    PA: [],
+    MINOR_AGENCIES: [],
+    AP: [],
+    AAP: [],
+    AFP: []
+};
+
+// AapWorld
+const AapWorld: Record<Supplier, SearchCriteria[]> = {
+    AAP: [{
+        categoryCodes: [],
+        categoryCodesExclude: CategoryCodes.SPORT.AAP,
+        keywords: [],
+        keywordsExclude: ["Sports"]
+    }],
+    PA: [],
+    MINOR_AGENCIES: [],
+    REUTERS: [],
+    AP: [],
+    AFP: []
+};
+
+// AfpWorld
+const AfpWorld: Record<Supplier, SearchCriteria[]> = {
+    AFP: [{
+        categoryCodes: [],
+        categoryCodesExclude: CategoryCodes.SPORT.AFP,
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [],
+    MINOR_AGENCIES: [],
+    REUTERS: [],
+    AP: [],
+    AAP: []
+};
+
+// MinorAgenciesWorld
+const MinorAgenciesWorld: Record<Supplier, SearchCriteria[]> = {
+    MINOR_AGENCIES: [{
+        categoryCodes: [],
+        categoryCodesExclude: CategoryCodes.UK.MINOR_AGENCIES,
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [],
+    REUTERS: [],
+    AP: [],
+    AAP: [],
+    AFP: []
+};
+
+// Combine all into AllWorld
+const AllWorld: Record<Supplier, SearchCriteria[]> = {
+  ...ApWorld,
+  ...ReutersWorld,
+  ...ReutersSchedule,
+  ...AapWorld,
+  ...AfpWorld,
+  ...MinorAgenciesWorld
+};
 const presets: Record<string, Record<Supplier, SearchCriteria[]>> = {
     'all-uk': allUK,
-    'all-business': allBusiness
+    'all-business': allBusiness,
+    'all-world': AllWorld
 }
 export function classification(content: ProcessedContent): string[] {
    return Object.entries(presets).reduce<string[]>((acc, [preset, supplierToSearchCriteria]) => {
