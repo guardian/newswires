@@ -446,8 +446,14 @@ export const WireDetail = ({
 
 	return (
 		<>
-			<EuiFlexGroup direction="row" justifyContent="spaceBetween">
-				<EuiFlexItem
+			<div
+				css={css`
+					display: flex;
+					justify-content: space-between;
+					gap: ${theme.euiTheme.size.s};
+				`}
+			>
+				<div
 					css={css`
 						flex-basis: fit-content;
 						flex-shrink: 1;
@@ -462,7 +468,7 @@ export const WireDetail = ({
 						supplier={wire.supplier}
 						wordCount={wordCount}
 					/>
-				</EuiFlexItem>
+				</div>
 
 				<EuiPanel
 					hasBorder
@@ -481,7 +487,7 @@ export const WireDetail = ({
 						addToolLink={addToolLink}
 					/>
 				</EuiPanel>
-			</EuiFlexGroup>
+			</div>
 			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
