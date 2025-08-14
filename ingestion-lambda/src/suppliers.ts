@@ -1,4 +1,6 @@
-const supplierLookupMap: Record<string, string[]> = {
+import { Supplier } from "../../shared/types";
+
+const supplierLookupMap: Record<Supplier, string[]> = {
 	REUTERS: ['REUTERS'],
 	GUREUTERS: ['Reuters-Newswires'],
 	AAP: ['AAP'],
@@ -96,16 +98,17 @@ const supplierLookupMap: Record<string, string[]> = {
 		'PA ACCESS NEWSWIRE',
 	],
 	MINOR_AGENCIES: ['COMET', 'WIREFAST'],
+	Unknown: []
 };
 
 export const lookupSupplier = (
 	supplier: string | undefined,
-): string | undefined => {
+): Supplier | undefined => {
 	if (!supplier) {
 		return undefined;
 	}
 
-	return Object.keys(supplierLookupMap).find((key) =>
+	return Object.keys(supplierLookupMap).find((key)  =>
 		supplierLookupMap[key]?.includes(supplier),
-	);
+	) as Supplier | undefined;
 };

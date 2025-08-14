@@ -86,9 +86,10 @@ export type ProcessedMessageData = {
 
 export type ProcessedObject = {
 	content: IngestorInputBody;
-	supplier: string;
+	supplier: Supplier;
 	categoryCodes: string[];
 };
+export type Supplier = 'PA' | 'MINOR_AGENCIES' | 'REUTERS' | "AP" | "AAP" | "AFP" | "GUREUTERS" | "GUAP" | "Unknown";
 
 export type OperationFailure = {
 	status: 'failure';

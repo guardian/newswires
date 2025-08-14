@@ -1,4 +1,12 @@
+import { ProcessedObject, Supplier } from "../../shared/types";
 
+            // searchTerm: { type: 'Simple', value: 'News Summary', field: SearchField.Headline }
+type Field = 'Headline' | 'Body' | 'Summary';
+type SearchTerm = {
+    type: string,
+    value: string,
+    field: Field
+};
 const businessRelatedNewsCodes = [
     "subj:04004002",
     "subj:04004003",
@@ -1464,18 +1472,25 @@ const CategoryCodes = {
 }
 
 const allUK: Record<Supplier, SearchCriteria[]> = {
-    'PA' :[{
-            categoryCodes: CategoryCodes.UK.PA,
-            categoryCodesExclude: [],
-            keywords: [],
-            keywordsExclude: []
-        }],
+    'PA': [{
+        categoryCodes: CategoryCodes.UK.PA,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
     'MINOR_AGENCIES': [{
-            categoryCodes: CategoryCodes.UK.MINOR_AGENCIES,
-            categoryCodesExclude: [],
-            keywords: [],
-            keywordsExclude: []
-        }],
+        categoryCodes: CategoryCodes.UK.MINOR_AGENCIES,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    REUTERS: [],
+    AP: [],
+    AAP: [],
+    AFP: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
 }
 const allBusiness: Record<string, SearchCriteria[]> = {
   PA: [{
@@ -1523,7 +1538,10 @@ const ApWorld: Record<Supplier, SearchCriteria[]> = {
     MINOR_AGENCIES: [],
     REUTERS: [],
     AAP: [],
-    AFP: []
+    AFP: [],
+    Unknown: [],
+    GUREUTERS: [],
+    GUAP: []
 };
 
 // ReutersSchedule
@@ -1540,7 +1558,10 @@ const ReutersSchedule: Record<Supplier, SearchCriteria[]> = {
     MINOR_AGENCIES: [],
     AP: [],
     AAP: [],
-    AFP: []
+    AFP: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
 };
 
 // ReutersWorld
@@ -1572,15 +1593,17 @@ const ReutersWorld: Record<Supplier, SearchCriteria[]> = {
             categoryCodesExclude: ["N2:GB", "N2:COM", "N2:ECI"],
             keywords: [],
             keywordsExclude: [],
-            // Optional searchTerm property:
-            // searchTerm: { type: 'Simple', value: 'News Summary', field: SearchField.Headline }
+            searchTerm: { type: 'Simple', value: 'News Summary', field: 'Headline' }
         }
     ],
     PA: [],
     MINOR_AGENCIES: [],
     AP: [],
     AAP: [],
-    AFP: []
+    AFP: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
 };
 
 // AapWorld
@@ -1595,7 +1618,10 @@ const AapWorld: Record<Supplier, SearchCriteria[]> = {
     MINOR_AGENCIES: [],
     REUTERS: [],
     AP: [],
-    AFP: []
+    AFP: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
 };
 
 // AfpWorld
@@ -1610,7 +1636,10 @@ const AfpWorld: Record<Supplier, SearchCriteria[]> = {
     MINOR_AGENCIES: [],
     REUTERS: [],
     AP: [],
-    AAP: []
+    AAP: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
 };
 
 // MinorAgenciesWorld
@@ -1625,7 +1654,10 @@ const MinorAgenciesWorld: Record<Supplier, SearchCriteria[]> = {
     REUTERS: [],
     AP: [],
     AAP: [],
-    AFP: []
+    AFP: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
 };
 
 // Combine all into AllWorld
@@ -1642,28 +1674,28 @@ const presets: Record<string, Record<Supplier, SearchCriteria[]>> = {
     'all-business': allBusiness,
     'all-world': AllWorld
 }
-export function classification(content: ProcessedContent): string[] {
+export function classification(processedObject: ProcessedObject): string[] {
    return Object.entries(presets).reduce<string[]>((acc, [preset, supplierToSearchCriteria]) => {
-       if(matchesPreset(content, supplierToSearchCriteria)) {
+       if(matchesPreset(processedObject, supplierToSearchCriteria)) {
            acc.push(preset)
        }
        return acc
    }, [])
 }
 
-export function matchesPreset(content: ProcessedContent, preset: Record<Supplier, SearchCriteria[]>): boolean {
-    const supplier = content.supplier;
+export function matchesPreset(processedObject: ProcessedObject, preset: Record<Supplier, SearchCriteria[]>): boolean {
+    const supplier = processedObject.supplier;
     const searchCriteria = preset[supplier] || [];
-    return searchCriteria.reduce((bool, criteria) => matchesSearchCriteria(content, criteria) || bool, false);
+    return searchCriteria.reduce((bool, criteria) => matchesSearchCriteria(processedObject, criteria) || bool, false);
 }
 
-export function matchesSearchCriteria(content: ProcessedContent, criteria: SearchCriteria): boolean {
-    const matchesCategory = criteria.categoryCodes.length === 0 || content.categoryCodes.some(code => criteria.categoryCodes.includes(code));
+export function matchesSearchCriteria(processedObject: ProcessedObject, criteria: SearchCriteria): boolean {
+    const {content, categoryCodes} = processedObject;
+    const matchesCategory = criteria.categoryCodes.length === 0 || categoryCodes.some(code => criteria.categoryCodes.includes(code));
     const matchesKeywords = criteria.keywords.length === 0 || content.keywords.some(keyword => criteria.keywords.includes(keyword));
-    const matchesCategoryExclude = criteria.categoryCodesExclude.length === 0 || !content.categoryCodes.some(code => criteria.categoryCodesExclude.includes(code));
+    const matchesCategoryExclude = criteria.categoryCodesExclude.length === 0 || !categoryCodes.some(code => criteria.categoryCodesExclude.includes(code));
     return matchesCategory && matchesKeywords && matchesCategoryExclude;
 }
-export type Supplier = 'PA' | 'MINOR_AGENCIES' | 'REUTERS' | "AP" | "AAP" | "AFP";
 
 export type ProcessedContent = {
     categoryCodes: string[],
@@ -1675,6 +1707,7 @@ export type SearchCriteria = {
   categoryCodesExclude: string[];
   keywords: string[];
   keywordsExclude: string[];
+  searchTerm?: SearchTerm
 }
 
 
