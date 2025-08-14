@@ -1426,6 +1426,8 @@ const otherTopicCodes = [
     "N2:SPEX"
 ]
 
+
+
 const CategoryCodes = {
     UK: {
         PA: ['paCat:HHH', 'paCat:SCN', 'paCat:IFN', 'paCat:QFF', 'paCat:PPP'],
@@ -1468,8 +1470,58 @@ const CategoryCodes = {
             "paCat:SST" // Scottish sports
         ],
         AAP: sportsRelatedNewsCodes
+    },
+    SOCCER: {
+        REUTERS: ["N2:SOCC"],
+        PA: ["paCat:SSO"],
+        AAP: ["subj:15054000"]
+    },
+    CRICKET: {
+        REUTERS: ["N2:CRIC"],
+        PA: ["paCat:SCR"],
+        AAP: ["subj:15017000"]
+    },
+    RUGBY_UNION: {
+        REUTERS: ["N2:RUGU"],
+        AAP: ["subj:15049000"]
+    },
+    TENNIS: {
+        REUTERS: ["N2:TENN"],
+        AAP: ["subj:15065000"]
+    },
+    CYCLING: {
+        REUTERS: ["N2:CYCL"],
+        AAP: ["subj:15019000"]
+    },
+    F1: {
+        REUTERS: ["N2:FO1"],
+        AAP: ["subj:15046001"]
+    },
+    GOLF: {
+        REUTERS: ["N2:GOLF"],
+        AAP: ["subj:15027000"]
+    },
+    BOXING: {
+        REUTERS: ["N2:BOXI"],
+        AAP: ["subj:15014000"]
+    },
+    RUGBY_LEAGUE: {
+        REUTERS: ["N2:RUGL"],
+        AAP: ["subj:15048000"]
+    },
+    RACING: {
+        REUTERS: ["N2:HORS"],
+        PA: ["paCat:SRR"],
+        AAP: ["subj:15030000"]
+    },
+    ATHLETICS: {
+        REUTERS: ["N2:ATHL"],
+        AAP: ["subj:15005000"]
+    },
+    OLYMPICS: {
+        AAP: ["subj:15073001", "subj:15073002"]
     }
-}
+};
 
 const allUK: Record<Supplier, SearchCriteria[]> = {
     'PA': [{
@@ -1668,10 +1720,376 @@ const AllWorld: Record<Supplier, SearchCriteria[]> = {
   ...AfpWorld,
   ...MinorAgenciesWorld
 };
+const allSport: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.SPORT.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: CategoryCodes.SPORT.PA,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.SPORT.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+const Soccer: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.SOCCER.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: CategoryCodes.SOCCER.PA,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "soccer", field: 'Body' }
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.SOCCER.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "soccer", field: 'Body' }
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+
+const Cricket: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.CRICKET.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: CategoryCodes.CRICKET.PA,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "cricket", field: 'Body' }
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.CRICKET.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "cricket", field: 'Body' }
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+
+const RugbyLeague: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.RUGBY_LEAGUE.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: ["paCat:SRS", "paCat:SSS"],
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "\"rugby league\"", field: 'Body' }
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "\"rugby league\"", field: 'Body' }
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.RUGBY_LEAGUE.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "Rugby", field: 'Body' }
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+
+const RugbyUnion: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.RUGBY_UNION.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: ["paCat:SRS", "paCat:SSS"],
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "\"rugby union\"", field: 'Body' }
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "\"rugby union\"", field: 'Body' }
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.RUGBY_UNION.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "Rugby", field: 'Body' }
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+
+const Tennis: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.TENNIS.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: ["paCat:SRS", "paCat:SSS"],
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "tennis", field: 'Body' }
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "tennis", field: 'Body' }
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.TENNIS.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "tennis", field: 'Body' }
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+
+const Cycling: Record<Supplier, SearchCriteria[]> = {
+  REUTERS: [{
+    categoryCodes: CategoryCodes.CYCLING.REUTERS,
+    categoryCodesExclude: [],
+    keywords: [],
+    keywordsExclude: []
+  }],
+  PA: [{
+    categoryCodes: ["paCat:SRS", "paCat:SSS"],
+    categoryCodesExclude: [],
+    keywords: [],
+    keywordsExclude: [],
+    searchTerm: { type: 'Simple', value: "cycling", field: 'Body' }
+  }],
+  AFP: [{
+    categoryCodes: CategoryCodes.SPORT.AFP,
+    categoryCodesExclude: [],
+    keywords: [],
+    keywordsExclude: [],
+    searchTerm: { type: 'Simple', value: "cycling", field: 'Body' }
+  }],
+  AAP: [{
+    categoryCodes: CategoryCodes.CYCLING.AAP,
+    categoryCodesExclude: [],
+    keywords: [],
+    keywordsExclude: []
+  }],
+  AP: [{
+    categoryCodes: CategoryCodes.SPORT.AP,
+    categoryCodesExclude: [],
+    keywords: [],
+    keywordsExclude: [],
+    searchTerm: { type: 'Simple', value: "cycling", field: 'Body' }
+  }]
+};
+
+const F1: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.F1.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: ["paCat:SRS", "paCat:SSS"],
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "\"formula one\"", field: 'Body' }
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "\"formula one\"", field: 'Body' }
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.F1.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "Formula One racing", field: 'Body' }
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+
+const Golf: Record<Supplier, SearchCriteria[]> = {
+    REUTERS: [{
+        categoryCodes: CategoryCodes.GOLF.REUTERS,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    PA: [{
+        categoryCodes: ["paCat:SRS", "paCat:SSS"],
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "golf", field: 'Body' }
+    }],
+    AFP: [{
+        categoryCodes: CategoryCodes.SPORT.AFP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "golf", field: 'Body' }
+    }],
+    AAP: [{
+        categoryCodes: CategoryCodes.GOLF.AAP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: []
+    }],
+    AP: [{
+        categoryCodes: CategoryCodes.SPORT.AP,
+        categoryCodesExclude: [],
+        keywords: [],
+        keywordsExclude: [],
+        searchTerm: { type: 'Simple', value: "Golf", field: 'Body' }
+    }],
+    MINOR_AGENCIES: [],
+    GUREUTERS: [],
+    GUAP: [],
+    Unknown: []
+};
+
 const presets: Record<string, Record<Supplier, SearchCriteria[]>> = {
     'all-uk': allUK,
     'all-business': allBusiness,
-    'all-world': AllWorld
+    'all-world': AllWorld,
+    'reuters-world': ReutersWorld,
+    'reuters-schedule': ReutersSchedule,
+    'ap-world': ApWorld,
+    'aap-world': AapWorld,
+    'afp-world': AfpWorld,
+    'minor-agencies-world': MinorAgenciesWorld,
+    'all-sport': allSport,
+    'soccer': Soccer,
+    'cricket': Cricket,
+    'rugby-league': RugbyLeague,
+    'rugby-union': RugbyUnion,
+    'tennis': Tennis,
+    'cycling': Cycling,
+    'f1': F1,
+    'golf': Golf,
+
 }
 export function classification(processedObject: ProcessedObject): string[] {
    return Object.entries(presets).reduce<string[]>((acc, [preset, supplierToSearchCriteria]) => {
