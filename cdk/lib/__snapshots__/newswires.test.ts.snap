@@ -621,7 +621,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "FailedIngestionAlarm4092BF58": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [

@@ -1090,7 +1090,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     },
     "FailedIngestionAlarm4092BF58": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
