@@ -1,7 +1,10 @@
 import type { Alarms } from '@guardian/cdk';
 import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
-import type { NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
+import {
+	GuAlarm,
+	type NoMonitoring,
+} from '@guardian/cdk/lib/constructs/cloudwatch';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import {
 	GuParameter,
@@ -25,6 +28,11 @@ import {
 } from 'aws-cdk-lib/aws-cloudfront';
 import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
+	ComparisonOperator,
+	Stats,
+	TreatMissingData,
+} from 'aws-cdk-lib/aws-cloudwatch';
+import {
 	InstanceClass,
 	InstanceSize,
 	InstanceType,
@@ -44,7 +52,10 @@ import { ReceiptRuleSet } from 'aws-cdk-lib/aws-ses';
 import { Lambda, LambdaInvocationType } from 'aws-cdk-lib/aws-ses-actions';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
-import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
+import {
+	FAILED_INGESTION_EVENT_TYPE,
+	SUCCESSFUL_INGESTION_EVENT_TYPE,
+} from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
@@ -245,21 +256,48 @@ export class Newswires extends GuStack {
 		feedsBucket.grantReadWrite(ingestionLambda);
 		database.grantConnect(ingestionLambda);
 
-		new MetricFilter(this, 'IngestionSourceFeeds', {
-			logGroup: LogGroup.fromLogGroupName(
-				this,
-				'IngestionLogGroup',
-				`/aws/lambda/${ingestionLambda.functionName}`,
-			),
-			metricNamespace: `${stageStackApp}-ingestion-lambda`,
-			metricName: 'IngestionSourceFeeds',
-			metricValue: '1',
-			filterPattern: aws_logs.FilterPattern.stringValue(
-				'$.eventType',
-				'=',
-				SUCCESSFUL_INGESTION_EVENT_TYPE,
-			),
-			dimensions: { supplier: '$.supplier' },
+		const alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
+
+		const ingestionLogGroup = LogGroup.fromLogGroupName(
+			this,
+			'IngestionLogGroup',
+			`/aws/lambda/${ingestionLambda.functionName}`,
+		);
+
+		const ingestionEventMetricFilter = (eventType: string) =>
+			new MetricFilter(this, `IngestionSourceFeedsFilter-${eventType}`, {
+				logGroup: ingestionLogGroup,
+				metricNamespace: `${stageStackApp}-ingestion-lambda`,
+				metricName: `IngestionSourceFeeds-${eventType.toLowerCase()}`,
+				metricValue: '1',
+				filterPattern: aws_logs.FilterPattern.stringValue(
+					'$.eventType',
+					'=',
+					eventType,
+				),
+				dimensions: { supplier: '$.supplier' },
+			});
+
+		ingestionEventMetricFilter(SUCCESSFUL_INGESTION_EVENT_TYPE);
+		const failedIngestionMetricFilter = ingestionEventMetricFilter(
+			FAILED_INGESTION_EVENT_TYPE,
+		);
+
+		new GuAlarm(this, 'FailedIngestionAlarm', {
+			actionsEnabled: this.stage === 'PROD',
+			okAction: true,
+			alarmName: `Ingestion failed on Newswires ${this.stage}`,
+			alarmDescription: `Stories have failed to ingest into Newswires. We should investigate why and remediate`,
+			app: appName,
+			comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+			treatMissingData: TreatMissingData.NOT_BREACHING,
+			metric: failedIngestionMetricFilter.metric({
+				period: Duration.minutes(1),
+				statistic: Stats.SUM,
+			}),
+			snsTopicName: alarmSnsTopic.topicName,
+			threshold: 1,
+			evaluationPeriods: 1,
 		});
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
@@ -312,8 +350,6 @@ export class Newswires extends GuStack {
 			default: `/${stageStackApp}/permissions-bucket`,
 			type: 'String',
 		});
-
-		const alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
 
 		const scaling = {
 			minimumInstances: 1,

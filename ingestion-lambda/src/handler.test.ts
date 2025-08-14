@@ -1,6 +1,7 @@
 import type { SESEvent, SQSEvent, SQSRecord } from 'aws-lambda';
 import type postgres from 'postgres';
 import type { Row, RowList } from 'postgres';
+import * as loggingModule from '../../shared/lambda-logging';
 import * as rdsModule from '../../shared/rds';
 import * as s3Module from '../../shared/s3';
 import type { OperationResult } from '../../shared/types';
@@ -18,6 +19,19 @@ jest.mock('../../shared/s3', () => ({
 jest.mock('../../shared/rds', () => ({
 	initialiseDbConnection: jest.fn(),
 }));
+// and even the lambda-logging module
+jest.mock('../../shared/lambda-logging', () => {
+	const logs = {
+		log: jest.fn(),
+		debug: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+	};
+
+	return {
+		createLogger: () => logs,
+	};
+});
 
 const mockGetFromS3 = s3Module.getFromS3 as jest.MockedFunction<
 	typeof s3Module.getFromS3
@@ -26,6 +40,7 @@ const mockInitialiseDbConnection =
 	rdsModule.initialiseDbConnection as jest.MockedFunction<
 		typeof rdsModule.initialiseDbConnection
 	>;
+const mockCreateLogger = loggingModule.createLogger;
 
 const validJsonFromSuccessfulS3: OperationResult<{ body: string }> = {
 	status: 'success',
@@ -88,6 +103,7 @@ describe('handler.main', () => {
 
 		expect(result).toBeDefined();
 		expect(result?.batchItemFailures.length).toBe(0);
+		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(0);
 	});
 
 	it('should handle mixed success and failure scenarios', async () => {
@@ -127,6 +143,15 @@ describe('handler.main', () => {
 		expect(result?.batchItemFailures[0]?.itemIdentifier).toBe(
 			'FAILING_RECORD_ID',
 		);
+		// assert logline for ingestion failure metrics
+		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
+		expect(
+			(
+				mockCreateLogger({}).error as jest.MockedFn<
+					loggingModule.Logger['error']
+				>
+			).mock.calls[0]?.[0].eventType,
+		).toBe('INGESTION_FAILURE');
 
 		// Verify S3 was only called once (for the valid record)
 		expect(mockGetFromS3).toHaveBeenCalledTimes(1);
