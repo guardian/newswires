@@ -1551,8 +1551,7 @@ const ReutersSchedule: Record<Supplier, SearchCriteria[]> = {
         categoryCodesExclude: [],
         keywords: [],
         keywordsExclude: [],
-        // Optional: add searchTerm property if your TS interface supports it
-        // searchTerm: { type: 'Simple', value: SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, field: SearchField.Headline }
+        searchTerm: { type: 'Simple', value: "\"REUTERS NEWS SCHEDULE\"", field: 'Headline' }
     }],
     PA: [],
     MINOR_AGENCIES: [],
@@ -1688,14 +1687,27 @@ export function matchesPreset(processedObject: ProcessedObject, preset: Record<S
     const searchCriteria = preset[supplier] || [];
     return searchCriteria.reduce((bool, criteria) => matchesSearchCriteria(processedObject, criteria) || bool, false);
 }
-
+const seearchTerm = (processedObject: ProcessedObject, searchTerm: SearchTerm): boolean => {
+    const { content } = processedObject;
+    switch (searchTerm.field) {
+        case 'Headline':
+            return content.headline ? content.headline.includes(searchTerm.value): false
+        case 'Body':
+            return content.body_text ? content.body_text.includes(searchTerm.value): false
+        default:
+            return false;
+    }
+};
 export function matchesSearchCriteria(processedObject: ProcessedObject, criteria: SearchCriteria): boolean {
     const {content, categoryCodes} = processedObject;
     const matchesCategory = criteria.categoryCodes.length === 0 || categoryCodes.some(code => criteria.categoryCodes.includes(code));
     const matchesKeywords = criteria.keywords.length === 0 || content.keywords.some(keyword => criteria.keywords.includes(keyword));
     const matchesCategoryExclude = criteria.categoryCodesExclude.length === 0 || !categoryCodes.some(code => criteria.categoryCodesExclude.includes(code));
-    return matchesCategory && matchesKeywords && matchesCategoryExclude;
+    const matchesSearchTerm = criteria.searchTerm ? seearchTerm(processedObject, criteria.searchTerm) : true;
+    return matchesCategory && matchesKeywords && matchesCategoryExclude && matchesSearchTerm;
 }
+
+
 
 export type ProcessedContent = {
     categoryCodes: string[],

@@ -187,6 +187,51 @@ describe('matchesSearchCriteria', () => {
         const result = matchesSearchCriteria(content, criteria);
         expect(result).toBe(false);
     });
+    it('should match content when a search term is present', () => {
+        const content: ProcessedObject = {
+            ...emptyObject,
+            categoryCodes: [],
+            content: {
+                ...emptyObject.content,
+                headline: 'This is a News Summary'
+            }
+        };
+
+        const criteria: SearchCriteria = {
+            categoryCodes: [],
+            categoryCodesExclude: [],
+            keywords: [],
+            keywordsExclude: [],
+            searchTerm:  { type: 'Simple', value: 'News Summary', field: 'Headline' }
+            
+        };
+
+        const result = matchesSearchCriteria(content, criteria);
+        expect(result).toBe(true);
+    });
+
+    it('should not match content when a search term is present and the headline does not match', () => {
+        const content: ProcessedObject = {
+            ...emptyObject,
+            categoryCodes: [],
+            content: {
+                ...emptyObject.content,
+                headline: 'This is a different headline'
+            }
+        };
+
+        const criteria: SearchCriteria = {
+            categoryCodes: [],
+            categoryCodesExclude: [],
+            keywords: [],
+            keywordsExclude: [],
+            searchTerm:  { type: 'Simple', value: 'News Summary', field: 'Headline' }
+            
+        };
+
+        const result = matchesSearchCriteria(content, criteria);
+        expect(result).toBe(false);
+    });
 
 });
 
