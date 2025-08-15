@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { z } from 'zod/v4';
 import { getErrorMessage } from '../../../../shared/getErrorMessage.ts';
-import type { Config, Query } from '../sharedTypes.ts';
+import type { Config, Query, SupplierName } from '../sharedTypes.ts';
 import {
 	ConfigSchema,
 	QuerySchema,
@@ -128,8 +128,8 @@ export type SearchContextShape = {
 	toggleAutoUpdate: () => void;
 	openTicker: (query: Query) => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
-	activeSuppliers: string[];
-	toggleSupplier: (supplier: string) => void;
+	activeSuppliers: SupplierName[];
+	toggleSupplier: (supplier: SupplierName) => void;
 	sideNavIsOpen: boolean;
 	setSideNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -459,7 +459,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	);
 
 	const toggleSupplier = useCallback(
-		(supplier: string) => {
+		(supplier: SupplierName) => {
 			// If 'activeSuppliers' is empty, that means that *all* suppliers are active.
 			if (activeSuppliers.length === 0) {
 				handleEnterQuery({
