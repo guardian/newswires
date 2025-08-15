@@ -38,15 +38,6 @@ export type SearchHistory = z.infer<typeof SearchHistorySchema>;
 // State Schema
 const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
-		status: z.literal('initialised'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-	}),
-	z.object({
 		status: z.literal('loading'),
 		error: z.string().optional(),
 		queryData: WiresQueryDataSchema.optional(),
@@ -289,24 +280,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			dispatch({
 				type: 'ENTER_QUERY',
 			});
-			if (currentConfig.view === 'item') {
-				pushConfigState({
-					...currentConfig,
-					query,
-				});
-			} else if (currentConfig.view === 'feed') {
-				pushConfigState({
-					...currentConfig,
-					view: 'feed',
-					query,
-				});
-			} else {
-				pushConfigState({
-					...currentConfig,
-					view: 'home',
-					query,
-				});
-			}
+			pushConfigState({
+				...currentConfig,
+				query,
+			});
 		},
 		[currentConfig, pushConfigState, sendTelemetryEvent],
 	);

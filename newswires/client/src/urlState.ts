@@ -22,7 +22,7 @@ export const defaultQuery: Query = {
 };
 
 export const defaultConfig: Config = Object.freeze({
-	view: 'home',
+	view: 'feed',
 	query: defaultQuery,
 	itemId: undefined,
 	ticker: false,

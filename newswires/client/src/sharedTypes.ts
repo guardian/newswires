@@ -135,12 +135,6 @@ export type Query = z.infer<typeof QuerySchema>;
 
 export const ConfigSchema = z.discriminatedUnion('view', [
 	z.object({
-		view: z.literal('home'),
-		query: QuerySchema,
-		itemId: z.undefined(),
-		ticker: z.boolean().default(false),
-	}),
-	z.object({
 		view: z.literal('feed'),
 		query: QuerySchema,
 		itemId: z.undefined(),
