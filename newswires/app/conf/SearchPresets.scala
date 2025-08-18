@@ -218,6 +218,15 @@ object SearchPresets {
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.SOCCER))
   )
 
+  private val NoSoccer = List(
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS.filterNot(CategoryCodes.Soccer.REUTERS.contains)),
+    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains)),
+    SearchPreset.fromText(AFP, SimpleSearchQueries.NOSOCCER, CategoryCodes.Sport.AFP),
+    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP.filterNot(CategoryCodes.Soccer.AAP.contains)),
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.NOSOCCER))
+  )
+
+
   private val Cricket = List(
     SearchPreset(REUTERS, CategoryCodes.Cricket.REUTERS),
     SearchPreset(PA, CategoryCodes.Cricket.PA),
@@ -306,15 +315,4 @@ object SearchPresets {
     SearchPreset.fromText(AP, text = SimpleSearchQueries.OLYMPICS, CategoryCodes.Sport.AP)
   )
 
-  private val NoSoccer = Cricket :::
-    RugbyLeague :::
-    RugbyUnion :::
-    Tennis :::
-    Cycling :::
-    F1 :::
-    Golf :::
-    Boxing :::
-    Racing :::
-    Athletics :::
-    Olympics
 }
