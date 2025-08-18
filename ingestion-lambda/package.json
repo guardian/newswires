@@ -4,6 +4,7 @@
 	"description": "",
 	"scripts": {
 		"dev": "INGESTION_LAMBDA_QUEUE_URL=http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/local-ingestion-queue tsx watch localRun.ts",
+		"classification": "tsx watch classification.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects ingestion-lambda",
@@ -11,6 +12,8 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
+		"@aws-sdk/client-ssm": "^3.864.0",
+		"@aws-sdk/credential-providers": "^3.864.0",
 		"@aws-sdk/rds-signer": "3.848.0",
 		"compromise": "^14.14.4",
 		"postgres": "3.4.7"

@@ -2092,12 +2092,16 @@ const presets: Record<string, Record<Supplier, SearchCriteria[]>> = {
 
 }
 export function classification(processedObject: ProcessedObject): string[] {
-   return Object.entries(presets).reduce<string[]>((acc, [preset, supplierToSearchCriteria]) => {
-       if(matchesPreset(processedObject, supplierToSearchCriteria)) {
-           acc.push(preset)
-       }
-       return acc
+    const start = performance.now();
+    const classifications = Object.entries(presets).reduce<string[]>((acc, [preset, supplierToSearchCriteria]) => {
+        if(matchesPreset(processedObject, supplierToSearchCriteria)) {
+            acc.push(preset)
+        }
+        return acc
    }, [])
+   const end = performance.now();
+   console.log(`Classification took ${end - start}ms`);
+   return classifications
 }
 
 export function matchesPreset(processedObject: ProcessedObject, preset: Record<Supplier, SearchCriteria[]>): boolean {

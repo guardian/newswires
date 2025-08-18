@@ -6,6 +6,7 @@ import {
 import { getErrorMessage } from '../../shared/getErrorMessage';
 import type { Logger } from '../../shared/lambda-logging';
 import type { OperationResult, ProcessedObject } from '../../shared/types';
+import { classification } from './classification';
 
 export async function putItemToDb({
 	processedObject,
