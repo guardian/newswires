@@ -226,7 +226,6 @@ object SearchPresets {
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.NOSOCCER))
   )
 
-
   private val Cricket = List(
     SearchPreset(REUTERS, CategoryCodes.Cricket.REUTERS),
     SearchPreset(PA, CategoryCodes.Cricket.PA),
