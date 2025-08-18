@@ -6,7 +6,6 @@ import {
 import { getErrorMessage } from '../../shared/getErrorMessage';
 import type { Logger } from '../../shared/lambda-logging';
 import type { OperationResult, ProcessedObject } from '../../shared/types';
-import { classification } from './classification';
 
 export async function putItemToDb({
 	processedObject,
@@ -23,12 +22,14 @@ export async function putItemToDb({
 }): Promise<OperationResult<{ didCreateNewItem: boolean }>> {
 	const { content, supplier, categoryCodes } = processedObject;
 	try {
+		console.log(`INSERTING INTO DATABASE TABLE: ${externalId}, ${s3Key}, ${JSON.stringify(content)}, ${supplier}, ${categoryCodes}`);
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
 			(external_id, supplier, content, category_codes, s3_key)
 		VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}) ON CONFLICT (external_id) DO NOTHING
 		RETURNING id`;
-
+		console.log("INSERT RESULT:");
+		console.log(result);
 		if (result.length === 0) {
 			logger.warn({
 				message: `A record with the provided external_id (messageId: ${externalId}) already exists. No new data was inserted to prevent duplication.`,
@@ -43,6 +44,7 @@ export async function putItemToDb({
 				supplier,
 			});
 		}
+		console.log(`Inserted item with externalId ${externalId} into the database.`);
 		return {
 			status: 'success',
 			didCreateNewItem: result.length > 0,

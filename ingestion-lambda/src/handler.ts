@@ -74,6 +74,7 @@ export const main = async (
 						processedObject: contentResults,
 						externalId: processedMessage.externalId,
 						s3Key: processedMessage.objectKey,
+						classifications: [],
 						sql,
 						logger,
 					});
