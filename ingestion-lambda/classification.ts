@@ -1,22 +1,13 @@
 import { DATABASE_TABLE_NAME } from "../shared/constants";
 import { initialiseDbConnection } from "../shared/rds";
-import { fromIni } from "@aws-sdk/credential-providers";
-import { SSMClient } from "@aws-sdk/client-ssm";
 // Set your region (replace with actual value or import from config)
-const v2Region: string = "us-west-2"; // Example region
 
-// Load credentials from a specific profile
-const awsV2Credentials = fromIni({ profile: "profile" });
 
-// Create SSM client
-const ssmClient = new SSMClient({
-  region: v2Region,
-  credentials: awsV2Credentials,
-});
+
 
 
 const run = async () => {
-    const { sql, closeDbConnection } = await initialiseDbConnection();
+    const { sql, closeDbConnection } = await initialiseDbConnection(true);
     try {
         console.log("Retrieving classifications from the database...");
         const result = await sql`
@@ -31,5 +22,4 @@ const run = async () => {
     }
 };
 
-run();
-
+run()
