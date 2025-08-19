@@ -493,6 +493,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuLambdaFunction",
       "GuLambdaFunction",
       "GuStringParameter",
+      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -1086,6 +1087,84 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "FailedIngestionAlarm4092BF58": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "Stories have failed to ingest into Newswires. We should investigate why and remediate",
+        "AlarmName": "Ingestion failed on Newswires TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_failure",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 60,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "FingerpostQueueingLambdaTEST60860D74": {
       "DependsOn": [
@@ -2056,7 +2135,37 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
-    "IngestionSourceFeeds54B3095A": {
+    "IngestionSourceFeedsFilterINGESTIONFAILUREF1DA2E73": {
+      "Properties": {
+        "FilterPattern": "{ $.eventType = "INGESTION_FAILURE" }",
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "IngestionLambdaTESTC02B3E43",
+              },
+            ],
+          ],
+        },
+        "MetricTransformations": [
+          {
+            "Dimensions": [
+              {
+                "Key": "supplier",
+                "Value": "$.supplier",
+              },
+            ],
+            "MetricName": "IngestionSourceFeeds-ingestion_failure",
+            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+            "MetricValue": "1",
+          },
+        ],
+      },
+      "Type": "AWS::Logs::MetricFilter",
+    },
+    "IngestionSourceFeedsFilterINGESTIONSUCCESS27AB7930": {
       "Properties": {
         "FilterPattern": "{ $.eventType = "INGESTION_SUCCESS" }",
         "LogGroupName": {
@@ -2078,7 +2187,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 "Value": "$.supplier",
               },
             ],
-            "MetricName": "IngestionSourceFeeds",
+            "MetricName": "IngestionSourceFeeds-ingestion_success",
             "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
             "MetricValue": "1",
           },
