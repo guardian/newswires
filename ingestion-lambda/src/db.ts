@@ -22,7 +22,7 @@ export async function putItemToDb({
 }): Promise<OperationResult<{ didCreateNewItem: boolean }>> {
 	const { content, supplier, categoryCodes } = processedObject;
 	try {
-		console.log(`INSERTING INTO DATABASE TABLE: ${externalId}, ${s3Key}, ${JSON.stringify(content)}, ${supplier}, ${categoryCodes}`);
+		console.log(`INSERTING INTO DATABASE TABLE: ${externalId}, ${s3Key}, ${JSON.stringify(content)}, ${supplier}, ${JSON.stringify(categoryCodes)}`);
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
 			(external_id, supplier, content, category_codes, s3_key)

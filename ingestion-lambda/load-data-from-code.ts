@@ -1,19 +1,9 @@
-import { record } from "zod";
 import { DATABASE_TABLE_NAME } from "../shared/constants";
 import { createLogger } from "../shared/lambda-logging";
 import { initialiseDbConnection } from "../shared/rds";
-import { ProcessedObject } from "../shared/types";
-import { classification } from "./src/classification";
 import { putItemToDb } from "./src/db";
 import * as fs from 'fs';
 import * as path from 'path';
-// Set your region (replace with actual value or import from config)
-
-
-
-// content: IngestorInputBody;
-// supplier: Supplier;
-// categoryCodes: string[];
 
 
 const writeToFile = async (limit: number = 100) => {
@@ -42,32 +32,29 @@ const writeToFile = async (limit: number = 100) => {
 };
 
 const run = async () => {
-    // const code = await initialiseDbConnection(true);
     const { sql, closeDbConnection } = await initialiseDbConnection();
     const logger = createLogger({});
-    try {
-        const filePath = path.join(__dirname, 'output.json')
-        const rawData = fs.readFileSync(filePath, 'utf-8');
-        const result = JSON.parse(rawData);
+    
+    const filePath = path.join(__dirname, 'output.json')
+    const rawData = fs.readFileSync(filePath, 'utf-8');
+    const result = JSON.parse(rawData);
+    
+    Promise.all(result.map(async (record: any) => {    
+        return putItemToDb({
+            processedObject: {
+                content: record.processedObject.content,
+                supplier: record.processedObject.supplier,
+                categoryCodes: record.processedObject.categoryCodes
+            },
+            externalId: record.externalId,
+            s3Key: 'key',
+            sql: sql,
+            logger: logger,
+        }).then((result) => {   
+        console.log("RESULT", result);
+    })}))
+    .then(_ => closeDbConnection());
 
-        result.forEach(record => {
-            // const classificationResult = classification({ content: record.content, supplier: record.supplier, categoryCodes: record.category_codes });
-            putItemToDb({
-                processedObject: {
-                    content: record.processedObject.content,
-                    supplier: record.processedObject.supplier,
-                    categoryCodes: record.processedObject.categoryCodes
-                },
-                externalId: record.externalId,
-                s3Key: 'key',
-                sql: sql,
-                logger: logger,
-            });
-        });
-    } catch (error) {
-        console.error('Error retrieving classifications:', error);
-    } finally {
-        await closeDbConnection();
-    }
-};
+}
 run()
+// writeToFile(5000)
