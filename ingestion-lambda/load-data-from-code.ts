@@ -10,7 +10,7 @@ const writeToFile = async (limit: number = 100) => {
     const code = await initialiseDbConnection(true);
     try {
         console.log("Retrieving classifications from the database...");
-        const result = await code.sql`SELECT * FROM ${code.sql(DATABASE_TABLE_NAME)} limit ${limit}`;
+        const result = await code.sql`SELECT * FROM ${code.sql(DATABASE_TABLE_NAME)} where s3_key is not null limit ${limit}`;
         console.log(`Retrieved ${result.length} records from the database.`);
         const data = result.map(record => ({
             processedObject: {
@@ -47,7 +47,7 @@ const run = async () => {
                 categoryCodes: record.processedObject.categoryCodes
             },
             externalId: record.externalId,
-            s3Key: 'key',
+            s3Key: record.s3Key,
             sql: sql,
             logger: logger,
         }).then((result) => {   

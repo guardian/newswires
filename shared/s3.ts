@@ -8,6 +8,7 @@ import { getFromEnv, isRunningLocally } from './config';
 import { getErrorMessage } from './getErrorMessage';
 import { createLogger } from './lambda-logging';
 import type { OperationResult } from './types';
+import { fromIni } from '@aws-sdk/credential-providers';
 
 // We use localstack to mock AWS services if we are running locally.
 const awsOptions = isRunningLocally
@@ -22,7 +23,13 @@ const awsOptions = isRunningLocally
 		}
 	: {};
 
-const s3Client = new S3Client(awsOptions);
+const region: string = "eu-west-1"; // Example region	
+// Load credentials from a specific profile
+const credentials = fromIni({ profile: "editorial-feeds" });
+const s3Client = new S3Client({
+	region,
+	credentials,
+});
 
 const logger = createLogger({});
 
@@ -92,6 +99,4 @@ export async function putToS3({
 	}
 }
 
-export const BUCKET_NAME: string = isRunningLocally
-	? 'local-feeds-bucket'
-	: getFromEnv('FEEDS_BUCKET_NAME');
+export const BUCKET_NAME: string = getFromEnv('FEEDS_BUCKET_NAME');

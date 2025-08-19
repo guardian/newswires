@@ -2100,7 +2100,7 @@ export function classification(processedObject: ProcessedObject): string[] {
         return acc
    }, [])
    const end = performance.now();
-   console.log(`Classification took ${end - start}ms`);
+   console.log(`Classification took ${end - start}ms with result: ${classifications}`);
    return classifications
 }
 

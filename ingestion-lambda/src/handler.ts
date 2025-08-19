@@ -10,6 +10,7 @@ import type { BatchItemFailure, OperationResult } from '../../shared/types';
 import { putItemToDb } from './db';
 import { getItemFromS3 } from './getItemFromS3';
 import { processContent } from './processContentObject';
+import { classification } from './classification';
 
 function processMessage(
 	record: SQSRecord,
@@ -70,11 +71,12 @@ export const main = async (
 					if (contentResults.status === 'failure') {
 						return failureWith(contentResults.reason);
 					}
+					const classifications = classification(contentResults)
 					const dbResult = await putItemToDb({
 						processedObject: contentResults,
 						externalId: processedMessage.externalId,
 						s3Key: processedMessage.objectKey,
-						classifications: [],
+						classifications: classifications,
 						sql,
 						logger,
 					});
