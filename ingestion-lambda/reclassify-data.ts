@@ -1,11 +1,17 @@
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { main } from "./src/handler";
 import { initialiseDbConnection } from "../shared/rds";
+import { SendMessageBatchCommand } from "@aws-sdk/client-sqs";
+import { getFromEnv } from "../shared/config";
+import { sqs } from "../shared/sqs";
+import { batchedRecords } from "./src/util";
+
 
 type Message = {
     externalId: string;
     objectKey: string;
 }
+
 
 const getMessages: () => Promise<Message[]> = async() => {
     const { sql, closeDbConnection} = await initialiseDbConnection();
@@ -24,11 +30,26 @@ const getMessages: () => Promise<Message[]> = async() => {
 }
 async function run() {
 
-    const Records = (await getMessages()).map((message) => {
+    const records = (await getMessages()).map((message) => {
         return createSQSRecord(message.externalId, message.objectKey)
     })
-    const event: SQSEvent = { Records };
-    main(event).then(console.log).catch(console.error);
+    
+    const sendCommands = batchedRecords(records, 10).map((batch) => {
+        return new SendMessageBatchCommand({
+            QueueUrl: getFromEnv('INGESTION_LAMBDA_QUEUE_URL'),
+            Entries: batch.map(record => ({
+                Id: record.messageId,
+                MessageBody: record.body
+            })),
+        });
+    });
+    console.log(`Writing ${sendCommands.length} messages to SQS`);
+
+    Promise.all(sendCommands.map((command) => {
+        return sqs.send(command);
+    })).then(_ => {
+        console.log("All messages sent successfully");
+    })
 
 }
 

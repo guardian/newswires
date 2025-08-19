@@ -1,5 +1,6 @@
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
 import {
+	DeleteMessageBatchCommand,
 	Message,
   ReceiveMessageCommand,
 } from "@aws-sdk/client-sqs";
@@ -21,7 +22,7 @@ const receiveMessage = (queueUrl: string) =>
     }),
   );
 
-run();
+setInterval(run, 1000);
 
 async function run() {
 	const { Messages } = await receiveMessage(SQS_QUEUE_URL);
@@ -34,8 +35,25 @@ async function run() {
 		return createSQSRecord(message)
 	})
 	const event: SQSEvent = { Records };
-	main(event).then(console.log).catch(console.error);
+	main(event).then(console.log).then(
+		() => deleteMessage(Messages).then(() => {
+			console.log('Messages deleted successfully');
+		})
+	).catch(console.error);
 
+}
+
+function deleteMessage(messages: Message[]) {
+	const messagesToDelete = messages.map((msg, index) => ({
+  		Id: `msg${index}`, // must be unique in the batch
+  		ReceiptHandle: msg.ReceiptHandle!,
+	}));
+
+	const deleteBatchCommand = new DeleteMessageBatchCommand({
+		QueueUrl: SQS_QUEUE_URL,
+		Entries: messagesToDelete,
+	});
+	return sqs.send(deleteBatchCommand)
 }
 
 
