@@ -50,7 +50,7 @@ export const main = async (n: number): Promise<void> => {
         
     const sendCommands = batchedRecords(records, 10).map((batch) => {
         return new SendMessageBatchCommand({
-            QueueUrl: getFromEnv('INGESTION_LAMBDA_QUEUE_URL'),
+            QueueUrl: getFromEnv('REINGESTION_QUEUE_URL'),
             Entries: batch.map(record => ({
                 Id: record.messageId,
                 MessageBody: record.body

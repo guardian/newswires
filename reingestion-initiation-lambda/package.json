@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-        "dev": "INGESTION_LAMBDA_QUEUE_URL=http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/local-ingestion-queue FEEDS_BUCKET_NAME=editorial-feeds-code-news-feedsbucketcodenewswires-eoth51pa5nmv tsx watch localRun.ts",
+        "dev": "REINGESTION_QUEUE_URL=http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/local-ingestion-queue FEEDS_BUCKET_NAME=editorial-feeds-code-news-feedsbucketcodenewswires-eoth51pa5nmv tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects reingestion-initiation-lambda",

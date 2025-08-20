@@ -43,7 +43,7 @@ import { ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { ReceiptRuleSet } from 'aws-cdk-lib/aws-ses';
 import { Lambda, LambdaInvocationType } from 'aws-cdk-lib/aws-ses-actions';
 import { Topic } from 'aws-cdk-lib/aws-sns';
-import type { Queue } from 'aws-cdk-lib/aws-sqs';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
@@ -185,6 +185,34 @@ export class Newswires extends GuStack {
 		);
 
 		ingestionLambda.connections.allowTo(database, Port.tcp(5432));
+
+		const reingestionQueue = new Queue(this, 'ReingestionQueue', {
+			visibilityTimeout: Duration.seconds(30),
+		});
+		new GuLambdaFunction(
+			this,
+			`ReingestionInitiationLambda-${this.stage}`,
+			{
+				app: 'reingestion-initiation-lambda',
+				runtime: LAMBDA_RUNTIME,
+				architecture: LAMBDA_ARCHITECTURE,
+				handler: 'handler.main',
+				fileName: 'reingestion-initiation-lambda.zip',
+				environment: {
+					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+					DATABASE_PORT: database.dbInstanceEndpointPort,
+					DATABASE_NAME: databaseName,
+					REINGESTION_QUEUE_URL: reingestionQueue.queueUrl,
+				},
+				vpc,
+				vpcSubnets: {
+					subnets: privateSubnets,
+				},
+				loggingFormat: LoggingFormat.TEXT,
+			},
+		);
+		
 
 		// Create email filter lambda for SES processing (for 'sport.copy' emails)
 		const emailFilterLambda = new GuLambdaFunction(
