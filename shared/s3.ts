@@ -11,25 +11,18 @@ import type { OperationResult } from './types';
 import { fromIni } from '@aws-sdk/credential-providers';
 
 // We use localstack to mock AWS services if we are running locally.
-const awsOptions = isRunningLocally
-	? {
-			endpoint: 'http://localhost:4566',
-			region: 'eu-west-1',
-			forcePathStyle: true,
-			credentials: {
-				accessKeyId: '',
-				secretAccessKey: '',
-			},
-		}
-	: {};
-
 const region: string = "eu-west-1"; // Example region	
 // Load credentials from a specific profile
 const credentials = fromIni({ profile: "editorial-feeds" });
-const s3Client = new S3Client({
+const awsOptions = isRunningLocally
+	? {
 	region,
 	credentials,
-});
+}
+: {};
+
+
+const s3Client = new S3Client(awsOptions);
 
 const logger = createLogger({});
 
