@@ -44,13 +44,11 @@ function createSQSRecord(externalId: string, objectKey: string): SQSRecord {
 }
 
 export const main = async (n: number): Promise<void> => {
-	const messages = await getDBRecords(n);
-	console.log('Retrieved messages:', messages);
 
-	const records = (await getDBRecords(5)).map((message) => {
+	const records = (await getDBRecords(n)).map((message) => {
 		return createSQSRecord(message.externalId, message.objectKey);
 	});
-
+    console.log(`Retrieved ${records.length} records from the database`);
 	const sendCommands = batchedRecords(records, 10).map((batch) => {
 		return new SendMessageBatchCommand({
 			QueueUrl: getFromEnv('REINGESTION_QUEUE_URL'),
