@@ -2245,7 +2245,8 @@ export function matchesPreset(
 	preset: Record<Supplier, SearchCriteria[]>,
 ): boolean {
 	const supplier = processedObject.supplier;
-	const searchCriteria = preset[supplier] !== undefined ? preset[supplier] : [];
+	const searchCriteria =
+		(preset[supplier] as SearchCriteria[] | undefined) ?? [];
 	return searchCriteria.reduce(
 		(bool, criteria) =>
 			matchesSearchCriteria(processedObject, criteria) || bool,
