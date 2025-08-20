@@ -212,8 +212,42 @@ export class Newswires extends GuStack {
 		database.grantConnect(reingestionInitiationLambda);
 		reingestionInitiationLambda.connections.allowTo(database, Port.tcp(5432));
 
+		const reingestionLambda = new GuLambdaFunction(
+			this,
+			`ReingestionLambda-${this.stage}`,
+			{
+				app: 'ingestion-lambda',
+				runtime: LAMBDA_RUNTIME,
+				architecture: LAMBDA_ARCHITECTURE,
+				handler: 'handler.main',
+				// each execution can handle up to 10 messages, so this is up
+				// to 100 messages in flight; should be more than powerful enough
+				// in high news events
+				reservedConcurrentExecutions: 50,
+				fileName: 'ingestion-lambda.zip',
+				environment: {
+					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+					DATABASE_PORT: database.dbInstanceEndpointPort,
+					DATABASE_NAME: databaseName,
+				},
+				vpc,
+				vpcSubnets: {
+					subnets: privateSubnets,
+				},
+				loggingFormat: LoggingFormat.TEXT,
+			},
+		);
 
+		reingestionLambda.connections.allowTo(database, Port.tcp(5432));
+		database.grantConnect(reingestionLambda);
+		
 		reingestionQueue.grantSendMessages(reingestionInitiationLambda);
+		reingestionQueue.grantConsumeMessages(reingestionLambda)
+		reingestionLambda.addEventSource(
+			new SqsEventSource(reingestionQueue, eventSourceProps),
+		);
+
 		// Create email filter lambda for SES processing (for 'sport.copy' emails)
 		const emailFilterLambda = new GuLambdaFunction(
 			this,

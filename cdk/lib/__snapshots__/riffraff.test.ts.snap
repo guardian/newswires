@@ -150,6 +150,7 @@ deployments:
       - lambda-upload-eu-west-1-editorial-feeds-fingerpost-queueing-lambda
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
       - lambda-upload-eu-west-1-editorial-feeds-reingestion-initiation-lambda
+      - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
       - lambda-upload-eu-west-1-editorial-feeds-email-filter-lambda
       - lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda
       - lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda

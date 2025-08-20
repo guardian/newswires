@@ -493,6 +493,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuLambdaFunction",
       "GuLambdaFunction",
       "GuLambdaFunction",
+      "GuLambdaFunction",
       "GuStringParameter",
       "GuScheduledLambda",
       "GuParameter",
@@ -816,6 +817,27 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "SourceSecurityGroupId": {
           "Fn::GetAtt": [
             "ReingestionInitiationLambdaTESTSecurityGroupF7BFCC38",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "DefaultSecurityGroupNewswiresfromNewswiresTESTReingestionLambdaTESTSecurityGroupB52DAEF7543269484168": {
+      "Properties": {
+        "Description": "from NewswiresTESTReingestionLambdaTESTSecurityGroupB52DAEF7:5432",
+        "FromPort": 5432,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupNewswires91CCC0BF",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "ReingestionLambdaTESTSecurityGroup1B6C7A94",
             "GroupId",
           ],
         },
@@ -3120,6 +3142,377 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "ReingestionLambdaTEST37C7C20A": {
+      "DependsOn": [
+        "ReingestionLambdaTESTServiceRoleDefaultPolicyA618273C",
+        "ReingestionLambdaTESTServiceRoleECD26FB9",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "editorial-feeds/TEST/ingestion-lambda/ingestion-lambda.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "ingestion-lambda",
+            "DATABASE_ENDPOINT_ADDRESS": {
+              "Fn::GetAtt": [
+                "NewswiresDBNewswires2A5A9AC6",
+                "Endpoint.Address",
+              ],
+            },
+            "DATABASE_NAME": "newswires",
+            "DATABASE_PORT": {
+              "Fn::GetAtt": [
+                "NewswiresDBNewswires2A5A9AC6",
+                "Endpoint.Port",
+              ],
+            },
+            "FEEDS_BUCKET_NAME": {
+              "Ref": "feedsbucketTESTNewswires116BDB0E",
+            },
+            "STACK": "editorial-feeds",
+            "STAGE": "TEST",
+          },
+        },
+        "Handler": "handler.main",
+        "LoggingConfig": {
+          "LogFormat": "Text",
+        },
+        "MemorySize": 512,
+        "ReservedConcurrentExecutions": 50,
+        "Role": {
+          "Fn::GetAtt": [
+            "ReingestionLambdaTESTServiceRoleECD26FB9",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "ingestion-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "ReingestionLambdaTESTSecurityGroup1B6C7A94",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": {
+            "Ref": "newswiresPrivateSubnets",
+          },
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "ReingestionLambdaTESTSecurityGroup1B6C7A94": {
+      "Properties": {
+        "GroupDescription": "Automatic security group for Lambda Function NewswiresTESTReingestionLambdaTEST87A2F162",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "ingestion-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VpcId": {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "ReingestionLambdaTESTServiceRoleDefaultPolicyA618273C": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/editorial-feeds/TEST/ingestion-lambda/ingestion-lambda.zip",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/ingestion-lambda",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/ingestion-lambda/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "rds-db:connect",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":rds-db:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":dbuser:",
+                    {
+                      "Fn::GetAtt": [
+                        "NewswiresDBNewswires2A5A9AC6",
+                        "DbiResourceId",
+                      ],
+                    },
+                    "/{{resolve:secretsmanager:",
+                    {
+                      "Ref": "NewswiresDBNewswiresSecretCF4DBD56",
+                    },
+                    ":SecretString:username::}}",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:GetQueueUrl",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ReingestionQueueF9D3FF1E",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ReingestionLambdaTESTServiceRoleDefaultPolicyA618273C",
+        "Roles": [
+          {
+            "Ref": "ReingestionLambdaTESTServiceRoleECD26FB9",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ReingestionLambdaTESTServiceRoleECD26FB9": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "ingestion-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ReingestionLambdaTESTSqsEventSourceNewswiresTESTReingestionQueueB470BB9EE32BF40F": {
+      "Properties": {
+        "EventSourceArn": {
+          "Fn::GetAtt": [
+            "ReingestionQueueF9D3FF1E",
+            "Arn",
+          ],
+        },
+        "FunctionName": {
+          "Ref": "ReingestionLambdaTEST37C7C20A",
+        },
+        "FunctionResponseTypes": [
+          "ReportBatchItemFailures",
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "ingestion-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::Lambda::EventSourceMapping",
     },
     "ReingestionQueueF9D3FF1E": {
       "DeletionPolicy": "Delete",
