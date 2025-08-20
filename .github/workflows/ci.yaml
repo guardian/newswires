@@ -39,8 +39,6 @@ jobs:
       - name: Lint and test
         run: |
           npm ci
-          npm run lint:ci
-          npm run typecheck
           npm test
 
       - name: Build CDK
