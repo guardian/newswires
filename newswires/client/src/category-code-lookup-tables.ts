@@ -2480,7 +2480,7 @@ export const lookupTables: Array<{
 			'medtop:20001062': 'sky diving',
 			'medtop:20001063': 'snooker',
 			'medtop:20001064': 'snowboarding',
-			'medtop:20001065': 'football',
+			'medtop:20001065': 'soccer',
 			'medtop:20001066': 'softball',
 			'medtop:20001067': 'speed skating',
 			'medtop:20001068': 'squash',
