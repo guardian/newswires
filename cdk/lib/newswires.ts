@@ -189,7 +189,7 @@ export class Newswires extends GuStack {
 		const reingestionQueue = new Queue(this, 'ReingestionQueue', {
 			visibilityTimeout: Duration.seconds(30),
 		});
-		new GuLambdaFunction(this, `ReingestionInitiationLambda-${this.stage}`, {
+		const reingestionInitiationLambda = new GuLambdaFunction(this, `ReingestionInitiationLambda-${this.stage}`, {
 			app: 'reingestion-initiation-lambda',
 			runtime: LAMBDA_RUNTIME,
 			architecture: LAMBDA_ARCHITECTURE,
@@ -209,6 +209,9 @@ export class Newswires extends GuStack {
 			loggingFormat: LoggingFormat.TEXT,
 		});
 
+		database.grantConnect(reingestionInitiationLambda);
+
+		reingestionQueue.grantSendMessages(reingestionInitiationLambda);
 		// Create email filter lambda for SES processing (for 'sport.copy' emails)
 		const emailFilterLambda = new GuLambdaFunction(
 			this,
