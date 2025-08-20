@@ -33,7 +33,8 @@ export async function putItemToDb({
 			supplier = EXCLUDED.supplier,
 			category_codes = EXCLUDED.category_codes,
 			s3_key = EXCLUDED.s3_key,
-			classifications = EXCLUDED.classifications
+			classifications = EXCLUDED.classifications,
+			last_updated_at = ${Date.now()}
 		RETURNING id`;
 		// would this be a failure case now?
 		if (result.length === 0) {

@@ -16,7 +16,7 @@ type Message = {
 const getMessages: () => Promise<Message[]> = async() => {
     const { sql, closeDbConnection} = await initialiseDbConnection();
     try {
-        const results = await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry`;
+        const results = await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry where s3_key is not null limit 5`;
         return results.map(record => ({
             externalId: record.external_id as string,
             objectKey: record.s3_key as string
