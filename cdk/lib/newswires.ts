@@ -189,30 +189,25 @@ export class Newswires extends GuStack {
 		const reingestionQueue = new Queue(this, 'ReingestionQueue', {
 			visibilityTimeout: Duration.seconds(30),
 		});
-		new GuLambdaFunction(
-			this,
-			`ReingestionInitiationLambda-${this.stage}`,
-			{
-				app: 'reingestion-initiation-lambda',
-				runtime: LAMBDA_RUNTIME,
-				architecture: LAMBDA_ARCHITECTURE,
-				handler: 'handler.main',
-				fileName: 'reingestion-initiation-lambda.zip',
-				environment: {
-					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
-					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
-					DATABASE_PORT: database.dbInstanceEndpointPort,
-					DATABASE_NAME: databaseName,
-					REINGESTION_QUEUE_URL: reingestionQueue.queueUrl,
-				},
-				vpc,
-				vpcSubnets: {
-					subnets: privateSubnets,
-				},
-				loggingFormat: LoggingFormat.TEXT,
+		new GuLambdaFunction(this, `ReingestionInitiationLambda-${this.stage}`, {
+			app: 'reingestion-initiation-lambda',
+			runtime: LAMBDA_RUNTIME,
+			architecture: LAMBDA_ARCHITECTURE,
+			handler: 'handler.main',
+			fileName: 'reingestion-initiation-lambda.zip',
+			environment: {
+				FEEDS_BUCKET_NAME: feedsBucket.bucketName,
+				DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+				DATABASE_PORT: database.dbInstanceEndpointPort,
+				DATABASE_NAME: databaseName,
+				REINGESTION_QUEUE_URL: reingestionQueue.queueUrl,
 			},
-		);
-		
+			vpc,
+			vpcSubnets: {
+				subnets: privateSubnets,
+			},
+			loggingFormat: LoggingFormat.TEXT,
+		});
 
 		// Create email filter lambda for SES processing (for 'sport.copy' emails)
 		const emailFilterLambda = new GuLambdaFunction(

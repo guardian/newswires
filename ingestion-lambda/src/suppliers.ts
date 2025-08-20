@@ -1,4 +1,4 @@
-import { Supplier } from "../../shared/types";
+import type { Supplier } from '../../shared/types';
 
 const supplierLookupMap: Record<Supplier, string[]> = {
 	REUTERS: ['REUTERS'],
@@ -98,7 +98,7 @@ const supplierLookupMap: Record<Supplier, string[]> = {
 		'PA ACCESS NEWSWIRE',
 	],
 	MINOR_AGENCIES: ['COMET', 'WIREFAST'],
-	Unknown: []
+	Unknown: [],
 };
 
 export const lookupSupplier = (
@@ -108,7 +108,7 @@ export const lookupSupplier = (
 		return undefined;
 	}
 
-	return Object.keys(supplierLookupMap).find((key)  =>
-		supplierLookupMap[key]?.includes(supplier),
+	return Object.keys(supplierLookupMap).find((key) =>
+		supplierLookupMap[key as Supplier].includes(supplier),
 	) as Supplier | undefined;
 };

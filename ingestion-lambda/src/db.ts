@@ -24,7 +24,7 @@ export async function putItemToDb({
 }): Promise<OperationResult<{ didCreateNewItem: boolean }>> {
 	const { content, supplier, categoryCodes } = processedObject;
 	try {
-		// TODO, set up a test for this. 
+		// TODO, set up a test for this.
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
 			(external_id, supplier, content, category_codes, s3_key, classifications)
@@ -51,7 +51,9 @@ export async function putItemToDb({
 				supplier,
 			});
 		}
-		console.log(`Inserted item with externalId ${externalId} into the database.`);
+		console.log(
+			`Inserted item with externalId ${externalId} into the database.`,
+		);
 		return {
 			status: 'success',
 			didCreateNewItem: result.length > 0,
