@@ -13,10 +13,10 @@ type Message = {
 }
 
 
-const getMessages: () => Promise<Message[]> = async() => {
+const getMessages: (n: number) => Promise<Message[]> = async(n) => {
     const { sql, closeDbConnection} = await initialiseDbConnection();
     try {
-        const results = await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry where s3_key is not null limit 5`;
+        const results = await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry where s3_key is not null limit ${n};`
         return results.map(record => ({
             externalId: record.external_id as string,
             objectKey: record.s3_key as string
@@ -30,7 +30,7 @@ const getMessages: () => Promise<Message[]> = async() => {
 }
 async function run() {
 
-    const records = (await getMessages()).map((message) => {
+    const records = (await getMessages(5)).map((message) => {
         return createSQSRecord(message.externalId, message.objectKey)
     })
     
