@@ -241,6 +241,7 @@ export class Newswires extends GuStack {
 
 		reingestionLambda.connections.allowTo(database, Port.tcp(5432));
 		database.grantConnect(reingestionLambda);
+		feedsBucket.grantReadWrite(reingestionLambda);
 		
 		reingestionQueue.grantSendMessages(reingestionInitiationLambda);
 		reingestionQueue.grantConsumeMessages(reingestionLambda)
