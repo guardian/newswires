@@ -109,5 +109,7 @@ jobs:
               - fingerpost-queueing-lambda/dist/fingerpost-queueing-lambda.zip
             reingestion-initiation-lambda:
               - reingestion-initiation-lambda/dist/reingestion-initiation-lambda.zip
+            reingestion-lambda:
+              - ingestion-lambda/dist/ingestion-lambda.zip
             newswires:
               - newswires/target/newswires.deb
