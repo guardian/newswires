@@ -802,6 +802,27 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "DefaultSecurityGroupNewswiresfromNewswiresTESTReingestionInitiationLambdaTESTSecurityGroupCDCE43AF5432FC4D3CF5": {
+      "Properties": {
+        "Description": "from NewswiresTESTReingestionInitiationLambdaTESTSecurityGroupCDCE43AF:5432",
+        "FromPort": 5432,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupNewswires91CCC0BF",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "ReingestionInitiationLambdaTESTSecurityGroupF7BFCC38",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
     "DefaultSecurityGroupNewswiresfromNewswiresTESTScheduledCleanupLambdaTESTSecurityGroup40D1798254320D69AB7D": {
       "Properties": {
         "Description": "from NewswiresTESTScheduledCleanupLambdaTESTSecurityGroup40D17982:5432",

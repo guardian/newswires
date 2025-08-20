@@ -325,6 +325,27 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "DefaultSecurityGroupNewswiresfromNewswiresReingestionInitiationLambdaTESTSecurityGroupFFE8AFE35432D085E2B6": {
+      "Properties": {
+        "Description": "from NewswiresReingestionInitiationLambdaTESTSecurityGroupFFE8AFE3:5432",
+        "FromPort": 5432,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupNewswires91CCC0BF",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "ReingestionInitiationLambdaTESTSecurityGroupF7BFCC38",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
     "DefaultSecurityGroupNewswiresfromNewswiresScheduledCleanupLambdaTESTSecurityGroup7AEE66E354322D51379C": {
       "Properties": {
         "Description": "from NewswiresScheduledCleanupLambdaTESTSecurityGroup7AEE66E3:5432",

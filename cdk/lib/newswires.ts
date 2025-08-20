@@ -210,6 +210,8 @@ export class Newswires extends GuStack {
 		});
 
 		database.grantConnect(reingestionInitiationLambda);
+		reingestionInitiationLambda.connections.allowTo(database, Port.tcp(5432));
+
 
 		reingestionQueue.grantSendMessages(reingestionInitiationLambda);
 		// Create email filter lambda for SES processing (for 'sport.copy' emails)
