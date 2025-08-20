@@ -2739,11 +2739,11 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "editorial-feeds/TEST/ingestion-lambda/ingestion-lambda.zip",
+          "S3Key": "editorial-feeds/TEST/reingestion-lambda/ingestion-lambda.zip",
         },
         "Environment": {
           "Variables": {
-            "APP": "ingestion-lambda",
+            "APP": "reingestion-lambda",
             "DATABASE_ENDPOINT_ADDRESS": {
               "Fn::GetAtt": [
                 "NewswiresDBNewswires2A5A9AC6",
@@ -2780,7 +2780,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Tags": [
           {
             "Key": "App",
-            "Value": "ingestion-lambda",
+            "Value": "reingestion-lambda",
           },
           {
             "Key": "gu:cdk:version",
@@ -2829,7 +2829,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Tags": [
           {
             "Key": "App",
-            "Value": "ingestion-lambda",
+            "Value": "reingestion-lambda",
           },
           {
             "Key": "gu:cdk:version",
@@ -2893,7 +2893,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/editorial-feeds/TEST/ingestion-lambda/ingestion-lambda.zip",
+                      "/editorial-feeds/TEST/reingestion-lambda/ingestion-lambda.zip",
                     ],
                   ],
                 },
@@ -2914,7 +2914,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/TEST/editorial-feeds/ingestion-lambda",
+                    ":parameter/TEST/editorial-feeds/reingestion-lambda",
                   ],
                 ],
               },
@@ -2937,7 +2937,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/TEST/editorial-feeds/ingestion-lambda/*",
+                    ":parameter/TEST/editorial-feeds/reingestion-lambda/*",
                   ],
                 ],
               },
@@ -3048,7 +3048,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Tags": [
           {
             "Key": "App",
-            "Value": "ingestion-lambda",
+            "Value": "reingestion-lambda",
           },
           {
             "Key": "gu:cdk:version",
@@ -3087,7 +3087,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "Tags": [
           {
             "Key": "App",
-            "Value": "ingestion-lambda",
+            "Value": "reingestion-lambda",
           },
           {
             "Key": "gu:cdk:version",

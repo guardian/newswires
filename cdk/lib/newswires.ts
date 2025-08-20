@@ -216,7 +216,7 @@ export class Newswires extends GuStack {
 			this,
 			`ReingestionLambda-${this.stage}`,
 			{
-				app: 'ingestion-lambda',
+				app: 'reingestion-lambda',
 				runtime: LAMBDA_RUNTIME,
 				architecture: LAMBDA_ARCHITECTURE,
 				handler: 'handler.main',
