@@ -78,6 +78,12 @@ jobs:
           npm run build
           zip -FSjr "dist/fingerpost-queueing-lambda.zip" "dist/handler.js"
 
+      - name: "Build reingestion-initiation-lambda"
+        working-directory: reingestion-initiation-lambda
+        run: |
+          npm run build
+          zip -FSjr "dist/reingestion-initiation-lambda.zip" "dist/handler.js"
+
       - name: Build Newswires app and UI
         working-directory: newswires
         run: |
@@ -103,5 +109,7 @@ jobs:
               - poller-lambdas/dist/poller-lambdas.zip
             fingerpost-queueing-lambda:
               - fingerpost-queueing-lambda/dist/fingerpost-queueing-lambda.zip
+            reingestion-initiation-lambda:
+              - reingestion-initiation-lambda/dist/reingestion-initiation-lambda.zip
             newswires:
               - newswires/target/newswires.deb
