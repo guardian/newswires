@@ -59,7 +59,7 @@ object SimpleSearchQueries {
   val F1 = "f1 OR \"formula one\" OR \"formula 1\""
   val GOLF = "golf"
   val BOXING = "boxing -\"boxing gym\""
-  val RACING = "horse racing"
+  val HORSE_RACING = "horse racing"
   val ATHLETICS = "athletics OR \"track and field\""
   val OLYMPICS = "olympics OR \"olympic games\""
 }

@@ -45,8 +45,8 @@ export const sportPresets: Preset[] = [
 		id: 'rugby-league',
 	},
 	{
-		name: 'Horse',
-		id: 'horse',
+		name: 'Horse racing',
+		id: 'horse-racing',
 	},
 	{
 		name: 'Athletics',
