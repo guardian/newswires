@@ -14,13 +14,12 @@ const getDBRecords: (n: number) => Promise<DBRecord[]> = async (n) => {
 	const { sql, closeDbConnection } = await initialiseDbConnection();
 	try {
 		const results =
-			await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry where s3_key is not null limit ${n};`;
+			await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry limit ${n};`;
 		return results.map(
-			(record) =>
-				({
+			(record) => ({
 					externalId: record.external_id as string,
-					objectKey: record.s3_key as string,
-				}) as DBRecord,
+					objectKey: record.s3_key ?? `${record.external_id}.json`,
+            }) as DBRecord,
 		);
 	} catch (error) {
 		console.error('Error getting messages:', error);
