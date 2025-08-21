@@ -2457,7 +2457,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
         ],
-        "Timeout": 30,
+        "Timeout": 600,
         "VpcConfig": {
           "SecurityGroupIds": [
             {
@@ -3171,7 +3171,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
         ],
-        "VisibilityTimeout": 30,
+        "VisibilityTimeout": 300,
       },
       "Type": "AWS::SQS::Queue",
       "UpdateReplacePolicy": "Delete",

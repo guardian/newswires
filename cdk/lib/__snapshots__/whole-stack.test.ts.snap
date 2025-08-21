@@ -2886,7 +2886,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Value": "TEST",
           },
         ],
-        "Timeout": 30,
+        "Timeout": 600,
         "VpcConfig": {
           "SecurityGroupIds": [
             {
@@ -3576,7 +3576,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Value": "TEST",
           },
         ],
-        "VisibilityTimeout": 30,
+        "VisibilityTimeout": 300,
       },
       "Type": "AWS::SQS::Queue",
       "UpdateReplacePolicy": "Delete",

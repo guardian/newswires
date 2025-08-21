@@ -14,7 +14,7 @@ const getDBRecords: (n: number) => Promise<DBRecord[]> = async (n) => {
 	const { sql, closeDbConnection } = await initialiseDbConnection();
 	try {
 		const results =
-			await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry limit ${n};`;
+			await sql`SELECT external_id, s3_key FROM fingerpost_wire_entry where s3_key is not null limit ${n};`;
 		return results.map(
 			(record) => ({
 					externalId: record.external_id as string,

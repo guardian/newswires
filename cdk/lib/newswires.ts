@@ -187,7 +187,7 @@ export class Newswires extends GuStack {
 		ingestionLambda.connections.allowTo(database, Port.tcp(5432));
 
 		const reingestionQueue = new Queue(this, 'ReingestionQueue', {
-			visibilityTimeout: Duration.seconds(30),
+			visibilityTimeout: Duration.minutes(5),
 		});
 		const reingestionInitiationLambda = new GuLambdaFunction(this, `ReingestionInitiationLambda-${this.stage}`, {
 			app: 'reingestion-initiation-lambda',
@@ -207,6 +207,7 @@ export class Newswires extends GuStack {
 				subnets: privateSubnets,
 			},
 			loggingFormat: LoggingFormat.TEXT,
+			timeout: Duration.minutes(10)
 		});
 
 		database.grantConnect(reingestionInitiationLambda);
