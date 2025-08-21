@@ -1,4 +1,4 @@
-import type { ProcessedObject, Supplier } from '../../shared/types';
+import type { ProcessedObject, Supplier } from './types';
 
 // searchTerm: { type: 'Simple', value: 'News Summary', field: SearchField.Headline }
 type Field = 'Headline' | 'Body' | 'Summary';

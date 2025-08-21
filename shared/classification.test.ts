@@ -1,4 +1,4 @@
-import type { ProcessedObject } from '../../shared/types';
+import type { ProcessedObject } from './types';
 import type { SearchCriteria } from './classification';
 import {
 	classification,
