@@ -2856,7 +2856,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "LoggingConfig": {
           "LogFormat": "Text",
         },
-        "MemorySize": 512,
+        "MemorySize": 1024,
         "Role": {
           "Fn::GetAtt": [
             "ReingestionInitiationLambdaTESTServiceRoleFE31E6F9",

@@ -207,7 +207,8 @@ export class Newswires extends GuStack {
 				subnets: privateSubnets,
 			},
 			loggingFormat: LoggingFormat.TEXT,
-			timeout: Duration.minutes(10)
+			timeout: Duration.minutes(10),
+			memorySize: 1024, // Increase memory size to handle larger batches
 		});
 
 		database.grantConnect(reingestionInitiationLambda);
