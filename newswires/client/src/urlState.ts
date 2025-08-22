@@ -3,7 +3,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
-import type { Config, Query } from './sharedTypes';
+import { type Config, isValidSupplierName, type Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
 	q: '',
@@ -22,7 +22,7 @@ export const defaultQuery: Query = {
 };
 
 export const defaultConfig: Config = Object.freeze({
-	view: 'home',
+	view: 'feed',
 	query: defaultQuery,
 	itemId: undefined,
 	ticker: false,
@@ -64,8 +64,12 @@ export function urlToConfig(location: {
 			? endParam
 			: DEFAULT_DATE_RANGE.end;
 
-	const supplier = urlSearchParams.getAll('supplier');
-	const supplierExcl = urlSearchParams.getAll('supplierExcl');
+	const supplier = urlSearchParams
+		.getAll('supplier')
+		.filter(isValidSupplierName);
+	const supplierExcl = urlSearchParams
+		.getAll('supplierExcl')
+		.filter(isValidSupplierName);
 	const keywords = urlSearchParams.get('keywords') ?? undefined;
 	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
 	const categoryCode = urlSearchParams.getAll('categoryCode');

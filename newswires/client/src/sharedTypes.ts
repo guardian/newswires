@@ -86,6 +86,10 @@ const SupplierNameSchema = z.enum(suppliers);
 
 export type SupplierName = z.infer<typeof SupplierNameSchema>;
 
+export function isValidSupplierName(name: string): name is SupplierName {
+	return suppliers.includes(name as SupplierName);
+}
+
 const SupplierInfoSchema = z.object({
 	name: SupplierNameSchema,
 	label: z.string(),
@@ -116,8 +120,8 @@ const DateRange = z.object({
 
 export const QuerySchema = z.object({
 	q: z.string(),
-	supplier: z.array(z.string()).optional(),
-	supplierExcl: z.array(z.string()).optional(),
+	supplier: z.array(SupplierNameSchema).optional(),
+	supplierExcl: z.array(SupplierNameSchema).optional(),
 	keywords: z.string().optional(),
 	keywordsExcl: z.string().optional(),
 	categoryCode: z.array(z.string()).optional(),
@@ -130,12 +134,6 @@ export const QuerySchema = z.object({
 export type Query = z.infer<typeof QuerySchema>;
 
 export const ConfigSchema = z.discriminatedUnion('view', [
-	z.object({
-		view: z.literal('home'),
-		query: QuerySchema,
-		itemId: z.undefined(),
-		ticker: z.boolean().default(false),
-	}),
 	z.object({
 		view: z.literal('feed'),
 		query: QuerySchema,
