@@ -5,12 +5,9 @@
 	"scripts": {
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
-		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects email-filter-lambda",
 		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {},
-	"devDependencies": {
-		"@types/aws-lambda": "8.10.150"
-	}
+	"devDependencies": {}
 }

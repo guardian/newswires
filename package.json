@@ -20,7 +20,8 @@
 		"lint:ci": "npm run lint:ci --workspaces",
 		"dev": "npm run dev --workspace=ingestion-lambda",
 		"storybook": "npm run storybook --workspace=newswires/client",
-		"prepare": "husky"
+		"prepare": "husky",
+		"clear_jest": "jest --clearCache"
 	},
 	"repository": {
 		"type": "git",
@@ -50,6 +51,7 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.848.0",
+		"@types/aws-lambda": "8.10.152",
 		"node-html-parser": "7.0.1",
 		"zod": "4.0.5"
 	}
