@@ -80,7 +80,7 @@ object SearchPresets {
     case "f1"                   => Some(F1)
     case "golf"                 => Some(Golf)
     case "boxing"               => Some(Boxing)
-    case "racing"               => Some(Racing)
+    case "horse-racing"         => Some(HorseRacing)
     case "athletics"            => Some(Athletics)
     case "olympics"             => Some(Olympics)
     case _                      => None
@@ -281,11 +281,11 @@ object SearchPresets {
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Boxing"))
   )
 
-  private val Racing = List(
-    SearchPreset(REUTERS, CategoryCodes.Racing.REUTERS),
-    SearchPreset(PA, CategoryCodes.Racing.PA),
-    SearchPreset.fromText(AFP, text = SimpleSearchQueries.RACING, CategoryCodes.Sport.AFP),
-    SearchPreset(AAP, CategoryCodes.Racing.AAP),
+  private val HorseRacing = List(
+    SearchPreset(REUTERS, CategoryCodes.HorseRacing.REUTERS),
+    SearchPreset(PA, CategoryCodes.HorseRacing.PA),
+    SearchPreset.fromText(AFP, text = SimpleSearchQueries.HORSE_RACING, CategoryCodes.Sport.AFP),
+    SearchPreset(AAP, CategoryCodes.HorseRacing.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Horse racing"))
   )
 
