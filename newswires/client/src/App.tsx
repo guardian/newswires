@@ -26,7 +26,7 @@ import {
 	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod/v4';
 import { STAGE } from './app-configuration.ts';
 import { AppTitle } from './AppTitle.tsx';
@@ -102,6 +102,12 @@ export function App() {
 	const [sideNavIsDocked, setSideNavIsDocked] = useState<boolean>(true);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
+	);
+	const handleTextQueryChange = useCallback(
+		(newQuery: string) => {
+			handleEnterQuery({ ...config.query, q: newQuery });
+		},
+		[config.query, handleEnterQuery],
 	);
 
 	const { handleShortcutKeyUp } = useKeyboardShortcuts();
@@ -274,7 +280,10 @@ export function App() {
 											max-width: 580px;
 										`}
 									>
-										<SearchBox />
+										<SearchBox
+											currentTextQuery={config.query.q}
+											handleTextQueryChange={handleTextQueryChange}
+										/>
 									</EuiHeaderSectionItem>
 								</EuiHeaderSection>
 
