@@ -292,6 +292,7 @@ object FingerpostWireEntry
   }
 
   private[db] def buildWhereClause(
+      baseWhereClause: Option[SQLSyntax],
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
       maybeBeforeId: Option[Int],
@@ -339,7 +340,7 @@ object FingerpostWireEntry
       }
 
     val allClauses =
-      (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
+      (dataOnlyWhereClauses :+ baseWhereClause :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
 
     allClauses match {
       case Nil => sqls"true"
@@ -381,6 +382,7 @@ object FingerpostWireEntry
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
+      baseWhereClause = None,
       queryParams.searchParams,
       queryParams.savedSearchParamList,
       maybeBeforeId = queryParams.maybeBeforeId,
