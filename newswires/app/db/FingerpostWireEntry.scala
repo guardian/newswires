@@ -291,43 +291,6 @@ object FingerpostWireEntry
     ).flatten
   }
 
-  private def buildWhereClauseParts(
-      searchParamList: List[SearchParams],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
-  ) = {
-    val dataOnlyWhereClauses = List(
-      maybeBeforeId.map(beforeId =>
-        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-      ),
-      maybeSinceId.map(sinceId =>
-        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-      )
-    ).flatten
-
-    val commonWhereClauses = searchParamList.flatMap(searchParams => {
-      val whereClause = processSearchParams(searchParams)
-
-      if (whereClause.nonEmpty) {
-        Some(
-          sqls.joinWithAnd(
-            dataOnlyWhereClauses ++ whereClause: _*
-          )
-        )
-      } else {
-        None
-      }
-    })
-
-    commonWhereClauses match {
-      case Nil => None
-      case wherePart :: Nil =>
-        Some(wherePart)
-      case whereParts =>
-        Some(sqls.joinWithOr(whereParts.map(clause => sqls"($clause)"): _*))
-    }
-  }
-
   private[db] def buildWhereClause(
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
@@ -379,9 +342,9 @@ object FingerpostWireEntry
       (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
 
     allClauses match {
-      case Nil => sqls""
+      case Nil => sqls"true"
       case clauses =>
-        sqls"WHERE ${sqls.joinWithAnd(clauses: _*)}"
+        sqls.joinWithAnd(clauses: _*)
     }
   }
 
@@ -408,7 +371,7 @@ object FingerpostWireEntry
 
     sql"""| SELECT $selectAllStatement $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
-           | $whereClause
+           | WHERE $whereClause
            | $orderByClause
            | LIMIT $effectivePageSize
            | """.stripMargin
@@ -437,7 +400,7 @@ object FingerpostWireEntry
     val countQuery =
       sql"""| SELECT COUNT(*)
             | FROM ${FingerpostWireEntry as syn}
-            | $whereClause
+            | WHERE $whereClause
             | """.stripMargin
 
     logger.info(

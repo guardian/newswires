@@ -7,8 +7,8 @@ import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
-import _root_.models.{MostRecent, NextPage, QueryParams, SearchParams}
-import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
+import models.{MostRecent, NextPage, QueryParams, SearchParams}
+import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
@@ -80,7 +80,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      expectedClause = "",
+      expectedClause = "true",
       expectedParams = Nil
     )
   }
@@ -106,7 +106,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClauseBeforeId should matchSqlSnippet(
-      expectedClause = "WHERE fm.id < ?",
+      expectedClause = "fm.id < ?",
       expectedParams = List(10)
     )
 
@@ -119,7 +119,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClauseSinceId should matchSqlSnippet(
-      expectedClause = "WHERE fm.id > ?",
+      expectedClause = "fm.id > ?",
       expectedParams = List(20)
     )
   }
@@ -139,7 +139,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      "WHERE websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
+      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
       expectedParams = List("text1")
     )
   }
@@ -161,7 +161,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      "WHERE ((fm.content -> 'keywords') ??| ? and fm.category_codes && ?)",
+      "((fm.content -> 'keywords') ??| ? and fm.category_codes && ?)",
       List(
         List("keyword1", "keyword2"),
         List("category1", "category2")
@@ -195,7 +195,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val dateRangeWhereClause = FingerpostWireEntry
       .buildWhereClause(
@@ -208,7 +207,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val keywordsExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
@@ -220,7 +218,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val suppliersExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
@@ -232,7 +229,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val categoryCodesExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
@@ -244,10 +240,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     whereClause should matchSqlSnippet(
-      s"""WHERE fm.id < ? and $dateRangeWhereClause
+      sqls"""fm.id < ? and $dateRangeWhereClause
          | and $keywordsExclWhereClause
          | and $textSearchWhereClause
          | and $suppliersExclWhereClause
@@ -280,7 +275,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      "WHERE fm.ingested_at >= CAST(? AS timestamptz)",
+      "fm.ingested_at >= CAST(? AS timestamptz)",
       List("2025-03-10T00:00:00.000Z")
     )
   }
@@ -300,7 +295,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      "WHERE fm.ingested_at <= CAST(? AS timestamptz)",
+      "fm.ingested_at <= CAST(? AS timestamptz)",
       List("2025-03-10T23:59:59.999Z")
     )
   }
@@ -334,7 +329,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val preset1Clause = FingerpostWireEntry
       .buildWhereClause(
@@ -343,7 +337,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val preset2Clause = FingerpostWireEntry
       .buildWhereClause(
@@ -352,7 +345,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
@@ -363,7 +355,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      s"WHERE $customParamsClause and (($preset1Clause or $preset2Clause))",
+      sqls"$customParamsClause and (($preset1Clause or $preset2Clause))",
       List(
         "supplier1",
         List("N2:GB"),
@@ -392,7 +384,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val dateRangeWhereClause = FingerpostWireEntry
       .buildWhereClause(
@@ -401,7 +392,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         None,
         None
       )
-      .replaceFirst("WHERE ", "")
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
@@ -412,7 +402,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      s"WHERE $dateRangeWhereClause and $textSearchWhereClause",
+      sqls"$dateRangeWhereClause and $textSearchWhereClause",
       List(
         "2025-03-10T00:00:00.000Z",
         "2025-03-10T23:59:59.999Z",
