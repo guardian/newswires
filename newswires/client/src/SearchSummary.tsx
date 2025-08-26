@@ -286,27 +286,6 @@ export const SearchSummary = () => {
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
 
 	useEffect(() => {
-		if (!isPoppedOut) {
-			return;
-		}
-
-		const { preset, supplier } = config.query;
-
-		const displayPreset = !!preset;
-		const displaySuppliers = !!supplier && supplier.length > 0;
-
-		if (displayPreset || displaySuppliers) {
-			const titlePrefix = supplier!.length == 1 ? `${supplier![0]} ` : '';
-			const titlePostfix =
-				supplier!.length > 1 ? ` ${supplier!.join(', ')}` : '';
-
-			document.title = `${titlePrefix}${preset ? `${presetLabel(preset).toUpperCase()}` : ''}${titlePostfix}`;
-		} else {
-			document.title = 'Newswires';
-		}
-	}, [isPoppedOut, config.query]);
-
-	useEffect(() => {
 		if (queryData && queryData.totalCount > 0) {
 			setSearchSummary(
 				`Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`,

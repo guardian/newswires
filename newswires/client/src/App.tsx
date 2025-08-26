@@ -42,6 +42,7 @@ import { Feed } from './Feed';
 import { FeedbackContent } from './FeedbackContent.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { ItemData } from './ItemData.tsx';
+import { presetLabel } from './presets.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
@@ -135,6 +136,24 @@ export function App() {
 			window.removeEventListener('keyup', shortcutKeyHandler);
 		};
 	}, [handleShortcutKeyUp]);
+
+	useEffect(() => {
+		const { preset, supplier } = config.query;
+
+		const displayPreset = !!preset;
+		const displaySuppliers = !!supplier && supplier.length > 0;
+
+		if (displayPreset || displaySuppliers) {
+			const newswiresPrefix = !isPoppedOut ? 'Newswires -- ' : '';
+			const titlePrefix = supplier!.length == 1 ? `${supplier![0]} ` : '';
+			const titlePostfix =
+				supplier!.length > 1 ? ` ${supplier!.join(', ')}` : '';
+
+			document.title = `${newswiresPrefix}${titlePrefix}${preset ? `${presetLabel(preset).toUpperCase()}` : ''}${titlePostfix}`;
+		} else {
+			document.title = 'Newswires';
+		}
+	}, [isPoppedOut, config.query]);
 
 	const largeMinBreakpoint = useEuiMinBreakpoint('l');
 	const largeMaxBreakpoint = useEuiMaxBreakpoint('l');
