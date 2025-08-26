@@ -65,12 +65,16 @@ class QueryController(
 
     val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
 
-    val suppliersExcl = QueryController.effectiveSuppliersToExclude(
-      suppliersExclFromRequest =
-        request.queryString.get("supplierExcl").map(_.toList).getOrElse(Nil),
-      suppliersToInclude = suppliers,
-      showGuSuppliers = featureSwitchProvider.ShowGuSuppliers.isOn()
-    )
+    val suppliersToExcludeByDefault =
+      if (featureSwitchProvider.ShowGuSuppliers.isOn())
+        List("GuReuters", "GuAP").filterNot(
+          suppliers.contains
+        )
+      else Nil
+    val suppliersExcl = request.queryString
+      .get("supplierExcl")
+      .map(_.toList)
+      .getOrElse(Nil) ++ suppliersToExcludeByDefault
 
     val searchParams = SearchParams(
       text = maybeSearchTerm,
@@ -116,7 +120,7 @@ class QueryController(
     apiAuthAction { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
         id,
-        maybeFreeTextQuery,
+        maybeFreeTextQuery.map(SearchTerm.English(_)),
         requestingUser = Some(request.user.username)
       ) match {
         case Some(entry) => Ok(entry.asJson.spaces2)
@@ -178,22 +182,26 @@ class QueryController(
       }
   }
 
-}
-
-object QueryController {
-  private[controllers] def effectiveSuppliersToExclude(
-      suppliersExclFromRequest: List[String],
-      suppliersToInclude: List[String],
-      showGuSuppliers: Boolean
-  ): List[String] = {
-    val suppliersToExcludeByDefault =
-      if (showGuSuppliers) List("UNAUTHED_EMAIL_FEED")
-      else List("GuReuters", "GuAP", "UNAUTHED_EMAIL_FEED")
-
-    suppliersExclFromRequest ++ suppliersToExcludeByDefault.filterNot(
-      suppliersToInclude.contains
-    )
+  def dotCopy(
+      maybeFreeTextQuery: Option[String],
+      start: Option[String],
+      end: Option[String],
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[Int]
+  ): Action[AnyContent] = {
+    authAction { request: UserRequest[AnyContent] =>
+      val dotCopyData =
+        FingerpostWireEntry.dotCopy(
+          maybeFreeTextQuery = maybeFreeTextQuery.map(SearchTerm.English(_)),
+          start = start,
+          end = end,
+          maybeBeforeId = maybeBeforeId,
+          maybeSinceId = maybeSinceId
+        )
+      Ok(dotCopyData.asJson.spaces2)
+    }
   }
+
 }
 
 case class ComposerLinkRequest(composerId: String)
