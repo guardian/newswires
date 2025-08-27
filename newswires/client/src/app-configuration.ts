@@ -22,8 +22,8 @@ const configLookup: AppConfiguration = isJest
 const showGuSuppliers = configLookup.switches.ShowGuSuppliers;
 
 export const SUPPLIERS_TO_EXCLUDE = showGuSuppliers
-	? []
-	: ['GUAP', 'GUREUTERS'];
+	? ['UNAUTHED_EMAIL_FEED']
+	: ['UNAUTHED_EMAIL_FEED', 'GUAP', 'GUREUTERS'];
 
 export const STAGE = configLookup.stage;
 

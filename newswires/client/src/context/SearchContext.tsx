@@ -218,7 +218,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 		if (state.status === 'loading') {
 			const start = performance.now();
-			fetchResults(currentConfig.query, {}, abortController)
+			fetchResults(currentConfig.query, {}, abortController, currentConfig.view)
 				.then((data) => {
 					sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
 						...Object.fromEntries(
@@ -246,7 +246,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 									...state.queryData.results.map((wire) => wire.id),
 								).toString()
 							: undefined;
-					fetchResults(currentConfig.query, { sinceId }, abortController)
+					fetchResults(
+						currentConfig.query,
+						{ sinceId },
+						abortController,
+						currentConfig.view,
+					)
 						.then((data) => {
 							if (!abortController.signal.aborted) {
 								dispatch({
@@ -273,6 +278,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		currentConfig.query,
 		state.queryData?.results,
 		sendTelemetryEvent,
+		currentConfig.view,
 	]);
 
 	const handleEnterQuery = useCallback(
@@ -316,7 +322,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		});
 
 		pushConfigState({
-			view: 'item',
+			view: currentConfig.view.includes('dotcopy') ? 'dotcopy/item' : 'item',
 			itemId: item,
 			query: currentConfig.query,
 			ticker: currentConfig.ticker,
@@ -325,7 +331,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const handleDeselectItem = () => {
 		pushConfigState({
-			view: 'feed',
+			view: currentConfig.view.includes('dotcopy') ? 'dotcopy' : 'feed',
 			query: currentConfig.query,
 			ticker: currentConfig.ticker,
 			itemId: undefined,
@@ -406,7 +412,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			beforeId,
 		});
 
-		return fetchResults(currentConfig.query, { beforeId })
+		return fetchResults(
+			currentConfig.query,
+			{ beforeId },
+			undefined,
+			currentConfig.view,
+		)
 			.then((data) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
 
