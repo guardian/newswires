@@ -13,6 +13,7 @@
 	],
 	"scripts": {
 		"test": "npm run test --workspaces --if-present",
+		"clear_jest": "jest --clearCache",
 		"synth": "npm run synth --workspace=cdk",
 		"typecheck": "npm run typecheck --workspaces",
 		"build": "npm run build --workspaces --if-present",

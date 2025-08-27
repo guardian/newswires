@@ -65,11 +65,12 @@ const SummaryBadge = ({
 		setPopover(false);
 	};
 
-	const { config, handleEnterQuery, toggleSupplier } = useSearch();
+	const { config, handleEnterQuery } = useSearch();
 
 	const handleRemoveBadge = (label: SearchTermBadgeLabel, value: string) => {
 		const categoryCodes = config.query.categoryCode ?? [];
 		const categoryCodesExcl = config.query.categoryCodeExcl ?? [];
+		const suppliers = config.query.supplier ?? [];
 
 		switch (label) {
 			case 'Search term':
@@ -85,7 +86,11 @@ const SummaryBadge = ({
 				});
 				break;
 			case 'Supplier':
-				toggleSupplier(value);
+				handleEnterQuery({
+					...config.query,
+					supplier: suppliers.filter((s: string) => s !== value),
+				});
+				break;
 				break;
 			case 'Preset':
 				handleEnterQuery({

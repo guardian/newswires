@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { z } from 'zod/v4';
 import { getErrorMessage } from '../../../../shared/getErrorMessage.ts';
-import type { Config, Query } from '../sharedTypes.ts';
+import type { Config, Query, SupplierName } from '../sharedTypes.ts';
 import {
 	ConfigSchema,
 	QuerySchema,
@@ -37,15 +37,6 @@ export type SearchHistory = z.infer<typeof SearchHistorySchema>;
 
 // State Schema
 const _StateSchema = z.discriminatedUnion('status', [
-	z.object({
-		status: z.literal('initialised'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-	}),
 	z.object({
 		status: z.literal('loading'),
 		error: z.string().optional(),
@@ -128,8 +119,8 @@ export type SearchContextShape = {
 	toggleAutoUpdate: () => void;
 	openTicker: (query: Query) => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
-	activeSuppliers: string[];
-	toggleSupplier: (supplier: string) => void;
+	activeSuppliers: SupplierName[];
+	toggleSupplier: (supplier: SupplierName) => void;
 	sideNavIsOpen: boolean;
 	setSideNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -289,24 +280,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			dispatch({
 				type: 'ENTER_QUERY',
 			});
-			if (currentConfig.view === 'item') {
-				pushConfigState({
-					...currentConfig,
-					query,
-				});
-			} else if (currentConfig.view === 'feed') {
-				pushConfigState({
-					...currentConfig,
-					view: 'feed',
-					query,
-				});
-			} else {
-				pushConfigState({
-					...currentConfig,
-					view: 'home',
-					query,
-				});
-			}
+			pushConfigState({
+				...currentConfig,
+				query,
+			});
 		},
 		[currentConfig, pushConfigState, sendTelemetryEvent],
 	);
@@ -459,7 +436,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	);
 
 	const toggleSupplier = useCallback(
-		(supplier: string) => {
+		(supplier: SupplierName) => {
 			// If 'activeSuppliers' is empty, that means that *all* suppliers are active.
 			if (activeSuppliers.length === 0) {
 				handleEnterQuery({

@@ -77,7 +77,7 @@ describe('SearchContext', () => {
 
 		const q: Query = {
 			q: 'text search term',
-			supplier: ['A', 'B'],
+			supplier: ['AP', 'REUTERS'],
 		};
 
 		act(() => {
@@ -88,7 +88,7 @@ describe('SearchContext', () => {
 			'NEWSWIRES_ENTER_SEARCH',
 			expect.objectContaining({
 				'search-query_q': '"text search term"',
-				'search-query_supplier': '["A","B"]',
+				'search-query_supplier': '["AP","REUTERS"]',
 			}),
 		);
 		expect(contextRef.current.config.query).toBe(q);
@@ -100,13 +100,14 @@ describe('SearchContext', () => {
 			throw new Error('Context ref was null after render.');
 		}
 
-		const expectedUrl = '/ticker/feed?q=text+search+term&supplier=A&supplier=B';
+		const expectedUrl =
+			'/ticker/feed?q=text+search+term&supplier=AP&supplier=REUTERS';
 		const expectedWindowFeatures =
 			'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no';
 
 		const q: Query = {
 			q: 'text search term',
-			supplier: ['A', 'B'],
+			supplier: ['AP', 'REUTERS'],
 		};
 
 		act(() => {
@@ -117,7 +118,7 @@ describe('SearchContext', () => {
 			'NEWSWIRES_OPEN_TICKER',
 			expect.objectContaining({
 				'search-query_q': '"text search term"',
-				'search-query_supplier': '["A","B"]',
+				'search-query_supplier': '["AP","REUTERS"]',
 			}),
 		);
 		expect(window.open).toHaveBeenCalledTimes(1);

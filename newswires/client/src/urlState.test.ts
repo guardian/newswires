@@ -4,6 +4,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import type { Config } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 import {
 	defaultQuery,
@@ -366,7 +367,7 @@ describe('configToUrl', () => {
 	});
 
 	it('converts config with many excluded suppliers to querystring', () => {
-		const config = {
+		const config: Config = {
 			view: 'feed' as const,
 			query: { q: 'abc', supplierExcl: ['AP', 'PA', 'REUTERS'] },
 			ticker: false,
