@@ -123,8 +123,6 @@ export const configToUrl = (config: Config): string => {
 			return `${config.ticker ? '/ticker' : ''}/feed${paramsToQuerystring(query)}`;
 		case 'item':
 			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${paramsToQuerystring(query)}`;
-		default:
-			return '/';
 	}
 };
 
