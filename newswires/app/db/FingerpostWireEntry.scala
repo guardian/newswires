@@ -124,15 +124,28 @@ object FingerpostWireEntry
     }
   }
 
+  private[db] def buildHighlightsClause(
+      maybeFreeTextQuery: Option[SearchTerm],
+      highlightAll: Boolean = false
+  ): SQLSyntax = {
+    maybeFreeTextQuery match {
+      case Some(SearchTerm.English(queryString)) =>
+        val highlightSettings =
+          if (highlightAll)
+            "HighlightAll=true, StartSel=<mark>, StopSel=</mark>"
+          else "StartSel=<mark>, StopSel=</mark>"
+        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
+      case _ => sqls"'' AS ${syn.resultName.highlight}"
+    }
+  }
+
   private[db] def buildSingleGetQuery(
       id: Int,
-      maybeFreeTextQuery: Option[String]
+      maybeFreeTextQuery: Option[SearchTerm]
   ): SQLSyntax = {
-    val highlightsClause = maybeFreeTextQuery match {
-      case Some(query) =>
-        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
-      case None => sqls"'' AS ${syn.resultName.highlight}"
-    }
+    val highlightsClause =
+      buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
+
     sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
            | FROM ${FingerpostWireEntry as syn}
            | LEFT JOIN ${ToolLink as ToolLink.syn}
@@ -143,7 +156,7 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[String],
+      maybeFreeTextQuery: Option[SearchTerm],
       requestingUser: Option[String] = None
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
@@ -292,6 +305,7 @@ object FingerpostWireEntry
   }
 
   private[db] def buildWhereClause(
+      baseWhereClause: Option[SQLSyntax],
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
       maybeBeforeId: Option[Int],
@@ -339,7 +353,7 @@ object FingerpostWireEntry
       }
 
     val allClauses =
-      (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
+      (dataOnlyWhereClauses :+ baseWhereClause :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
 
     allClauses match {
       case Nil => sqls"true"
@@ -356,11 +370,7 @@ object FingerpostWireEntry
 
     val maybeSinceId = queryParams.maybeSinceId
 
-    val highlightsClause = queryParams.maybeSearchTerm match {
-      case Some(SearchTerm.English(query)) =>
-        sqls", ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
-      case None => sqls", '' AS ${syn.resultName.highlight}"
-    }
+    val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause = maybeSinceId match {
       case Some(NextPage(_)) =>
@@ -369,7 +379,7 @@ object FingerpostWireEntry
         sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
     }
 
-    sql"""| SELECT $selectAllStatement $highlightsClause
+    sql"""| SELECT $selectAllStatement, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
            | WHERE $whereClause
            | $orderByClause
@@ -381,6 +391,7 @@ object FingerpostWireEntry
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
+      baseWhereClause = Some(sqls"${syn.supplier} <> 'UNAUTHED_EMAIL_FEED'"),
       queryParams.searchParams,
       queryParams.savedSearchParamList,
       maybeBeforeId = queryParams.maybeBeforeId,
@@ -418,6 +429,62 @@ object FingerpostWireEntry
       results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
       totalCount /*, keywordCounts*/
     )
+  }
+
+  def dotCopy(
+      start: Option[String] = None,
+      end: Option[String] = None,
+      maybeFreeTextQuery: Option[SearchTerm] = None,
+      maybeBeforeId: Option[Int] = None,
+      maybeSinceId: Option[Int] = None
+  ): QueryResponse = DB readOnly { implicit session =>
+    val whereClause = buildWhereClause(
+      baseWhereClause =
+        Some(sqls"${FingerpostWireEntry.syn.supplier} = 'UNAUTHED_EMAIL_FEED'"),
+      searchParams = SearchParams(
+        text = maybeFreeTextQuery,
+        start = start,
+        end = end
+      ),
+      savedSearchParamList = Nil,
+      maybeBeforeId = maybeBeforeId,
+      maybeSinceId = maybeSinceId
+    )
+
+    val highlightsClause = buildHighlightsClause(maybeFreeTextQuery)
+
+    val query =
+      sql"""| SELECT $selectAllStatement, $highlightsClause
+            | FROM ${FingerpostWireEntry as syn}
+            | WHERE $whereClause LIMIT 1000
+            | """.stripMargin
+
+    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
+
+    val results = query
+      .map(FingerpostWireEntry.fromDb(syn.resultName))
+      .list()
+      .apply()
+      .flatten
+
+    val countQuery =
+      sql"""| SELECT COUNT(*)
+            | FROM ${FingerpostWireEntry as syn}
+            | WHERE $whereClause
+            | """.stripMargin
+
+    logger.info(
+      s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
+    )
+
+    val totalCount: Long =
+      countQuery.map(_.long(1)).single().apply().getOrElse(0)
+
+    QueryResponse(
+      results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
+      totalCount /*, keywordCounts*/
+    )
+
   }
 
   def getKeywords(
