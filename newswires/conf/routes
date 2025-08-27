@@ -6,7 +6,9 @@
 # An example controller showing a sample home page
 GET     /                           controllers.ViteController.index()
 GET     /feed                       controllers.ViteController.index()
+GET     /dotcopy                    controllers.ViteController.index()
 GET     /item/*id                   controllers.ViteController.item(id: String)
+GET     /dotcopy/item/*id           controllers.ViteController.item(id: String)
 GET     /ticker/feed                controllers.ViteController.index()
 GET     /ticker/item/*id            controllers.ViteController.item(id: String)
 GET     /api/search                 controllers.QueryController.query(q: Option[String], keyword: List[String], supplier: List[String], categoryCode: List[String], categoryCodeExcl: List[String], start: Option[String], end: Option[String], beforeId: Option[Int], sinceId: Option[Int], hasDataFormatting: Option[Boolean])

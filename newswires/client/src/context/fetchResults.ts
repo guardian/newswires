@@ -1,5 +1,5 @@
 import { pandaFetch } from '../panda-session.ts';
-import type { Query, WiresQueryData } from '../sharedTypes.ts';
+import type { Config, Query, WiresQueryData } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
@@ -11,9 +11,11 @@ export const fetchResults = async (
 		beforeId?: string;
 	} = {},
 	abortController?: AbortController,
+	view: Config['view'] = 'feed',
 ): Promise<WiresQueryData> => {
+	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
 	const queryString = paramsToQuerystring(query, true, additionalParams);
-	const response = await pandaFetch(`/api/search${queryString}`, {
+	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {
 			Accept: 'application/json',
 		},

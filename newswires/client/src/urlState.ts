@@ -110,6 +110,10 @@ export function urlToConfig(location: {
 
 	if (viewSegments[0] === 'item' && viewSegments.length === 2) {
 		return { ticker, view: 'item', itemId: viewSegments[1], query };
+	} else if (viewSegments[0] === 'dotcopy' && viewSegments.length === 1) {
+		return { ticker, view: 'dotcopy', itemId: undefined, query };
+	} else if (viewSegments[0] === 'dotcopy') {
+		return { ticker, view: 'dotcopy/item', itemId: viewSegments[2], query };
 	} else {
 		return { ticker, view: 'feed', itemId: undefined, query };
 	}
@@ -122,6 +126,10 @@ export const configToUrl = (config: Config): string => {
 			return `${config.ticker ? '/ticker' : ''}/feed${paramsToQuerystring(query)}`;
 		case 'item':
 			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${paramsToQuerystring(query)}`;
+		case 'dotcopy':
+			return `${config.ticker ? '/ticker' : ''}/dotcopy${paramsToQuerystring(query)}`;
+		case 'dotcopy/item':
+			return `${config.ticker ? '/ticker' : ''}/dotcopy/item/${itemId}${paramsToQuerystring(query)}`;
 	}
 };
 
