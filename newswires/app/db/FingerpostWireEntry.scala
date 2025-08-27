@@ -252,22 +252,6 @@ object FingerpostWireEntry
         )
     }
 
-    val dateRangeQuery = (search.start, search.end) match {
-      case (Some(startDate), Some(endDate)) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
-        )
-      case (Some(startDate), None) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
-        )
-      case (None, Some(endDate)) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
-        )
-      case _ => None
-    }
-
     val hasDataFormattingQuery = search.hasDataFormatting match {
       case Some(true) =>
         Some(
@@ -302,47 +286,9 @@ object FingerpostWireEntry
       },
       sourceFeedsQuery,
       sourceFeedsExclQuery,
-      dateRangeQuery,
       categoryCodesExclQuery,
       hasDataFormattingQuery
     ).flatten
-  }
-
-  private def buildWhereClauseParts(
-      searchParamList: List[SearchParams],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
-  ) = {
-    val dataOnlyWhereClauses = List(
-      maybeBeforeId.map(beforeId =>
-        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-      ),
-      maybeSinceId.map(sinceId =>
-        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-      )
-    ).flatten
-
-    val commonWhereClauses = searchParamList.flatMap(searchParams => {
-      val whereClause = processSearchParams(searchParams)
-
-      if (whereClause.nonEmpty) {
-        Some(
-          sqls.joinWithAnd(
-            dataOnlyWhereClauses ++ whereClause: _*
-          )
-        )
-      } else {
-        None
-      }
-    })
-
-    commonWhereClauses match {
-      case Nil => None
-      case wherePart :: Nil =>
-        Some(wherePart)
-      case whereParts =>
-        Some(sqls.joinWithOr(whereParts.map(clause => sqls"($clause)"): _*))
-    }
   }
 
   private[db] def buildWhereClause(
@@ -352,18 +298,53 @@ object FingerpostWireEntry
       maybeSinceId: Option[Int]
   ): SQLSyntax = {
 
-    val maybeSearch =
-      buildWhereClauseParts(List(searchParams), maybeBeforeId, maybeSinceId)
+    val dataOnlyWhereClauses = List(
+      maybeBeforeId.map(beforeId =>
+        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+      ),
+      maybeSinceId.map(sinceId =>
+        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
+      )
+    )
 
-    val maybeSavedSearch =
-      buildWhereClauseParts(savedSearchParamList, maybeBeforeId, maybeSinceId)
+    val dateRangeQuery = (searchParams.start, searchParams.end) match {
+      case (Some(startDate), Some(endDate)) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
+        )
+      case (Some(startDate), None) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+        )
+      case (None, Some(endDate)) =>
+        Some(
+          sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+        )
+      case _ => None
+    }
 
-    (maybeSearch, maybeSavedSearch) match {
-      case (None, None)               => sqls""
-      case (None, Some(presetSearch)) => sqls"WHERE $presetSearch"
-      case (Some(userSearch), None)   => sqls"WHERE $userSearch"
-      case (Some(userSearch), Some(presetSearch)) =>
-        sqls"WHERE ($userSearch) and ($presetSearch)"
+    val customSearchClauses = processSearchParams(searchParams) match {
+      case Nil => None
+      case clauses =>
+        Some(sqls.joinWithAnd(clauses: _*))
+    }
+
+    val presetSearchClauses =
+      savedSearchParamList.map(params =>
+        sqls.joinWithAnd(processSearchParams(params): _*)
+      ) match {
+        case Nil => None
+        case nonEmpty =>
+          Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
+      }
+
+    val allClauses =
+      (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
+
+    allClauses match {
+      case Nil => sqls"true"
+      case clauses =>
+        sqls.joinWithAnd(clauses: _*)
     }
   }
 
@@ -390,7 +371,7 @@ object FingerpostWireEntry
 
     sql"""| SELECT $selectAllStatement $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
-           | $whereClause
+           | WHERE $whereClause
            | $orderByClause
            | LIMIT $effectivePageSize
            | """.stripMargin
@@ -419,7 +400,7 @@ object FingerpostWireEntry
     val countQuery =
       sql"""| SELECT COUNT(*)
             | FROM ${FingerpostWireEntry as syn}
-            | $whereClause
+            | WHERE $whereClause
             | """.stripMargin
 
     logger.info(
