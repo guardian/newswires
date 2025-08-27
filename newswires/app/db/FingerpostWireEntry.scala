@@ -2,7 +2,6 @@ package db
 
 import conf.{SearchField, SearchTerm}
 import db.CustomMappers.textArray
-import db.FingerpostWireEntry.buildHighlightsClause
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
@@ -147,11 +146,6 @@ object FingerpostWireEntry
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
 
-    maybeFreeTextQuery match {
-      case Some(query) =>
-        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $query), 'HighlightAll=true, StartSel=<mark>, StopSel=</mark>') AS ${syn.resultName.highlight}"
-      case None => sqls"'' AS ${syn.resultName.highlight}"
-    }
     sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
            | FROM ${FingerpostWireEntry as syn}
            | LEFT JOIN ${ToolLink as ToolLink.syn}
