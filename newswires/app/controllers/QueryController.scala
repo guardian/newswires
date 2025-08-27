@@ -36,7 +36,7 @@ class QueryController(
   def copy(): Action[AnyContent] = {
     query(
       maybeFreeTextQuery = None,
-      maybeKeywords = None,
+      keywords = Nil,
       suppliers = List("UNAUTHED_EMAIL_FEED"),
       categoryCode = Nil,
       categoryCodeExcl = Nil,
@@ -50,7 +50,7 @@ class QueryController(
 
   def query(
       maybeFreeTextQuery: Option[String],
-      maybeKeywords: Option[String],
+      keywords: List[String],
       suppliers: List[String],
       categoryCode: List[String],
       categoryCodeExcl: List[String],
@@ -72,12 +72,15 @@ class QueryController(
       showGuSuppliers = featureSwitchProvider.ShowGuSuppliers.isOn()
     )
 
+    val keywordsExcl =
+      request.queryString.get("keywordExcl").map(_.toList).getOrElse(Nil)
+
     val searchParams = SearchParams(
       text = maybeSearchTerm,
       start = maybeStart,
       end = maybeEnd,
-      keywordIncl = maybeKeywords.map(_.split(",").toList).getOrElse(Nil),
-      keywordExcl = paramToList(request, "keywordsExcl"),
+      keywordIncl = keywords,
+      keywordExcl = keywordsExcl,
       suppliersIncl = suppliers,
       suppliersExcl = suppliersExcl,
       categoryCodesIncl = categoryCode,
