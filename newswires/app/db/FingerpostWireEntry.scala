@@ -454,10 +454,10 @@ object FingerpostWireEntry
     val highlightsClause = buildHighlightsClause(maybeFreeTextQuery)
 
     val query =
-      sql"""SELECT $selectAllStatement, $highlightsClause
-      FROM ${FingerpostWireEntry as syn}
-      WHERE $whereClause LIMIT 1000
-       """.stripMargin
+      sql"""| SELECT $selectAllStatement, $highlightsClause
+            | FROM ${FingerpostWireEntry as syn}
+            | WHERE $whereClause LIMIT 1000
+            | """.stripMargin
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
 
