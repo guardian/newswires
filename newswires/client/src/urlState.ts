@@ -9,8 +9,8 @@ export const defaultQuery: Query = {
 	q: '',
 	supplier: [],
 	supplierExcl: [],
-	keywords: undefined,
-	keywordsExcl: undefined,
+	keyword: [],
+	keywordExcl: [],
 	preset: undefined,
 	categoryCode: [],
 	categoryCodeExcl: [],
@@ -66,8 +66,8 @@ export function urlToConfig(location: {
 
 	const supplier = urlSearchParams.getAll('supplier');
 	const supplierExcl = urlSearchParams.getAll('supplierExcl');
-	const keywords = urlSearchParams.get('keywords') ?? undefined;
-	const keywordsExcl = urlSearchParams.get('keywordsExcl') ?? undefined;
+	const keyword = urlSearchParams.getAll('keyword');
+	const keywordExcl = urlSearchParams.getAll('keywordExcl');
 	const categoryCode = urlSearchParams.getAll('categoryCode');
 	const categoryCodeExcl = urlSearchParams.getAll('categoryCodeExcl');
 	const preset = urlSearchParams.get('preset') ?? undefined;
@@ -82,8 +82,8 @@ export function urlToConfig(location: {
 				: '',
 		supplier,
 		supplierExcl,
-		keywords,
-		keywordsExcl,
+		keyword,
+		keywordExcl,
 		categoryCode,
 		categoryCodeExcl,
 		preset,

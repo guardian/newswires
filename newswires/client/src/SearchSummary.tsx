@@ -23,26 +23,32 @@ import { presetFilterOptions, presetLabel } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
-type SearchTermBadgeLabel =
-	| 'Search term'
-	| 'Time range'
-	| 'Preset'
-	| 'Supplier'
-	| 'Category'
-	| '(NOT) Category'
-	| 'Has data formatting';
+const SearchTermBadgeLabelLookup: Record<keyof Query, string> = {
+	q: 'Search term',
+	dateRange: 'Time range',
+	preset: 'Preset',
+	supplier: 'Supplier',
+	supplierExcl: 'Supplier',
+	categoryCode: '(NOT) Category',
+	categoryCodeExcl: '(NOT) Category',
+	hasDataFormatting: 'Has data formatting',
+	keyword: 'Keyword',
+	keywordExcl: '(NOT) Keyword',
+} as const;
 
 const SummaryBadge = ({
-	label,
+	queryParamKey,
 	value,
 	valueLabel,
 	filterOptions = [],
 }: {
-	label: SearchTermBadgeLabel;
+	queryParamKey: keyof Query;
 	value?: string;
 	valueLabel?: string;
 	filterOptions?: Preset[];
 }) => {
+	const label = SearchTermBadgeLabelLookup[queryParamKey];
+
 	const [options, setOptions] = useState<EuiSelectableOption[]>(
 		filterOptions.map((option: Preset) => {
 			return {
@@ -68,50 +74,33 @@ const SummaryBadge = ({
 
 	const { config, handleEnterQuery, toggleSupplier } = useSearch();
 
-	const handleRemoveBadge = (label: SearchTermBadgeLabel, value: string) => {
-		const categoryCodes = config.query.categoryCode ?? [];
-		const categoryCodesExcl = config.query.categoryCodeExcl ?? [];
-
-		switch (label) {
-			case 'Search term':
+	const handleRemoveBadge = (key: keyof Query, value: string) => {
+		switch (key) {
+			case 'q':
 				handleEnterQuery({
 					...config.query,
 					q: '',
 				});
 				break;
-			case 'Time range':
+			case 'dateRange':
+			case 'preset':
+			case 'hasDataFormatting':
 				handleEnterQuery({
 					...config.query,
-					dateRange: undefined,
+					[key]: undefined,
 				});
 				break;
-			case 'Supplier':
+			case 'supplier':
+			case 'supplierExcl':
 				toggleSupplier(value);
 				break;
-			case 'Preset':
+			case 'categoryCode':
+			case 'categoryCodeExcl':
+			case 'keyword':
+			case 'keywordExcl':
 				handleEnterQuery({
 					...config.query,
-					preset: undefined,
-				});
-				break;
-			case 'Category':
-				handleEnterQuery({
-					...config.query,
-					categoryCode: categoryCodes.filter((s: string) => s !== value),
-				});
-				break;
-			case '(NOT) Category':
-				handleEnterQuery({
-					...config.query,
-					categoryCodeExcl: categoryCodesExcl.filter(
-						(s: string) => s !== value,
-					),
-				});
-				break;
-			case 'Has data formatting':
-				handleEnterQuery({
-					...config.query,
-					hasDataFormatting: undefined,
+					[key]: (config.query[key] ?? []).filter((s: string) => s !== value),
 				});
 				break;
 		}
@@ -129,7 +118,7 @@ const SummaryBadge = ({
 			iconSide="right"
 			iconOnClickAriaLabel={`Remove ${label} filter from results`}
 			iconOnClick={() => {
-				handleRemoveBadge(label, value);
+				handleRemoveBadge(queryParamKey, value);
 			}}
 			onClick={() => handleBadgeClick()}
 			onClickAriaLabel={'Open filter options'}
@@ -176,7 +165,7 @@ const SummaryBadge = ({
 					searchable
 					searchProps={{
 						compressed: true,
-						placeholder: `Search ${label} options`,
+						placeholder: `Search ${queryParamKey} options`,
 						autoFocus: true,
 					}}
 					options={options}
@@ -212,12 +201,20 @@ const Summary = ({
 	} = query;
 
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
-	const displayExcludedCategoryCodes =
-		categoryCodeExcl && categoryCodeExcl.length > 0;
+	const displayExcludedCategoryCodes = (categoryCodeExcl ?? []).length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;
+	const displayKeywords = (query.keyword ?? []).length > 0;
+	const displayExcludedKeywords = (query.keywordExcl ?? []).length > 0;
 
 	const displayFilters: boolean =
-		!!q || !!preset || displayCategoryCodes || displaySuppliers;
+		!!q ||
+		!!preset ||
+		displayCategoryCodes ||
+		displaySuppliers ||
+		displayKeywords ||
+		displayExcludedCategoryCodes ||
+		displayExcludedKeywords ||
+		hasDataFormatting !== undefined;
 
 	return (
 		<>
@@ -239,34 +236,54 @@ const Summary = ({
 			)}
 			{dateRange && !isDefaultDateRange(dateRange) && (
 				<SummaryBadge
-					label="Time range"
+					queryParamKey="dateRange"
 					value={deriveDateMathRangeLabel(dateRange.start, dateRange.end)}
 				/>
 			)}
-			{q && <SummaryBadge label="Search term" value={q} />}
+			{q && <SummaryBadge queryParamKey="q" value={q} />}
 			{preset && (
 				<SummaryBadge
-					label="Preset"
+					queryParamKey="preset"
 					value={preset}
 					valueLabel={presetLabel(preset)}
 					filterOptions={presetFilterOptions(preset)}
 				/>
 			)}
-			{displaySuppliers &&
-				suppliers!.map((supplier) => (
-					<SummaryBadge key={supplier} label="Supplier" value={supplier} />
-				))}
+
+			{suppliers?.map((supplier) => (
+				<SummaryBadge
+					key={supplier}
+					queryParamKey="supplier"
+					value={supplier}
+				/>
+			))}
 			{displayCategoryCodes &&
-				categoryCode!.map((code) => (
-					<SummaryBadge key={code} label="Category" value={code} />
+				categoryCode?.map((code) => (
+					<SummaryBadge key={code} queryParamKey="categoryCode" value={code} />
 				))}
 			{displayExcludedCategoryCodes &&
-				categoryCodeExcl.map((code) => (
-					<SummaryBadge key={code} label="(NOT) Category" value={code} />
+				categoryCodeExcl?.map((code) => (
+					<SummaryBadge
+						key={code}
+						queryParamKey="categoryCodeExcl"
+						value={code}
+					/>
+				))}
+			{displayKeywords &&
+				query.keyword?.map((keyword) => (
+					<SummaryBadge key={keyword} queryParamKey="keyword" value={keyword} />
+				))}
+			{displayExcludedKeywords &&
+				query.keywordExcl?.map((keyword) => (
+					<SummaryBadge
+						key={keyword}
+						queryParamKey="keywordExcl"
+						value={keyword}
+					/>
 				))}
 			{hasDataFormatting !== undefined && (
 				<SummaryBadge
-					label="Has data formatting"
+					queryParamKey="hasDataFormatting"
 					value={hasDataFormatting ? 'true' : 'false'}
 				/>
 			)}

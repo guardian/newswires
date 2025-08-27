@@ -128,28 +128,30 @@ describe('urlToConfig', () => {
 	});
 
 	it('can pass keywords', () => {
-		const url = makeFakeLocation('/feed?q=abc&keywords=Sports%2CPolitics');
+		const url = makeFakeLocation('/feed?q=abc&keyword=Sports&keyword=Politics');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				keywords: 'Sports,Politics',
+				keyword: ['Sports', 'Politics'],
 			},
 			ticker: false,
 		});
 	});
 
 	it('can exclude keywords', () => {
-		const url = makeFakeLocation('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
+		const url = makeFakeLocation(
+			'/feed?q=abc&keywordExcl=Sports&keywordExcl=Politics',
+		);
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				keywordsExcl: 'Sports,Politics',
+				keywordExcl: ['Sports', 'Politics'],
 			},
 			ticker: false,
 		});
@@ -381,23 +383,23 @@ describe('configToUrl', () => {
 	it('converts config with many keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keywords: 'Sports,Politics' },
+			query: { q: 'abc', keyword: ['Sports', 'Politics'] },
 			ticker: false,
 			itemId: undefined,
 		};
 		const url = configToUrl(config);
-		expect(url).toBe('/feed?q=abc&keywords=Sports%2CPolitics');
+		expect(url).toBe('/feed?q=abc&keyword=Sports&keyword=Politics');
 	});
 
 	it('converts config with many excluded keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keywordsExcl: 'Sports,Politics' },
+			query: { q: 'abc', keywordExcl: ['Sports', 'Politics'] },
 			ticker: false,
 			itemId: undefined,
 		};
 		const url = configToUrl(config);
-		expect(url).toBe('/feed?q=abc&keywordsExcl=Sports%2CPolitics');
+		expect(url).toBe('/feed?q=abc&keywordExcl=Sports&keywordExcl=Politics');
 	});
 
 	it('converts config with many categoryCode to querystring', () => {
