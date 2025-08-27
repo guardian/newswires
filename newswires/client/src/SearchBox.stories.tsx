@@ -28,7 +28,11 @@ const meta = {
 type Story = StoryObj<typeof meta>;
 
 export const DefaultView: Story = {
-	args: {},
+	args: {
+		currentTextQuery: '',
+		handleTextQueryChange: (newQuery: string) =>
+			console.log('Search term changed to:', newQuery),
+	},
 };
 
 setUpIcons();

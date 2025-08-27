@@ -20,6 +20,7 @@ import {
 } from './dateHelpers.ts';
 import type { Preset } from './presets.ts';
 import { presetFilterOptions, presetLabel } from './presets.ts';
+import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
 type SearchTermBadgeLabel =
@@ -194,11 +195,12 @@ const SummaryBadge = ({
 };
 
 const Summary = ({
+	query,
 	searchSummaryLabel,
 }: {
+	query: Query;
 	searchSummaryLabel: string | boolean;
 }) => {
-	const { config } = useSearch();
 	const {
 		q,
 		preset,
@@ -207,7 +209,7 @@ const Summary = ({
 		categoryCode,
 		categoryCodeExcl,
 		hasDataFormatting,
-	} = config.query;
+	} = query;
 
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
 	const displayExcludedCategoryCodes =
@@ -286,27 +288,6 @@ export const SearchSummary = () => {
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
 
 	useEffect(() => {
-		if (!isPoppedOut) {
-			return;
-		}
-
-		const { preset, supplier } = config.query;
-
-		const displayPreset = !!preset;
-		const displaySuppliers = !!supplier && supplier.length > 0;
-
-		if (displayPreset || displaySuppliers) {
-			const titlePrefix = supplier!.length == 1 ? `${supplier![0]} ` : '';
-			const titlePostfix =
-				supplier!.length > 1 ? ` ${supplier!.join(', ')}` : '';
-
-			document.title = `${titlePrefix}${preset ? `${presetLabel(preset).toUpperCase()}` : ''}${titlePostfix}`;
-		} else {
-			document.title = 'Newswires';
-		}
-	}, [isPoppedOut, config.query]);
-
-	useEffect(() => {
 		if (queryData && queryData.totalCount > 0) {
 			setSearchSummary(
 				`Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`,
@@ -378,7 +359,10 @@ export const SearchSummary = () => {
 						/>
 					</Tooltip>
 				)}
-			<Summary searchSummaryLabel={!isPoppedOut && searchSummary} />
+			<Summary
+				query={config.query}
+				searchSummaryLabel={!isPoppedOut && searchSummary}
+			/>
 
 			{isPoppedOut && (
 				<EuiButtonEmpty
