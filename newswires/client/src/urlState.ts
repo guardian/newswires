@@ -43,39 +43,33 @@ function maybeStringToBooleanOrUndefined(
 	return undefined;
 }
 
-export function urlToConfig(location: {
-	pathname: string;
-	search: string;
-}): Config {
-	const page = location.pathname.slice(1);
+function searchParamsToQuery(params: URLSearchParams): Query {
+	const queryString = params.get('q');
 
-	const urlSearchParams = new URLSearchParams(location.search);
-	const queryString = urlSearchParams.get('q');
-
-	const startParam = urlSearchParams.get('start');
+	const startParam = params.get('start');
 	const start =
 		!!startParam && isValidDateValue(startParam)
 			? startParam
 			: DEFAULT_DATE_RANGE.start;
 
-	const endParam = urlSearchParams.get('end');
+	const endParam = params.get('end');
 	const end =
 		!!endParam && isValidDateValue(endParam)
 			? endParam
 			: DEFAULT_DATE_RANGE.end;
 
-	const supplier = urlSearchParams.getAll('supplier');
-	const supplierExcl = urlSearchParams.getAll('supplierExcl');
-	const keyword = urlSearchParams.getAll('keyword');
-	const keywordExcl = urlSearchParams.getAll('keywordExcl');
-	const categoryCode = urlSearchParams.getAll('categoryCode');
-	const categoryCodeExcl = urlSearchParams.getAll('categoryCodeExcl');
-	const preset = urlSearchParams.get('preset') ?? undefined;
+	const supplier = params.getAll('supplier');
+	const supplierExcl = params.getAll('supplierExcl');
+	const keyword = params.getAll('keyword');
+	const keywordExcl = params.getAll('keywordExcl');
+	const categoryCode = params.getAll('categoryCode');
+	const categoryCodeExcl = params.getAll('categoryCodeExcl');
+	const preset = params.get('preset') ?? undefined;
 	const hasDataFormatting = maybeStringToBooleanOrUndefined(
-		urlSearchParams.get('hasDataFormatting'),
+		params.get('hasDataFormatting'),
 	);
 
-	const query: Query = {
+	return {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
 				? queryString.toString()
@@ -90,29 +84,34 @@ export function urlToConfig(location: {
 		dateRange: { start, end },
 		hasDataFormatting,
 	};
+}
 
-	const pageSegments = page.split('/');
+export function urlToConfig(location: {
+	pathname: string;
+	search: string;
+}): Config {
+	const urlSearchParams = new URLSearchParams(location.search);
 
-	if (page === '' || page.includes('feed')) {
-		return {
-			view: 'feed',
-			query,
-			ticker: page.includes('ticker'),
-			itemId: undefined,
-		};
-	} else if (
-		page.includes('item/') &&
-		(pageSegments.length === 2 || pageSegments.length === 3)
-	) {
-		return {
-			view: 'item',
-			itemId: pageSegments[pageSegments.length - 1],
-			query,
-			ticker: page.includes('ticker'),
-		};
+	const query = searchParamsToQuery(urlSearchParams);
+
+	/**
+	 * Remove leading `/` and split by `/` to get path segments, e.g.:
+	 * /                      => ['']
+	 * /feed                  => ['feed']
+	 * /item/12345            => ['item', '12345']
+	 * /ticker/feed           => ['ticker', 'feed']
+	 * /ticker/item/12345     => ['ticker', 'item', '12345']
+	 */
+	const segments = location.pathname.slice(1).split('/');
+
+	const [firstSegment, ...restSegments] = segments;
+	const ticker = firstSegment === 'ticker';
+	const viewSegments = ticker ? restSegments : segments;
+
+	if (viewSegments[0] === 'item' && viewSegments.length === 2) {
+		return { ticker, view: 'item', itemId: viewSegments[1], query };
 	} else {
-		console.log(`Page not found: "${page}", so using defaultConfig`);
-		return defaultConfig;
+		return { ticker, view: 'feed', itemId: undefined, query };
 	}
 }
 
