@@ -87,18 +87,14 @@ export const main = async (n: number): Promise<void> => {
 
     const BATCH_SIZE  = 1000;
     const offsets  = computeOffsets(count, BATCH_SIZE);
-
-    const dbCalls = offsets.map(async (offset, index) => {
-        console.info(`Updating records in batch ${index + 1}/${offsets.length}`);
-
+    for(const [index, offset] of offsets.entries()) {
+        console.info(`Processing batch ${index + 1} of ${offsets.length}`);
         const records = (await getRecords(BATCH_SIZE, offset)).map((record) => ({
             externalId: record.externalId,
             classifications: classification(record.processedObject)
         }))
         await updateRecords(records)
-    });
-
-    await Promise.all(dbCalls);
+    }
     console.info(`Finished updating ${count} records`);
 };
 
