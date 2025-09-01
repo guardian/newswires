@@ -88,7 +88,7 @@ export const main = async (n: number): Promise<void> => {
     const BATCH_SIZE  = 1000;
     const offsets  = computeOffsets(count, BATCH_SIZE);
 
-    offsets.forEach(async (offset, index) => {
+    const dbCalls = offsets.map(async (offset, index) => {
         console.info(`Updating records in batch ${index + 1}/${offsets.length}`);
 
         const records = (await getRecords(BATCH_SIZE, offset)).map((record) => ({
@@ -98,7 +98,7 @@ export const main = async (n: number): Promise<void> => {
         await updateRecords(records)
     });
 
-    
+    await Promise.all(dbCalls);
     console.info(`Finished updating ${count} records`);
 };
 
