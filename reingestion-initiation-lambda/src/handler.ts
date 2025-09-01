@@ -80,12 +80,13 @@ const updateRecords: (records: UpdateRecord[]) => Promise<void> = async (records
 
 
 
-export const main = async (n: number): Promise<void> => {
+export const main = async (n: number, batchSize: number): Promise<void> => {
     // const count = await getRecordsCount();
     const count = n;
     console.info(`Reclassifying ${count} from database `);
 
-    const BATCH_SIZE  = 1000;
+    const BATCH_SIZE  = batchSize;
+    console.info(`Running for batch sizes ${batchSize}`)
     const offsets  = computeOffsets(count, BATCH_SIZE);
     for(const [index, offset] of offsets.entries()) {
         console.info(`Processing batch ${index + 1} of ${offsets.length}`);
