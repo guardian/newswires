@@ -37,7 +37,7 @@ export const supplierData: SupplierInfo[] = [
 	{
 		name: 'UNAUTHED_EMAIL_FEED',
 		label: 'Dotcopy',
-		shortLabel: 'Unauthed',
+		shortLabel: 'Dotcopy',
 		colour: '#808080',
 	},
 ] as const;
