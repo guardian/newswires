@@ -71,8 +71,8 @@ const updateRecords: (records: UpdateRecord[]) => Promise<void> = async (records
     try {
         await sql.unsafe(sqlStatement)
     } catch (error) {
-        console.error("Error updating records:", error);
-        throw error;
+        console.error("Error updating records:", sqlStatement);
+        // throw error;
     } finally {
         closeDbConnection();
     }
