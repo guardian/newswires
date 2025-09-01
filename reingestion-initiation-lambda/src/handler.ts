@@ -90,7 +90,7 @@ export const main = async ({ n, batchSize }: { n: number; batchSize: number }): 
             classifications: classification(record.processedObject)
         }))
         await updateRecords(sql, records)
-        await new Promise((res) => setTimeout(res, 1000));
+        await new Promise((res) => setTimeout(res, 10000));
     }
     closeDbConnection();
     console.info(`Finished updating ${count} records`);
