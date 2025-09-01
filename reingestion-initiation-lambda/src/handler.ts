@@ -80,7 +80,7 @@ const updateRecords: (records: UpdateRecord[]) => Promise<void> = async (records
 
 
 
-export const main = async (n: number, batchSize: number): Promise<void> => {
+export const main = async ({ n, batchSize }: { n: number; batchSize: number }): Promise<void> => {
     // const count = await getRecordsCount();
     const count = n;
     console.info(`Reclassifying ${count} from database `);

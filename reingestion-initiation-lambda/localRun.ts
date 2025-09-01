@@ -1,5 +1,5 @@
 import { main } from "./src/handler";
 async function run() {
-    main(4000, 1000)
+    main({ n: 4000, batchSize: 500 })
 }
 run()
