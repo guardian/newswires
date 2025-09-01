@@ -2223,7 +2223,6 @@ const presets: Record<string, Record<Supplier, SearchCriteria[]>> = {
 	golf: Golf,
 };
 export function classification(processedObject: ProcessedObject): string[] {
-	const start = performance.now();
 	const classifications = Object.entries(presets).reduce<string[]>(
 		(acc, [preset, supplierToSearchCriteria]) => {
 			if (matchesPreset(processedObject, supplierToSearchCriteria)) {
@@ -2233,10 +2232,7 @@ export function classification(processedObject: ProcessedObject): string[] {
 		},
 		[],
 	);
-	const end = performance.now();
-	console.log(
-		`Classification took ${end - start}ms with result: ${classifications.join(', ')}`,
-	);
+
 	return classifications;
 }
 

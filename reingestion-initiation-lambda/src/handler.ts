@@ -1,7 +1,8 @@
 import { initialiseDbConnection } from '../../shared/rds';
 import { classification } from "../../shared/classification";
 import { IngestorInputBody } from '../../shared/types';
-import { batchedRecords } from '../../shared/util';
+import { batchedRecords, computeOffsets } from '../../shared/util';
+import { off } from 'process';
 
 
 type ProcessedObject = {
@@ -20,10 +21,23 @@ type UpdateRecord = {
     classifications: string[];
 }
 
-const getRecords: (n: number) => Promise<DBRecord[]> = async(n) => {
+const getRecordsCount: () => Promise<number> = async () => {
     const { sql, closeDbConnection} = await initialiseDbConnection();
     try {
-        const results = await sql`SELECT external_id, content, supplier, category_codes FROM fingerpost_wire_entry limit ${n};`
+        const result = await sql`SELECT COUNT(*) FROM fingerpost_wire_entry;`
+        return Number(result[0].count);
+    } catch (error) {
+        console.error("Error getting records count:", error);
+        throw error;
+    } finally {
+        closeDbConnection();
+    }
+}
+
+const getRecords: (n: number, offset: number) => Promise<DBRecord[]> = async(n, offset) => {
+    const { sql, closeDbConnection} = await initialiseDbConnection();
+    try {
+        const results = await sql`SELECT external_id, content, supplier, category_codes FROM fingerpost_wire_entry limit ${n} offset ${offset};`
         return results.map(record => ({
             externalId: record.external_id as string,
             processedObject: {
@@ -46,12 +60,12 @@ const toPostgressArray = (classifications: string[]) => {
 
 const updateRecords: (records: UpdateRecord[]) => Promise<void> = async (records) => {
     const values = records.map(record => `('${record.externalId}', ${toPostgressArray(record.classifications)})`)
-    console.log(`Updating records ${records.length}`)
+    console.info(`Updating records ${records.length}`)
     const { sql, closeDbConnection} = await initialiseDbConnection();
   
     const sqlStatement = `UPDATE fingerpost_wire_entry AS fwe
                    SET classifications = data.classifications,
-                       last_updated_at= TO_TIMESTAMP(${Date.now()})
+                       last_updated_at= TO_TIMESTAMP(${Date.now()} / 1000.0)
                    FROM (VALUES ${values}) AS data (external_id, classifications)
                    WHERE fwe.external_id = data.external_id;`
     try {
@@ -67,18 +81,24 @@ const updateRecords: (records: UpdateRecord[]) => Promise<void> = async (records
 
 
 export const main = async (n: number): Promise<void> => {
+    // const count = await getRecordsCount();
+    const count = n;
+    console.info(`Reclassifying ${count} from database `);
 
-	const records = (await getRecords(n)).map((record) => ({
-        externalId: record.externalId,
-        classifications: classification(record.processedObject)
-    }))
-    const batched = batchedRecords(records, 1000)
-    console.log(`Updating ${records.length} records in ${batched.length} batches`)
-    batched.map(async (batch, i) => {
-        console.log(`Processing batch ${i + 1}/${batched.length}`);
-        await updateRecords(batch)
-    })
+    const BATCH_SIZE  = 1000;
+    const offsets  = computeOffsets(count, BATCH_SIZE);
+
+    offsets.forEach(async (offset, index) => {
+        console.info(`Updating records in batch ${index + 1}/${offsets.length}`);
+
+        const records = (await getRecords(BATCH_SIZE, offset)).map((record) => ({
+            externalId: record.externalId,
+            classifications: classification(record.processedObject)
+        }))
+        await updateRecords(records)
+    });
+
     
-    console.log(`Finished updating ${records.length} records`);
+    console.info(`Finished updating ${count} records`);
 };
 

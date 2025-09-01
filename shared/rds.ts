@@ -97,7 +97,6 @@ export async function initialiseDbConnection(useSSM: boolean=false) {
 		const signer = new Signer(sharedConfig);
 		const token = isRunningLocally ? 'postgres' : await signer.getAuthToken();
 		const ssl = isRunningLocally ? 'prefer' : 'require';
-
 		sql = postgres({
 			...sharedConfig,
 			database: DATABASE_NAME,

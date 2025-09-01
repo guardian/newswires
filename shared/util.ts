@@ -13,3 +13,8 @@ export function batchedRecords<T>(records: T[], n: number = 10): T[][] {
         return acc;
     }, [])
 }
+
+export function computeOffsets(max: number, batchSize: number): number[] {
+    const batches = Math.ceil(max / batchSize);
+    return Array.from({ length: batches }, (_, i) => i * batchSize);
+}
