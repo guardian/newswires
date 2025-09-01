@@ -3,6 +3,7 @@ import { classification } from "../../shared/classification";
 import { IngestorInputBody } from '../../shared/types';
 import { batchedRecords, computeOffsets } from '../../shared/util';
 import { off } from 'process';
+import { Sql } from 'postgres';
 
 
 type ProcessedObject = {
@@ -34,8 +35,7 @@ const getRecordsCount: () => Promise<number> = async () => {
     }
 }
 
-const getRecords: (n: number, offset: number) => Promise<DBRecord[]> = async(n, offset) => {
-    const { sql, closeDbConnection} = await initialiseDbConnection();
+const getRecords: (sql: Sql, n: number, offset: number) => Promise<DBRecord[]> = async(sql, n, offset) => {
     try {
         const results = await sql`SELECT external_id, content, supplier, category_codes FROM fingerpost_wire_entry limit ${n} offset ${offset};`
         return results.map(record => ({
@@ -49,20 +49,16 @@ const getRecords: (n: number, offset: number) => Promise<DBRecord[]> = async(n, 
     } catch (error) {
         console.error("Error getting messages:", error);
         throw error;
-    } finally{
-        closeDbConnection();
-    }
+    } 
 }
 const toPostgressArray = (classifications: string[]) => {
     if(classifications.length === 0) return 'ARRAY[]::text[]'
     return `ARRAY[${classifications.map(c => `'${c}'`).join(',')}]`
 }
 
-const updateRecords: (records: UpdateRecord[]) => Promise<void> = async (records) => {
+const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {
     const values = records.map(record => `('${record.externalId}', ${toPostgressArray(record.classifications)})`)
     console.info(`Updating records ${records.length}`)
-    const { sql, closeDbConnection} = await initialiseDbConnection();
-  
     const sqlStatement = `UPDATE fingerpost_wire_entry AS fwe
                    SET classifications = data.classifications,
                        last_updated_at= TO_TIMESTAMP(${Date.now()} / 1000.0)
@@ -73,8 +69,6 @@ const updateRecords: (records: UpdateRecord[]) => Promise<void> = async (records
     } catch (error) {
         console.error("Error updating records:", sqlStatement);
         // throw error;
-    } finally {
-        closeDbConnection();
     }
 }
 
@@ -88,14 +82,17 @@ export const main = async ({ n, batchSize }: { n: number; batchSize: number }): 
     const BATCH_SIZE  = batchSize;
     console.info(`Running for batch sizes ${batchSize}`)
     const offsets  = computeOffsets(count, BATCH_SIZE);
+    const { sql, closeDbConnection} = await initialiseDbConnection();
     for(const [index, offset] of offsets.entries()) {
         console.info(`Processing batch ${index + 1} of ${offsets.length}`);
-        const records = (await getRecords(BATCH_SIZE, offset)).map((record) => ({
+        const records = (await getRecords(sql, BATCH_SIZE, offset)).map((record) => ({
             externalId: record.externalId,
             classifications: classification(record.processedObject)
         }))
-        await updateRecords(records)
+        await updateRecords(sql, records)
+        await new Promise((res) => setTimeout(res, 1000));
     }
+    closeDbConnection();
     console.info(`Finished updating ${count} records`);
 };
 
