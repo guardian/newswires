@@ -37,6 +37,7 @@ const sampleItemData: WireData = {
 	ingestedAt: '2025-02-26T09:58:22.000Z',
 	categoryCodes: ['C:US', 'C:CA'],
 	isFromRefresh: false,
+	hasDataFormatting: false,
 };
 
 const meta = {

@@ -40,13 +40,22 @@ export const WireItemList = ({
 		<>
 			<ul>
 				{wires.map(
-					({ id, content, supplier, highlight, isFromRefresh, ingestedAt }) => (
+					({
+						id,
+						content,
+						supplier,
+						highlight,
+						isFromRefresh,
+						ingestedAt,
+						hasDataFormatting,
+					}) => (
 						<li key={id}>
 							<WirePreviewCard
 								id={id}
 								ingestedAt={ingestedAt}
 								supplier={supplier}
 								content={content}
+								hasDataFormatting={hasDataFormatting}
 								isFromRefresh={isFromRefresh}
 								highlight={highlight}
 								selected={selectedWireId == id.toString()}
@@ -75,17 +84,26 @@ export const WireItemList = ({
 function decideMainHeadingContent(
 	supplier: string,
 	{ headline, slug }: WireData['content'],
+	hasDataFormatting: boolean,
 ): string {
-	const prefix =
-		(supplier === 'AAP' || supplier === 'PA') && slug && slug.length > 0
-			? `${slug} - `
-			: '';
+	const hasNonEmptySlug = slug && slug.length > 0;
 
 	if (headline && headline.length > 0) {
+		/**
+		 * AAP and PA stories have useful slugs. But stories with 'data formatting' have
+		 * their slugs added to their headlines when we get them, so we don't need to add them again.
+		 */
+		const prefix =
+			(supplier === 'AAP' || supplier === 'PA') &&
+			!hasDataFormatting &&
+			hasNonEmptySlug
+				? `${slug} - `
+				: '';
+
 		return `${prefix}${headline}`;
 	}
 
-	if (slug && slug.length > 0) {
+	if (hasNonEmptySlug) {
 		return slug;
 	}
 
@@ -165,6 +183,7 @@ const WirePreviewCard = ({
 	supplier,
 	ingestedAt,
 	content,
+	hasDataFormatting,
 	highlight,
 	selected,
 	view,
@@ -174,6 +193,7 @@ const WirePreviewCard = ({
 	supplier: SupplierInfo;
 	ingestedAt: string;
 	content: WireData['content'];
+	hasDataFormatting: boolean;
 	highlight: string | undefined;
 	selected: boolean;
 	isFromRefresh: boolean;
@@ -214,7 +234,11 @@ const WirePreviewCard = ({
 		method: 'transparent',
 	});
 
-	const mainHeadingContent = decideMainHeadingContent(supplier.name, content);
+	const mainHeadingContent = decideMainHeadingContent(
+		supplier.name,
+		content,
+		hasDataFormatting,
+	);
 
 	const hasBeenViewed = viewedItemIds.includes(id.toString());
 
