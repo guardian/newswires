@@ -14,12 +14,15 @@ type ProcessedObject = {
 
 type DBRecord = {
     externalId: string;
-    processedObject: ProcessedObject
+    processedObject: ProcessedObject;
+    s3key: string;
 }
 
 type UpdateRecord = {
     externalId: string;
     classifications: string[];
+    processedObject: ProcessedObject;
+    s3key?: string;
 }
 
 const getRecordsCount: () => Promise<number> = async () => {
@@ -44,7 +47,8 @@ const getRecords: (sql: Sql, n: number, offset: number) => Promise<DBRecord[]> =
                 content: record.content as IngestorInputBody,
                 supplier: record.supplier as string,
                 categoryCodes: record.category_codes as string[],
-            }
+            },
+            s3key: record.s3_key,
         } as DBRecord));
     } catch (error) {
         console.error("Error getting messages:", error);
@@ -88,6 +92,30 @@ const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = asyn
     }
 }
 
+const insertOnConflict: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {
+    const values = records.map(record => `('${record.externalId}', 
+        ${record.processedObject.supplier},
+        ${record.processedObject.content},
+        ${toPostgressArray(record.processedObject.categoryCodes)},
+        ${record.s3key},
+        ${toPostgressArray(record.classifications)})`)
+
+    const sqlStatement = `INSERT INTO fingerpost_wire_entry (external_id, supplier, content, category_codes, s3_key, classifications)
+                            values ${values}
+                            ON CONFLICT (external_id) DO UPDATE
+                            SET content = EXCLUDED.content,
+                            supplier = EXCLUDED.supplier,
+                            category_codes = EXCLUDED.category_codes,
+                            s3_key = EXCLUDED.s3_key,
+                            classifications = EXCLUDED.classifications,
+                            last_updated_at = now()`
+     try {
+        await sql.unsafe(sqlStatement)
+    } catch (error) {
+        console.error("Error updating records:", error);
+        // throw error;
+    }                        
+}
 
 
 export const main = async ({ n, batchSize, timeDelay }: { n: number; batchSize: number; timeDelay: number }): Promise<void> => {
@@ -104,13 +132,13 @@ export const main = async ({ n, batchSize, timeDelay }: { n: number; batchSize: 
         console.info(`Processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         const records = (await getRecords(sql, BATCH_SIZE, offset)).map((record) => ({
             externalId: record.externalId,
-            classifications: classification(record.processedObject)
+            classifications: classification(record.processedObject),
+            s3key: record.s3key,
+            processedObject: record.processedObject
         }))
         console.info(`Finished mapping batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
-        await insertRecords(sql, records)
+        await insertOnConflict(sql, records)
         console.info(`Finished inserting batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
-        await updateRecords(sql, records)
-        console.info(`Finished processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         await new Promise((res) => setTimeout(res, timeDelay));
     }
     closeDbConnection();
