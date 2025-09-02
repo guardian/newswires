@@ -84,12 +84,13 @@ export const main = async ({ n, batchSize, timeDelay }: { n: number; batchSize: 
     const offsets  = computeOffsets(count, BATCH_SIZE);
     const { sql, closeDbConnection} = await initialiseDbConnection();
     for(const [index, offset] of offsets.entries()) {
-        console.info(`Processing batch ${index + 1} of ${offsets.length}`);
+        console.info(`Processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         const records = (await getRecords(sql, BATCH_SIZE, offset)).map((record) => ({
             externalId: record.externalId,
             classifications: classification(record.processedObject)
         }))
         await updateRecords(sql, records)
+        console.info(`Finished processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         await new Promise((res) => setTimeout(res, timeDelay));
     }
     closeDbConnection();
