@@ -64,9 +64,13 @@ const createTempTable = async (sql: Sql) => {
 
 const insertRecords = async (sql: Sql, records: UpdateRecord[]) => {
     const values = records.map(record => `('${record.externalId}', ${toPostgressArray(record.classifications)})`)
-    await sql`Truncate temp_classifications`;
-    await sql.unsafe(`INSERT INTO temp_classifications (external_id, classifications) VALUES ${values}`);
-    await sql`ANALYZE temp_classifications;`
+    try {
+        await sql`Truncate temp_classifications`;
+        await sql.unsafe(`INSERT INTO temp_classifications (external_id, classifications) VALUES ${values}`);
+        await sql`ANALYZE temp_classifications;`
+    } catch (error) {
+        console.error("Error inserting records:", error);
+    }
 }
 
 const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {
