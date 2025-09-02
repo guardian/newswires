@@ -218,7 +218,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 		if (state.status === 'loading') {
 			const start = performance.now();
-			fetchResults(currentConfig.query, {}, abortController, currentConfig.view)
+			fetchResults({ query: currentConfig.query, view: currentConfig.view })
 				.then((data) => {
 					sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
 						...Object.fromEntries(
@@ -246,12 +246,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 									...state.queryData.results.map((wire) => wire.id),
 								).toString()
 							: undefined;
-					fetchResults(
-						currentConfig.query,
-						{ sinceId },
+					fetchResults({
+						query: currentConfig.query,
+						sinceId,
 						abortController,
-						currentConfig.view,
-					)
+						view: currentConfig.view,
+					})
 						.then((data) => {
 							if (!abortController.signal.aborted) {
 								dispatch({
@@ -412,12 +412,11 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			beforeId,
 		});
 
-		return fetchResults(
-			currentConfig.query,
-			{ beforeId },
-			undefined,
-			currentConfig.view,
-		)
+		return fetchResults({
+			query: currentConfig.query,
+			beforeId,
+			view: currentConfig.view,
+		})
 			.then((data) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
 

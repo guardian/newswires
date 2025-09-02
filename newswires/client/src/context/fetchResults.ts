@@ -4,17 +4,26 @@ import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
-export const fetchResults = async (
-	query: Query,
-	additionalParams: {
-		sinceId?: string;
-		beforeId?: string;
-	} = {},
-	abortController?: AbortController,
-	view: Config['view'] = 'feed',
-): Promise<WiresQueryData> => {
+export const fetchResults = async ({
+	query,
+	view,
+	sinceId,
+	beforeId,
+	abortController,
+}: {
+	query: Query;
+	view: Config['view'];
+	sinceId?: string;
+	beforeId?: string;
+	abortController?: AbortController;
+}): Promise<WiresQueryData> => {
 	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
-	const queryString = paramsToQuerystring(query, true, additionalParams);
+	const queryString = paramsToQuerystring({
+		query,
+		useAbsoluteDateTimeValues: true,
+		beforeId,
+		sinceId,
+	});
 	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {
 			Accept: 'application/json',

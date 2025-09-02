@@ -26,9 +26,12 @@ describe('fetchResults', () => {
 
 	it('should call pandaFetch with correct URL and headers', async () => {
 		const mockQuery = { q: 'value' };
-		await fetchResults(mockQuery);
+		await fetchResults({ query: mockQuery, view: 'feed' });
 
-		expect(paramsToQuerystring).toHaveBeenCalledWith(mockQuery, true, {});
+		expect(paramsToQuerystring).toHaveBeenCalledWith({
+			query: mockQuery,
+			useAbsoluteDateTimeValues: true,
+		});
 		expect(pandaFetch).toHaveBeenCalledWith('/api/search?queryString', {
 			headers: { Accept: 'application/json' },
 		});
@@ -42,9 +45,9 @@ describe('fetchResults', () => {
 			ok: false,
 		});
 
-		await expect(fetchResults({ q: 'value' })).rejects.toThrow(
-			'Error occurred',
-		);
+		await expect(
+			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+		).rejects.toThrow('Error occurred');
 	});
 
 	it('should throw an error if response data is invalid', async () => {
@@ -53,9 +56,9 @@ describe('fetchResults', () => {
 			ok: true,
 		});
 
-		await expect(fetchResults({ q: 'value' })).rejects.toThrow(
-			'Received invalid data from server',
-		);
+		await expect(
+			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+		).rejects.toThrow('Received invalid data from server');
 	});
 
 	it('should return parsed data if response is valid', async () => {
@@ -69,39 +72,39 @@ describe('fetchResults', () => {
 			ok: true,
 		});
 
-		const result = await fetchResults({ q: 'value' });
+		const result = await fetchResults({ query: { q: 'value' }, view: 'feed' });
 		expect(result).toEqual(mockResponseData);
 	});
 
 	it('should append sinceId to the query if provided', async () => {
 		const mockQuery = { q: 'value' };
-		await fetchResults(mockQuery, { sinceId: '123' });
+		await fetchResults({ query: mockQuery, view: 'feed', sinceId: '123' });
 
-		expect(paramsToQuerystring).toHaveBeenCalledWith(
-			{
-				...mockQuery,
-			},
-			true,
-			{ sinceId: '123' },
-		);
+		expect(paramsToQuerystring).toHaveBeenCalledWith({
+			query: mockQuery,
+			useAbsoluteDateTimeValues: true,
+			sinceId: '123',
+		});
 	});
 
 	it('should append beforeId to the query if provided', async () => {
 		const mockQuery = { q: 'value' };
-		await fetchResults(mockQuery, { beforeId: '123' });
+		await fetchResults({
+			query: mockQuery,
+			view: 'feed',
+			beforeId: '123',
+		});
 
-		expect(paramsToQuerystring).toHaveBeenCalledWith(
-			{
-				...mockQuery,
-			},
-			true,
-			{ beforeId: '123' },
-		);
+		expect(paramsToQuerystring).toHaveBeenCalledWith({
+			query: mockQuery,
+			useAbsoluteDateTimeValues: true,
+			beforeId: '123',
+		});
 	});
 
 	it('should transform the results using transformWireItemQueryResult', async () => {
 		const mockQuery = { q: 'value' };
-		const results = await fetchResults(mockQuery);
+		const results = await fetchResults({ query: mockQuery, view: 'feed' });
 		expect(results.results).toHaveLength(1);
 		expect(results.results[0]).toEqual(
 			transformWireItemQueryResult(sampleWireResponse),

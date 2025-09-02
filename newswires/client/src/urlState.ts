@@ -123,13 +123,13 @@ export const configToUrl = (config: Config): string => {
 	const { view, query, itemId } = config;
 	switch (view) {
 		case 'feed':
-			return `${config.ticker ? '/ticker' : ''}/feed${paramsToQuerystring(query)}`;
+			return `${config.ticker ? '/ticker' : ''}/feed${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
 		case 'item':
-			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${paramsToQuerystring(query)}`;
+			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
 		case 'dotcopy':
-			return `${config.ticker ? '/ticker' : ''}/dotcopy${paramsToQuerystring(query)}`;
+			return `${config.ticker ? '/ticker' : ''}/dotcopy${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
 		case 'dotcopy/item':
-			return `${config.ticker ? '/ticker' : ''}/dotcopy/item/${itemId}${paramsToQuerystring(query)}`;
+			return `${config.ticker ? '/ticker' : ''}/dotcopy/item/${itemId}${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
 	}
 };
 
@@ -167,17 +167,17 @@ const processDateRange = (query: Query, useAbsoluteDateTimeValues: boolean) => {
 	}
 };
 
-export const paramsToQuerystring = (
-	query: Query,
-	useAbsoluteDateTimeValues: boolean = false,
-	{
-		sinceId,
-		beforeId,
-	}: {
-		sinceId?: string;
-		beforeId?: string;
-	} = {},
-): string => {
+export const paramsToQuerystring = ({
+	query,
+	sinceId,
+	beforeId,
+	useAbsoluteDateTimeValues,
+}: {
+	query: Query;
+	sinceId?: string;
+	beforeId?: string;
+	useAbsoluteDateTimeValues: boolean;
+}): string => {
 	const flattenedQuery = processDateRange(query, useAbsoluteDateTimeValues);
 
 	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(
