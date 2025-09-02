@@ -56,14 +56,17 @@ const toPostgressArray = (classifications: string[]) => {
     return `ARRAY[${classifications.map(c => `'${c}'`).join(',')}]`
 }
 
+
 const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {
     const values = records.map(record => `('${record.externalId}', ${toPostgressArray(record.classifications)})`)
     console.info(`Updating records ${records.length}`)
-    const sqlStatement = `UPDATE fingerpost_wire_entry AS fwe
-                   SET classifications = data.classifications,
+    const sqlStatement = `
+                WITH updates (external_id, classifications) AS (VALUES ${values})
+                UPDATE fingerpost_wire_entry AS fwe
+                   SET classifications = updates.classifications,
                        last_updated_at= TO_TIMESTAMP(${Date.now()} / 1000.0)
-                   FROM (VALUES ${values}) AS data (external_id, classifications)
-                   WHERE fwe.external_id = data.external_id;`
+                   FROM updates
+                   WHERE fwe.external_id = updates.external_id;`
     try {
         await sql.unsafe(sqlStatement)
     } catch (error) {
