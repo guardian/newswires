@@ -5,7 +5,7 @@ export const TelemetryPixel = ({ stage }: { stage: string }) => {
 	const telemetryUrl = getTelemetryUrl(stage);
 	const { config } = useSearch();
 
-	const path = config.view === 'home' ? '/' : config.view;
+	const path = config.view;
 
 	return (
 		<img
