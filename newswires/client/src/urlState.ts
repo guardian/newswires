@@ -133,46 +133,43 @@ export const configToUrl = (config: Config): string => {
 	}
 };
 
-const processDateRange = (
-	config: Query,
-	useAbsoluteDateTimeValues: boolean,
-) => {
+const processDateRange = (query: Query, useAbsoluteDateTimeValues: boolean) => {
 	if (useAbsoluteDateTimeValues) {
 		// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
-		if (config.dateRange) {
+		if (query.dateRange) {
 			const [maybeStartMoment, maybeEndMoment] =
 				relativeDateRangeToAbsoluteDateRange({
-					start: config.dateRange.start,
-					end: config.dateRange.end,
+					start: query.dateRange.start,
+					end: query.dateRange.end,
 				});
 
 			return {
-				...config,
+				...query,
 				start: maybeStartMoment?.toISOString(),
 				end: maybeEndMoment?.toISOString(),
 			};
 		} else {
-			return { ...config, start: START_OF_TODAY.toISOString() };
+			return { ...query, start: START_OF_TODAY.toISOString() };
 		}
 	} else {
 		return {
-			...config,
+			...query,
 			start:
-				config.dateRange?.start &&
-				config.dateRange.start !== DEFAULT_DATE_RANGE.start
-					? config.dateRange.start
+				query.dateRange?.start &&
+				query.dateRange.start !== DEFAULT_DATE_RANGE.start
+					? query.dateRange.start
 					: undefined,
 			end:
-				config.dateRange?.end && config.dateRange.end !== DEFAULT_DATE_RANGE.end
-					? config.dateRange.end
+				query.dateRange?.end && query.dateRange.end !== DEFAULT_DATE_RANGE.end
+					? query.dateRange.end
 					: undefined,
 		};
 	}
 };
 
 export const paramsToQuerystring = (
-	config: Query,
-	useDateTimeValue: boolean = false,
+	query: Query,
+	useAbsoluteDateTimeValues: boolean = false,
 	{
 		sinceId,
 		beforeId,
@@ -181,7 +178,7 @@ export const paramsToQuerystring = (
 		beforeId?: string;
 	} = {},
 ): string => {
-	const flattenedQuery = processDateRange(config, useDateTimeValue);
+	const flattenedQuery = processDateRange(query, useAbsoluteDateTimeValues);
 
 	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(
 		(acc, [k, v]) => {
