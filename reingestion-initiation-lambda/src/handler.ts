@@ -55,18 +55,27 @@ const toPostgressArray = (classifications: string[]) => {
     if(classifications.length === 0) return 'ARRAY[]::text[]'
     return `ARRAY[${classifications.map(c => `'${c}'`).join(',')}]`
 }
+const createTempTable = async (sql: Sql) => {
+    await sql`CREATE TEMP TABLE temp_classifications (
+        external_id TEXT PRIMARY KEY,
+        classifications TEXT[]
+    );`
+}
 
+const insertRecords = async (sql: Sql, records: UpdateRecord[]) => {
+    const values = records.map(record => `('${record.externalId}', ${toPostgressArray(record.classifications)})`)
+    await sql`Truncate temp_classifications`;
+    await sql.unsafe(`INSERT INTO temp_classifications (external_id, classifications) VALUES ${values}`);
+    await sql`ANALYZE temp_classifications;`
+}
 
 const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {
-    const values = records.map(record => `('${record.externalId}', ${toPostgressArray(record.classifications)})`)
-    console.info(`Updating records ${records.length}`)
     const sqlStatement = `
-                WITH updates (external_id, classifications) AS (VALUES ${values})
-                UPDATE fingerpost_wire_entry AS fwe
-                   SET classifications = updates.classifications,
-                       last_updated_at= TO_TIMESTAMP(${Date.now()} / 1000.0)
-                   FROM updates
-                   WHERE fwe.external_id = updates.external_id;`
+                UPDATE fingerpost_wire_entry fwe
+                SET classifications = tu.classifications,
+                    last_updated_at = now()
+                FROM temp_classifications tu
+                WHERE fwe.external_id = tu.external_id;`
     try {
         await sql.unsafe(sqlStatement)
     } catch (error) {
@@ -86,12 +95,16 @@ export const main = async ({ n, batchSize, timeDelay }: { n: number; batchSize: 
     console.info(`Running for batch sizes ${batchSize}`)
     const offsets  = computeOffsets(count, BATCH_SIZE);
     const { sql, closeDbConnection} = await initialiseDbConnection();
+    await createTempTable(sql)
     for(const [index, offset] of offsets.entries()) {
         console.info(`Processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         const records = (await getRecords(sql, BATCH_SIZE, offset)).map((record) => ({
             externalId: record.externalId,
             classifications: classification(record.processedObject)
         }))
+        console.info(`Finished mapping batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
+        await insertRecords(sql, records)
+        console.info(`Finished inserting batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         await updateRecords(sql, records)
         console.info(`Finished processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         await new Promise((res) => setTimeout(res, timeDelay));
