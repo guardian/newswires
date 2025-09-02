@@ -74,7 +74,7 @@ const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = asyn
 
 
 
-export const main = async ({ n, batchSize }: { n: number; batchSize: number }): Promise<void> => {
+export const main = async ({ n, batchSize, timeDelay }: { n: number; batchSize: number; timeDelay: number }): Promise<void> => {
     // const count = await getRecordsCount();
     const count = n;
     console.info(`Reclassifying ${count} from database `);
@@ -90,7 +90,7 @@ export const main = async ({ n, batchSize }: { n: number; batchSize: number }): 
             classifications: classification(record.processedObject)
         }))
         await updateRecords(sql, records)
-        await new Promise((res) => setTimeout(res, 10000));
+        await new Promise((res) => setTimeout(res, timeDelay));
     }
     closeDbConnection();
     console.info(`Finished updating ${count} records`);
