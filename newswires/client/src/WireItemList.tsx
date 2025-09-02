@@ -93,12 +93,9 @@ function decideMainHeadingContent(
 		 * AAP and PA stories have useful slugs. But stories with 'data formatting' have
 		 * their slugs added to their headlines when we get them, so we don't need to add them again.
 		 */
-		const prefix =
-			(supplier === 'AAP' || supplier === 'PA') &&
-			!hasDataFormatting &&
-			hasNonEmptySlug
-				? `${slug} - `
-				: '';
+		const shouldShowPrefix =
+			(supplier === 'AAP' || supplier === 'PA') && !hasDataFormatting;
+		const prefix = shouldShowPrefix && hasNonEmptySlug ? `${slug} - ` : '';
 
 		return `${prefix}${headline}`;
 	}
