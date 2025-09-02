@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
 import {
 	isValidDateValue,
@@ -108,14 +109,22 @@ export function urlToConfig(location: {
 	const ticker = firstSegment === 'ticker';
 	const viewSegments = ticker ? restSegments : segments;
 
-	if (viewSegments[0] === 'item' && viewSegments.length === 2) {
-		return { ticker, view: 'item', itemId: viewSegments[1], query };
-	} else if (viewSegments[0] === 'dotcopy' && viewSegments.length === 1) {
-		return { ticker, view: 'dotcopy', itemId: undefined, query };
-	} else if (viewSegments[0] === 'dotcopy') {
-		return { ticker, view: 'dotcopy/item', itemId: viewSegments[2], query };
-	} else {
-		return { ticker, view: 'feed', itemId: undefined, query };
+	try {
+		if (viewSegments[0] === 'item' && viewSegments.length === 2) {
+			return { ticker, view: 'item', itemId: viewSegments[1], query };
+		} else if (viewSegments[0] === 'dotcopy' && viewSegments.length === 1) {
+			return { ticker, view: 'dotcopy', itemId: undefined, query };
+		} else if (viewSegments[0] === 'dotcopy') {
+			return { ticker, view: 'dotcopy/item', itemId: viewSegments[2], query };
+		} else {
+			return { ticker, view: 'feed', itemId: undefined, query };
+		}
+	} catch (e) {
+		const errorMessage = getErrorMessage(e);
+		console.error(
+			`Error parsing URL to config: ${errorMessage}. Pathname: ${location.pathname}. Search: ${location.search}. Returning default config.`,
+		);
+		return defaultConfig;
 	}
 }
 
