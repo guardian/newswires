@@ -32,6 +32,7 @@ const FingerpostContentSchema = z
 		destinations: z.object({
 			code: z.array(z.string()),
 		}),
+		composerCompatible: z.boolean().optional(), // the only value we receive from the API is 'false'. If it's not present, we should assume true.
 	})
 	.partial();
 
@@ -98,6 +99,7 @@ export type SupplierInfo = z.infer<typeof SupplierInfoSchema>;
 
 export const WireDataSchema = WireDataFromAPISchema.extend({
 	supplier: SupplierInfoSchema,
+	hasDataFormatting: z.boolean(),
 });
 
 export type WireData = z.infer<typeof WireDataSchema>;

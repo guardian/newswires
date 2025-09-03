@@ -18,6 +18,7 @@ describe('transformWireItemQueryResult', () => {
 			...input,
 			supplier: supplierData.find((supplier) => supplier.name === 'REUTERS')!,
 			ingestedAt: '2025-01-01T00:00:00+00:00',
+			hasDataFormatting: false,
 		};
 
 		expect(transformWireItemQueryResult(input)).toEqual(expectedOutput);
@@ -37,7 +38,67 @@ describe('transformWireItemQueryResult', () => {
 			...input,
 			supplier: UNKNOWN_SUPPLIER,
 			ingestedAt: '2025-01-02T00:00:00+00:00',
+			hasDataFormatting: false,
 		};
 		expect(transformWireItemQueryResult(input)).toEqual(expectedOutput);
+	});
+
+	it('should set hasDataFormatting to true if content.composerCompatible is false', () => {
+		const input: WireDataFromAPI = {
+			id: 3,
+			supplier: 'AP',
+			externalId: 'external-789',
+			ingestedAt: '2025-01-03T00:00:00Z',
+			categoryCodes: ['category4'],
+			content: { ...sampleFingerpostContent, composerCompatible: false },
+			isFromRefresh: false,
+		};
+		const expectedOutput: WireData = {
+			...input,
+			supplier: supplierData.find((supplier) => supplier.name === 'AP')!,
+			ingestedAt: '2025-01-03T00:00:00+00:00',
+			hasDataFormatting: true,
+		};
+		expect(transformWireItemQueryResult(input)).toEqual(expectedOutput);
+	});
+
+	it('should set hasDataFormatting to false if content.composerCompatible is true or missing', () => {
+		const inputWithTrue: WireDataFromAPI = {
+			id: 4,
+			supplier: 'AAP',
+			externalId: 'external-101',
+			ingestedAt: '2025-01-04T00:00:00Z',
+			categoryCodes: ['category5'],
+			content: { ...sampleFingerpostContent, composerCompatible: true },
+			isFromRefresh: false,
+		};
+		const expectedOutputWithTrue: WireData = {
+			...inputWithTrue,
+			supplier: supplierData.find((supplier) => supplier.name === 'AAP')!,
+			ingestedAt: '2025-01-04T00:00:00+00:00',
+			hasDataFormatting: false,
+		};
+		expect(transformWireItemQueryResult(inputWithTrue)).toEqual(
+			expectedOutputWithTrue,
+		);
+
+		const inputWithoutComposerCompatible: WireDataFromAPI = {
+			id: 5,
+			supplier: 'AFP',
+			externalId: 'external-102',
+			ingestedAt: '2025-01-05T00:00:00Z',
+			categoryCodes: ['category6'],
+			content: { ...sampleFingerpostContent }, // composerCompatible is missing
+			isFromRefresh: false,
+		};
+		const expectedOutputWithoutComposerCompatible: WireData = {
+			...inputWithoutComposerCompatible,
+			supplier: supplierData.find((supplier) => supplier.name === 'AFP')!,
+			ingestedAt: '2025-01-05T00:00:00+00:00',
+			hasDataFormatting: false,
+		};
+		expect(
+			transformWireItemQueryResult(inputWithoutComposerCompatible),
+		).toEqual(expectedOutputWithoutComposerCompatible);
 	});
 });

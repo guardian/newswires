@@ -2,6 +2,7 @@ import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
+import { UserSettingsContextProvider } from './context/UserSettingsContext';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
 import type { WireData } from './sharedTypes';
@@ -37,6 +38,7 @@ const sampleItemData: WireData = {
 	ingestedAt: '2025-02-26T09:58:22.000Z',
 	categoryCodes: ['C:US', 'C:CA'],
 	isFromRefresh: false,
+	hasDataFormatting: false,
 };
 
 const meta = {
@@ -50,11 +52,13 @@ const meta = {
 		(Story) => (
 			<EuiProvider colorMode="light">
 				<TelemetryContextProvider sendTelemetryEvent={console.log}>
-					<SearchContextProvider>
-						<div style={{ maxWidth: '800px', margin: '0 auto' }}>
-							<Story />
-						</div>
-					</SearchContextProvider>
+					<UserSettingsContextProvider>
+						<SearchContextProvider>
+							<div style={{ maxWidth: '800px', margin: '0 auto' }}>
+								<Story />
+							</div>
+						</SearchContextProvider>
+					</UserSettingsContextProvider>
 				</TelemetryContextProvider>
 			</EuiProvider>
 		),

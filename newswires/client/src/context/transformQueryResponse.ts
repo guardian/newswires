@@ -11,5 +11,6 @@ export function transformWireItemQueryResult(data: WireDataFromAPI): WireData {
 		...data,
 		ingestedAt: convertToLocalDateString(data.ingestedAt),
 		supplier: enhanceSupplier(data.supplier),
+		hasDataFormatting: data.content.composerCompatible === false ? true : false, // if composerCompatible is missing or true, we assume true
 	};
 }
