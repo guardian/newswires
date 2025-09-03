@@ -442,7 +442,10 @@ describe('paramsToQuerystring', () => {
 			q: 'abc',
 		};
 
-		const url = paramsToQuerystring(query);
+		const url = paramsToQuerystring({
+			query,
+			useAbsoluteDateTimeValues: false,
+		});
 		expect(url).toBe('?q=abc');
 	});
 
@@ -460,7 +463,10 @@ describe('paramsToQuerystring', () => {
 			},
 		};
 
-		const url = paramsToQuerystring(query);
+		const url = paramsToQuerystring({
+			query,
+			useAbsoluteDateTimeValues: false,
+		});
 		expect(url).toBe('?q=abc&start=now-3d&end=now');
 	});
 
@@ -478,7 +484,7 @@ describe('paramsToQuerystring', () => {
 			},
 		};
 
-		const url = paramsToQuerystring(query, true);
+		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
 		expect(url).toBe(
 			'?q=abc&start=2025-02-21T00%3A00%3A00.000Z&end=2025-02-21T23%3A59%3A59.000Z',
 		);
@@ -497,7 +503,7 @@ describe('paramsToQuerystring', () => {
 			},
 		};
 
-		const url = paramsToQuerystring(query, true);
+		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
 		expect(url).toBe('?q=abc&start=2025-02-21T00%3A00%3A00.000Z');
 	});
 });

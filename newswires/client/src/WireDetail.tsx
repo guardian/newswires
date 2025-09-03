@@ -395,6 +395,22 @@ function CopyButton({
 	);
 }
 
+function decideEdNote({
+	ednote,
+	supplier,
+}: {
+	ednote?: string;
+	supplier: SupplierInfo;
+}): string | undefined {
+	if (ednote) {
+		return ednote;
+	}
+	if (supplier.name === 'UNAUTHED_EMAIL_FEED') {
+		return "NOTE: This item has been ingested via email, and hasn't been authenticated. Please check carefully before use, and treat it as you would a regular email.";
+	}
+	return undefined;
+}
+
 export const WireDetail = ({
 	wire,
 	isShowingJson,
@@ -443,6 +459,8 @@ export const WireDetail = ({
 					.filter((word) => word.length > 0).length
 			: 0;
 	}, [wire]);
+
+	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
 
 	return (
 		<div
@@ -507,9 +525,9 @@ export const WireDetail = ({
 					`}
 				>
 					<EuiSpacer size="xs" />
-					{ednote && (
+					{ednoteToRender && (
 						<>
-							<EuiCallOut size="s" title={ednote} color="success" />
+							<EuiCallOut size="s" title={ednoteToRender} color="success" />
 							<EuiSpacer size="m" />
 						</>
 					)}

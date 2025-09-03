@@ -79,6 +79,7 @@ export const suppliers = [
 	'GUAP',
 	'GUREUTERS',
 	'MINOR_AGENCIES',
+	'UNAUTHED_EMAIL_FEED',
 	'UNKNOWN',
 ] as const;
 
@@ -138,6 +139,18 @@ export const ConfigSchema = z.discriminatedUnion('view', [
 	}),
 	z.object({
 		view: z.literal('item'),
+		query: QuerySchema,
+		itemId: z.string(),
+		ticker: z.boolean(),
+	}),
+	z.object({
+		view: z.literal('dotcopy'),
+		query: QuerySchema,
+		itemId: z.undefined(),
+		ticker: z.boolean(),
+	}),
+	z.object({
+		view: z.literal('dotcopy/item'),
 		query: QuerySchema,
 		itemId: z.string(),
 		ticker: z.boolean(),
