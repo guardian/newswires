@@ -38,6 +38,7 @@ import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return
 import { icon as search } from '@elastic/eui/es/components/icon/assets/search';
 import { icon as sortLeft } from '@elastic/eui/es/components/icon/assets/sortLeft';
 import { icon as sortRight } from '@elastic/eui/es/components/icon/assets/sortRight';
+import { icon as visTable } from '@elastic/eui/es/components/icon/assets/vis_table';
 import { icon as warning } from '@elastic/eui/es/components/icon/assets/warning';
 import { appendIconComponentCache } from '@elastic/eui/es/components/icon/icon';
 
@@ -80,6 +81,7 @@ const icons = {
 	error,
 	gear,
 	flask,
+	visTable,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

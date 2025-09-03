@@ -1,5 +1,6 @@
 import {
 	EuiButton,
+	EuiIcon,
 	EuiScreenReaderOnly,
 	EuiText,
 	EuiTextBlockTruncate,
@@ -143,7 +144,7 @@ function MaybeSecondaryCardContent({
 		return <p>{subhead}</p>;
 	}
 	const maybeBodyTextPreview = bodyText
-		? sanitizeHtml(bodyText.replace(/(<br \/>|<\/p>)/g, '&nbsp;'), {
+		? sanitizeHtml(bodyText.replace(/(<br \/>|<\/p>|<\/td>)/g, ' '), {
 				allowedTags: [],
 				allowedAttributes: {},
 			}).slice(0, 300)
@@ -243,15 +244,15 @@ const WirePreviewCard = ({
 		display: grid;
 
 		align-items: baseline;
-		grid-template-areas: 'title time' 'title supplier' 'content supplier' 'content supplier';
-		grid-template-columns: 1fr min-content;
+		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier' 'content badges supplier';
+		grid-template-columns: 1fr min-content min-content;
 		grid-template-rows: auto auto auto auto;
 	`;
 
 	const compactCardGrid = css`
 		display: grid;
 		gap: 0.3rem;
-		grid-template-areas: 'title supplier time';
+		grid-template-areas: 'title badges supplier time';
 		grid-template-columns: 1fr min-content min-content;
 		align-items: baseline;
 	`;
@@ -335,6 +336,16 @@ const WirePreviewCard = ({
 								{part}
 							</EuiText>
 						))}
+				</div>
+				<div
+					css={css`
+						grid-area: badges;
+						justify-self: end;
+					`}
+				>
+					{hasDataFormatting && (
+						<EuiIcon type="visTable" size="m" title="Has data formatting" />
+					)}
 				</div>
 				<div
 					css={css`
