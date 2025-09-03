@@ -100,7 +100,7 @@ const insertOnConflict: (sql: Sql, records: UpdateRecord[]) => Promise<void> = a
             supplier: r.processedObject.supplier,
             content: r.processedObject.content as never,
             category_codes: r.processedObject.categoryCodes,
-            s3key: r.s3key ?? null,
+            s3_key: r.s3key ?? null,
             classifications: r.classifications
         }
     })
