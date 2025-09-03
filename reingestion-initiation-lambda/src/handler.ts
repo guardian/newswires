@@ -92,21 +92,30 @@ const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = asyn
     }
 }
 
-
 const insertOnConflict: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {  
+    console.log("Inserting records with externalIds:", records.map(r => r.externalId).join(", "))
+    const rows = records.map(r => {
+        return {
+            external_id: r.externalId,
+            supplier: r.processedObject.supplier,
+            content: r.processedObject.content as never,
+            category_codes: r.processedObject.categoryCodes,
+            s3key: r.s3key ?? null,
+            classifications: r.classifications
+        }
+    })
     try {
-        sql(`INSERT INTO fingerpost_wire_entry
-            (external_id)
-            VALUES ${sql(records) }
+        await sql`INSERT INTO fingerpost_wire_entry
+            ${ sql(rows) }
             ON CONFLICT (external_id) DO UPDATE
             SET
-            content = EXCLUDED.content,
-            supplier = EXCLUDED.supplier,
-            category_codes = EXCLUDED.category_codes,
-            s3_key = EXCLUDED.s3_key,
-            classifications = EXCLUDED.classifications,
-            last_updated_at = now()`
-    )
+                content = EXCLUDED.content,
+                supplier = EXCLUDED.supplier,
+                category_codes = EXCLUDED.category_codes,
+                s3_key = EXCLUDED.s3_key,
+                classifications = EXCLUDED.classifications,
+                last_updated_at = now()
+            `;
     } catch (error) {
         console.error("Error updating records:", error);
         // throw error;
@@ -125,6 +134,7 @@ export const main = async ({ n, batchSize, timeDelay }: { n: number; batchSize: 
     const { sql, closeDbConnection} = await initialiseDbConnection();
     for(const [index, offset] of offsets.entries()) {
         console.info(`Processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
+
         const records = (await getRecords(sql, BATCH_SIZE, offset)).map((record) => ({
             externalId: record.externalId,
             classifications: classification(record.processedObject),
