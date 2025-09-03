@@ -92,25 +92,21 @@ const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = asyn
     }
 }
 
-const insertOnConflict: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {
-    const values = records.map(record => `('${record.externalId}', 
-        ${record.processedObject.supplier},
-        ${record.processedObject.content},
-        ${toPostgressArray(record.processedObject.categoryCodes)},
-        ${record.s3key},
-        ${toPostgressArray(record.classifications)})`)
 
-    const sqlStatement = `INSERT INTO fingerpost_wire_entry (external_id, supplier, content, category_codes, s3_key, classifications)
-                            values ${values}
-                            ON CONFLICT (external_id) DO UPDATE
-                            SET content = EXCLUDED.content,
-                            supplier = EXCLUDED.supplier,
-                            category_codes = EXCLUDED.category_codes,
-                            s3_key = EXCLUDED.s3_key,
-                            classifications = EXCLUDED.classifications,
-                            last_updated_at = now()`
-     try {
-        await sql.unsafe(sqlStatement)
+const insertOnConflict: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {  
+    try {
+        sql(`INSERT INTO fingerpost_wire_entry
+            (external_id)
+            VALUES ${sql(records) }
+            ON CONFLICT (external_id) DO UPDATE
+            SET
+            content = EXCLUDED.content,
+            supplier = EXCLUDED.supplier,
+            category_codes = EXCLUDED.category_codes,
+            s3_key = EXCLUDED.s3_key,
+            classifications = EXCLUDED.classifications,
+            last_updated_at = now()`
+    )
     } catch (error) {
         console.error("Error updating records:", error);
         // throw error;
@@ -127,7 +123,6 @@ export const main = async ({ n, batchSize, timeDelay }: { n: number; batchSize: 
     console.info(`Running for batch sizes ${batchSize}`)
     const offsets  = computeOffsets(count, BATCH_SIZE);
     const { sql, closeDbConnection} = await initialiseDbConnection();
-    await createTempTable(sql)
     for(const [index, offset] of offsets.entries()) {
         console.info(`Processing batch ${index + 1} of ${offsets.length}`, new Date().toISOString());
         const records = (await getRecords(sql, BATCH_SIZE, offset)).map((record) => ({
