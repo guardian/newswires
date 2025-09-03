@@ -93,7 +93,6 @@ const updateRecords: (sql: Sql, records: UpdateRecord[]) => Promise<void> = asyn
 }
 
 const insertOnConflict: (sql: Sql, records: UpdateRecord[]) => Promise<void> = async (sql, records) => {  
-    console.log("Inserting records with externalIds:", records.map(r => r.externalId).join(", "))
     const rows = records.map(r => {
         return {
             external_id: r.externalId,
