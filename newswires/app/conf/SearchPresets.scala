@@ -72,7 +72,10 @@ object SearchPresets {
     case "all-business"         => Some(AllBusiness)
     case "all-sport"            => Some(AllSport)
     case "soccer"               => Some(Soccer)
+    case "soccer-scores"        => Some(SoccerScores)
+    case "soccer-tables"        => Some(SoccerTables)
     case "cricket"              => Some(Cricket)
+    case "cricket-results"      => Some(CricketResults)
     case "rugby-league"         => Some(RugbyLeague)
     case "rugby-union"          => Some(RugbyUnion)
     case "tennis"               => Some(Tennis)
@@ -217,12 +220,24 @@ object SearchPresets {
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.SOCCER))
   )
 
+  private val SoccerScores = List(
+    SearchPreset(PA, CategoryCodes.SoccerScores.PA)
+  )
+
+  private val SoccerTables = List(
+    SearchPreset(PA, CategoryCodes.SoccerTables.PA)
+  )
+
   private val Cricket = List(
     SearchPreset(REUTERS, CategoryCodes.Cricket.REUTERS),
     SearchPreset(PA, CategoryCodes.Cricket.PA),
     SearchPreset.fromText(AFP, text = SimpleSearchQueries.CRICKET, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Cricket.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.CRICKET))
+  )
+
+  private val CricketResults = List(
+    SearchPreset(PA, CategoryCodes.CricketResults.PA)
   )
 
   private val RugbyLeague = List(

@@ -45,15 +45,59 @@ private[conf] object CategoryCodes {
   }
 
   object Soccer {
-    val REUTERS: List[String] = List("N2:SOCC")
+    val REUTERS: List[String] = List("N2:SOCC", "N2:SOCC")
     val PA: List[String] = List("paCat:SSO")
     val AAP: List[String] = List("subj:15054000")
+  }
+
+  object SoccerScores {
+    val PA: List[String] = List(
+      "paCat:RSA",
+      "paCat:SSG",
+      "paCat:RSF",
+      "paCat:RSH",
+      "paCat:RFC",
+      "paCat:RSP",
+      "paCat:RRB",
+      "paCat:SOD",
+      "paCat:SOS",
+      "paCat:RRD"
+    )
+  }
+
+  object SoccerTables {
+    val PA: List[String] = List(
+      "paCat:SDA",
+      "paCat:SJA",
+      "paCat:SDB",
+      "paCat:SDC",
+      "paCat:SDD",
+      "paCat:SJB",
+      "paCat:STA",
+      "paCat:STB",
+      "paCat:STC",
+      "paCat:STD",
+      "paCat:RSD"
+    )
   }
 
   object Cricket {
     val REUTERS: List[String] = List("N2:CRIC")
     val PA: List[String] = List("paCat:SCR")
     val AAP: List[String] = List("subj:15017000")
+  }
+
+  object CricketResults {
+    val PA: List[String] = List(
+      "paCat:RCD",
+      "paCat:RCK",
+      "paCat:RDC",
+      "paCat:RCB",
+      "paCat:RDA",
+      "paCat:RDG",
+      "paCat:SRX",
+      "paCat:SRY"
+    )
   }
 
   object RugbyUnion {
