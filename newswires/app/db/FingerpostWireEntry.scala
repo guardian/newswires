@@ -33,7 +33,8 @@ case class FingerpostWireEntry(
 
 object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
-    with Logging {
+    with Logging
+    with DatabaseProvider {
 
   implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
     deriveEncoder[FingerpostWireEntry].mapJson(_.dropNullValues)
@@ -387,7 +388,7 @@ object FingerpostWireEntry
            | """.stripMargin
   }
 
-  def query(
+  override def query(
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(

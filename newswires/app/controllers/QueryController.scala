@@ -1,19 +1,21 @@
 package controllers
 
+import com.github.blemale.scaffeine.Cache
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
+import db.{FingerpostWireEntry}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import models.{NextPage, QueryParams, SearchParams}
+import models.{NextPage, QueryParams, QueryResponse, SearchParams}
 import db._
 import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logging}
-import service.FeatureSwitchProvider
+import service.{FeatureSwitchProvider, QueryCacheProvider}
 
 import java.time.Instant
 
@@ -23,7 +25,8 @@ class QueryController(
     val wsClient: WSClient,
     val permissionsProvider: PermissionsProvider,
     val panDomainSettings: PanDomainAuthSettingsRefresher,
-    val featureSwitchProvider: FeatureSwitchProvider
+    val featureSwitchProvider: FeatureSwitchProvider,
+    val queryCacheProvider: QueryCacheProvider
 ) extends BaseController
     with Logging
     with AppAuthActions {
@@ -101,13 +104,10 @@ class QueryController(
       pageSize = 30
     )
 
+    val response = queryCacheProvider.get(queryParams)
+
     Ok(
-      FingerpostWireEntry
-        .query(
-          queryParams
-        )
-        .asJson
-        .spaces2
+      response.asJson.spaces2
     )
   }
 
