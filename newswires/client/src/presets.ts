@@ -21,6 +21,10 @@ export const sportPresets: Preset[] = [
 		id: 'soccer-tables',
 	},
 	{
+		name: 'No Soccer',
+		id: 'no-soccer',
+	},
+	{
 		name: 'Cricket',
 		id: 'cricket',
 	},
