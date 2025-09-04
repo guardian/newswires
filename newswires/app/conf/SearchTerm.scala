@@ -24,6 +24,7 @@ sealed trait SearchField
 object SearchField {
   case object Headline extends SearchField
   case object BodyText extends SearchField
+  case object Slug extends SearchField
 }
 
 object SearchTerm {

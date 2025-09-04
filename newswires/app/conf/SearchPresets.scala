@@ -1,5 +1,6 @@
 package conf
 
+import conf.SearchField.Slug
 import conf.Suppliers._
 import models.SearchParams
 
@@ -13,7 +14,8 @@ object SearchPreset {
       categoryCodesExcl: List[String] = Nil,
       keyword: Option[String] = None,
       keywords: List[String] = Nil,
-      keywordExcl: List[String] = Nil
+      keywordExcl: List[String] = Nil,
+      hasDataFormatting: Option[Boolean] = None
   ): SearchParams =
     SearchParams(
       text = None,
@@ -21,7 +23,8 @@ object SearchPreset {
       keywordIncl = keyword.toList ::: keywords,
       keywordExcl = keywordExcl,
       categoryCodesIncl = categoryCodes,
-      categoryCodesExcl = categoryCodesExcl
+      categoryCodesExcl = categoryCodesExcl,
+      hasDataFormatting = hasDataFormatting
     )
 
   def fromText(
@@ -30,7 +33,8 @@ object SearchPreset {
       categoryCodes: List[String] = Nil,
       categoryCodesExcl: List[String] = Nil,
       keyword: Option[String] = None,
-      keywordExcl: List[String] = Nil
+      keywordExcl: List[String] = Nil,
+      hasDataFormatting: Option[Boolean] = None
   ): SearchParams =
     SearchParams(
       text = Some(SearchTerm.Simple(text)),
@@ -38,7 +42,8 @@ object SearchPreset {
       keywordIncl = keyword.toList,
       keywordExcl = keywordExcl,
       categoryCodesIncl = categoryCodes,
-      categoryCodesExcl = categoryCodesExcl
+      categoryCodesExcl = categoryCodesExcl,
+      hasDataFormatting = hasDataFormatting
     )
 
   def fromSearchTerm(
@@ -47,7 +52,8 @@ object SearchPreset {
       categoryCodes: List[String] = Nil,
       categoryCodesExcl: List[String] = Nil,
       keyword: Option[String] = None,
-      keywordExcl: List[String] = Nil
+      keywordExcl: List[String] = Nil,
+      hasDataFormatting: Option[Boolean] = None
   ): SearchParams =
     SearchParams(
       text = Some(searchTerm),
@@ -55,7 +61,8 @@ object SearchPreset {
       keywordIncl = keyword.toList,
       keywordExcl = keywordExcl,
       categoryCodesIncl = categoryCodes,
-      categoryCodesExcl = categoryCodesExcl
+      categoryCodesExcl = categoryCodesExcl,
+      hasDataFormatting = hasDataFormatting
     )
 }
 
@@ -214,10 +221,10 @@ object SearchPresets {
 
   private val Soccer = List(
     SearchPreset(REUTERS, CategoryCodes.Soccer.REUTERS),
-    SearchPreset(PA, CategoryCodes.Soccer.PA),
+    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("-soc-", Slug), CategoryCodes.Soccer.PA, hasDataFormatting = Some(false)),
     SearchPreset.fromText(AFP, SimpleSearchQueries.SOCCER, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Soccer.AAP),
-    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.SOCCER))
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.SOCCER)),
   )
 
   private val SoccerScores = List(

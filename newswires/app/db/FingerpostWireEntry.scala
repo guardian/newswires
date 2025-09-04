@@ -286,7 +286,7 @@ object FingerpostWireEntry
           val tsvectorColumn = field match {
             case SearchField.Headline => "headline_tsv_simple"
             case SearchField.BodyText => "body_text_tsv_simple"
-
+            case SearchField.Slug     => "slug_text_tsv_simple"
           }
           Some(
             sqls"$tsvectorColumn @@ websearch_to_tsquery('simple', lower($query))"
