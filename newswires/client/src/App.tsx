@@ -240,6 +240,7 @@ export function App() {
 									<EuiHeaderSectionItem>
 										<EuiHeaderSectionItemButton
 											aria-label="Toggle main navigation"
+											aria-expanded={sideNavIsDocked}
 											onClick={() =>
 												setSideNavIsDocked((isDocked) => !isDocked)
 											}

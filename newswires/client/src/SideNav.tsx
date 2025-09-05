@@ -205,6 +205,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 					!isPoppedOut ? (
 						<EuiHeaderSectionItemButton
 							aria-label="Toggle main navigation"
+							aria-expanded={navIsOpen}
 							onClick={() => setNavIsOpen((isOpen) => !isOpen)}
 							css={css`
 								${largeMinBreakpoint} {
