@@ -494,7 +494,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val suppliersInc = emptySearchParams.copy(suppliersIncl = List("supplier"))
     val snippets = FingerpostWireEntry.processSearchParams(suppliersInc)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = supplierClause, expectedParams = List("supplier")
+      expectedClause = supplierClause,
+      expectedParams = List("supplier")
     )
   }
   it should "create the correct sql snippet for suppliersExcl" in {
@@ -505,16 +506,19 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val suppliersExcl = emptySearchParams.copy(suppliersExcl = List("supplier"))
     val snippets = FingerpostWireEntry.processSearchParams(suppliersExcl)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = supplierExclClause, expectedParams = List("supplier")
+      expectedClause = supplierExclClause,
+      expectedParams = List("supplier")
     )
   }
 
   it should "create the correct sql snippet for categoryCodesIncl" in {
-    val categoryCodesIncl = emptySearchParams.copy(categoryCodesIncl = List("code"))
+    val categoryCodesIncl =
+      emptySearchParams.copy(categoryCodesIncl = List("code"))
     val snippets = FingerpostWireEntry.processSearchParams(categoryCodesIncl)
 
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = "fm.category_codes && ?", expectedParams = List(List("code"))
+      expectedClause = "fm.category_codes && ?",
+      expectedParams = List(List("code"))
     )
 
   }
@@ -525,28 +529,35 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         |WHERE fm.id = categoryCodesExcl.id
         |AND categoryCodesExcl.category_codes && ? )""".stripMargin
 
-    val categoryCodesExcl = emptySearchParams.copy(categoryCodesExcl = List("code"))
+    val categoryCodesExcl =
+      emptySearchParams.copy(categoryCodesExcl = List("code"))
     val snippets = FingerpostWireEntry.processSearchParams(categoryCodesExcl)
 
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = categoryExclClause, expectedParams = List(List("code"))
+      expectedClause = categoryExclClause,
+      expectedParams = List(List("code"))
     )
   }
 
   it should "create the correct sql snippet for search term query" in {
-    val searchText = emptySearchParams.copy(text = Some(SearchTerm.Simple("query", SearchField.Headline)))
+    val searchText = emptySearchParams.copy(text =
+      Some(SearchTerm.Simple("query", SearchField.Headline))
+    )
     val snippets = FingerpostWireEntry.processSearchParams(searchText)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = "websearch_to_tsquery('simple', lower(?)) @@ headline_tsv_simple",
+      expectedClause =
+        "websearch_to_tsquery('simple', lower(?)) @@ headline_tsv_simple",
       expectedParams = List("query")
     )
   }
 
   it should "create the correct sql snippet for english term query" in {
-    val searchText = emptySearchParams.copy(text = Some(SearchTerm.English("query")))
+    val searchText =
+      emptySearchParams.copy(text = Some(SearchTerm.English("query")))
     val snippets = FingerpostWireEntry.processSearchParams(searchText)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
       expectedParams = List("query")
     )
   }
@@ -555,7 +566,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val keywordIncl = emptySearchParams.copy(keywordIncl = List("keyword"))
     val snippets = FingerpostWireEntry.processSearchParams(keywordIncl)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = "(fm.content -> 'keywords') ??| ?", expectedParams = List(List("keyword"))
+      expectedClause = "(fm.content -> 'keywords') ??| ?",
+      expectedParams = List(List("keyword"))
     )
   }
 
@@ -567,7 +579,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val keywordExcl = emptySearchParams.copy(keywordExcl = List("keyword"))
     val snippets = FingerpostWireEntry.processSearchParams(keywordExcl)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = keywordExclClause, expectedParams = List(List("keyword"))
+      expectedClause = keywordExclClause,
+      expectedParams = List(List("keyword"))
     )
   }
 
@@ -575,7 +588,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val dataFormatting = emptySearchParams.copy(hasDataFormatting = Some(true))
     val snippets = FingerpostWireEntry.processSearchParams(dataFormatting)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = "(fm.content->'dataformat') IS NOT NULL", expectedParams = List()
+      expectedClause = "(fm.content->'dataformat') IS NOT NULL",
+      expectedParams = List()
     )
   }
 
@@ -583,7 +597,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val dataFormatting = emptySearchParams.copy(hasDataFormatting = Some(false))
     val snippets = FingerpostWireEntry.processSearchParams(dataFormatting)
     sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
-      expectedClause = "(fm.content->'dataformat') IS NULL", expectedParams = List()
+      expectedClause = "(fm.content->'dataformat') IS NULL",
+      expectedParams = List()
     )
   }
 }

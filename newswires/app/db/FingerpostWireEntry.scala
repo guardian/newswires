@@ -175,128 +175,145 @@ object FingerpostWireEntry
       .flatten
   }
 
+  lazy val supplierSQL: List[String] => SQLSyntax =
+    (sourceFeeds: List[String]) => {
+      sqls.in(
+        sqls"upper(${syn.supplier})",
+        sourceFeeds.map(feed => sqls"upper($feed)")
+      )
+    }
+
+  lazy val supplierExclSQL = (sourceFeedsExcl: List[String]) => {
+    val se = this.syntax("sourceFeedsExcl")
+    val doesContainFeeds = sqls.in(
+      sqls"upper(${se.supplier})",
+      sourceFeedsExcl.map(feed => sqls"upper($feed)")
+    )
+    // unpleasant, but the sort of trick you need to pull
+    // because "NOT IN (...)" doesn't hit an index.
+    // https://stackoverflow.com/a/19364694
+
+    sqls"""|NOT EXISTS (
+           |  SELECT FROM ${FingerpostWireEntry as se}
+           |  WHERE ${syn.id} = ${se.id}
+           |    AND $doesContainFeeds
+           |)""".stripMargin
+
+  }
+
+  lazy val simpleSearchSQL = (searchTerm: SearchTerm.Simple) => {
+    val tsvectorColumn = searchTerm.field match {
+      case SearchField.Headline => "headline_tsv_simple"
+      case SearchField.BodyText => "body_text_tsv_simple"
+      case SearchField.Slug     => "slug_text_tsv_simple"
+    }
+
+    sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
+
+  }
+
+  lazy val englishSearchSQL = (searchTerm: SearchTerm.English) => {
+    sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+  }
+
+  lazy val keywordsSQL = (keywords: List[String]) => {
+    // "??|" is actually the "?|" operator - doubled to prevent the
+    // SQL driver from treating it as a placeholder for a parameter
+    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
+    sqls"""(${syn.content} -> 'keywords') ??| ${textArray(keywords)}"""
+
+  }
+
+  lazy val keywordsExclSQL = (keywords: List[String]) => {
+    val ke = this.syntax("keywordsExcl")
+    // "??|" is actually the "?|" operator - doubled to prevent the
+    // SQL driver from treating it as a placeholder for a parameter
+    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
+    val doesContainKeywords =
+      sqls"(${ke.content}->'keywords') ??| ${textArray(keywords)}"
+    // unpleasant, but the kind of trick you need to pull because
+    // NOT [row] ?| [list] won't use the index.
+    // https://stackoverflow.com/a/19364694
+
+    sqls"""|NOT EXISTS (
+           |  SELECT FROM ${FingerpostWireEntry as ke}
+           |  WHERE ${syn.id} = ${ke.id}
+           |    AND $doesContainKeywords
+           |)""".stripMargin
+
+  }
+
+  lazy val categoryCodeInclSQL = (categoryCodes: List[String]) => {
+    sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
+  }
+
+  lazy val categoryCodeExclSQL = (categoryCodesExcl: List[String]) => {
+    val cce = this.syntax("categoryCodesExcl")
+    val doesContainCategoryCodes =
+      sqls"${cce.categoryCodes} && ${textArray(categoryCodesExcl)}"
+
+    sqls"""|NOT EXISTS (
+           |  SELECT FROM ${FingerpostWireEntry as cce}
+           |  WHERE ${syn.id} = ${cce.id}
+           |    AND $doesContainCategoryCodes
+           |)""".stripMargin
+  }
+
+  lazy val dataFormattingSQL = (hasDataFormatting: Boolean) => {
+    if (hasDataFormatting) sqls"(${syn.content}->'dataformat') IS NOT NULL"
+    else sqls"(${syn.content}->'dataformat') IS NULL"
+  }
   def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
-    val sourceFeedsQuery = search.suppliersIncl match {
-      case Nil => None
-      case sourceFeeds =>
-        Some(
-          sqls.in(
-            sqls"upper(${syn.supplier})",
-            sourceFeeds.map(feed => sqls"upper($feed)")
-          )
-        )
+    val sourceFeedsQuery: Option[SQLSyntax] = search.suppliersIncl match {
+      case Nil         => None
+      case sourceFeeds => Some(supplierSQL(sourceFeeds))
     }
 
-    val sourceFeedsExclQuery = search.suppliersExcl match {
-      case Nil => None
-      case sourceFeedsExcl =>
-        val se = this.syntax("sourceFeedsExcl")
-        val doesContainFeeds = sqls.in(
-          sqls"upper(${se.supplier})",
-          sourceFeedsExcl.map(feed => sqls"upper($feed)")
-        )
-        // unpleasant, but the sort of trick you need to pull
-        // because "NOT IN (...)" doesn't hit an index.
-        // https://stackoverflow.com/a/19364694
-        Some(
-          sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as se}
-                 |  WHERE ${syn.id} = ${se.id}
-                 |    AND $doesContainFeeds
-                 |)""".stripMargin
-        )
+    val sourceFeedsExclQuery: Option[SQLSyntax] = search.suppliersExcl match {
+      case Nil             => None
+      case sourceFeedsExcl => Some(supplierExclSQL(sourceFeedsExcl))
+    }
+
+    val searchQuery = search.text match {
+      case Some(SearchTerm.Simple(query, field)) =>
+        Some(simpleSearchSQL(SearchTerm.Simple(query, field)))
+      case Some(SearchTerm.English(query)) =>
+        Some(englishSearchSQL(SearchTerm.English(query)))
+      case _ => None
     }
 
     val keywordsQuery = search.keywordIncl match {
       case Nil      => None
-      case keywords =>
-        // "??|" is actually the "?|" operator - doubled to prevent the
-        // SQL driver from treating it as a placeholder for a parameter
-        // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
-        Some(
-          sqls"""(${syn.content} -> 'keywords') ??| ${textArray(keywords)}"""
-        )
+      case keywords => Some(keywordsSQL(keywords))
     }
 
     val keywordsExclQuery = search.keywordExcl match {
-      case Nil => None
-      case keywords =>
-        val ke = this.syntax("keywordsExcl")
-        // "??|" is actually the "?|" operator - doubled to prevent the
-        // SQL driver from treating it as a placeholder for a parameter
-        // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
-        val doesContainKeywords =
-          sqls"(${ke.content}->'keywords') ??| ${textArray(keywords)}"
-        // unpleasant, but the kind of trick you need to pull because
-        // NOT [row] ?| [list] won't use the index.
-        // https://stackoverflow.com/a/19364694
-        Some(
-          sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as ke}
-                 |  WHERE ${syn.id} = ${ke.id}
-                 |    AND $doesContainKeywords
-                 |)""".stripMargin
-        )
+      case Nil      => None
+      case keywords => Some(keywordsExclSQL(keywords))
     }
 
     val categoryCodesInclQuery = search.categoryCodesIncl match {
-      case Nil => None
-      case categoryCodes =>
-        Some(
-          sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
-        )
+      case Nil           => None
+      case categoryCodes => Some(categoryCodeInclSQL(categoryCodes))
     }
 
     val categoryCodesExclQuery = search.categoryCodesExcl match {
-      case Nil => None
-      case categoryCodesExcl =>
-        val cce = this.syntax("categoryCodesExcl")
-        val doesContainCategoryCodes =
-          sqls"${cce.categoryCodes} && ${textArray(categoryCodesExcl)}"
-
-        Some(
-          sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as cce}
-                 |  WHERE ${syn.id} = ${cce.id}
-                 |    AND $doesContainCategoryCodes
-                 |)""".stripMargin
-        )
+      case Nil               => None
+      case categoryCodesExcl => Some(categoryCodeExclSQL(categoryCodesExcl))
     }
 
     val hasDataFormattingQuery = search.hasDataFormatting match {
-      case Some(true) =>
-        Some(
-          sqls"(${syn.content}->'dataformat') IS NOT NULL"
-        )
-      case Some(false) =>
-        Some(
-          sqls"(${syn.content}->'dataformat') IS NULL"
-        )
-      case None => None
+      case Some(dataFormatting) => Some(dataFormattingSQL(dataFormatting))
+      case None                 => None
     }
 
     List(
       keywordsQuery,
       categoryCodesInclQuery,
       keywordsExclQuery,
-      search.text match {
-        case Some(SearchTerm.Simple(query, field)) =>
-          val tsvectorColumn = field match {
-            case SearchField.Headline => "headline_tsv_simple"
-            case SearchField.BodyText => "body_text_tsv_simple"
-            case SearchField.Slug     => "slug_text_tsv_simple"
-          }
-          Some(
-            sqls"websearch_to_tsquery('simple', lower($query)) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
-          )
-        case Some(SearchTerm.English(query)) =>
-          Some(
-            sqls"websearch_to_tsquery('english', $query) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-          )
-        case _ => None
-      },
+      searchQuery,
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       categoryCodesExclQuery,
