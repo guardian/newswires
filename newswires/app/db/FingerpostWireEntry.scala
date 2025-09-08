@@ -289,7 +289,7 @@ object FingerpostWireEntry
             case SearchField.Slug     => "slug_text_tsv_simple"
           }
           Some(
-            sqls"websearch_to_tsquery('simple', lower($query)) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}"
+            sqls"websearch_to_tsquery('simple', lower($query)) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
           )
         case Some(SearchTerm.English(query)) =>
           Some(

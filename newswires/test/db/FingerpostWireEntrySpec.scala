@@ -376,11 +376,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       List(
         "supplier1",
         List("N2:GB"),
-        "headline_tsv_simple",
         "News Summary",
         "REUTERS",
         List("afpCat:SPO"),
-        "body_text_tsv_simple",
         "soccer",
         "AFP"
       )
@@ -476,5 +474,4 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     query.statement should include("ORDER BY fm.ingested_at ASC")
   }
-
 }
