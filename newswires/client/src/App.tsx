@@ -39,7 +39,6 @@ import {
 import { useSearch } from './context/SearchContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
-import { FeedbackContent } from './FeedbackContent.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { ItemData } from './ItemData.tsx';
 import { presetLabel } from './presets.ts';
@@ -176,20 +175,18 @@ export function App() {
 						>
 							<EuiModalHeader>
 								<EuiModalHeaderTitle
-									title={'Please use with caution'}
+									title={'Newswires is ready to use'}
 									id="disclaimer-title"
 								>
-									<EuiIcon type="info" size="xl" /> Please use with caution
+									Newswires is ready to use
 								</EuiModalHeaderTitle>
 							</EuiModalHeader>
 
 							<EuiModalBody>
 								<EuiText size="m">
-									Please be advised that this product is currently in its early
-									testing phase, under active development, and subject to
-									change.
-									<br />
-									<FeedbackContent />
+									You&apos;re using an early version of Newswires. It&apos;s
+									fully available, with ongoing improvments. Join the{' '}
+									<a>chat group</a> to keep up to date
 								</EuiText>
 							</EuiModalBody>
 

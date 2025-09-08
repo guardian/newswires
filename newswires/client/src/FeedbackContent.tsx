@@ -1,6 +1,6 @@
 export const FeedbackContent = () => (
 	<>
-		Feedback or questions? We&apos;d love to hear from you at{' '}
+		Notice an issue, got an idea? Share feedback with the team directly:{' '}
 		<a
 			href="https://mail.google.com/mail/?view=cm&fs=1&to=media.and.feeds@theguardian.com&su=Newswires feedback"
 			target="_blank"
@@ -8,6 +8,6 @@ export const FeedbackContent = () => (
 		>
 			Media & Feeds team
 		</a>
-		.
+		or join the <a>chat group</a>
 	</>
 );

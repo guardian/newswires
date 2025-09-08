@@ -307,12 +307,10 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 				</div>
 				<div>
 					<EuiCallOut
-						title="Please use with caution"
+						title="Newswires Feedback"
 						iconType="info"
 						color="primary"
 					>
-						This product is in early testing, actively being developed, and may
-						change. <br />
 						<FeedbackContent />
 					</EuiCallOut>
 				</div>
