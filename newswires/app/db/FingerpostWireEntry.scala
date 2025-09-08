@@ -175,7 +175,7 @@ object FingerpostWireEntry
       .flatten
   }
 
-  private def processSearchParams(
+  def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
     val sourceFeedsQuery = search.suppliersIncl match {
