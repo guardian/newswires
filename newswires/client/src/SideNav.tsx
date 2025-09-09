@@ -17,7 +17,6 @@ import {
 import { css } from '@emotion/react';
 import { useEffect, useMemo } from 'react';
 import { AppTitle } from './AppTitle.tsx';
-import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
@@ -246,7 +245,6 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 						>
 							<h1>
 								<AppTitle />
-								<BetaBadge size={'medium'} />
 							</h1>
 						</EuiTitle>
 					)}

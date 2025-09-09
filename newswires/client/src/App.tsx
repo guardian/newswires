@@ -30,7 +30,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod/v4';
 import { STAGE } from './app-configuration.ts';
 import { AppTitle } from './AppTitle.tsx';
-import { BetaBadge } from './BetaBadge.tsx';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
 	loadOrSetInLocalStorage,
@@ -186,7 +185,14 @@ export function App() {
 								<EuiText size="m">
 									You&apos;re using an early version of Newswires. It&apos;s
 									fully available, with ongoing improvments. Join the{' '}
-									<a>chat group</a> to keep up to date
+									<a
+										href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
+										target="_blank"
+										rel="noreferrer"
+									>
+										chat group
+									</a>{' '}
+									to keep up to date
 								</EuiText>
 							</EuiModalBody>
 
@@ -277,12 +283,6 @@ export function App() {
 											>
 												<h1>
 													<AppTitle />
-													<EuiShowFor sizes={['xs', 's']}>
-														<BetaBadge size={'small'} />
-													</EuiShowFor>
-													<EuiShowFor sizes={['m', 'l', 'xl']}>
-														<BetaBadge size={'medium'} />
-													</EuiShowFor>
 												</h1>
 											</EuiTitle>
 										</EuiHeaderSectionItem>
