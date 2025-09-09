@@ -1,13 +1,13 @@
 #!/usr/bin/env -S scala-cli shebang -S 3.3
 
-//> using jvm corretto:17
+//> using jvm "corretto:17"
 
-//> using dep com.lihaoyi::ujson:4.2.1
-//> using dep org.flywaydb:flyway-core:11.9.1
-//> using dep org.flywaydb:flyway-database-postgresql:11.9.1
-//> using dep org.postgresql:postgresql:42.7.5
-//> using dep software.amazon.awssdk:rds:2.31.61
-//> using dep software.amazon.awssdk:secretsmanager:2.31.61
+//> using dep "com.lihaoyi::ujson:4.2.1"
+//> using dep "org.flywaydb:flyway-core:11.9.1"
+//> using dep "org.flywaydb:flyway-database-postgresql:11.9.1"
+//> using dep "org.postgresql:postgresql:42.7.5"
+//> using dep "software.amazon.awssdk:rds:2.31.61"
+//> using dep "software.amazon.awssdk:secretsmanager:2.31.61"
 import java.nio.file.Path
 import software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequest
 import software.amazon.awssdk.services.rds.RdsClient
