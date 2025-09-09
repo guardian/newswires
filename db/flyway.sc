@@ -92,7 +92,7 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
   }
 }
 
-def localFlyway: Flyway = buildFlyway("postgres")
+def localFlyway(password: String): Flyway = buildFlyway(password)
 
 val location = Path.of(scriptPath).getParent().resolve("migrations").toString()
 
@@ -170,7 +170,8 @@ val command = args.lift(0) match {
 }
 
 val (env, flyway) = args.lift(1).map(_.toLowerCase()) match {
-  case Some("local") => ("local", localFlyway)
+  case Some("local") => ("local", localFlyway("postgres"))
+  case Some("test")  => ("test", localFlyway("testpassword")) // local db is used for test env too
   case Some("code")  => ("code", remoteFlyway("CODE"))
   case Some("prod")  => ("prod", remoteFlyway("PROD"))
   case o =>

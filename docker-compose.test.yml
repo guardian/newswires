@@ -1,0 +1,14 @@
+version: '3.0'
+
+services:
+  test-db:
+    image: postgres:16.4
+    container_name: newswires-db
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_DB=newswires
