@@ -3,7 +3,6 @@ import { DATABASE_TABLE_NAME } from '../../shared/constants';
 import * as loggingModule from '../../shared/lambda-logging';
 import { putItemToDb } from './db';
 
-// and even the lambda-logging module
 jest.mock('../../shared/lambda-logging', () => {
 	const logs = {
 		log: jest.fn(),

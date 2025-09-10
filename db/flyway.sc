@@ -171,7 +171,7 @@ val command = args.lift(0) match {
 
 val (env, flyway) = args.lift(1).map(_.toLowerCase()) match {
   case Some("local") => ("local", localFlyway("postgres", 5432))
-  case Some("test")  => ("test", localFlyway("testpassword", 55432)) // local db is used for test env too
+  case Some("test")  => ("test", localFlyway("testpassword", 55432)) 
   case Some("code")  => ("code", remoteFlyway("CODE"))
   case Some("prod")  => ("prod", remoteFlyway("PROD"))
   case o =>
