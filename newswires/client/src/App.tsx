@@ -184,7 +184,7 @@ export function App() {
 							<EuiModalBody>
 								<EuiText size="m">
 									You&apos;re using an early version of Newswires. It&apos;s
-									fully available, with ongoing improvments. Join the{' '}
+									fully available, with ongoing improvements. Join the{' '}
 									<a
 										href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
 										target="_blank"
@@ -192,7 +192,14 @@ export function App() {
 									>
 										chat group
 									</a>{' '}
-									to keep up to date
+									to stay updated or share feedback with the{' '}
+									<a
+										href="https://mail.google.com/mail/?view=cm&fs=1&to=media.and.feeds@theguardian.com&su=Newswires feedback"
+										target="_blank"
+										rel="noreferrer"
+									>
+										Media & Feeds team
+									</a>
 								</EuiText>
 							</EuiModalBody>
 

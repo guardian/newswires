@@ -6,7 +6,7 @@ export const FeedbackContent = () => (
 			target="_blank"
 			rel="noreferrer"
 		>
-			Media & Feeds team&nbsp;
+			Media & Feeds team{' '}
 		</a>
 		or join the{' '}
 		<a
