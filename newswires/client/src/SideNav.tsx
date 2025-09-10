@@ -17,7 +17,6 @@ import {
 import { css } from '@emotion/react';
 import { useEffect, useMemo } from 'react';
 import { AppTitle } from './AppTitle.tsx';
-import { BetaBadge } from './BetaBadge.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from './dateHelpers.ts';
 import { FeedbackContent } from './FeedbackContent.tsx';
@@ -246,7 +245,6 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 						>
 							<h1>
 								<AppTitle />
-								<BetaBadge size={'medium'} />
 							</h1>
 						</EuiTitle>
 					)}
@@ -307,12 +305,10 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 				</div>
 				<div>
 					<EuiCallOut
-						title="Please use with caution"
+						title="Newswires Feedback"
 						iconType="info"
 						color="primary"
 					>
-						This product is in early testing, actively being developed, and may
-						change. <br />
 						<FeedbackContent />
 					</EuiCallOut>
 				</div>
