@@ -183,7 +183,7 @@ export function App() {
 
 							<EuiModalBody>
 								<EuiText size="m">
-									You&apos;re using an early version of Newswires. It&apos;s
+									You&rsquo;re using an early version of Newswires. It&rsquo;s
 									fully available, with ongoing improvements. Join the{' '}
 									<a
 										href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
