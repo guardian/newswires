@@ -1,7 +1,6 @@
 import postgres from 'postgres';
 import { DATABASE_TABLE_NAME } from '../../shared/constants';
 import * as loggingModule from '../../shared/lambda-logging';
-import { DATABASE_PORT } from '../../shared/rds';
 import { putItemToDb } from './db';
 
 // and even the lambda-logging module
@@ -31,7 +30,7 @@ describe('putItemToDb', () => {
 	beforeEach(async () => {
 		jest.clearAllMocks();
 		jest.resetAllMocks();
-		await sql`TRUNCATE TABLE ${sql(DATABASE_TABLE_NAME)};`;
+		// await sql`TRUNCATE TABLE ${sql(DATABASE_TABLE_NAME)};`;
 	});
 
 	afterAll(async () => {
