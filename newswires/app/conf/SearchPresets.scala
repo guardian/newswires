@@ -240,7 +240,7 @@ object SearchPresets {
   private val SoccerScores = List(
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("SOCCER TABULATED RESULTS", Slug),
+      searchTerm = SearchTerm.Simple("SOCCER", Slug),
       CategoryCodes.SoccerScores.PA
     )
   )
