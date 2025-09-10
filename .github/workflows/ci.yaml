@@ -35,6 +35,16 @@ jobs:
       - name: Set up Scala CLI
         uses: VirtusLab/scala-cli-setup@v1.5
 
+      - name: Setup test database
+        uses: actions/setup-postgres@v3
+        with:
+          postgresql version: '16'
+          postgresql db: 'newswires'
+          postgresql user: 'postgres'
+
+      - name: Set up test environment
+        run: ./scripts/setup-test-env.sh    
+      
       # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1
