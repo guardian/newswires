@@ -21,7 +21,7 @@ const mockCreateLogger = loggingModule.createLogger;
 
 describe('putItemToDb', () => {
 	const sql = postgres({
-		port: DATABASE_PORT,
+		port: 55432,
 		hostname: 'localhost',
 		username: 'postgres',
 		database: 'newswires',
