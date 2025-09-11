@@ -24,6 +24,7 @@ sealed trait SearchField
 object SearchField {
   case object Headline extends SearchField
   case object BodyText extends SearchField
+  case object Slug extends SearchField
 }
 
 object SearchTerm {
@@ -51,6 +52,7 @@ object SimpleSearchQueries {
 
   // Sport preset
   val SOCCER = "soccer"
+  val NOSOCCER = "-soccer"
   val CRICKET = "cricket"
   val RUGBY_UNION = "\"rugby union\" OR (rugby -\"rugby league\")"
   val RUGBY_LEAGUE = "\"rugby league\""
