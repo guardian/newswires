@@ -294,7 +294,7 @@ export class Newswires extends GuStack {
 		);
 
 		new GuAlarm(this, 'FailedIngestionAlarm', {
-			actionsEnabled: this.stage === 'PROD',
+			actionsEnabled: this.stage === 'CODE',
 			okAction: true,
 			alarmName: `Ingestion failed on Newswires ${this.stage}`,
 			alarmDescription: `Stories have failed to ingest into Newswires. We should investigate why and remediate`,
@@ -311,7 +311,7 @@ export class Newswires extends GuStack {
 		});
 
 		props.fingerpostQueue.deadLetterQueue && new GuAlarm(this, 'DeadLetterQueueAlarm', {
-			actionsEnabled: this.stage === 'PROD',
+			actionsEnabled: this.stage === 'CODE',
 			okAction: true,
 			alarmName: `Messages in DLQ for Newswires ingestion lambda ${this.stage}`,
 			alarmDescription: `There are messages in the dead letter queue for the Newswires ingestion lambda. We should investigate why and remediate`,
