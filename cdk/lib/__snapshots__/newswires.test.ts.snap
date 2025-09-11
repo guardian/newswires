@@ -637,10 +637,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -667,10 +664,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -1171,10 +1165,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3009,10 +3000,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3263,10 +3251,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3349,10 +3334,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3403,10 +3385,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3439,10 +3418,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3812,10 +3788,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3848,10 +3821,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3904,10 +3874,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -3942,10 +3909,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -4345,33 +4309,6 @@ dpkg -i /newswires/newswires.deb",
       },
       "Type": "AWS::CloudFront::Distribution",
     },
-    "newswiresemailalarmtopicB2906D97": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "newswires",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-      },
-      "Type": "AWS::SNS::Topic",
-    },
     "reutersLambda21FE513B": {
       "DependsOn": [
         "reutersLambdaServiceRoleDefaultPolicy86486920",
@@ -4515,10 +4452,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -4601,10 +4535,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -4655,10 +4586,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -4691,10 +4619,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -5064,10 +4989,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -5100,10 +5022,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -5156,10 +5075,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],
@@ -5194,10 +5110,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
                 },
               ],
             ],

@@ -5,21 +5,11 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
   "Metadata": {
     "gu:cdk:constructs": [
       "GuStringParameter",
+      "GuAlarm",
     ],
     "gu:cdk:version": "TEST",
   },
   "Outputs": {
-    "ExportsOutputFnGetAttfingerpostqueueDeadLetterQueueTESTC46C734AQueueNameE742410B": {
-      "Export": {
-        "Name": "WiresFeeds-TEST:ExportsOutputFnGetAttfingerpostqueueDeadLetterQueueTESTC46C734AQueueNameE742410B",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "fingerpostqueueDeadLetterQueueTESTC46C734A",
-          "QueueName",
-        ],
-      },
-    },
     "ExportsOutputFnGetAttfingerpostqueueF09A4E0AArnACC6D365": {
       "Export": {
         "Name": "WiresFeeds-TEST:ExportsOutputFnGetAttfingerpostqueueF09A4E0AArnACC6D365",
@@ -28,6 +18,17 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "Fn::GetAtt": [
           "fingerpostqueueF09A4E0A",
           "Arn",
+        ],
+      },
+    },
+    "ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424": {
+      "Export": {
+        "Name": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "newswiresemailalarmtopicB2906D97",
+          "TopicName",
         ],
       },
     },
@@ -58,6 +59,95 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     },
   },
   "Resources": {
+    "DeadLetterQueueAlarm48D9D867": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "There are messages in the dead letter queue for the Newswires ingestion lambda. We should investigate why and remediate",
+        "AlarmName": "Messages in DLQ for Newswires ingestion lambda TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "fingerpostqueueDeadLetterQueueTESTC46C734A",
+                "QueueName",
+              ],
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 60,
+        "Statistic": "Maximum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 3,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
     "fingerpostqueueDeadLetterQueueTESTC46C734A": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -270,6 +360,33 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::SNS::TopicPolicy",
+    },
+    "newswiresemailalarmtopicB2906D97": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::SNS::Topic",
     },
     "sourcequeue87B8A558": {
       "DeletionPolicy": "RetainExceptOnCreate",
@@ -505,7 +622,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuLambdaFunction",
       "GuStringParameter",
       "GuAlarm",
-      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -712,92 +828,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::CertificateManager::Certificate",
       "UpdateReplacePolicy": "Retain",
-    },
-    "DeadLetterQueueAlarm48D9D867": {
-      "Properties": {
-        "ActionsEnabled": false,
-        "AlarmActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:eu-west-1:",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
-                },
-              ],
-            ],
-          },
-        ],
-        "AlarmDescription": "There are messages in the dead letter queue for the Newswires ingestion lambda. We should investigate why and remediate",
-        "AlarmName": "Messages in DLQ for Newswires ingestion lambda TEST",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "Dimensions": [
-          {
-            "Name": "QueueName",
-            "Value": {
-              "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttfingerpostqueueDeadLetterQueueTESTC46C734AQueueNameE742410B",
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "ApproximateNumberOfMessagesVisible",
-        "Namespace": "AWS/SQS",
-        "OKActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:eu-west-1:",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
-                },
-              ],
-            ],
-          },
-        ],
-        "Period": 60,
-        "Statistic": "Maximum",
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "newswires",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-        "Threshold": 3,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
     },
     "DefaultSecurityGroupNewswires91CCC0BF": {
       "Properties": {
@@ -1200,10 +1230,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -1226,10 +1253,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -1714,10 +1738,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -3512,10 +3533,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -3762,10 +3780,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -3844,10 +3859,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -3894,10 +3906,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -3926,10 +3935,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -4287,10 +4293,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -4319,10 +4322,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -4371,10 +4371,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -4405,10 +4402,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -4808,33 +4802,6 @@ dpkg -i /newswires/newswires.deb",
       },
       "Type": "AWS::CloudFront::Distribution",
     },
-    "newswiresemailalarmtopicB2906D97": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "newswires",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-      },
-      "Type": "AWS::SNS::Topic",
-    },
     "reutersLambda21FE513B": {
       "DependsOn": [
         "reutersLambdaServiceRoleDefaultPolicy86486920",
@@ -4974,10 +4941,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -5056,10 +5020,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -5106,10 +5067,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -5138,10 +5096,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -5499,10 +5454,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -5531,10 +5483,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -5583,10 +5532,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
@@ -5617,10 +5563,7 @@ dpkg -i /newswires/newswires.deb",
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
                 },
               ],
             ],
