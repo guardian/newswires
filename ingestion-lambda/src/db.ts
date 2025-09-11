@@ -23,11 +23,12 @@ export async function putItemToDb({
 	logger: Logger;
 }): Promise<OperationResult<{ didCreateNewItem: boolean }>> {
 	const { content, supplier, categoryCodes } = processedObject;
+	const ingestedAt = lastModified ?? new Date();
 	try {
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
 			(external_id, supplier, content, category_codes, s3_key, ingested_at)
-		VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}, ${lastModified ? lastModified.getMilliseconds() / 1000 : 'now()'}) ON CONFLICT (external_id) DO NOTHING
+		VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}, ${ingestedAt}) ON CONFLICT (external_id) DO NOTHING
 		RETURNING id`;
 
 		if (result.length === 0) {

@@ -17,6 +17,10 @@ jest.mock('../../shared/lambda-logging', () => {
 });
 const mockCreateLogger = loggingModule.createLogger;
 
+interface DBRow {
+	ingested_at: Date;
+}
+
 describe('putItemToDb', () => {
 	const sql = postgres({
 		port: 55432,
@@ -34,18 +38,19 @@ describe('putItemToDb', () => {
 	afterAll(async () => {
 		await sql.end();
 	});
+	const exampleProcessedObject = {
+		content: {
+			slug: 'test-slug',
+			keywords: [],
+			imageIds: [],
+		},
+		supplier: 'test-supplier',
+		categoryCodes: ['code1', 'code2'],
+	};
 
 	it('should be able to insert an item into the database', async () => {
 		await putItemToDb({
-			processedObject: {
-				content: {
-					slug: 'test-slug',
-					keywords: [],
-					imageIds: [],
-				},
-				supplier: 'test-supplier',
-				categoryCodes: ['code1', 'code2'],
-			},
+			processedObject: exampleProcessedObject,
 			externalId: 'test-external-id',
 			s3Key: 'test-s3-key',
 			sql: sql,
@@ -53,5 +58,41 @@ describe('putItemToDb', () => {
 		});
 		const results = await sql`SELECT * FROM ${sql(DATABASE_TABLE_NAME)};`;
 		expect(results.length).toBe(1);
+	});
+	it('should persist lastModified date if provided', async () => {
+		const lastModified = new Date('2023-01-01T12:00:00Z');
+		await putItemToDb({
+			processedObject: exampleProcessedObject,
+			externalId: 'test-external-id',
+			s3Key: 'test-s3-key',
+			lastModified,
+			sql: sql,
+			logger: mockCreateLogger({}),
+		});
+		const results =
+			await sql`SELECT ingested_at FROM ${sql(DATABASE_TABLE_NAME)} WHERE external_id = 'test-external-id';`;
+		const ingestedAt = (results[0] as DBRow).ingested_at;
+		expect(ingestedAt).toBeDefined();
+		expect(new Date(ingestedAt).toISOString()).toBe(lastModified.toISOString());
+	});
+	it('should use current date for ingested_at if lastModified is not provided', async () => {
+		const before = new Date();
+		await putItemToDb({
+			processedObject: exampleProcessedObject,
+			externalId: 'test-external-id',
+			s3Key: 'test-s3-key',
+			lastModified: undefined,
+			sql: sql,
+			logger: mockCreateLogger({}),
+		});
+		const after = new Date();
+		const results =
+			await sql`SELECT ingested_at FROM ${sql(DATABASE_TABLE_NAME)} WHERE external_id = 'test-external-id';`;
+		const ingestedAt = (results[0] as DBRow).ingested_at;
+		expect(ingestedAt).toBeDefined();
+		expect(new Date(ingestedAt).getTime()).toBeGreaterThanOrEqual(
+			before.getTime(),
+		);
+		expect(new Date(ingestedAt).getTime()).toBeLessThanOrEqual(after.getTime());
 	});
 });
