@@ -8,7 +8,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
 import models.{MostRecent, NextPage, QueryParams, SearchParams}
-import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
+import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
@@ -376,11 +376,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       List(
         "supplier1",
         List("N2:GB"),
-        "headline_tsv_simple",
         "News Summary",
         "REUTERS",
         List("afpCat:SPO"),
-        "body_text_tsv_simple",
         "soccer",
         "AFP"
       )
@@ -477,4 +475,130 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     query.statement should include("ORDER BY fm.ingested_at ASC")
   }
 
+  behavior of "FingerpostWireEntry.processSearchParams"
+
+  val emptySearchParams = SearchParams(
+    text = None,
+    start = None,
+    end = None,
+    keywordIncl = Nil,
+    keywordExcl = Nil,
+    suppliersIncl = Nil,
+    suppliersExcl = Nil,
+    categoryCodesIncl = Nil,
+    categoryCodesExcl = Nil,
+    hasDataFormatting = None
+  )
+  it should "create the correct sql snippet for suppliersInc" in {
+    val supplierClause = " upper(fm.supplier) in (upper(?))"
+    val suppliersInc = emptySearchParams.copy(suppliersIncl = List("supplier"))
+    val snippets = FingerpostWireEntry.processSearchParams(suppliersInc)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = supplierClause,
+      expectedParams = List("supplier")
+    )
+  }
+  it should "create the correct sql snippet for suppliersExcl" in {
+    val supplierExclClause =
+      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry sourceFeedsExcl
+        |WHERE fm.id = sourceFeedsExcl.id
+        |AND upper(sourceFeedsExcl.supplier) in (upper(?)) )""".stripMargin
+    val suppliersExcl = emptySearchParams.copy(suppliersExcl = List("supplier"))
+    val snippets = FingerpostWireEntry.processSearchParams(suppliersExcl)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = supplierExclClause,
+      expectedParams = List("supplier")
+    )
+  }
+
+  it should "create the correct sql snippet for categoryCodesIncl" in {
+    val categoryCodesIncl =
+      emptySearchParams.copy(categoryCodesIncl = List("code"))
+    val snippets = FingerpostWireEntry.processSearchParams(categoryCodesIncl)
+
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = "fm.category_codes && ?",
+      expectedParams = List(List("code"))
+    )
+
+  }
+
+  it should "create the correct sql snippet for categoryCodesExcl" in {
+    val categoryExclClause =
+      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry categoryCodesExcl
+        |WHERE fm.id = categoryCodesExcl.id
+        |AND categoryCodesExcl.category_codes && ? )""".stripMargin
+
+    val categoryCodesExcl =
+      emptySearchParams.copy(categoryCodesExcl = List("code"))
+    val snippets = FingerpostWireEntry.processSearchParams(categoryCodesExcl)
+
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = categoryExclClause,
+      expectedParams = List(List("code"))
+    )
+  }
+
+  it should "create the correct sql snippet for search term query" in {
+    val searchText = emptySearchParams.copy(text =
+      Some(SearchTerm.Simple("query", SearchField.Headline))
+    )
+    val snippets = FingerpostWireEntry.processSearchParams(searchText)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('simple', lower(?)) @@ headline_tsv_simple",
+      expectedParams = List("query")
+    )
+  }
+
+  it should "create the correct sql snippet for english term query" in {
+    val searchText =
+      emptySearchParams.copy(text = Some(SearchTerm.English("query")))
+    val snippets = FingerpostWireEntry.processSearchParams(searchText)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
+      expectedParams = List("query")
+    )
+  }
+
+  it should "create the correct sql snippet for keywordsIncl" in {
+    val keywordIncl = emptySearchParams.copy(keywordIncl = List("keyword"))
+    val snippets = FingerpostWireEntry.processSearchParams(keywordIncl)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = "(fm.content -> 'keywords') ??| ?",
+      expectedParams = List(List("keyword"))
+    )
+  }
+
+  it should "create the correct sql snippet for keywordExcl" in {
+    val keywordExclClause =
+      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry keywordsExcl
+        |WHERE fm.id = keywordsExcl.id
+        |AND (keywordsExcl.content->'keywords') ??| ? )""".stripMargin
+    val keywordExcl = emptySearchParams.copy(keywordExcl = List("keyword"))
+    val snippets = FingerpostWireEntry.processSearchParams(keywordExcl)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = keywordExclClause,
+      expectedParams = List(List("keyword"))
+    )
+  }
+
+  it should "create the correct sql snippet for hasDataFormatting set to true" in {
+    val dataFormatting = emptySearchParams.copy(hasDataFormatting = Some(true))
+    val snippets = FingerpostWireEntry.processSearchParams(dataFormatting)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = "(fm.content->'dataformat') IS NOT NULL",
+      expectedParams = List()
+    )
+  }
+
+  it should "create the correct sql snippet for hasDataFormatting set to false" in {
+    val dataFormatting = emptySearchParams.copy(hasDataFormatting = Some(false))
+    val snippets = FingerpostWireEntry.processSearchParams(dataFormatting)
+    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+      expectedClause = "(fm.content->'dataformat') IS NULL",
+      expectedParams = List()
+    )
+  }
 }
