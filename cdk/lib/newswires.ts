@@ -310,22 +310,27 @@ export class Newswires extends GuStack {
 			evaluationPeriods: 1,
 		});
 
-		props.fingerpostQueue.deadLetterQueue && new GuAlarm(this, 'DeadLetterQueueAlarm', {
-			actionsEnabled: this.stage === 'CODE',
-			okAction: true,
-			alarmName: `Messages in DLQ for Newswires ingestion lambda ${this.stage}`,
-			alarmDescription: `There are messages in the dead letter queue for the Newswires ingestion lambda. We should investigate why and remediate`,
-			app: appName,
-			comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-			treatMissingData: TreatMissingData.NOT_BREACHING,
-			metric: props.fingerpostQueue.deadLetterQueue.queue.metricApproximateNumberOfMessagesVisible({
-				period: Duration.minutes(1),
-				statistic: Stats.MAXIMUM,
-			}),
-			snsTopicName: alarmSnsTopic.topicName,
-			threshold: 3,
-			evaluationPeriods: 1,
-		});
+		if (props.fingerpostQueue.deadLetterQueue) {
+			new GuAlarm(this, 'DeadLetterQueueAlarm', {
+				actionsEnabled: this.stage === 'CODE',
+				okAction: true,
+				alarmName: `Messages in DLQ for Newswires ingestion lambda ${this.stage}`,
+				alarmDescription: `There are messages in the dead letter queue for the Newswires ingestion lambda. We should investigate why and remediate`,
+				app: appName,
+				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				metric:
+					props.fingerpostQueue.deadLetterQueue.queue.metricApproximateNumberOfMessagesVisible(
+						{
+							period: Duration.minutes(1),
+							statistic: Stats.MAXIMUM,
+						},
+					),
+				snsTopicName: alarmSnsTopic.topicName,
+				threshold: 3,
+				evaluationPeriods: 1,
+			});
+		}
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
 			this,
