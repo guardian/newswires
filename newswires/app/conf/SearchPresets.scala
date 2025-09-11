@@ -247,11 +247,12 @@ object SearchPresets {
       CategoryCodes.SoccerTables.PA
     )
   )
+  // SoccerTablesDataFormats
   private val NoSoccer = List(
-    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS.filterNot(CategoryCodes.Soccer.REUTERS.contains)),
-    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains)),
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS.filterNot(CategoryCodes.Soccer.REUTERS.contains), categoryCodesExcl = CategoryCodes.Soccer.REUTERS),
+    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains), categoryCodesExcl = CategoryCodes.Soccer.PA),
     SearchPreset.fromText(AFP, SimpleSearchQueries.NOSOCCER, CategoryCodes.Sport.AFP),
-    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP.filterNot(CategoryCodes.Soccer.AAP.contains)),
+    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP.filterNot(CategoryCodes.Soccer.AAP.contains),categoryCodesExcl = CategoryCodes.Soccer.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.NOSOCCER))
   )
 

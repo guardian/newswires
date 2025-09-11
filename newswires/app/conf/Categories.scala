@@ -45,8 +45,8 @@ private[conf] object CategoryCodes {
   }
 
   object Soccer {
-    val REUTERS: List[String] = List("N2:SOCC", "N2:SOCC")
-    val PA: List[String] = List("paCat:SSO")
+    val REUTERS: List[String] = List("N2:SOCC", "N2:SOCC", "subj:15054000")
+    val PA: List[String] = List("paCat:SSO", "subj:15054000")
     val AAP: List[String] = List("subj:15054000")
   }
 
