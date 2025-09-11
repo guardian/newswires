@@ -249,10 +249,22 @@ object SearchPresets {
   )
   // SoccerTablesDataFormats
   private val NoSoccer = List(
-    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS.filterNot(CategoryCodes.Soccer.REUTERS.contains), categoryCodesExcl = CategoryCodes.Soccer.REUTERS),
-    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains), categoryCodesExcl = CategoryCodes.Soccer.PA),
+    SearchPreset(
+      REUTERS,
+      categoryCodes = CategoryCodes.Sport.REUTERS.filterNot(CategoryCodes.Soccer.REUTERS.contains),
+      categoryCodesExcl = CategoryCodes.Soccer.REUTERS
+    ),
+    SearchPreset(
+      PA,
+      categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains),
+      categoryCodesExcl = CategoryCodes.Soccer.PA
+    ),
     SearchPreset.fromText(AFP, SimpleSearchQueries.NOSOCCER, CategoryCodes.Sport.AFP),
-    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP.filterNot(CategoryCodes.Soccer.AAP.contains),categoryCodesExcl = CategoryCodes.Soccer.AAP),
+    SearchPreset(
+      AAP,
+      categoryCodes = CategoryCodes.Sport.AAP.filterNot(CategoryCodes.Soccer.AAP.contains),
+      categoryCodesExcl = CategoryCodes.Soccer.AAP
+    ),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.NOSOCCER))
   )
 
@@ -349,7 +361,11 @@ object SearchPresets {
 
   private val Athletics = List(
     SearchPreset(REUTERS, CategoryCodes.Athletics.REUTERS),
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("ATHLETICS", Slug), categoryCodes = List("paCat:SRS", "paCat:SSS")),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerm = SearchTerm.Simple("ATHLETICS", Slug),
+      categoryCodes = List("paCat:SRS", "paCat:SSS")
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("ATHLETICS", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Athletics.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Track and field"))
