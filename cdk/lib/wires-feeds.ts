@@ -87,16 +87,38 @@ export class WiresFeeds extends GuStack {
 		this.fingerpostQueue = createTopicQueue(this, 'fingerpost');
 
 		if (this.fingerpostQueue.deadLetterQueue) {
-			new GuAlarm(this, 'DeadLetterQueueAlarm', {
+			new GuAlarm(this, 'FingerpostDeadLetterQueueAlarm', {
 				actionsEnabled: this.stage === 'CODE',
 				okAction: true,
-				alarmName: `Messages in DLQ for Newswires ingestion lambda ${this.stage}`,
-				alarmDescription: `There are messages in the dead letter queue for the Newswires ingestion lambda. We should investigate why and remediate`,
+				alarmName: `Messages in DLQ for Fingerpost queue ${this.stage}`,
+				alarmDescription: `There are messages in the dead letter queue for the Fingerpost queue. We should investigate why and remediate`,
 				app: appName,
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
 				treatMissingData: TreatMissingData.NOT_BREACHING,
 				metric:
 					this.fingerpostQueue.deadLetterQueue.queue.metricApproximateNumberOfMessagesVisible(
+						{
+							period: Duration.minutes(1),
+							statistic: Stats.MAXIMUM,
+						},
+					),
+				snsTopicName: this.alarmSnsTopic.topicName,
+				threshold: 3,
+				evaluationPeriods: 1,
+			});
+		}
+
+		if (this.sourceQueue.deadLetterQueue) {
+			new GuAlarm(this, 'SourceDeadLetterQueueAlarm', {
+				actionsEnabled: this.stage === 'CODE',
+				okAction: true,
+				alarmName: `Messages in DLQ for the source queue ${this.stage}`,
+				alarmDescription: `There are messages in the dead letter queue for the source queue. We should investigate why and remediate`,
+				app: appName,
+				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				metric:
+					this.sourceQueue.deadLetterQueue.queue.metricApproximateNumberOfMessagesVisible(
 						{
 							period: Duration.minutes(1),
 							statistic: Stats.MAXIMUM,
