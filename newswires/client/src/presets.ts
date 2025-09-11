@@ -13,8 +13,24 @@ export const sportPresets: Preset[] = [
 		id: 'soccer',
 	},
 	{
+		name: 'Soccer Scores',
+		id: 'soccer-scores',
+	},
+	{
+		name: 'Soccer Tables',
+		id: 'soccer-tables',
+	},
+	{
+		name: 'No Soccer',
+		id: 'no-soccer',
+	},
+	{
 		name: 'Cricket',
 		id: 'cricket',
+	},
+	{
+		name: 'Cricket Results',
+		id: 'cricket-results',
 	},
 	{
 		name: 'Rugby Union',
@@ -23,6 +39,10 @@ export const sportPresets: Preset[] = [
 	{
 		name: 'Tennis',
 		id: 'tennis',
+	},
+	{
+		name: 'Tennis Results',
+		id: 'tennis-results',
 	},
 	{
 		name: 'Cycling',
@@ -37,12 +57,20 @@ export const sportPresets: Preset[] = [
 		id: 'golf',
 	},
 	{
+		name: 'Golf Results',
+		id: 'golf-results',
+	},
+	{
 		name: 'Boxing',
 		id: 'boxing',
 	},
 	{
 		name: 'Rugby League',
 		id: 'rugby-league',
+	},
+	{
+		name: 'Rugby Results',
+		id: 'rugby-results',
 	},
 	{
 		name: 'Horse racing',
@@ -55,6 +83,10 @@ export const sportPresets: Preset[] = [
 	{
 		name: 'Olympics',
 		id: 'olympics',
+	},
+	{
+		name: 'All Data Formats',
+		id: 'all-data-formats',
 	},
 ];
 
