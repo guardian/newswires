@@ -16,4 +16,8 @@ case class QueryParams(
     maybeBeforeId: Option[Int],
     maybeSinceId: Option[UpdateType],
     pageSize: Int = 250
-)
+) {
+  def isCacheable: Boolean = {
+    maybeSinceId.isEmpty && maybeBeforeId.isEmpty
+  }
+}
