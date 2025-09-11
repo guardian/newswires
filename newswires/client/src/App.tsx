@@ -30,7 +30,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod/v4';
 import { STAGE } from './app-configuration.ts';
 import { AppTitle } from './AppTitle.tsx';
-import { BetaBadge } from './BetaBadge.tsx';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
 	loadOrSetInLocalStorage,
@@ -39,7 +38,6 @@ import {
 import { useSearch } from './context/SearchContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { Feed } from './Feed';
-import { FeedbackContent } from './FeedbackContent.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { ItemData } from './ItemData.tsx';
 import { presetLabel } from './presets.ts';
@@ -176,20 +174,32 @@ export function App() {
 						>
 							<EuiModalHeader>
 								<EuiModalHeaderTitle
-									title={'Please use with caution'}
+									title={'Newswires is ready to use'}
 									id="disclaimer-title"
 								>
-									<EuiIcon type="info" size="xl" /> Please use with caution
+									Newswires is ready to use
 								</EuiModalHeaderTitle>
 							</EuiModalHeader>
 
 							<EuiModalBody>
 								<EuiText size="m">
-									Please be advised that this product is currently in its early
-									testing phase, under active development, and subject to
-									change.
-									<br />
-									<FeedbackContent />
+									You&rsquo;re using an early version of Newswires. It&rsquo;s
+									fully available, with ongoing improvements. Join the{' '}
+									<a
+										href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
+										target="_blank"
+										rel="noreferrer"
+									>
+										chat group
+									</a>{' '}
+									to stay updated or share feedback with the{' '}
+									<a
+										href="https://mail.google.com/mail/?view=cm&fs=1&to=media.and.feeds@theguardian.com&su=Newswires feedback"
+										target="_blank"
+										rel="noreferrer"
+									>
+										Media & Feeds team
+									</a>
 								</EuiText>
 							</EuiModalBody>
 
@@ -280,12 +290,6 @@ export function App() {
 											>
 												<h1>
 													<AppTitle />
-													<EuiShowFor sizes={['xs', 's']}>
-														<BetaBadge size={'small'} />
-													</EuiShowFor>
-													<EuiShowFor sizes={['m', 'l', 'xl']}>
-														<BetaBadge size={'medium'} />
-													</EuiShowFor>
 												</h1>
 											</EuiTitle>
 										</EuiHeaderSectionItem>
