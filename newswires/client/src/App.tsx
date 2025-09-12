@@ -44,7 +44,7 @@ import { presetLabel } from './presets.ts';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
-import { SideNav } from './SideNav';
+import { SideNav } from './SideNav/SideNav.tsx';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { defaultQuery } from './urlState';
