@@ -1,6 +1,16 @@
+import z from 'zod/v4';
+
+export const PresetGroupNameSchema = z.union([
+	z.literal('presets'),
+	z.literal('sportPresets'),
+]);
+
+export type PresetGroupName = z.infer<typeof PresetGroupNameSchema>;
+
 export interface Preset {
 	name: string;
 	id: string;
+	child?: PresetGroupName;
 }
 
 export const sportPresets: Preset[] = [
@@ -90,31 +100,13 @@ export const sportPresets: Preset[] = [
 	},
 ];
 
-export const presets = [
-	{ id: 'all-presets', name: 'All', filterOptions: [] },
-	{ id: 'all-world', name: 'World', filterOptions: [] },
-	{ id: 'all-uk', name: 'UK', filterOptions: [] },
-	{ id: 'all-business', name: 'Business', filterOptions: [] },
-	{ id: 'all-sport', name: 'Sport', filterOptions: sportPresets },
+export const presets: Preset[] = [
+	{ id: 'all-presets', name: 'All' },
+	{ id: 'all-world', name: 'World' },
+	{ id: 'all-uk', name: 'UK' },
+	{ id: 'all-business', name: 'Business' },
+	{ id: 'sports-sublink', name: 'Sport', child: 'sportPresets' },
 ];
-
-export const presetFilterOptions = (presetId: string) => {
-	const preset = presets.find((preset) => preset.id === presetId);
-
-	if (preset) {
-		return preset.filterOptions;
-	}
-
-	const sportPresetFilterOptions = sportPresets.find(
-		(preset) => preset.id === presetId,
-	);
-
-	if (sportPresetFilterOptions) {
-		return sportPresets;
-	}
-
-	return [];
-};
 
 export const presetLabel = (presetId: string) => {
 	const preset = presets.find((preset) => preset.id === presetId);

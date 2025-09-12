@@ -1,13 +1,8 @@
-import type { EuiSelectableOption } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBeacon,
 	EuiButtonEmpty,
 	EuiButtonIcon,
-	EuiContextMenuPanel,
-	EuiPopover,
-	EuiSelectable,
-	useGeneratedHtmlId,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
@@ -18,8 +13,7 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
-import type { Preset } from './presets.ts';
-import { presetFilterOptions, presetLabel } from './presets.ts';
+import { presetLabel } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -40,37 +34,12 @@ const SummaryBadge = ({
 	queryParamKey,
 	value,
 	valueLabel,
-	filterOptions = [],
 }: {
 	queryParamKey: keyof Query;
 	value?: string;
 	valueLabel?: string;
-	filterOptions?: Preset[];
 }) => {
 	const label = SearchTermBadgeLabelLookup[queryParamKey];
-
-	const [options, setOptions] = useState<EuiSelectableOption[]>(
-		filterOptions.map((option: Preset) => {
-			return {
-				key: option.id,
-				label: option.name,
-				checked: option.id === value ? 'on' : undefined,
-			} as EuiSelectableOption;
-		}),
-	);
-
-	const [isPopoverOpen, setPopover] = useState(false);
-	const contextMenuPopoverId = useGeneratedHtmlId({
-		prefix: 'badgeContextMenuPopover',
-	});
-
-	const handleBadgeClick = () => {
-		setPopover(!isPopoverOpen);
-	};
-
-	const closePopover = () => {
-		setPopover(false);
-	};
 
 	const { config, handleEnterQuery, toggleSupplier } = useSearch();
 
@@ -110,7 +79,7 @@ const SummaryBadge = ({
 
 	const valueLabelToDisplay = valueLabel ?? value;
 
-	const badge = (
+	return (
 		<EuiBadge
 			key={value}
 			title={`Filtered by ${label}: ${value}`}
@@ -120,66 +89,10 @@ const SummaryBadge = ({
 			iconOnClick={() => {
 				handleRemoveBadge(queryParamKey, value);
 			}}
-			onClick={() => handleBadgeClick()}
-			onClickAriaLabel={'Open filter options'}
 		>
 			<strong>{label}</strong>
 			{valueLabelToDisplay !== '' ? `: ${valueLabelToDisplay}` : ''}
 		</EuiBadge>
-	);
-
-	if (filterOptions.length === 0) {
-		return badge;
-	}
-
-	const handleChange = (updatedOptions: EuiSelectableOption[]) => {
-		setOptions(updatedOptions);
-
-		const selectedOption: EuiSelectableOption | undefined = updatedOptions.find(
-			(option) => option.checked === 'on',
-		);
-
-		handleEnterQuery({
-			...config.query,
-			preset: selectedOption?.key,
-		});
-	};
-
-	return (
-		<EuiPopover
-			id={contextMenuPopoverId}
-			button={badge}
-			isOpen={isPopoverOpen}
-			closePopover={closePopover}
-			panelPaddingSize="none"
-			anchorPosition="downLeft"
-		>
-			<EuiContextMenuPanel
-				css={css`
-					padding: 4px;
-				`}
-			>
-				<EuiSelectable
-					singleSelection={true}
-					aria-label="Find a data view"
-					searchable
-					searchProps={{
-						compressed: true,
-						placeholder: `Search ${queryParamKey} options`,
-						autoFocus: true,
-					}}
-					options={options}
-					onChange={handleChange}
-				>
-					{(list, search) => (
-						<>
-							{search}
-							{list}
-						</>
-					)}
-				</EuiSelectable>
-			</EuiContextMenuPanel>
-		</EuiPopover>
 	);
 };
 
@@ -246,7 +159,6 @@ const Summary = ({
 					queryParamKey="preset"
 					value={preset}
 					valueLabel={presetLabel(preset)}
-					filterOptions={presetFilterOptions(preset)}
 				/>
 			)}
 
