@@ -230,8 +230,7 @@ object SearchPresets {
     SearchPreset(PA, CategoryCodes.Soccer.PA, hasDataFormatting = Some(false)),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("fbl", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Soccer.AAP),
-    //   SearchPreset.fromSearchTerm(AP, searchTerm = SearchTerm.Simple("AP-SOC--", Slug), CategoryCodes.Sport.AP),
-    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Soccer"))
+    SearchPreset.fromSearchTerm(AP, searchTerm = SearchTerm.Simple("AP SOC", Slug), CategoryCodes.Sport.AP, keyword = Some("Soccer")),
   )
 
   private val SoccerScores = List(
