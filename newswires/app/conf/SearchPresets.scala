@@ -64,6 +64,28 @@ object SearchPreset {
       categoryCodesExcl = categoryCodesExcl,
       hasDataFormatting = hasDataFormatting
     )
+
+  // multiple ANDed SearchTerm clauses across fields
+  def fromSearchTerms(
+      supplier: String,
+      primary: SearchTerm,
+      andTerms: List[SearchTerm] = Nil,
+      categoryCodes: List[String] = Nil,
+      categoryCodesExcl: List[String] = Nil,
+      keyword: Option[String] = None,
+      keywordExcl: List[String] = Nil,
+      hasDataFormatting: Option[Boolean] = None
+  ): SearchParams =
+    SearchParams(
+      text = Some(primary),
+      andText = andTerms,
+      suppliersIncl = List(supplier),
+      keywordIncl = keyword.toList,
+      keywordExcl = keywordExcl,
+      categoryCodesIncl = categoryCodes,
+      categoryCodesExcl = categoryCodesExcl,
+      hasDataFormatting = hasDataFormatting
+    )
 }
 
 object SearchPresets {
@@ -231,7 +253,13 @@ object SearchPresets {
       searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
       CategoryCodes.Soccer.REUTERS),
     SearchPreset(PA, CategoryCodes.Soccer.PA, hasDataFormatting = Some(false)),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("fbl", Slug), CategoryCodes.Sport.AFP),
+    // Updated: include slug fbl AND exclude table/results from headline
+    SearchPreset.fromSearchTerms(
+      AFP,
+      primary = SearchTerm.Simple("fbl", Slug),
+      andTerms = List(SearchTerm.Simple("-fixtures -qualifiers -result -results -scorers -table -tables -winners -scorers", SearchField.Headline)),
+      CategoryCodes.Sport.AFP
+    ),
     SearchPreset(AAP, CategoryCodes.Soccer.AAP),
     SearchPreset.fromSearchTerm(
       AP, searchTerm = SearchTerm.Simple("AP SOC", Slug),
@@ -247,6 +275,12 @@ object SearchPresets {
       PA,
       searchTerm = SearchTerm.Simple("SOCCER", Slug),
       CategoryCodes.SoccerScores.PA
+    ),
+    SearchPreset.fromSearchTerms(
+    AFP,
+    primary = SearchTerm.Simple("fbl", Slug),
+    andTerms = List(SearchTerm.Simple("fixtures OR qualifiers OR result OR results OR scorers OR table OR tables OR winners OR scorers", SearchField.Headline)),
+    CategoryCodes.Sport.AFP
     )
   )
 
