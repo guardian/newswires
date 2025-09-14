@@ -284,7 +284,7 @@ object FingerpostWireEntry
       case _ => None
     }
 
-    // NEW: handle additional ANDed text clauses
+    // handle additional ANDed text clauses
     val extraSearchQueries: List[SQLSyntax] = search.andText.map {
       case s: SearchTerm.Simple  => simpleSearchSQL(s)
       case e: SearchTerm.English => englishSearchSQL(e)

@@ -253,7 +253,6 @@ object SearchPresets {
       searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
       CategoryCodes.Soccer.REUTERS),
     SearchPreset(PA, CategoryCodes.Soccer.PA, hasDataFormatting = Some(false)),
-    // Updated: include slug fbl AND exclude table/results from headline
     SearchPreset.fromSearchTerms(
       AFP,
       primary = SearchTerm.Simple("fbl", Slug),
