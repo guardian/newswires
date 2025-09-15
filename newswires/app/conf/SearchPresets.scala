@@ -315,7 +315,7 @@ object SearchPresets {
 
   private val Cycling = List(
     SearchPreset(REUTERS, CategoryCodes.Cycling.REUTERS),
-    SearchPreset.fromText(PA, text = SimpleSearchQueries.CYCLING, categoryCodes = List("paCat:SRS", "paCat:SSS")),
+    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("CYCLING", Slug), categoryCodes = List("paCat:SRS", "paCat:SSS")),
     SearchPreset.fromText(AFP, text = SimpleSearchQueries.CYCLING, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Cycling.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Cycling"))
