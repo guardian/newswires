@@ -6,6 +6,7 @@
 		"dev": "INGESTION_LAMBDA_QUEUE_URL=http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/local-ingestion-queue tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
+		"pretest": "cd ../ && ./scripts/setup-test-env.sh",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects ingestion-lambda",
 		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
