@@ -254,8 +254,9 @@ object SearchPresets {
       categoryCodes = CategoryCodes.Sport.REUTERS.filterNot(CategoryCodes.Soccer.REUTERS.contains),
       categoryCodesExcl = CategoryCodes.Soccer.REUTERS
     ),
-    SearchPreset(
+    SearchPreset.fromSearchTerm(
       PA,
+      searchTerm = SearchTerm.Simple("-SOCCER", Slug),
       categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains),
       categoryCodesExcl = CategoryCodes.Soccer.PA
     ),
