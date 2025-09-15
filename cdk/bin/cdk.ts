@@ -1,8 +1,6 @@
 import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
 import { App } from 'aws-cdk-lib';
 import 'source-map-support/register';
-import type { Topic } from 'aws-cdk-lib/aws-sns';
-import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import { STACK } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { pollerIdToLambdaAppName, POLLERS_CONFIG } from '../../shared/pollers';
@@ -24,32 +22,6 @@ type SharedStackProps = {
 	enableMonitoring: boolean;
 };
 
-function createNewswiresStack({
-	app,
-	stack,
-	stage,
-	domainName,
-	enableMonitoring,
-	sourceQueue,
-	fingerpostQueue,
-	alarmSnsTopic,
-}: SharedStackProps & {
-	sourceQueue: Queue;
-	fingerpostQueue: Queue;
-	alarmSnsTopic: Topic;
-}) {
-	return new Newswires(app, `Newswires-${stage}`, {
-		env,
-		stack,
-		stage,
-		domainName,
-		enableMonitoring,
-		sourceQueue,
-		fingerpostQueue,
-		alarmSnsTopic,
-	});
-}
-
 export function createStacks({
 	app,
 	stack,
@@ -63,8 +35,8 @@ export function createStacks({
 		stage,
 	});
 
-	const newswiresStack = createNewswiresStack({
-		app,
+	const newswiresStack = new Newswires(app, `Newswires-${stage}`, {
+		env,
 		stack,
 		stage,
 		domainName,
