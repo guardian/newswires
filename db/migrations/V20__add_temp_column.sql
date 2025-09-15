@@ -1,1 +1,0 @@
-ALTER TABLE fingerpost_wire_entry ADD COLUMN temp_column VARCHAR(255);
