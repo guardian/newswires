@@ -9,7 +9,8 @@
 		"poller-lambdas",
 		"newswires/client",
 		"email-filter-lambda",
-		"fingerpost-queueing-lambda"
+		"fingerpost-queueing-lambda",
+		"db/db-migrations-checker"
 	],
 	"scripts": {
 		"test": "npm run test --workspaces --if-present",

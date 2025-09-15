@@ -1,0 +1,14 @@
+{
+  "name": "db-migrations-checker",
+  "version": "1.0.0",
+  "description": "API to check database migrations have been applied",
+  "main": "index.js",
+  "scripts": {
+    "typecheck": "tsc -noEmit",
+		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
+		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",
+		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
+  },
+  "author": "",
+  "license": "ISC"
+}
