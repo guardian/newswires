@@ -1,6 +1,6 @@
 #!/usr/bin/env -S scala-cli shebang -S 3.3
 
-//> using jvm corretto:17
+//> using jvm "corretto:17"
 
 //> using dep com.lihaoyi::ujson:4.2.1
 //> using dep org.flywaydb:flyway-core:11.9.1
@@ -92,15 +92,15 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
   }
 }
 
-def localFlyway: Flyway = buildFlyway("postgres")
+def localFlyway(password: String, port: Int): Flyway = buildFlyway(password, port)
 
 val location = Path.of(scriptPath).getParent().resolve("migrations").toString()
 
-def buildFlyway(password: String) =
+def buildFlyway(password: String, port: Int) =
   Flyway
     .configure()
     .dataSource(
-      "jdbc:postgresql://localhost:5432/newswires",
+      s"jdbc:postgresql://localhost:$port/newswires",
       "postgres",
       password
     )
@@ -157,7 +157,7 @@ def remoteFlyway(stage: String): Flyway = {
 
   val token = rds.utilities().generateAuthenticationToken(generateTokenRequest)
 
-  buildFlyway(token)
+  buildFlyway(token, 5432)
 }
 
 val command = args.lift(0) match {
@@ -170,7 +170,8 @@ val command = args.lift(0) match {
 }
 
 val (env, flyway) = args.lift(1).map(_.toLowerCase()) match {
-  case Some("local") => ("local", localFlyway)
+  case Some("local") => ("local", localFlyway("postgres", 5432))
+  case Some("test")  => ("test", localFlyway("testpassword", 55432)) 
   case Some("code")  => ("code", remoteFlyway("CODE"))
   case Some("prod")  => ("prod", remoteFlyway("PROD"))
   case o =>
