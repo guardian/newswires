@@ -259,7 +259,7 @@ object SearchPresets {
       primary = SearchTerm.Simple("fbl", Slug),
       andTerms = List(
         SearchTerm.Simple(
-          "-fixtures -qualifiers -result -results -scorers -table -tables -winners -scorers",
+          "-fixtures -qualifiers -result -results -scorers -table -tables -winners",
           SearchField.Headline
         )
       ),
@@ -290,7 +290,7 @@ object SearchPresets {
       primary = SearchTerm.Simple("fbl", Slug),
       andTerms = List(
         SearchTerm.Simple(
-          "fixtures OR qualifiers OR result OR results OR scorers OR table OR tables OR winners OR scorers",
+          "fixtures OR qualifiers OR result OR results OR scorers OR table OR tables OR winners",
           SearchField.Headline
         )
       ),
