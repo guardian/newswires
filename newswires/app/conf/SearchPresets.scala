@@ -322,8 +322,8 @@ object SearchPresets {
   )
 
   private val F1 = List(
-    SearchPreset.fromSearchTerm(REUTERS, searchTerm = SearchTerm.Simple("MOTOR RACING"), CategoryCodes.F1.REUTERS),
-    SearchPreset.fromText(PA, text = SimpleSearchQueries.F1, categoryCodes = List("paCat:SRS", "paCat:SSS")),
+    SearchPreset(REUTERS,  CategoryCodes.F1.REUTERS),
+    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("auto", Slug), categoryCodes = List("paCat:SRS", "paCat:SSS", "paCat:RSR")),
     SearchPreset.fromText(AFP, text = SimpleSearchQueries.F1, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.F1.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Formula One racing"))
@@ -363,7 +363,7 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(
       PA,
       searchTerm = SearchTerm.Simple("ATHLETICS", Slug),
-      categoryCodes = List("paCat:SRS", "paCat:SSS")
+      categoryCodes = List("paCat:SRS", "paCat:SSS", "paCat:RSR")
     ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("ATHLETICS", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Athletics.AAP),
