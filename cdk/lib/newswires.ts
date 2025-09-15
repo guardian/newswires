@@ -293,7 +293,7 @@ export class Newswires extends GuStack {
 		);
 
 		new GuAlarm(this, 'FailedIngestionAlarm', {
-			actionsEnabled: this.stage === 'CODE',
+			actionsEnabled: this.stage === 'PROD',
 			okAction: true,
 			alarmName: `Ingestion failed on Newswires ${this.stage}`,
 			alarmDescription: `Stories have failed to ingest into Newswires. We should investigate why and remediate`,

@@ -88,7 +88,7 @@ export class WiresFeeds extends GuStack {
 
 		if (this.fingerpostQueue.deadLetterQueue) {
 			new GuAlarm(this, 'FingerpostDeadLetterQueueAlarm', {
-				actionsEnabled: this.stage === 'CODE',
+				actionsEnabled: this.stage === 'PROD',
 				okAction: true,
 				alarmName: `Messages in DLQ for Fingerpost queue ${this.stage}`,
 				alarmDescription: `There are messages in the dead letter queue for the Fingerpost queue. We should investigate why and remediate`,
@@ -110,7 +110,7 @@ export class WiresFeeds extends GuStack {
 
 		if (this.sourceQueue.deadLetterQueue) {
 			new GuAlarm(this, 'SourceDeadLetterQueueAlarm', {
-				actionsEnabled: this.stage === 'CODE',
+				actionsEnabled: this.stage === 'PROD',
 				okAction: true,
 				alarmName: `Messages in DLQ for the source queue ${this.stage}`,
 				alarmDescription: `There are messages in the dead letter queue for the source queue. We should investigate why and remediate`,
