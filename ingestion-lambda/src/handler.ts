@@ -125,6 +125,7 @@ export const main = async (
 						processedObject: contentResults,
 						externalId: processedMessage.externalId,
 						s3Key: processedMessage.objectKey,
+						lastModified: s3Result.lastModified,
 						sql,
 						logger,
 					});
