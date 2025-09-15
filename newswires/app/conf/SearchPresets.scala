@@ -290,9 +290,8 @@ object SearchPresets {
   )
 
   private val RugbyUnion = List(
-    SearchPreset
-      .fromSearchTerm(REUTERS, searchTerm = SearchTerm.Simple("RUGBYU", Slug), CategoryCodes.RugbyUnion.REUTERS),
-    SearchPreset.fromText(PA, text = SimpleSearchQueries.RUGBY_UNION, categoryCodes = List("paCat:SRS", "paCat:SSS")),
+    SearchPreset(REUTERS,  CategoryCodes.RugbyUnion.REUTERS),
+    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("RUGBYU", Slug), categoryCodes = List("paCat:SRS", "paCat:SSS")),
     SearchPreset.fromText(AFP, text = SimpleSearchQueries.RUGBY_UNION, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.RugbyUnion.AAP),
     SearchPreset.fromText(AP, text = SimpleSearchQueries.RUGBY_UNION, CategoryCodes.Sport.AP, keyword = Some("Rugby"))
