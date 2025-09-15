@@ -1,5 +1,6 @@
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import { getFromEnv } from '../../shared/config';
+import { formatS3Key } from '../../shared/formatS3key';
 import { createLogger } from '../../shared/lambda-logging';
 import { putToS3AndQueueIngestion } from '../../shared/putToS3AndQueueIngestion';
 import { putToS3 } from '../../shared/s3';
@@ -13,7 +14,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 				const externalId = messageAttributes['Message-Id']?.stringValue;
 				const hasExternalId = externalId && externalId.trim().length > 0;
 				const objectKey = hasExternalId
-					? `${externalId}.json`
+					? formatS3Key(externalId)
 					: `GuMissingExternalId/${sqsMessageId}.json`;
 
 				logger.log({

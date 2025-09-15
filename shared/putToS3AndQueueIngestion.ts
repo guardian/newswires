@@ -6,6 +6,7 @@ import { getFromEnv } from './config';
 import { getErrorMessage } from './getErrorMessage';
 import { putToS3 } from './s3';
 import { sqs } from './sqs';
+import { formatS3Key } from './formatS3key';
 
 export async function putToS3AndQueueIngestion({
 	externalId,
@@ -16,7 +17,7 @@ export async function putToS3AndQueueIngestion({
 	keyPrefix: string;
 	body: string;
 }): Promise<{ status: 'success' } | { status: 'failure'; reason: string }> {
-	const objectKey = `${keyPrefix}/${externalId}.json`;
+	const objectKey = `${keyPrefix}/${formatS3Key(externalId)}`;
 
 	try {
 		const s3PutResult = await putToS3({
