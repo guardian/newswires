@@ -15,4 +15,4 @@
 
 ## Introducing DB migrations?
 
-<!-- Database migrations need to be applied manually before release. The docs can be found in db/README.md -->
+<!-- Database migrations need to be applied manually before releasing. The docs can be found in db/README.md -->
