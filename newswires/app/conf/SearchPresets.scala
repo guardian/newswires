@@ -302,15 +302,15 @@ object SearchPresets {
   )
 
   private val Tennis = List(
-    SearchPreset.fromSearchTerm(REUTERS, searchTerm = SearchTerm.Simple("TENNIS", Slug), CategoryCodes.Tennis.REUTERS),
-    SearchPreset.fromText(PA, text = SimpleSearchQueries.TENNIS, categoryCodes = List("paCat:SRS", "paCat:SSS")),
+    SearchPreset(REUTERS, CategoryCodes.Tennis.REUTERS),
+    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("TENNIS", Slug), categoryCodes = List("paCat:SRS", "paCat:SSS"), categoryCodesExcl = List("paCat:RSR")),
     SearchPreset.fromText(AFP, text = SimpleSearchQueries.TENNIS, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Tennis.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Tennis"))
   )
 
   private val TennisResults = List(
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("TENNIS", Slug), hasDataFormatting = Some(true))
+    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("TENNIS", Slug), categoryCodes = List("paCat:RSR"))
   )
 
   private val Cycling = List(
