@@ -133,12 +133,6 @@ object SearchPresets {
   private val ApWorld = List(
     SearchPreset(
       AP,
-      keywords = List("World news", "U.S. news"),
-      categoryCodes = CategoryCodes.World.AP,
-      categoryCodesExcl = CategoryCodes.Sport.AP ::: CategoryCodes.Business.AP ::: CategoryCodes.Other.AP
-    ),
-    SearchPreset(
-      AP,
       keywords = List("General news"),
       categoryCodes = CategoryCodes.World.AP
     )
