@@ -13,7 +13,11 @@ import {
 } from '@guardian/cdk/lib/constructs/core';
 import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
-import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
+import {
+	GuAllowPolicy,
+	GuGetS3ObjectsPolicy,
+	GuGithubActionsRole,
+} from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
@@ -470,5 +474,20 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
+
+		new GuGithubActionsRole(this, {
+			policies: [
+				new GuAllowPolicy(this, 'newswires-rds-readonly-policy', {
+					actions: ['rds-db:connect'],
+					resources: [
+						`arn:aws:rds-db:${this.region}:${this.account}:dbuser:${database.instanceResourceId}/github_reader`,
+					],
+				}),
+			],
+			condition: {
+				githubOrganisation: 'guardian',
+				repositories: 'newswires:*',
+			},
+		});
 	}
 }

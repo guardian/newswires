@@ -529,10 +529,20 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuUnhealthyInstancesAlarm",
       "GuS3Bucket",
       "GuCname",
+      "GuAllowPolicy",
+      "GuGithubActionsRole",
     ],
     "gu:cdk:version": "TEST",
   },
   "Outputs": {
+    "GithubActionsRoleGithubActionsRoleArnC13D9654": {
+      "Value": {
+        "Fn::GetAtt": [
+          "GithubActionsRoleF5CC769F",
+          "Arn",
+        ],
+      },
+    },
     "LoadBalancerNewswiresDnsName": {
       "Description": "DNS entry for LoadBalancerNewswires",
       "Value": {
@@ -1502,6 +1512,61 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "GithubActionsRoleF5CC769F": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringLike": {
+                  "token.actions.githubusercontent.com:sub": "repo:guardian/newswires:*",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":oidc-provider/token.actions.githubusercontent.com",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
     },
     "GuHttpsEgressSecurityGroupNewswiresEF9436B0": {
       "Properties": {
@@ -4736,6 +4801,45 @@ dpkg -i /newswires/newswires.deb",
         ],
       },
       "Type": "AWS::SNS::Topic",
+    },
+    "newswiresrdsreadonlypolicy12049958": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "rds-db:connect",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:rds-db:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":dbuser:",
+                    {
+                      "Fn::GetAtt": [
+                        "NewswiresDBNewswires2A5A9AC6",
+                        "DbiResourceId",
+                      ],
+                    },
+                    "/github_reader",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "newswiresrdsreadonlypolicy12049958",
+        "Roles": [
+          {
+            "Ref": "GithubActionsRoleF5CC769F",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "reutersLambda21FE513B": {
       "DependsOn": [
