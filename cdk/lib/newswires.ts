@@ -483,6 +483,12 @@ export class Newswires extends GuStack {
 						`arn:aws:rds-db:${this.region}:${this.account}:dbuser:${database.instanceResourceId}/github_reader`,
 					],
 				}),
+				new GuAllowPolicy(this, 'newswires-secretsmanager-read-policy', {
+					actions: ['secretsmanager:GetSecretValue'],
+					resources: [
+						'arn:aws:secretsmanager:eu-west-1:221471511793:secret:NewswiresDBNewswiresSecretC-bFQGsnmshppr-vl8fLL',
+					],
+				}),
 			],
 			condition: {
 				githubOrganisation: 'guardian',

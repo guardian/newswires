@@ -530,6 +530,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuS3Bucket",
       "GuCname",
       "GuAllowPolicy",
+      "GuAllowPolicy",
       "GuGithubActionsRole",
     ],
     "gu:cdk:version": "TEST",
@@ -4833,6 +4834,27 @@ dpkg -i /newswires/newswires.deb",
           "Version": "2012-10-17",
         },
         "PolicyName": "newswiresrdsreadonlypolicy12049958",
+        "Roles": [
+          {
+            "Ref": "GithubActionsRoleF5CC769F",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "newswiressecretsmanagerreadpolicy381CFBF7": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "secretsmanager:GetSecretValue",
+              "Effect": "Allow",
+              "Resource": "arn:aws:secretsmanager:eu-west-1:221471511793:secret:NewswiresDBNewswiresSecretC-bFQGsnmshppr-vl8fLL",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "newswiressecretsmanagerreadpolicy381CFBF7",
         "Roles": [
           {
             "Ref": "GithubActionsRoleF5CC769F",
