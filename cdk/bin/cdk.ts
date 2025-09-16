@@ -43,6 +43,7 @@ export function createStacks({
 		enableMonitoring,
 		sourceQueue: wiresFeedsStack.sourceQueue,
 		fingerpostQueue: wiresFeedsStack.fingerpostQueue,
+		alarmSnsTopic: wiresFeedsStack.alarmSnsTopic,
 	});
 
 	const cloudfrontCertificateStack = new NewswiresCloudfrontCertificate(

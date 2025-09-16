@@ -50,7 +50,7 @@ import {
 import { ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { ReceiptRuleSet } from 'aws-cdk-lib/aws-ses';
 import { Lambda, LambdaInvocationType, S3 } from 'aws-cdk-lib/aws-ses-actions';
-import { Topic } from 'aws-cdk-lib/aws-sns';
+import type { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import {
 	FAILED_INGESTION_EVENT_TYPE,
@@ -67,6 +67,7 @@ export type NewswiresProps = GuStackProps & {
 	fingerpostQueue: Queue;
 	domainName: string;
 	enableMonitoring: boolean;
+	alarmSnsTopic: Topic;
 };
 
 export class Newswires extends GuStack {
@@ -266,8 +267,6 @@ export class Newswires extends GuStack {
 		database.grantConnect(ingestionLambda);
 		emailBucket.grantRead(ingestionLambda);
 
-		const alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
-
 		const ingestionLogGroup = LogGroup.fromLogGroupName(
 			this,
 			'IngestionLogGroup',
@@ -305,7 +304,7 @@ export class Newswires extends GuStack {
 				period: Duration.minutes(1),
 				statistic: Stats.SUM,
 			}),
-			snsTopicName: alarmSnsTopic.topicName,
+			snsTopicName: props.alarmSnsTopic.topicName,
 			threshold: 1,
 			evaluationPeriods: 1,
 		});
@@ -368,7 +367,7 @@ export class Newswires extends GuStack {
 
 		const monitoringConfiguration: Alarms | NoMonitoring = enableMonitoring
 			? {
-					snsTopicName: alarmSnsTopic.topicName,
+					snsTopicName: props.alarmSnsTopic.topicName,
 					unhealthyInstancesAlarm: true,
 					http5xxAlarm: {
 						tolerated5xxPercentage: 10,
@@ -383,7 +382,7 @@ export class Newswires extends GuStack {
 					pollerId: pollerId as PollerId,
 					pollerConfig,
 					ingestionLambdaQueue: props.sourceQueue,
-					alarmSnsTopicName: alarmSnsTopic.topicName,
+					alarmSnsTopicName: props.alarmSnsTopic.topicName,
 					feedsBucket: feedsBucket,
 				}),
 		);
