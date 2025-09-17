@@ -36,14 +36,14 @@ jobs:
       - name: Test API access to DB migrations endpoint
         run: |
           HEADERS=$(aws4 sign \
-          --host your-api-id.execute-api.us-east-1.amazonaws.com \
-          --path /prod/test \
-          --region us-east-1 \
+          --host  8219kjipw2.execute-api.eu-west-1.amazonaws.com \
+          --path /prod/migrations \
+          --region eu-west-1 \
           --service execute-api \
           --method GET \
           --json | jq -r '.headers | to_entries[] | "-H \"" + .key + ": " + .value + "\""')
 
-           eval curl -s https://your-api-id.execute-api.eu-west-1.amazonaws.com/prod/test $HEADERS
+           eval curl -s https://8219kjipw2.execute-api.eu-west-1.amazonaws.com/prod/migrations $HEADERS
 
       - name: Setup node for CDK
         uses: actions/setup-node@v4
