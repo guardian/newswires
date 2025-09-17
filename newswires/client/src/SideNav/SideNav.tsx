@@ -1,4 +1,3 @@
-import type { EuiPinnableListGroupItemProps } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBadgeGroup,
@@ -7,22 +6,26 @@ import {
 	EuiCollapsibleNavGroup,
 	EuiHeaderSectionItemButton,
 	EuiIcon,
-	EuiPinnableListGroup,
+	EuiListGroup,
 	EuiSwitch,
 	EuiText,
 	EuiTitle,
 	useEuiMinBreakpoint,
+	useEuiTheme,
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useMemo } from 'react';
-import { AppTitle } from './AppTitle.tsx';
-import { useSearch } from './context/SearchContext.tsx';
-import { deriveDateMathRangeLabel } from './dateHelpers.ts';
-import { FeedbackContent } from './FeedbackContent.tsx';
-import { presets } from './presets.ts';
-import type { Query } from './sharedTypes';
-import { recognisedSuppliers } from './suppliers.ts';
+import { AppTitle } from '../AppTitle.tsx';
+import { useSearch } from '../context/SearchContext.tsx';
+import { deriveDateMathRangeLabel } from '../dateHelpers.ts';
+import { FeedbackContent } from '../FeedbackContent.tsx';
+import { presets, sportPresets } from '../presets.ts';
+import type { Query } from '../sharedTypes';
+import { recognisedSuppliers } from '../suppliers.ts';
+import { defaultConfig } from '../urlState.ts';
+import { PresetsContextMenu } from './PresetsContextMenu.tsx';
+import { SideNavListItem } from './SideNavListItem.tsx';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q, preset, categoryCode, dateRange } = query;
@@ -46,7 +49,8 @@ function decideLabelForQueryBadge(query: Query): string {
 }
 
 function presetName(presetId: string): string | undefined {
-	return presets.find((preset) => preset.id === presetId)?.name;
+	return [...presets, ...sportPresets].find((preset) => preset.id === presetId)
+		?.name;
 }
 
 export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
@@ -66,11 +70,11 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 		setSideNavIsOpen: setNavIsOpen,
 	} = useSearch();
 
+	const { euiTheme } = useEuiTheme();
+
 	const isPoppedOut = config.ticker;
 
 	const searchHistory = state.successfulQueryHistory;
-
-	const activePreset = config.query.preset;
 
 	const searchHistoryItems = useMemo(
 		() =>
@@ -109,82 +113,13 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 		[activeSuppliers, handleEnterQuery, toggleSupplier, config, openTicker],
 	);
 
-	const presetItems = useMemo(() => {
-		const togglePreset = (preset: string) =>
-			activePreset === preset || preset === 'all-presets' ? undefined : preset;
-
-		return presets.map(({ id: presetId, name, filterOptions }) => {
-			const isActive =
-				activePreset === presetId ||
-				!!filterOptions.find((_) => _.id === activePreset) ||
-				(presetId === 'all-presets' && !activePreset);
-
-			return {
-				id: presetId,
-				label: name,
-				isActive: isActive,
-				onClick: () =>
-					handleEnterQuery({
-						...config.query,
-						preset: togglePreset(presetId),
-					}),
-				iconType: () => (
-					<div
-						css={css`
-							width: 0.5rem;
-							height: 1.5rem;
-
-							margin-right: 12px;
-							background-color: ${isActive
-								? 'rgb(0, 119, 204)'
-								: 'transparent'};
-						`}
-					/>
-				),
-				color: isActive ? 'primary' : 'subdued',
-				pinnable: false,
-				extraAction: {
-					iconType: 'popout', // EUI icon on the right
-					onClick: () => {
-						openTicker({ ...config.query, preset: presetId });
-					},
-					'aria-label': 'More info',
-					alwaysShow: false,
-					className: 'hover-only-icon',
-				},
-			};
-		}) as EuiPinnableListGroupItemProps[];
-	}, [activePreset, config, handleEnterQuery, openTicker]);
-
-	const supplierItems: EuiPinnableListGroupItemProps[] = suppliers.map(
-		({ label, colour, isActive, onClick, onTickerClick }) => ({
+	const supplierItems = suppliers.map(
+		({ label, colour, isActive, onClick }) => ({
 			id: label,
 			label,
 			onClick,
 			isActive,
-			iconType: () => (
-				<div
-					css={css`
-						width: 0.5rem;
-						height: 1.5rem;
-
-						margin-right: 12px;
-						background-color: ${isActive ? colour : 'transparent'};
-					`}
-				/>
-			),
-			color: isActive ? 'primary' : 'subdued',
-			pinnable: false,
-			extraAction: {
-				iconType: 'popout', // EUI icon on the right
-				onClick: (e) => {
-					e.stopPropagation();
-					onTickerClick();
-				},
-				'aria-label': 'More info',
-				alwaysShow: false,
-				className: 'hover-only-icon',
-			},
+			colour,
 		}),
 	);
 
@@ -248,26 +183,29 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 							</h1>
 						</EuiTitle>
 					)}
-
 					<EuiCollapsibleNavGroup title="Presets">
-						<EuiPinnableListGroup
-							onPinClick={() => {}}
-							listItems={presetItems}
-							maxWidth="none"
-							color="subdued"
-							gutterSize="s"
-							size="s"
-						/>
+						<PresetsContextMenu />
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Suppliers'}>
-						<EuiPinnableListGroup
-							onPinClick={() => {}}
-							listItems={supplierItems}
-							maxWidth="none"
-							color="subdued"
-							gutterSize="s"
-							size="s"
-						/>
+						<EuiListGroup flush={true} gutterSize="none">
+							{supplierItems.map((item) => (
+								<SideNavListItem
+									key={item.id}
+									label={item.label}
+									isActive={item.isActive}
+									isTopLevel={true}
+									handleButtonClick={item.onClick}
+									handleSecondaryActionClick={() =>
+										openTicker({
+											...defaultConfig.query,
+											supplier: item.label === 'All' ? [] : [item.id],
+										})
+									}
+									arrowSide={undefined}
+									colour={item.colour}
+								/>
+							))}
+						</EuiListGroup>
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Search history'}>
 						{searchHistoryItems.length === 0 ? (
@@ -296,7 +234,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 					</EuiCollapsibleNavGroup>
 				</div>
 
-				<div style={{ padding: '20px 10px' }}>
+				<div style={{ padding: euiTheme.size.m }}>
 					<EuiSwitch
 						label="Auto-update"
 						checked={state.autoUpdate}
