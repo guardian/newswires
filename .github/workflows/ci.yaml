@@ -54,6 +54,13 @@ jobs:
         run: |
           npm run synth
 
+      - name: Build database migration checker
+        working-directory: db/db-migrations-checker
+        run: |
+          npm ci
+          npm run build
+          zip -FSjr "dist/db-migrations-checker.zip" "dist/handler.js"    
+
       - name: Build ingestion-lambda
         working-directory: ingestion-lambda
         run: |
@@ -109,5 +116,7 @@ jobs:
               - poller-lambdas/dist/poller-lambdas.zip
             fingerpost-queueing-lambda:
               - fingerpost-queueing-lambda/dist/fingerpost-queueing-lambda.zip
+            db-migrations-checker:
+              - db/db-migrations-checker/dist/db-migrations-checker.zip
             newswires:
               - newswires/target/newswires.deb

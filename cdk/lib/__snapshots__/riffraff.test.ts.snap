@@ -73,6 +73,20 @@ deployments:
       fileName: cleanup-lambda.zip
     actions:
       - uploadLambda
+  lambda-upload-eu-west-1-editorial-feeds-db-migrations-checker:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: db-migrations-checker
+    contentDirectory: db-migrations-checker
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: db-migrations-checker.zip
+    actions:
+      - uploadLambda
   lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda:
     type: aws-lambda
     stacks:
@@ -137,6 +151,7 @@ deployments:
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
       - lambda-upload-eu-west-1-editorial-feeds-email-filter-lambda
       - lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda
+      - lambda-upload-eu-west-1-editorial-feeds-db-migrations-checker
       - lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda
       - lambda-upload-eu-west-1-editorial-feeds-apPoller_poller_lambda
       - asg-upload-eu-west-1-editorial-feeds-newswires
@@ -202,6 +217,22 @@ deployments:
       bucketSsmLookup: true
       lookupByTags: true
       fileName: cleanup-lambda.zip
+    actions:
+      - updateLambda
+    dependencies:
+      - cfn-eu-west-1-editorial-feeds-newswires
+  lambda-update-eu-west-1-editorial-feeds-db-migrations-checker:
+    type: aws-lambda
+    stacks:
+      - editorial-feeds
+    regions:
+      - eu-west-1
+    app: db-migrations-checker
+    contentDirectory: db-migrations-checker
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: db-migrations-checker.zip
     actions:
       - updateLambda
     dependencies:

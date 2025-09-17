@@ -1,5 +1,5 @@
 import type { Alarms } from '@guardian/cdk';
-import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
+import { GuApiLambda, GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
 import {
 	GuAlarm,
@@ -39,7 +39,7 @@ import {
 	Port,
 } from 'aws-cdk-lib/aws-ec2';
 import { Schedule } from 'aws-cdk-lib/aws-events';
-import { LoggingFormat } from 'aws-cdk-lib/aws-lambda';
+import { LoggingFormat, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { LogGroup, MetricFilter } from 'aws-cdk-lib/aws-logs';
 import {
@@ -61,6 +61,7 @@ import { POLLERS_CONFIG } from '../../shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';
+import { EndpointType } from 'aws-cdk-lib/aws-apigateway';
 
 export type NewswiresProps = GuStackProps & {
 	sourceQueue: Queue;
@@ -339,6 +340,32 @@ export class Newswires extends GuStack {
 				},
 			},
 		);
+
+		new GuApiLambda(this, 'DbMigrationsCheckerLambda', {
+			app: 'db-migrations-checker',
+			fileName: 'db-migrations-checker.zip',
+			functionName: `db-migrations-checker-${this.stage}`,
+			handler: `handler.handler`,
+			runtime: Runtime.NODEJS_22_X,
+			monitoringConfiguration: { noMonitoring: true },
+			vpc,
+			vpcSubnets: {
+				subnets: privateSubnets,
+			},
+			environment: {
+				DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+				DATABASE_PORT: database.dbInstanceEndpointPort,
+				DATABASE_NAME: databaseName,
+			},
+			api: {
+				id: 'api',
+				restApiName: `db-migrations-checker-${this.stage}`,
+				description: `API Proxy for the db-migrations-checker Lambda`,
+				endpointConfiguration: {
+					types: [EndpointType.REGIONAL],
+				},
+			},
+		});	
 
 		scheduledCleanupLambda.connections.allowTo(database, Port.tcp(5432));
 		database.grantConnect(scheduledCleanupLambda);

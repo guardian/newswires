@@ -495,6 +495,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuStringParameter",
       "GuAlarm",
       "GuScheduledLambda",
+      "GuApiLambda",
       "GuParameter",
       "GuParameter",
       "GuLambdaFunction",
@@ -533,6 +534,28 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     "gu:cdk:version": "TEST",
   },
   "Outputs": {
+    "DbMigrationsCheckerLambdaapiEndpointE899AA9E": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+            },
+            ".execute-api.eu-west-1.",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "DbMigrationsCheckerLambdaapiDeploymentStageprod1C51BD9E",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
     "LoadBalancerNewswiresDnsName": {
       "Description": "DNS entry for LoadBalancerNewswires",
       "Value": {
@@ -700,6 +723,671 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::CertificateManager::Certificate",
       "UpdateReplacePolicy": "Retain",
+    },
+    "DbMigrationsCheckerLambdaF7AED805": {
+      "DependsOn": [
+        "DbMigrationsCheckerLambdaServiceRoleDefaultPolicyE7F1A564",
+        "DbMigrationsCheckerLambdaServiceRole6A339CF6",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "editorial-feeds/TEST/db-migrations-checker/db-migrations-checker.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "db-migrations-checker",
+            "DATABASE_ENDPOINT_ADDRESS": {
+              "Fn::GetAtt": [
+                "NewswiresDBNewswires2A5A9AC6",
+                "Endpoint.Address",
+              ],
+            },
+            "DATABASE_NAME": "newswires",
+            "DATABASE_PORT": {
+              "Fn::GetAtt": [
+                "NewswiresDBNewswires2A5A9AC6",
+                "Endpoint.Port",
+              ],
+            },
+            "STACK": "editorial-feeds",
+            "STAGE": "TEST",
+          },
+        },
+        "FunctionName": "db-migrations-checker-TEST",
+        "Handler": "handler.handler",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+        },
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaServiceRole6A339CF6",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "db-migrations-checker",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "DbMigrationsCheckerLambdaSecurityGroupD6A9774B",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": {
+            "Ref": "newswiresPrivateSubnets",
+          },
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DbMigrationsCheckerLambdaSecurityGroupD6A9774B": {
+      "Properties": {
+        "GroupDescription": "Automatic security group for Lambda Function NewswiresTESTDbMigrationsCheckerLambdaFC18EDEB",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "db-migrations-checker",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VpcId": {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "DbMigrationsCheckerLambdaServiceRole6A339CF6": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "db-migrations-checker",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DbMigrationsCheckerLambdaServiceRoleDefaultPolicyE7F1A564": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/editorial-feeds/TEST/db-migrations-checker/db-migrations-checker.zip",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/db-migrations-checker",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/db-migrations-checker/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DbMigrationsCheckerLambdaServiceRoleDefaultPolicyE7F1A564",
+        "Roles": [
+          {
+            "Ref": "DbMigrationsCheckerLambdaServiceRole6A339CF6",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DbMigrationsCheckerLambdaapi2192444F": {
+      "Properties": {
+        "Description": "API Proxy for the db-migrations-checker Lambda",
+        "EndpointConfiguration": {
+          "Types": [
+            "REGIONAL",
+          ],
+        },
+        "Name": "db-migrations-checker-TEST",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "db-migrations-checker",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "DbMigrationsCheckerLambdaapiANYApiPermissionNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANY666EDCF3": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaF7AED805",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:eu-west-1:",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+              },
+              "/",
+              {
+                "Ref": "DbMigrationsCheckerLambdaapiDeploymentStageprod1C51BD9E",
+              },
+              "/*/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "DbMigrationsCheckerLambdaapiANYApiPermissionTestNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANY8F561013": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaF7AED805",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:eu-west-1:",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+              },
+              "/test-invoke-stage/*/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "DbMigrationsCheckerLambdaapiANYEB54E906": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:eu-west-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "DbMigrationsCheckerLambdaF7AED805",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaapi2192444F",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "DbMigrationsCheckerLambdaapiAccountBCCE485A": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "DbMigrationsCheckerLambdaapi2192444F",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaapiCloudWatchRole90554265",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "DbMigrationsCheckerLambdaapiCloudWatchRole90554265": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "db-migrations-checker",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "DbMigrationsCheckerLambdaapiDeployment4102473D38294e723beb0a0d3ad49ddf0a6378a3": {
+      "DependsOn": [
+        "DbMigrationsCheckerLambdaapiproxyANY64F5434F",
+        "DbMigrationsCheckerLambdaapiproxy2772D685",
+        "DbMigrationsCheckerLambdaapiANYEB54E906",
+      ],
+      "Properties": {
+        "Description": "API Proxy for the db-migrations-checker Lambda",
+        "RestApiId": {
+          "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "DbMigrationsCheckerLambdaapiDeploymentStageprod1C51BD9E": {
+      "DependsOn": [
+        "DbMigrationsCheckerLambdaapiAccountBCCE485A",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "DbMigrationsCheckerLambdaapiDeployment4102473D38294e723beb0a0d3ad49ddf0a6378a3",
+        },
+        "RestApiId": {
+          "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+        },
+        "StageName": "prod",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "db-migrations-checker",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "DbMigrationsCheckerLambdaapiproxy2772D685": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaapi2192444F",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "DbMigrationsCheckerLambdaapiproxyANY64F5434F": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:eu-west-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "DbMigrationsCheckerLambdaF7AED805",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "DbMigrationsCheckerLambdaapiproxy2772D685",
+        },
+        "RestApiId": {
+          "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "DbMigrationsCheckerLambdaapiproxyANYApiPermissionNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANYproxy6499D595": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaF7AED805",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:eu-west-1:",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+              },
+              "/",
+              {
+                "Ref": "DbMigrationsCheckerLambdaapiDeploymentStageprod1C51BD9E",
+              },
+              "/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "DbMigrationsCheckerLambdaapiproxyANYApiPermissionTestNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANYproxy5103D04A": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaF7AED805",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:eu-west-1:",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "DbMigrationsCheckerLambdaapi2192444F",
+              },
+              "/test-invoke-stage/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
     },
     "DefaultSecurityGroupNewswires91CCC0BF": {
       "Properties": {
