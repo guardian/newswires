@@ -18,7 +18,7 @@ import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { aws_logs, Duration } from 'aws-cdk-lib';
-import { EndpointType } from 'aws-cdk-lib/aws-apigateway';
+import { AuthorizationType, EndpointType } from 'aws-cdk-lib/aws-apigateway';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
 	AllowedMethods,
@@ -367,10 +367,15 @@ export class Newswires extends GuStack {
 					endpointConfiguration: {
 						types: [EndpointType.REGIONAL],
 					},
+					proxy: false,
 				},
 			},
 		);
-
+		dbMigrationsCheckerLambda.api.root
+			.addResource('migrations')
+			.addMethod('GET', undefined, {
+				authorizationType: AuthorizationType.IAM,
+			});
 		database.grantConnect(dbMigrationsCheckerLambda);
 		dbMigrationsCheckerLambda.connections.allowTo(database, Port.tcp(5432));
 

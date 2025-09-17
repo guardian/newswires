@@ -1068,115 +1068,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::ApiGateway::RestApi",
     },
-    "DbMigrationsCheckerLambdaapiANYApiPermissionNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANY666EDCF3": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "DbMigrationsCheckerLambdaF7AED805",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:eu-west-1:",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "DbMigrationsCheckerLambdaapi2192444F",
-              },
-              "/",
-              {
-                "Ref": "DbMigrationsCheckerLambdaapiDeploymentStageprod1C51BD9E",
-              },
-              "/*/",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "DbMigrationsCheckerLambdaapiANYApiPermissionTestNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANY8F561013": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "DbMigrationsCheckerLambdaF7AED805",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:eu-west-1:",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "DbMigrationsCheckerLambdaapi2192444F",
-              },
-              "/test-invoke-stage/*/",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "DbMigrationsCheckerLambdaapiANYEB54E906": {
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "ANY",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:eu-west-1:lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "DbMigrationsCheckerLambdaF7AED805",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "ResourceId": {
-          "Fn::GetAtt": [
-            "DbMigrationsCheckerLambdaapi2192444F",
-            "RootResourceId",
-          ],
-        },
-        "RestApiId": {
-          "Ref": "DbMigrationsCheckerLambdaapi2192444F",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
     "DbMigrationsCheckerLambdaapiAccountBCCE485A": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
@@ -1248,11 +1139,10 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "DbMigrationsCheckerLambdaapiDeployment4102473D38294e723beb0a0d3ad49ddf0a6378a3": {
+    "DbMigrationsCheckerLambdaapiDeployment4102473Dd33493f77643cac7b43dc7dbffde4870": {
       "DependsOn": [
-        "DbMigrationsCheckerLambdaapiproxyANY64F5434F",
-        "DbMigrationsCheckerLambdaapiproxy2772D685",
-        "DbMigrationsCheckerLambdaapiANYEB54E906",
+        "DbMigrationsCheckerLambdaapimigrationsGET7BAE03FB",
+        "DbMigrationsCheckerLambdaapimigrations5FC641E1",
       ],
       "Properties": {
         "Description": "API Proxy for the db-migrations-checker Lambda",
@@ -1268,7 +1158,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "DbMigrationsCheckerLambdaapiDeployment4102473D38294e723beb0a0d3ad49ddf0a6378a3",
+          "Ref": "DbMigrationsCheckerLambdaapiDeployment4102473Dd33493f77643cac7b43dc7dbffde4870",
         },
         "RestApiId": {
           "Ref": "DbMigrationsCheckerLambdaapi2192444F",
@@ -1299,7 +1189,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::ApiGateway::Stage",
     },
-    "DbMigrationsCheckerLambdaapiproxy2772D685": {
+    "DbMigrationsCheckerLambdaapimigrations5FC641E1": {
       "Properties": {
         "ParentId": {
           "Fn::GetAtt": [
@@ -1307,17 +1197,17 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "RootResourceId",
           ],
         },
-        "PathPart": "{proxy+}",
+        "PathPart": "migrations",
         "RestApiId": {
           "Ref": "DbMigrationsCheckerLambdaapi2192444F",
         },
       },
       "Type": "AWS::ApiGateway::Resource",
     },
-    "DbMigrationsCheckerLambdaapiproxyANY64F5434F": {
+    "DbMigrationsCheckerLambdaapimigrationsGET7BAE03FB": {
       "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "ANY",
+        "AuthorizationType": "AWS_IAM",
+        "HttpMethod": "GET",
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -1342,7 +1232,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
           },
         },
         "ResourceId": {
-          "Ref": "DbMigrationsCheckerLambdaapiproxy2772D685",
+          "Ref": "DbMigrationsCheckerLambdaapimigrations5FC641E1",
         },
         "RestApiId": {
           "Ref": "DbMigrationsCheckerLambdaapi2192444F",
@@ -1350,7 +1240,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::ApiGateway::Method",
     },
-    "DbMigrationsCheckerLambdaapiproxyANYApiPermissionNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANYproxy6499D595": {
+    "DbMigrationsCheckerLambdaapimigrationsGETApiPermissionNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9GETmigrationsB59620BB": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
@@ -1380,14 +1270,14 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
               {
                 "Ref": "DbMigrationsCheckerLambdaapiDeploymentStageprod1C51BD9E",
               },
-              "/*/*",
+              "/GET/migrations",
             ],
           ],
         },
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "DbMigrationsCheckerLambdaapiproxyANYApiPermissionTestNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9ANYproxy5103D04A": {
+    "DbMigrationsCheckerLambdaapimigrationsGETApiPermissionTestNewswiresTESTDbMigrationsCheckerLambdaapi694AA9B9GETmigrations8F18F914": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
@@ -1413,7 +1303,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
               {
                 "Ref": "DbMigrationsCheckerLambdaapi2192444F",
               },
-              "/test-invoke-stage/*/*",
+              "/test-invoke-stage/GET/migrations",
             ],
           ],
         },
