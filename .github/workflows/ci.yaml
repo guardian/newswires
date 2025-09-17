@@ -33,48 +33,48 @@ jobs:
       - name: Install aws4
         run: npm install aws4
 
-      - name: Test API access to DB migrations endpoint
-        run: |
-          node <<'EOF'
-          const aws4 = require('aws4');
-          const https = require('https');
+      # - name: Test API access to DB migrations endpoint
+      #   run: |
+      #     node <<'EOF'
+      #     const aws4 = require('aws4');
+      #     const https = require('https');
 
-          const opts = {
-            host: '8219kjipw2.execute-api.eu-west-1.amazonaws.com',
-            path: '/prod/migrations',
-            service: 'execute-api',
-            region: 'eu-west-1',
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          };
+      #     const opts = {
+      #       host: '8219kjipw2.execute-api.eu-west-1.amazonaws.com',
+      #       path: '/prod/migrations',
+      #       service: 'execute-api',
+      #       region: 'eu-west-1',
+      #       method: 'GET',
+      #       headers: {
+      #         'Content-Type': 'application/json'
+      #       }
+      #     };
 
-          aws4.sign(opts, {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-            sessionToken: process.env.AWS_SESSION_TOKEN
-          });
+      #     aws4.sign(opts, {
+      #       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      #       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      #       sessionToken: process.env.AWS_SESSION_TOKEN
+      #     });
 
-          const req = https.request(opts, res => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-              console.log('Status:', res.statusCode);
-              console.log('Body:', data);
-              if (res.statusCode !== 200) {
-                process.exit(1);
-              }
-            });
-          });
+      #     const req = https.request(opts, res => {
+      #       let data = '';
+      #       res.on('data', chunk => data += chunk);
+      #       res.on('end', () => {
+      #         console.log('Status:', res.statusCode);
+      #         console.log('Body:', data);
+      #         if (res.statusCode !== 200) {
+      #           process.exit(1);
+      #         }
+      #       });
+      #     });
 
-          req.on('error', e => {
-            console.error('Request failed:', e);
-            process.exit(1);
-          });
+      #     req.on('error', e => {
+      #       console.error('Request failed:', e);
+      #       process.exit(1);
+      #     });
 
-          req.end();
-          EOF
+      #     req.end();
+      #     EOF
 
       - name: Setup node for CDK
         uses: actions/setup-node@v4

@@ -524,7 +524,7 @@ export class Newswires extends GuStack {
 				new GuAllowPolicy(this, 'DeployNewswiresPolicy', {
 					actions: ['execute-api:Invoke'],
 					resources: [
-						`arn:aws:execute-api:${this.region}:${this.account}:${dbMigrationsCheckerLambda.api.restApiRootResourceId}/*/GET/migrations`,
+						`arn:aws:execute-api:${this.region}:${this.account}:${dbMigrationsCheckerLambda.api.restApiRootResourceId}/prod/GET/migrations`,
 					],
 				}),
 			],

@@ -1485,7 +1485,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                         "RootResourceId",
                       ],
                     },
-                    "/*/GET/migrations",
+                    "/prod/GET/migrations",
                   ],
                 ],
               },
