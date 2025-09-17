@@ -160,6 +160,50 @@ def remoteFlyway(stage: String): Flyway = {
   buildFlyway(token, 5432)
 }
 
+def tmpCiFlyway(): Flyway = {
+  val credentials = DefaultCredentialsProvider.create()
+
+  val secretsManager =
+    SecretsManagerClient
+      .builder()
+      .credentialsProvider(credentials)
+      .region(Region.EU_WEST_1)
+      .build()
+
+  val getSecretRequest = GetSecretValueRequest
+    .builder()
+    .secretId("arn:aws:secretsmanager:eu-west-1:221471511793:secret:NewswiresDBNewswiresSecretC-bFQGsnmshppr-vl8fLL")
+    .build()
+
+  val response = secretsManager.getSecretValue(getSecretRequest)
+
+  val secretData = ujson.read(response.secretString())
+   val rds = RdsClient
+    .builder()
+    .credentialsProvider(credentials)
+    .region(Region.EU_WEST_1)
+    .build()
+  val generateTokenRequest = GenerateAuthenticationTokenRequest
+    .builder()
+    .credentialsProvider(credentials)
+    .username("github_reader")
+    .port(5432)
+    .hostname(secretData("host").str)
+    .build()
+  
+  val token = rds.utilities().generateAuthenticationToken(generateTokenRequest)
+  
+  Flyway
+    .configure()
+    .dataSource(
+      s"jdbc:postgresql://${secretData("host").str}:5432/newswires",
+      "github_reader",
+      token
+    )
+    .locations(s"filesystem:$location")
+    .load()
+}
+
 val command = args.lift(0) match {
   case Some("info")    => infoCmd
   case Some("migrate") => migrateCmd
@@ -170,6 +214,7 @@ val command = args.lift(0) match {
 }
 
 val (env, flyway) = args.lift(1).map(_.toLowerCase()) match {
+  case Some("ci")    => ("ci", tmpCiFlyway())
   case Some("local") => ("local", localFlyway("postgres", 5432))
   case Some("test")  => ("test", localFlyway("testpassword", 55432)) 
   case Some("code")  => ("code", remoteFlyway("CODE"))

@@ -30,20 +30,18 @@ jobs:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.READ_ONLY_DB }}
 
-      - name: Fetch secret from AWS Secrets Manager
-        id: secret
-        run: |
-          SECRET_JSON=$(aws secretsmanager get-secret-value \
-            --secret-id arn:aws:secretsmanager:eu-west-1:221471511793:secret:NewswiresDBNewswiresSecretC-bFQGsnmshppr-vl8fLL \
-            --query SecretString --output text --region eu-west-1)
-          DB_HOST=$(echo $SECRET_JSON | jq -r .host)
-          echo $DB_HOST
-          TOKEN=$(aws rds generate-db-auth-token \
-            --hostname ${DB_HOST} \
-            --port 5432 \
-            --region us-east-1 \
-            --username github_reader)
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT  
+      # See https://github.com/guardian/setup-scala
+      - name: Setup Java and sbt
+        uses: guardian/setup-scala@v1
+
+      - name: Set up Scala CLI
+        uses: VirtusLab/scala-cli-setup@v1.5
+
+      - name: Set up test environment
+        run: ./scripts/setup-test-env.sh
+
+      - name: Check db migrations
+        run: ./db/flyway.sc info ci
 
       - name: Setup node for CDK
         uses: actions/setup-node@v4
@@ -51,17 +49,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: './package-lock.json'
           node-version-file: '.nvmrc'
-
-      - name: Set up Scala CLI
-        uses: VirtusLab/scala-cli-setup@v1.5
-
-      - name: Set up test environment
-        run: ./scripts/setup-test-env.sh    
       
-      # See https://github.com/guardian/setup-scala
-      - name: Setup Java and sbt
-        uses: guardian/setup-scala@v1
-
       - name: Lint and test
         run: |
           npm ci
