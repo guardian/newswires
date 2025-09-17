@@ -530,6 +530,8 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuUnhealthyInstancesAlarm",
       "GuS3Bucket",
       "GuCname",
+      "GuAllowPolicy",
+      "GuGithubActionsRole",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -553,6 +555,14 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             },
             "/",
           ],
+        ],
+      },
+    },
+    "GithubActionsRoleGithubActionsRoleArnC13D9654": {
+      "Value": {
+        "Fn::GetAtt": [
+          "GithubActionsRoleF5CC769F",
+          "Arn",
         ],
       },
     },
@@ -1453,6 +1463,45 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "DeployNewswiresPolicy56A59838": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "execute-api:Invoke",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:execute-api:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":",
+                    {
+                      "Fn::GetAtt": [
+                        "DbMigrationsCheckerLambdaapi2192444F",
+                        "RootResourceId",
+                      ],
+                    },
+                    "/*/GET/migrations",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DeployNewswiresPolicy56A59838",
+        "Roles": [
+          {
+            "Ref": "GithubActionsRoleF5CC769F",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "DescribeEC2PolicyFF5F9295": {
       "Properties": {
         "PolicyDocument": {
@@ -2132,6 +2181,61 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "GithubActionsRoleF5CC769F": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringLike": {
+                  "token.actions.githubusercontent.com:sub": "repo:guardian/newswires",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":oidc-provider/token.actions.githubusercontent.com",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
     },
     "GuHttpsEgressSecurityGroupNewswiresEF9436B0": {
       "Properties": {
