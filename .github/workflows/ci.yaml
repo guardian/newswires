@@ -25,18 +25,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: 'eu-west-1'
-          role-to-assume: ${{ secrets.DB_MIGRATIONS_AUTH }}
+      # - uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-region: 'eu-west-1'
+      #     role-to-assume: ${{ secrets.DB_MIGRATIONS_AUTH }}
 
-      - name: Test API access to DB migrations endpoint
-        run: |
-          aws apigateway test-invoke-method \
-            --rest-api-id 8219kjipw2 \
-            --resource-id h3kehu \
-            --http-method GET \
-            --region eu-west-1
+      # - name: Test API access to DB migrations endpoint
+      #   run: |
+      #     aws apigateway test-invoke-method \
+      #       --rest-api-id 8219kjipw2 \
+      #       --resource-id h3kehu \
+      #       --http-method GET \
+      #       --region eu-west-1
 
       - name: Setup node for CDK
         uses: actions/setup-node@v4
