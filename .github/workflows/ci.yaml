@@ -57,7 +57,6 @@ jobs:
       - name: Build database migration checker
         working-directory: db/db-migrations-checker
         run: |
-          npm ci
           npm run build
           zip -FSjr "dist/db-migrations-checker.zip" "dist/handler.js"    
 
