@@ -196,7 +196,7 @@ def tmpCiFlyway(): Flyway = {
   Flyway
     .configure()
     .dataSource(
-      s"jdbc:postgresql://${secretData("host").str}:5432/newswires",
+      s"jdbc:postgresql://${secretData("host").str}:5432/newswires?sslmode=require",
       "github_reader",
       token
     )
