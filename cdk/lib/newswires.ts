@@ -341,32 +341,40 @@ export class Newswires extends GuStack {
 			},
 		);
 
-		new GuApiLambda(this, 'DbMigrationsCheckerLambda', {
-			app: 'db-migrations-checker',
-			fileName: 'db-migrations-checker.zip',
-			functionName: `db-migrations-checker-${this.stage}`,
-			handler: `handler.handler`,
-			runtime: Runtime.NODEJS_22_X,
-			monitoringConfiguration: { noMonitoring: true },
-			vpc,
-			vpcSubnets: {
-				subnets: privateSubnets,
-			},
-			environment: {
-				DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
-				DATABASE_PORT: database.dbInstanceEndpointPort,
-				DATABASE_NAME: databaseName,
-			},
-			api: {
-				id: 'api',
-				restApiName: `db-migrations-checker-${this.stage}`,
-				description: `API Proxy for the db-migrations-checker Lambda`,
-				endpointConfiguration: {
-					types: [EndpointType.REGIONAL],
+		const dbMigrationsCheckerLambda = new GuApiLambda(
+			this,
+			'DbMigrationsCheckerLambda',
+			{
+				app: 'db-migrations-checker',
+				fileName: 'db-migrations-checker.zip',
+				functionName: `db-migrations-checker-${this.stage}`,
+				handler: `handler.handler`,
+				runtime: Runtime.NODEJS_22_X,
+				monitoringConfiguration: { noMonitoring: true },
+				vpc,
+				vpcSubnets: {
+					subnets: privateSubnets,
+				},
+				environment: {
+					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+					DATABASE_PORT: database.dbInstanceEndpointPort,
+					DATABASE_NAME: databaseName,
+				},
+				api: {
+					id: 'api',
+					restApiName: `db-migrations-checker-${this.stage}`,
+					description: `API Proxy for the db-migrations-checker Lambda`,
+					endpointConfiguration: {
+						types: [EndpointType.REGIONAL],
+					},
 				},
 			},
-		});
+		);
 
+		database.grantConnect(dbMigrationsCheckerLambda);
+		dbMigrationsCheckerLambda.connections.allowTo(database, Port.tcp(5432));
+
+		props.sourceQueue.grantSendMessages(scheduledCleanupLambda);
 		scheduledCleanupLambda.connections.allowTo(database, Port.tcp(5432));
 		database.grantConnect(scheduledCleanupLambda);
 

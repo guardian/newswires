@@ -526,6 +526,41 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 ],
               },
             },
+            {
+              "Action": "rds-db:connect",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":rds-db:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":dbuser:",
+                    {
+                      "Fn::GetAtt": [
+                        "NewswiresDBNewswires2A5A9AC6",
+                        "DbiResourceId",
+                      ],
+                    },
+                    "/{{resolve:secretsmanager:",
+                    {
+                      "Ref": "NewswiresDBNewswiresSecretCF4DBD56",
+                    },
+                    ":SecretString:username::}}",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -985,6 +1020,27 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
       },
       "Type": "AWS::EC2::SecurityGroup",
+    },
+    "DefaultSecurityGroupNewswiresfromNewswiresDbMigrationsCheckerLambdaSecurityGroup84936A285432ECC81877": {
+      "Properties": {
+        "Description": "from NewswiresDbMigrationsCheckerLambdaSecurityGroup84936A28:5432",
+        "FromPort": 5432,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupNewswires91CCC0BF",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "DbMigrationsCheckerLambdaSecurityGroupD6A9774B",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
     },
     "DefaultSecurityGroupNewswiresfromNewswiresDefaultSecurityGroupNewswires40BF4E635432BAB7D5C3": {
       "Properties": {
@@ -3516,6 +3572,17 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     ":parameter/TEST/editorial-feeds/cleanup-lambda/*",
                   ],
                 ],
+              },
+            },
+            {
+              "Action": [
+                "sqs:SendMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSourceQueue20B4D8C0ArnCE5A6D0C",
               },
             },
             {
