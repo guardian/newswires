@@ -1769,7 +1769,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
               "Action": "sts:AssumeRoleWithWebIdentity",
               "Condition": {
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": "repo:guardian/newswires",
+                  "token.actions.githubusercontent.com:sub": "repo:guardian/newswires:*",
                 },
               },
               "Effect": "Allow",

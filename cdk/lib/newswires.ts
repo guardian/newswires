@@ -518,7 +518,7 @@ export class Newswires extends GuStack {
 		new GuGithubActionsRole(this, {
 			condition: {
 				githubOrganisation: 'guardian',
-				repositories: 'newswires',
+				repositories: 'newswires:*',
 			},
 			policies: [
 				new GuAllowPolicy(this, 'DeployNewswiresPolicy', {
