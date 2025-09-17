@@ -1,5 +1,5 @@
 import type { Alarms } from '@guardian/cdk';
-import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
+import { GuApiLambda, GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
 import {
 	GuAlarm,
@@ -13,11 +13,16 @@ import {
 } from '@guardian/cdk/lib/constructs/core';
 import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
-import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
+import {
+	GuAllowPolicy,
+	GuGetS3ObjectsPolicy,
+	GuGithubActionsRole,
+} from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
 import { aws_logs, Duration } from 'aws-cdk-lib';
+import { AuthorizationType, EndpointType } from 'aws-cdk-lib/aws-apigateway';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
 	AllowedMethods,
@@ -39,7 +44,7 @@ import {
 	Port,
 } from 'aws-cdk-lib/aws-ec2';
 import { Schedule } from 'aws-cdk-lib/aws-events';
-import { LoggingFormat } from 'aws-cdk-lib/aws-lambda';
+import { LoggingFormat, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { LogGroup, MetricFilter } from 'aws-cdk-lib/aws-logs';
 import {
@@ -340,6 +345,45 @@ export class Newswires extends GuStack {
 			},
 		);
 
+		const dbMigrationsCheckerLambda = new GuApiLambda(
+			this,
+			'DbMigrationsCheckerLambda',
+			{
+				app: 'db-migrations-checker',
+				fileName: 'db-migrations-checker.zip',
+				functionName: `db-migrations-checker-${this.stage}`,
+				handler: `handler.handler`,
+				runtime: Runtime.NODEJS_22_X,
+				monitoringConfiguration: { noMonitoring: true },
+				vpc,
+				vpcSubnets: {
+					subnets: privateSubnets,
+				},
+				environment: {
+					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
+					DATABASE_PORT: database.dbInstanceEndpointPort,
+					DATABASE_NAME: databaseName,
+				},
+				api: {
+					id: 'api',
+					restApiName: `db-migrations-checker-${this.stage}`,
+					description: `API Proxy for the db-migrations-checker Lambda`,
+					endpointConfiguration: {
+						types: [EndpointType.REGIONAL],
+					},
+					proxy: false,
+				},
+			},
+		);
+		dbMigrationsCheckerLambda.api.root
+			.addResource('migrations')
+			.addMethod('GET', undefined, {
+				authorizationType: AuthorizationType.IAM,
+			});
+		database.grantConnect(dbMigrationsCheckerLambda);
+		dbMigrationsCheckerLambda.connections.allowTo(database, Port.tcp(5432));
+
+		props.sourceQueue.grantSendMessages(scheduledCleanupLambda);
 		scheduledCleanupLambda.connections.allowTo(database, Port.tcp(5432));
 		database.grantConnect(scheduledCleanupLambda);
 
@@ -470,5 +514,20 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
+
+		new GuGithubActionsRole(this, {
+			condition: {
+				githubOrganisation: 'guardian',
+				repositories: 'newswires:*',
+			},
+			policies: [
+				new GuAllowPolicy(this, 'DeployNewswiresPolicy', {
+					actions: ['execute-api:Invoke'],
+					resources: [
+						`arn:aws:execute-api:${this.region}:${this.account}:${dbMigrationsCheckerLambda.api.restApiRootResourceId}/*/*/*`,
+					],
+				}),
+			],
+		});
 	}
 }
