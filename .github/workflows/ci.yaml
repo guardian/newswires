@@ -35,7 +35,7 @@ jobs:
         run: |
           SECRET_JSON=$(aws secretsmanager get-secret-value \
             --secret-id arn:aws:secretsmanager:eu-west-1:221471511793:secret:NewswiresDBNewswiresSecretC-bFQGsnmshppr-vl8fLL \
-            --query SecretString --output text)
+            --query SecretString --output text --region eu-west-1)
           DB_HOST=$(echo $SECRET_JSON | jq -r .host)"
           echo $DB_HOST
           TOKEN=$(aws rds generate-db-auth-token \
