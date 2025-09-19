@@ -49,7 +49,15 @@ function presetName(presetId: string): string | undefined {
 	return presets.find((preset) => preset.id === presetId)?.name;
 }
 
-export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
+export const SideNav = ({
+	navIsDocked,
+	sideNavIsOpen,
+	setSideNavIsOpen,
+}: {
+	navIsDocked: boolean;
+	sideNavIsOpen: boolean;
+	setSideNavIsOpen: (isOpen: boolean) => void;
+}) => {
 	const largeMinBreakpoint = useEuiMinBreakpoint('l');
 	const isLargeScreen = useIsWithinBreakpoints(['l']);
 	const isExtraSmallScreen = useIsWithinBreakpoints(['xs']);
@@ -62,8 +70,6 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 		activeSuppliers,
 		toggleSupplier,
 		openTicker,
-		sideNavIsOpen: navIsOpen,
-		setSideNavIsOpen: setNavIsOpen,
 	} = useSearch();
 
 	const isPoppedOut = config.ticker;
@@ -190,21 +196,21 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 
 	useEffect(() => {
 		if (isLargeScreen) {
-			setNavIsOpen(false);
+			setSideNavIsOpen(false);
 		}
-	}, [isLargeScreen, setNavIsOpen]);
+	}, [isLargeScreen, setSideNavIsOpen]);
 
 	return (
 		<>
 			<EuiCollapsibleNav
-				isOpen={navIsOpen}
+				isOpen={sideNavIsOpen}
 				isDocked={navIsDocked}
 				size={300}
 				button={
 					!isPoppedOut ? (
 						<EuiHeaderSectionItemButton
 							aria-label="Toggle main navigation"
-							onClick={() => setNavIsOpen((isOpen) => !isOpen)}
+							onClick={() => setSideNavIsOpen(!sideNavIsOpen)}
 							css={css`
 								${largeMinBreakpoint} {
 									display: none;
@@ -215,7 +221,7 @@ export const SideNav = ({ navIsDocked }: { navIsDocked: boolean }) => {
 						</EuiHeaderSectionItemButton>
 					) : undefined
 				}
-				onClose={() => setNavIsOpen(false)}
+				onClose={() => setSideNavIsOpen(false)}
 				css={css`
 					.hover-only-icon {
 						opacity: 0;
