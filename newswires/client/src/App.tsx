@@ -15,6 +15,7 @@ import {
 import { css, Global } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod/v4';
+import { STAGE } from './app-configuration.ts';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
 	loadOrSetInLocalStorage,
@@ -25,6 +26,7 @@ import { isRestricted } from './dateHelpers.ts';
 import { DefaultLayout } from './DefaultLayout.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { presetLabel } from './presets.ts';
+import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { TickerLayout } from './TickerLayout.tsx';
 import { defaultQuery } from './urlState';
 
@@ -110,7 +112,9 @@ export function App() {
 	return (
 		<>
 			<Global styles={fontStyles} />
-
+			<div style={{ position: 'absolute' }}>
+				<TelemetryPixel stage={STAGE} />
+			</div>
 			<EuiProvider colorMode="light">
 				<EuiPageTemplate
 					css={css`

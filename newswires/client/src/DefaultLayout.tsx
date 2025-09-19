@@ -15,7 +15,6 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useCallback, useState } from 'react';
-import { STAGE } from './app-configuration.ts';
 import { AppTitle } from './AppTitle.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { Feed } from './Feed';
@@ -24,7 +23,6 @@ import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav/SideNav.tsx';
-import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { Tooltip } from './Tooltip.tsx';
 
 export function DefaultLayout({
@@ -62,7 +60,6 @@ export function DefaultLayout({
 			>
 				<EuiHeader position="fixed">
 					<EuiHeaderSection side={'left'}>
-						<TelemetryPixel stage={STAGE} />
 						<EuiHeaderSectionItem>
 							<EuiHeaderSectionItemButton
 								aria-label="Toggle main navigation"
