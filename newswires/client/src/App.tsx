@@ -1,15 +1,8 @@
 import {
 	EuiButton,
 	EuiButtonEmpty,
-	EuiButtonIcon,
 	EuiCallOut,
 	EuiEmptyPrompt,
-	EuiFlexGroup,
-	EuiHeader,
-	EuiHeaderSection,
-	EuiHeaderSectionItem,
-	EuiHeaderSectionItemButton,
-	EuiIcon,
 	EuiModal,
 	EuiModalBody,
 	EuiModalFooter,
@@ -17,18 +10,11 @@ import {
 	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
-	EuiScreenReaderOnly,
-	EuiShowFor,
 	EuiText,
-	EuiTitle,
-	useEuiMaxBreakpoint,
-	useEuiMinBreakpoint,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod/v4';
-import { STAGE } from './app-configuration.ts';
-import { AppTitle } from './AppTitle.tsx';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
 import {
 	loadOrSetInLocalStorage,
@@ -36,41 +22,49 @@ import {
 } from './context/localStorage.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
-import { Feed } from './Feed';
+import { DefaultLayout } from './DefaultLayout.tsx';
 import { fontStyles } from './fontStyles.ts';
-import { ItemData } from './ItemData.tsx';
 import { presetLabel } from './presets.ts';
-import { ResizableContainer } from './ResizableContainer.tsx';
-import { SearchBox } from './SearchBox.tsx';
-import { SettingsMenu } from './SettingsMenu.tsx';
-import { SideNav } from './SideNav/SideNav.tsx';
-import { TelemetryPixel } from './TelemetryPixel.tsx';
-import { Tooltip } from './Tooltip.tsx';
+import { TickerLayout } from './TickerLayout.tsx';
 import { defaultQuery } from './urlState';
 
+function ErrorPrompt({ errorMessage }: { errorMessage: string }) {
+	const { handleEnterQuery, handleRetry } = useSearch();
+	return (
+		<EuiEmptyPrompt
+			css={css`
+				background: white;
+			`}
+			actions={[
+				<EuiButton onClick={handleRetry} key="retry" iconType={'refresh'}>
+					Retry
+				</EuiButton>,
+				<EuiButton
+					onClick={() => handleEnterQuery(defaultQuery)}
+					key="clear"
+					iconType={'cross'}
+				>
+					Clear
+				</EuiButton>,
+			]}
+			body={<p>Sorry, failed to load because of {errorMessage}</p>}
+			hasBorder={true}
+		/>
+	);
+}
+
 export function App() {
-	const { config, state, handleEnterQuery, handleRetry, openTicker } =
-		useSearch();
+	const { config, state } = useSearch();
 
-	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
-
-	const [sideNavIsDocked, setSideNavIsDocked] = useState<boolean>(true);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
-	);
-	const handleTextQueryChange = useCallback(
-		(newQuery: string) => {
-			handleEnterQuery({ ...config.query, q: newQuery });
-		},
-		[config.query, handleEnterQuery],
 	);
 
 	const { handleShortcutKeyUp } = useKeyboardShortcuts();
 
-	const { view, itemId: selectedItemId, query } = config;
-	const { status } = state;
+	const isTickerView = config.ticker;
 
-	const isPoppedOut = config.ticker;
+	const { status } = state;
 
 	const dismissDisclaimer = (persist?: boolean) => {
 		setDisplayDisclaimer(false);
@@ -98,7 +92,7 @@ export function App() {
 		const displaySuppliers = !!supplier && supplier.length > 0;
 
 		if (displayPreset || displaySuppliers) {
-			const newswiresPrefix = !isPoppedOut ? 'Newswires -- ' : '';
+			const newswiresPrefix = !isTickerView ? 'Newswires -- ' : '';
 			const titlePrefix = supplier!.length == 1 ? `${supplier![0]} ` : '';
 			const titlePostfix =
 				supplier!.length > 1 ? ` ${supplier!.join(', ')}` : '';
@@ -107,10 +101,11 @@ export function App() {
 		} else {
 			document.title = 'Newswires';
 		}
-	}, [isPoppedOut, config.query]);
+	}, [isTickerView, config.query]);
 
-	const largeMinBreakpoint = useEuiMinBreakpoint('l');
-	const largeMaxBreakpoint = useEuiMaxBreakpoint('l');
+	const errorPromptComponent = useMemo(() => {
+		return <ErrorPrompt errorMessage={state.error ?? 'unknown error'} />;
+	}, [state.error]);
 
 	return (
 		<>
@@ -176,7 +171,7 @@ export function App() {
 							iconType="warning"
 						/>
 					)}
-					{isRestricted(query.dateRange?.end) &&
+					{isRestricted(config.query.dateRange?.end) &&
 						status !== 'offline' &&
 						status !== 'error' && (
 							<EuiCallOut
@@ -186,203 +181,12 @@ export function App() {
 								iconType="warning"
 							/>
 						)}
-					<div
-						css={css`
-							height: 100%;
-							max-height: 100vh;
-							${(status === 'loading' || status === 'error') &&
-							'display: flex; align-items: center;'}
-							${status === 'loading' && 'background: white;'}
-						`}
-					>
-						{isPoppedOut && (
-							<SideNav
-								navIsDocked={false}
-								sideNavIsOpen={sideNavIsOpen}
-								setSideNavIsOpen={setSideNavIsOpen}
-							/>
-						)}
-						{!isPoppedOut && (
-							<EuiHeader position="fixed">
-								<EuiHeaderSection side={'left'}>
-									<TelemetryPixel stage={STAGE} />
-									<EuiHeaderSectionItem>
-										<EuiHeaderSectionItemButton
-											aria-label="Toggle main navigation"
-											onClick={() =>
-												setSideNavIsDocked((isDocked) => !isDocked)
-											}
-											css={css`
-												${largeMaxBreakpoint} {
-													display: none;
-												}
-											`}
-										>
-											<EuiIcon type={'menu'} size="m" aria-hidden="true" />
-										</EuiHeaderSectionItemButton>
-										<SideNav
-											navIsDocked={sideNavIsDocked}
-											sideNavIsOpen={sideNavIsOpen}
-											setSideNavIsOpen={setSideNavIsOpen}
-										/>
-									</EuiHeaderSectionItem>
-									<EuiShowFor sizes={['xs']}>
-										{!sideNavIsOpen && (
-											<EuiScreenReaderOnly>
-												<h1>
-													<AppTitle />
-												</h1>
-											</EuiScreenReaderOnly>
-										)}
-									</EuiShowFor>
-									<EuiShowFor sizes={['s', 'm', 'l', 'xl']}>
-										<EuiHeaderSectionItem>
-											<EuiTitle
-												size={'s'}
-												css={css`
-													padding-bottom: 3px;
-
-													${largeMaxBreakpoint} {
-														margin-right: 8px;
-													}
-
-													${largeMinBreakpoint} {
-														width: 258px;
-													}
-												`}
-											>
-												<h1>
-													<AppTitle />
-												</h1>
-											</EuiTitle>
-										</EuiHeaderSectionItem>
-									</EuiShowFor>
-								</EuiHeaderSection>
-
-								<EuiHeaderSection grow={true}>
-									<EuiHeaderSectionItem
-										css={css`
-											flex: 1 1 100%;
-											max-width: 580px;
-										`}
-									>
-										<SearchBox
-											currentTextQuery={config.query.q}
-											handleTextQueryChange={handleTextQueryChange}
-										/>
-									</EuiHeaderSectionItem>
-								</EuiHeaderSection>
-
-								<EuiHeaderSection side={'right'}>
-									<EuiHeaderSectionItem>
-										<EuiFlexGroup
-											gutterSize="xs"
-											css={css`
-												margin-left: 8px;
-											`}
-										>
-											<EuiShowFor sizes={['xs', 's']}>
-												<Tooltip
-													tooltipContent={'Open new ticker'}
-													position="left"
-												>
-													<EuiButtonIcon
-														aria-label="New ticker"
-														display="base"
-														size="s"
-														iconType={'popout'}
-														onClick={() => openTicker(config.query)}
-													/>
-												</Tooltip>
-											</EuiShowFor>
-											<EuiShowFor sizes={['m', 'l', 'xl']}>
-												<EuiButton
-													size="s"
-													iconType={'popout'}
-													onClick={() => openTicker(config.query)}
-												>
-													New ticker
-												</EuiButton>
-											</EuiShowFor>
-											<SettingsMenu />
-										</EuiFlexGroup>
-									</EuiHeaderSectionItem>
-								</EuiHeaderSection>
-							</EuiHeader>
-						)}
-						{isPoppedOut && (
-							<h1
-								css={css`
-									display: none;
-								`}
-								className="sr-only"
-							>
-								Newswires
-							</h1>
-						)}
-						{status !== 'error' && (
-							<>
-								<EuiShowFor sizes={['xs', 's']}>
-									{isPoppedOut && (
-										<ResizableContainer
-											Feed={Feed}
-											Item={
-												selectedItemId ? (
-													<ItemData id={selectedItemId} />
-												) : undefined
-											}
-											directionOverride={'vertical'}
-											setSideNavIsOpen={setSideNavIsOpen}
-										/>
-									)}
-
-									{view === 'item' && !isPoppedOut && (
-										<ItemData id={selectedItemId} />
-									)}
-
-									{view !== 'item' && !isPoppedOut && (
-										<Feed setSideNavIsOpen={setSideNavIsOpen} />
-									)}
-								</EuiShowFor>
-								<EuiShowFor sizes={['m', 'l', 'xl']}>
-									<ResizableContainer
-										Feed={Feed}
-										Item={
-											selectedItemId ? (
-												<ItemData id={selectedItemId} />
-											) : undefined
-										}
-										setSideNavIsOpen={setSideNavIsOpen}
-									/>
-								</EuiShowFor>
-							</>
-						)}
-						{status == 'error' && (
-							<EuiEmptyPrompt
-								css={css`
-									background: white;
-								`}
-								actions={[
-									<EuiButton
-										onClick={handleRetry}
-										key="retry"
-										iconType={'refresh'}
-									>
-										Retry
-									</EuiButton>,
-									<EuiButton
-										onClick={() => handleEnterQuery(defaultQuery)}
-										key="clear"
-										iconType={'cross'}
-									>
-										Clear
-									</EuiButton>,
-								]}
-								body={<p>Sorry, failed to load because of {state.error}</p>}
-								hasBorder={true}
-							/>
-						)}
-					</div>
+					{!!config.ticker && (
+						<TickerLayout errorPromptComponent={errorPromptComponent} />
+					)}
+					{!config.ticker && (
+						<DefaultLayout errorPromptComponent={errorPromptComponent} />
+					)}
 				</EuiPageTemplate>
 			</EuiProvider>
 		</>
