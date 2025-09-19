@@ -169,6 +169,7 @@ export function App() {
 							synchronization will resume once connectivity is restored."
 							color="warning"
 							iconType="warning"
+							size="s"
 						/>
 					)}
 					{isRestricted(config.query.dateRange?.end) &&
@@ -179,6 +180,7 @@ export function App() {
 								filter to see the latest data."
 								color="warning"
 								iconType="warning"
+								size="s"
 							/>
 						)}
 					{!!config.ticker && (
