@@ -16,6 +16,7 @@ import { WireItemList } from './WireItemList.tsx';
 export interface FeedProps {
 	containerRef?: React.RefObject<HTMLDivElement>;
 	direction?: string;
+	setSideNavIsOpen: (isOpen: boolean) => void;
 }
 
 const baseStyles = css`
@@ -26,7 +27,11 @@ const columnStyles = css`
 	flex-direction: column;
 `;
 
-export const Feed = ({ containerRef, direction }: FeedProps) => {
+export const Feed = ({
+	containerRef,
+	direction,
+	setSideNavIsOpen,
+}: FeedProps) => {
 	const { state, config } = useSearch();
 	const { status, queryData } = state;
 
@@ -73,7 +78,7 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 						<EuiEmptyPrompt
 							body={
 								<>
-									<SearchSummary />
+									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
 									<p>Try another search or reset filters.</p>
 								</>
 							}
@@ -90,7 +95,7 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 						<div>
 							<EuiFlexGroup css={[baseStyles, isColumn && columnStyles]}>
 								<EuiFlexItem style={{ flex: 1 }}>
-									<SearchSummary />
+									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
 								</EuiFlexItem>
 								{!isPoppedOut && (
 									<EuiFlexItem grow={false}>

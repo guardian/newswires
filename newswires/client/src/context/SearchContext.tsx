@@ -130,8 +130,6 @@ export type SearchContextShape = {
 	loadMoreResults: (beforeId: string) => Promise<void>;
 	activeSuppliers: string[];
 	toggleSupplier: (supplier: string) => void;
-	sideNavIsOpen: boolean;
-	setSideNavIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -142,8 +140,6 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	const [previousItemId, setPreviousItemId] = useState<string | undefined>(
 		undefined,
 	);
-
-	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
 
 	const [currentConfig, setConfig] = useState<Config>(() =>
 		urlToConfig(window.location),
@@ -499,8 +495,6 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				activeSuppliers,
 				toggleSupplier,
 				openTicker,
-				sideNavIsOpen,
-				setSideNavIsOpen,
 			}}
 		>
 			{children}

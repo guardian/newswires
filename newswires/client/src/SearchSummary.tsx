@@ -203,12 +203,15 @@ const Summary = ({
 	);
 };
 
-export const SearchSummary = () => {
+export const SearchSummary = ({
+	setSideNavIsOpen,
+}: {
+	setSideNavIsOpen: (isOpen: boolean) => void;
+}) => {
 	const {
 		state: { queryData, status, lastUpdate },
 		config,
 		openTicker,
-		setSideNavIsOpen,
 	} = useSearch();
 	const isPoppedOut = config.ticker;
 

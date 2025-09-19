@@ -89,14 +89,10 @@ const Alert = ({
 };
 
 export function App() {
-	const {
-		config,
-		state,
-		handleEnterQuery,
-		handleRetry,
-		openTicker,
-		sideNavIsOpen,
-	} = useSearch();
+	const { config, state, handleEnterQuery, handleRetry, openTicker } =
+		useSearch();
+
+	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
 
 	const [sideNavIsDocked, setSideNavIsDocked] = useState<boolean>(true);
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
@@ -242,7 +238,13 @@ export function App() {
 							${status === 'loading' && 'background: white;'}
 						`}
 					>
-						{isPoppedOut && <SideNav navIsDocked={false} />}
+						{isPoppedOut && (
+							<SideNav
+								navIsDocked={false}
+								sideNavIsOpen={sideNavIsOpen}
+								setSideNavIsOpen={setSideNavIsOpen}
+							/>
+						)}
 						{!isPoppedOut && (
 							<EuiHeader position="fixed">
 								<EuiHeaderSection side={'left'}>
@@ -261,7 +263,11 @@ export function App() {
 										>
 											<EuiIcon type={'menu'} size="m" aria-hidden="true" />
 										</EuiHeaderSectionItemButton>
-										<SideNav navIsDocked={sideNavIsDocked} />
+										<SideNav
+											navIsDocked={sideNavIsDocked}
+											sideNavIsOpen={sideNavIsOpen}
+											setSideNavIsOpen={setSideNavIsOpen}
+										/>
 									</EuiHeaderSectionItem>
 									<EuiShowFor sizes={['xs']}>
 										{!sideNavIsOpen && (
@@ -369,6 +375,7 @@ export function App() {
 												) : undefined
 											}
 											directionOverride={'vertical'}
+											setSideNavIsOpen={setSideNavIsOpen}
 										/>
 									)}
 
@@ -376,7 +383,9 @@ export function App() {
 										<ItemData id={selectedItemId} />
 									)}
 
-									{view !== 'item' && !isPoppedOut && <Feed />}
+									{view !== 'item' && !isPoppedOut && (
+										<Feed setSideNavIsOpen={setSideNavIsOpen} />
+									)}
 								</EuiShowFor>
 								<EuiShowFor sizes={['m', 'l', 'xl']}>
 									<ResizableContainer
@@ -386,6 +395,7 @@ export function App() {
 												<ItemData id={selectedItemId} />
 											) : undefined
 										}
+										setSideNavIsOpen={setSideNavIsOpen}
 									/>
 								</EuiShowFor>
 							</>
