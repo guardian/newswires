@@ -57,9 +57,7 @@ export function DefaultLayout({
 				css={css`
 					height: 100%;
 					max-height: 100vh;
-					${(status === 'loading' || status === 'error') &&
-					'display: flex; align-items: center;'}
-					${status === 'loading' && 'background: white;'}
+					background: white;
 				`}
 			>
 				<EuiHeader position="fixed">
