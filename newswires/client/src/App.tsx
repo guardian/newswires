@@ -2,6 +2,7 @@ import {
 	EuiButton,
 	EuiButtonEmpty,
 	EuiButtonIcon,
+	EuiCallOut,
 	EuiEmptyPrompt,
 	EuiFlexGroup,
 	EuiHeader,
@@ -20,10 +21,8 @@ import {
 	EuiShowFor,
 	EuiText,
 	EuiTitle,
-	EuiToast,
 	useEuiMaxBreakpoint,
 	useEuiMinBreakpoint,
-	useIsWithinMinBreakpoint,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
 import { useCallback, useEffect, useState } from 'react';
@@ -48,45 +47,6 @@ import { SideNav } from './SideNav';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { defaultQuery } from './urlState';
-
-const Alert = ({
-	title,
-	icon = 'warning',
-}: {
-	title: string;
-	icon?: string;
-}) => {
-	const isOnLargerScreen = useIsWithinMinBreakpoint('l');
-
-	return (
-		<div
-			css={css`
-				.euiToast.header-only span {
-					font-weight: 500;
-					font-size: 1rem;
-				}
-
-				.euiToast.header-only svg {
-					top: 2px;
-				}
-			`}
-		>
-			<EuiToast
-				title={title}
-				iconType={icon}
-				className={'header-only'}
-				css={css`
-					padding: 8px;
-					border-radius: 0;
-					background: #fdf6d8;
-					position: fixed;
-					z-index: 1000;
-					${isOnLargerScreen && 'width: calc(100% - 300px)'}
-				`}
-			></EuiToast>
-		</div>
-	);
-};
 
 export function App() {
 	const { config, state, handleEnterQuery, handleRetry, openTicker } =
@@ -151,7 +111,6 @@ export function App() {
 
 	const largeMinBreakpoint = useEuiMinBreakpoint('l');
 	const largeMaxBreakpoint = useEuiMaxBreakpoint('l');
-	const smallMinBreakpoint = useEuiMinBreakpoint('s');
 
 	return (
 		<>
@@ -210,27 +169,25 @@ export function App() {
 						</EuiModal>
 					)}
 					{status === 'offline' && (
-						<Alert
+						<EuiCallOut
 							title="The application is no longer retrieving updates. Data
 							synchronization will resume once connectivity is restored."
+							color="warning"
+							iconType="warning"
 						/>
 					)}
 					{isRestricted(query.dateRange?.end) &&
 						status !== 'offline' &&
 						status !== 'error' && (
-							<Alert
+							<EuiCallOut
 								title="Your current filter settings exclude recent updates. Adjust the
 								filter to see the latest data."
+								color="warning"
+								iconType="warning"
 							/>
 						)}
 					<div
 						css={css`
-							${(status === 'offline' || isRestricted(query.dateRange?.end)) &&
-							`padding-top: 40px;
-							  ${smallMinBreakpoint} {
-								padding-top: 72px;
-							  }
-							`}
 							height: 100%;
 							max-height: 100vh;
 							${(status === 'loading' || status === 'error') &&
