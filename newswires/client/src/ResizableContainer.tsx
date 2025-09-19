@@ -41,10 +41,12 @@ export const ResizableContainer = ({
 	Feed,
 	Item,
 	directionOverride,
+	setSideNavIsOpen,
 }: {
 	Feed: React.ComponentType<FeedProps>;
 	Item?: React.ReactNode;
 	directionOverride?: PanelDirections;
+	setSideNavIsOpen: (isOpen: boolean) => void;
 }) => {
 	const leftPanelRef = useRef<HTMLDivElement>(null);
 
@@ -82,7 +84,11 @@ export const ResizableContainer = ({
 						style={{ padding: 0 }}
 						panelRef={leftPanelRef}
 					>
-						<Feed containerRef={leftPanelRef} direction={direction} />
+						<Feed
+							containerRef={leftPanelRef}
+							direction={direction}
+							setSideNavIsOpen={setSideNavIsOpen}
+						/>
 					</EuiResizablePanel>
 					<EuiResizableButton
 						accountForScrollbars={'both'}
