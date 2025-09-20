@@ -60,7 +60,6 @@ export const WireItemList = ({
 								isFromRefresh={isFromRefresh}
 								highlight={highlight}
 								selected={selectedWireId == id.toString()}
-								view={config.view}
 								previousItemId={previousItemId}
 							/>
 						</li>
@@ -184,7 +183,6 @@ const WirePreviewCard = ({
 	hasDataFormatting,
 	highlight,
 	selected,
-	view,
 	previousItemId,
 }: {
 	id: number;
@@ -195,7 +193,6 @@ const WirePreviewCard = ({
 	highlight: string | undefined;
 	selected: boolean;
 	isFromRefresh: boolean;
-	view: string;
 	previousItemId: string | undefined;
 }) => {
 	const { viewedItemIds, config } = useSearch();
@@ -219,13 +216,12 @@ const WirePreviewCard = ({
 		if (
 			!isPoppedOut &&
 			isSmallScreen &&
-			view === 'feed' &&
 			id.toString() === previousItemId &&
 			ref.current
 		) {
 			scrollElementIntoView(ref.current, { scrollPosition: 'center' });
 		}
-	}, [view, id, previousItemId, isSmallScreen, isPoppedOut]);
+	}, [id, previousItemId, isSmallScreen, isPoppedOut]);
 
 	const theme = useEuiTheme();
 	const accentBgColor = useEuiBackgroundColor('subdued', {

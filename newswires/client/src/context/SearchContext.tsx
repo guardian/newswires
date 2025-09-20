@@ -12,7 +12,9 @@ import { getErrorMessage } from '../../../../shared/getErrorMessage.ts';
 import type { Config, Query } from '../sharedTypes.ts';
 import {
 	ConfigSchema,
+	DotcopyQuerySchema,
 	QuerySchema,
+	queryToDotcopyQuery,
 	WiresQueryDataSchema,
 } from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
@@ -104,8 +106,8 @@ const _ActionSchema = z.discriminatedUnion('type', [
 	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
 	z.object({
 		type: z.literal('UPDATE_RESULTS'),
-		query: QuerySchema,
 		data: WiresQueryDataSchema,
+		query: QuerySchema,
 	}),
 	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
 ]);
@@ -128,6 +130,7 @@ export type SearchContextShape = {
 	openTicker: (query: Query) => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
 	toggleSupplier: (supplier: string) => void;
+	toggleDotcopyView: () => void;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -166,7 +169,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	const pushConfigState = useCallback(
 		(config: Config) => {
 			history.pushState(config, '', configToUrl(config));
-			if (config.view === 'item') {
+			if (config.itemId !== undefined) {
 				const updatedViewedItemIds = Array.from(
 					new Set([config.itemId, ...viewedItemIds]),
 				);
@@ -212,7 +215,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 		if (state.status === 'loading') {
 			const start = performance.now();
-			fetchResults({ query: currentConfig.query, view: currentConfig.view })
+			fetchResults({
+				query: currentConfig.query,
+				dotcopy: currentConfig.dotcopy,
+			})
 				.then((data) => {
 					sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
 						...Object.fromEntries(
@@ -244,7 +250,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						query: currentConfig.query,
 						sinceId,
 						abortController,
-						view: currentConfig.view,
+						dotcopy: currentConfig.dotcopy,
 					})
 						.then((data) => {
 							if (!abortController.signal.aborted) {
@@ -272,7 +278,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		currentConfig.query,
 		state.queryData?.results,
 		sendTelemetryEvent,
-		currentConfig.view,
+		currentConfig.dotcopy,
 	]);
 
 	const handleEnterQuery = useCallback(
@@ -289,11 +295,22 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			dispatch({
 				type: 'ENTER_QUERY',
 			});
-
-			pushConfigState({
-				...currentConfig,
-				query,
-			});
+			const { data, success } = DotcopyQuerySchema.safeParse(query);
+			if (success) {
+				// valid dotcopy queries are also valid for regular wires searches, so we don't need to modify anything
+				pushConfigState({
+					...currentConfig,
+					query: data,
+				});
+			} else {
+				// If the query is not valid for dotcopy, we assume the user is switching from a dotcopy view to a regular wires view.
+				pushConfigState({
+					...currentConfig,
+					dotcopy: false,
+					itemId: currentConfig.dotcopy ? undefined : currentConfig.itemId,
+					query,
+				});
+			}
 		},
 		[currentConfig, pushConfigState, sendTelemetryEvent],
 	);
@@ -316,21 +333,16 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		});
 
 		pushConfigState({
-			view: currentConfig.view.includes('dotcopy') ? 'dotcopy/item' : 'item',
+			...currentConfig,
 			itemId: item,
-			query: currentConfig.query,
-			ticker: currentConfig.ticker,
 		});
 	};
 
 	const handleDeselectItem = () => {
 		pushConfigState({
-			view: currentConfig.view.includes('dotcopy') ? 'dotcopy' : 'feed',
-			query: currentConfig.query,
-			ticker: currentConfig.ticker,
+			...currentConfig,
 			itemId: undefined,
 		});
-
 		if (currentConfig.itemId) {
 			setPreviousItemId(currentConfig.itemId);
 		}
@@ -409,7 +421,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		return fetchResults({
 			query: currentConfig.query,
 			beforeId,
-			view: currentConfig.view,
+			dotcopy: currentConfig.dotcopy,
 		})
 			.then((data) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
@@ -435,7 +447,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		window.open(
 			configToUrl({
 				query,
-				view: 'feed',
+				dotcopy: false,
 				itemId: undefined,
 				ticker: true,
 			}),
@@ -447,7 +459,6 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	const toggleSupplier = useCallback(
 		(supplier: string) => {
 			const activeSuppliers = currentConfig.query.supplier;
-
 			// If 'activeSuppliers' is empty, that means that *all* suppliers are active.
 			if (activeSuppliers.length === 0) {
 				handleEnterQuery({
@@ -472,6 +483,45 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		[currentConfig.query, handleEnterQuery],
 	);
 
+	const toggleDotcopyView = useCallback(() => {
+		const isCurrentlyDotcopy = currentConfig.dotcopy;
+
+		if (isCurrentlyDotcopy) {
+			sendTelemetryEvent('NEWSWIRES_TOGGLE_DOTCOPY_OFF', {
+				...Object.fromEntries(
+					Object.entries(currentConfig.query).map(([key, value]) => [
+						`search-query_${key}`,
+						JSON.stringify(value),
+					]),
+				),
+			});
+			pushConfigState({
+				...currentConfig,
+				query: currentConfig.query,
+				itemId: undefined,
+				dotcopy: false,
+			});
+		} else {
+			sendTelemetryEvent('NEWSWIRES_TOGGLE_DOTCOPY_ON', {
+				...Object.fromEntries(
+					Object.entries(currentConfig.query).map(([key, value]) => [
+						`search-query_${key}`,
+						JSON.stringify(value),
+					]),
+				),
+			});
+			// if switching to dotcopy view, we need to ensure that the query is valid for dotcopy
+			pushConfigState({
+				...currentConfig,
+				query: queryToDotcopyQuery(currentConfig.query),
+				itemId: undefined,
+				dotcopy: true,
+			});
+		}
+
+		dispatch({ type: 'ENTER_QUERY' });
+	}, [currentConfig, pushConfigState, sendTelemetryEvent]);
+
 	return (
 		<SearchContext.Provider
 			value={{
@@ -489,6 +539,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				previousItemId,
 				toggleSupplier,
 				openTicker,
+				toggleDotcopyView,
 			}}
 		>
 			{children}

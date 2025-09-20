@@ -149,7 +149,7 @@ export const PresetsContextMenu = () => {
 
 	const togglePreset = useCallback(
 		(presetId: string) => {
-			if (activePreset === presetId || presetId === 'all-presets') {
+			if (activePreset === presetId) {
 				handleEnterQuery({
 					...config.query,
 					preset: undefined,

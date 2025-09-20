@@ -35,7 +35,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/ticker/feed');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: defaultQuery,
 			ticker: true,
 		});
@@ -45,7 +45,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed?q=abc');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: { ...defaultQuery, q: 'abc' },
 			ticker: false,
 		});
@@ -55,7 +55,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: defaultQuery,
 			ticker: false,
 		});
@@ -64,14 +64,14 @@ describe('urlToConfig', () => {
 	it('parses unrecognised path to default config', () => {
 		const url = makeFakeLocation('/doesnt_exist_feed');
 		const config = urlToConfig(url);
-		expect(config).toEqual({ ...defaultConfig, view: 'feed' });
+		expect(config).toEqual({ ...defaultConfig });
 	});
 
 	it('parses item path into config', () => {
 		const url = makeFakeLocation('/item/123?q=abc&supplier=AP');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'item',
+			dotcopy: false as const,
 			itemId: '123',
 			query: { ...defaultQuery, supplier: ['AP'], q: 'abc' },
 			ticker: false,
@@ -82,7 +82,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/ticker/item/123?q=abc&supplier=AP');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'item',
+			dotcopy: false as const,
 			itemId: '123',
 			query: { ...defaultQuery, supplier: ['AP'], q: 'abc' },
 			ticker: true,
@@ -93,7 +93,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed?q=abc&supplier=AP&supplier=PA');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -108,8 +108,8 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed?q=abc');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
-			query: { ...defaultQuery, ...defaultQuery, q: 'abc', supplier: [] },
+			dotcopy: false as const,
+			query: { ...defaultQuery, q: 'abc', supplier: [] },
 			ticker: false,
 		});
 	});
@@ -118,7 +118,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed?q=abc&supplierExcl=PA&supplierExcl=AP');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -133,7 +133,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed?q=abc&keyword=Sports&keyword=Politics');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -150,7 +150,7 @@ describe('urlToConfig', () => {
 		);
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -167,7 +167,7 @@ describe('urlToConfig', () => {
 		);
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -184,7 +184,7 @@ describe('urlToConfig', () => {
 		);
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -199,7 +199,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=now%2Fd');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -219,7 +219,7 @@ describe('urlToConfig', () => {
 		);
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -241,7 +241,7 @@ describe('urlToConfig', () => {
 		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=invalid');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
-			view: 'feed',
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				...defaultQuery,
@@ -263,7 +263,7 @@ describe('configToUrl', () => {
 
 	it('converts config to querystring', () => {
 		const config = {
-			view: 'feed' as const,
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				q: 'abc',
@@ -279,7 +279,7 @@ describe('configToUrl', () => {
 
 	it('converts ticker config to querystring', () => {
 		const config = {
-			view: 'feed' as const,
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				q: 'abc',
@@ -297,7 +297,7 @@ describe('configToUrl', () => {
 		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(true);
 
 		const url = configToUrl({
-			view: 'feed',
+			dotcopy: false as const,
 			query: defaultQuery,
 			ticker: false,
 			itemId: undefined,
@@ -307,7 +307,7 @@ describe('configToUrl', () => {
 
 	it('converts item config to querystring', () => {
 		const config = {
-			view: 'item' as const,
+			dotcopy: false as const,
 			itemId: '123',
 			query: {
 				...defaultQuery,
@@ -323,7 +323,7 @@ describe('configToUrl', () => {
 
 	it('converts ticker item config to querystring', () => {
 		const config = {
-			view: 'item' as const,
+			dotcopy: false as const,
 			itemId: '123',
 			query: {
 				...defaultQuery,
@@ -341,7 +341,7 @@ describe('configToUrl', () => {
 		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(false);
 
 		const config = {
-			view: 'item' as const,
+			dotcopy: false as const,
 			itemId: '123',
 			query: {
 				...defaultQuery,
@@ -363,7 +363,7 @@ describe('configToUrl', () => {
 
 	it('converts config with no supplier to querystring', () => {
 		const config = {
-			view: 'item' as const,
+			dotcopy: false as const,
 			itemId: '123',
 			query: { ...defaultQuery, q: 'abc', supplier: [], subject: [] },
 			ticker: false,
@@ -374,7 +374,7 @@ describe('configToUrl', () => {
 
 	it('converts config with many suppliers to querystring', () => {
 		const config = {
-			view: 'item' as const,
+			dotcopy: false as const,
 			itemId: '123',
 			query: {
 				...defaultQuery,
@@ -392,7 +392,7 @@ describe('configToUrl', () => {
 
 	it('converts config with many excluded suppliers to querystring', () => {
 		const config = {
-			view: 'feed' as const,
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				q: 'abc',
@@ -409,7 +409,7 @@ describe('configToUrl', () => {
 
 	it('converts config with many keywords to querystring', () => {
 		const config = {
-			view: 'feed' as const,
+			dotcopy: false as const,
 			query: { ...defaultQuery, q: 'abc', keyword: ['Sports', 'Politics'] },
 			ticker: false,
 			itemId: undefined,
@@ -420,7 +420,7 @@ describe('configToUrl', () => {
 
 	it('converts config with many excluded keywords to querystring', () => {
 		const config = {
-			view: 'feed' as const,
+			dotcopy: false as const,
 			query: { ...defaultQuery, q: 'abc', keywordExcl: ['Sports', 'Politics'] },
 			ticker: false,
 			itemId: undefined,
@@ -431,7 +431,7 @@ describe('configToUrl', () => {
 
 	it('converts config with many categoryCode to querystring', () => {
 		const config = {
-			view: 'feed' as const,
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				q: 'abc',
@@ -448,7 +448,7 @@ describe('configToUrl', () => {
 
 	it('converts config with many excluded categoryCode to querystring', () => {
 		const config = {
-			view: 'feed' as const,
+			dotcopy: false as const,
 			query: {
 				...defaultQuery,
 				q: 'abc',

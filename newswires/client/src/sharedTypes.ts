@@ -130,33 +130,64 @@ export const QuerySchema = z.object({
 	hasDataFormatting: z.boolean().optional(),
 });
 
+export const DotcopyQuerySchema = QuerySchema.extend({
+	supplier: z.array(z.string()).length(0),
+	supplierExcl: z.array(z.string()).length(0),
+	keyword: z.array(z.string()).length(0),
+	keywordExcl: z.array(z.string()).length(0),
+	categoryCode: z.array(z.string()).length(0),
+	categoryCodeExcl: z.array(z.string()).length(0),
+	preset: z.undefined(),
+	dateRange: DateRange.optional(),
+	hasDataFormatting: z.undefined(),
+});
+
+export type DotcopyQuery = z.infer<typeof DotcopyQuerySchema>;
 export type Query = z.infer<typeof QuerySchema>;
+
+export function queryToDotcopyQuery(query: Query): DotcopyQuery {
+	return {
+		...query,
+		supplier: [],
+		supplierExcl: [],
+		keyword: [],
+		keywordExcl: [],
+		categoryCode: [],
+		categoryCodeExcl: [],
+		preset: undefined,
+		hasDataFormatting: undefined,
+	};
+}
 
 export const ConfigSchema = z.discriminatedUnion('view', [
 	z.object({
-		view: z.literal('feed'),
 		query: QuerySchema,
+		dotcopy: z.literal(false),
 		itemId: z.undefined(),
 		ticker: z.boolean(),
 	}),
 	z.object({
-		view: z.literal('item'),
 		query: QuerySchema,
+		dotcopy: z.literal(false),
 		itemId: z.string(),
 		ticker: z.boolean(),
 	}),
 	z.object({
-		view: z.literal('dotcopy'),
-		query: QuerySchema,
+		query: DotcopyQuerySchema,
+		dotcopy: z.literal(true),
 		itemId: z.undefined(),
 		ticker: z.boolean(),
 	}),
 	z.object({
-		view: z.literal('dotcopy/item'),
-		query: QuerySchema,
+		query: DotcopyQuerySchema,
+		dotcopy: z.literal(true),
 		itemId: z.string(),
 		ticker: z.boolean(),
 	}),
 ]);
 
 export type Config = z.infer<typeof ConfigSchema>;
+
+export function isDotcopyView(config: Config) {
+	return config.dotcopy;
+}

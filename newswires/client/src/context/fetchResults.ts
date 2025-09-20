@@ -1,23 +1,23 @@
 import { pandaFetch } from '../panda-session.ts';
-import type { Config, Query, WiresQueryData } from '../sharedTypes.ts';
+import type { Query, WiresQueryData } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
 export const fetchResults = async ({
 	query,
-	view,
+	dotcopy,
 	sinceId,
 	beforeId,
 	abortController,
 }: {
 	query: Query;
-	view: Config['view'];
+	dotcopy: boolean;
 	sinceId?: string;
 	beforeId?: string;
 	abortController?: AbortController;
 }): Promise<WiresQueryData> => {
-	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
+	const endpoint = dotcopy ? '/api/dotcopy' : '/api/search';
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,

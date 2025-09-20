@@ -1,5 +1,5 @@
 import dateMath from '@elastic/datemath';
-import moment from 'moment/moment';
+import moment from 'moment';
 import { register } from 'timezone-mock';
 import { sampleWireData } from '../tests/fixtures/wireData.ts';
 import { defaultQuery } from '../urlState.ts';
@@ -119,11 +119,7 @@ describe('SearchReducer', () => {
 					],
 					totalCount: 1,
 				},
-				query: {
-					...defaultQuery,
-					dateRange: undefined,
-					q: 'test',
-				},
+				query: { ...defaultQuery, q: 'test', dateRange: undefined },
 			};
 
 			const newState = SearchReducer(state, action);

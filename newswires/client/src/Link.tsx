@@ -12,7 +12,7 @@ export const Link = ({
 	to: string;
 } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
 	const { handleSelectItem, config } = useSearch();
-	const href = configToUrl({ ...config, view: 'item', itemId: to });
+	const href = configToUrl({ ...config, itemId: to });
 
 	const onClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
 		(e) => {
