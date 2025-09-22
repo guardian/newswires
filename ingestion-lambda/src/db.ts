@@ -23,7 +23,7 @@ export async function putItemToDb({
 	logger: Logger;
 }): Promise<OperationResult<{ didCreateNewItem: boolean }>> {
 	const { content, supplier, categoryCodes } = processedObject;
-	const ingestedAt = lastModified ?? new Date();
+	const ingestedAt = (lastModified ?? new Date()).toISOString();
 	try {
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
