@@ -65,7 +65,6 @@ export const SideNavListItem = ({
 					css={css`
 						flex-grow: 1;
 						display: flex;
-						justify-items: space-between;
 						align-items: center;
 						gap: 5px;
 						${arrowSide === 'left' && 'font-weight: bold;'}
