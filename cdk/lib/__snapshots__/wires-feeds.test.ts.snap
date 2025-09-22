@@ -17,7 +17,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
     },
   },
   "Resources": {
-    "FingerpostDeadLetterQueueAlarm577676D8": {
+    "fingerpostDeadLetterQueueAlarm105C0EED": {
       "Properties": {
         "ActionsEnabled": false,
         "AlarmActions": [
@@ -44,8 +44,8 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "AlarmDescription": "There are messages in the dead letter queue for the Fingerpost queue. We should investigate why and remediate",
-        "AlarmName": "Messages in DLQ for Fingerpost queue TEST",
+        "AlarmDescription": "There are messages in the dead letter queue for the fingerpost queue. We should investigate why and remediate",
+        "AlarmName": "Messages in DLQ for fingerpost queue TEST",
         "ComparisonOperator": "GreaterThanThreshold",
         "Dimensions": [
           {
@@ -53,103 +53,6 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
             "Value": {
               "Fn::GetAtt": [
                 "fingerpostqueueDeadLetterQueueTESTC46C734A",
-                "QueueName",
-              ],
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "ApproximateNumberOfMessagesVisible",
-        "Namespace": "AWS/SQS",
-        "OKActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
-                },
-              ],
-            ],
-          },
-        ],
-        "Period": 60,
-        "Statistic": "Maximum",
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "wires-feeds",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-        "Threshold": 3,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
-    "SourceDeadLetterQueueAlarm960BBEC0": {
-      "Properties": {
-        "ActionsEnabled": false,
-        "AlarmActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
-                },
-              ],
-            ],
-          },
-        ],
-        "AlarmDescription": "There are messages in the dead letter queue for the source queue. We should investigate why and remediate",
-        "AlarmName": "Messages in DLQ for the source queue TEST",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "Dimensions": [
-          {
-            "Name": "QueueName",
-            "Value": {
-              "Fn::GetAtt": [
-                "sourcequeueDeadLetterQueueTEST4E4374EA",
                 "QueueName",
               ],
             },
@@ -450,6 +353,113 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::SNS::Topic",
+    },
+    "newswiresemailalarmtopicmediaandfeedsalertsguardiancoukD40A5B16": {
+      "Properties": {
+        "Endpoint": "media.and.feeds+alerts@guardian.co.uk",
+        "Protocol": "email",
+        "TopicArn": {
+          "Ref": "newswiresemailalarmtopicB2906D97",
+        },
+      },
+      "Type": "AWS::SNS::Subscription",
+    },
+    "sourceDeadLetterQueueAlarm6BA1CE93": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "There are messages in the dead letter queue for the source queue. We should investigate why and remediate",
+        "AlarmName": "Messages in DLQ for source queue TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "sourcequeueDeadLetterQueueTEST4E4374EA",
+                "QueueName",
+              ],
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 60,
+        "Statistic": "Maximum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 3,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "sourcequeue87B8A558": {
       "DeletionPolicy": "RetainExceptOnCreate",

@@ -10,7 +10,10 @@ import {
 } from 'aws-cdk-lib/aws-cloudwatch';
 import { ArnPrincipal, User } from 'aws-cdk-lib/aws-iam';
 import { Topic } from 'aws-cdk-lib/aws-sns';
-import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
+import {
+	EmailSubscription,
+	SqsSubscription,
+} from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { appName } from './constants';
 
@@ -41,8 +44,17 @@ export class WiresFeeds extends GuStack {
 			'fingerpost-publishing-user',
 			fingerpostPublishingUserArn,
 		);
+		// An SNS topic to send alarms to
+		this.alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
+		this.alarmSnsTopic.addSubscription(
+			new EmailSubscription('media.and.feeds+alerts@guardian.co.uk'),
+		);
 
-		function createTopicQueue(scope: GuStack, topicType: string) {
+		function createTopicQueue(
+			scope: GuStack,
+			topicType: string,
+			alarmSnsTopic: Topic,
+		) {
 			const topic = new Topic(scope, `${topicType}-topic`, {
 				enforceSSL: true,
 			});
@@ -76,58 +88,33 @@ export class WiresFeeds extends GuStack {
 				new SqsSubscription(queue, { rawMessageDelivery: true }),
 			);
 
+			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm`, {
+				actionsEnabled: scope.stage === 'PROD',
+				okAction: true,
+				alarmName: `Messages in DLQ for ${topicType} queue ${scope.stage}`,
+				alarmDescription: `There are messages in the dead letter queue for the ${topicType} queue. We should investigate why and remediate`,
+				app: appName,
+				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				metric: deadLetterQueue.metricApproximateNumberOfMessagesVisible({
+					period: Duration.minutes(1),
+					statistic: Stats.MAXIMUM,
+				}),
+				snsTopicName: alarmSnsTopic.topicName,
+				threshold: 3,
+				evaluationPeriods: 1,
+			});
+
 			return queue;
 		}
-		// An SNS topic to send alarms to
-		this.alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
 
 		/** A topic and queue for the 'raw' wires feed.*/
-		this.sourceQueue = createTopicQueue(this, 'source');
+		this.sourceQueue = createTopicQueue(this, 'source', this.alarmSnsTopic);
 
-		this.fingerpostQueue = createTopicQueue(this, 'fingerpost');
-
-		if (this.fingerpostQueue.deadLetterQueue) {
-			new GuAlarm(this, 'FingerpostDeadLetterQueueAlarm', {
-				actionsEnabled: this.stage === 'PROD',
-				okAction: true,
-				alarmName: `Messages in DLQ for Fingerpost queue ${this.stage}`,
-				alarmDescription: `There are messages in the dead letter queue for the Fingerpost queue. We should investigate why and remediate`,
-				app: appName,
-				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-				treatMissingData: TreatMissingData.NOT_BREACHING,
-				metric:
-					this.fingerpostQueue.deadLetterQueue.queue.metricApproximateNumberOfMessagesVisible(
-						{
-							period: Duration.minutes(1),
-							statistic: Stats.MAXIMUM,
-						},
-					),
-				snsTopicName: this.alarmSnsTopic.topicName,
-				threshold: 3,
-				evaluationPeriods: 1,
-			});
-		}
-
-		if (this.sourceQueue.deadLetterQueue) {
-			new GuAlarm(this, 'SourceDeadLetterQueueAlarm', {
-				actionsEnabled: this.stage === 'PROD',
-				okAction: true,
-				alarmName: `Messages in DLQ for the source queue ${this.stage}`,
-				alarmDescription: `There are messages in the dead letter queue for the source queue. We should investigate why and remediate`,
-				app: appName,
-				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-				treatMissingData: TreatMissingData.NOT_BREACHING,
-				metric:
-					this.sourceQueue.deadLetterQueue.queue.metricApproximateNumberOfMessagesVisible(
-						{
-							period: Duration.minutes(1),
-							statistic: Stats.MAXIMUM,
-						},
-					),
-				snsTopicName: this.alarmSnsTopic.topicName,
-				threshold: 3,
-				evaluationPeriods: 1,
-			});
-		}
+		this.fingerpostQueue = createTopicQueue(
+			this,
+			'fingerpost',
+			this.alarmSnsTopic,
+		);
 	}
 }
