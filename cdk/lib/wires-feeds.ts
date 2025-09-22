@@ -89,7 +89,7 @@ export class WiresFeeds extends GuStack {
 			);
 
 			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm`, {
-				actionsEnabled: scope.stage === 'PROD',
+				actionsEnabled: scope.stage === 'CODE',
 				okAction: true,
 				alarmName: `Messages in DLQ for ${topicType} queue ${scope.stage}`,
 				alarmDescription: `There are messages in the dead letter queue for the ${topicType} queue. We should investigate why and remediate`,
