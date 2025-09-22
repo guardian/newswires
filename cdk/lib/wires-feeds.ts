@@ -8,7 +8,7 @@ import {
 	Stats,
 	TreatMissingData,
 } from 'aws-cdk-lib/aws-cloudwatch';
-import { ArnPrincipal, User } from 'aws-cdk-lib/aws-iam';
+import { ArnPrincipal, ServicePrincipal, User } from 'aws-cdk-lib/aws-iam';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import {
 	EmailSubscription,
@@ -48,6 +48,9 @@ export class WiresFeeds extends GuStack {
 		this.alarmSnsTopic = new Topic(this, `${appName}-email-alarm-topic`);
 		this.alarmSnsTopic.addSubscription(
 			new EmailSubscription('media.and.feeds+alerts@guardian.co.uk'),
+		);
+		this.alarmSnsTopic.grantPublish(
+			new ServicePrincipal('cloudwatch.amazonaws.com'),
 		);
 
 		function createTopicQueue(
