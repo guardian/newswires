@@ -35,10 +35,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Ref": "newswiresemailalarmtopicB2906D97",
                 },
               ],
             ],
@@ -76,10 +73,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Ref": "newswiresemailalarmtopicB2906D97",
                 },
               ],
             ],
@@ -408,10 +402,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Ref": "newswiresemailalarmtopicB2906D97",
                 },
               ],
             ],
@@ -449,10 +440,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
                 },
                 ":",
                 {
-                  "Fn::GetAtt": [
-                    "newswiresemailalarmtopicB2906D97",
-                    "TopicName",
-                  ],
+                  "Ref": "newswiresemailalarmtopicB2906D97",
                 },
               ],
             ],
