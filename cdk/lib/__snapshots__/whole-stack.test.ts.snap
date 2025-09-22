@@ -74,7 +74,10 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Ref": "newswiresemailalarmtopicB2906D97",
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
                 },
               ],
             ],
@@ -108,7 +111,10 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Ref": "newswiresemailalarmtopicB2906D97",
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
                 },
               ],
             ],
@@ -433,7 +439,10 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Ref": "newswiresemailalarmtopicB2906D97",
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
                 },
               ],
             ],
@@ -467,7 +476,10 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 },
                 ":",
                 {
-                  "Ref": "newswiresemailalarmtopicB2906D97",
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
                 },
               ],
             ],
