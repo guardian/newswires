@@ -389,6 +389,32 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::SNS::Topic",
     },
+    "newswiresemailalarmtopicPolicy331C1044": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudwatch.amazonaws.com",
+              },
+              "Resource": {
+                "Ref": "newswiresemailalarmtopicB2906D97",
+              },
+              "Sid": "0",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Topics": [
+          {
+            "Ref": "newswiresemailalarmtopicB2906D97",
+          },
+        ],
+      },
+      "Type": "AWS::SNS::TopicPolicy",
+    },
     "newswiresemailalarmtopicmediaandfeedsalertsguardiancoukD40A5B16": {
       "Properties": {
         "Endpoint": "media.and.feeds+alerts@guardian.co.uk",
