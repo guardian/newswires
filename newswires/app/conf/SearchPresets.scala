@@ -225,7 +225,7 @@ object SearchPresets {
   )
 
   private val Soccer = List(
-    SearchPreset.fromSearchTerm(REUTERS, searchTerm = SearchTerm.Simple("-soc-", Slug), CategoryCodes.Soccer.REUTERS),
+    SearchPreset.fromSearchTerm(REUTERS, searchTerm = SearchTerm.Simple("\\-soc-", Slug), CategoryCodes.Soccer.REUTERS),
     SearchPreset.fromSearchTerm(
       PA,
       searchTerm = SearchTerm.Simple("SOCCER", Slug),
