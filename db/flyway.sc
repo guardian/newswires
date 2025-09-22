@@ -20,9 +20,11 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
+import software.amazon.awssdk.services.secretsmanager.model.PutSecretValueRequest
 
 type Row = List[String]
 type Table = List[Row]
+
 
 def infoCmd(env: String, flyway: Flyway): Unit = {
 
@@ -62,12 +64,31 @@ def infoCmd(env: String, flyway: Flyway): Unit = {
   }
 }
 
+val credentials =
+  DefaultCredentialsProvider.builder().profileName("editorial-feeds").build()
+val secretsManager =
+  SecretsManagerClient
+    .builder()
+    .credentialsProvider(credentials)
+    .region(Region.EU_WEST_1)
+    .build()
 def migrateCmd(env: String, flyway: Flyway): Unit = {
 
   println()
   println("Validating migration schema...")
   println()
 
+  println("Current migration info:" )
+
+  flyway.info().all().toList.sortBy(-_.getInstalledOn().getTime()).headOption.foreach(info =>
+    secretsManager.putSecretValue(
+      PutSecretValueRequest
+        .builder()
+        .secretId("SECRET_ID")
+        .secretString(s"${info.getVersion().getVersion()}")
+        .build()
+    )
+  )
   val pendingMigrations = flyway.info().pending()
   println()
 
@@ -108,14 +129,7 @@ def buildFlyway(password: String, port: Int) =
     .load()
 
 def remoteFlyway(stage: String): Flyway = {
-  val credentials =
-    DefaultCredentialsProvider.builder().profileName("editorial-feeds").build()
-  val secretsManager =
-    SecretsManagerClient
-      .builder()
-      .credentialsProvider(credentials)
-      .region(Region.EU_WEST_1)
-      .build()
+
 
   val matchingSecret = secretsManager
     .listSecrets()
