@@ -2,7 +2,6 @@ import {
 	EuiButton,
 	EuiButtonEmpty,
 	EuiCallOut,
-	EuiEmptyPrompt,
 	EuiModal,
 	EuiModalBody,
 	EuiModalFooter,
@@ -13,7 +12,7 @@ import {
 	EuiText,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod/v4';
 import { STAGE } from './app-configuration.ts';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
@@ -28,32 +27,6 @@ import { fontStyles } from './fontStyles.ts';
 import { presetLabel } from './presets.ts';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { TickerLayout } from './TickerLayout.tsx';
-import { defaultQuery } from './urlState';
-
-function ErrorPrompt({ errorMessage }: { errorMessage: string }) {
-	const { handleEnterQuery, handleRetry } = useSearch();
-	return (
-		<EuiEmptyPrompt
-			css={css`
-				background: white;
-			`}
-			actions={[
-				<EuiButton onClick={handleRetry} key="retry" iconType={'refresh'}>
-					Retry
-				</EuiButton>,
-				<EuiButton
-					onClick={() => handleEnterQuery(defaultQuery)}
-					key="clear"
-					iconType={'cross'}
-				>
-					Clear
-				</EuiButton>,
-			]}
-			body={<p>Sorry, failed to load because of {errorMessage}</p>}
-			hasBorder={true}
-		/>
-	);
-}
 
 export function App() {
 	const { config, state } = useSearch();
@@ -104,10 +77,6 @@ export function App() {
 			document.title = 'Newswires';
 		}
 	}, [isTickerView, config.query]);
-
-	const errorPromptComponent = useMemo(() => {
-		return <ErrorPrompt errorMessage={state.error ?? 'unknown error'} />;
-	}, [state.error]);
 
 	return (
 		<>
@@ -187,12 +156,16 @@ export function App() {
 								size="s"
 							/>
 						)}
-					{!!config.ticker && (
-						<TickerLayout errorPromptComponent={errorPromptComponent} />
-					)}
-					{!config.ticker && (
-						<DefaultLayout errorPromptComponent={errorPromptComponent} />
-					)}
+					<div
+						css={css`
+							height: 100%;
+							max-height: 100vh;
+							background: white;
+						`}
+					>
+						{config.ticker && <TickerLayout />}
+						{!config.ticker && <DefaultLayout />}
+					</div>
 				</EuiPageTemplate>
 			</EuiProvider>
 		</>
