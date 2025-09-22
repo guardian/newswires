@@ -2,6 +2,7 @@ import dateMath from '@elastic/datemath';
 import moment from 'moment/moment';
 import { register } from 'timezone-mock';
 import { sampleWireData } from '../tests/fixtures/wireData.ts';
+import { defaultQuery } from '../urlState.ts';
 import type { Action, State } from './SearchContext.tsx';
 import { SearchReducer } from './SearchReducer';
 
@@ -59,7 +60,7 @@ describe('SearchReducer', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
 			data: { results: [sampleWireData], totalCount: 1 },
-			query: { q: 'test' },
+			query: { ...defaultQuery, q: 'test' },
 		};
 
 		const newState = SearchReducer(initialState, action);
@@ -118,7 +119,11 @@ describe('SearchReducer', () => {
 					],
 					totalCount: 1,
 				},
-				query: { q: 'test' },
+				query: {
+					...defaultQuery,
+					dateRange: undefined,
+					q: 'test',
+				},
 			};
 
 			const newState = SearchReducer(state, action);
@@ -173,7 +178,11 @@ describe('SearchReducer', () => {
 				],
 				totalCount: 2,
 			},
-			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
+			query: {
+				...defaultQuery,
+				q: 'test',
+				dateRange: { start: 'now-30', end: 'now' },
+			},
 		};
 
 		expect(state.queryData.results).toContainEqual({

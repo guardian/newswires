@@ -1,6 +1,7 @@
 import { act, render } from '@testing-library/react';
 import type { Query } from '../sharedTypes.ts';
 import { disableLogs, flushPendingPromises } from '../tests/testHelpers.ts';
+import { defaultQuery } from '../urlState.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
 import { TelemetryContextProvider } from './TelemetryContext.tsx';
@@ -76,6 +77,7 @@ describe('SearchContext', () => {
 		}
 
 		const q: Query = {
+			...defaultQuery,
 			q: 'text search term',
 			supplier: ['A', 'B'],
 		};
@@ -105,6 +107,7 @@ describe('SearchContext', () => {
 			'popout=true,width=400,height=800,top=200,location=no,menubar=no,toolbar=no';
 
 		const q: Query = {
+			...defaultQuery,
 			q: 'text search term',
 			supplier: ['A', 'B'],
 		};

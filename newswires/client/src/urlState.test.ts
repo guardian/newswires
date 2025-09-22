@@ -96,6 +96,7 @@ describe('urlToConfig', () => {
 			view: 'feed',
 			query: {
 				...defaultQuery,
+				...defaultQuery,
 				q: 'abc',
 				supplier: ['AP', 'PA'],
 			},
@@ -108,7 +109,7 @@ describe('urlToConfig', () => {
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
-			query: { ...defaultQuery, q: 'abc', supplier: [] },
+			query: { ...defaultQuery, ...defaultQuery, q: 'abc', supplier: [] },
 			ticker: false,
 		});
 	});
@@ -119,6 +120,7 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
+				...defaultQuery,
 				...defaultQuery,
 				q: 'abc',
 				supplierExcl: ['PA', 'AP'],
@@ -133,6 +135,7 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
+				...defaultQuery,
 				...defaultQuery,
 				q: 'abc',
 				keyword: ['Sports', 'Politics'],
@@ -150,6 +153,7 @@ describe('urlToConfig', () => {
 			view: 'feed',
 			query: {
 				...defaultQuery,
+				...defaultQuery,
 				q: 'abc',
 				keywordExcl: ['Sports', 'Politics'],
 			},
@@ -165,6 +169,7 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
+				...defaultQuery,
 				...defaultQuery,
 				q: 'abc',
 				categoryCode: ['medtop:08000000', 'medtop:20001340'],
@@ -182,6 +187,7 @@ describe('urlToConfig', () => {
 			view: 'feed',
 			query: {
 				...defaultQuery,
+				...defaultQuery,
 				q: 'abc',
 				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
 			},
@@ -195,6 +201,7 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
+				...defaultQuery,
 				...defaultQuery,
 				q: 'abc',
 				dateRange: {
@@ -214,6 +221,7 @@ describe('urlToConfig', () => {
 		expect(config).toEqual({
 			view: 'feed',
 			query: {
+				...defaultQuery,
 				...defaultQuery,
 				q: 'abc',
 				dateRange: {
@@ -236,6 +244,7 @@ describe('urlToConfig', () => {
 			view: 'feed',
 			query: {
 				...defaultQuery,
+				...defaultQuery,
 				q: 'abc',
 				dateRange: {
 					start: 'now/d',
@@ -256,6 +265,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'feed' as const,
 			query: {
+				...defaultQuery,
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
@@ -271,6 +281,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'feed' as const,
 			query: {
+				...defaultQuery,
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
@@ -298,7 +309,12 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+			},
 			ticker: false,
 		};
 		const url = configToUrl(config);
@@ -309,7 +325,12 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+			},
 			ticker: true,
 		};
 		const url = configToUrl(config);
@@ -323,6 +344,7 @@ describe('configToUrl', () => {
 			view: 'item' as const,
 			itemId: '123',
 			query: {
+				...defaultQuery,
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
@@ -343,7 +365,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: [], subject: [] },
+			query: { ...defaultQuery, q: 'abc', supplier: [], subject: [] },
 			ticker: false,
 		};
 		const url = configToUrl(config);
@@ -355,6 +377,7 @@ describe('configToUrl', () => {
 			view: 'item' as const,
 			itemId: '123',
 			query: {
+				...defaultQuery,
 				q: 'abc',
 				supplier: ['AP' as const, 'PA' as const, 'REUTERS' as const],
 				subject: [],
@@ -370,7 +393,11 @@ describe('configToUrl', () => {
 	it('converts config with many excluded suppliers to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', supplierExcl: ['AP', 'PA', 'REUTERS'] },
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				supplierExcl: ['AP', 'PA', 'REUTERS'],
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -383,7 +410,7 @@ describe('configToUrl', () => {
 	it('converts config with many keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keyword: ['Sports', 'Politics'] },
+			query: { ...defaultQuery, q: 'abc', keyword: ['Sports', 'Politics'] },
 			ticker: false,
 			itemId: undefined,
 		};
@@ -394,7 +421,7 @@ describe('configToUrl', () => {
 	it('converts config with many excluded keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keywordExcl: ['Sports', 'Politics'] },
+			query: { ...defaultQuery, q: 'abc', keywordExcl: ['Sports', 'Politics'] },
 			ticker: false,
 			itemId: undefined,
 		};
@@ -405,7 +432,11 @@ describe('configToUrl', () => {
 	it('converts config with many categoryCode to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', categoryCode: ['medtop:08000000', 'medtop:20001340'] },
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				categoryCode: ['medtop:08000000', 'medtop:20001340'],
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -419,6 +450,7 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'feed' as const,
 			query: {
+				...defaultQuery,
 				q: 'abc',
 				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
 			},
@@ -439,6 +471,7 @@ describe('paramsToQuerystring', () => {
 
 	it('converts text search param to querystring', () => {
 		const query = {
+			...defaultQuery,
 			q: 'abc',
 		};
 
@@ -456,6 +489,7 @@ describe('paramsToQuerystring', () => {
 		]);
 
 		const query = {
+			...defaultQuery,
 			q: 'abc',
 			dateRange: {
 				start: 'now-3d',
@@ -477,6 +511,7 @@ describe('paramsToQuerystring', () => {
 		]);
 
 		const query = {
+			...defaultQuery,
 			q: 'abc',
 			dateRange: {
 				start: 'now/d',
@@ -496,6 +531,7 @@ describe('paramsToQuerystring', () => {
 		]);
 
 		const query = {
+			...defaultQuery,
 			q: 'abc',
 			dateRange: {
 				start: 'now/d',
