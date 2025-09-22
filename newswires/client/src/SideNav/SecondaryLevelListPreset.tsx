@@ -1,22 +1,15 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
-import type { PresetGroupName } from '../presets';
 import { sportPresets } from '../presets';
 import { defaultConfig } from '../urlState';
+import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
 
 export const SecondaryLevelListPresetPanel = ({
 	activePreset,
-	setActivePanel,
+	swapActivePanel,
 	togglePreset,
-}: {
-	activePreset: string | undefined;
-	setActivePanel: (
-		panel: PresetGroupName,
-		direction: 'forward' | 'back',
-	) => void;
-	togglePreset: (preset: string) => void;
-}) => {
+}: PanelProps) => {
 	const { openTicker } = useSearch();
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
@@ -24,7 +17,7 @@ export const SecondaryLevelListPresetPanel = ({
 				label="Sport"
 				key="sports-parent-backlink"
 				isTopLevel={false}
-				handleButtonClick={() => setActivePanel('presets', 'back')}
+				handleButtonClick={() => swapActivePanel('presets', 'back')}
 				arrowSide="left"
 			/>
 			{sportPresets.map((item) => (

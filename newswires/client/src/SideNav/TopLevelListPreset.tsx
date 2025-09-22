@@ -1,22 +1,15 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
-import type { PresetGroupName } from '../presets';
 import { presets, sportPresets } from '../presets';
 import { defaultConfig } from '../urlState';
+import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
 
 export const TopLevelListPresetPanel = ({
 	activePreset,
-	setActivePanel,
+	swapActivePanel,
 	togglePreset,
-}: {
-	activePreset: string | undefined;
-	setActivePanel: (
-		panel: PresetGroupName,
-		direction: 'forward' | 'back',
-	) => void;
-	togglePreset: (preset: string) => void;
-}) => {
+}: PanelProps) => {
 	const { config, openTicker } = useSearch();
 	const maybeActiveSportPreset = sportPresets.find(
 		(_) => _.id === activePreset,
@@ -34,7 +27,7 @@ export const TopLevelListPresetPanel = ({
 					isTopLevel={true}
 					handleButtonClick={() => {
 						if (item.child) {
-							setActivePanel(item.child, 'forward');
+							swapActivePanel(item.child, 'forward');
 						} else {
 							togglePreset(item.id);
 						}

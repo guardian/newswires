@@ -93,7 +93,7 @@ type AnimationState = {
  * that could be extracted if needed in future.
  */
 export const PresetsContextMenu = () => {
-	const [panelKey, setPanelKey] = useState<PresetGroupName>(() =>
+	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(() =>
 		loadOrSetInLocalStorage<PresetGroupName>(
 			'presetsMenuActivePanel',
 			PresetGroupNameSchema,
@@ -116,19 +116,19 @@ export const PresetsContextMenu = () => {
 	const { config, handleEnterQuery } = useSearch();
 	const activePreset = config.query.preset;
 
-	const setActivePanel = useCallback(
+	const swapActivePanel = useCallback(
 		(newPanelKey: PresetGroupName, direction?: 'forward' | 'back') => {
-			if (newPanelKey === panelKey || animationState.isAnimating) return;
+			if (newPanelKey === activePanelId || animationState.isAnimating) return;
 
 			setAnimationState({
 				direction: direction ?? 'forward',
 				isAnimating: true,
 			});
 
-			setPanelKey(newPanelKey);
+			setActivePanelId(newPanelKey);
 			saveToLocalStorage('presetsMenuActivePanel', newPanelKey);
 		},
-		[panelKey, animationState.isAnimating],
+		[activePanelId, animationState.isAnimating],
 	);
 
 	useEffect(() => {
@@ -198,16 +198,16 @@ export const PresetsContextMenu = () => {
 			 */}
 			<div css={getPanelStyles(true)}>
 				{' '}
-				{panelKey === 'presets' ? (
+				{activePanelId === 'presets' ? (
 					<TopLevelListPresetPanel
 						activePreset={activePreset}
-						setActivePanel={setActivePanel}
+						swapActivePanel={swapActivePanel}
 						togglePreset={togglePreset}
 					/>
 				) : (
 					<SecondaryLevelListPresetPanel
 						activePreset={activePreset}
-						setActivePanel={setActivePanel}
+						swapActivePanel={swapActivePanel}
 						togglePreset={togglePreset}
 					/>
 				)}
@@ -218,16 +218,16 @@ export const PresetsContextMenu = () => {
 			 */}
 			{animationState.isAnimating && (
 				<div css={getPanelStyles(false)}>
-					{panelKey === 'presets' ? (
+					{activePanelId === 'presets' ? (
 						<SecondaryLevelListPresetPanel
 							activePreset={activePreset}
-							setActivePanel={setActivePanel}
+							swapActivePanel={swapActivePanel}
 							togglePreset={togglePreset}
 						/>
 					) : (
 						<TopLevelListPresetPanel
 							activePreset={activePreset}
-							setActivePanel={setActivePanel}
+							swapActivePanel={swapActivePanel}
 							togglePreset={togglePreset}
 						/>
 					)}
