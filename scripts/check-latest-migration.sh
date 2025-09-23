@@ -1,4 +1,4 @@
-VERSION=$(aws ssm get-parameter --name "/CODE/editorial-feeds/newswires/database/latest-migration-version" --query "Parameter.Value" --output text --region eu-west-1)
+VERSION=$(aws ssm get-parameter --name "/CODE/editorial-feeds/newswires/database/last-migration-applied" --query "Parameter.Value" --output text --region eu-west-1)
 echo "Latest migration version in SSM Parameter Store: $VERSION"
 
 FILES=$(ls ../db/migrations)
