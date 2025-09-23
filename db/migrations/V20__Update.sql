@@ -1,0 +1,1 @@
+alter table fingerpost_wire_entry add column temp text;
