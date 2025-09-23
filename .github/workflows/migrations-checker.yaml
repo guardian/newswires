@@ -1,7 +1,7 @@
 name: migrations checker
 on:
   push
-
+  pull_request
 jobs:
   check-latest-migration:
     name: Check the latest migration version
@@ -21,4 +21,3 @@ jobs:
       - name: Check the latest migration version
         run: 
           ./scripts/check-latest-migration.sh
-          
