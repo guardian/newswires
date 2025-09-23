@@ -11,6 +11,7 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern",
 		"preview": "vite preview",
 		"test": "jest --detectOpenHandles",
+		"test:watch": "jest --watch",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"
 	},
