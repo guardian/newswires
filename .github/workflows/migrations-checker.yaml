@@ -1,6 +1,8 @@
 name: migrations checker
 on:
-  push
+  push:
+    branches:
+      - main
 
 jobs:
   check-latest-migration:
