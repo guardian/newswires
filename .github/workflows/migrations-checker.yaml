@@ -21,3 +21,4 @@ jobs:
       - name: Check the latest migration version
         run: 
           ./scripts/check-latest-migration.sh
+          
