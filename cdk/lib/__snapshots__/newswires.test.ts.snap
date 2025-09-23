@@ -2249,7 +2249,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     "NewswiresDBNewswiresDatabaseMigrationVersionBCE5E76C": {
       "Properties": {
         "DataType": "text",
-        "Name": "/TEST/editorial-feeds/newswires/database/migration-version",
+        "Name": "/TEST/editorial-feeds/newswires/database/latest-migration-version",
         "Tags": {
           "App": "newswires",
           "Stack": "editorial-feeds",
