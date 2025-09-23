@@ -80,15 +80,15 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
 
   println("Current migration info:" )
 
-  flyway.info().all().toList.sortBy(s => Try(s.getInstalledOn().getTime()).getOrElse(0l)).headOption.foreach(info =>
-    secretsManager.putSecretValue(
-      PutSecretValueRequest
-        .builder()
-        .secretId("SECRET_ID")
-        .secretString(s"${info.getVersion().getVersion()}")
-        .build()
-    )
-  )
+  # flyway.info().all().toList.sortBy(s => Try(s.getInstalledOn().getTime()).getOrElse(0l)).headOption.foreach(info =>
+  #   secretsManager.putSecretValue(
+  #     PutSecretValueRequest
+  #       .builder()
+  #       .secretId("SECRET_ID")
+  #       .secretString(s"${info.getVersion().getVersion()}")
+  #       .build()
+  #   )
+  # )
   val pendingMigrations = flyway.info().pending()
   println()
 
