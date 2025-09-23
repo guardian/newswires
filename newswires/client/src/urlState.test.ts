@@ -96,7 +96,6 @@ describe('urlToConfig', () => {
 			view: 'feed',
 			query: {
 				...defaultQuery,
-				...defaultQuery,
 				q: 'abc',
 				supplier: ['AP', 'PA'],
 			},
