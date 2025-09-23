@@ -3,6 +3,9 @@ on:
   push
 
 jobs:
+  permissions:
+    id-token: write
+    contents: read
   check-latest-migration:
     name: Check the latest migration version
     runs-on: ubuntu-latest
