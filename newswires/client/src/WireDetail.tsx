@@ -346,7 +346,6 @@ function CopyButton({
 		try {
 			const wireUrl = configToUrl({
 				...config,
-				view: 'item',
 				itemId: id.toString(),
 			});
 			const fullUrl = `${window.location.origin}${wireUrl}`;

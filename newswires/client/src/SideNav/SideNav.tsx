@@ -21,7 +21,7 @@ import { useSearch } from '../context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from '../dateHelpers.ts';
 import { FeedbackContent } from '../FeedbackContent.tsx';
 import { presets, sportPresets } from '../presets.ts';
-import type { Query } from '../sharedTypes';
+import { isDotcopyView, type Query } from '../sharedTypes';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { defaultConfig } from '../urlState.ts';
 import { PresetsContextMenu } from './PresetsContextMenu.tsx';
@@ -193,27 +193,29 @@ export const SideNav = ({
 					<EuiCollapsibleNavGroup title="Presets">
 						<PresetsContextMenu />
 					</EuiCollapsibleNavGroup>
-					<EuiCollapsibleNavGroup title={'Suppliers'}>
-						<EuiListGroup flush={true} gutterSize="none">
-							{supplierItems.map((item) => (
-								<SideNavListItem
-									key={item.id}
-									label={item.label}
-									isActive={item.isActive}
-									isTopLevel={true}
-									handleButtonClick={item.onClick}
-									handleSecondaryActionClick={() =>
-										openTicker({
-											...defaultConfig.query,
-											supplier: item.label === 'All' ? [] : [item.id],
-										})
-									}
-									arrowSide={undefined}
-									colour={item.colour}
-								/>
-							))}
-						</EuiListGroup>
-					</EuiCollapsibleNavGroup>
+					{!isDotcopyView(config) && (
+						<EuiCollapsibleNavGroup title={'Suppliers'}>
+							<EuiListGroup flush={true} gutterSize="none">
+								{supplierItems.map((item) => (
+									<SideNavListItem
+										key={item.id}
+										label={item.label}
+										isActive={item.isActive}
+										isTopLevel={true}
+										handleButtonClick={item.onClick}
+										handleSecondaryActionClick={() =>
+											openTicker({
+												...defaultConfig.query,
+												supplier: item.label === 'All' ? [] : [item.id],
+											})
+										}
+										arrowSide={undefined}
+										colour={item.colour}
+									/>
+								))}
+							</EuiListGroup>
+						</EuiCollapsibleNavGroup>
+					)}
 					<EuiCollapsibleNavGroup title={'Search history'}>
 						{searchHistoryItems.length === 0 ? (
 							<EuiText size="s">{'No history yet'}</EuiText>

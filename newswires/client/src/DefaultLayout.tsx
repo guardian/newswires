@@ -40,7 +40,7 @@ export function DefaultLayout() {
 		[config.query, handleEnterQuery],
 	);
 
-	const { view, itemId: selectedItemId } = config;
+	const { itemId: selectedItemId } = config;
 	const { status } = state;
 
 	const largeMinBreakpoint = useEuiMinBreakpoint('l');
@@ -151,9 +151,11 @@ export function DefaultLayout() {
 			{status !== 'error' && (
 				<>
 					<EuiShowFor sizes={['xs', 's']}>
-						{view === 'item' && <ItemData id={selectedItemId} />}
-
-						{view !== 'item' && <Feed setSideNavIsOpen={setSideNavIsOpen} />}
+						{selectedItemId ? (
+							<ItemData id={selectedItemId} />
+						) : (
+							<Feed setSideNavIsOpen={setSideNavIsOpen} />
+						)}
 					</EuiShowFor>
 					<EuiShowFor sizes={['m', 'l', 'xl']}>
 						<ResizableContainer

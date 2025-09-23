@@ -4,7 +4,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
-import type { Config, Query } from './sharedTypes';
+import { type Config, type Query, queryToDotcopyQuery } from './sharedTypes';
 
 export const defaultQuery: Query = {
 	q: '',
@@ -12,7 +12,7 @@ export const defaultQuery: Query = {
 	supplierExcl: [],
 	keyword: [],
 	keywordExcl: [],
-	preset: undefined,
+	preset: 'all-presets',
 	categoryCode: [],
 	categoryCodeExcl: [],
 	dateRange: {
@@ -23,8 +23,8 @@ export const defaultQuery: Query = {
 };
 
 export const defaultConfig: Config = Object.freeze({
-	view: 'feed',
 	query: defaultQuery,
+	dotcopy: false,
 	itemId: undefined,
 	ticker: false,
 });
@@ -65,7 +65,7 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const keywordExcl = params.getAll('keywordExcl');
 	const categoryCode = params.getAll('categoryCode');
 	const categoryCodeExcl = params.getAll('categoryCodeExcl');
-	const preset = params.get('preset') ?? undefined;
+	const preset = params.get('preset') ?? 'all-presets';
 	const hasDataFormatting = maybeStringToBooleanOrUndefined(
 		params.get('hasDataFormatting'),
 	);
@@ -111,13 +111,23 @@ export function urlToConfig(location: {
 
 	try {
 		if (viewSegments[0] === 'item' && viewSegments.length === 2) {
-			return { ticker, view: 'item', itemId: viewSegments[1], query };
+			return { ticker, dotcopy: false, itemId: viewSegments[1], query };
 		} else if (viewSegments[0] === 'dotcopy' && viewSegments.length === 1) {
-			return { ticker, view: 'dotcopy', itemId: undefined, query };
+			return {
+				ticker,
+				dotcopy: true,
+				itemId: undefined,
+				query: queryToDotcopyQuery(query),
+			};
 		} else if (viewSegments[0] === 'dotcopy') {
-			return { ticker, view: 'dotcopy/item', itemId: viewSegments[2], query };
+			return {
+				ticker,
+				dotcopy: true,
+				itemId: viewSegments[2],
+				query: queryToDotcopyQuery(query),
+			};
 		} else {
-			return { ticker, view: 'feed', itemId: undefined, query };
+			return { ticker, dotcopy: false, itemId: undefined, query };
 		}
 	} catch (e) {
 		const errorMessage = getErrorMessage(e);
@@ -129,17 +139,17 @@ export function urlToConfig(location: {
 }
 
 export const configToUrl = (config: Config): string => {
-	const { view, query, itemId } = config;
-	switch (view) {
-		case 'feed':
-			return `${config.ticker ? '/ticker' : ''}/feed${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
-		case 'item':
-			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
-		case 'dotcopy':
-			return `${config.ticker ? '/ticker' : ''}/dotcopy${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
-		case 'dotcopy/item':
-			return `${config.ticker ? '/ticker' : ''}/dotcopy/item/${itemId}${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
-	}
+	const { dotcopy, query, itemId, ticker } = config;
+	const pathName = [
+		ticker ? 'ticker' : undefined,
+		dotcopy ? 'dotcopy' : undefined,
+		!dotcopy && !itemId ? 'feed' : undefined,
+		itemId ? `item/${itemId}` : undefined,
+	]
+		.filter((segment) => segment !== undefined)
+		.join('/');
+
+	return `/${pathName}${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
 };
 
 const processDateRange = (query: Query, useAbsoluteDateTimeValues: boolean) => {
@@ -191,6 +201,9 @@ export const paramsToQuerystring = ({
 
 	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(
 		(acc, [k, v]) => {
+			if (k === 'preset' && v === defaultQuery.preset) {
+				return acc;
+			}
 			if (typeof v === 'string' && v.trim().length > 0) {
 				return [...acc, [k, v.trim()]];
 			} else if (Array.isArray(v)) {

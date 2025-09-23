@@ -1,11 +1,9 @@
-import { useSearch } from './context/SearchContext';
 import { getTelemetryUrl } from './telemetry';
 
 export const TelemetryPixel = ({ stage }: { stage: string }) => {
 	const telemetryUrl = getTelemetryUrl(stage);
-	const { config } = useSearch();
 
-	const path = config.view;
+	const path = window.location.pathname;
 
 	return (
 		<img

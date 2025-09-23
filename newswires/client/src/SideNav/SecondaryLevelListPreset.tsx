@@ -1,6 +1,7 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
 import { sportPresets } from '../presets';
+import { isDotcopyView } from '../sharedTypes';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
@@ -10,7 +11,7 @@ export const SecondaryLevelListPresetPanel = ({
 	swapActivePanel,
 	togglePreset,
 }: PanelProps) => {
-	const { openTicker } = useSearch();
+	const { openTicker, toggleDotcopyView, config } = useSearch();
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
 			<SideNavListItem
@@ -24,10 +25,7 @@ export const SecondaryLevelListPresetPanel = ({
 				<SideNavListItem
 					label={item.name}
 					key={item.id}
-					isActive={
-						activePreset === item.id ||
-						(item.id === 'all-presets' && !activePreset)
-					}
+					isActive={activePreset === item.id}
 					isTopLevel={false}
 					handleButtonClick={() => {
 						togglePreset(item.id);
@@ -37,6 +35,13 @@ export const SecondaryLevelListPresetPanel = ({
 					}
 				/>
 			))}
+			<SideNavListItem
+				label="Dotcopy"
+				key="dotcopy-link"
+				isTopLevel={false}
+				handleButtonClick={() => toggleDotcopyView()}
+				isActive={isDotcopyView(config)}
+			/>
 		</EuiListGroup>
 	);
 };

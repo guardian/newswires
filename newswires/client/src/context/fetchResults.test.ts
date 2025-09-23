@@ -26,7 +26,7 @@ describe('fetchResults', () => {
 
 	it('should call pandaFetch with correct URL and headers', async () => {
 		const mockQuery = { ...defaultQuery, q: 'value' };
-		await fetchResults({ query: mockQuery, view: 'feed' });
+		await fetchResults({ query: mockQuery, dotcopy: false });
 
 		expect(paramsToQuerystring).toHaveBeenCalledWith({
 			query: mockQuery,
@@ -46,7 +46,7 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { ...defaultQuery, q: 'value' }, view: 'feed' }),
+			fetchResults({ query: { ...defaultQuery, q: 'value' }, dotcopy: false }),
 		).rejects.toThrow('Error occurred');
 	});
 
@@ -57,7 +57,7 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { ...defaultQuery, q: 'value' }, view: 'feed' }),
+			fetchResults({ query: { ...defaultQuery, q: 'value' }, dotcopy: false }),
 		).rejects.toThrow('Received invalid data from server');
 	});
 
@@ -74,14 +74,14 @@ describe('fetchResults', () => {
 
 		const result = await fetchResults({
 			query: { ...defaultQuery, q: 'value' },
-			view: 'feed',
+			dotcopy: false,
 		});
 		expect(result).toEqual(mockResponseData);
 	});
 
 	it('should append sinceId to the query if provided', async () => {
 		const mockQuery = { ...defaultQuery, q: 'value' };
-		await fetchResults({ query: mockQuery, view: 'feed', sinceId: '123' });
+		await fetchResults({ query: mockQuery, dotcopy: false, sinceId: '123' });
 
 		expect(paramsToQuerystring).toHaveBeenCalledWith({
 			query: mockQuery,
@@ -94,7 +94,7 @@ describe('fetchResults', () => {
 		const mockQuery = { ...defaultQuery, q: 'value' };
 		await fetchResults({
 			query: mockQuery,
-			view: 'feed',
+			dotcopy: false,
 			beforeId: '123',
 		});
 
@@ -107,7 +107,7 @@ describe('fetchResults', () => {
 
 	it('should transform the results using transformWireItemQueryResult', async () => {
 		const mockQuery = { ...defaultQuery, q: 'value' };
-		const results = await fetchResults({ query: mockQuery, view: 'feed' });
+		const results = await fetchResults({ query: mockQuery, dotcopy: false });
 		expect(results.results).toHaveLength(1);
 		expect(results.results[0]).toEqual(
 			transformWireItemQueryResult(sampleWireResponse),

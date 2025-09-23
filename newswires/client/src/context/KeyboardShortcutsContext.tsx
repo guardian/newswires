@@ -43,7 +43,7 @@ export function KeyboardShortcutsProvider({
 	const { config, handleDeselectItem, handleNextItem, handlePreviousItem } =
 		useSearch();
 
-	const { view } = config;
+	const isItemView = config.itemId !== undefined;
 
 	const handleShortcutKeyUp = useCallback(
 		async (event: KeyboardEvent): Promise<void> => {
@@ -66,7 +66,7 @@ export function KeyboardShortcutsProvider({
 				return;
 			}
 
-			if (view == 'item') {
+			if (isItemView) {
 				switch (key) {
 					case 'Escape':
 						handleDeselectItem();
@@ -79,7 +79,7 @@ export function KeyboardShortcutsProvider({
 				}
 			}
 		},
-		[handleDeselectItem, handleNextItem, handlePreviousItem, view],
+		[handleDeselectItem, handleNextItem, handlePreviousItem, isItemView],
 	);
 
 	return (

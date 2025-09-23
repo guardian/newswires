@@ -61,7 +61,8 @@ export function App() {
 	}, [handleShortcutKeyUp]);
 
 	useEffect(() => {
-		const { preset, supplier } = config.query;
+		const preset = config.query.preset;
+		const supplier = config.query.supplier;
 
 		const displayPreset = !!preset;
 		const displaySuppliers = supplier.length > 0;
@@ -75,7 +76,7 @@ export function App() {
 		} else {
 			document.title = 'Newswires';
 		}
-	}, [isTickerView, config.query]);
+	}, [isTickerView, config.query.preset, config.query.supplier]);
 
 	return (
 		<>
