@@ -14,7 +14,7 @@ concurrency:
 jobs:
   check-latest-migration:
     name: Check the latest migration version
-    if: github.ref_name == 'refs/heads/ld/ci-db-script-test'
+    if: github.ref == 'refs/pull/483/merge'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
