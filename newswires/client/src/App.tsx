@@ -64,13 +64,12 @@ export function App() {
 		const { preset, supplier } = config.query;
 
 		const displayPreset = !!preset;
-		const displaySuppliers = !!supplier && supplier.length > 0;
+		const displaySuppliers = supplier.length > 0;
 
 		if (displayPreset || displaySuppliers) {
 			const newswiresPrefix = !isTickerView ? 'Newswires -- ' : '';
-			const titlePrefix = supplier!.length == 1 ? `${supplier![0]} ` : '';
-			const titlePostfix =
-				supplier!.length > 1 ? ` ${supplier!.join(', ')}` : '';
+			const titlePrefix = supplier.length == 1 ? `${supplier[0]} ` : '';
+			const titlePostfix = supplier.length > 1 ? ` ${supplier.join(', ')}` : '';
 
 			document.title = `${newswiresPrefix}${titlePrefix}${preset ? `${presetLabel(preset).toUpperCase()}` : ''}${titlePostfix}`;
 		} else {

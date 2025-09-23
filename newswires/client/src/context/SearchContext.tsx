@@ -4,7 +4,6 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useMemo,
 	useReducer,
 	useState,
 } from 'react';
@@ -128,7 +127,6 @@ export type SearchContextShape = {
 	toggleAutoUpdate: () => void;
 	openTicker: (query: Query) => void;
 	loadMoreResults: (beforeId: string) => Promise<void>;
-	activeSuppliers: string[];
 	toggleSupplier: (supplier: string) => void;
 };
 export const SearchContext: Context<SearchContextShape | null> =
@@ -446,13 +444,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		);
 	};
 
-	const activeSuppliers = useMemo(
-		() => currentConfig.query.supplier ?? [],
-		[currentConfig.query.supplier],
-	);
-
 	const toggleSupplier = useCallback(
 		(supplier: string) => {
+			const activeSuppliers = currentConfig.query.supplier;
+
 			// If 'activeSuppliers' is empty, that means that *all* suppliers are active.
 			if (activeSuppliers.length === 0) {
 				handleEnterQuery({
@@ -474,7 +469,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 					: newSuppliers,
 			});
 		},
-		[currentConfig.query, handleEnterQuery, activeSuppliers],
+		[currentConfig.query, handleEnterQuery],
 	);
 
 	return (
@@ -492,7 +487,6 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				loadMoreResults,
 				viewedItemIds,
 				previousItemId,
-				activeSuppliers,
 				toggleSupplier,
 				openTicker,
 			}}

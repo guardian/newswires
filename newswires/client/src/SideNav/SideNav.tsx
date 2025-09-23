@@ -29,8 +29,8 @@ import { SideNavListItem } from './SideNavListItem.tsx';
 
 function decideLabelForQueryBadge(query: Query): string {
 	const { supplier, q, preset, categoryCode, dateRange } = query;
-	const supplierLabel = supplier?.join(', ') ?? '';
-	const categoryCodesLabel = categoryCode?.join(', ') ?? '';
+	const supplierLabel = supplier.join(', ');
+	const categoryCodesLabel = categoryCode.join(', ');
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const presetLabel = preset ? `[${presetName(preset)}]` : '';
 	const dateRangeLabel = dateRange
@@ -71,12 +71,13 @@ export const SideNav = ({
 		config,
 		handleEnterQuery,
 		toggleAutoUpdate,
-		activeSuppliers,
 		toggleSupplier,
 		openTicker,
 	} = useSearch();
 
 	const { euiTheme } = useEuiTheme();
+
+	const activeSuppliers = config.query.supplier;
 
 	const isPoppedOut = config.ticker;
 

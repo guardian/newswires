@@ -106,7 +106,7 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 	const { handleEnterQuery, config } = useSearch();
 
 	const isCodeInSearch = (code: string) => {
-		const categoryCodesInSearch = config.query.categoryCode ?? [];
+		const categoryCodesInSearch = config.query.categoryCode;
 		return categoryCodesInSearch.includes(code);
 	};
 
@@ -119,7 +119,7 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 	);
 
 	const handleCategoryClick = (categoryCode: string) => {
-		const codes = config.query.categoryCode ?? [];
+		const codes = config.query.categoryCode;
 		handleEnterQuery({
 			...config.query,
 			categoryCode: codes.includes(categoryCode)
@@ -186,7 +186,7 @@ function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 	const { handleEnterQuery, config } = useSearch();
 
 	const isCodeInSearch = (code: string) => {
-		const categoryCodesInSearch = config.query.categoryCode ?? [];
+		const categoryCodesInSearch = config.query.categoryCode;
 		return categoryCodesInSearch.includes(code);
 	};
 
@@ -199,7 +199,7 @@ function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 	);
 
 	const handleCategoryClick = (categoryCode: string) => {
-		const codes = config.query.categoryCode ?? [];
+		const codes = config.query.categoryCode;
 		handleEnterQuery({
 			...config.query,
 			categoryCode: codes.includes(categoryCode)
