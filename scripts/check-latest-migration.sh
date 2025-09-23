@@ -1,7 +1,7 @@
 VERSION=$(aws ssm get-parameter --name "/CODE/editorial-feeds/newswires/database/last-migration-applied" --query "Parameter.Value" --output text --region eu-west-1)
 echo "Latest migration version in SSM Parameter Store: $VERSION"
 
-FILES=$(ls ../db/migrations)
+FILES=$(ls db/migrations)
 for file in $FILES; do
    VERSION_NUMBER=$(echo $file | sed -E 's/^V([0-9]+)__.*$/\1/')
    if [ "$VERSION_NUMBER" -gt "$VERSION" ]; then

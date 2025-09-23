@@ -7,6 +7,11 @@ jobs:
     name: Check the latest migration version
     runs-on: ubuntu-latest
     steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with: 
+          aws-region: eu-west-1
+	        role-to-assume: ${{ secrets.SSM_AUTH }}
+          
       - name: Checkout branch
         uses: actions/checkout@v5
       
