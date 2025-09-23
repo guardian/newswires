@@ -10,8 +10,8 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with: 
           aws-region: eu-west-1
-	        role-to-assume: ${{ secrets.SSM_AUTH }}
-          
+          role-to-assume: ${{ secrets.SSM_AUTH }}
+
       - name: Checkout branch
         uses: actions/checkout@v5
       
