@@ -32,6 +32,7 @@ jobs:
         run: 
           ./scripts/check-latest-migration.sh
   build:
+    needs: check-latest-migration
     name: Build and upload to riffraff
     runs-on: ubuntu-22.04
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
