@@ -80,7 +80,7 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
 
   println("Current migration info:" )
 
-  flyway.info().all().toList.sortBy(-_.getInstalledOn().getTime()).headOption.foreach(info =>
+  flyway.info().all().toList.sortBy(s => Try(s.getInstalledOn().getTime()).getOrElse(0l)).headOption.foreach(info =>
     secretsManager.putSecretValue(
       PutSecretValueRequest
         .builder()
