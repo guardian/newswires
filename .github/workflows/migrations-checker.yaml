@@ -1,0 +1,15 @@
+name: migrations checker
+on:
+  push
+
+jobs:
+  check-latest-migration:
+    name: Check the latest migration version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v5
+      
+      - name: Check the latest migration version
+        run: 
+          ./scripts/check-latest-migration.sh
