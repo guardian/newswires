@@ -200,6 +200,13 @@ export class GuDatabase extends GuAppAwareConstruct(DatabaseInstance) {
 				tier: ParameterTier.STANDARD,
 				dataType: ParameterDataType.TEXT,
 			});
+			new StringParameter(this, 'DatabaseMigrationVersion', {
+				parameterName: `/${stage}/${stack}/${app}/database/migration-version`,
+				simpleName: false,
+				stringValue: '19',
+				tier: ParameterTier.STANDARD,
+				dataType: ParameterDataType.TEXT,
+			});
 		}
 	}
 

@@ -53,11 +53,6 @@ import { Lambda, LambdaInvocationType, S3 } from 'aws-cdk-lib/aws-ses-actions';
 import type { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
 import {
-	ParameterDataType,
-	ParameterTier,
-	StringParameter,
-} from 'aws-cdk-lib/aws-ssm';
-import {
 	FAILED_INGESTION_EVENT_TYPE,
 	SUCCESSFUL_INGESTION_EVENT_TYPE,
 } from '../../shared/constants';
@@ -474,12 +469,5 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
-		new StringParameter(this, 'DatabaseMigrationVersion', {
-			parameterName: `/${this.stage}/${this.stack}/${this.app}/database/migration-version`,
-			simpleName: false,
-			stringValue: '19',
-			tier: ParameterTier.STANDARD,
-			dataType: ParameterDataType.TEXT,
-		});
 	}
 }

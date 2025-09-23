@@ -955,23 +955,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "Type": "AWS::CertificateManager::Certificate",
       "UpdateReplacePolicy": "Retain",
     },
-    "DatabaseMigrationVersion17D0D947": {
-      "Properties": {
-        "DataType": "text",
-        "Name": "/TEST/editorial-feeds/newswires/database/migration-version",
-        "Tags": {
-          "App": "newswires",
-          "Stack": "editorial-feeds",
-          "Stage": "TEST",
-          "gu:cdk:version": "TEST",
-          "gu:repo": "guardian/newswires",
-        },
-        "Tier": "Standard",
-        "Type": "String",
-        "Value": "19",
-      },
-      "Type": "AWS::SSM::Parameter",
-    },
     "DefaultSecurityGroupNewswires91CCC0BF": {
       "Properties": {
         "GroupDescription": "Newswires-TEST/DefaultSecurityGroupNewswires",
@@ -2943,6 +2926,23 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "GroupId",
           ],
         },
+      },
+      "Type": "AWS::SSM::Parameter",
+    },
+    "NewswiresDBNewswiresDatabaseMigrationVersionBCE5E76C": {
+      "Properties": {
+        "DataType": "text",
+        "Name": "/TEST/editorial-feeds/newswires/database/migration-version",
+        "Tags": {
+          "App": "newswires",
+          "Stack": "editorial-feeds",
+          "Stage": "TEST",
+          "gu:cdk:version": "TEST",
+          "gu:repo": "guardian/newswires",
+        },
+        "Tier": "Standard",
+        "Type": "String",
+        "Value": "19",
       },
       "Type": "AWS::SSM::Parameter",
     },
