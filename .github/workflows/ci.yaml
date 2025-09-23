@@ -14,7 +14,7 @@ concurrency:
 jobs:
   check-latest-migration:
     name: Check the latest migration version
-    if: github.ref == 'refs/pull/483/merg'
+    if: github.ref == 'refs/pull/483/merge'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
