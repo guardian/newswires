@@ -17,10 +17,6 @@ jest.mock('../../shared/lambda-logging', () => {
 });
 const mockCreateLogger = loggingModule.createLogger;
 
-interface DBRow {
-	ingested_at: Date;
-}
-
 describe('putItemToDb', () => {
 	const sql = postgres({
 		port: 55432,
@@ -51,7 +47,7 @@ describe('putItemToDb', () => {
 	it('should be able to insert an item into the database', async () => {
 		await putItemToDb({
 			processedObject: exampleProcessedObject,
-			externalId: 'test-external-id',
+			externalId: 'test-external-id-1',
 			s3Key: 'test-s3-key',
 			sql: sql,
 			logger: mockCreateLogger({}),
@@ -63,15 +59,15 @@ describe('putItemToDb', () => {
 		const lastModified = new Date('2023-01-01T12:00:00Z');
 		await putItemToDb({
 			processedObject: exampleProcessedObject,
-			externalId: 'test-external-id',
+			externalId: 'test-external-id-2',
 			s3Key: 'test-s3-key',
 			lastModified,
 			sql: sql,
 			logger: mockCreateLogger({}),
 		});
 		const results =
-			await sql`SELECT ingested_at FROM ${sql(DATABASE_TABLE_NAME)} WHERE external_id = 'test-external-id';`;
-		const ingestedAt = (results[0] as DBRow).ingested_at;
+			await sql`SELECT ingested_at FROM ${sql(DATABASE_TABLE_NAME)}`;
+		const ingestedAt = (results[0] as { ingested_at: Date }).ingested_at;
 		expect(ingestedAt).toBeDefined();
 		expect(new Date(ingestedAt).toISOString()).toBe(lastModified.toISOString());
 	});
@@ -79,7 +75,7 @@ describe('putItemToDb', () => {
 		const before = new Date();
 		await putItemToDb({
 			processedObject: exampleProcessedObject,
-			externalId: 'test-external-id',
+			externalId: 'test-external-id-3',
 			s3Key: 'test-s3-key',
 			lastModified: undefined,
 			sql: sql,
@@ -87,12 +83,34 @@ describe('putItemToDb', () => {
 		});
 		const after = new Date();
 		const results =
-			await sql`SELECT ingested_at FROM ${sql(DATABASE_TABLE_NAME)} WHERE external_id = 'test-external-id';`;
-		const ingestedAt = (results[0] as DBRow).ingested_at;
+			await sql`SELECT ingested_at FROM ${sql(DATABASE_TABLE_NAME)}`;
+		const ingestedAt = (results[0] as { ingested_at: Date }).ingested_at;
 		expect(ingestedAt).toBeDefined();
 		expect(new Date(ingestedAt).getTime()).toBeGreaterThanOrEqual(
 			before.getTime(),
 		);
 		expect(new Date(ingestedAt).getTime()).toBeLessThanOrEqual(after.getTime());
+	});
+	it('should insert a persisted_at time', async () => {
+		const before = new Date();
+		await putItemToDb({
+			processedObject: exampleProcessedObject,
+			externalId: 'test-external-id-4',
+			s3Key: 'test-s3-key',
+			lastModified: undefined,
+			sql: sql,
+			logger: mockCreateLogger({}),
+		});
+		const after = new Date();
+		const results =
+			await sql`SELECT persisted_at FROM ${sql(DATABASE_TABLE_NAME)}`;
+		const persistedAt = (results[0] as { persisted_at: Date }).persisted_at;
+		expect(persistedAt).toBeDefined();
+		expect(new Date(persistedAt).getTime()).toBeGreaterThanOrEqual(
+			before.getTime(),
+		);
+		expect(new Date(persistedAt).getTime()).toBeLessThanOrEqual(
+			after.getTime(),
+		);
 	});
 });
