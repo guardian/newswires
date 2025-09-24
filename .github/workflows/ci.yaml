@@ -25,6 +25,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - uses: aws-actions/configure-aws-credentials@v4
+        if: github.ref == 'refs/head/main'
+        with: 
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.SSM_AUTH }}
+
+      - name: Check the latest migration version
+        if: github.ref == 'refs/head/main'
+        run: 
+          ./scripts/check-latest-migration.sh      
+
       - name: Setup node for CDK
         uses: actions/setup-node@v4
         with:

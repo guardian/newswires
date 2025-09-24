@@ -8,6 +8,8 @@
 //> using dep org.postgresql:postgresql:42.7.5
 //> using dep software.amazon.awssdk:rds:2.31.61
 //> using dep software.amazon.awssdk:secretsmanager:2.31.61
+//> using dep software.amazon.awssdk:ssm:2.31.61
+
 import java.nio.file.Path
 import software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequest
 import software.amazon.awssdk.services.rds.RdsClient
@@ -20,9 +22,14 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
+import software.amazon.awssdk.services.secretsmanager.model.PutSecretValueRequest
+import software.amazon.awssdk.services.ssm.SsmClient
+import software.amazon.awssdk.services.ssm.model.ParameterType
+import software.amazon.awssdk.services.ssm.model.PutParameterRequest
 
 type Row = List[String]
 type Table = List[Row]
+
 
 def infoCmd(env: String, flyway: Flyway): Unit = {
 
@@ -62,12 +69,60 @@ def infoCmd(env: String, flyway: Flyway): Unit = {
   }
 }
 
+val credentials =
+  DefaultCredentialsProvider.builder().profileName("editorial-feeds").build()
+val secretsManager =
+  SecretsManagerClient
+    .builder()
+    .credentialsProvider(credentials)
+    .region(Region.EU_WEST_1)
+    .build()
+val parameterManager = SsmClient
+  .builder()
+  .credentialsProvider(credentials)
+  .region(Region.EU_WEST_1)
+  .build()    
+
+def updateParameterStore(env: String, flyway: Flyway): Unit = {
+  println("Running update parameter store..." )
+  println() 
+  if(env != "prod") {
+    println("Not running against PROD environment, skipping parameter store update...")
+    println()
+    println("Exiting...")
+    sys.exit(0)
+  }
+  flyway.info().all().toList.sortBy(s => -Try(s.getInstalledOn().getTime()).getOrElse(0l)).headOption.foreach(info =>
+    {
+      val version = info.getVersion().getVersion()
+      println(s"Updating parameter store with latest migration version: $version")
+      try {
+       val putReseponse = parameterManager.putParameter(
+        PutParameterRequest
+          .builder()
+          .name("/PROD/editorial-feeds/newswires/database/last-migration-applied")
+          .value(s"${version}")
+          .overwrite(true)
+          .build()
+        )
+        println(s"Parameter store update response: $putReseponse")  
+      } catch {
+        case e: Exception => println(s"Failed to update parameter store: ${e.getMessage()}. Please rerun this script with the 'updateParameterStore' command to update");
+          sys.exit(1)
+      }
+    }
+  )
+  println()
+  println("Parameter updated, exiting...")
+}  
+
 def migrateCmd(env: String, flyway: Flyway): Unit = {
 
   println()
   println("Validating migration schema...")
   println()
 
+  println("Current migration info:" )
   val pendingMigrations = flyway.info().pending()
   println()
 
@@ -84,7 +139,9 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
 
     if (decision.trim().toLowerCase().startsWith("y")) {
       flyway.migrate()
-      println("All migrations run, exiting successfully")
+      println("All migrations run")
+      updateParameterStore(env, flyway)
+      println("Exiting successfully")
     } else {
       println("No migrations run, exiting as requested")
       sys.exit(2)
@@ -108,14 +165,7 @@ def buildFlyway(password: String, port: Int) =
     .load()
 
 def remoteFlyway(stage: String): Flyway = {
-  val credentials =
-    DefaultCredentialsProvider.builder().profileName("editorial-feeds").build()
-  val secretsManager =
-    SecretsManagerClient
-      .builder()
-      .credentialsProvider(credentials)
-      .region(Region.EU_WEST_1)
-      .build()
+
 
   val matchingSecret = secretsManager
     .listSecrets()
@@ -163,6 +213,7 @@ def remoteFlyway(stage: String): Flyway = {
 val command = args.lift(0) match {
   case Some("info")    => infoCmd
   case Some("migrate") => migrateCmd
+  case Some("updateParameterStore") => updateParameterStore
   case o =>
     val msg = o.fold("No command specified!")(cmd => s"Unknown command $cmd!")
     println(s"$msg Try again with one of `info`, `migrate`")
