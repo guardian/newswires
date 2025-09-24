@@ -31,7 +31,7 @@ jobs:
           role-to-assume: ${{ secrets.SSM_AUTH }}
 
       - name: Check the latest migration version
-        if: github.ref == 'refs/pull/483/merge'
+        if: github.ref == 'refs/pull/483/merg'
         run: 
           ./scripts/check-latest-migration.sh      
 
