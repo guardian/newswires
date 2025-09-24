@@ -12,28 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-latest-migration:
-    name: Check the latest migration version
-    if: github.ref == 'refs/pull/483/merg'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: eu-west-1
-          role-to-assume: ${{ secrets.SSM_AUTH }}
-
-      - name: Checkout branch
-        uses: actions/checkout@v5
-      
-      - name: Check the latest migration version
-        run: 
-          ./scripts/check-latest-migration.sh
   build:
-    needs: check-latest-migration
-    if: needs.check-latest-migration.result == 'success' || needs.check-latest-migration.result == 'skipped'
     name: Build and upload to riffraff
     runs-on: ubuntu-22.04
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
