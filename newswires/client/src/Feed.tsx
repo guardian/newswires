@@ -106,7 +106,9 @@ export const Feed = ({
 						</div>
 
 						<WireItemList
-							wires={queryData.results}
+							wires={queryData.results.sort((a, b) =>
+								b.ingestedAt.localeCompare(a.ingestedAt),
+							)}
 							totalCount={queryData.totalCount}
 						/>
 
