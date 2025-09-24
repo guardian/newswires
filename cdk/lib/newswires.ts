@@ -479,28 +479,30 @@ export class Newswires extends GuStack {
 			database.accessSecurityGroup,
 		);
 
-		const param = new StringParameter(
-			this,
-			'DatabaseMigrationVersionParameter',
-			{
-				parameterName: `/${this.stage}/${this.stack}/${this.app}/database/last-migration-applied`,
-				simpleName: false,
-				stringValue: '19',
-				tier: ParameterTier.STANDARD,
-				dataType: ParameterDataType.TEXT,
-			},
-		);
-		new GuGithubActionsRole(this, {
-			policies: [
-				new GuAllowPolicy(this, 'AllowParameterStoreUpdates', {
-					actions: ['ssm:GetParameter'],
-					resources: [param.parameterArn],
-				}),
-			],
-			condition: {
-				githubOrganisation: 'guardian',
-				repositories: 'newswires:*',
-			},
-		});
+		if (this.stage === 'PROD') {
+			const param = new StringParameter(
+				this,
+				'DatabaseMigrationVersionParameter',
+				{
+					parameterName: `/${this.stage}/${this.stack}/${this.app}/database/last-migration-applied`,
+					simpleName: false,
+					stringValue: '19',
+					tier: ParameterTier.STANDARD,
+					dataType: ParameterDataType.TEXT,
+				},
+			);
+			new GuGithubActionsRole(this, {
+				policies: [
+					new GuAllowPolicy(this, 'AllowParameterStoreUpdates', {
+						actions: ['ssm:GetParameter'],
+						resources: [param.parameterArn],
+					}),
+				],
+				condition: {
+					githubOrganisation: 'guardian',
+					repositories: 'newswires:*',
+				},
+			});
+		}
 	}
 }
