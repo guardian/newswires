@@ -100,7 +100,7 @@ def updateParameterStore(env: String, flyway: Flyway): Unit = {
        val putReseponse = parameterManager.putParameter(
         PutParameterRequest
           .builder()
-          .name("/CODE/editorial-feeds/newswires/database/last-migration-applied")
+          .name("/PROD/editorial-feeds/newswires/database/last-migration-applied")
           .value(s"${version}")
           .overwrite(true)
           .build()
