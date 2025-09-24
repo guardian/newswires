@@ -213,7 +213,7 @@ def remoteFlyway(stage: String): Flyway = {
 val command = args.lift(0) match {
   case Some("info")    => infoCmd
   case Some("migrate") => migrateCmd
-  case Some("parameter") => updateParameterStore
+  case Some("updateParameterStore") => updateParameterStore
   case o =>
     val msg = o.fold("No command specified!")(cmd => s"Unknown command $cmd!")
     println(s"$msg Try again with one of `info`, `migrate`")
