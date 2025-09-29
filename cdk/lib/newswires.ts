@@ -13,7 +13,11 @@ import {
 } from '@guardian/cdk/lib/constructs/core';
 import { GuCname } from '@guardian/cdk/lib/constructs/dns';
 import { GuVpc, SubnetType } from '@guardian/cdk/lib/constructs/ec2';
-import { GuGetS3ObjectsPolicy } from '@guardian/cdk/lib/constructs/iam';
+import {
+	GuAllowPolicy,
+	GuGetS3ObjectsPolicy,
+	GuGithubActionsRole,
+} from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
 import type { App } from 'aws-cdk-lib';
@@ -52,6 +56,11 @@ import { ReceiptRuleSet } from 'aws-cdk-lib/aws-ses';
 import { Lambda, LambdaInvocationType, S3 } from 'aws-cdk-lib/aws-ses-actions';
 import type { Topic } from 'aws-cdk-lib/aws-sns';
 import type { Queue } from 'aws-cdk-lib/aws-sqs';
+import {
+	ParameterDataType,
+	ParameterTier,
+	StringParameter,
+} from 'aws-cdk-lib/aws-ssm';
 import {
 	FAILED_INGESTION_EVENT_TYPE,
 	SUCCESSFUL_INGESTION_EVENT_TYPE,
@@ -469,5 +478,31 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
+
+		if (this.stage === 'PROD' || this.stage === 'TEST') {
+			const param = new StringParameter(
+				this,
+				'DatabaseMigrationVersionParameter',
+				{
+					parameterName: `/${this.stage}/${this.stack}/${this.app}/database/last-migration-applied`,
+					simpleName: false,
+					stringValue: '20',
+					tier: ParameterTier.STANDARD,
+					dataType: ParameterDataType.TEXT,
+				},
+			);
+			new GuGithubActionsRole(this, {
+				policies: [
+					new GuAllowPolicy(this, 'AllowParameterStoreUpdates', {
+						actions: ['ssm:GetParameter'],
+						resources: [param.parameterArn],
+					}),
+				],
+				condition: {
+					githubOrganisation: 'guardian',
+					repositories: 'newswires:*',
+				},
+			});
+		}
 	}
 }
