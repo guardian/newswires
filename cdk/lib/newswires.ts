@@ -486,7 +486,7 @@ export class Newswires extends GuStack {
 				{
 					parameterName: `/${this.stage}/${this.stack}/${this.app}/database/last-migration-applied`,
 					simpleName: false,
-					stringValue: '19',
+					stringValue: '20',
 					tier: ParameterTier.STANDARD,
 					dataType: ParameterDataType.TEXT,
 				},

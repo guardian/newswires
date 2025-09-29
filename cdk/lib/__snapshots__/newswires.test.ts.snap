@@ -290,7 +290,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         },
         "Tier": "Standard",
         "Type": "String",
-        "Value": "19",
+        "Value": "20",
       },
       "Type": "AWS::SSM::Parameter",
     },

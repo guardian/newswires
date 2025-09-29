@@ -1017,7 +1017,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         },
         "Tier": "Standard",
         "Type": "String",
-        "Value": "19",
+        "Value": "20",
       },
       "Type": "AWS::SSM::Parameter",
     },
