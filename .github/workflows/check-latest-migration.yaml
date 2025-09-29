@@ -1,11 +1,6 @@
 name: check-latest-migration
 on:
   pull_request:
-    paths:
-      - 'db/migrations/**'
-      - 'scripts/check-latest-migration.sh'
-      - '.github/workflows/check-latest-migration.yaml'
-
 
 jobs: 
   check-latest-migration:
