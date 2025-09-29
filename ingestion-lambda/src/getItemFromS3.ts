@@ -8,7 +8,7 @@ export async function getItemFromS3({
 }: {
 	objectKey: string;
 	bucketName: string;
-}): Promise<OperationResult<{ body: string }>> {
+}): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
 	return getFromS3({
 		bucketName,
 		key: objectKey,
@@ -18,6 +18,7 @@ export async function getItemFromS3({
 				return {
 					status: 'success' as const,
 					body: resp.body,
+					lastModified: resp.lastModified,
 				};
 			}
 			throw new Error(resp.reason);
