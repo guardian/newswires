@@ -479,14 +479,14 @@ export class Newswires extends GuStack {
 			database.accessSecurityGroup,
 		);
 
-		if (this.stage === 'PROD') {
+		if (this.stage === 'PROD' || this.stage === 'TEST') {
 			const param = new StringParameter(
 				this,
 				'DatabaseMigrationVersionParameter',
 				{
 					parameterName: `/${this.stage}/${this.stack}/${this.app}/database/last-migration-applied`,
 					simpleName: false,
-					stringValue: '19',
+					stringValue: '20',
 					tier: ParameterTier.STANDARD,
 					dataType: ParameterDataType.TEXT,
 				},
