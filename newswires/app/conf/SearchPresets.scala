@@ -15,7 +15,8 @@ object SearchPreset {
       keyword: Option[String] = None,
       keywords: List[String] = Nil,
       keywordExcl: List[String] = Nil,
-      hasDataFormatting: Option[Boolean] = None
+      hasDataFormatting: Option[Boolean] = None,
+      presetCategories: List[String] = Nil
   ): SearchParams =
     SearchParams(
       text = None,
@@ -24,7 +25,8 @@ object SearchPreset {
       keywordExcl = keywordExcl,
       categoryCodesIncl = categoryCodes,
       categoryCodesExcl = categoryCodesExcl,
-      hasDataFormatting = hasDataFormatting
+      hasDataFormatting = hasDataFormatting,
+      presetCategories = presetCategories
     )
 
   def fromText(
@@ -216,11 +218,11 @@ object SearchPresets {
    * Sports
    */
   private val AllSport = List(
-    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS),
-    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA),
-    SearchPreset(AFP, CategoryCodes.Sport.AFP),
-    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP),
-    SearchPreset(AP, CategoryCodes.Sport.AP)
+    SearchPreset(PA, presetCategories = List("all-sports")),
+    SearchPreset(REUTERS, presetCategories = List("all-sports")),
+    SearchPreset(AP, presetCategories = List("all-sports")),
+    SearchPreset(AAP, presetCategories = List("all-sports")),
+    SearchPreset(AFP, presetCategories = List("all-sports"))
   )
 
   private val Soccer = List(

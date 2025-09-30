@@ -28,7 +28,8 @@ case class FingerpostWireEntry(
     categoryCodes: List[String],
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil,
-    s3Key: Option[String]
+    s3Key: Option[String],
+    presetCategories: List[String]
 )
 
 object FingerpostWireEntry
@@ -53,7 +54,8 @@ object FingerpostWireEntry
       "category_codes",
       "combined_textsearch",
       "highlight",
-      "s3_key"
+      "s3_key",
+      "preset_categories"
     )
   val syn = this.syntax("fm")
 
@@ -66,7 +68,8 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.categoryCodes},
     |   ${FingerpostWireEntry.syn.result.content},
-    |   ${FingerpostWireEntry.syn.result.s3Key}
+    |   ${FingerpostWireEntry.syn.result.s3Key},
+    |   ${FingerpostWireEntry.syn.result.presetCategories}
     |""".stripMargin
 
   def fromDb(
@@ -84,6 +87,11 @@ object FingerpostWireEntry
             .toList
         case None => Nil
       }
+      presetCategories = rs.arrayOpt(fm.presetCategories) match {
+        case Some(array) =>
+          array.getArray.asInstanceOf[Array[String]].toList
+        case None => Nil
+      }
     } yield {
       FingerpostWireEntry(
         id = rs.long(fm.id),
@@ -99,7 +107,8 @@ object FingerpostWireEntry
           .filter(
             _.contains("<mark>")
           ), // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
-        s3Key = rs.stringOpt(fm.s3Key)
+        s3Key = rs.stringOpt(fm.s3Key),
+        presetCategories = presetCategories
       )
     }).left
       .map(error => {
@@ -247,6 +256,10 @@ object FingerpostWireEntry
     sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
   }
 
+  lazy val presetCategoriesSQL = (presetCategories: List[String]) => {
+    sqls"${syn.presetCategories} && ${textArray(presetCategories)}"
+  }
+
   lazy val categoryCodeExclSQL = (categoryCodesExcl: List[String]) => {
     val cce = this.syntax("categoryCodesExcl")
     val doesContainCategoryCodes =
@@ -309,6 +322,11 @@ object FingerpostWireEntry
       case None                 => None
     }
 
+    val presetCategoriesQuery = search.presetCategories match {
+      case Nil              => None
+      case presetCategories => Some(presetCategoriesSQL(presetCategories))
+    }
+
     List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -317,7 +335,8 @@ object FingerpostWireEntry
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       categoryCodesExclQuery,
-      hasDataFormattingQuery
+      hasDataFormattingQuery,
+      presetCategoriesQuery
     ).flatten
   }
 
