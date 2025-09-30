@@ -59,7 +59,6 @@ export const main = async ({
 	console.info(
 		`Starting to update up to ${limit} records in batches of ${batchSize}`,
 	);
-	console.log(offsets);
 	for (const [index, offset] of offsets.entries()) {
 		const records = await getRecords(sql, batchSize, offset);
 		console.info(`Processing batch ${index + 1} of ${offsets.length}`);
