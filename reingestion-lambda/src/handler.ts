@@ -18,7 +18,7 @@ const computePresetCategories = (categoryCodes: string[]) => {
 async function updateRecords(sql: Sql, records: DBRecord[]) {
 	await sql`update fingerpost_wire_entry as fwe 
         set last_updated_at = now(), 
-            preset_categories = data.category_codes
+            preset_categories = data.preset_categories
         from (values ${sql(
 					records.map((r) => {
 						return {
