@@ -20,14 +20,13 @@ async function updateRecords(sql: Sql, records: DBRecord[]) {
         set last_updated_at = now(), 
             preset_categories = data.category_codes
         from (values ${sql(
-					records.map(
-						(r) =>
-							[
-								r.external_id,
-								computePresetCategories(r.category_codes),
-							] as const,
-					),
-				)}) as data(external_id, category_codes) where fwe.external_id = data.external_id;`;
+					records.map((r) => {
+						return {
+							external_id: r.external_id,
+							preset_categories: computePresetCategories(r.category_codes),
+						};
+					}),
+				)}) as data(external_id, preset_categories) where fwe.external_id = data.external_id;`;
 }
 
 export const main = async ({
