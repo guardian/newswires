@@ -12,6 +12,12 @@ async function getRecords(sql: Sql, limit: number) {
 	return results.map((r) => r as DBRecord);
 }
 
+async function updateRecords(sql: Sql, records: DBRecord[]) {
+	await sql`update fingerpost_wire_entry as fwe set last_updated_at = now() from (values ${sql(
+		records.map((r) => [r.external_id] as const),
+	)}) as data(external_id) where fwe.external_id = data.external_id;`;
+}
+
 export const main = async ({
 	limit,
 	timeDelay,
@@ -22,7 +28,8 @@ export const main = async ({
 	const { sql, closeDbConnection } = await initialiseDbConnection();
 	const records = await getRecords(sql, limit);
 	console.log(`Fetched ${records.length} records from the database.`);
-	console.log(records[0]);
+	await updateRecords(sql, records);
+	console.log(`Updated ${records.length} records in the database.`);
 	await new Promise((resolve) => setTimeout(resolve, timeDelay));
 	await closeDbConnection();
 };
