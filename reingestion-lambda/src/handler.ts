@@ -12,10 +12,22 @@ async function getRecords(sql: Sql, limit: number) {
 	return results.map((r) => r as DBRecord);
 }
 
+const computePresetCategories = (categoryCodes: string[]) => {
+	return categoryCodes.filter((code) => code.startsWith('qwertyuiop'));
+};
 async function updateRecords(sql: Sql, records: DBRecord[]) {
-	await sql`update fingerpost_wire_entry as fwe set last_updated_at = now() from (values ${sql(
-		records.map((r) => [r.external_id] as const),
-	)}) as data(external_id) where fwe.external_id = data.external_id;`;
+	await sql`update fingerpost_wire_entry as fwe 
+        set last_updated_at = now(), 
+            preset_categories = data.category_codes
+        from (values ${sql(
+					records.map(
+						(r) =>
+							[
+								r.external_id,
+								computePresetCategories(r.category_codes),
+							] as const,
+					),
+				)}) as data(external_id, category_codes) where fwe.external_id = data.external_id;`;
 }
 
 export const main = async ({
