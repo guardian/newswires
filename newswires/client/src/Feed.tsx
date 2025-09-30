@@ -6,7 +6,7 @@ import {
 	EuiPageTemplate,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
@@ -53,6 +53,12 @@ export const Feed = ({
 		return () => observer.disconnect();
 	}, [containerRef]);
 
+	const sortedResults = useMemo(() => {
+		if (!queryData) return [];
+		return queryData.results.sort((a, b) =>
+			b.ingestedAt.localeCompare(a.ingestedAt),
+		);
+	}, [queryData]);
 	return (
 		<EuiPageTemplate.Section
 			paddingSize={isPoppedOut ? 's' : 'm'}
@@ -106,7 +112,7 @@ export const Feed = ({
 						</div>
 
 						<WireItemList
-							wires={queryData.results}
+							wires={sortedResults}
 							totalCount={queryData.totalCount}
 						/>
 
