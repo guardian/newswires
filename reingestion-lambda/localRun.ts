@@ -1,7 +1,7 @@
 import { main } from "./src/handler";
 async function run() {
     main({
-        limit: 10,
+        limit: 25,
         timeDelay: 1000
     })
 }

@@ -44,7 +44,7 @@ function createDummyFeedEntry(): {
 			byline: '',
 			priority: '4',
 			subjects: {
-				code: ['iptc:a', 'iptc:b', 'service:AP'],
+				code: ['iptc:a', 'iptc:b', 'service:AP', 'paCat:SRS'],
 			},
 			mediaCatCodes: 'f',
 			keywords,
