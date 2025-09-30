@@ -232,6 +232,7 @@ export class Newswires extends GuStack {
 					subnets: privateSubnets,
 				},
 				loggingFormat: LoggingFormat.TEXT,
+				timeout: Duration.minutes(15),
 			},
 		);
 

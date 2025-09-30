@@ -3427,7 +3427,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Value": "TEST",
           },
         ],
-        "Timeout": 30,
+        "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
             {

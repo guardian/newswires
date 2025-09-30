@@ -2756,7 +2756,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Value": "TEST",
           },
         ],
-        "Timeout": 30,
+        "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
             {
