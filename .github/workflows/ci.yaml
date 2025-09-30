@@ -107,6 +107,8 @@ jobs:
               - cdk/cdk.out
             ingestion-lambda:
               - ingestion-lambda/dist/ingestion-lambda.zip
+            reingestion-lambda:
+              - reingestion-lambda/dist/reingestion-lambda.zip
             cleanup-lambda:
               - cleanup-lambda/dist/cleanup-lambda.zip
             email-filter-lambda:
