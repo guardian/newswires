@@ -7,7 +7,7 @@ describe('presetCategories', () => {
         expect(result).toEqual(['all-sports']);
     });
     it('should return an array with all-sports and no-soccer if there are relevant category codes', () => {
-        const categoryCodes = ['afpCat:SPO', 'N2:SYNCS'];
+        const categoryCodes = ['apCat:s'];
         const result = computePresetCategories(categoryCodes);
         expect(result).toEqual(['all-sports', 'no-soccer']);
     });
@@ -15,5 +15,10 @@ describe('presetCategories', () => {
         const categoryCodes = ['N2:TECH'];
         const result = computePresetCategories(categoryCodes);
         expect(result).toEqual([]);
+    });
+    it('should return an array with all-world if there is a relevant category code', () => {
+        const categoryCodes = ['REUTERS:WORLD'];
+        const result = computePresetCategories(categoryCodes);
+        expect(result).toEqual(['all-world']);
     });
 });
