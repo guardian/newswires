@@ -109,4 +109,46 @@ describe('putItemToDb', () => {
 			Math.abs(now.getTime() - new Date(persistedAt).getTime()),
 		).toBeLessThanOrEqual(1000);
 	});
+	it('should persist calculated preset categories', async () => {
+		await putItemToDb({
+			processedObject: {
+				...exampleProcessedObject,
+				categoryCodes: ['N2:SYNCS'],
+			},
+			externalId: 'test-external-id-5',
+			s3Key: 'test-s3-key',
+			lastModified: undefined,
+			sql: sql,
+			logger: mockCreateLogger({}),
+		});
+		const results = await sql`SELECT preset_categories FROM ${sql(
+			DATABASE_TABLE_NAME,
+		)} WHERE external_id = 'test-external-id-5';`;
+		const presetCategories = (
+			results[0] as { preset_categories: string[] | null }
+		).preset_categories;
+		expect(presetCategories).toBeDefined();
+		expect(presetCategories).toEqual(['all-sports']);
+	});
+	it('should store an empty array for preset categories if no category codes match', async () => {
+		await putItemToDb({
+			processedObject: {
+				...exampleProcessedObject,
+				categoryCodes: ['code'],
+			},
+			externalId: 'test-external-id-5',
+			s3Key: 'test-s3-key',
+			lastModified: undefined,
+			sql: sql,
+			logger: mockCreateLogger({}),
+		});
+		const results = await sql`SELECT preset_categories FROM ${sql(
+			DATABASE_TABLE_NAME,
+		)} WHERE external_id = 'test-external-id-5';`;
+		const presetCategories = (
+			results[0] as { preset_categories: string[] | null }
+		).preset_categories;
+		expect(presetCategories).toBeDefined();
+		expect(presetCategories).toEqual([]);
+	});
 });

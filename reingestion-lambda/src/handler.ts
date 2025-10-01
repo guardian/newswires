@@ -1,6 +1,6 @@
 import type { Sql } from 'postgres';
+import { computePresetCategories } from '../../shared/presetCategories';
 import { initialiseDbConnection } from '../../shared/rds';
-import { AllSports } from './presetcategories';
 
 type DBRecord = {
 	external_id: string;
@@ -13,11 +13,6 @@ async function getRecords(sql: Sql, limit: number, offset: number) {
 	return results.map((r) => r as DBRecord);
 }
 
-const computePresetCategories = (categoryCodes: string[]) => {
-	return categoryCodes.filter((code) => AllSports.includes(code)).length > 0
-		? ['all-sports']
-		: [];
-};
 const toPostgressArray = (classifications: string[]) => {
 	if (classifications.length === 0) return 'ARRAY[]::text[]';
 	return `ARRAY[${classifications.map((c) => `'${c}'`).join(',')}]`;
