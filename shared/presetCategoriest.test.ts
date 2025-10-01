@@ -12,7 +12,7 @@ describe('presetCategories', () => {
         expect(result).toEqual(['all-sports', 'no-soccer']);
     });
     it('should return an empty array if there are no relevant category codes', () => {
-        const categoryCodes = ['N2:TECH'];
+        const categoryCodes = ['code'];
         const result = computePresetCategories(categoryCodes);
         expect(result).toEqual([]);
     });
@@ -20,5 +20,10 @@ describe('presetCategories', () => {
         const categoryCodes = ['REUTERS:WORLD'];
         const result = computePresetCategories(categoryCodes);
         expect(result).toEqual(['all-world']);
+    });
+    it('should return an array with all-business if there is a relevant category code', () => {
+        const categoryCodes = ['paCat:FFF'];
+        const result = computePresetCategories(categoryCodes);
+        expect(result).toEqual(['all-business']);
     });
 });
