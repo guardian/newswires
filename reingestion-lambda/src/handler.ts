@@ -1,16 +1,29 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment -- need to fix */
+
 import type { Sql } from 'postgres';
 import { computePresetCategories } from '../../shared/presetCategories';
 import { initialiseDbConnection } from '../../shared/rds';
+import { countQuery, getQuery } from './query';
 
 type DBRecord = {
 	external_id: string;
 	category_codes: string[];
 };
 
-async function getRecords(sql: Sql, limit: number, offset: number) {
-	const results =
-		await sql`SELECT external_id, category_codes FROM fingerpost_wire_entry WHERE last_updated_at IS NULL ORDER BY id LIMIT ${limit} offset ${offset} ;`;
-	return results.map((r) => r as DBRecord);
+async function getRecords(
+	sql: Sql,
+	limit: number,
+	offset: number,
+	lastUpdatedSince?: Date,
+	lastUpdatedAfter?: Date,
+): Promise<DBRecord[]> {
+	const query = sql.unsafe(
+		getQuery(limit, offset, lastUpdatedSince, lastUpdatedAfter),
+	);
+	const results = await query;
+	return results.map((r) => {
+		return { external_id: r.external_id, category_codes: r.category_codes };
+	});
 }
 
 const toPostgressArray = (classifications: string[]) => {
@@ -44,15 +57,38 @@ export const main = async ({
 	limit,
 	batchSize,
 	timeDelay,
+	lastUpdatedSince,
+	lastUpdatedUntil,
 }: {
 	limit: number;
 	batchSize: number;
 	timeDelay: number;
+	lastUpdatedSince: string | undefined;
+	lastUpdatedUntil: string | undefined;
 }) => {
 	const { sql, closeDbConnection } = await initialiseDbConnection();
-	const offsets = computeOffsets(limit, batchSize);
+	const lastUpdatedSinceDate = lastUpdatedSince
+		? new Date(lastUpdatedSince)
+		: undefined;
+	const lastUpdatedUntilDate = lastUpdatedUntil
+		? new Date(lastUpdatedUntil)
+		: undefined;
+	const countResponse = await sql.unsafe(
+		countQuery(lastUpdatedSinceDate, lastUpdatedUntilDate),
+	);
+
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- testing
+	const totalToUpdate = Number(countResponse.map((r) => r.count)[0]);
 	console.info(
-		`Starting to update up to ${limit} records in batches of ${batchSize}`,
+		`There are ${totalToUpdate} records for updating from the query`,
+	);
+	const effectiveLimit = Math.min(limit, totalToUpdate);
+	console.log(
+		`Will update up to ${effectiveLimit} records, user has set limit to ${limit}`,
+	);
+	const offsets = computeOffsets(effectiveLimit, batchSize);
+	console.info(
+		`Starting to update up to ${effectiveLimit} records in batches of ${batchSize}`,
 	);
 	for (const [index, offset] of offsets.entries()) {
 		const records = await getRecords(sql, batchSize, offset);
@@ -67,5 +103,5 @@ export const main = async ({
 		await new Promise((resolve) => setTimeout(resolve, timeDelay));
 	}
 	await closeDbConnection();
-	console.info(`Finished updating ${limit} records`);
+	console.info(`Finished updating ${effectiveLimit} records`);
 };
