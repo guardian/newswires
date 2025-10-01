@@ -1,4 +1,13 @@
 
+const Soccer = [
+    'N2:SOCC',
+    'N2:SOCC',
+    'subj:15054000',
+    'paCat:SSO',
+    'paCat:SFF',
+    'paCat:SSD',
+    'paCat:SSO',
+]
 export const AllSports = [
 	'afpCat:SPO',
 	'apCat:s',
@@ -688,8 +697,21 @@ export const AllSports = [
 	'N2:SYNCS',
 ];
 
-export const computePresetCategories = (categoryCodes: string[]) => {
+const allSports = (categoryCodes: string[]) => {
     return categoryCodes.filter((code) => AllSports.includes(code)).length > 0
-        ? ['all-sports']
-        : [];
+}
+
+const noSoccer = (isAllSports: boolean, categoryCodes: string[]) => {
+    return isAllSports && categoryCodes.filter((code) => Soccer.includes(code)).length === 0;
+};
+
+export const computePresetCategories = (categoryCodes: string[]) => {
+    const presetCategories: string[] = [];
+    if(allSports(categoryCodes)) {
+        presetCategories.push('all-sports');
+    }
+    if(noSoccer(allSports(categoryCodes), categoryCodes)) {
+        presetCategories.push('no-soccer');
+    }
+    return presetCategories;
 };
