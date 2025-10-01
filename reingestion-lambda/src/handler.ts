@@ -9,7 +9,7 @@ type DBRecord = {
 
 async function getRecords(sql: Sql, limit: number, offset: number) {
 	const results =
-		await sql`SELECT external_id, category_codes FROM fingerpost_wire_entry ORDER BY id LIMIT ${limit} offset ${offset} and last_updated_at is null;`;
+		await sql`SELECT external_id, category_codes FROM fingerpost_wire_entry WHERE last_updated_at IS NULL ORDER BY id LIMIT ${limit} offset ${offset} ;`;
 	return results.map((r) => r as DBRecord);
 }
 
