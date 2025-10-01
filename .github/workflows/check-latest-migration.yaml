@@ -1,0 +1,24 @@
+name: check-latest-migration
+on:
+  pull_request:
+
+jobs: 
+  check-latest-migration:
+    name: Check latest migration
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with: 
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.SSM_AUTH }}
+
+      - name: Check the latest migration version
+        run: 
+          ./scripts/check-latest-migration.sh

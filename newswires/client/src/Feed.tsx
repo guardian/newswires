@@ -6,7 +6,7 @@ import {
 	EuiPageTemplate,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
@@ -16,6 +16,7 @@ import { WireItemList } from './WireItemList.tsx';
 export interface FeedProps {
 	containerRef?: React.RefObject<HTMLDivElement>;
 	direction?: string;
+	setSideNavIsOpen: (isOpen: boolean) => void;
 }
 
 const baseStyles = css`
@@ -26,7 +27,11 @@ const columnStyles = css`
 	flex-direction: column;
 `;
 
-export const Feed = ({ containerRef, direction }: FeedProps) => {
+export const Feed = ({
+	containerRef,
+	direction,
+	setSideNavIsOpen,
+}: FeedProps) => {
 	const { state, config } = useSearch();
 	const { status, queryData } = state;
 
@@ -48,6 +53,12 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 		return () => observer.disconnect();
 	}, [containerRef]);
 
+	const sortedResults = useMemo(() => {
+		if (!queryData) return [];
+		return queryData.results.sort((a, b) =>
+			b.ingestedAt.localeCompare(a.ingestedAt),
+		);
+	}, [queryData]);
 	return (
 		<EuiPageTemplate.Section
 			paddingSize={isPoppedOut ? 's' : 'm'}
@@ -73,7 +84,7 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 						<EuiEmptyPrompt
 							body={
 								<>
-									<SearchSummary />
+									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
 									<p>Try another search or reset filters.</p>
 								</>
 							}
@@ -90,7 +101,7 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 						<div>
 							<EuiFlexGroup css={[baseStyles, isColumn && columnStyles]}>
 								<EuiFlexItem style={{ flex: 1 }}>
-									<SearchSummary />
+									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
 								</EuiFlexItem>
 								{!isPoppedOut && (
 									<EuiFlexItem grow={false}>
@@ -101,7 +112,7 @@ export const Feed = ({ containerRef, direction }: FeedProps) => {
 						</div>
 
 						<WireItemList
-							wires={queryData.results}
+							wires={sortedResults}
 							totalCount={queryData.totalCount}
 						/>
 
