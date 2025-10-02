@@ -9,29 +9,18 @@ const noSoccer = (isAllSports: boolean, categoryCodes: string[]) => {
     return isAllSports && !containsCode(categoryCodes, Soccer);
 };
 
+const presetCodesMap: { [key: string]: (categoryCodes: string[]) => boolean } = {
+    'all-sports': (categoryCodes) => containsCode(categoryCodes, AllSports),
+    'no-soccer': (categoryCodes) => noSoccer(containsCode(categoryCodes, AllSports), categoryCodes),
+    'sports-related-topic-codes': (categoryCodes) => containsCode(categoryCodes, sportsRelatedTopicCodes),
+    'sports-related-news-codes': (categoryCodes) => containsCode(categoryCodes, sportsRelatedNewsCodes),
+    'business-related-news-codes': (categoryCodes) => containsCode(categoryCodes, businessRelatedNewsCodes),
+    'business-related-topic-codes': (categoryCodes) => containsCode(categoryCodes, businessRelatedTopicCodes),
+    'other-topic-codes': (categoryCodes) => containsCode(categoryCodes, otherTopicCodes),
+}
 
 export const computePresetCategories = (categoryCodes: string[]) => {
-    const presetCategories: string[] = [];
-    if(containsCode(categoryCodes, AllSports)) {
-        presetCategories.push('all-sports');
-    }
-    if(noSoccer(containsCode(categoryCodes, AllSports), categoryCodes)) {
-        presetCategories.push('no-soccer');
-    }
-    if(containsCode(categoryCodes, sportsRelatedTopicCodes)) {
-        presetCategories.push('sports-related-topic-codes');
-    }
-    if(containsCode(categoryCodes, sportsRelatedNewsCodes)) {
-        presetCategories.push('sports-related-news-codes');
-    }
-    if(containsCode(categoryCodes, businessRelatedNewsCodes)) {
-        presetCategories.push('business-related-news-codes');
-    }
-    if(containsCode(categoryCodes, businessRelatedTopicCodes)) {
-        presetCategories.push('business-related-topic-codes');
-    }   
-    if(containsCode(categoryCodes, otherTopicCodes)) {
-        presetCategories.push('other-topic-codes');
-    }
-    return presetCategories;
+    return Object.entries(presetCodesMap).filter(([_, checkFn]) => {
+        return checkFn(categoryCodes);
+    }).map(([presetCategory]) => presetCategory);
 };
