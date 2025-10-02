@@ -18,7 +18,7 @@ libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.7"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
-libraryDependencies += "io.circe" %% "circe-generic" % "0.14.14"
+libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.14"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.9" % "test"
