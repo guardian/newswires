@@ -16,6 +16,7 @@ import scalikejdbc._
 import io.circe.parser._
 
 import java.time.Instant
+import java.util.Timer
 
 case class FingerpostWireEntry(
     id: Long,
@@ -433,7 +434,7 @@ object FingerpostWireEntry
       maybeBeforeId = queryParams.maybeBeforeId,
       maybeSinceId = queryParams.maybeSinceId.map(_.sinceId)
     )
-
+    val start = System.currentTimeMillis()
     val query = buildSearchQuery(queryParams, whereClause)
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
@@ -454,10 +455,13 @@ object FingerpostWireEntry
       s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
     )
 
-    val totalCount: Long =
+    val totalCount: Long = {
       countQuery.map(_.long(1)).single().apply().getOrElse(0)
+    }
+    val finish = System.currentTimeMillis()
+    logger.info(s"QUERY TIME: ${finish - start}")
 
-//    val keywordCounts = getKeywords(additionalWhereClauses =
+    //    val keywordCounts = getKeywords(additionalWhereClauses =
 //      commonWhereClauses
 //    ) // TODO do this in parallel
 
