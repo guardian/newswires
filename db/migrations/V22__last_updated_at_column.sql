@@ -1,0 +1,1 @@
+ALTER TABLE fingerpost_wire_entry ADD COLUMN last_updated_at timestamp with time zone;
