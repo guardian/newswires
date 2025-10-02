@@ -22,7 +22,7 @@ libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.15"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test"
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1" % Test
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
 
 lazy val root = (project in file(".")).enablePlugins(
   PlayScala,
