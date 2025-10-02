@@ -13,5 +13,6 @@ case class SearchParams(
     categoryCodesIncl: List[String] = Nil,
     categoryCodesExcl: List[String] = Nil,
     hasDataFormatting: Option[Boolean] = None,
-    presetCategories: List[String] = Nil
+    presetCategories: List[String] = Nil,
+    presetCategoriesExcl: List[String] = Nil
 )

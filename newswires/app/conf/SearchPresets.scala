@@ -16,7 +16,8 @@ object SearchPreset {
       keywords: List[String] = Nil,
       keywordExcl: List[String] = Nil,
       hasDataFormatting: Option[Boolean] = None,
-      presetCategories: List[String] = Nil
+      presetCategories: List[String] = Nil,
+      presetCategoriesExcl: List[String] = Nil
   ): SearchParams =
     SearchParams(
       text = None,
@@ -26,7 +27,8 @@ object SearchPreset {
       categoryCodesIncl = categoryCodes,
       categoryCodesExcl = categoryCodesExcl,
       hasDataFormatting = hasDataFormatting,
-      presetCategories = presetCategories
+      presetCategories = presetCategories,
+      presetCategoriesExcl = presetCategoriesExcl
     )
 
   def fromText(
@@ -145,27 +147,12 @@ object SearchPresets {
       categoryCodes = CategoryCodes.World.AP
     )
   )
-  private val ApWorldV2 = List(
-    SearchPreset(
-      AP,
-      keywords = List("General news"),
-      presetCategories = List("all-world")
-    )
-  )
 
   private val ReutersSchedule = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
       searchTerm = SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, SearchField.Headline),
       categoryCodes = List("MCC:DED")
-    )
-  )
-
-  private val ReutersScheduleV2 = List(
-    SearchPreset.fromSearchTerm(
-      REUTERS,
-      searchTerm = SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, SearchField.Headline),
-      presetCategories = List("all-world")
     )
   )
 
@@ -197,11 +184,11 @@ object SearchPresets {
   )
 
   private val ReutersWorldV2 = List(
-    SearchPreset(REUTERS, presetCategories = List("all-world")),
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.World.REUTERS),
     SearchPreset(
       REUTERS,
-      categoryCodes = CategoryCodes.Other.REUTERS,
-      categoryCodesExcl = CategoryCodes.Business.REUTERS ++ CategoryCodes.Sport.REUTERS
+      presetCategories = List("other-topic-codes"),
+      presetCategoriesExcl = List("sports-related-topic-codes", "business-related-topic-codes")
     ),
     SearchPreset(
       REUTERS,
@@ -227,7 +214,7 @@ object SearchPresets {
     SearchPreset(AAP, keywordExcl = List("Sports"), categoryCodesExcl = CategoryCodes.Sport.AAP)
   )
   private val AapWorldV2 = List(
-    SearchPreset(AAP, keywordExcl = List("Sports"))
+    SearchPreset(AAP, keywordExcl = List("Sports"), presetCategoriesExcl = List("sports-related-news-codes"))
   )
 
   private val AfpWorld = List(
@@ -242,7 +229,7 @@ object SearchPresets {
     ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 
   private val AllWorldV2 =
-    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
+    ApWorld ::: ReutersWorldV2 ::: ReutersSchedule::: AapWorldV2 ::: AfpWorld ::: MinorAgenciesWorld
   /*
    * UK
    */
@@ -268,14 +255,14 @@ object SearchPresets {
   )
 
   private val AllBusinessV2 = List(
-    SearchPreset(PA, presetCategories = List("all-business")),
-    SearchPreset(REUTERS, presetCategories = List("all-business"), categoryCodesExcl = List("MCC:SPO")),
+    SearchPreset(PA, categoryCodes = CategoryCodes.Business.PA),
+    SearchPreset(REUTERS, presetCategories = List("business-related-topic-codes"), categoryCodesExcl = List("MCC:SPO")),
     SearchPreset(
       AP,
-      presetCategories = List("all-business"),
+      categoryCodes = CategoryCodes.Business.AP,
       categoryCodesExcl = CategoryCodes.Sport.AP ::: CategoryCodes.Other.AP
     ),
-    SearchPreset(AAP, presetCategories = List("all-business"))
+    SearchPreset(AAP, presetCategories = List("business-related-news-codes"))
   )
 
   /*

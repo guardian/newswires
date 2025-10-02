@@ -261,6 +261,16 @@ object FingerpostWireEntry
     sqls"${syn.presetCategories} && ${textArray(presetCategories)}"
   }
 
+  lazy val presetCategoriesExclSQL = (presetCategories: List[String]) => {
+    val pce = this.syntax("presetCategoriesExcl")
+    val doesContainPresets = sqls"${pce.presetCategories} && ${textArray(presetCategories)}"
+    sqls"""|NOT EXISTS (
+           |  SELECT FROM ${FingerpostWireEntry as pce}
+           |  WHERE ${syn.id} = ${pce.id}
+           |    AND $doesContainPresets
+           |)""".stripMargin
+
+  }
   lazy val categoryCodeExclSQL = (categoryCodesExcl: List[String]) => {
     val cce = this.syntax("categoryCodesExcl")
     val doesContainCategoryCodes =
@@ -328,6 +338,11 @@ object FingerpostWireEntry
       case presetCategories => Some(presetCategoriesSQL(presetCategories))
     }
 
+    val presetCategoriesExclQuery = search.presetCategoriesExcl match {
+      case Nil => None
+      case presetCategoriesExcl => Some(presetCategoriesExclSQL(presetCategoriesExcl))
+    }
+
     List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -337,7 +352,8 @@ object FingerpostWireEntry
       sourceFeedsExclQuery,
       categoryCodesExclQuery,
       hasDataFormattingQuery,
-      presetCategoriesQuery
+      presetCategoriesQuery,
+      presetCategoriesExclQuery
     ).flatten
   }
 
