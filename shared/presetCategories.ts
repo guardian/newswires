@@ -1,36 +1,30 @@
-import { AllBusiness, AllSports, AllWorld, Soccer } from "./categories";
+import {  AllSports, Soccer, sportsRelatedNewsCodes, sportsRelatedTopicCodes } from "./categories";
 
 
-
-const allSports = (categoryCodes: string[]) => {
-    return categoryCodes.filter((code) => AllSports.includes(code)).length > 0
+const containsCode = (categoryCodes: string[], codesToCheck: string[]) => {
+    return categoryCodes.filter((code) => codesToCheck.includes(code)).length > 0
 }
 
 const noSoccer = (isAllSports: boolean, categoryCodes: string[]) => {
-    return isAllSports && categoryCodes.filter((code) => Soccer.includes(code)).length === 0;
+    return isAllSports && !containsCode(categoryCodes, Soccer);
 };
 
-const allWorld = (categoryCodes: string[]) => {
-    return categoryCodes.filter((code) => AllWorld.includes(code)).length > 0
-}
-
-const allBusiness = (categoryCodes: string[]) => {
-    return categoryCodes.filter((code) => AllBusiness.includes(code)).length > 0
-}
 
 export const computePresetCategories = (categoryCodes: string[]) => {
     const presetCategories: string[] = [];
-    if(allSports(categoryCodes)) {
+    if(containsCode(categoryCodes, AllSports)) {
         presetCategories.push('all-sports');
     }
-    if(noSoccer(allSports(categoryCodes), categoryCodes)) {
+    if(noSoccer(containsCode(categoryCodes, AllSports), categoryCodes)) {
         presetCategories.push('no-soccer');
     }
-    if(allWorld(categoryCodes)) {
-        presetCategories.push('all-world');
+  
+    if(containsCode(categoryCodes, sportsRelatedTopicCodes)) {
+        presetCategories.push('sports-related-topic-codes');
     }
-    if(allBusiness(categoryCodes)) {
-        presetCategories.push('all-business');
+
+    if(containsCode(categoryCodes, sportsRelatedNewsCodes)) {
+        presetCategories.push('sports-related-news-codes');
     }
     return presetCategories;
 };

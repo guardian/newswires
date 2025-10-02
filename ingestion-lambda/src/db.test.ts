@@ -128,7 +128,11 @@ describe('putItemToDb', () => {
 			results[0] as { preset_categories: string[] | null }
 		).preset_categories;
 		expect(presetCategories).toBeDefined();
-		expect(presetCategories).toEqual(['all-sports', 'no-soccer']);
+		expect(presetCategories).toEqual([
+			'all-sports',
+			'no-soccer',
+			'sports-related-topic-codes',
+		]);
 	});
 	it('should store an empty array for preset categories if no category codes match', async () => {
 		await putItemToDb({
