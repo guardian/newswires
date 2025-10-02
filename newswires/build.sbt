@@ -56,7 +56,9 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion)
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map("software.amazon.awssdk" % _ % "2.32.28")
+dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
+  "software.amazon.awssdk" % _ % "2.32.33"
+)
 
 // needed to parse conditional statements in `logback.xml`
 // i.e. to only log to disk in DEV
