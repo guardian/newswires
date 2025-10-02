@@ -138,7 +138,8 @@ trait models {
         ref = None
       )
     ),
-    s3Key = Some("key.json")
+    s3Key = Some("key.json"),
+    precomputedCategories = List("all-sport")
   )
 
   val fingerpostWireEntryJson =
@@ -208,7 +209,10 @@ trait models {
       |      "sentAt" : "2010-01-01T00:00:01Z"
       |    }
       |  ],
-      |  "s3Key" : "key.json"
+      |  "s3Key" : "key.json",
+      |  "precomputedCategories" : [
+      |    "all-sport"
+      |  ]
       |}""".stripMargin
 
 }
