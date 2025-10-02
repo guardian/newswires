@@ -104,7 +104,7 @@ export class WiresFeeds extends GuStack {
 					statistic: Stats.MAXIMUM,
 				}),
 				snsTopicName: alarmSnsTopic.topicName,
-				threshold: 3,
+				threshold: 10,
 				evaluationPeriods: 1,
 			});
 
