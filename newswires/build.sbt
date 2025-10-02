@@ -11,8 +11,8 @@ version := "1.0-SNAPSHOT"
 scalaVersion := "2.13.16"
 
 libraryDependencies += ws
-libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "5.0.0"
-libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "7.0.0"
+libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "5.0.2"
+libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "12.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "4.0.0"
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
@@ -56,7 +56,9 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion)
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map("software.amazon.awssdk" % _ % "2.32.28")
+dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
+  "software.amazon.awssdk" % _ % "2.32.28"
+)
 
 // needed to parse conditional statements in `logback.xml`
 // i.e. to only log to disk in DEV
