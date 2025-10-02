@@ -1,4 +1,4 @@
-import {  AllSports, Soccer, sportsRelatedNewsCodes, sportsRelatedTopicCodes } from "./categories";
+import {  AllSports, businessRelatedNewsCodes, businessRelatedTopicCodes, otherTopicCodes, Soccer, sportsRelatedNewsCodes, sportsRelatedTopicCodes } from "./categories";
 
 
 const containsCode = (categoryCodes: string[], codesToCheck: string[]) => {
@@ -18,13 +18,20 @@ export const computePresetCategories = (categoryCodes: string[]) => {
     if(noSoccer(containsCode(categoryCodes, AllSports), categoryCodes)) {
         presetCategories.push('no-soccer');
     }
-  
     if(containsCode(categoryCodes, sportsRelatedTopicCodes)) {
         presetCategories.push('sports-related-topic-codes');
     }
-
     if(containsCode(categoryCodes, sportsRelatedNewsCodes)) {
         presetCategories.push('sports-related-news-codes');
+    }
+    if(containsCode(categoryCodes, businessRelatedNewsCodes)) {
+        presetCategories.push('business-related-news-codes');
+    }
+    if(containsCode(categoryCodes, businessRelatedTopicCodes)) {
+        presetCategories.push('business-related-topic-codes');
+    }   
+    if(containsCode(categoryCodes, otherTopicCodes)) {
+        presetCategories.push('other-topic-codes');
     }
     return presetCategories;
 };
