@@ -77,15 +77,19 @@ object SearchPresets {
     case "ap-world"             => Some(ApWorld)
     case "aap-world"            => Some(AapWorld)
     case "all-world"            => Some(AllWorld)
+    case "all-world-v2"         => Some(AllWorldV2)
     case "afp-world"            => Some(AfpWorld)
     case "minor-agencies-world" => Some(MinorAgenciesWorld)
     case "all-uk"               => Some(AllUk)
     case "all-business"         => Some(AllBusiness)
+    case "all-business-v2"      => Some(AllBusinessV2)
     case "all-sport"            => Some(AllSport)
+    case "all-sport-v2"         => Some(AllSportV2)
     case "soccer"               => Some(Soccer)
     case "soccer-scores"        => Some(SoccerScores)
     case "soccer-tables"        => Some(SoccerTables)
     case "no-soccer"            => Some(NoSoccer)
+    case "no-soccer-v2"         => Some(NoSoccerV2)
     case "cricket"              => Some(Cricket)
     case "cricket-results"      => Some(CricketResults)
     case "rugby-league"         => Some(RugbyLeague)
@@ -138,6 +142,13 @@ object SearchPresets {
     SearchPreset(
       AP,
       keywords = List("General news"),
+      categoryCodes = CategoryCodes.World.AP
+    )
+  )
+  private val ApWorldV2 = List(
+    SearchPreset(
+      AP,
+      keywords = List("General news"),
       presetCategories = List("all-world")
     )
   )
@@ -146,11 +157,46 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(
       REUTERS,
       searchTerm = SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, SearchField.Headline),
+      categoryCodes = List("MCC:DED")
+    )
+  )
+
+  private val ReutersScheduleV2 = List(
+    SearchPreset.fromSearchTerm(
+      REUTERS,
+      searchTerm = SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, SearchField.Headline),
       presetCategories = List("all-world")
     )
   )
 
   private val ReutersWorld = List(
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.World.REUTERS),
+    SearchPreset(
+      REUTERS,
+      categoryCodes = CategoryCodes.Other.REUTERS,
+      categoryCodesExcl = CategoryCodes.Business.REUTERS ++ CategoryCodes.Sport.REUTERS
+    ),
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("MCC:OVR", "MCC:QFE", "MCCL:OVR", "MCCL:OSM", "MCC:DED", "N2:US"),
+      categoryCodesExcl = List(
+        "MCC:SPO",
+        "MCC:OEC",
+        "MCCL:OEC",
+        "N2:GB",
+        "N2:COM",
+        "N2:ECI"
+      )
+    ),
+    SearchPreset.fromSearchTerm(
+      REUTERS,
+      searchTerm = SearchTerm.Simple("News Summary", SearchField.Headline),
+      categoryCodes = List("MCC:OEC"),
+      categoryCodesExcl = List("N2:GB", "N2:COM", "N2:ECI")
+    )
+  )
+
+  private val ReutersWorldV2 = List(
     SearchPreset(REUTERS, presetCategories = List("all-world")),
     SearchPreset(
       REUTERS,
@@ -180,6 +226,9 @@ object SearchPresets {
   private val AapWorld = List(
     SearchPreset(AAP, keywordExcl = List("Sports"), categoryCodesExcl = CategoryCodes.Sport.AAP)
   )
+  private val AapWorldV2 = List(
+    SearchPreset(AAP, keywordExcl = List("Sports"))
+  )
 
   private val AfpWorld = List(
     SearchPreset(AFP, categoryCodesExcl = CategoryCodes.Sport.AFP)
@@ -192,6 +241,8 @@ object SearchPresets {
   private val AllWorld =
     ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
 
+  private val AllWorldV2 =
+    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
   /*
    * UK
    */
@@ -206,6 +257,17 @@ object SearchPresets {
    */
 
   private val AllBusiness = List(
+    SearchPreset(PA, categoryCodes = CategoryCodes.Business.PA),
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Business.REUTERS, categoryCodesExcl = List("MCC:SPO")),
+    SearchPreset(
+      AP,
+      categoryCodes = CategoryCodes.Business.AP,
+      categoryCodesExcl = CategoryCodes.Sport.AP ::: CategoryCodes.Other.AP
+    ),
+    SearchPreset(AAP, categoryCodes = CategoryCodes.Business.AAP)
+  )
+
+  private val AllBusinessV2 = List(
     SearchPreset(PA, presetCategories = List("all-business")),
     SearchPreset(REUTERS, presetCategories = List("all-business"), categoryCodesExcl = List("MCC:SPO")),
     SearchPreset(
@@ -220,6 +282,14 @@ object SearchPresets {
    * Sports
    */
   private val AllSport = List(
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS),
+    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA),
+    SearchPreset(AFP, CategoryCodes.Sport.AFP),
+    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP),
+    SearchPreset(AP, CategoryCodes.Sport.AP)
+  )
+
+  private val AllSportV2 = List(
     SearchPreset(PA, presetCategories = List("all-sports")),
     SearchPreset(REUTERS, presetCategories = List("all-sports")),
     SearchPreset(AP, presetCategories = List("all-sports")),
@@ -255,8 +325,28 @@ object SearchPresets {
       CategoryCodes.SoccerTables.PA
     )
   )
-  // SoccerTablesDataFormats
   private val NoSoccer = List(
+    SearchPreset(
+      REUTERS,
+      categoryCodes = CategoryCodes.Sport.REUTERS.filterNot(CategoryCodes.Soccer.REUTERS.contains),
+      categoryCodesExcl = CategoryCodes.Soccer.REUTERS
+    ),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerm = SearchTerm.Simple("-SOCCER", Slug),
+      categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains),
+      categoryCodesExcl = CategoryCodes.Soccer.PA
+    ),
+    SearchPreset.fromText(AFP, SimpleSearchQueries.NOSOCCER, CategoryCodes.Sport.AFP),
+    SearchPreset(
+      AAP,
+      categoryCodes = CategoryCodes.Sport.AAP.filterNot(CategoryCodes.Soccer.AAP.contains),
+      categoryCodesExcl = CategoryCodes.Soccer.AAP
+    ),
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some(SimpleSearchQueries.NOSOCCER))
+  )
+  // SoccerTablesDataFormats
+  private val NoSoccerV2 = List(
     SearchPreset(
       REUTERS,
       presetCategories = List("no-soccer"),
