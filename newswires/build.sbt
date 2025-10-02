@@ -17,7 +17,7 @@ libraryDependencies += "com.gu" %% "editorial-permissions-client" % "4.0.0"
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.7"
-libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
+libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.9"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.14"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.14"
 
@@ -56,7 +56,9 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion)
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map("software.amazon.awssdk" % _ % "2.32.28")
+dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
+  "software.amazon.awssdk" % _ % "2.32.33"
+)
 
 // needed to parse conditional statements in `logback.xml`
 // i.e. to only log to disk in DEV
