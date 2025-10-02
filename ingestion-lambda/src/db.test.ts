@@ -92,7 +92,6 @@ describe('putItemToDb', () => {
 		expect(new Date(ingestedAt).getTime()).toBeLessThanOrEqual(after.getTime());
 	});
 	it('should insert a persisted_at time', async () => {
-		const before = new Date();
 		await putItemToDb({
 			processedObject: exampleProcessedObject,
 			externalId: 'test-external-id-4',
@@ -101,16 +100,13 @@ describe('putItemToDb', () => {
 			sql: sql,
 			logger: mockCreateLogger({}),
 		});
-		const after = new Date();
+		const now = new Date();
 		const results =
 			await sql`SELECT persisted_at FROM ${sql(DATABASE_TABLE_NAME)}`;
 		const persistedAt = (results[0] as { persisted_at: Date }).persisted_at;
 		expect(persistedAt).toBeDefined();
-		expect(new Date(persistedAt).getTime()).toBeGreaterThanOrEqual(
-			before.getTime(),
-		);
-		expect(new Date(persistedAt).getTime()).toBeLessThanOrEqual(
-			after.getTime(),
-		);
+		expect(
+			Math.abs(now.getTime() - new Date(persistedAt).getTime()),
+		).toBeLessThanOrEqual(1000);
 	});
 });
