@@ -14,11 +14,11 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "FingerpostWireEntry Json encoders / decoders"
 
-  ignore should "serialise json" in {
+  it should "serialise json" in {
     fingerpostWireEntry.asJson.spaces2 shouldEqual fingerpostWireEntryJson
   }
 
-  ignore should "deserialise json" in {
+  it should "deserialise json" in {
     decode[FingerpostWireEntry](fingerpostWireEntryJson) shouldEqual Right(
       fingerpostWireEntry
     )
