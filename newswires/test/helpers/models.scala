@@ -139,7 +139,7 @@ trait models {
       )
     ),
     s3Key = Some("key.json"),
-    preComputedCategories = Nil
+    precomputedCategories = Nil
   )
 
   val fingerpostWireEntryJson =
