@@ -1,0 +1,13 @@
+{
+  "name": "reingestion-lambda",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+		"dev": "tsx watch localRun.ts",
+		"typecheck": "tsc -noEmit",
+		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
+		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects reingestion-lambda",
+		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",
+		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
+	}
+}
