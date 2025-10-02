@@ -40,10 +40,10 @@ async function updateRecords(sql: Sql, records: DBRecord[]) {
 	await sql.unsafe(`UPDATE fingerpost_wire_entry AS fwe
         SET 
             last_updated_at = NOW(), 
-            preset_categories = data.preset_categories
+            precomputed_categories = data.precomputed_categories
         FROM (
             VALUES ${values}
-        ) AS data(external_id, preset_categories)
+        ) AS data(external_id, precomputed_categories)
         WHERE fwe.external_id = data.external_id;
     `);
 }
