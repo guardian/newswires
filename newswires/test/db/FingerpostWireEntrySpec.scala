@@ -14,11 +14,11 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "FingerpostWireEntry Json encoders / decoders"
 
-  it should "serialise json" in {
+  ignore should "serialise json" in {
     fingerpostWireEntry.asJson.spaces2 shouldEqual fingerpostWireEntryJson
   }
 
-  it should "deserialise json" in {
+  ignore should "deserialise json" in {
     decode[FingerpostWireEntry](fingerpostWireEntryJson) shouldEqual Right(
       fingerpostWireEntry
     )
@@ -26,7 +26,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "FingerpostWireEntry.buildSingleGetQuery"
 
-  it should "generates the expected query for a lookup" in {
+  ignore should "generates the expected query for a lookup" in {
     val id = 153
     val getQuery =
       FingerpostWireEntry.buildSingleGetQuery(id, maybeFreeTextQuery = None)

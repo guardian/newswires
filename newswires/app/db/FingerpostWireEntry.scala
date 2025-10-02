@@ -16,6 +16,7 @@ import scalikejdbc._
 import io.circe.parser._
 
 import java.time.Instant
+import java.util.Timer
 
 case class FingerpostWireEntry(
     id: Long,
@@ -28,7 +29,8 @@ case class FingerpostWireEntry(
     categoryCodes: List[String],
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil,
-    s3Key: Option[String]
+    s3Key: Option[String],
+    precomputedCategories: List[String]
 )
 
 object FingerpostWireEntry
@@ -53,7 +55,8 @@ object FingerpostWireEntry
       "category_codes",
       "combined_textsearch",
       "highlight",
-      "s3_key"
+      "s3_key",
+      "precomputed_categories"
     )
   val syn = this.syntax("fm")
 
@@ -66,7 +69,8 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.categoryCodes},
     |   ${FingerpostWireEntry.syn.result.content},
-    |   ${FingerpostWireEntry.syn.result.s3Key}
+    |   ${FingerpostWireEntry.syn.result.s3Key},
+    |   ${FingerpostWireEntry.syn.result.precomputedCategories}
     |""".stripMargin
 
   def fromDb(
@@ -84,6 +88,11 @@ object FingerpostWireEntry
             .toList
         case None => Nil
       }
+      preComputedCategories = rs.arrayOpt(fm.precomputedCategories) match {
+        case Some(array) =>
+          array.getArray.asInstanceOf[Array[String]].toList
+        case None => Nil
+      }
     } yield {
       FingerpostWireEntry(
         id = rs.long(fm.id),
@@ -99,7 +108,8 @@ object FingerpostWireEntry
           .filter(
             _.contains("<mark>")
           ), // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
-        s3Key = rs.stringOpt(fm.s3Key)
+        s3Key = rs.stringOpt(fm.s3Key),
+        precomputedCategories = preComputedCategories
       )
     }).left
       .map(error => {
@@ -247,6 +257,21 @@ object FingerpostWireEntry
     sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
   }
 
+  lazy val preComputedCategoriesSQL = (preComputedCategories: List[String]) => {
+    sqls"${syn.precomputedCategories} && ${textArray(preComputedCategories)}"
+  }
+
+  lazy val presetCategoriesExclSQL = (preComputedCategories: List[String]) => {
+    val pce = this.syntax("preComputedCategoriesExcl")
+    val doesContainPresets =
+      sqls"${pce.precomputedCategories} && ${textArray(preComputedCategories)}"
+    sqls"""|NOT EXISTS (
+           |  SELECT FROM ${FingerpostWireEntry as pce}
+           |  WHERE ${syn.id} = ${pce.id}
+           |    AND $doesContainPresets
+           |)""".stripMargin
+
+  }
   lazy val categoryCodeExclSQL = (categoryCodesExcl: List[String]) => {
     val cce = this.syntax("categoryCodesExcl")
     val doesContainCategoryCodes =
@@ -309,6 +334,18 @@ object FingerpostWireEntry
       case None                 => None
     }
 
+    val preComputedCategoriesQuery = search.preComputedCategories match {
+      case Nil              => None
+      case presetCategories => Some(preComputedCategoriesSQL(presetCategories))
+    }
+
+    val preComputedCategoriesExclQuery =
+      search.preComputedCategoriesExcl match {
+        case Nil => None
+        case presetCategoriesExcl =>
+          Some(presetCategoriesExclSQL(presetCategoriesExcl))
+      }
+
     List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -317,7 +354,9 @@ object FingerpostWireEntry
       sourceFeedsQuery,
       sourceFeedsExclQuery,
       categoryCodesExclQuery,
-      hasDataFormattingQuery
+      hasDataFormattingQuery,
+      preComputedCategoriesQuery,
+      preComputedCategoriesExclQuery
     ).flatten
   }
 
@@ -414,7 +453,7 @@ object FingerpostWireEntry
       maybeBeforeId = queryParams.maybeBeforeId,
       maybeSinceId = queryParams.maybeSinceId.map(_.sinceId)
     )
-
+    val start = System.currentTimeMillis()
     val query = buildSearchQuery(queryParams, whereClause)
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
@@ -435,10 +474,13 @@ object FingerpostWireEntry
       s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
     )
 
-    val totalCount: Long =
+    val totalCount: Long = {
       countQuery.map(_.long(1)).single().apply().getOrElse(0)
+    }
+    val finish = System.currentTimeMillis()
+    logger.info(s"QUERY TIME: ${finish - start}")
 
-//    val keywordCounts = getKeywords(additionalWhereClauses =
+    //    val keywordCounts = getKeywords(additionalWhereClauses =
 //      commonWhereClauses
 //    ) // TODO do this in parallel
 
