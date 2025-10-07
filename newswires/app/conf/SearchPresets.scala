@@ -249,6 +249,7 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       PA,
+      searchTerm = SearchTerm.Simple("SOCCER", Slug),
       CategoryCodes.SoccerScores.PA
     ),
     SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("SOCCER TABULATED RESULTS", Slug))
