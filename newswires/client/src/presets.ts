@@ -19,10 +19,6 @@ export const sportPresets: Preset[] = [
 		id: 'all-sport',
 	},
 	{
-		name: 'All sports v2',
-		id: 'all-sport-v2',
-	},
-	{
 		name: 'Soccer',
 		id: 'soccer',
 	},
@@ -37,10 +33,6 @@ export const sportPresets: Preset[] = [
 	{
 		name: 'No Soccer',
 		id: 'no-soccer',
-	},
-	{
-		name: 'No Soccer V2',
-		id: 'no-soccer-v2',
 	},
 	{
 		name: 'Cricket',
@@ -111,10 +103,8 @@ export const sportPresets: Preset[] = [
 export const presets: Preset[] = [
 	{ id: 'all-presets', name: 'All' },
 	{ id: 'all-world', name: 'World' },
-	{ id: 'all-world-v2', name: 'WorldV2' },
 	{ id: 'all-uk', name: 'UK' },
 	{ id: 'all-business', name: 'Business' },
-	{ id: 'all-business-v2', name: 'BusinessV2' },
 	{ id: 'sports-sublink', name: 'Sport', child: 'sportPresets' },
 ];
 
