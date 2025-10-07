@@ -1,2 +1,2 @@
-npm run lint:ci --workspace newswires-client
+npm run lint:ci
 npx lint-staged

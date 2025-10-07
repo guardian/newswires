@@ -23,15 +23,21 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v5 
 
       - name: Setup node for CDK
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           cache: 'npm'
           cache-dependency-path: './package-lock.json'
           node-version-file: '.nvmrc'
 
+      - name: Set up Scala CLI
+        uses: VirtusLab/scala-cli-setup@v1.5
+
+      - name: Set up test environment
+        run: ./scripts/setup-test-env.sh    
+      
       # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1

@@ -32,7 +32,7 @@ export async function getFromS3({
 }: {
 	bucketName: string;
 	key: string;
-}): Promise<OperationResult<{ body: string }>> {
+}): Promise<OperationResult<{ body: string, lastModified?: Date }>> {
 	logger.log({
 		message: `Getting object from S3 bucket "${bucketName}" with key "${key}"`,
 		key,
@@ -46,8 +46,9 @@ export async function getFromS3({
 			}),
 		);
 		const body = await response.Body?.transformToString();
+		const lastModified = response.LastModified;
 		if (body) {
-			return { status: 'success', body };
+			return { status: 'success', body, lastModified };
 		} else {
 			return {
 				status: 'failure',

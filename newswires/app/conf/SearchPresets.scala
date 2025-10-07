@@ -134,9 +134,8 @@ object SearchPresets {
   private val ApWorld = List(
     SearchPreset(
       AP,
-      keywords = List("World news", "U.S. news"),
-      categoryCodes = CategoryCodes.World.AP,
-      categoryCodesExcl = CategoryCodes.Sport.AP ::: CategoryCodes.Business.AP ::: CategoryCodes.Other.AP
+      keywords = List("General news"),
+      categoryCodes = CategoryCodes.World.AP
     )
   )
 
@@ -250,9 +249,9 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("SOCCER", Slug),
       CategoryCodes.SoccerScores.PA
-    )
+    ),
+    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("SOCCER TABULATED RESULTS", Slug))
   )
 
   private val SoccerTables = List(
@@ -460,7 +459,7 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(
       PA,
       searchTerm = SearchTerm.Simple("ATHLETICS", Slug),
-      categoryCodes = List("paCat:SRS", "paCat:SSS")
+      categoryCodes = List("paCat:SRS", "paCat:SSS", "paCat:RSR")
     ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("ATHLETICS", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Athletics.AAP),
