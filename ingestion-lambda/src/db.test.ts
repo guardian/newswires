@@ -109,7 +109,7 @@ describe('putItemToDb', () => {
 			Math.abs(now.getTime() - new Date(persistedAt).getTime()),
 		).toBeLessThanOrEqual(1000);
 	});
-	it('should persist calculated preset categories', async () => {
+	it('should persist precomputed categories', async () => {
 		await putItemToDb({
 			processedObject: {
 				...exampleProcessedObject,
@@ -121,20 +121,20 @@ describe('putItemToDb', () => {
 			sql: sql,
 			logger: mockCreateLogger({}),
 		});
-		const results = await sql`SELECT preset_categories FROM ${sql(
+		const results = await sql`SELECT precomputed_categories FROM ${sql(
 			DATABASE_TABLE_NAME,
 		)} WHERE external_id = 'test-external-id-5';`;
-		const presetCategories = (
-			results[0] as { preset_categories: string[] | null }
-		).preset_categories;
-		expect(presetCategories).toBeDefined();
-		expect(presetCategories).toEqual([
+		const precomputedCategories = (
+			results[0] as { precomputed_categories: string[] | null }
+		).precomputed_categories;
+		expect(precomputedCategories).toBeDefined();
+		expect(precomputedCategories).toEqual([
 			'all-sports',
 			'no-soccer',
 			'sports-related-topic-codes',
 		]);
 	});
-	it('should store an empty array for preset categories if no category codes match', async () => {
+	it('should store an empty array for precomputed categories if no category codes match', async () => {
 		await putItemToDb({
 			processedObject: {
 				...exampleProcessedObject,
@@ -146,13 +146,13 @@ describe('putItemToDb', () => {
 			sql: sql,
 			logger: mockCreateLogger({}),
 		});
-		const results = await sql`SELECT preset_categories FROM ${sql(
+		const results = await sql`SELECT precomputed_categories FROM ${sql(
 			DATABASE_TABLE_NAME,
 		)} WHERE external_id = 'test-external-id-5';`;
-		const presetCategories = (
-			results[0] as { preset_categories: string[] | null }
-		).preset_categories;
-		expect(presetCategories).toBeDefined();
-		expect(presetCategories).toEqual([]);
+		const precomputedCategories = (
+			results[0] as { precomputed_categories: string[] | null }
+		).precomputed_categories;
+		expect(precomputedCategories).toBeDefined();
+		expect(precomputedCategories).toEqual([]);
 	});
 });

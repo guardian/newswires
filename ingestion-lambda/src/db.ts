@@ -5,7 +5,7 @@ import {
 } from '../../shared/constants';
 import { getErrorMessage } from '../../shared/getErrorMessage';
 import type { Logger } from '../../shared/lambda-logging';
-import { computePresetCategories } from '../../shared/presetCategories';
+import { computePresetCategories } from '../../shared/precomputeCategories';
 import type { OperationResult, ProcessedObject } from '../../shared/types';
 
 export async function putItemToDb({
@@ -24,13 +24,13 @@ export async function putItemToDb({
 	logger: Logger;
 }): Promise<OperationResult<{ didCreateNewItem: boolean }>> {
 	const { content, supplier, categoryCodes } = processedObject;
-	const presetCategories = computePresetCategories(categoryCodes);
+	const computedCategories = computePresetCategories(categoryCodes);
 	const ingestedAt = (lastModified ?? new Date()).toISOString();
 	try {
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
-			(external_id, supplier, content, category_codes, s3_key, ingested_at, preset_categories, last_updated_at)
-		VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}, ${ingestedAt}, ${presetCategories}, now()) ON CONFLICT (external_id) DO NOTHING
+			(external_id, supplier, content, category_codes, s3_key, ingested_at, precomputed_categories, last_updated_at)
+		VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}, ${ingestedAt}, ${computedCategories}, now()) ON CONFLICT (external_id) DO NOTHING
 		RETURNING id`;
 
 		if (result.length === 0) {

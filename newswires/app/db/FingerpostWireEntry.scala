@@ -30,7 +30,7 @@ case class FingerpostWireEntry(
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil,
     s3Key: Option[String],
-    presetCategories: List[String]
+    precomputedCategories: List[String]
 )
 
 object FingerpostWireEntry
@@ -56,7 +56,7 @@ object FingerpostWireEntry
       "combined_textsearch",
       "highlight",
       "s3_key",
-      "preset_categories"
+      "precomputed_categories"
     )
   val syn = this.syntax("fm")
 
@@ -70,7 +70,7 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.categoryCodes},
     |   ${FingerpostWireEntry.syn.result.content},
     |   ${FingerpostWireEntry.syn.result.s3Key},
-    |   ${FingerpostWireEntry.syn.result.presetCategories}
+    |   ${FingerpostWireEntry.syn.result.precomputedCategories}
     |""".stripMargin
 
   def fromDb(
@@ -88,7 +88,7 @@ object FingerpostWireEntry
             .toList
         case None => Nil
       }
-      presetCategories = rs.arrayOpt(fm.presetCategories) match {
+      preComputedCategories = rs.arrayOpt(fm.precomputedCategories) match {
         case Some(array) =>
           array.getArray.asInstanceOf[Array[String]].toList
         case None => Nil
@@ -109,7 +109,7 @@ object FingerpostWireEntry
             _.contains("<mark>")
           ), // sometimes PG will return some unmarked text, and sometimes will return NULL - I can't figure out which and when
         s3Key = rs.stringOpt(fm.s3Key),
-        presetCategories = presetCategories
+        precomputedCategories = preComputedCategories
       )
     }).left
       .map(error => {
@@ -257,13 +257,14 @@ object FingerpostWireEntry
     sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
   }
 
-  lazy val presetCategoriesSQL = (presetCategories: List[String]) => {
-    sqls"${syn.presetCategories} && ${textArray(presetCategories)}"
+  lazy val preComputedCategoriesSQL = (preComputedCategories: List[String]) => {
+    sqls"${syn.precomputedCategories} && ${textArray(preComputedCategories)}"
   }
 
-  lazy val presetCategoriesExclSQL = (presetCategories: List[String]) => {
-    val pce = this.syntax("presetCategoriesExcl")
-    val doesContainPresets = sqls"${pce.presetCategories} && ${textArray(presetCategories)}"
+  lazy val presetCategoriesExclSQL = (preComputedCategories: List[String]) => {
+    val pce = this.syntax("preComputedCategoriesExcl")
+    val doesContainPresets =
+      sqls"${pce.precomputedCategories} && ${textArray(preComputedCategories)}"
     sqls"""|NOT EXISTS (
            |  SELECT FROM ${FingerpostWireEntry as pce}
            |  WHERE ${syn.id} = ${pce.id}
@@ -333,15 +334,17 @@ object FingerpostWireEntry
       case None                 => None
     }
 
-    val presetCategoriesQuery = search.presetCategories match {
+    val preComputedCategoriesQuery = search.preComputedCategories match {
       case Nil              => None
-      case presetCategories => Some(presetCategoriesSQL(presetCategories))
+      case presetCategories => Some(preComputedCategoriesSQL(presetCategories))
     }
 
-    val presetCategoriesExclQuery = search.presetCategoriesExcl match {
-      case Nil => None
-      case presetCategoriesExcl => Some(presetCategoriesExclSQL(presetCategoriesExcl))
-    }
+    val preComputedCategoriesExclQuery =
+      search.preComputedCategoriesExcl match {
+        case Nil => None
+        case presetCategoriesExcl =>
+          Some(presetCategoriesExclSQL(presetCategoriesExcl))
+      }
 
     List(
       keywordsQuery,
@@ -352,8 +355,8 @@ object FingerpostWireEntry
       sourceFeedsExclQuery,
       categoryCodesExclQuery,
       hasDataFormattingQuery,
-      presetCategoriesQuery,
-      presetCategoriesExclQuery
+      preComputedCategoriesQuery,
+      preComputedCategoriesExclQuery
     ).flatten
   }
 
