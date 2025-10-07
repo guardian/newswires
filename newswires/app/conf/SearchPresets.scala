@@ -312,7 +312,7 @@ object SearchPresets {
       PA,
       searchTerm = SearchTerm.Simple("RUGBYL", Slug),
       CategoryCodes.Sport.PA
-    ), // make excluding "sourceFeed": "PA PA SPORT DATA"
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("RugbyL", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.RugbyLeague.AAP),
     SearchPreset.fromSearchTerm(
@@ -333,7 +333,7 @@ object SearchPresets {
       PA,
       searchTerm = SearchTerm.Simple("RUGBYU", Slug),
       CategoryCodes.Sport.PA
-    ), // make excluding "sourceFeed": "PA PA SPORT DATA"
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("RugbyU", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.RugbyUnion.AAP),
     SearchPreset.fromSearchTerm(
@@ -478,7 +478,7 @@ object SearchPresets {
       PA,
       text = SimpleSearchQueries.OLYMPICS,
       categoryCodes = List("paCat:SRS", "paCat:SSS")
-    ), // too broad, to recheck when stories arrive
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("Oly", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Olympic games"))
