@@ -40,6 +40,8 @@ export const updateQuery = (
 	}
 	if (key === 'preset') {
 		if (
+			// TODO -> make this more generic and assoicate the sportsPreset to all-sport in the
+			// presets defintion?
 			sportPresets.map((p) => p.id).includes(value) &&
 			value !== 'all-sport'
 		) {
