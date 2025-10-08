@@ -12,5 +12,7 @@ case class SearchParams(
     suppliersExcl: List[String] = Nil,
     categoryCodesIncl: List[String] = Nil,
     categoryCodesExcl: List[String] = Nil,
-    hasDataFormatting: Option[Boolean] = None
+    hasDataFormatting: Option[Boolean] = None,
+    // Additional text clauses to be ANDed with the main text query
+    andText: List[SearchTerm] = Nil
 )
