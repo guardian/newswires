@@ -1381,15 +1381,8 @@ export const businessRelatedTopicCodes = [
 	'N2:SPCRET',
 	'N2:NO EQUIVALENT',
 ];
-export const AllBusiness = [
-	'apCat:f',
-    'paCat:FFF',
-    'paCat:GXX',
-    ...businessRelatedNewsCodes,
-    ...businessRelatedTopicCodes
-];
+
 export const Soccer = [
-    'N2:SOCC',
     'N2:SOCC',
     'paCat:SSO',
     'paCat:SFF',
@@ -1397,21 +1390,6 @@ export const Soccer = [
     'paCat:SSO',
     'subj:15054000'
 ]
-
-export const AllWorld = [
-	'REUTERS:WORLD',
-	'afpCat:SPO',
-	'apCat:i',
-	'apCat:a',
-	'apCat:w',
-	'paCat:SRS',
-	'paCat:SSS', // General Sport News
-	'paCat:SSO', // Soccer News
-	'paCat:SCR', // Cricket News
-	'paCat:SRR', // Racing News
-	'paCat:SST', // Scottish sports
-    ...sportsRelatedNewsCodes
-];
 
 export const AllSports = [
 	'afpCat:SPO',
