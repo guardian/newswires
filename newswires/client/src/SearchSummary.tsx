@@ -13,7 +13,7 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
-import { presetLabel } from './presets.ts';
+import { presetLabel, sportPresets } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -38,7 +38,17 @@ export const updateQuery = (
 	if (key === 'q') {
 		return { q: '' };
 	}
-	if (['dateRange', 'preset', 'hasDataFormatting'].includes(key)) {
+	if (key === 'preset') {
+		if (
+			sportPresets.map((p) => p.id).includes(value) &&
+			value !== 'all-sport'
+		) {
+			return { [key]: 'all-sport' };
+		} else {
+			return { [key]: undefined };
+		}
+	}
+	if (['dateRange', 'hasDataFormatting'].includes(key)) {
 		return { [key]: undefined };
 	}
 	if (

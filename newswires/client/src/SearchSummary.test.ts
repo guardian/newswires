@@ -35,4 +35,14 @@ describe('updateQuery', () => {
 			updateQuery('keywordExcl', 'bar', { q: '', keywordExcl: ['foo', 'bar'] }),
 		).toStrictEqual({ keywordExcl: ['foo'] });
 	});
+	it('should return preset : undefined for a top level preset', () => {
+		expect(updateQuery('preset', 'all-world', { q: '' })).toStrictEqual({
+			preset: undefined,
+		});
+	});
+	it('should return preset : all-sports for a secondary level preset', () => {
+		expect(updateQuery('preset', 'no-soccer', { q: '' })).toStrictEqual({
+			preset: 'all-sport',
+		});
+	});
 });
