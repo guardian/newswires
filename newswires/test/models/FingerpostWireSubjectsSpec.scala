@@ -14,17 +14,17 @@ class FingerpostWireSubjectsSpec extends AnyFlatSpec {
                       |    "b"
                       |  ]
                       |}""".stripMargin
-  ignore should "serialise json" in {
+  it should "serialise json" in {
     exampleFingerpostWireSubjects.asJson.spaces2 shouldEqual exampleJson
   }
 
-  ignore should "deserialise json" in {
+  it should "deserialise json" in {
     decode[FingerpostWireSubjects](
       exampleJson
     ) shouldEqual Right(exampleFingerpostWireSubjects)
   }
 
-  ignore should "deserialise json with an empty code" in {
+  it should "deserialise json with an empty code" in {
     decode[FingerpostWireSubjects]("""{
         | "code": ""
         |}""".stripMargin) shouldEqual Right(

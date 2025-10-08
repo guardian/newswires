@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment -- need to fix */
 
 import type { Sql } from 'postgres';
-import { computePresetCategories } from '../../shared/presetCategories';
+import { computePresetCategories } from '../../shared/precomputeCategories';
 import { initialiseDbConnection } from '../../shared/rds';
 import { countQuery, getQuery } from './query';
 
