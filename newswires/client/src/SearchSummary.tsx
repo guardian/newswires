@@ -30,6 +30,25 @@ const SearchTermBadgeLabelLookup: Record<keyof Query, string> = {
 	keywordExcl: '(NOT) Keyword',
 } as const;
 
+export const updateQuery = (
+	key: keyof Query,
+	value: string,
+	query: Query,
+): Partial<Query> => {
+	if (key === 'q') {
+		return { q: '' };
+	}
+	if (['dateRange', 'preset', 'hasDataFormatting'].includes(key)) {
+		return { [key]: undefined };
+	}
+	if (
+		['categoryCode', 'categoryCodeExcl', 'keyword', 'keywordExcl'].includes(key)
+	) {
+		const current = query[key] as string[] | undefined;
+		return { [key]: (current ?? []).filter((s) => s !== value) };
+	}
+	return {};
+};
 const SummaryBadge = ({
 	queryParamKey,
 	value,
@@ -44,34 +63,13 @@ const SummaryBadge = ({
 	const { config, handleEnterQuery, toggleSupplier } = useSearch();
 
 	const handleRemoveBadge = (key: keyof Query, value: string) => {
-		switch (key) {
-			case 'q':
-				handleEnterQuery({
-					...config.query,
-					q: '',
-				});
-				break;
-			case 'dateRange':
-			case 'preset':
-			case 'hasDataFormatting':
-				handleEnterQuery({
-					...config.query,
-					[key]: undefined,
-				});
-				break;
-			case 'supplier':
-			case 'supplierExcl':
-				toggleSupplier(value);
-				break;
-			case 'categoryCode':
-			case 'categoryCodeExcl':
-			case 'keyword':
-			case 'keywordExcl':
-				handleEnterQuery({
-					...config.query,
-					[key]: (config.query[key] ?? []).filter((s: string) => s !== value),
-				});
-				break;
+		if (['supplier', 'supplierExcl'].includes(key)) {
+			toggleSupplier(value);
+		} else {
+			handleEnterQuery({
+				...config.query,
+				...updateQuery(key, value, config.query),
+			});
 		}
 	};
 
