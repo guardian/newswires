@@ -13,7 +13,7 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
-import { presetLabel } from './presets.ts';
+import { presetLabel, sportPresets } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -30,6 +30,37 @@ const SearchTermBadgeLabelLookup: Record<keyof Query, string> = {
 	keywordExcl: '(NOT) Keyword',
 } as const;
 
+export const updateQuery = (
+	key: keyof Query,
+	value: string,
+	query: Query,
+): Partial<Query> => {
+	if (key === 'q') {
+		return { q: '' };
+	}
+	if (key === 'preset') {
+		if (
+			// TODO -> make this more generic and assoicate the sportsPreset to all-sport in the
+			// presets defintion?
+			sportPresets.map((p) => p.id).includes(value) &&
+			value !== 'all-sport'
+		) {
+			return { [key]: 'all-sport' };
+		} else {
+			return { [key]: undefined };
+		}
+	}
+	if (['dateRange', 'hasDataFormatting'].includes(key)) {
+		return { [key]: undefined };
+	}
+	if (
+		['categoryCode', 'categoryCodeExcl', 'keyword', 'keywordExcl'].includes(key)
+	) {
+		const current = query[key] as string[] | undefined;
+		return { [key]: (current ?? []).filter((s) => s !== value) };
+	}
+	return {};
+};
 const SummaryBadge = ({
 	queryParamKey,
 	value,
@@ -44,34 +75,13 @@ const SummaryBadge = ({
 	const { config, handleEnterQuery, toggleSupplier } = useSearch();
 
 	const handleRemoveBadge = (key: keyof Query, value: string) => {
-		switch (key) {
-			case 'q':
-				handleEnterQuery({
-					...config.query,
-					q: '',
-				});
-				break;
-			case 'dateRange':
-			case 'preset':
-			case 'hasDataFormatting':
-				handleEnterQuery({
-					...config.query,
-					[key]: undefined,
-				});
-				break;
-			case 'supplier':
-			case 'supplierExcl':
-				toggleSupplier(value);
-				break;
-			case 'categoryCode':
-			case 'categoryCodeExcl':
-			case 'keyword':
-			case 'keywordExcl':
-				handleEnterQuery({
-					...config.query,
-					[key]: (config.query[key] ?? []).filter((s: string) => s !== value),
-				});
-				break;
+		if (['supplier', 'supplierExcl'].includes(key)) {
+			toggleSupplier(value);
+		} else {
+			handleEnterQuery({
+				...config.query,
+				...updateQuery(key, value, config.query),
+			});
 		}
 	};
 
