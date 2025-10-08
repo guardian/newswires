@@ -69,7 +69,7 @@ const SummaryBadge = ({
 			case 'keywordExcl':
 				handleEnterQuery({
 					...config.query,
-					[key]: (config.query[key] ?? []).filter((s: string) => s !== value),
+					[key]: config.query[key].filter((s: string) => s !== value),
 				});
 				break;
 		}
@@ -113,11 +113,11 @@ const Summary = ({
 		hasDataFormatting,
 	} = query;
 
-	const displayCategoryCodes = (categoryCode ?? []).length > 0;
-	const displayExcludedCategoryCodes = (categoryCodeExcl ?? []).length > 0;
-	const displaySuppliers = (suppliers ?? []).length > 0;
-	const displayKeywords = (query.keyword ?? []).length > 0;
-	const displayExcludedKeywords = (query.keywordExcl ?? []).length > 0;
+	const displayCategoryCodes = categoryCode.length > 0;
+	const displayExcludedCategoryCodes = categoryCodeExcl.length > 0;
+	const displaySuppliers = suppliers.length > 0;
+	const displayKeywords = query.keyword.length > 0;
+	const displayExcludedKeywords = query.keywordExcl.length > 0;
 
 	const displayFilters: boolean =
 		!!q ||
@@ -162,37 +162,33 @@ const Summary = ({
 				/>
 			)}
 
-			{suppliers?.map((supplier) => (
+			{suppliers.map((supplier) => (
 				<SummaryBadge
 					key={supplier}
 					queryParamKey="supplier"
 					value={supplier}
 				/>
 			))}
-			{displayCategoryCodes &&
-				categoryCode?.map((code) => (
-					<SummaryBadge key={code} queryParamKey="categoryCode" value={code} />
-				))}
-			{displayExcludedCategoryCodes &&
-				categoryCodeExcl?.map((code) => (
-					<SummaryBadge
-						key={code}
-						queryParamKey="categoryCodeExcl"
-						value={code}
-					/>
-				))}
-			{displayKeywords &&
-				query.keyword?.map((keyword) => (
-					<SummaryBadge key={keyword} queryParamKey="keyword" value={keyword} />
-				))}
-			{displayExcludedKeywords &&
-				query.keywordExcl?.map((keyword) => (
-					<SummaryBadge
-						key={keyword}
-						queryParamKey="keywordExcl"
-						value={keyword}
-					/>
-				))}
+			{categoryCode.map((code) => (
+				<SummaryBadge key={code} queryParamKey="categoryCode" value={code} />
+			))}
+			{categoryCodeExcl.map((code) => (
+				<SummaryBadge
+					key={code}
+					queryParamKey="categoryCodeExcl"
+					value={code}
+				/>
+			))}
+			{query.keyword.map((keyword) => (
+				<SummaryBadge key={keyword} queryParamKey="keyword" value={keyword} />
+			))}
+			{query.keywordExcl.map((keyword) => (
+				<SummaryBadge
+					key={keyword}
+					queryParamKey="keywordExcl"
+					value={keyword}
+				/>
+			))}
 			{hasDataFormatting !== undefined && (
 				<SummaryBadge
 					queryParamKey="hasDataFormatting"

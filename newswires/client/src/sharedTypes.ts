@@ -119,12 +119,12 @@ const DateRange = z.object({
 
 export const QuerySchema = z.object({
 	q: z.string(),
-	supplier: z.array(z.string()).optional(),
-	supplierExcl: z.array(z.string()).optional(),
-	keyword: z.array(z.string()).optional(),
-	keywordExcl: z.array(z.string()).optional(),
-	categoryCode: z.array(z.string()).optional(),
-	categoryCodeExcl: z.array(z.string()).optional(),
+	supplier: z.array(z.string()),
+	supplierExcl: z.array(z.string()),
+	keyword: z.array(z.string()),
+	keywordExcl: z.array(z.string()),
+	categoryCode: z.array(z.string()),
+	categoryCodeExcl: z.array(z.string()),
 	preset: z.string().optional(),
 	dateRange: DateRange.optional(),
 	hasDataFormatting: z.boolean().optional(),

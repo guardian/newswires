@@ -1,6 +1,6 @@
 import { pandaFetch } from '../panda-session';
 import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
-import { paramsToQuerystring } from '../urlState';
+import { defaultQuery, paramsToQuerystring } from '../urlState';
 import { fetchResults } from './fetchResults.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
@@ -25,7 +25,7 @@ describe('fetchResults', () => {
 	});
 
 	it('should call pandaFetch with correct URL and headers', async () => {
-		const mockQuery = { q: 'value' };
+		const mockQuery = { ...defaultQuery, q: 'value' };
 		await fetchResults({ query: mockQuery, view: 'feed' });
 
 		expect(paramsToQuerystring).toHaveBeenCalledWith({
@@ -46,7 +46,7 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+			fetchResults({ query: { ...defaultQuery, q: 'value' }, view: 'feed' }),
 		).rejects.toThrow('Error occurred');
 	});
 
@@ -57,7 +57,7 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+			fetchResults({ query: { ...defaultQuery, q: 'value' }, view: 'feed' }),
 		).rejects.toThrow('Received invalid data from server');
 	});
 
@@ -72,12 +72,15 @@ describe('fetchResults', () => {
 			ok: true,
 		});
 
-		const result = await fetchResults({ query: { q: 'value' }, view: 'feed' });
+		const result = await fetchResults({
+			query: { ...defaultQuery, q: 'value' },
+			view: 'feed',
+		});
 		expect(result).toEqual(mockResponseData);
 	});
 
 	it('should append sinceId to the query if provided', async () => {
-		const mockQuery = { q: 'value' };
+		const mockQuery = { ...defaultQuery, q: 'value' };
 		await fetchResults({ query: mockQuery, view: 'feed', sinceId: '123' });
 
 		expect(paramsToQuerystring).toHaveBeenCalledWith({
@@ -88,7 +91,7 @@ describe('fetchResults', () => {
 	});
 
 	it('should append beforeId to the query if provided', async () => {
-		const mockQuery = { q: 'value' };
+		const mockQuery = { ...defaultQuery, q: 'value' };
 		await fetchResults({
 			query: mockQuery,
 			view: 'feed',
@@ -103,7 +106,7 @@ describe('fetchResults', () => {
 	});
 
 	it('should transform the results using transformWireItemQueryResult', async () => {
-		const mockQuery = { q: 'value' };
+		const mockQuery = { ...defaultQuery, q: 'value' };
 		const results = await fetchResults({ query: mockQuery, view: 'feed' });
 		expect(results.results).toHaveLength(1);
 		expect(results.results[0]).toEqual(
