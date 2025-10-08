@@ -26,26 +26,22 @@ async function getRecords(
 	});
 }
 
-const toPostgressArray = (classifications: string[]) => {
-	if (classifications.length === 0) return 'ARRAY[]::text[]';
-	return `ARRAY[${classifications.map((c) => `'${c}'`).join(',')}]`;
-};
 async function updateRecords(sql: Sql, records: DBRecord[]) {
-	const values = records
-		.map(
-			(record) =>
-				`('${record.external_id}', ${toPostgressArray(computePresetCategories(record.category_codes))})`,
-		)
-		.join(',');
-	await sql.unsafe(`UPDATE fingerpost_wire_entry AS fwe
+	const values = records.map((r) => [
+		r.external_id,
+		`{${computePresetCategories(r.category_codes)
+			.map((c) => `"${c}"`)
+			.join(',')}}`,
+	]);
+	await sql`UPDATE fingerpost_wire_entry AS fwe
         SET 
             last_updated_at = NOW(), 
-            preset_categories = data.preset_categories
+            precomputed_categories = data.precomputed_categories::text[]
         FROM (
-            VALUES ${values}
-        ) AS data(external_id, preset_categories)
+            VALUES ${sql(values)}
+        ) AS data(external_id, precomputed_categories)
         WHERE fwe.external_id = data.external_id;
-    `);
+    `;
 }
 
 function computeOffsets(max: number, batchSize: number): number[] {
