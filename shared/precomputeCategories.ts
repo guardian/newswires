@@ -2,7 +2,7 @@ import {  AllSports, businessRelatedNewsCodes, businessRelatedTopicCodes, otherT
 
 
 const containsCode = (categoryCodes: string[], codesToCheck: string[]) => {
-    return categoryCodes.filter((code) => codesToCheck.includes(code)).length > 0
+    return categoryCodes.some((code) => codesToCheck.includes(code))
 }
 
 const noSoccer = (isAllSports: boolean, categoryCodes: string[]) => {
@@ -22,5 +22,5 @@ const presetCodesMap: { [key: string]: (categoryCodes: string[]) => boolean } = 
 export const computePresetCategories = (categoryCodes: string[]) => {
     return Object.entries(presetCodesMap).filter(([_, checkFn]) => {
         return checkFn(categoryCodes);
-    }).map(([presetCategory]) => presetCategory);
+    }).map(([presetCategory, _]) => presetCategory);
 };
