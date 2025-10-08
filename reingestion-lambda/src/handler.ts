@@ -1,48 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment -- need to fix */
-
-import type { Sql } from 'postgres';
-import { computePresetCategories } from '../../shared/precomputeCategories';
 import { initialiseDbConnection } from '../../shared/rds';
-import { countQuery, getQuery } from './query';
-
-type DBRecord = {
-	external_id: string;
-	category_codes: string[];
-};
-
-async function getRecords(
-	sql: Sql,
-	limit: number,
-	offset: number,
-	lastUpdatedSince?: Date,
-	lastUpdatedAfter?: Date,
-): Promise<DBRecord[]> {
-	const query = sql.unsafe(
-		getQuery(limit, offset, lastUpdatedSince, lastUpdatedAfter),
-	);
-	const results = await query;
-	return results.map((r) => {
-		return { external_id: r.external_id, category_codes: r.category_codes };
-	});
-}
-
-async function updateRecords(sql: Sql, records: DBRecord[]) {
-	const values = records.map((r) => [
-		r.external_id,
-		`{${computePresetCategories(r.category_codes)
-			.map((c) => `"${c}"`)
-			.join(',')}}`,
-	]);
-	await sql`UPDATE fingerpost_wire_entry AS fwe
-        SET 
-            last_updated_at = NOW(), 
-            precomputed_categories = data.precomputed_categories::text[]
-        FROM (
-            VALUES ${sql(values)}
-        ) AS data(external_id, precomputed_categories)
-        WHERE fwe.external_id = data.external_id;
-    `;
-}
+import { countQuery, getQuery, updateRecords } from './query';
 
 function computeOffsets(max: number, batchSize: number): number[] {
 	const batches = Math.ceil(max / batchSize);
@@ -69,12 +26,12 @@ export const main = async ({
 	const lastUpdatedUntilDate = lastUpdatedUntil
 		? new Date(lastUpdatedUntil)
 		: undefined;
-	const countResponse = await sql.unsafe(
-		countQuery(lastUpdatedSinceDate, lastUpdatedUntilDate),
+	const totalToUpdate = await countQuery(
+		sql,
+		lastUpdatedSinceDate,
+		lastUpdatedUntilDate,
 	);
 
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- testing
-	const totalToUpdate = Number(countResponse.map((r) => r.count)[0]);
 	console.info(
 		`There are ${totalToUpdate} records for updating from the query`,
 	);
@@ -87,7 +44,13 @@ export const main = async ({
 		`Starting to update up to ${effectiveLimit} records in batches of ${batchSize}`,
 	);
 	for (const [index, offset] of offsets.entries()) {
-		const records = await getRecords(sql, batchSize, offset);
+		const records = await getQuery(
+			sql,
+			batchSize,
+			offset,
+			lastUpdatedSinceDate,
+			lastUpdatedUntilDate,
+		);
 		console.info(`Processing batch ${index + 1} of ${offsets.length}`);
 		if (records.length === 0) {
 			console.info('No more records to process, exiting');
