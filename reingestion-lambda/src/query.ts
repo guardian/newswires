@@ -62,7 +62,7 @@ type WhereKey = keyof typeof whereConditions;
 const clauses = (whereParams: WhereParams): string[] => {
 	return Object.entries(whereParams)
 		.map(([k, v]) => {
-			if (k in whereConditions && v !== undefined) {
+			if (k in whereConditions) {
 				const key = k as WhereKey;
 				return whereConditions[key](v);
 			} else return undefined;
