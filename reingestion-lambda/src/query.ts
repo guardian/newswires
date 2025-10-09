@@ -60,26 +60,33 @@ const whereConditions = {
 	lastUpdatedAtIsEmpty: (sql: Sql, isEmpty: boolean) =>
 		isEmpty ? sql`last_updated_at is null` : sql`last_updated_at is not null`,
 } as const;
-type WhereKey = keyof typeof whereConditions;
 
 const whereClause = (sql: Sql, whereParams: WhereParams) => {
-	const conditions = Object.entries(whereParams)
-		.map(([k, v]) => {
-			if (k in whereConditions) {
-				const key = k as WhereKey;
-				return whereConditions[key](sql, v);
-			} else return undefined;
-		})
-		.filter((p) => p !== undefined);
-	return conditions.length
-		? conditions.reduce(
-				(prev, curr, i) => {
-					if (i === 0) return sql`where ${curr}`;
-					return sql`${prev} and ${curr}`;
-				},
-				sql``,
-			)
-		: sql``;
+	const parts = [];
+	if (whereParams.lastUpdatedSince)
+		parts.push(
+			whereConditions.lastUpdatedSince(sql, whereParams.lastUpdatedSince),
+		);
+	if (whereParams.lastUpdatedUntil)
+		parts.push(
+			whereConditions.lastUpdatedUntil(sql, whereParams.lastUpdatedUntil),
+		);
+	if (whereParams.lastUpdatedAtIsEmpty !== undefined)
+		parts.push(
+			whereConditions.lastUpdatedAtIsEmpty(
+				sql,
+				whereParams.lastUpdatedAtIsEmpty,
+			),
+		);
+
+	if (parts.length === 0) return sql``;
+	return parts.reduce(
+		(prev, curr, i) => {
+			if (i === 0) return sql`where ${curr}`;
+			return sql`${prev} and ${curr}`;
+		},
+		sql``,
+	);
 };
 
 export { getQuery, countQuery };
