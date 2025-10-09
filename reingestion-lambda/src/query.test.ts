@@ -33,4 +33,18 @@ describe('clauses', () => {
 	it('lastUpdatedSince and lastUpdatedUntil are not defined', () => {
 		expect(clauses({})).toStrictEqual([]);
 	});
+	it('lastUpdatedIsEmpty is true', () => {
+		expect(
+			clauses({
+				lastUpdatedAtIsEmpty: true,
+			}),
+		).toStrictEqual(['last_updated_at is null']);
+	});
+	it('lastUpdatedIsEmpty is false', () => {
+		expect(
+			clauses({
+				lastUpdatedAtIsEmpty: false,
+			}),
+		).toStrictEqual(['last_updated_at is not null']);
+	});
 });

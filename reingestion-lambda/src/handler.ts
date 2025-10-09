@@ -12,18 +12,21 @@ export const main = async ({
 	timeDelay,
 	lastUpdatedSince,
 	lastUpdatedUntil,
+	lastUpdatedAtIsEmpty,
 }: {
 	limit: number;
 	batchSize: number;
 	timeDelay: number;
 	lastUpdatedSince: string | undefined;
 	lastUpdatedUntil: string | undefined;
+	lastUpdatedAtIsEmpty: boolean | undefined;
 }) => {
 	const { sql, closeDbConnection } = await initialiseDbConnection();
 
 	const params = {
 		...(lastUpdatedSince && { lastUpdatedSince: new Date(lastUpdatedSince) }),
 		...(lastUpdatedUntil && { lastUpdatedUntil: new Date(lastUpdatedUntil) }),
+		...(lastUpdatedAtIsEmpty && { lastUpdatedAtIsEmpty }),
 	};
 
 	const totalToUpdate = await countQuery(sql, params);

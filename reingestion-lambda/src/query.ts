@@ -10,6 +10,7 @@ export type DBRecord = {
 export type WhereParams = {
 	lastUpdatedSince?: Date;
 	lastUpdatedUntil?: Date;
+	lastUpdatedAtIsEmpty?: boolean;
 };
 
 export const updateRecords = async (sql: Sql, records: DBRecord[]) => {
@@ -56,6 +57,8 @@ const whereConditions = {
 		`last_updated_at >= '${lastUpdatedSince.toISOString()}'`,
 	lastUpdatedUntil: (lastUpdatedUntil: Date) =>
 		`last_updated_at <= '${lastUpdatedUntil.toISOString()}'`,
+	lastUpdatedAtIsEmpty: (isEmpty: boolean) =>
+		isEmpty ? `last_updated_at is null` : `last_updated_at is not null`,
 } as const;
 type WhereKey = keyof typeof whereConditions;
 
