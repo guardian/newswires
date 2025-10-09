@@ -5,7 +5,8 @@ async function run() {
         batchSize: 1,
         timeDelay: 1000,
         lastUpdatedSince: undefined,
-        lastUpdatedUntil: undefined
+        lastUpdatedUntil: undefined,
+        lastUpdatedAtIsEmpty: true
     })
 }
 run()
