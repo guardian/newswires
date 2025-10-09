@@ -5,7 +5,7 @@ npm run build -w reingestion-lambda
 zip -FSjr "reingestion-lambda/dist/reingestion-lambda.zip" "reingestion-lambda/dist/handler.js"
 
 aws lambda update-function-code \
-    --function-name editorial-feeds-CODE-news-ReingestionLambdaCODEDDF-zwIlC2J8xojr \
+    --function-name editorial-feeds-CODE-news-ReingestionLambdaCODEDDF-AzkgIiM0SeP6 \
     --profile editorial-feeds \
     --region eu-west-1 \
     --zip-file "fileb://reingestion-lambda/dist/reingestion-lambda.zip"
