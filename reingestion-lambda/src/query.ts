@@ -36,7 +36,7 @@ const getQuery = async (
 	offset: number,
 	whereParams: WhereParams,
 ): Promise<DBRecord[]> => {
-	const where = whereClause(sql, clauses(whereParams));
+	const where = whereClause(sql, whereParams);
 	const results =
 		await sql`SELECT external_id, category_codes FROM ${sql(DATABASE_TABLE_NAME)} ${where} ORDER BY id LIMIT ${limit} OFFSET ${offset};`;
 	return results.map((r: Row) => {
@@ -44,7 +44,7 @@ const getQuery = async (
 	});
 };
 const countQuery = async (sql: Sql, whereParams: WhereParams) => {
-	const where = whereClause(sql, clauses(whereParams));
+	const where = whereClause(sql, whereParams);
 	const results =
 		await sql`SELECT COUNT(*) FROM ${sql(DATABASE_TABLE_NAME)} ${where}`;
 	if (results.length > 0 && results[0] !== undefined)
@@ -53,28 +53,24 @@ const countQuery = async (sql: Sql, whereParams: WhereParams) => {
 };
 
 const whereConditions = {
-	lastUpdatedSince: (lastUpdatedSince: Date) =>
-		`last_updated_at >= '${lastUpdatedSince.toISOString()}'`,
-	lastUpdatedUntil: (lastUpdatedUntil: Date) =>
-		`last_updated_at <= '${lastUpdatedUntil.toISOString()}'`,
-	lastUpdatedAtIsEmpty: (isEmpty: boolean) =>
-		isEmpty ? `last_updated_at is null` : `last_updated_at is not null`,
+	lastUpdatedSince: (sql: Sql, lastUpdatedSince: Date) =>
+		sql`last_updated_at >= ${lastUpdatedSince.toISOString()}`,
+	lastUpdatedUntil: (sql: Sql, lastUpdatedUntil: Date) =>
+		sql`last_updated_at <= ${lastUpdatedUntil.toISOString()}`,
+	lastUpdatedAtIsEmpty: (sql: Sql, isEmpty: boolean) =>
+		isEmpty ? sql`last_updated_at is null` : sql`last_updated_at is not null`,
 } as const;
 type WhereKey = keyof typeof whereConditions;
 
-const clauses = (whereParams: WhereParams): string[] => {
-	return Object.entries(whereParams)
+const whereClause = (sql: Sql, whereParams: WhereParams) => {
+	const conditions = Object.entries(whereParams)
 		.map(([k, v]) => {
 			if (k in whereConditions) {
 				const key = k as WhereKey;
-				return whereConditions[key](v);
+				return whereConditions[key](sql, v);
 			} else return undefined;
 		})
 		.filter((p) => p !== undefined);
-};
-
-const whereClause = (sql: Sql, clauses: string[]) => {
-	const conditions = clauses.map((c) => sql`${c}`);
 	return conditions.length
 		? conditions.reduce(
 				(prev, curr, i) => {
@@ -86,4 +82,4 @@ const whereClause = (sql: Sql, clauses: string[]) => {
 		: sql``;
 };
 
-export { getQuery, countQuery, clauses };
+export { getQuery, countQuery };
