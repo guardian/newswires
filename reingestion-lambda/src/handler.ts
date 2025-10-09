@@ -26,7 +26,7 @@ export const main = async ({
 	const params = {
 		...(lastUpdatedSince && { lastUpdatedSince: new Date(lastUpdatedSince) }),
 		...(lastUpdatedUntil && { lastUpdatedUntil: new Date(lastUpdatedUntil) }),
-		...(lastUpdatedAtIsEmpty && { lastUpdatedAtIsEmpty }),
+		...(lastUpdatedAtIsEmpty !== undefined && { lastUpdatedAtIsEmpty }),
 	};
 	console.log(`Running with params: ${JSON.stringify(params)}`);
 

@@ -6,7 +6,7 @@ async function run() {
         timeDelay: 1000,
         lastUpdatedSince: undefined,
         lastUpdatedUntil: undefined,
-        lastUpdatedAtIsEmpty: undefined
+        lastUpdatedAtIsEmpty: false
     })
 }
 run()
