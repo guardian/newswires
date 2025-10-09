@@ -20,17 +20,13 @@ export const main = async ({
 	lastUpdatedUntil: string | undefined;
 }) => {
 	const { sql, closeDbConnection } = await initialiseDbConnection();
-	const lastUpdatedSinceDate = lastUpdatedSince
-		? new Date(lastUpdatedSince)
-		: undefined;
-	const lastUpdatedUntilDate = lastUpdatedUntil
-		? new Date(lastUpdatedUntil)
-		: undefined;
-	const totalToUpdate = await countQuery(
-		sql,
-		lastUpdatedSinceDate,
-		lastUpdatedUntilDate,
-	);
+
+	const params = {
+		...(lastUpdatedSince && { lastUpdatedSince: new Date(lastUpdatedSince) }),
+		...(lastUpdatedUntil && { lastUpdatedUntil: new Date(lastUpdatedUntil) }),
+	};
+
+	const totalToUpdate = await countQuery(sql, params);
 
 	console.info(
 		`There are ${totalToUpdate} records for updating from the query`,
@@ -44,13 +40,7 @@ export const main = async ({
 		`Starting to update up to ${effectiveLimit} records in batches of ${batchSize}`,
 	);
 	for (const [index, offset] of offsets.entries()) {
-		const records = await getQuery(
-			sql,
-			batchSize,
-			offset,
-			lastUpdatedSinceDate,
-			lastUpdatedUntilDate,
-		);
+		const records = await getQuery(sql, batchSize, offset, params);
 		console.info(`Processing batch ${index + 1} of ${offsets.length}`);
 		if (records.length === 0) {
 			console.info('No more records to process, exiting');
