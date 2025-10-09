@@ -28,6 +28,7 @@ export const main = async ({
 		...(lastUpdatedUntil && { lastUpdatedUntil: new Date(lastUpdatedUntil) }),
 		...(lastUpdatedAtIsEmpty && { lastUpdatedAtIsEmpty }),
 	};
+	console.log(`Running with params: ${JSON.stringify(params)}`);
 
 	const totalToUpdate = await countQuery(sql, params);
 
