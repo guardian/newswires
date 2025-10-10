@@ -291,7 +291,9 @@ object SearchPresets {
   )
 
   private val Cricket = List(
-    SearchPreset(REUTERS, CategoryCodes.Cricket.REUTERS),
+    SearchPreset
+      .fromSearchTerm(REUTERS, searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
+        categoryCodes = CategoryCodes.Cricket.REUTERS),
     SearchPreset(PA, CategoryCodes.Cricket.PA),
     SearchPreset
       .fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("cricket", Slug), categoryCodes = CategoryCodes.Sport.AFP),
@@ -300,6 +302,9 @@ object SearchPresets {
   )
 
   private val CricketResults = List(
+    SearchPreset
+      .fromSearchTerm(REUTERS, searchTerm = SearchTerm.Simple("(OPTA)", SearchField.BodyText),
+        categoryCodes = CategoryCodes.Cricket.REUTERS),
     SearchPreset(PA, CategoryCodes.CricketResults.PA)
   )
 
