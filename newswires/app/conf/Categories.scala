@@ -83,8 +83,8 @@ private[conf] object CategoryCodes {
   }
 
   object Cricket {
-    val REUTERS: List[String] = List("N2:CRIC")
-    val PA: List[String] = List("paCat:SCR")
+    val REUTERS: List[String] = List("N2:CRIC", "subj:15017000")
+    val PA: List[String] = List("paCat:SCR", "subj:15017000")
     val AAP: List[String] = List("subj:15017000")
   }
 
@@ -102,37 +102,37 @@ private[conf] object CategoryCodes {
   }
 
   object RugbyUnion {
-    val REUTERS: List[String] = List("N2:RUGU")
+    val REUTERS: List[String] = List("N2:RUGU", "subj:15049000")
     val AAP: List[String] = List("subj:15049000")
   }
 
   object Tennis {
-    val REUTERS: List[String] = List("N2:TENN")
+    val REUTERS: List[String] = List("N2:TENN", "subj:15065000")
     val AAP: List[String] = List("subj:15065000")
   }
 
   object Cycling {
-    val REUTERS: List[String] = List("N2:CYCL")
+    val REUTERS: List[String] = List("N2:CYCL", "subj:15019000")
     val AAP: List[String] = List("subj:15019000")
   }
 
-  object F1 {
-    val REUTERS: List[String] = List("N2:FO1")
-    val AAP: List[String] = List("subj:15046001")
+  object MotorRacing {
+    val REUTERS: List[String] = List("N2:MORA", "subj:15039000")
+    val AAP: List[String] = List("subj:15039000")
   }
 
   object Golf {
-    val REUTERS: List[String] = List("N2:GOLF")
+    val REUTERS: List[String] = List("N2:GOLF", "subj:15027000")
     val AAP: List[String] = List("subj:15027000")
   }
 
   object Boxing {
-    val REUTERS: List[String] = List("N2:BOXI")
+    val REUTERS: List[String] = List("N2:BOXI", "subj:15014000")
     val AAP: List[String] = List("subj:15014000")
   }
 
   object RugbyLeague {
-    val REUTERS: List[String] = List("N2:RUGL")
+    val REUTERS: List[String] = List("N2:RUGL", "subj:15048000")
     val AAP: List[String] = List("subj:15048000")
   }
 
@@ -152,17 +152,18 @@ private[conf] object CategoryCodes {
     )
   }
   object HorseRacing {
-    val REUTERS: List[String] = List("N2:HORS")
+    val REUTERS: List[String] = List("N2:HORS", "subj:15030000")
     val PA: List[String] = List("paCat:SRR")
     val AAP: List[String] = List("subj:15030000")
   }
 
   object Athletics {
-    val REUTERS: List[String] = List("N2:ATHL")
+    val REUTERS: List[String] = List("N2:ATHL", "subj:15005000")
     val AAP: List[String] = List("subj:15005000")
   }
 
   object Olympics {
+    val REUTERS: List[String] = List("N2:OLY", "subj:15073001", "subj:15073002")
     val AAP: List[String] = List("subj:15073001", "subj:15073002")
   }
 
@@ -1331,7 +1332,7 @@ object Categories {
     "subj:15044001",
     "subj:15045000",
     "subj:15046000",
-    "subj:15046001",
+    "subj:15046001", // this is not cars, this is F1 Powerboat thing
     "subj:15046002",
     "subj:15047000",
     "subj:15047001",
