@@ -36,10 +36,8 @@ export const TopLevelListPresetPanel = ({
 							}
 						}
 					}}
-					handleSecondaryActionClick={
-						item.child
-							? undefined
-							: () => openTicker({ ...defaultConfig.query, preset: item.id })
+					handleSecondaryActionClick={() =>
+						openTicker({ ...defaultConfig.query, preset: item.id })
 					}
 					arrowSide={item.child ? 'right' : undefined}
 					toggleDraw={() => swapActivePanel('sportPresets', 'forward')}
