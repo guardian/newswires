@@ -15,10 +15,6 @@ export interface Preset {
 
 export const sportPresets: Preset[] = [
 	{
-		name: 'All sports',
-		id: 'all-sport',
-	},
-	{
 		name: 'Soccer',
 		id: 'soccer',
 	},
@@ -109,7 +105,7 @@ export const presets: Preset[] = [
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
 	{ id: 'all-business', name: 'Business' },
-	{ id: 'sports-sublink', name: 'Sport', child: 'sportPresets' },
+	{ id: 'all-sport', name: 'Sport', child: 'sportPresets' },
 ];
 
 export const presetLabel = (presetId: string) => {

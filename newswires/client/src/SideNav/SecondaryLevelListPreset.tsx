@@ -17,6 +17,7 @@ export const SecondaryLevelListPresetPanel = ({
 				label="Sport"
 				key="sports-parent-backlink"
 				isTopLevel={false}
+				isActive={activePreset === 'all-sport'}
 				handleButtonClick={() => swapActivePanel('presets', 'back')}
 				arrowSide="left"
 			/>

@@ -26,10 +26,9 @@ export const TopLevelListPresetPanel = ({
 					}
 					isTopLevel={true}
 					handleButtonClick={() => {
+						togglePreset(item.id);
 						if (item.child) {
 							swapActivePanel(item.child, 'forward');
-						} else {
-							togglePreset(item.id);
 						}
 					}}
 					handleSecondaryActionClick={
