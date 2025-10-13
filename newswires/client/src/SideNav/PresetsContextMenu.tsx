@@ -2,13 +2,8 @@ import { useEuiTheme } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	loadOrSetInLocalStorage,
-	saveToLocalStorage,
-} from '../context/localStorage';
 import { useSearch } from '../context/SearchContext';
 import type { PresetGroupName } from '../presets';
-import { PresetGroupNameSchema } from '../presets';
 import { getActivePreset } from '../queryHelpers';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
@@ -94,13 +89,8 @@ type AnimationState = {
  * that could be extracted if needed in future.
  */
 export const PresetsContextMenu = () => {
-	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(() =>
-		loadOrSetInLocalStorage<PresetGroupName>(
-			'presetsMenuActivePanel',
-			PresetGroupNameSchema,
-			'presets',
-		),
-	);
+	const [activePanelId, setActivePanelId] =
+		useState<PresetGroupName>('presets');
 
 	const [animationState, setAnimationState] = useState<AnimationState>({
 		isAnimating: false,
@@ -127,7 +117,6 @@ export const PresetsContextMenu = () => {
 			});
 
 			setActivePanelId(newPanelKey);
-			saveToLocalStorage('presetsMenuActivePanel', newPanelKey);
 		},
 		[activePanelId, animationState.isAnimating],
 	);
