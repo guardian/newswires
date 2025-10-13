@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
 import type { PresetGroupName } from '../presets';
-import { getActivePreset } from '../queryHelpers';
+import { getNextActivePreset } from '../queryHelpers';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
 
@@ -141,7 +141,7 @@ export const PresetsContextMenu = () => {
 		(presetId: string) => {
 			handleEnterQuery({
 				...config.query,
-				preset: getActivePreset(activePreset, presetId),
+				preset: getNextActivePreset(activePreset, presetId),
 				hasDataFormatting: undefined,
 			});
 		},

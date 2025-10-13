@@ -1,16 +1,16 @@
 import { sportPresets } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 
-export const getActivePreset = (
+export const getNextActivePreset = (
 	activePreset: string | undefined,
 	presetId: string,
 ) => {
-	if (activePreset === presetId && presetIsAllSport(presetId))
+	if (activePreset === presetId && presetIsInSports(presetId))
 		return 'all-sport';
 	if (activePreset === presetId || presetId === 'all-presets') return undefined;
 	return presetId;
 };
-export const presetIsAllSport = (presetId: string): boolean => {
+export const presetIsInSports = (presetId: string): boolean => {
 	return (
 		sportPresets.map((p) => p.id).includes(presetId) && presetId !== 'all-sport'
 	);
@@ -26,7 +26,7 @@ export const removeValueFromQuery = (
 	}
 	if (key === 'preset') {
 		return {
-			[key]: presetIsAllSport(value) ? 'all-sport' : undefined,
+			[key]: presetIsInSports(value) ? 'all-sport' : undefined,
 		};
 	}
 	if (['dateRange', 'hasDataFormatting'].includes(key)) {

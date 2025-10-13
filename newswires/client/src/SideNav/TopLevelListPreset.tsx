@@ -1,7 +1,7 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
 import { presets, sportPresets } from '../presets';
-import { getActivePreset } from '../queryHelpers';
+import { getNextActivePreset, presetIsInSports } from '../queryHelpers';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
@@ -29,7 +29,7 @@ export const TopLevelListPresetPanel = ({
 					handleButtonClick={() => {
 						togglePreset(item.id);
 						if (item.child) {
-							if (getActivePreset(activePreset, item.id)) {
+							if (getNextActivePreset(activePreset, item.id)) {
 								swapActivePanel('sportPresets', 'forward');
 							} else {
 								swapActivePanel('presets', 'back');
@@ -41,7 +41,8 @@ export const TopLevelListPresetPanel = ({
 					}
 					arrowSide={item.child ? 'right' : undefined}
 					toggleDraw={() => {
-						if (getActivePreset(activePreset, item.id)) {
+						const nextPreset = getNextActivePreset(activePreset, item.id);
+						if (nextPreset && activePreset && !presetIsInSports(activePreset)) {
 							togglePreset(item.id);
 						}
 						swapActivePanel('sportPresets', 'forward');

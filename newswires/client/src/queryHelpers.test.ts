@@ -1,4 +1,4 @@
-import { getActivePreset, removeValueFromQuery } from './queryHelpers';
+import { getNextActivePreset, removeValueFromQuery } from './queryHelpers';
 
 describe('updateQuery', () => {
 	it('should return an empty query string when q is the key', () => {
@@ -62,15 +62,19 @@ describe('updateQuery', () => {
 
 describe('getActivePreset', () => {
 	it('should return undefined when the preset id matches the active preset', () => {
-		expect(getActivePreset('all-world', 'all-world')).toBe(undefined);
+		expect(getNextActivePreset('all-world', 'all-world')).toBe(undefined);
 	});
 	it('should return undefined when the preset id is all-presets', () => {
-		expect(getActivePreset('blah', 'all-presets')).toBe(undefined);
+		expect(getNextActivePreset('blah', 'all-presets')).toBe(undefined);
 	});
 	it('should return the preset id otherwise', () => {
-		expect(getActivePreset('all-world', 'all-business')).toBe('all-business');
+		expect(getNextActivePreset('all-world', 'all-business')).toBe(
+			'all-business',
+		);
 	});
 	it('should return all-sports when preset id matches the active preset and the preset is in the all sports list', () => {
-		expect(getActivePreset('soccer-tables', 'soccer-tables')).toBe('all-sport');
+		expect(getNextActivePreset('soccer-tables', 'soccer-tables')).toBe(
+			'all-sport',
+		);
 	});
 });
