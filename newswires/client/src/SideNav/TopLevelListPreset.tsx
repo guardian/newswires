@@ -40,7 +40,10 @@ export const TopLevelListPresetPanel = ({
 						openTicker({ ...defaultConfig.query, preset: item.id })
 					}
 					arrowSide={item.child ? 'right' : undefined}
-					toggleDraw={() => swapActivePanel('sportPresets', 'forward')}
+					toggleDraw={() => {
+						togglePreset(item.id);
+						swapActivePanel('sportPresets', 'forward');
+					}}
 				/>
 			))}
 			{maybeActiveSportPreset && (
