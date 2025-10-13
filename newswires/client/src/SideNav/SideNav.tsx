@@ -209,7 +209,6 @@ export const SideNav = ({
 									}
 									arrowSide={undefined}
 									colour={item.colour}
-									toggleDraw={() => alert('toggle!')}
 								/>
 							))}
 						</EuiListGroup>

@@ -8,7 +8,7 @@ export const SideNavListItem = ({
 	handleButtonClick,
 	handleSecondaryActionClick,
 	arrowSide = undefined,
-	toggleDraw,
+	handleArrowClick: handleArrowClick,
 	colour = 'rgb(0, 119, 204)',
 }: {
 	label: string;
@@ -16,7 +16,7 @@ export const SideNavListItem = ({
 	isTopLevel: boolean;
 	handleButtonClick: () => void;
 	handleSecondaryActionClick?: () => void;
-	toggleDraw: () => void;
+	handleArrowClick?: () => void;
 	arrowSide?: 'left' | 'right';
 	colour?: string;
 }) => {
@@ -50,7 +50,7 @@ export const SideNavListItem = ({
 			`}
 		>
 			{arrowSide === 'left' && (
-				<EuiIcon type={'arrowLeft'} onClick={toggleDraw}></EuiIcon>
+				<EuiIcon type={'arrowLeft'} onClick={handleArrowClick}></EuiIcon>
 			)}
 			<button
 				type="button"
@@ -109,7 +109,7 @@ export const SideNavListItem = ({
 				</button>
 			)}
 			{arrowSide === 'right' && (
-				<EuiIcon type={'arrowRight'} onClick={toggleDraw}></EuiIcon>
+				<EuiIcon type={'arrowRight'} onClick={handleArrowClick}></EuiIcon>
 			)}
 		</li>
 	);

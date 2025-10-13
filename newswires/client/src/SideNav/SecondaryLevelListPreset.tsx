@@ -20,7 +20,7 @@ export const SecondaryLevelListPresetPanel = ({
 				isActive={activePreset === 'all-sport'}
 				handleButtonClick={() => closeDrawer()}
 				arrowSide="left"
-				toggleDraw={() => closeDrawer()}
+				handleArrowClick={() => closeDrawer()}
 				handleSecondaryActionClick={() =>
 					openTicker({ ...defaultConfig.query, preset: 'all-sport' })
 				}
@@ -40,7 +40,6 @@ export const SecondaryLevelListPresetPanel = ({
 					handleSecondaryActionClick={() =>
 						openTicker({ ...defaultConfig.query, preset: item.id })
 					}
-					toggleDraw={() => closeDrawer()}
 				/>
 			))}
 		</EuiListGroup>

@@ -41,16 +41,22 @@ export const TopLevelListPresetPanel = ({
 						openTicker({ ...defaultConfig.query, preset: item.id })
 					}
 					arrowSide={item.child ? 'right' : undefined}
-					toggleDraw={() => {
-						const nextPreset = getNextActivePreset(activePreset, item.id);
-						if (
-							(nextPreset && activePreset && !presetIsInSports(activePreset)) ||
-							activePreset === undefined
-						) {
-							togglePreset(item.id);
-						}
-						openDrawer();
-					}}
+					handleArrowClick={
+						item.child
+							? () => {
+									const nextPreset = getNextActivePreset(activePreset, item.id);
+									if (
+										(nextPreset &&
+											activePreset &&
+											!presetIsInSports(activePreset)) ||
+										activePreset === undefined
+									) {
+										togglePreset(item.id);
+									}
+									openDrawer();
+								}
+							: undefined
+					}
 				/>
 			))}
 			{maybeActiveSportPreset && (
@@ -63,7 +69,6 @@ export const TopLevelListPresetPanel = ({
 					handleSecondaryActionClick={() =>
 						openTicker({ ...config.query, preset: maybeActiveSportPreset.id })
 					}
-					toggleDraw={() => alert('toggle!')}
 				/>
 			)}
 		</EuiListGroup>
