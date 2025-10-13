@@ -21,6 +21,9 @@ export const SecondaryLevelListPresetPanel = ({
 				handleButtonClick={() => swapActivePanel('presets', 'back')}
 				arrowSide="left"
 				toggleDraw={() => swapActivePanel('presets', 'back')}
+				handleSecondaryActionClick={() =>
+					openTicker({ ...defaultConfig.query, preset: 'all-sport' })
+				}
 			/>
 			{sportPresets.map((item) => (
 				<SideNavListItem
