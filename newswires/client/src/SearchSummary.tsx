@@ -13,7 +13,8 @@ import {
 	isDefaultDateRange,
 	isRestricted,
 } from './dateHelpers.ts';
-import { presetLabel, sportPresets } from './presets.ts';
+import { presetLabel } from './presets.ts';
+import { removeValueFromQuery } from './queryHelpers.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -30,37 +31,6 @@ const SearchTermBadgeLabelLookup: Record<keyof Query, string> = {
 	keywordExcl: '(NOT) Keyword',
 } as const;
 
-export const updateQuery = (
-	key: keyof Query,
-	value: string,
-	query: Query,
-): Partial<Query> => {
-	if (key === 'q') {
-		return { q: '' };
-	}
-	if (key === 'preset') {
-		if (
-			// TODO -> make this more generic and assoicate the sportsPreset to all-sport in the
-			// presets defintion?
-			sportPresets.map((p) => p.id).includes(value) &&
-			value !== 'all-sport'
-		) {
-			return { [key]: 'all-sport' };
-		} else {
-			return { [key]: undefined };
-		}
-	}
-	if (['dateRange', 'hasDataFormatting'].includes(key)) {
-		return { [key]: undefined };
-	}
-	if (
-		['categoryCode', 'categoryCodeExcl', 'keyword', 'keywordExcl'].includes(key)
-	) {
-		const current = query[key] as string[] | undefined;
-		return { [key]: (current ?? []).filter((s) => s !== value) };
-	}
-	return {};
-};
 const SummaryBadge = ({
 	queryParamKey,
 	value,
@@ -80,7 +50,7 @@ const SummaryBadge = ({
 		} else {
 			handleEnterQuery({
 				...config.query,
-				...updateQuery(key, value, config.query),
+				...removeValueFromQuery(key, value, config.query),
 			});
 		}
 	};

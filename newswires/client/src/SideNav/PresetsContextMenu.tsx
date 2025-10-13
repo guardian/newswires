@@ -9,6 +9,7 @@ import {
 import { useSearch } from '../context/SearchContext';
 import type { PresetGroupName } from '../presets';
 import { PresetGroupNameSchema } from '../presets';
+import { getActivePreset } from '../queryHelpers';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
 
@@ -149,19 +150,11 @@ export const PresetsContextMenu = () => {
 
 	const togglePreset = useCallback(
 		(presetId: string) => {
-			if (activePreset === presetId || presetId === 'all-presets') {
-				handleEnterQuery({
-					...config.query,
-					preset: undefined,
-					hasDataFormatting: undefined,
-				});
-			} else {
-				handleEnterQuery({
-					...config.query,
-					preset: presetId,
-					hasDataFormatting: undefined,
-				});
-			}
+			handleEnterQuery({
+				...config.query,
+				preset: getActivePreset(activePreset, presetId),
+				hasDataFormatting: undefined,
+			});
 		},
 		[activePreset, config.query, handleEnterQuery],
 	);
