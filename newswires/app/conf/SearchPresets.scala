@@ -291,14 +291,26 @@ object SearchPresets {
   )
 
   private val Cricket = List(
-    SearchPreset(REUTERS, CategoryCodes.Cricket.REUTERS),
+    SearchPreset
+      .fromSearchTerm(
+        REUTERS,
+        searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
+        categoryCodes = CategoryCodes.Cricket.REUTERS
+      ),
     SearchPreset(PA, CategoryCodes.Cricket.PA),
-    SearchPreset.fromText(AFP, text = SimpleSearchQueries.CRICKET, CategoryCodes.Sport.AFP),
+    SearchPreset
+      .fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("cricket", Slug), categoryCodes = CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Cricket.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Cricket"))
   )
 
   private val CricketResults = List(
+    SearchPreset
+      .fromSearchTerm(
+        REUTERS,
+        searchTerm = SearchTerm.Simple("(OPTA)", SearchField.BodyText),
+        categoryCodes = CategoryCodes.Cricket.REUTERS
+      ),
     SearchPreset(PA, CategoryCodes.CricketResults.PA)
   )
 
@@ -312,7 +324,7 @@ object SearchPresets {
       PA,
       searchTerm = SearchTerm.Simple("RUGBYL", Slug),
       CategoryCodes.Sport.PA
-    ), // make excluding "sourceFeed": "PA PA SPORT DATA"
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("RugbyL", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.RugbyLeague.AAP),
     SearchPreset.fromSearchTerm(
@@ -333,7 +345,7 @@ object SearchPresets {
       PA,
       searchTerm = SearchTerm.Simple("RUGBYU", Slug),
       CategoryCodes.Sport.PA
-    ), // make excluding "sourceFeed": "PA PA SPORT DATA"
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("RugbyU", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.RugbyUnion.AAP),
     SearchPreset.fromSearchTerm(
@@ -478,7 +490,7 @@ object SearchPresets {
       PA,
       text = SimpleSearchQueries.OLYMPICS,
       categoryCodes = List("paCat:SRS", "paCat:SSS")
-    ), // too broad, to recheck when stories arrive
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("Oly", Slug), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Olympic games"))
