@@ -8,7 +8,8 @@ import { SideNavListItem } from './SideNavListItem';
 
 export const TopLevelListPresetPanel = ({
 	activePreset,
-	swapActivePanel,
+	openDrawer,
+	closeDrawer,
 	togglePreset,
 }: PanelProps) => {
 	const { config, openTicker } = useSearch();
@@ -30,9 +31,9 @@ export const TopLevelListPresetPanel = ({
 						togglePreset(item.id);
 						if (item.child) {
 							if (getNextActivePreset(activePreset, item.id)) {
-								swapActivePanel('sportPresets', 'forward');
+								openDrawer();
 							} else {
-								swapActivePanel('presets', 'back');
+								closeDrawer();
 							}
 						}
 					}}
@@ -42,10 +43,13 @@ export const TopLevelListPresetPanel = ({
 					arrowSide={item.child ? 'right' : undefined}
 					toggleDraw={() => {
 						const nextPreset = getNextActivePreset(activePreset, item.id);
-						if (nextPreset && activePreset && !presetIsInSports(activePreset)) {
+						if (
+							(nextPreset && activePreset && !presetIsInSports(activePreset)) ||
+							activePreset === undefined
+						) {
 							togglePreset(item.id);
 						}
-						swapActivePanel('sportPresets', 'forward');
+						openDrawer();
 					}}
 				/>
 			))}

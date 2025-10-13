@@ -7,7 +7,7 @@ import { SideNavListItem } from './SideNavListItem';
 
 export const SecondaryLevelListPresetPanel = ({
 	activePreset,
-	swapActivePanel,
+	closeDrawer,
 	togglePreset,
 }: PanelProps) => {
 	const { openTicker } = useSearch();
@@ -18,9 +18,9 @@ export const SecondaryLevelListPresetPanel = ({
 				key="sports-parent-backlink"
 				isTopLevel={false}
 				isActive={activePreset === 'all-sport'}
-				handleButtonClick={() => swapActivePanel('presets', 'back')}
+				handleButtonClick={() => closeDrawer()}
 				arrowSide="left"
-				toggleDraw={() => swapActivePanel('presets', 'back')}
+				toggleDraw={() => closeDrawer()}
 				handleSecondaryActionClick={() =>
 					openTicker({ ...defaultConfig.query, preset: 'all-sport' })
 				}
@@ -40,7 +40,7 @@ export const SecondaryLevelListPresetPanel = ({
 					handleSecondaryActionClick={() =>
 						openTicker({ ...defaultConfig.query, preset: item.id })
 					}
-					toggleDraw={() => swapActivePanel('presets', 'back')}
+					toggleDraw={() => closeDrawer()}
 				/>
 			))}
 		</EuiListGroup>

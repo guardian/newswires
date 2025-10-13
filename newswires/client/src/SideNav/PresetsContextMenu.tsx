@@ -120,6 +120,12 @@ export const PresetsContextMenu = () => {
 		},
 		[activePanelId, animationState.isAnimating],
 	);
+	const openDrawer = () => {
+		swapActivePanel('sportPresets', 'forward');
+	};
+	const closeDrawer = () => {
+		swapActivePanel('presets', 'back');
+	};
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -183,13 +189,15 @@ export const PresetsContextMenu = () => {
 				{activePanelId === 'presets' ? (
 					<TopLevelListPresetPanel
 						activePreset={activePreset}
-						swapActivePanel={swapActivePanel}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
 						togglePreset={togglePreset}
 					/>
 				) : (
 					<SecondaryLevelListPresetPanel
 						activePreset={activePreset}
-						swapActivePanel={swapActivePanel}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
 						togglePreset={togglePreset}
 					/>
 				)}
@@ -203,13 +211,15 @@ export const PresetsContextMenu = () => {
 					{activePanelId === 'presets' ? (
 						<SecondaryLevelListPresetPanel
 							activePreset={activePreset}
-							swapActivePanel={swapActivePanel}
+							openDrawer={openDrawer}
+							closeDrawer={closeDrawer}
 							togglePreset={togglePreset}
 						/>
 					) : (
 						<TopLevelListPresetPanel
 							activePreset={activePreset}
-							swapActivePanel={swapActivePanel}
+							openDrawer={openDrawer}
+							closeDrawer={closeDrawer}
 							togglePreset={togglePreset}
 						/>
 					)}
