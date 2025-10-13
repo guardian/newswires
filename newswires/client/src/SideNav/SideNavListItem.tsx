@@ -27,6 +27,7 @@ export const SideNavListItem = ({
 			aria-current={isActive ? 'true' : undefined}
 			css={css`
 				display: flex;
+				align-items: center;
 				gap: ${euiTheme.size.xs};
 				padding-right: ${euiTheme.size.xs};
 				margin-bottom: ${euiTheme.size.xs};
@@ -93,6 +94,10 @@ export const SideNavListItem = ({
 					}}
 					css={css`
 						opacity: 0;
+						margin-left: auto;
+						margin-right: ${arrowSide === 'right' || !isTopLevel
+							? '0px'
+							: '20px'};
 
 						&:hover,
 						&:focus {
