@@ -1,4 +1,8 @@
-import { getNextActivePreset, removeValueFromQuery } from './queryHelpers';
+import {
+	getNextActivePreset,
+	removeValueFromQuery,
+	shouldSelectTopLevelPreset,
+} from './queryHelpers';
 
 describe('updateQuery', () => {
 	it('should return an empty query string when q is the key', () => {
@@ -76,5 +80,14 @@ describe('getActivePreset', () => {
 		expect(getNextActivePreset('soccer-tables', 'soccer-tables')).toBe(
 			'all-sport',
 		);
+	});
+});
+
+describe('shouldSelectTopLevelPreset', () => {
+	it('should return true if the active preset is undefined', () => {
+		expect(shouldSelectTopLevelPreset(undefined)).toBe(true);
+	});
+	it('should return false if the active preset is a sports preset', () => {
+		expect(shouldSelectTopLevelPreset('soccer-tables')).toBe(false);
 	});
 });

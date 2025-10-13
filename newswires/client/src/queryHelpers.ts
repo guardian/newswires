@@ -10,7 +10,15 @@ export const getNextActivePreset = (
 	if (activePreset === presetId || presetId === 'all-presets') return undefined;
 	return presetId;
 };
-export const presetIsInSports = (presetId: string): boolean => {
+
+export const shouldSelectTopLevelPreset = (
+	activePreset: string | undefined,
+) => {
+	if (activePreset === undefined) return true;
+	if (presetIsInSports(activePreset)) return false;
+	return true;
+};
+const presetIsInSports = (presetId: string): boolean => {
 	return (
 		sportPresets.map((p) => p.id).includes(presetId) && presetId !== 'all-sport'
 	);
