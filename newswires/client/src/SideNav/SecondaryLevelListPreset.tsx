@@ -20,6 +20,7 @@ export const SecondaryLevelListPresetPanel = ({
 				isActive={activePreset === 'all-sport'}
 				handleButtonClick={() => swapActivePanel('presets', 'back')}
 				arrowSide="left"
+				toggleDraw={() => swapActivePanel('presets', 'back')}
 			/>
 			{sportPresets.map((item) => (
 				<SideNavListItem
@@ -36,6 +37,7 @@ export const SecondaryLevelListPresetPanel = ({
 					handleSecondaryActionClick={() =>
 						openTicker({ ...defaultConfig.query, preset: item.id })
 					}
+					toggleDraw={() => swapActivePanel('presets', 'back')}
 				/>
 			))}
 		</EuiListGroup>

@@ -1,6 +1,7 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
 import { presets, sportPresets } from '../presets';
+import { getActivePreset } from '../queryHelpers';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
@@ -28,7 +29,11 @@ export const TopLevelListPresetPanel = ({
 					handleButtonClick={() => {
 						togglePreset(item.id);
 						if (item.child) {
-							swapActivePanel(item.child, 'forward');
+							if (getActivePreset(activePreset, item.id)) {
+								swapActivePanel('sportPresets', 'forward');
+							} else {
+								swapActivePanel('presets', 'back');
+							}
 						}
 					}}
 					handleSecondaryActionClick={
@@ -37,6 +42,7 @@ export const TopLevelListPresetPanel = ({
 							: () => openTicker({ ...defaultConfig.query, preset: item.id })
 					}
 					arrowSide={item.child ? 'right' : undefined}
+					toggleDraw={() => swapActivePanel('sportPresets', 'forward')}
 				/>
 			))}
 			{maybeActiveSportPreset && (
@@ -49,6 +55,7 @@ export const TopLevelListPresetPanel = ({
 					handleSecondaryActionClick={() =>
 						openTicker({ ...config.query, preset: maybeActiveSportPreset.id })
 					}
+					toggleDraw={() => alert('toggle!')}
 				/>
 			)}
 		</EuiListGroup>
