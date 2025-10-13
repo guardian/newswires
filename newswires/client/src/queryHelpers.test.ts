@@ -1,7 +1,7 @@
 import {
 	getNextActivePreset,
 	removeValueFromQuery,
-	shouldSelectTopLevelPreset,
+	shouldTogglePreset,
 } from './queryHelpers';
 
 describe('updateQuery', () => {
@@ -85,9 +85,12 @@ describe('getActivePreset', () => {
 
 describe('shouldSelectTopLevelPreset', () => {
 	it('should return true if the active preset is undefined', () => {
-		expect(shouldSelectTopLevelPreset(undefined)).toBe(true);
+		expect(shouldTogglePreset(undefined, 'blah')).toBe(true);
 	});
 	it('should return false if the active preset is a sports preset', () => {
-		expect(shouldSelectTopLevelPreset('soccer-tables')).toBe(false);
+		expect(shouldTogglePreset('soccer-tables', 'blah')).toBe(false);
+	});
+	it('should return false if the active preset and preset id are the same', () => {
+		expect(shouldTogglePreset('all-sport', 'all-sport')).toBe(false);
 	});
 });

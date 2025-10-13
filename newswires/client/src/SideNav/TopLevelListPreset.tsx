@@ -1,10 +1,7 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
 import { presets, sportPresets } from '../presets';
-import {
-	getNextActivePreset,
-	shouldSelectTopLevelPreset,
-} from '../queryHelpers';
+import { getNextActivePreset, shouldTogglePreset } from '../queryHelpers';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
@@ -47,7 +44,7 @@ export const TopLevelListPresetPanel = ({
 					handleArrowClick={
 						item.child
 							? () => {
-									if (shouldSelectTopLevelPreset(activePreset)) {
+									if (shouldTogglePreset(activePreset)) {
 										togglePreset(item.id);
 									}
 									openDrawer();
