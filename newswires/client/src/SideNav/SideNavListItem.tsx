@@ -84,9 +84,6 @@ export const SideNavListItem = ({
 					<span>{label}</span>
 				</div>
 			</button>
-			{arrowSide === 'right' && (
-				<EuiIcon type={'arrowRight'} onClick={toggleDraw}></EuiIcon>
-			)}
 			{!!handleSecondaryActionClick && (
 				<button
 					type="button"
@@ -105,6 +102,9 @@ export const SideNavListItem = ({
 				>
 					<EuiButtonIcon iconType="popout" size="xs" />
 				</button>
+			)}
+			{arrowSide === 'right' && (
+				<EuiIcon type={'arrowRight'} onClick={toggleDraw}></EuiIcon>
 			)}
 		</li>
 	);

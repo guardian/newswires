@@ -41,7 +41,9 @@ export const TopLevelListPresetPanel = ({
 					}
 					arrowSide={item.child ? 'right' : undefined}
 					toggleDraw={() => {
-						togglePreset(item.id);
+						if (getActivePreset(activePreset, item.id)) {
+							togglePreset(item.id);
+						}
 						swapActivePanel('sportPresets', 'forward');
 					}}
 				/>
