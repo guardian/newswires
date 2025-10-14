@@ -7,7 +7,7 @@
 //> using dep org.flywaydb:flyway-database-postgresql:11.9.1
 //> using dep org.postgresql:postgresql:42.7.5
 //> using dep software.amazon.awssdk:rds:2.31.78
-//> using dep software.amazon.awssdk:secretsmanager:2.31.61
+//> using dep software.amazon.awssdk:secretsmanager:2.31.78
 //> using dep software.amazon.awssdk:ssm:2.31.61
 
 import java.nio.file.Path
