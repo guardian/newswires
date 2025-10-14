@@ -23,6 +23,6 @@ module.exports = {
 		'poller-lambdas',
 		'shared',
 		'fingerpost-queueing-lambda',
-		'reingestion-lambda',
+		'recomputation-lambda',
 	].map(generateProject),
 };
