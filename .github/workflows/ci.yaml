@@ -60,12 +60,6 @@ jobs:
           npm run build
           zip -FSjr "dist/ingestion-lambda.zip" "dist/handler.js"
 
-      - name: Build recomputation-lambda
-        working-directory: recomputation-lambda
-        run: |
-          npm run build
-          zip -FSjr "dist/recomputation-lambda.zip" "dist/handler.js"
-
       - name: Build cleanup-lambda
         working-directory: cleanup-lambda
         run: |
@@ -107,8 +101,6 @@ jobs:
               - cdk/cdk.out
             ingestion-lambda:
               - ingestion-lambda/dist/ingestion-lambda.zip
-            recomputation-lambda:
-              - recomputation-lambda/dist/recomputation-lambda.zip
             cleanup-lambda:
               - cleanup-lambda/dist/cleanup-lambda.zip
             email-filter-lambda:
