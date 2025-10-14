@@ -23,6 +23,5 @@ module.exports = {
 		'poller-lambdas',
 		'shared',
 		'fingerpost-queueing-lambda',
-		'recomputation-lambda',
 	].map(generateProject),
 };
