@@ -6,7 +6,7 @@
 //> using dep org.flywaydb:flyway-core:11.9.1
 //> using dep org.flywaydb:flyway-database-postgresql:11.9.1
 //> using dep org.postgresql:postgresql:42.7.5
-//> using dep software.amazon.awssdk:rds:2.31.61
+//> using dep software.amazon.awssdk:rds:2.31.78
 //> using dep software.amazon.awssdk:secretsmanager:2.31.61
 //> using dep software.amazon.awssdk:ssm:2.31.61
 
@@ -29,7 +29,6 @@ import software.amazon.awssdk.services.ssm.model.PutParameterRequest
 
 type Row = List[String]
 type Table = List[Row]
-
 
 def infoCmd(env: String, flyway: Flyway): Unit = {
 
@@ -81,40 +80,53 @@ val parameterManager = SsmClient
   .builder()
   .credentialsProvider(credentials)
   .region(Region.EU_WEST_1)
-  .build()    
+  .build()
 
 def updateParameterStore(env: String, flyway: Flyway): Unit = {
-  println("Running update parameter store..." )
-  println() 
-  if(env != "prod") {
-    println("Not running against PROD environment, skipping parameter store update...")
+  println("Running update parameter store...")
+  println()
+  if (env != "prod") {
+    println(
+      "Not running against PROD environment, skipping parameter store update..."
+    )
     println()
     println("Exiting...")
     sys.exit(0)
   }
-  flyway.info().all().toList.sortBy(s => -Try(s.getInstalledOn().getTime()).getOrElse(0l)).headOption.foreach(info =>
-    {
+  flyway
+    .info()
+    .all()
+    .toList
+    .sortBy(s => -Try(s.getInstalledOn().getTime()).getOrElse(0L))
+    .headOption
+    .foreach(info => {
       val version = info.getVersion().getVersion()
-      println(s"Updating parameter store with latest migration version: $version")
+      println(
+        s"Updating parameter store with latest migration version: $version"
+      )
       try {
-       val putReseponse = parameterManager.putParameter(
-        PutParameterRequest
-          .builder()
-          .name("/PROD/editorial-feeds/newswires/database/last-migration-applied")
-          .value(s"${version}")
-          .overwrite(true)
-          .build()
+        val putReseponse = parameterManager.putParameter(
+          PutParameterRequest
+            .builder()
+            .name(
+              "/PROD/editorial-feeds/newswires/database/last-migration-applied"
+            )
+            .value(s"${version}")
+            .overwrite(true)
+            .build()
         )
-        println(s"Parameter store update response: $putReseponse")  
+        println(s"Parameter store update response: $putReseponse")
       } catch {
-        case e: Exception => println(s"Failed to update parameter store: ${e.getMessage()}. Please rerun this script with the 'updateParameterStore' command to update");
+        case e: Exception =>
+          println(
+            s"Failed to update parameter store: ${e.getMessage()}. Please rerun this script with the 'updateParameterStore' command to update"
+          );
           sys.exit(1)
       }
-    }
-  )
+    })
   println()
   println("Parameter updated, exiting...")
-}  
+}
 
 def migrateCmd(env: String, flyway: Flyway): Unit = {
 
@@ -122,7 +134,7 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
   println("Validating migration schema...")
   println()
 
-  println("Current migration info:" )
+  println("Current migration info:")
   val pendingMigrations = flyway.info().pending()
   println()
 
@@ -149,7 +161,8 @@ def migrateCmd(env: String, flyway: Flyway): Unit = {
   }
 }
 
-def localFlyway(password: String, port: Int): Flyway = buildFlyway(password, port)
+def localFlyway(password: String, port: Int): Flyway =
+  buildFlyway(password, port)
 
 val location = Path.of(scriptPath).getParent().resolve("migrations").toString()
 
@@ -165,7 +178,6 @@ def buildFlyway(password: String, port: Int) =
     .load()
 
 def remoteFlyway(stage: String): Flyway = {
-
 
   val matchingSecret = secretsManager
     .listSecrets()
@@ -211,8 +223,8 @@ def remoteFlyway(stage: String): Flyway = {
 }
 
 val command = args.lift(0) match {
-  case Some("info")    => infoCmd
-  case Some("migrate") => migrateCmd
+  case Some("info")                 => infoCmd
+  case Some("migrate")              => migrateCmd
   case Some("updateParameterStore") => updateParameterStore
   case o =>
     val msg = o.fold("No command specified!")(cmd => s"Unknown command $cmd!")
@@ -222,7 +234,7 @@ val command = args.lift(0) match {
 
 val (env, flyway) = args.lift(1).map(_.toLowerCase()) match {
   case Some("local") => ("local", localFlyway("postgres", 5432))
-  case Some("test")  => ("test", localFlyway("testpassword", 55432)) 
+  case Some("test")  => ("test", localFlyway("testpassword", 55432))
   case Some("code")  => ("code", remoteFlyway("CODE"))
   case Some("prod")  => ("prod", remoteFlyway("PROD"))
   case o =>
