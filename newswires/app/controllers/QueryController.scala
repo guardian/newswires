@@ -33,21 +33,6 @@ class QueryController(
   ): List[String] =
     request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
 
-  def copy(): Action[AnyContent] = {
-    query(
-      maybeFreeTextQuery = None,
-      keywords = Nil,
-      suppliers = List("UNAUTHED_EMAIL_FEED"),
-      categoryCode = Nil,
-      categoryCodeExcl = Nil,
-      maybeStart = None,
-      maybeEnd = None,
-      maybeBeforeId = None,
-      maybeSinceId = None,
-      hasDataFormatting = None
-    )
-  }
-
   def query(
       maybeFreeTextQuery: Option[String],
       keywords: List[String],
@@ -183,26 +168,6 @@ class QueryController(
             "Composer link request was not JSON or missed required parameter"
           )
       }
-  }
-
-  def dotCopy(
-      maybeFreeTextQuery: Option[String],
-      start: Option[String],
-      end: Option[String],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
-  ): Action[AnyContent] = {
-    authAction { request: UserRequest[AnyContent] =>
-      val dotCopyData =
-        FingerpostWireEntry.dotCopy(
-          maybeFreeTextQuery = maybeFreeTextQuery.map(SearchTerm.English(_)),
-          start = start,
-          end = end,
-          maybeBeforeId = maybeBeforeId,
-          maybeSinceId = maybeSinceId
-        )
-      Ok(dotCopyData.asJson.spaces2)
-    }
   }
 
 }
