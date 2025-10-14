@@ -1,5 +1,5 @@
 import type { PresetGroupName } from './presets.ts';
-import { sportPresets } from './presets.ts';
+import { sportPresets, topLevelPresetId, topLevelSportId } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 
 export const getNextActivePreset = (
@@ -7,8 +7,9 @@ export const getNextActivePreset = (
 	presetId: string,
 ) => {
 	if (activePreset === presetId && presetIsInSports(presetId))
-		return 'all-sport';
-	if (activePreset === presetId || presetId === 'all-presets') return undefined;
+		return topLevelSportId;
+	if (activePreset === presetId || presetId === topLevelPresetId)
+		return undefined;
 	return presetId;
 };
 
@@ -22,16 +23,14 @@ export const shouldTogglePreset = (
 	return true;
 };
 const presetIsInSports = (presetId: string): boolean => {
-	return (
-		sportPresets.map((p) => p.id).includes(presetId) && presetId !== 'all-sport'
-	);
+	return sportPresets.map((p) => p.id).includes(presetId);
 };
 
 export const getPresetPanal = (
 	presetId: string | undefined,
 ): PresetGroupName => {
 	if (presetId === undefined) return 'presets';
-	if (presetIsInSports(presetId) || presetId === 'all-sport')
+	if (presetIsInSports(presetId) || presetId === topLevelSportId)
 		return 'sportPresets';
 	return 'presets';
 };
@@ -46,7 +45,7 @@ export const removeValueFromQuery = (
 	}
 	if (key === 'preset') {
 		return {
-			[key]: presetIsInSports(value) ? 'all-sport' : undefined,
+			[key]: presetIsInSports(value) ? topLevelSportId : undefined,
 		};
 	}
 	if (['dateRange', 'hasDataFormatting'].includes(key)) {

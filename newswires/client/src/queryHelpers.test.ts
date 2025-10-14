@@ -1,3 +1,4 @@
+import { topLevelSportId } from './presets';
 import {
 	getNextActivePreset,
 	getPresetPanal,
@@ -60,7 +61,7 @@ describe('updateQuery', () => {
 		expect(
 			removeValueFromQuery('preset', 'no-soccer', { q: '' }),
 		).toStrictEqual({
-			preset: 'all-sport',
+			preset: topLevelSportId,
 		});
 	});
 });
@@ -79,7 +80,7 @@ describe('getActivePreset', () => {
 	});
 	it('should return all-sports when preset id matches the active preset and the preset is in the all sports list', () => {
 		expect(getNextActivePreset('soccer-tables', 'soccer-tables')).toBe(
-			'all-sport',
+			topLevelSportId,
 		);
 	});
 });
@@ -104,7 +105,7 @@ describe('getPresetPanal', () => {
 		expect(getPresetPanal('all-world')).toBe('presets');
 	});
 	it('should return sportsPresets if it is all-sport', () => {
-		expect(getPresetPanal('all-sport')).toBe('sportPresets');
+		expect(getPresetPanal(topLevelSportId)).toBe('sportPresets');
 	});
 	it('should return sportsPresets if it is a secondary level preset', () => {
 		expect(getPresetPanal('no-soccer')).toBe('sportPresets');

@@ -1,6 +1,6 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
-import { sportPresets } from '../presets';
+import { sportPresets, topLevelPresetId, topLevelSportId } from '../presets';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
@@ -17,12 +17,12 @@ export const SecondaryLevelListPresetPanel = ({
 				label="Sport"
 				key="sports-parent-backlink"
 				isTopLevel={false}
-				isActive={activePreset === 'all-sport'}
+				isActive={activePreset === topLevelSportId}
 				handleButtonClick={() => closeDrawer()}
 				arrowSide="left"
 				handleArrowClick={() => closeDrawer()}
 				handleSecondaryActionClick={() =>
-					openTicker({ ...defaultConfig.query, preset: 'all-sport' })
+					openTicker({ ...defaultConfig.query, preset: topLevelSportId })
 				}
 			/>
 			{sportPresets.map((item) => (
@@ -31,7 +31,7 @@ export const SecondaryLevelListPresetPanel = ({
 					key={item.id}
 					isActive={
 						activePreset === item.id ||
-						(item.id === 'all-presets' && !activePreset)
+						(item.id === topLevelPresetId && !activePreset)
 					}
 					isTopLevel={false}
 					handleButtonClick={() => {
