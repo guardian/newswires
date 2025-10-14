@@ -408,7 +408,7 @@ object FingerpostWireEntry
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
-      baseWhereClause = Some(sqls"${syn.supplier} <> 'UNAUTHED_EMAIL_FEED'"),
+      baseWhereClause = None,
       queryParams.searchParams,
       queryParams.savedSearchParamList,
       maybeBeforeId = queryParams.maybeBeforeId,

@@ -44,7 +44,8 @@ class QueryController(
       maybeEnd = None,
       maybeBeforeId = None,
       maybeSinceId = None,
-      hasDataFormatting = None
+      hasDataFormatting = None,
+      showDotCopy = Some(true)
     )
   }
 
@@ -58,7 +59,8 @@ class QueryController(
       maybeEnd: Option[String],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
-      hasDataFormatting: Option[Boolean]
+      hasDataFormatting: Option[Boolean],
+      showDotCopy: Option[Boolean]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val maybePreset =
       request.getQueryString("preset").flatMap(SearchPresets.get)
@@ -79,13 +81,15 @@ class QueryController(
     val keywordsExcl =
       request.queryString.get("keywordExcl").map(_.toList).getOrElse(Nil)
 
+    val suppliersList = showDotCopy.flatMap(s => Option.when(s)(List("UNAUTHED_EMAIL_FEED"))).getOrElse(suppliers)
+
     val searchParams = SearchParams(
       text = maybeSearchTerm,
       start = maybeStart,
       end = maybeEnd,
       keywordIncl = keywords,
       keywordExcl = keywordsExcl,
-      suppliersIncl = suppliers,
+      suppliersIncl = suppliersList,
       suppliersExcl = suppliersExcl,
       categoryCodesIncl = categoryCode,
       categoryCodesExcl = categoryCodeExcl,
