@@ -45,18 +45,18 @@ deployments:
       fileName: ingestion-lambda.zip
     actions:
       - uploadLambda
-  lambda-upload-eu-west-1-editorial-feeds-reingestion-lambda:
+  lambda-upload-eu-west-1-editorial-feeds-recomputation-lambda:
     type: aws-lambda
     stacks:
       - editorial-feeds
     regions:
       - eu-west-1
-    app: reingestion-lambda
-    contentDirectory: reingestion-lambda
+    app: recomputation-lambda
+    contentDirectory: recomputation-lambda
     parameters:
       bucketSsmLookup: true
       lookupByTags: true
-      fileName: reingestion-lambda.zip
+      fileName: recomputation-lambda.zip
     actions:
       - uploadLambda
   lambda-upload-eu-west-1-editorial-feeds-email-filter-lambda:
@@ -149,7 +149,7 @@ deployments:
     dependencies:
       - lambda-upload-eu-west-1-editorial-feeds-fingerpost-queueing-lambda
       - lambda-upload-eu-west-1-editorial-feeds-ingestion-lambda
-      - lambda-upload-eu-west-1-editorial-feeds-reingestion-lambda
+      - lambda-upload-eu-west-1-editorial-feeds-recomputation-lambda
       - lambda-upload-eu-west-1-editorial-feeds-email-filter-lambda
       - lambda-upload-eu-west-1-editorial-feeds-cleanup-lambda
       - lambda-upload-eu-west-1-editorial-feeds-reuters_poller_lambda
@@ -189,18 +189,18 @@ deployments:
       - updateLambda
     dependencies:
       - cfn-eu-west-1-editorial-feeds-newswires
-  lambda-update-eu-west-1-editorial-feeds-reingestion-lambda:
+  lambda-update-eu-west-1-editorial-feeds-recomputation-lambda:
     type: aws-lambda
     stacks:
       - editorial-feeds
     regions:
       - eu-west-1
-    app: reingestion-lambda
-    contentDirectory: reingestion-lambda
+    app: recomputation-lambda
+    contentDirectory: recomputation-lambda
     parameters:
       bucketSsmLookup: true
       lookupByTags: true
-      fileName: reingestion-lambda.zip
+      fileName: recomputation-lambda.zip
     actions:
       - updateLambda
     dependencies:

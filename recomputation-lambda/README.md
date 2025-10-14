@@ -1,4 +1,4 @@
-# Reingestion Lambda
+# Recomputation Lambda
 
 This is a one off script to recompute category codes. 
 
@@ -11,7 +11,7 @@ To run.
 Locally from the root of the project
 ```bash
   ./scripts/setup-local-db.sh
-  npm run dev -w reingestion-lambda
+  npm run dev -w recomputation-lambda
 ```
 
 Running on CODE:
