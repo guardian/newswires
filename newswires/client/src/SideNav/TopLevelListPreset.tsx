@@ -44,7 +44,7 @@ export const TopLevelListPresetPanel = ({
 					handleArrowClick={
 						item.child
 							? () => {
-									if (shouldTogglePreset(activePreset)) {
+									if (shouldTogglePreset(activePreset, item.id)) {
 										togglePreset(item.id);
 									}
 									openDrawer();
