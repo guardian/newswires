@@ -88,10 +88,15 @@ type AnimationState = {
  * because we don't anticipate needing much reuse. But there are patterns
  * that could be extracted if needed in future.
  */
-export const PresetsContextMenu = () => {
-	const [activePanelId, setActivePanelId] =
-		useState<PresetGroupName>('presets');
+type PresetsContextMenuProps = {
+	activePanelId: PresetGroupName;
+	setActivePanelId: (id: PresetGroupName) => void;
+};
 
+export const PresetsContextMenu = ({
+	activePanelId,
+	setActivePanelId,
+}: PresetsContextMenuProps) => {
 	const [animationState, setAnimationState] = useState<AnimationState>({
 		isAnimating: false,
 		direction: null,
@@ -118,7 +123,7 @@ export const PresetsContextMenu = () => {
 
 			setActivePanelId(newPanelKey);
 		},
-		[activePanelId, animationState.isAnimating],
+		[activePanelId, animationState.isAnimating, setActivePanelId],
 	);
 	const openDrawer = () => {
 		swapActivePanel('sportPresets', 'forward');

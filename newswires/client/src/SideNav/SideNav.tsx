@@ -15,12 +15,14 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppTitle } from '../AppTitle.tsx';
 import { useSearch } from '../context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from '../dateHelpers.ts';
 import { FeedbackContent } from '../FeedbackContent.tsx';
+import type { PresetGroupName } from '../presets.ts';
 import { presets, sportPresets } from '../presets.ts';
+import { getPresetPanal } from '../queryHelpers.ts';
 import type { Query } from '../sharedTypes';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { defaultConfig } from '../urlState.ts';
@@ -129,6 +131,15 @@ export const SideNav = ({
 		}),
 	);
 
+	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
+		getPresetPanal(config.query.preset),
+	);
+
+	useEffect(() => {
+		const panelId = getPresetPanal(config.query.preset);
+		setActivePanelId(panelId);
+	}, [config.query.preset]);
+
 	useEffect(() => {
 		if (isLargeScreen) {
 			setSideNavIsOpen(false);
@@ -190,7 +201,10 @@ export const SideNav = ({
 						</EuiTitle>
 					)}
 					<EuiCollapsibleNavGroup title="Presets">
-						<PresetsContextMenu />
+						<PresetsContextMenu
+							activePanelId={activePanelId}
+							setActivePanelId={setActivePanelId}
+						/>
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Suppliers'}>
 						<EuiListGroup flush={true} gutterSize="none">

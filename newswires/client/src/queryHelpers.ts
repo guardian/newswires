@@ -1,3 +1,4 @@
+import type { PresetGroupName } from './presets.ts';
 import { sportPresets } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 
@@ -24,6 +25,15 @@ const presetIsInSports = (presetId: string): boolean => {
 	return (
 		sportPresets.map((p) => p.id).includes(presetId) && presetId !== 'all-sport'
 	);
+};
+
+export const getPresetPanal = (
+	presetId: string | undefined,
+): PresetGroupName => {
+	if (presetId === undefined) return 'presets';
+	if (presetIsInSports(presetId) || presetId === 'all-sport')
+		return 'sportPresets';
+	return 'presets';
 };
 
 export const removeValueFromQuery = (

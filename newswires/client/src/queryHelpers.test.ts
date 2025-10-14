@@ -1,5 +1,6 @@
 import {
 	getNextActivePreset,
+	getPresetPanal,
 	removeValueFromQuery,
 	shouldTogglePreset,
 } from './queryHelpers';
@@ -92,5 +93,20 @@ describe('shouldSelectTopLevelPreset', () => {
 	});
 	it('should return false if the active preset and preset id are the same', () => {
 		expect(shouldTogglePreset('all-sport', 'all-sport')).toBe(false);
+	});
+});
+
+describe('getPresetPanal', () => {
+	it('should return presets if presetId is undefined', () => {
+		expect(getPresetPanal(undefined)).toBe('presets');
+	});
+	it('should return presets if its a top level preset', () => {
+		expect(getPresetPanal('all-world')).toBe('presets');
+	});
+	it('should return sportsPresets if it is all-sport', () => {
+		expect(getPresetPanal('all-sport')).toBe('sportPresets');
+	});
+	it('should return sportsPresets if it is a secondary level preset', () => {
+		expect(getPresetPanal('no-soccer')).toBe('sportPresets');
 	});
 });
