@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+npm run build -w recomputation-lambda
+
+zip -FSjr "recomputation-lambda/dist/recomputation-lambda.zip" "recomputation-lambda/dist/handler.js"
+
+aws lambda update-function-code \
+    --function-name editorial-feeds-CODE-news-RecomputationLambdaCODE2-PImKD9iK33Pz \
+    --profile editorial-feeds \
+    --region eu-west-1 \
+    --zip-file "fileb://recomputation-lambda/dist/recomputation-lambda.zip"
