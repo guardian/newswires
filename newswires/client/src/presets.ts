@@ -127,3 +127,7 @@ export const presetLabel = (presetId: string) => {
 
 	return presetId;
 };
+
+export const presetIsInSports = (presetId: string): boolean => {
+	return sportPresets.map((p) => p.id).includes(presetId);
+};

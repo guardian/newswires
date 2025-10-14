@@ -3,8 +3,8 @@ import { css, keyframes } from '@emotion/react';
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
+import { getNextActivePreset } from '../presetHelpers';
 import type { PresetGroupName } from '../presets';
-import { getNextActivePreset } from '../queryHelpers';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
 
