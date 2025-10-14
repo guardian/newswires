@@ -2714,9 +2714,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Endpoint.Port",
               ],
             },
-            "FEEDS_BUCKET_NAME": {
-              "Ref": "feedsbucketTESTNewswires116BDB0E",
-            },
+            "DISABLED": "",
             "STACK": "editorial-feeds",
             "STAGE": "TEST",
           },
