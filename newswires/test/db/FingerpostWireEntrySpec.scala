@@ -513,7 +513,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     rendered should include("(fm.content -> 'keywords')")
     rendered should include("fm.category_codes &&")
-    rendered should include("(keywordsExcl.content->'keywords')")
+    rendered should include("(keywordsExcl.content -> 'keywords')")
     rendered should include(
       "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch"
     )
@@ -523,11 +523,11 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     rendered should include("(fm.content->'dataformat') IS NOT NULL")
   }
 
-  behavior of "sql statements"
+  behavior of "Filters"
 
   behavior of "supplier SQL helpers"
   it should "create the correct sql for suppliers" in {
-    val supplierSQL = FingerpostWireEntry.supplierSQL(List("supplier"))
+    val supplierSQL = FingerpostWireEntry.Filters.supplierSQL(List("supplier"))
     supplierSQL should matchSqlSnippet(
       expectedClause = " upper(fm.supplier) in (upper(?))",
       expectedParams = List("supplier")
@@ -537,9 +537,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "create the correct sql snippet for suppliersExcl" in {
     val supplierExclClause =
       """NOT EXISTS ( SELECT FROM fingerpost_wire_entry sourceFeedsExcl
-            |WHERE fm.id = sourceFeedsExcl.id
-            |AND upper(sourceFeedsExcl.supplier) in (upper(?)) )""".stripMargin
-    val suppliersExclSQL = FingerpostWireEntry.supplierExclSQL(List("supplier"))
+                |WHERE fm.id = sourceFeedsExcl.id
+                |AND upper(sourceFeedsExcl.supplier) in (upper(?)) )""".stripMargin
+    val suppliersExclSQL =
+      FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"))
     suppliersExclSQL should matchSqlSnippet(
       expectedClause = supplierExclClause,
       expectedParams = List("supplier")
@@ -548,7 +549,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "category code SQL helpers"
   it should "create the correct sql snippet for categoryCodesIncl" in {
-    val categoryCodesSQL = FingerpostWireEntry.categoryCodeInclSQL(List("code"))
+    val categoryCodesSQL =
+      FingerpostWireEntry.Filters.categoryCodeInclSQL(List("code"))
     categoryCodesSQL should matchSqlSnippet(
       expectedClause = "fm.category_codes && ?",
       expectedParams = List(List("code"))
@@ -558,11 +560,11 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "create the correct sql snippet for categoryCodesExcl" in {
     val categoryExclClause =
       """NOT EXISTS ( SELECT FROM fingerpost_wire_entry categoryCodesExcl
-            |WHERE fm.id = categoryCodesExcl.id
-            |AND categoryCodesExcl.category_codes && ? )""".stripMargin
+                |WHERE fm.id = categoryCodesExcl.id
+                |AND categoryCodesExcl.category_codes && ? )""".stripMargin
 
     val categoryCodesExcl =
-      FingerpostWireEntry.categoryCodeExclSQL(List("code"))
+      FingerpostWireEntry.Filters.categoryCodeExclSQL(List("code"))
 
     categoryCodesExcl should matchSqlSnippet(
       expectedClause = categoryExclClause,
@@ -572,7 +574,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "search term SQL helpers"
   it should "create the correct sql snippet for search term query when field is headline" in {
-    val searchSQL = FingerpostWireEntry.simpleSearchSQL(
+    val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
       SearchTerm.Simple("query", SearchField.Headline)
     )
     searchSQL should matchSqlSnippet(
@@ -583,7 +585,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql snippet for search term query when field is body" in {
-    val searchSQL = FingerpostWireEntry.simpleSearchSQL(
+    val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
       SearchTerm.Simple("query", SearchField.BodyText)
     )
     searchSQL should matchSqlSnippet(
@@ -594,7 +596,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql snippet for search term query when field is slug" in {
-    val searchSQL = FingerpostWireEntry.simpleSearchSQL(
+    val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
       SearchTerm.Simple("query", SearchField.Slug)
     )
     searchSQL should matchSqlSnippet(
@@ -605,7 +607,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql snippet for english term query" in {
-    val searchSQL = FingerpostWireEntry.englishSearchSQL(English("query"))
+    val searchSQL =
+      FingerpostWireEntry.Filters.englishSearchSQL(English("query"))
     searchSQL should matchSqlSnippet(
       expectedClause =
         "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
@@ -615,7 +618,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "keywords SQL helpers"
   it should "create the correct sql snippet for keywordsIncl" in {
-    val keywordSQL = FingerpostWireEntry.keywordsSQL(List("keyword"))
+    val keywordSQL = FingerpostWireEntry.Filters.keywordsSQL(List("keyword"))
     keywordSQL should matchSqlSnippet(
       expectedClause = "(fm.content -> 'keywords') ??| ?",
       expectedParams = List(List("keyword"))
@@ -625,9 +628,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "create the correct sql snippet for keywordExcl" in {
     val keywordExclClause =
       """NOT EXISTS ( SELECT FROM fingerpost_wire_entry keywordsExcl
-          |WHERE fm.id = keywordsExcl.id
-          |AND (keywordsExcl.content -> 'keywords') ??| ? )""".stripMargin
-    val keywordExclSQL = FingerpostWireEntry.keywordsExclSQL(List("keyword"))
+              |WHERE fm.id = keywordsExcl.id
+              |AND (keywordsExcl.content -> 'keywords') ??| ? )""".stripMargin
+    val keywordExclSQL =
+      FingerpostWireEntry.Filters.keywordsExclSQL(List("keyword"))
     keywordExclSQL should matchSqlSnippet(
       expectedClause = keywordExclClause,
       expectedParams = List(List("keyword"))
@@ -636,7 +640,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "dataformatting SQL helpers"
   it should "create the correct sql snippet for hasDataFormatting set to true" in {
-    val hasDataFormattingSQL = FingerpostWireEntry.dataFormattingSQL(true)
+    val hasDataFormattingSQL =
+      FingerpostWireEntry.Filters.dataFormattingSQL(true)
     hasDataFormattingSQL should matchSqlSnippet(
       expectedClause = "(fm.content->'dataformat') IS NOT NULL",
       expectedParams = List()
@@ -644,7 +649,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql snippet for hasDataFormatting set to false" in {
-    val hasDataFormattingSQL = FingerpostWireEntry.dataFormattingSQL(false)
+    val hasDataFormattingSQL =
+      FingerpostWireEntry.Filters.dataFormattingSQL(false)
     hasDataFormattingSQL should matchSqlSnippet(
       expectedClause = "(fm.content->'dataformat') IS NULL",
       expectedParams = List()

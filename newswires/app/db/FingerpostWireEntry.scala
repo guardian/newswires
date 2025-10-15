@@ -175,145 +175,151 @@ object FingerpostWireEntry
       .flatten
   }
 
-  private def exclusionCondition(
-      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
-        FingerpostWireEntry
-      ], FingerpostWireEntry]
-  )(innerClause: SQLSyntax) = {
-    // unpleasant, but the sort of trick you need to pull
-    // because "NOT IN (...)" doesn't hit an index.
-    // https://stackoverflow.com/a/19364694
+  object Filters {
+    private def exclusionCondition(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry]
+    )(innerClause: SQLSyntax) = {
+      // unpleasant, but the sort of trick you need to pull
+      // because "NOT IN (...)" doesn't hit an index.
+      // https://stackoverflow.com/a/19364694
 
-    sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as alias}
-           |  WHERE ${syn.id} = ${alias.id}
-           |    AND $innerClause
-           |)""".stripMargin
-  }
-
-  private def supplierCondition(
-      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
-        FingerpostWireEntry
-      ], FingerpostWireEntry],
-      suppliers: List[String]
-  ) = {
-    sqls.in(
-      sqls"upper(${alias.supplier})",
-      suppliers.map(feed => sqls"upper($feed)")
-    )
-  }
-
-  private def keywordCondition(
-      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
-        FingerpostWireEntry
-      ], FingerpostWireEntry],
-      keywords: List[String]
-  ): SQLSyntax =
-    // "??|" is actually the "?|" operator - doubled to prevent the
-    // SQL driver from treating it as a placeholder for a parameter
-    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
-    sqls"(${alias.content} -> 'keywords') ??| ${textArray(keywords)}"
-
-  private def categoryCodeCondtions(
-      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
-        FingerpostWireEntry
-      ], FingerpostWireEntry],
-      categoryCodes: List[String]
-  ) = {
-    sqls"${alias.categoryCodes} && ${textArray(categoryCodes)}"
-  }
-
-  lazy val supplierSQL: List[String] => SQLSyntax =
-    (sourceFeeds: List[String]) => supplierCondition(syn, sourceFeeds)
-
-  lazy val supplierExclSQL =
-    (sourceFeedsExcl: List[String]) => {
-      val se = this.syntax("sourceFeedsExcl")
-      exclusionCondition(se)(supplierCondition(se, sourceFeedsExcl))
+      sqls"""|NOT EXISTS (
+             |  SELECT FROM ${FingerpostWireEntry as alias}
+             |  WHERE ${syn.id} = ${alias.id}
+             |    AND $innerClause
+             |)""".stripMargin
     }
 
-  lazy val simpleSearchSQL =
-    (searchTerm: SearchTerm.Simple) => {
-      val tsvectorColumn = searchTerm.field match {
-        case SearchField.Headline => "headline_tsv_simple"
-        case SearchField.BodyText => "body_text_tsv_simple"
-        case SearchField.Slug     => "slug_text_tsv_simple"
+    private def supplierCondition(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        suppliers: List[String]
+    ) = {
+      sqls.in(
+        sqls"upper(${alias.supplier})",
+        suppliers.map(feed => sqls"upper($feed)")
+      )
+    }
+
+    private def keywordCondition(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        keywords: List[String]
+    ): SQLSyntax =
+      // "??|" is actually the "?|" operator - doubled to prevent the
+      // SQL driver from treating it as a placeholder for a parameter
+      // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
+      sqls"(${alias.content} -> 'keywords') ??| ${textArray(keywords)}"
+
+    private def categoryCodeCondtions(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        categoryCodes: List[String]
+    ) = {
+      sqls"${alias.categoryCodes} && ${textArray(categoryCodes)}"
+    }
+
+    lazy val supplierSQL: List[String] => SQLSyntax =
+      (sourceFeeds: List[String]) => supplierCondition(syn, sourceFeeds)
+
+    lazy val supplierExclSQL =
+      (sourceFeedsExcl: List[String]) => {
+        val se = syntax("sourceFeedsExcl")
+        exclusionCondition(se)(supplierCondition(se, sourceFeedsExcl))
       }
-      sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
-    }
 
-  lazy val englishSearchSQL =
-    (searchTerm: SearchTerm.English) => {
-      sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-    }
+    lazy val simpleSearchSQL =
+      (searchTerm: SearchTerm.Simple) => {
+        val tsvectorColumn = searchTerm.field match {
+          case SearchField.Headline => "headline_tsv_simple"
+          case SearchField.BodyText => "body_text_tsv_simple"
+          case SearchField.Slug     => "slug_text_tsv_simple"
+        }
+        sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
+      }
 
-  lazy val keywordsSQL =
-    (keywords: List[String]) => keywordCondition(syn, keywords)
+    lazy val englishSearchSQL =
+      (searchTerm: SearchTerm.English) => {
+        sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+      }
 
-  lazy val keywordsExclSQL =
-    (keywords: List[String]) => {
-      val ke = this.syntax("keywordsExcl")
-      exclusionCondition(ke)(keywordCondition(ke, keywords))
-    }
+    lazy val keywordsSQL =
+      (keywords: List[String]) => keywordCondition(syn, keywords)
 
-  lazy val categoryCodeInclSQL =
-    (categoryCodes: List[String]) => categoryCodeCondtions(syn, categoryCodes)
+    lazy val keywordsExclSQL =
+      (keywords: List[String]) => {
+        val ke = syntax("keywordsExcl")
+        exclusionCondition(ke)(keywordCondition(ke, keywords))
+      }
 
-  lazy val categoryCodeExclSQL =
-    (categoryCodesExcl: List[String]) => {
-      val cce = this.syntax("categoryCodesExcl")
-      exclusionCondition(cce)(categoryCodeCondtions(cce, categoryCodesExcl))
-    }
+    lazy val categoryCodeInclSQL =
+      (categoryCodes: List[String]) => categoryCodeCondtions(syn, categoryCodes)
 
-  lazy val dataFormattingSQL =
-    (hasDataFormatting: Boolean) => {
-      if (hasDataFormatting) sqls"(${syn.content}->'dataformat') IS NOT NULL"
-      else sqls"(${syn.content}->'dataformat') IS NULL"
-    }
+    lazy val categoryCodeExclSQL =
+      (categoryCodesExcl: List[String]) => {
+        val cce = syntax("categoryCodesExcl")
+        exclusionCondition(cce)(categoryCodeCondtions(cce, categoryCodesExcl))
+      }
+
+    lazy val dataFormattingSQL =
+      (hasDataFormatting: Boolean) => {
+        if (hasDataFormatting) sqls"(${syn.content}->'dataformat') IS NOT NULL"
+        else sqls"(${syn.content}->'dataformat') IS NULL"
+      }
+
+  }
+
   def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
     val sourceFeedsQuery: Option[SQLSyntax] = search.suppliersIncl match {
       case Nil         => None
-      case sourceFeeds => Some(supplierSQL(sourceFeeds))
+      case sourceFeeds => Some(Filters.supplierSQL(sourceFeeds))
     }
 
     val sourceFeedsExclQuery: Option[SQLSyntax] = search.suppliersExcl match {
       case Nil             => None
-      case sourceFeedsExcl => Some(supplierExclSQL(sourceFeedsExcl))
+      case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
     }
 
     val searchQuery = search.text match {
       case Some(SearchTerm.Simple(query, field)) =>
-        Some(simpleSearchSQL(SearchTerm.Simple(query, field)))
+        Some(Filters.simpleSearchSQL(SearchTerm.Simple(query, field)))
       case Some(SearchTerm.English(query)) =>
-        Some(englishSearchSQL(SearchTerm.English(query)))
+        Some(Filters.englishSearchSQL(SearchTerm.English(query)))
       case _ => None
     }
 
     val keywordsQuery = search.keywordIncl match {
       case Nil      => None
-      case keywords => Some(keywordsSQL(keywords))
+      case keywords => Some(Filters.keywordsSQL(keywords))
     }
 
     val keywordsExclQuery = search.keywordExcl match {
       case Nil      => None
-      case keywords => Some(keywordsExclSQL(keywords))
+      case keywords => Some(Filters.keywordsExclSQL(keywords))
     }
 
     val categoryCodesInclQuery = search.categoryCodesIncl match {
       case Nil           => None
-      case categoryCodes => Some(categoryCodeInclSQL(categoryCodes))
+      case categoryCodes => Some(Filters.categoryCodeInclSQL(categoryCodes))
     }
 
     val categoryCodesExclQuery = search.categoryCodesExcl match {
-      case Nil               => None
-      case categoryCodesExcl => Some(categoryCodeExclSQL(categoryCodesExcl))
+      case Nil => None
+      case categoryCodesExcl =>
+        Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
     }
 
     val hasDataFormattingQuery = search.hasDataFormatting match {
-      case Some(dataFormatting) => Some(dataFormattingSQL(dataFormatting))
-      case None                 => None
+      case Some(dataFormatting) =>
+        Some(Filters.dataFormattingSQL(dataFormatting))
+      case None => None
     }
 
     List(
