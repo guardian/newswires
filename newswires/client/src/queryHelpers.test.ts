@@ -1,7 +1,7 @@
 import { topLevelSportId } from './presets';
 import { removeValueFromQuery } from './queryHelpers';
 
-describe('updateQuery', () => {
+describe('removeValueFromQuery', () => {
 	it('should return an empty query string when q is the key', () => {
 		expect(removeValueFromQuery('q', 'hello', { q: 'hello' })).toStrictEqual({
 			q: '',
