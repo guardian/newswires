@@ -57,11 +57,15 @@ class QueryController(
       maybeSinceId,
       hasDataFormatting
     )
-    val searchParams = SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
+    val searchParams =
+      SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
 
     val queryParams = QueryParams(
       searchParams = searchParams,
-      savedSearchParamList = request.getQueryString("preset").flatMap(SearchPresets.get).getOrElse(Nil),
+      savedSearchParamList = request
+        .getQueryString("preset")
+        .flatMap(SearchPresets.get)
+        .getOrElse(Nil),
       maybeSearchTerm = baseParams.maybeSearchTerm,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId.map(NextPage(_)),

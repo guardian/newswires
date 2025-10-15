@@ -22,7 +22,11 @@ class SearchParamsSpec extends AnyFlatSpec {
   }
   it should "set an english search term when maybeFreeTextQuery is set" in new models {
     val baseParams = emptyBaseParams.copy(maybeFreeTextQuery = Some("query"))
-    val result = SearchParams.build(emptyQueryString, baseParams, featureSwitchShowGuSuppliersOn)
+    val result = SearchParams.build(
+      emptyQueryString,
+      baseParams,
+      featureSwitchShowGuSuppliersOn
+    )
     result.text shouldEqual Some(SearchTerm.English("query"))
   }
 
@@ -48,7 +52,11 @@ class SearchParamsSpec extends AnyFlatSpec {
       maybeSinceId = Some(1),
       hasDataFormatting = Some(true)
     )
-    val result = SearchParams.build(emptyQueryString, baseParams, featureSwitchShowGuSuppliersOn)
+    val result = SearchParams.build(
+      emptyQueryString,
+      baseParams,
+      featureSwitchShowGuSuppliersOn
+    )
     result shouldEqual SearchParams(
       text = Some(SearchTerm.English("hello")),
       start = Some("start"),
@@ -65,7 +73,11 @@ class SearchParamsSpec extends AnyFlatSpec {
 
   it should "include computed supplier exclusions" in new models {
     val result =
-      SearchParams.build(emptyQueryString, emptyBaseParams, featureSwitchShowGuSuppliersOff)
+      SearchParams.build(
+        emptyQueryString,
+        emptyBaseParams,
+        featureSwitchShowGuSuppliersOff
+      )
     result.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
@@ -73,7 +85,7 @@ class SearchParamsSpec extends AnyFlatSpec {
     )
   }
 
-  behavior of "getSupplierExclusions"
+  behavior of "computeSupplierExcl"
 
   it should "return dotcopy exclusion when no additional exclusion params are set and showGuSuppliers is true" in new models {
     val result = SearchParams.computeSupplierExcl(
