@@ -626,7 +626,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val keywordExclClause =
       """NOT EXISTS ( SELECT FROM fingerpost_wire_entry keywordsExcl
           |WHERE fm.id = keywordsExcl.id
-          |AND (keywordsExcl.content->'keywords') ??| ? )""".stripMargin
+          |AND (keywordsExcl.content -> 'keywords') ??| ? )""".stripMargin
     val keywordExclSQL = FingerpostWireEntry.keywordsExclSQL(List("keyword"))
     keywordExclSQL should matchSqlSnippet(
       expectedClause = keywordExclClause,

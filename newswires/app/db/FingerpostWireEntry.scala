@@ -175,94 +175,101 @@ object FingerpostWireEntry
       .flatten
   }
 
-  lazy val supplierSQL: List[String] => SQLSyntax =
-    (sourceFeeds: List[String]) => {
-      sqls.in(
-        sqls"upper(${syn.supplier})",
-        sourceFeeds.map(feed => sqls"upper($feed)")
-      )
-    }
-
-  lazy val supplierExclSQL = (sourceFeedsExcl: List[String]) => {
-    val se = this.syntax("sourceFeedsExcl")
-    val doesContainFeeds = sqls.in(
-      sqls"upper(${se.supplier})",
-      sourceFeedsExcl.map(feed => sqls"upper($feed)")
-    )
+  private def exclusionCondition(
+      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+        FingerpostWireEntry
+      ], FingerpostWireEntry]
+  )(innerClause: SQLSyntax) = {
     // unpleasant, but the sort of trick you need to pull
     // because "NOT IN (...)" doesn't hit an index.
     // https://stackoverflow.com/a/19364694
 
     sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as se}
-           |  WHERE ${syn.id} = ${se.id}
-           |    AND $doesContainFeeds
+           |  SELECT FROM ${FingerpostWireEntry as alias}
+           |  WHERE ${syn.id} = ${alias.id}
+           |    AND $innerClause
            |)""".stripMargin
-
   }
 
-  lazy val simpleSearchSQL = (searchTerm: SearchTerm.Simple) => {
-    val tsvectorColumn = searchTerm.field match {
-      case SearchField.Headline => "headline_tsv_simple"
-      case SearchField.BodyText => "body_text_tsv_simple"
-      case SearchField.Slug     => "slug_text_tsv_simple"
+  private def supplierCondition(
+      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+        FingerpostWireEntry
+      ], FingerpostWireEntry],
+      suppliers: List[String]
+  ) = {
+    sqls.in(
+      sqls"upper(${alias.supplier})",
+      suppliers.map(feed => sqls"upper($feed)")
+    )
+  }
+
+  private def keywordCondition(
+      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+        FingerpostWireEntry
+      ], FingerpostWireEntry],
+      keywords: List[String]
+  ): SQLSyntax =
+    // "??|" is actually the "?|" operator - doubled to prevent the
+    // SQL driver from treating it as a placeholder for a parameter
+    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
+    sqls"(${alias.content} -> 'keywords') ??| ${textArray(keywords)}"
+
+  private def categoryCodeCondtions(
+      alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+        FingerpostWireEntry
+      ], FingerpostWireEntry],
+      categoryCodes: List[String]
+  ) = {
+    sqls"${alias.categoryCodes} && ${textArray(categoryCodes)}"
+  }
+
+  lazy val supplierSQL: List[String] => SQLSyntax =
+    (sourceFeeds: List[String]) => supplierCondition(syn, sourceFeeds)
+
+  lazy val supplierExclSQL =
+    (sourceFeedsExcl: List[String]) => {
+      val se = this.syntax("sourceFeedsExcl")
+      exclusionCondition(se)(supplierCondition(se, sourceFeedsExcl))
     }
 
-    sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
+  lazy val simpleSearchSQL =
+    (searchTerm: SearchTerm.Simple) => {
+      val tsvectorColumn = searchTerm.field match {
+        case SearchField.Headline => "headline_tsv_simple"
+        case SearchField.BodyText => "body_text_tsv_simple"
+        case SearchField.Slug     => "slug_text_tsv_simple"
+      }
+      sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
+    }
 
-  }
+  lazy val englishSearchSQL =
+    (searchTerm: SearchTerm.English) => {
+      sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+    }
 
-  lazy val englishSearchSQL = (searchTerm: SearchTerm.English) => {
-    sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-  }
+  lazy val keywordsSQL =
+    (keywords: List[String]) => keywordCondition(syn, keywords)
 
-  lazy val keywordsSQL = (keywords: List[String]) => {
-    // "??|" is actually the "?|" operator - doubled to prevent the
-    // SQL driver from treating it as a placeholder for a parameter
-    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
-    sqls"""(${syn.content} -> 'keywords') ??| ${textArray(keywords)}"""
+  lazy val keywordsExclSQL =
+    (keywords: List[String]) => {
+      val ke = this.syntax("keywordsExcl")
+      exclusionCondition(ke)(keywordCondition(ke, keywords))
+    }
 
-  }
+  lazy val categoryCodeInclSQL =
+    (categoryCodes: List[String]) => categoryCodeCondtions(syn, categoryCodes)
 
-  lazy val keywordsExclSQL = (keywords: List[String]) => {
-    val ke = this.syntax("keywordsExcl")
-    // "??|" is actually the "?|" operator - doubled to prevent the
-    // SQL driver from treating it as a placeholder for a parameter
-    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
-    val doesContainKeywords =
-      sqls"(${ke.content}->'keywords') ??| ${textArray(keywords)}"
-    // unpleasant, but the kind of trick you need to pull because
-    // NOT [row] ?| [list] won't use the index.
-    // https://stackoverflow.com/a/19364694
+  lazy val categoryCodeExclSQL =
+    (categoryCodesExcl: List[String]) => {
+      val cce = this.syntax("categoryCodesExcl")
+      exclusionCondition(cce)(categoryCodeCondtions(cce, categoryCodesExcl))
+    }
 
-    sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as ke}
-           |  WHERE ${syn.id} = ${ke.id}
-           |    AND $doesContainKeywords
-           |)""".stripMargin
-
-  }
-
-  lazy val categoryCodeInclSQL = (categoryCodes: List[String]) => {
-    sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
-  }
-
-  lazy val categoryCodeExclSQL = (categoryCodesExcl: List[String]) => {
-    val cce = this.syntax("categoryCodesExcl")
-    val doesContainCategoryCodes =
-      sqls"${cce.categoryCodes} && ${textArray(categoryCodesExcl)}"
-
-    sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as cce}
-           |  WHERE ${syn.id} = ${cce.id}
-           |    AND $doesContainCategoryCodes
-           |)""".stripMargin
-  }
-
-  lazy val dataFormattingSQL = (hasDataFormatting: Boolean) => {
-    if (hasDataFormatting) sqls"(${syn.content}->'dataformat') IS NOT NULL"
-    else sqls"(${syn.content}->'dataformat') IS NULL"
-  }
+  lazy val dataFormattingSQL =
+    (hasDataFormatting: Boolean) => {
+      if (hasDataFormatting) sqls"(${syn.content}->'dataformat') IS NOT NULL"
+      else sqls"(${syn.content}->'dataformat') IS NULL"
+    }
   def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
