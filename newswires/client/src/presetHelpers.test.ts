@@ -24,7 +24,7 @@ describe('getNextActivePreset', () => {
 	});
 });
 
-describe('shouldSelectTopLevelPreset', () => {
+describe('shouldTogglePreset', () => {
 	it('should return true if the active preset is undefined', () => {
 		expect(shouldTogglePreset(undefined, 'blah')).toBe(true);
 	});
