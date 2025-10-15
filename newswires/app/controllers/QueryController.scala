@@ -50,12 +50,15 @@ class QueryController(
 
     val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
 
+    val dotCopyIsSelected = request.getQueryString("preset").contains("dot-copy")
+    val dotCopyExclusion = Option.when(!dotCopyIsSelected)("UNAUTHED_EMAIL_FEED").toList
     val suppliersToExcludeByDefault =
       if (featureSwitchProvider.ShowGuSuppliers.isOn())
         List("GuReuters", "GuAP").filterNot(
           suppliers.contains
-        )
-      else Nil
+        ) ++ dotCopyExclusion
+      else dotCopyExclusion
+
     val suppliersExcl = request.queryString
       .get("supplierExcl")
       .map(_.toList)
