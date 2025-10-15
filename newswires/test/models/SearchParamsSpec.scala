@@ -15,14 +15,14 @@ class SearchParamsSpec extends AnyFlatSpec {
     SearchParams.build(
       emptyQueryString,
       emptyBaseParams,
-      featureMockOn
+      featureSwitchShowGuSuppliersOn
     ) shouldEqual emptySearchParams.copy(suppliersExcl =
       List("UNAUTHED_EMAIL_FEED")
     )
   }
   it should "set an english search term when maybeFreeTextQuery is set" in new models {
     val baseParams = emptyBaseParams.copy(maybeFreeTextQuery = Some("query"))
-    val result = SearchParams.build(emptyQueryString, baseParams, featureMockOn)
+    val result = SearchParams.build(emptyQueryString, baseParams, featureSwitchShowGuSuppliersOn)
     result.text shouldEqual Some(SearchTerm.English("query"))
   }
 
@@ -30,7 +30,7 @@ class SearchParamsSpec extends AnyFlatSpec {
     val result = SearchParams.build(
       Map("keywordExcl" -> Seq("a", "b")),
       emptyBaseParams,
-      featureMockOn
+      featureSwitchShowGuSuppliersOn
     )
     result.keywordExcl shouldEqual List("a", "b")
   }
@@ -48,7 +48,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       maybeSinceId = Some(1),
       hasDataFormatting = Some(true)
     )
-    val result = SearchParams.build(emptyQueryString, baseParams, featureMockOn)
+    val result = SearchParams.build(emptyQueryString, baseParams, featureSwitchShowGuSuppliersOn)
     result shouldEqual SearchParams(
       text = Some(SearchTerm.English("hello")),
       start = Some("start"),
@@ -65,7 +65,7 @@ class SearchParamsSpec extends AnyFlatSpec {
 
   it should "include computed supplier exclusions" in new models {
     val result =
-      SearchParams.build(emptyQueryString, emptyBaseParams, featureMockOff)
+      SearchParams.build(emptyQueryString, emptyBaseParams, featureSwitchShowGuSuppliersOff)
     result.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
@@ -134,8 +134,8 @@ trait models {
   val emptyBaseParams = BaseRequestParams()
   val emptySearchParams = SearchParams(None)
   val emptyQueryString = Map[String, Seq[String]]()
-  val featureMockOn = mock[FeatureSwitchProvider]
-  val featureMockOff = mock[FeatureSwitchProvider]
+  val featureSwitchShowGuSuppliersOn = mock[FeatureSwitchProvider]
+  val featureSwitchShowGuSuppliersOff = mock[FeatureSwitchProvider]
   val featureSwitch = FeatureSwitch(
     name = "",
     safeState = Off,
@@ -143,8 +143,8 @@ trait models {
     exposeToClient = true,
     isOn = () => true
   )
-  when(featureMockOn.ShowGuSuppliers).thenReturn(featureSwitch)
-  when(featureMockOff.ShowGuSuppliers).thenReturn(
+  when(featureSwitchShowGuSuppliersOn.ShowGuSuppliers).thenReturn(featureSwitch)
+  when(featureSwitchShowGuSuppliersOff.ShowGuSuppliers).thenReturn(
     featureSwitch.copy(isOn = () => false)
   )
 }
