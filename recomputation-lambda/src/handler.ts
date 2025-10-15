@@ -21,6 +21,10 @@ export const main = async ({
 	lastUpdatedUntil: string | undefined;
 	lastUpdatedAtIsEmpty: boolean | undefined;
 }) => {
+	if (process.env.DISABLED === 'true') {
+		console.log('Disabled flag is set: not running recomputation lambda');
+		return;
+	}
 	const { sql, closeDbConnection } = await initialiseDbConnection();
 
 	const params = {

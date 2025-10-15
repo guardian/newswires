@@ -147,13 +147,13 @@ async function getFeed(
 		}
 		return { feed, timeReceived };
 	} catch (error) {
-		if (attempt === 0) {
-			// try once more, because there are sometimes transient availability issues
+		if (attempt > 0 && attempt < 3) {
+			// try again, because there are sometimes transient availability issues
 			console.warn(
-				`Received error from AP feed: ${getErrorMessage(error)}; trying once more`,
+				`Received error from AP feed: ${getErrorMessage(error)}; trying again`,
 			);
-			// wait 2 seconds before retrying
-			await new Promise((resolve) => setTimeout(resolve, 2000));
+			// wait before retrying
+			await new Promise((resolve) => setTimeout(resolve, 10000));
 			return getFeed(url, apiKey, attempt + 1);
 		} else {
 			console.error(

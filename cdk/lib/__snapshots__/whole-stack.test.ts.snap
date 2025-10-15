@@ -3385,9 +3385,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 "Endpoint.Port",
               ],
             },
-            "FEEDS_BUCKET_NAME": {
-              "Ref": "feedsbucketTESTNewswires116BDB0E",
-            },
+            "DISABLED": "",
             "STACK": "editorial-feeds",
             "STAGE": "TEST",
           },
