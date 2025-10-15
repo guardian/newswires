@@ -5,7 +5,7 @@ import {
 } from './presetHelpers';
 import { topLevelSportId } from './presets';
 
-describe('getActivePreset', () => {
+describe('getNextActivePreset', () => {
 	it('should return undefined when the preset id matches the active preset', () => {
 		expect(getNextActivePreset('all-world', 'all-world')).toBe(undefined);
 	});
