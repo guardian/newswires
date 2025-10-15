@@ -23,7 +23,7 @@ object SearchParams {
       featureSwitch: FeatureSwitchProvider
   ) = {
     SearchParams(
-      text = baseParams.maybeFreeTextQuery.map(SearchTerm.English(_)),
+      text = baseParams.maybeSearchTerm,
       start = baseParams.maybeStart,
       end = baseParams.maybeEnd,
       keywordIncl = baseParams.keywords,
