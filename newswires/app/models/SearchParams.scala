@@ -29,10 +29,32 @@ object SearchParams {
       keywordIncl = baseParams.keywords,
       keywordExcl = query.get("keywordExcl").map(_.toList).getOrElse(Nil),
       suppliersIncl = baseParams.suppliers,
-      suppliersExcl = Nil,
+      suppliersExcl = computeSupplierExcl(
+        query,
+        featureSwitch.ShowGuSuppliers.isOn(),
+        baseParams.suppliers
+      ),
       categoryCodesIncl = baseParams.categoryCode,
       categoryCodesExcl = baseParams.categoryCodeExcl,
       hasDataFormatting = baseParams.hasDataFormatting
     )
+  }
+
+  def computeSupplierExcl(
+      query: Map[String, Seq[String]],
+      showGuSuppliers: Boolean,
+      suppliers: List[String]
+  ) = {
+    val dotCopyIsSelected = query.get("preset").exists(_.contains("dot-copy"))
+
+    val dotCopyExclusion =
+      Option.when(!dotCopyIsSelected)("UNAUTHED_EMAIL_FEED").toList
+    val guSuppliersExclusion =
+      if (showGuSuppliers) Nil
+      else List("GuReuters", "GuAP").filterNot(s => suppliers.contains(s))
+    val exclusionFromParams =
+      query.get("supplierExcl").map(_.toList).getOrElse(Nil)
+
+    dotCopyExclusion ::: guSuppliersExclusion ::: exclusionFromParams
   }
 }
