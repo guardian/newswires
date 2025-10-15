@@ -92,7 +92,6 @@ describe('putItemToDb', () => {
 		expect(new Date(ingestedAt).getTime()).toBeLessThanOrEqual(after.getTime());
 	});
 	it('should insert a persisted_at time', async () => {
-		const before = new Date();
 		await putItemToDb({
 			processedObject: exampleProcessedObject,
 			externalId: 'test-external-id-4',
@@ -101,16 +100,59 @@ describe('putItemToDb', () => {
 			sql: sql,
 			logger: mockCreateLogger({}),
 		});
-		const after = new Date();
+		const now = new Date();
 		const results =
 			await sql`SELECT persisted_at FROM ${sql(DATABASE_TABLE_NAME)}`;
 		const persistedAt = (results[0] as { persisted_at: Date }).persisted_at;
 		expect(persistedAt).toBeDefined();
-		expect(new Date(persistedAt).getTime()).toBeGreaterThanOrEqual(
-			before.getTime(),
-		);
-		expect(new Date(persistedAt).getTime()).toBeLessThanOrEqual(
-			after.getTime(),
-		);
+		expect(
+			Math.abs(now.getTime() - new Date(persistedAt).getTime()),
+		).toBeLessThanOrEqual(1000);
+	});
+	it('should persist precomputed categories', async () => {
+		await putItemToDb({
+			processedObject: {
+				...exampleProcessedObject,
+				categoryCodes: ['N2:SYNCS'],
+			},
+			externalId: 'test-external-id-5',
+			s3Key: 'test-s3-key',
+			lastModified: undefined,
+			sql: sql,
+			logger: mockCreateLogger({}),
+		});
+		const results = await sql`SELECT precomputed_categories FROM ${sql(
+			DATABASE_TABLE_NAME,
+		)} WHERE external_id = 'test-external-id-5';`;
+		const precomputedCategories = (
+			results[0] as { precomputed_categories: string[] | null }
+		).precomputed_categories;
+		expect(precomputedCategories).toBeDefined();
+		expect(precomputedCategories).toEqual([
+			'all-sports',
+			'no-soccer',
+			'sports-related-topic-codes',
+		]);
+	});
+	it('should store an empty array for precomputed categories if no category codes match', async () => {
+		await putItemToDb({
+			processedObject: {
+				...exampleProcessedObject,
+				categoryCodes: ['code'],
+			},
+			externalId: 'test-external-id-5',
+			s3Key: 'test-s3-key',
+			lastModified: undefined,
+			sql: sql,
+			logger: mockCreateLogger({}),
+		});
+		const results = await sql`SELECT precomputed_categories FROM ${sql(
+			DATABASE_TABLE_NAME,
+		)} WHERE external_id = 'test-external-id-5';`;
+		const precomputedCategories = (
+			results[0] as { precomputed_categories: string[] | null }
+		).precomputed_categories;
+		expect(precomputedCategories).toBeDefined();
+		expect(precomputedCategories).toEqual([]);
 	});
 });

@@ -1,4 +1,5 @@
 import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
+import { getErrorMessage } from '../../../../shared/getErrorMessage';
 import type {
 	IngestorPayload,
 	LongPollFunction,
@@ -123,26 +124,44 @@ function isFeedListError(
 async function getFeed(
 	url: string,
 	apiKey: string,
+	attempt: number = 0,
 ): Promise<{ feed: FeedListData; timeReceived: Date }> {
-	const headers: HeadersInit = {
-		accept: 'application/json',
-		'x-api-key': apiKey,
-	};
+	try {
+		const headers: HeadersInit = {
+			accept: 'application/json',
+			'x-api-key': apiKey,
+		};
 
-	console.log(`polling for feed at ${url}`);
+		console.log(`polling for feed at ${url}`);
 
-	const resp = await fetch(url, {
-		headers,
-	});
-	const timeReceived = new Date();
-	const feed = (await resp.json()) as unknown as FeedListData | FeedListError;
-	if (isFeedListError(feed)) {
-		throw new Error(feed.error?.message);
+		const resp = await fetch(url, {
+			headers,
+		});
+		const timeReceived = new Date();
+		const feed = (await resp.json()) as unknown as FeedListData | FeedListError;
+		if (isFeedListError(feed)) {
+			throw new Error(feed.error?.message);
+		}
+		if (!isFeedListData(feed)) {
+			throw new Error('Unexpected response from API');
+		}
+		return { feed, timeReceived };
+	} catch (error) {
+		if (attempt > 0 && attempt < 3) {
+			// try again, because there are sometimes transient availability issues
+			console.warn(
+				`Received error from AP feed: ${getErrorMessage(error)}; trying again`,
+			);
+			// wait before retrying
+			await new Promise((resolve) => setTimeout(resolve, 10000));
+			return getFeed(url, apiKey, attempt + 1);
+		} else {
+			console.error(
+				`Received error from AP feed on attempt number ${attempt}: ${getErrorMessage(error)}; aborting`,
+			);
+			throw error;
+		}
 	}
-	if (!isFeedListData(feed)) {
-		throw new Error('Unexpected response from API');
-	}
-	return { feed, timeReceived };
 }
 
 function itemWithContentToDesiredOutput({
