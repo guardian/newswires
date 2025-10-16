@@ -8,6 +8,7 @@ export const SideNavListItem = ({
 	handleButtonClick,
 	handleSecondaryActionClick,
 	arrowSide = undefined,
+	handleArrowClick: handleArrowClick,
 	colour = 'rgb(0, 119, 204)',
 }: {
 	label: string;
@@ -15,6 +16,7 @@ export const SideNavListItem = ({
 	isTopLevel: boolean;
 	handleButtonClick: () => void;
 	handleSecondaryActionClick?: () => void;
+	handleArrowClick?: () => void;
 	arrowSide?: 'left' | 'right';
 	colour?: string;
 }) => {
@@ -25,6 +27,7 @@ export const SideNavListItem = ({
 			aria-current={isActive ? 'true' : undefined}
 			css={css`
 				display: flex;
+				align-items: center;
 				gap: ${euiTheme.size.xs};
 				padding-right: ${euiTheme.size.xs};
 				margin-bottom: ${euiTheme.size.xs};
@@ -46,6 +49,9 @@ export const SideNavListItem = ({
 				}
 			`}
 		>
+			{arrowSide === 'left' && (
+				<EuiIcon type={'arrowLeft'} onClick={handleArrowClick}></EuiIcon>
+			)}
 			<button
 				type="button"
 				onClick={handleButtonClick}
@@ -60,7 +66,6 @@ export const SideNavListItem = ({
 					flex-grow: 1;
 				`}
 			>
-				{arrowSide === 'left' && <EuiIcon type={'arrowLeft'}></EuiIcon>}
 				<div
 					css={css`
 						flex-grow: 1;
@@ -79,9 +84,7 @@ export const SideNavListItem = ({
 					/>
 					<span>{label}</span>
 				</div>
-				{arrowSide === 'right' && <EuiIcon type={'arrowRight'}></EuiIcon>}
 			</button>
-
 			{!!handleSecondaryActionClick && (
 				<button
 					type="button"
@@ -91,6 +94,10 @@ export const SideNavListItem = ({
 					}}
 					css={css`
 						opacity: 0;
+						margin-left: auto;
+						margin-right: ${arrowSide === 'right' || !isTopLevel
+							? '0px'
+							: '20px'};
 
 						&:hover,
 						&:focus {
@@ -100,6 +107,9 @@ export const SideNavListItem = ({
 				>
 					<EuiButtonIcon iconType="popout" size="xs" />
 				</button>
+			)}
+			{arrowSide === 'right' && (
+				<EuiIcon type={'arrowRight'} onClick={handleArrowClick}></EuiIcon>
 			)}
 		</li>
 	);

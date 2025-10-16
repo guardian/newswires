@@ -2,13 +2,9 @@ import { useEuiTheme } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	loadOrSetInLocalStorage,
-	saveToLocalStorage,
-} from '../context/localStorage';
 import { useSearch } from '../context/SearchContext';
+import { getNextActivePreset } from '../presetHelpers';
 import type { PresetGroupName } from '../presets';
-import { PresetGroupNameSchema } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
 
@@ -92,15 +88,15 @@ type AnimationState = {
  * because we don't anticipate needing much reuse. But there are patterns
  * that could be extracted if needed in future.
  */
-export const PresetsContextMenu = () => {
-	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(() =>
-		loadOrSetInLocalStorage<PresetGroupName>(
-			'presetsMenuActivePanel',
-			PresetGroupNameSchema,
-			'presets',
-		),
-	);
+type PresetsContextMenuProps = {
+	activePanelId: PresetGroupName;
+	setActivePanelId: (id: PresetGroupName) => void;
+};
 
+export const PresetsContextMenu = ({
+	activePanelId,
+	setActivePanelId,
+}: PresetsContextMenuProps) => {
 	const [animationState, setAnimationState] = useState<AnimationState>({
 		isAnimating: false,
 		direction: null,
@@ -126,10 +122,15 @@ export const PresetsContextMenu = () => {
 			});
 
 			setActivePanelId(newPanelKey);
-			saveToLocalStorage('presetsMenuActivePanel', newPanelKey);
 		},
-		[activePanelId, animationState.isAnimating],
+		[activePanelId, animationState.isAnimating, setActivePanelId],
 	);
+	const openDrawer = () => {
+		swapActivePanel('sportPresets', 'forward');
+	};
+	const closeDrawer = () => {
+		swapActivePanel('presets', 'back');
+	};
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -149,19 +150,11 @@ export const PresetsContextMenu = () => {
 
 	const togglePreset = useCallback(
 		(presetId: string) => {
-			if (activePreset === presetId || presetId === 'all-presets') {
-				handleEnterQuery({
-					...config.query,
-					preset: undefined,
-					hasDataFormatting: undefined,
-				});
-			} else {
-				handleEnterQuery({
-					...config.query,
-					preset: presetId,
-					hasDataFormatting: undefined,
-				});
-			}
+			handleEnterQuery({
+				...config.query,
+				preset: getNextActivePreset(activePreset, presetId),
+				hasDataFormatting: undefined,
+			});
 		},
 		[activePreset, config.query, handleEnterQuery],
 	);
@@ -201,13 +194,15 @@ export const PresetsContextMenu = () => {
 				{activePanelId === 'presets' ? (
 					<TopLevelListPresetPanel
 						activePreset={activePreset}
-						swapActivePanel={swapActivePanel}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
 						togglePreset={togglePreset}
 					/>
 				) : (
 					<SecondaryLevelListPresetPanel
 						activePreset={activePreset}
-						swapActivePanel={swapActivePanel}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
 						togglePreset={togglePreset}
 					/>
 				)}
@@ -221,13 +216,15 @@ export const PresetsContextMenu = () => {
 					{activePanelId === 'presets' ? (
 						<SecondaryLevelListPresetPanel
 							activePreset={activePreset}
-							swapActivePanel={swapActivePanel}
+							openDrawer={openDrawer}
+							closeDrawer={closeDrawer}
 							togglePreset={togglePreset}
 						/>
 					) : (
 						<TopLevelListPresetPanel
 							activePreset={activePreset}
-							swapActivePanel={swapActivePanel}
+							openDrawer={openDrawer}
+							closeDrawer={closeDrawer}
 							togglePreset={togglePreset}
 						/>
 					)}
