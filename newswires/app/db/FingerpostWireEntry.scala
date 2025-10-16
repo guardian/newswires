@@ -322,7 +322,6 @@ object FingerpostWireEntry
   }
 
   private[db] def buildWhereClause(
-      baseWhereClause: Option[SQLSyntax],
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
       maybeBeforeId: Option[Int],
@@ -370,7 +369,7 @@ object FingerpostWireEntry
       }
 
     val allClauses =
-      (dataOnlyWhereClauses :+ baseWhereClause :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
+      (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
 
     allClauses match {
       case Nil => sqls"true"
@@ -408,7 +407,6 @@ object FingerpostWireEntry
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
-      baseWhereClause = Some(sqls"${syn.supplier} <> 'UNAUTHED_EMAIL_FEED'"),
       queryParams.searchParams,
       queryParams.savedSearchParamList,
       maybeBeforeId = queryParams.maybeBeforeId,
@@ -446,62 +444,6 @@ object FingerpostWireEntry
       results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
       totalCount /*, keywordCounts*/
     )
-  }
-
-  def dotCopy(
-      start: Option[String] = None,
-      end: Option[String] = None,
-      maybeFreeTextQuery: Option[SearchTerm] = None,
-      maybeBeforeId: Option[Int] = None,
-      maybeSinceId: Option[Int] = None
-  ): QueryResponse = DB readOnly { implicit session =>
-    val whereClause = buildWhereClause(
-      baseWhereClause =
-        Some(sqls"${FingerpostWireEntry.syn.supplier} = 'UNAUTHED_EMAIL_FEED'"),
-      searchParams = SearchParams(
-        text = maybeFreeTextQuery,
-        start = start,
-        end = end
-      ),
-      savedSearchParamList = Nil,
-      maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId
-    )
-
-    val highlightsClause = buildHighlightsClause(maybeFreeTextQuery)
-
-    val query =
-      sql"""| SELECT $selectAllStatement, $highlightsClause
-            | FROM ${FingerpostWireEntry as syn}
-            | WHERE $whereClause LIMIT 1000
-            | """.stripMargin
-
-    logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
-
-    val results = query
-      .map(FingerpostWireEntry.fromDb(syn.resultName))
-      .list()
-      .apply()
-      .flatten
-
-    val countQuery =
-      sql"""| SELECT COUNT(*)
-            | FROM ${FingerpostWireEntry as syn}
-            | WHERE $whereClause
-            | """.stripMargin
-
-    logger.info(
-      s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
-    )
-
-    val totalCount: Long =
-      countQuery.map(_.long(1)).single().apply().getOrElse(0)
-
-    QueryResponse(
-      results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
-      totalCount /*, keywordCounts*/
-    )
-
   }
 
   def getKeywords(
