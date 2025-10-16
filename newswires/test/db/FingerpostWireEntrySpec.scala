@@ -525,6 +525,23 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "Filters"
 
+  behavior of "id filters"
+  it should "create the correct sql for beforeId" in {
+    val beforeIdSQL = FingerpostWireEntry.Filters.beforeIdSQL(1)
+    beforeIdSQL should matchSqlSnippet(
+      expectedClause = sqls"${FingerpostWireEntry.syn.id} < ?",
+      expectedParams = List(1)
+    )
+  }
+
+  it should "create the correct sql for sinceId" in {
+    val sinceIdSQL = FingerpostWireEntry.Filters.sinceIdSQL(1)
+    sinceIdSQL should matchSqlSnippet(
+      expectedClause = sqls"${FingerpostWireEntry.syn.id} > ?",
+      expectedParams = List(1)
+    )
+  }
+
   behavior of "supplier SQL helpers"
   it should "create the correct sql for suppliers" in {
     val supplierSQL = FingerpostWireEntry.Filters.supplierSQL(List("supplier"))

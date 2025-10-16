@@ -258,7 +258,8 @@ object FingerpostWireEntry
       }
 
     lazy val categoryCodeInclSQL =
-      (categoryCodes: List[String]) => categoryCodeConditions(syn, categoryCodes)
+      (categoryCodes: List[String]) =>
+        categoryCodeConditions(syn, categoryCodes)
 
     lazy val categoryCodeExclSQL =
       (categoryCodesExcl: List[String]) => {
@@ -272,6 +273,11 @@ object FingerpostWireEntry
         else sqls"(${syn.content}->'dataformat') IS NULL"
       }
 
+    lazy val beforeIdSQL =
+      (beforeId: Int) => sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+
+    lazy val sinceIdSQL =
+      (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
   }
 
   def processSearchParams(
@@ -342,12 +348,8 @@ object FingerpostWireEntry
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
-      maybeBeforeId.map(beforeId =>
-        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-      ),
-      maybeSinceId.map(sinceId =>
-        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-      )
+      maybeBeforeId.map(Filters.beforeIdSQL(_)),
+      maybeSinceId.map(Filters.sinceIdSQL(_))
     )
 
     val dateRangeQuery = (searchParams.start, searchParams.end) match {
