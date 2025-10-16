@@ -278,6 +278,25 @@ object FingerpostWireEntry
 
     lazy val sinceIdSQL =
       (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
+
+    lazy val dateRangeSQL =
+      (start: Option[String], end: Option[String]) => {
+        (start, end) match {
+          case (Some(startDate), Some(endDate)) =>
+            Some(
+              sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
+            )
+          case (Some(startDate), None) =>
+            Some(
+              sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+            )
+          case (None, Some(endDate)) =>
+            Some(
+              sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+            )
+          case _ => None
+        }
+      }
   }
 
   def processSearchParams(
@@ -352,21 +371,8 @@ object FingerpostWireEntry
       maybeSinceId.map(Filters.sinceIdSQL(_))
     )
 
-    val dateRangeQuery = (searchParams.start, searchParams.end) match {
-      case (Some(startDate), Some(endDate)) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
-        )
-      case (Some(startDate), None) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
-        )
-      case (None, Some(endDate)) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
-        )
-      case _ => None
-    }
+    val dateRangeQuery =
+      Filters.dateRangeSQL(searchParams.start, searchParams.end)
 
     val customSearchClauses = processSearchParams(searchParams) match {
       case Nil => None
