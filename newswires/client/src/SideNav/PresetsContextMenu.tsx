@@ -119,7 +119,7 @@ export const PresetsContextMenu = () => {
 
 			setActivePanelId(newPanelKey);
 		},
-		[activePanelId, animationState.isAnimating, setActivePanelId],
+		[activePanelId, animationState.isAnimating],
 	);
 
 	const openDrawer = useCallback(() => {
