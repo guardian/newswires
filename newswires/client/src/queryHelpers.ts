@@ -1,7 +1,7 @@
 import { presetIsInSports, topLevelSportId } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 
-export const removeValueFromQuery = (
+export const keyValueAfterDeselection = (
 	key: keyof Query,
 	value: string,
 	query: Query,

@@ -14,7 +14,7 @@ import {
 	isRestricted,
 } from './dateHelpers.ts';
 import { presetLabel } from './presets.ts';
-import { removeValueFromQuery } from './queryHelpers.ts';
+import { keyValueAfterDeselection } from './queryHelpers.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -50,7 +50,7 @@ const SummaryBadge = ({
 		} else {
 			handleEnterQuery({
 				...config.query,
-				...removeValueFromQuery(key, value, config.query),
+				...keyValueAfterDeselection(key, value, config.query),
 			});
 		}
 	};
