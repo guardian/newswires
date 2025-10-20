@@ -1,4 +1,5 @@
 import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
+import { getErrorMessage } from '../../../../shared/getErrorMessage';
 import type {
 	IngestorPayload,
 	LongPollFunction,
@@ -23,7 +24,10 @@ export const apPoller = (async ({
 	secret,
 	input,
 	logger,
-}: PollFunctionInput) => {
+	retryDelayMs = 10000,
+}: PollFunctionInput & {
+	retryDelayMs?: number;
+}) => {
 	const baseUrl = 'https://api.ap.org/media/v';
 	const defaultFeedUrl = `${baseUrl}/content/feed?page_size=10&in_my_plan=true&include=*`;
 	const apiKey = secret;
@@ -33,7 +37,11 @@ export const apPoller = (async ({
 		'x-api-key': apiKey,
 	};
 
-	const { feed, timeReceived } = await getFeed(input, apiKey);
+	const { feed, timeReceived } = await getFeed({
+		url: input,
+		apiKey,
+		retryDelayMs,
+	});
 
 	logger.log({
 		message: `Received feed with ${feed.data?.current_item_count} items at ${timeReceived.toISOString()}`,
@@ -120,29 +128,53 @@ function isFeedListError(
 	return 'error' in feed;
 }
 
-async function getFeed(
-	url: string,
-	apiKey: string,
-): Promise<{ feed: FeedListData; timeReceived: Date }> {
-	const headers: HeadersInit = {
-		accept: 'application/json',
-		'x-api-key': apiKey,
-	};
+async function getFeed({
+	url,
+	apiKey,
+	retryDelayMs,
+	attempt = 0,
+}: {
+	url: string;
+	apiKey: string;
+	retryDelayMs: number;
+	attempt?: number;
+}): Promise<{ feed: FeedListData; timeReceived: Date }> {
+	try {
+		const headers: HeadersInit = {
+			accept: 'application/json',
+			'x-api-key': apiKey,
+		};
 
-	console.log(`polling for feed at ${url}`);
+		console.log(`polling for feed at ${url}`);
 
-	const resp = await fetch(url, {
-		headers,
-	});
-	const timeReceived = new Date();
-	const feed = (await resp.json()) as unknown as FeedListData | FeedListError;
-	if (isFeedListError(feed)) {
-		throw new Error(feed.error?.message);
+		const resp = await fetch(url, {
+			headers,
+		});
+		const timeReceived = new Date();
+		const feed = (await resp.json()) as unknown as FeedListData | FeedListError;
+		if (isFeedListError(feed)) {
+			throw new Error(feed.error?.message);
+		}
+		if (!isFeedListData(feed)) {
+			throw new Error('Unexpected response from API');
+		}
+		return { feed, timeReceived };
+	} catch (error) {
+		if (attempt >= 0 && attempt < 3) {
+			// try again, because there are sometimes transient availability issues
+			console.warn(
+				`Received error from AP feed: ${getErrorMessage(error)}; trying again`,
+			);
+			// wait before retrying
+			await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+			return getFeed({ url, apiKey, retryDelayMs, attempt: attempt + 1 });
+		} else {
+			console.error(
+				`Received error from AP feed on attempt number ${attempt}: ${getErrorMessage(error)}; aborting`,
+			);
+			throw error;
+		}
 	}
-	if (!isFeedListData(feed)) {
-		throw new Error('Unexpected response from API');
-	}
-	return { feed, timeReceived };
 }
 
 function itemWithContentToDesiredOutput({

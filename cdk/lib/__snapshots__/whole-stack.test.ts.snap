@@ -746,6 +746,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuLambdaFunction",
       "GuLambdaFunction",
       "GuLambdaFunction",
+      "GuLambdaFunction",
       "GuStringParameter",
       "GuAlarm",
       "GuScheduledLambda",
@@ -1119,6 +1120,27 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
           ],
         },
         "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "DefaultSecurityGroupNewswiresfromNewswiresTESTRecomputationLambdaTESTSecurityGroup7620A9995432DC9C7666": {
+      "Properties": {
+        "Description": "from NewswiresTESTRecomputationLambdaTESTSecurityGroup7620A999:5432",
+        "FromPort": 5432,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DefaultSecurityGroupNewswires91CCC0BF",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "RecomputationLambdaTESTSecurityGroup79C9A4A0",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
@@ -3327,6 +3349,320 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "Roles": [
           {
             "Ref": "InstanceRoleNewswiresC10A0615",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "RecomputationLambdaTEST6EFEC80C": {
+      "DependsOn": [
+        "RecomputationLambdaTESTServiceRoleDefaultPolicyB0F4A621",
+        "RecomputationLambdaTESTServiceRole7D0CAA15",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "editorial-feeds/TEST/recomputation-lambda/recomputation-lambda.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "APP": "recomputation-lambda",
+            "DATABASE_ENDPOINT_ADDRESS": {
+              "Fn::GetAtt": [
+                "NewswiresDBNewswires2A5A9AC6",
+                "Endpoint.Address",
+              ],
+            },
+            "DATABASE_NAME": "newswires",
+            "DATABASE_PORT": {
+              "Fn::GetAtt": [
+                "NewswiresDBNewswires2A5A9AC6",
+                "Endpoint.Port",
+              ],
+            },
+            "DISABLED": "",
+            "STACK": "editorial-feeds",
+            "STAGE": "TEST",
+          },
+        },
+        "Handler": "handler.main",
+        "LoggingConfig": {
+          "LogFormat": "Text",
+        },
+        "MemorySize": 512,
+        "ReservedConcurrentExecutions": 50,
+        "Role": {
+          "Fn::GetAtt": [
+            "RecomputationLambdaTESTServiceRole7D0CAA15",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "recomputation-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 900,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "RecomputationLambdaTESTSecurityGroup79C9A4A0",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": {
+            "Ref": "newswiresPrivateSubnets",
+          },
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "RecomputationLambdaTESTSecurityGroup79C9A4A0": {
+      "Properties": {
+        "GroupDescription": "Automatic security group for Lambda Function NewswiresTESTRecomputationLambdaTESTF1AC4B62",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "recomputation-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VpcId": {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "RecomputationLambdaTESTServiceRole7D0CAA15": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "recomputation-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "RecomputationLambdaTESTServiceRoleDefaultPolicyB0F4A621": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/editorial-feeds/TEST/recomputation-lambda/recomputation-lambda.zip",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/recomputation-lambda",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/editorial-feeds/recomputation-lambda/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "rds-db:connect",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":rds-db:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":dbuser:",
+                    {
+                      "Fn::GetAtt": [
+                        "NewswiresDBNewswires2A5A9AC6",
+                        "DbiResourceId",
+                      ],
+                    },
+                    "/{{resolve:secretsmanager:",
+                    {
+                      "Ref": "NewswiresDBNewswiresSecretCF4DBD56",
+                    },
+                    ":SecretString:username::}}",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "RecomputationLambdaTESTServiceRoleDefaultPolicyB0F4A621",
+        "Roles": [
+          {
+            "Ref": "RecomputationLambdaTESTServiceRole7D0CAA15",
           },
         ],
       },
