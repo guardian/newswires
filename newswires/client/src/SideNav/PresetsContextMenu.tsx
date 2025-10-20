@@ -108,18 +108,6 @@ export const PresetsContextMenu = () => {
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
 		getPresetPanel(config.query.preset),
 	);
-
-	const openDrawer = () => {
-		swapActivePanel('sportPresets', 'forward');
-	};
-	const closeDrawer = () => {
-		swapActivePanel('presets', 'back');
-	};
-
-	useEffect(() => {
-		setActivePanelId(getPresetPanel(config.query.preset));
-	}, [config.query.preset]);
-
 	const swapActivePanel = useCallback(
 		(newPanelKey: PresetGroupName, direction?: 'forward' | 'back') => {
 			if (newPanelKey === activePanelId || animationState.isAnimating) return;
@@ -133,6 +121,31 @@ export const PresetsContextMenu = () => {
 		},
 		[activePanelId, animationState.isAnimating, setActivePanelId],
 	);
+
+	const openDrawer = useCallback(() => {
+		swapActivePanel('sportPresets', 'forward');
+	}, [swapActivePanel]);
+
+	const closeDrawer = useCallback(() => {
+		swapActivePanel('presets', 'back');
+	}, [swapActivePanel]);
+
+	useEffect(() => {
+		const nextPanel = getPresetPanel(config.query.preset);
+		if (activePanelId === nextPanel) return;
+		switch (nextPanel) {
+			case 'sportPresets':
+				openDrawer();
+				break;
+
+			case 'presets':
+				closeDrawer();
+				break;
+
+			default:
+				break;
+		}
+	}, [config.query.preset, activePanelId, closeDrawer, openDrawer]);
 
 	useEffect(() => {
 		const container = containerRef.current;
