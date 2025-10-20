@@ -15,6 +15,10 @@ export interface Preset {
 
 export const sportPresets: Preset[] = [
 	{
+		name: 'All Sport Stories',
+		id: 'all-sport-stories',
+	},
+	{
 		name: 'Soccer',
 		id: 'soccer',
 	},

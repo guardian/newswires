@@ -78,6 +78,7 @@ object SearchPresets {
     case "all-uk"               => Some(AllUk)
     case "all-business"         => Some(AllBusiness)
     case "all-sport"            => Some(AllSport)
+    case "all-sport-stories"    => Some(AllSportStories)
     case "soccer"               => Some(Soccer)
     case "soccer-scores"        => Some(SoccerScores)
     case "soccer-tables"        => Some(SoccerTables)
@@ -222,6 +223,28 @@ object SearchPresets {
     SearchPreset(AFP, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP)
+  )
+
+  private val AllSportStories = List(
+    SearchPreset.fromSearchTerm(
+      REUTERS,
+      searchTerm = SearchTerm.Simple("-(OPTA) -Gracenote", SearchField.BodyText),
+      CategoryCodes.Sport.REUTERS
+    ),
+    SearchPreset(
+      PA,
+      categoryCodes = CategoryCodes.Sport.PA,
+      categoryCodesExcl = CategoryCodes.CricketResults.PA ::: CategoryCodes.SoccerScores.PA
+        ::: CategoryCodes.SoccerTables.PA ::: CategoryCodes.RugbyResults.PA ::: List("paCat:RSR"),
+      hasDataFormatting = Some(false)
+    ),
+    SearchPreset(AFP, CategoryCodes.Sport.AFP),
+    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP),
+    SearchPreset.fromSearchTerm(
+      AP,
+      searchTerm = SearchTerm.Simple("-\"GLF Scores\"", Slug),
+      CategoryCodes.Sport.AP
+    )
   )
 
   private val Soccer = List(
