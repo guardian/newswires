@@ -22,7 +22,7 @@ export const shouldTogglePreset = (
 	return true;
 };
 
-export const getPresetPanal = (
+export const getPresetPanel = (
 	presetId: string | undefined,
 ): PresetGroupName => {
 	if (presetId === undefined) return 'presets';

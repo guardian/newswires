@@ -20,7 +20,7 @@ import { AppTitle } from '../AppTitle.tsx';
 import { useSearch } from '../context/SearchContext.tsx';
 import { deriveDateMathRangeLabel } from '../dateHelpers.ts';
 import { FeedbackContent } from '../FeedbackContent.tsx';
-import { getPresetPanal } from '../presetHelpers.ts';
+import { getPresetPanel } from '../presetHelpers.ts';
 import type { PresetGroupName } from '../presets.ts';
 import { presets, sportPresets } from '../presets.ts';
 import type { Query } from '../sharedTypes';
@@ -132,11 +132,11 @@ export const SideNav = ({
 	);
 
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
-		getPresetPanal(config.query.preset),
+		getPresetPanel(config.query.preset),
 	);
 
 	useEffect(() => {
-		const panelId = getPresetPanal(config.query.preset);
+		const panelId = getPresetPanel(config.query.preset);
 		setActivePanelId(panelId);
 	}, [config.query.preset]);
 
