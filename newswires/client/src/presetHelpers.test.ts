@@ -1,6 +1,6 @@
 import {
 	getNextActivePreset,
-	getPresetPanal,
+	getPresetPanel,
 	shouldTogglePreset,
 } from './presetHelpers';
 import { topLevelSportId } from './presets';
@@ -36,17 +36,17 @@ describe('shouldTogglePreset', () => {
 	});
 });
 
-describe('getPresetPanal', () => {
+describe('getPresetPanel', () => {
 	it('should return presets if presetId is undefined', () => {
-		expect(getPresetPanal(undefined)).toBe('presets');
+		expect(getPresetPanel(undefined)).toBe('presets');
 	});
 	it('should return presets if its a top level preset', () => {
-		expect(getPresetPanal('all-world')).toBe('presets');
+		expect(getPresetPanel('all-world')).toBe('presets');
 	});
 	it('should return sportsPresets if it is all-sport', () => {
-		expect(getPresetPanal(topLevelSportId)).toBe('sportPresets');
+		expect(getPresetPanel(topLevelSportId)).toBe('sportPresets');
 	});
 	it('should return sportsPresets if it is a secondary level preset', () => {
-		expect(getPresetPanal('no-soccer')).toBe('sportPresets');
+		expect(getPresetPanel('no-soccer')).toBe('sportPresets');
 	});
 });

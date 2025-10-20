@@ -3,7 +3,7 @@ import { css, keyframes } from '@emotion/react';
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
-import { getNextActivePreset } from '../presetHelpers';
+import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
 import type { PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
@@ -88,15 +88,8 @@ type AnimationState = {
  * because we don't anticipate needing much reuse. But there are patterns
  * that could be extracted if needed in future.
  */
-type PresetsContextMenuProps = {
-	activePanelId: PresetGroupName;
-	setActivePanelId: (id: PresetGroupName) => void;
-};
 
-export const PresetsContextMenu = ({
-	activePanelId,
-	setActivePanelId,
-}: PresetsContextMenuProps) => {
+export const PresetsContextMenu = () => {
 	const [animationState, setAnimationState] = useState<AnimationState>({
 		isAnimating: false,
 		direction: null,
@@ -112,6 +105,9 @@ export const PresetsContextMenu = ({
 	const { config, handleEnterQuery } = useSearch();
 	const activePreset = config.query.preset;
 
+	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
+		getPresetPanel(config.query.preset),
+	);
 	const swapActivePanel = useCallback(
 		(newPanelKey: PresetGroupName, direction?: 'forward' | 'back') => {
 			if (newPanelKey === activePanelId || animationState.isAnimating) return;
@@ -125,12 +121,31 @@ export const PresetsContextMenu = ({
 		},
 		[activePanelId, animationState.isAnimating, setActivePanelId],
 	);
-	const openDrawer = () => {
+
+	const openDrawer = useCallback(() => {
 		swapActivePanel('sportPresets', 'forward');
-	};
-	const closeDrawer = () => {
+	}, [swapActivePanel]);
+
+	const closeDrawer = useCallback(() => {
 		swapActivePanel('presets', 'back');
-	};
+	}, [swapActivePanel]);
+
+	useEffect(() => {
+		const nextPanel = getPresetPanel(config.query.preset);
+		if (activePanelId === nextPanel) return;
+		switch (nextPanel) {
+			case 'sportPresets':
+				openDrawer();
+				break;
+
+			case 'presets':
+				closeDrawer();
+				break;
+
+			default:
+				break;
+		}
+	}, [config.query.preset, activePanelId, closeDrawer, openDrawer]);
 
 	useEffect(() => {
 		const container = containerRef.current;
