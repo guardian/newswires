@@ -14,6 +14,11 @@ type AnimationState = {
 	direction: Direction;
 };
 
+const directionMap = {
+	presets: 'back',
+	sportPresets: 'forward',
+} as const satisfies Record<PresetGroupName, Exclude<Direction, null>>;
+
 /**
  * Component modelled after EuiContextMenu, but remade in order to allow
  * us more control over how the items inside the menu lists are rendered.
@@ -44,18 +49,20 @@ export const PresetsContextMenu = () => {
 	);
 
 	const openDrawer = () => {
-		setActivePanelId('sportPresets');
+		const nextPanel = 'sportPresets';
+		setActivePanelId(nextPanel);
 		setAnimationState({
 			isAnimating: true,
-			direction: 'forward',
+			direction: directionMap[nextPanel],
 		});
 	};
 
 	const closeDrawer = () => {
-		setActivePanelId('presets');
+		const nextPanel = 'presets';
+		setActivePanelId(nextPanel);
 		setAnimationState({
 			isAnimating: true,
-			direction: 'back',
+			direction: directionMap[nextPanel],
 		});
 	};
 
@@ -65,7 +72,7 @@ export const PresetsContextMenu = () => {
 			setActivePanelId(nextPanel);
 			setAnimationState({
 				isAnimating: true,
-				direction: nextPanel === 'presets' ? 'back' : 'forward',
+				direction: directionMap[nextPanel],
 			});
 		}
 	}, [activePreset, previousPreset, activePanelId]);
