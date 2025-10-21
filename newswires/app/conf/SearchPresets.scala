@@ -100,6 +100,7 @@ object SearchPresets {
     case "athletics"            => Some(Athletics)
     case "olympics"             => Some(Olympics)
     case "all-data-formats"     => Some(AllDataFormats)
+    case "dot-copy"             => Some(DotCopy)
     case _                      => None
   }
 
@@ -522,5 +523,7 @@ object SearchPresets {
   private val AllDataFormats = List(
     SearchPreset(PA, hasDataFormatting = Some(true))
   )
+
+  private val DotCopy = List(SearchPreset("UNAUTHED_EMAIL_FEED"))
 
 }

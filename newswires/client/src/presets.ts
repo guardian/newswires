@@ -102,6 +102,10 @@ export const sportPresets: Preset[] = [
 		name: 'All Data Formats',
 		id: 'all-data-formats',
 	},
+	{
+		name: 'Dot Copy',
+		id: 'dot-copy',
+	},
 ];
 
 export const topLevelSportId = 'all-sport';
