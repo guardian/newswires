@@ -18,7 +18,14 @@ private[conf] object CategoryCodes {
 
   object UK {
     val PA: List[String] =
-      List("paCat:HHH", "paCat:SCN", "paCat:IFN", "paCat:QFF", "paCat:PPP")
+      List(
+        "paCat:HHH",
+        "paCat:SCN",
+        "paCat:IFN",
+        "paCat:QFF",
+        "paCat:PPP",
+        "paCat:XDA"
+      )
     val MINOR_AGENCIES: List[String] = List("N2:GB")
   }
 

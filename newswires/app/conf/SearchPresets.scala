@@ -232,11 +232,33 @@ object SearchPresets {
       searchTerm = SearchTerm.Simple("-(OPTA) -Gracenote", SearchField.BodyText),
       CategoryCodes.Sport.REUTERS
     ),
-    SearchPreset(
+    SearchPreset.fromSearchTerm(
       PA,
-      categoryCodes = CategoryCodes.Sport.PA,
-      categoryCodesExcl = CategoryCodes.CricketResults.PA ::: CategoryCodes.SoccerScores.PA
-        ::: CategoryCodes.SoccerTables.PA ::: CategoryCodes.RugbyResults.PA ::: List("paCat:RSR"),
+      searchTerm = SearchTerm.Simple(
+        "-\"TABULATED RESULTS\" -\"Divisional Summaries\" -GOALSCORERS " +
+          "-Goalflash -Summaries -Teams -AMENDMENTS -\"Pools Grid \" -Statistics -CORRECTN -\"Top Goal Scorer\" " +
+          "-BOOKINGS -\"Sending Off\" -\"SENT OFF\" -\"FULL-TIME\" -\"HALF-TIME\" -\"POOLS DIVIDEND\" -\"RACING GOING\"" +
+          "-Postponed -\"SOCCER TEAMS\" -\"MATCH STATS\" -Collated -Advisory" +
+          "-formwatch -Pieces -Straps -\"wind surgery\"",
+        Slug
+      ),
+      categoryCodesExcl =
+        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.CricketResults.PA ::: CategoryCodes.SoccerScores.PA
+          ::: CategoryCodes.SoccerTables.PA ::: CategoryCodes.RugbyResults.PA ::: List(
+            "paCat:RSR",
+            "paCat:SRD",
+            "paCat:SRN",
+            "paCat:RRR",
+            "paCat:RDR",
+            "paCat:SFF",
+            "paCat:SSF",
+            "paCat:SSD",
+            "paCat:SRZ",
+            "paCat:RMS",
+            "paCat:SFU",
+            "paCat:NMS",
+            "paCat:SSP"
+          ),
       hasDataFormatting = Some(false)
     ),
     SearchPreset(AFP, CategoryCodes.Sport.AFP),
