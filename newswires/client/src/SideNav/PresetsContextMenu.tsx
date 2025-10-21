@@ -110,35 +110,31 @@ export const PresetsContextMenu = () => {
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
 		getPresetPanel(activePreset),
 	);
-	// const swapActivePanel = useCallback(
-	// 	(newPanelKey: PresetGroupName, direction?: 'forward' | 'back') => {
-	// 		console.log(`swap active panel: new panel key ${newPanelKey}`);
-	// 		console.log(`swap active panel: active panel key ${activePanelId}`);
-
-	// 		if (newPanelKey === activePanelId || animationState.isAnimating) return;
-
-	// 		setAnimationState({
-	// 			direction: direction ?? 'forward',
-	// 			isAnimating: true,
-	// 		});
-
-	// 		setActivePanelId(newPanelKey);
-	// 	},
-	// 	[activePanelId, animationState.isAnimating],
-	// );
 
 	const openDrawer = () => {
 		setActivePanelId('sportPresets');
+		setAnimationState({
+			isAnimating: true,
+			direction: 'forward',
+		});
 	};
 
 	const closeDrawer = () => {
 		setActivePanelId('presets');
+		setAnimationState({
+			isAnimating: true,
+			direction: 'back',
+		});
 	};
 
 	useEffect(() => {
 		const nextPanel = getPresetPanel(activePreset);
 		if (nextPanel !== activePanelId && previousPreset !== activePreset) {
 			setActivePanelId(nextPanel);
+			setAnimationState({
+				isAnimating: true,
+				direction: nextPanel === 'presets' ? 'back' : 'forward',
+			});
 		}
 	}, [activePreset, previousPreset, activePanelId]);
 
