@@ -40,13 +40,17 @@ export const PresetsContextMenu = () => {
 		getPresetPanel(activePreset),
 	);
 
-	const startAnimation = (nextPanel: keyof typeof directionMap) => {
-		setActivePanelId(nextPanel);
-		setAnimationState({
-			isAnimating: true,
-			direction: directionMap[nextPanel],
-		});
-	};
+	const startAnimation = useCallback(
+		(nextPanel: keyof typeof directionMap) => {
+			if (animationState.isAnimating) return;
+			setActivePanelId(nextPanel);
+			setAnimationState({
+				isAnimating: true,
+				direction: directionMap[nextPanel],
+			});
+		},
+		[animationState.isAnimating],
+	);
 
 	const openDrawer = () => startAnimation('sportPresets');
 	const closeDrawer = () => startAnimation('presets');
@@ -56,7 +60,7 @@ export const PresetsContextMenu = () => {
 		if (nextPanel !== activePanelId && previousPreset !== activePreset) {
 			startAnimation(nextPanel);
 		}
-	}, [activePreset, previousPreset, activePanelId]);
+	}, [activePreset, previousPreset, activePanelId, startAnimation]);
 
 	const togglePreset = useCallback(
 		(presetId: string) => {
