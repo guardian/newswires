@@ -6,7 +6,7 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import models.{NextPage, QueryParams, SearchParams}
+import models.{BaseRequestParams, NextPage, QueryParams, SearchParams}
 import db._
 import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
@@ -33,21 +33,6 @@ class QueryController(
   ): List[String] =
     request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
 
-  def copy(): Action[AnyContent] = {
-    query(
-      maybeFreeTextQuery = None,
-      keywords = Nil,
-      suppliers = List("UNAUTHED_EMAIL_FEED"),
-      categoryCode = Nil,
-      categoryCodeExcl = Nil,
-      maybeStart = None,
-      maybeEnd = None,
-      maybeBeforeId = None,
-      maybeSinceId = None,
-      hasDataFormatting = None
-    )
-  }
-
   def query(
       maybeFreeTextQuery: Option[String],
       keywords: List[String],
@@ -60,42 +45,28 @@ class QueryController(
       maybeSinceId: Option[Int],
       hasDataFormatting: Option[Boolean]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
-    val maybePreset =
-      request.getQueryString("preset").flatMap(SearchPresets.get)
-
-    val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
-
-    val suppliersToExcludeByDefault =
-      if (featureSwitchProvider.ShowGuSuppliers.isOn())
-        List("GuReuters", "GuAP").filterNot(
-          suppliers.contains
-        )
-      else Nil
-    val suppliersExcl = request.queryString
-      .get("supplierExcl")
-      .map(_.toList)
-      .getOrElse(Nil) ++ suppliersToExcludeByDefault
-
-    val keywordsExcl =
-      request.queryString.get("keywordExcl").map(_.toList).getOrElse(Nil)
-
-    val searchParams = SearchParams(
-      text = maybeSearchTerm,
-      start = maybeStart,
-      end = maybeEnd,
-      keywordIncl = keywords,
-      keywordExcl = keywordsExcl,
-      suppliersIncl = suppliers,
-      suppliersExcl = suppliersExcl,
-      categoryCodesIncl = categoryCode,
-      categoryCodesExcl = categoryCodeExcl,
-      hasDataFormatting = hasDataFormatting
+    val baseParams = BaseRequestParams(
+      maybeFreeTextQuery,
+      keywords,
+      suppliers,
+      categoryCode,
+      categoryCodeExcl,
+      maybeStart,
+      maybeEnd,
+      maybeBeforeId,
+      maybeSinceId,
+      hasDataFormatting
     )
+    val searchParams =
+      SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
 
     val queryParams = QueryParams(
       searchParams = searchParams,
-      savedSearchParamList = maybePreset.getOrElse(Nil),
-      maybeSearchTerm = maybeSearchTerm,
+      savedSearchParamList = request
+        .getQueryString("preset")
+        .flatMap(SearchPresets.get)
+        .getOrElse(Nil),
+      maybeSearchTerm = baseParams.maybeSearchTerm,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId.map(NextPage(_)),
       pageSize = 30
@@ -183,26 +154,6 @@ class QueryController(
             "Composer link request was not JSON or missed required parameter"
           )
       }
-  }
-
-  def dotCopy(
-      maybeFreeTextQuery: Option[String],
-      start: Option[String],
-      end: Option[String],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
-  ): Action[AnyContent] = {
-    authAction { request: UserRequest[AnyContent] =>
-      val dotCopyData =
-        FingerpostWireEntry.dotCopy(
-          maybeFreeTextQuery = maybeFreeTextQuery.map(SearchTerm.English(_)),
-          start = start,
-          end = end,
-          maybeBeforeId = maybeBeforeId,
-          maybeSinceId = maybeSinceId
-        )
-      Ok(dotCopyData.asJson.spaces2)
-    }
   }
 
 }
