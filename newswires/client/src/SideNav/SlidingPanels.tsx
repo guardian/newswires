@@ -1,6 +1,6 @@
 import { useEuiTheme } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
-import type { CSSProperties } from 'react';
+import { type CSSProperties, useEffect, useRef } from 'react';
 import type React from 'react';
 
 type SlidingPanelsProps = {
@@ -8,6 +8,7 @@ type SlidingPanelsProps = {
 	isAnimating: boolean;
 	current: JSX.Element;
 	previous: JSX.Element;
+	onAnimationEnd: () => void;
 };
 export const createAnimationStyles = (
 	animationDuration: CSSProperties['animationDuration'],
@@ -92,7 +93,9 @@ export const SlidingPanels: React.FC<SlidingPanelsProps> = ({
 	isAnimating,
 	current,
 	previous,
+	onAnimationEnd,
 }) => {
+	const containerRef = useRef<HTMLDivElement>(null);
 	const { euiTheme } = useEuiTheme();
 	const animationStyles = createAnimationStyles(
 		euiTheme.animation.normal,
@@ -109,8 +112,16 @@ export const SlidingPanels: React.FC<SlidingPanelsProps> = ({
 		};
 		return map[slide];
 	};
+
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container || !isAnimating) return;
+		container.addEventListener('animationend', onAnimationEnd);
+		return () => container.removeEventListener('animationend', onAnimationEnd);
+	}, [isAnimating, onAnimationEnd]);
+
 	return (
-		<>
+		<div ref={containerRef} css={animationStyles.container}>
 			<div key="current" css={[animationStyles.panel, transitionStyles('in')]}>
 				{current}
 			</div>
@@ -126,6 +137,6 @@ export const SlidingPanels: React.FC<SlidingPanelsProps> = ({
 					{previous}
 				</div>
 			)}
-		</>
+		</div>
 	);
 };

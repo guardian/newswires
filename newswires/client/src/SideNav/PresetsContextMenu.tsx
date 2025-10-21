@@ -1,12 +1,11 @@
-import { useEuiTheme } from '@elastic/eui';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
 import { usePrevious } from '../hooks/usePrevious';
 import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
 import type { PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import type { Direction } from './SlidingPanels';
-import { createAnimationStyles, SlidingPanels } from './SlidingPanels';
+import { SlidingPanels } from './SlidingPanels';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
 
 type AnimationState = {
@@ -32,13 +31,6 @@ export const PresetsContextMenu = () => {
 		isAnimating: false,
 		direction: null,
 	});
-
-	const containerRef = useRef<HTMLDivElement>(null);
-	const { euiTheme } = useEuiTheme();
-	const animationStyles = createAnimationStyles(
-		euiTheme.animation.normal,
-		euiTheme.animation.resistance,
-	);
 
 	const { config, handleEnterQuery } = useSearch();
 	const activePreset = config.query.preset;
@@ -77,22 +69,6 @@ export const PresetsContextMenu = () => {
 		}
 	}, [activePreset, previousPreset, activePanelId]);
 
-	useEffect(() => {
-		const container = containerRef.current;
-		if (!container || !animationState.isAnimating) return;
-
-		const handleAnimationEnd = () => {
-			setAnimationState({
-				isAnimating: false,
-				direction: null,
-			});
-		};
-
-		container.addEventListener('animationend', handleAnimationEnd);
-		return () =>
-			container.removeEventListener('animationend', handleAnimationEnd);
-	}, [animationState.isAnimating]);
-
 	const togglePreset = useCallback(
 		(presetId: string) => {
 			handleEnterQuery({
@@ -105,45 +81,49 @@ export const PresetsContextMenu = () => {
 	);
 
 	return (
-		<div ref={containerRef} css={animationStyles.container}>
-			<SlidingPanels
-				direction={animationState.direction}
-				isAnimating={animationState.isAnimating}
-				current={
-					activePanelId === 'presets' ? (
-						<TopLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					) : (
-						<SecondaryLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					)
-				}
-				previous={
-					activePanelId === 'presets' ? (
-						<SecondaryLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					) : (
-						<TopLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					)
-				}
-			/>
-		</div>
+		<SlidingPanels
+			direction={animationState.direction}
+			isAnimating={animationState.isAnimating}
+			current={
+				activePanelId === 'presets' ? (
+					<TopLevelListPresetPanel
+						activePreset={activePreset}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
+						togglePreset={togglePreset}
+					/>
+				) : (
+					<SecondaryLevelListPresetPanel
+						activePreset={activePreset}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
+						togglePreset={togglePreset}
+					/>
+				)
+			}
+			previous={
+				activePanelId === 'presets' ? (
+					<SecondaryLevelListPresetPanel
+						activePreset={activePreset}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
+						togglePreset={togglePreset}
+					/>
+				) : (
+					<TopLevelListPresetPanel
+						activePreset={activePreset}
+						openDrawer={openDrawer}
+						closeDrawer={closeDrawer}
+						togglePreset={togglePreset}
+					/>
+				)
+			}
+			onAnimationEnd={() =>
+				setAnimationState({
+					isAnimating: false,
+					direction: null,
+				})
+			}
+		/>
 	);
 };
