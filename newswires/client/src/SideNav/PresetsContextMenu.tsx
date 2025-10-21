@@ -40,8 +40,7 @@ export const PresetsContextMenu = () => {
 		getPresetPanel(activePreset),
 	);
 
-	const openDrawer = () => {
-		const nextPanel = 'sportPresets';
+	const startAnimation = (nextPanel: keyof typeof directionMap) => {
 		setActivePanelId(nextPanel);
 		setAnimationState({
 			isAnimating: true,
@@ -49,23 +48,13 @@ export const PresetsContextMenu = () => {
 		});
 	};
 
-	const closeDrawer = () => {
-		const nextPanel = 'presets';
-		setActivePanelId(nextPanel);
-		setAnimationState({
-			isAnimating: true,
-			direction: directionMap[nextPanel],
-		});
-	};
+	const openDrawer = () => startAnimation('sportPresets');
+	const closeDrawer = () => startAnimation('presets');
 
 	useEffect(() => {
 		const nextPanel = getPresetPanel(activePreset);
 		if (nextPanel !== activePanelId && previousPreset !== activePreset) {
-			setActivePanelId(nextPanel);
-			setAnimationState({
-				isAnimating: true,
-				direction: directionMap[nextPanel],
-			});
+			startAnimation(nextPanel);
 		}
 	}, [activePreset, previousPreset, activePanelId]);
 
