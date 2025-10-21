@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
 import { usePrevious } from '../hooks/usePrevious';
 import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
-import type { PresetGroupName } from '../presets';
+import { type PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import type { Direction } from './SlidingPanels';
 import { SlidingPanels } from './SlidingPanels';
@@ -39,18 +39,22 @@ export const PresetsContextMenu = () => {
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
 		getPresetPanel(activePreset),
 	);
-
-	const startAnimation = useCallback(
-		(nextPanel: keyof typeof directionMap) => {
-			if (animationState.isAnimating) return;
+	const getPreviousPanelId = (panel: PresetGroupName): PresetGroupName =>
+		panel === 'presets' ? 'sportPresets' : 'presets';
+	const previousPanelId = getPreviousPanelId(activePanelId);
+	const startAnimation = useCallback((nextPanel: keyof typeof directionMap) => {
+		setAnimationState((prev) => {
+			if (prev.isAnimating) return prev;
 			setActivePanelId(nextPanel);
-			setAnimationState({
+			return {
 				isAnimating: true,
 				direction: directionMap[nextPanel],
-			});
-		},
-		[animationState.isAnimating],
-	);
+			};
+		});
+	}, []);
+	const handleAnimationEnd = useCallback(() => {
+		setAnimationState({ isAnimating: false, direction: null });
+	}, []);
 
 	const openDrawer = () => startAnimation('sportPresets');
 	const closeDrawer = () => startAnimation('presets');
@@ -73,50 +77,39 @@ export const PresetsContextMenu = () => {
 		[activePreset, config.query, handleEnterQuery],
 	);
 
+	const sharedPanelProps = {
+		activePreset,
+		openDrawer,
+		closeDrawer,
+		togglePreset,
+	};
+
+	const panelMap = useMemo(
+		() =>
+			({
+				presets: TopLevelListPresetPanel,
+				sportPresets: SecondaryLevelListPresetPanel,
+			}) as const,
+		[],
+	);
+
+	const CurrentPanel = useMemo(() => {
+		return panelMap[activePanelId];
+	}, [activePanelId, panelMap]);
+
+	const PreviousPanel = useMemo(() => {
+		return panelMap[previousPanelId];
+	}, [previousPanelId, panelMap]);
+
 	return (
 		<SlidingPanels
 			direction={animationState.direction}
 			isAnimating={animationState.isAnimating}
-			current={
-				activePanelId === 'presets' ? (
-					<TopLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				) : (
-					<SecondaryLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				)
-			}
-			previous={
-				activePanelId === 'presets' ? (
-					<SecondaryLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				) : (
-					<TopLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				)
-			}
-			onAnimationEnd={() =>
-				setAnimationState({
-					isAnimating: false,
-					direction: null,
-				})
-			}
+			current={<CurrentPanel {...sharedPanelProps} />}
+			currentPanelId={activePanelId}
+			previous={<PreviousPanel {...sharedPanelProps} />}
+			previousPanelId={previousPanelId}
+			onAnimationEnd={handleAnimationEnd}
 		/>
 	);
 };

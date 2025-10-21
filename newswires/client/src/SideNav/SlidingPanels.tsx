@@ -2,12 +2,15 @@ import { useEuiTheme } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
 import { type CSSProperties, useEffect, useRef } from 'react';
 import type React from 'react';
+import type { PresetGroupName } from '../presets';
 
 type SlidingPanelsProps = {
 	direction: Direction;
 	isAnimating: boolean;
 	current: JSX.Element;
+	currentPanelId: PresetGroupName;
 	previous: JSX.Element;
+	previousPanelId: PresetGroupName;
 	onAnimationEnd: () => void;
 };
 export const createAnimationStyles = (
@@ -92,7 +95,9 @@ export const SlidingPanels: React.FC<SlidingPanelsProps> = ({
 	direction,
 	isAnimating,
 	current,
+	currentPanelId,
 	previous,
+	previousPanelId,
 	onAnimationEnd,
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -122,12 +127,15 @@ export const SlidingPanels: React.FC<SlidingPanelsProps> = ({
 
 	return (
 		<div ref={containerRef} css={animationStyles.container}>
-			<div key="current" css={[animationStyles.panel, transitionStyles('in')]}>
+			<div
+				key={`current-${currentPanelId}`}
+				css={[animationStyles.panel, transitionStyles('in')]}
+			>
 				{current}
 			</div>
 			{isAnimating && (
 				<div
-					key="previous"
+					key={`previous-${previousPanelId}`}
 					css={[
 						animationStyles.panel,
 						animationStyles.overLay,
