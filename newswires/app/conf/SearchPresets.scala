@@ -220,7 +220,7 @@ object SearchPresets {
    */
   private val AllSport = List(
     SearchPreset(REUTERS, categoryCodes = CategoryCodes.Sport.REUTERS),
-    SearchPreset(PA, categoryCodes = CategoryCodes.Sport.PA),
+    SearchPreset(PA, categoryCodesExcl = CategoryCodes.UK.PA ::: CategoryCodes.Business.PA),
     SearchPreset(AFP, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP)
