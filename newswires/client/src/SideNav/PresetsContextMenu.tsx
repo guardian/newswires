@@ -8,6 +8,7 @@ import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
 import type { PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
+import { SlidingPanels } from './SlidingPanels';
 
 const createAnimationStyles = (
 	animationDuration: CSSProperties['animationDuration'],
@@ -76,6 +77,7 @@ const createAnimationStyles = (
 		`,
 	};
 };
+
 
 type AnimationState = {
 	isAnimating: boolean;
@@ -192,50 +194,36 @@ export const PresetsContextMenu = () => {
 
 	return (
 		<div ref={containerRef} css={animationStyles.container}>
-			{/* 
-				This is the main panel that is in view depending on what the user has selected.
-			 */}
-			<div css={getPanelStyles(true)}>
-				{' '}
-				{activePanelId === 'presets' ? (
-					<TopLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				) : (
-					<SecondaryLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				)}
-			</div>
-			{/*
-				This is the panel that is animating out of view when the user has selected
-				to go to a different panel.
-			 */}
-			{animationState.isAnimating && (
-				<div css={getPanelStyles(false)}>
-					{activePanelId === 'presets' ? (
-						<SecondaryLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					) : (
-						<TopLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					)}
-				</div>
-			)}
+		<SlidingPanels
+  			direction={animationState.direction}
+  			isAnimating={animationState.isAnimating}
+  			current={activePanelId === 'presets' ? 
+				<TopLevelListPresetPanel
+					activePreset={activePreset}
+					openDrawer={openDrawer}
+					closeDrawer={closeDrawer}
+					togglePreset={togglePreset}
+				/> :
+				<SecondaryLevelListPresetPanel
+					activePreset={activePreset}
+					openDrawer={openDrawer}
+					closeDrawer={closeDrawer}
+					togglePreset={togglePreset}
+				/> 
+				}
+  			previous={activePanelId === 'presets' ? <SecondaryLevelListPresetPanel
+					activePreset={activePreset}
+					openDrawer={openDrawer}
+					closeDrawer={closeDrawer}
+					togglePreset={togglePreset}
+				/>  : <TopLevelListPresetPanel
+					activePreset={activePreset}
+					openDrawer={openDrawer}
+					closeDrawer={closeDrawer}
+					togglePreset={togglePreset}
+				/>}
+		/>
+		
 		</div>
 	);
 };
