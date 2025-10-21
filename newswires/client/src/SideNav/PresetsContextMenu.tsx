@@ -3,6 +3,7 @@ import { css, keyframes } from '@emotion/react';
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
+import { usePrevious } from '../hooks/usePrevious';
 import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
 import type { PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
@@ -104,48 +105,42 @@ export const PresetsContextMenu = () => {
 
 	const { config, handleEnterQuery } = useSearch();
 	const activePreset = config.query.preset;
+	const previousPreset = usePrevious(activePreset);
 
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
-		getPresetPanel(config.query.preset),
+		getPresetPanel(activePreset),
 	);
-	const swapActivePanel = useCallback(
-		(newPanelKey: PresetGroupName, direction?: 'forward' | 'back') => {
-			if (newPanelKey === activePanelId || animationState.isAnimating) return;
+	// const swapActivePanel = useCallback(
+	// 	(newPanelKey: PresetGroupName, direction?: 'forward' | 'back') => {
+	// 		console.log(`swap active panel: new panel key ${newPanelKey}`);
+	// 		console.log(`swap active panel: active panel key ${activePanelId}`);
 
-			setAnimationState({
-				direction: direction ?? 'forward',
-				isAnimating: true,
-			});
+	// 		if (newPanelKey === activePanelId || animationState.isAnimating) return;
 
-			setActivePanelId(newPanelKey);
-		},
-		[activePanelId, animationState.isAnimating],
-	);
+	// 		setAnimationState({
+	// 			direction: direction ?? 'forward',
+	// 			isAnimating: true,
+	// 		});
+
+	// 		setActivePanelId(newPanelKey);
+	// 	},
+	// 	[activePanelId, animationState.isAnimating],
+	// );
 
 	const openDrawer = () => {
-		swapActivePanel('sportPresets', 'forward');
+		setActivePanelId('sportPresets');
 	};
 
 	const closeDrawer = () => {
-		swapActivePanel('presets', 'back');
+		setActivePanelId('presets');
 	};
 
 	useEffect(() => {
-		const nextPanel = getPresetPanel(config.query.preset);
-		if (activePanelId === nextPanel) return;
-		switch (nextPanel) {
-			case 'sportPresets':
-				swapActivePanel('presets', 'back');
-				break;
-
-			case 'presets':
-				swapActivePanel('sportPresets', 'forward');
-				break;
-
-			default:
-				break;
+		const nextPanel = getPresetPanel(activePreset);
+		if (nextPanel !== activePanelId && previousPreset !== activePreset) {
+			setActivePanelId(nextPanel);
 		}
-	}, [config.query.preset, activePanelId, swapActivePanel]);
+	}, [activePreset, previousPreset, activePanelId]);
 
 	useEffect(() => {
 		const container = containerRef.current;
