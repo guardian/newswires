@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import type React from 'react';
 
 type SlidingPanelsProps = {
-	direction: 'forward' | 'back' | null;
+	direction: Direction;
 	isAnimating: boolean;
 	current: JSX.Element;
 	previous: JSX.Element;
@@ -74,8 +74,18 @@ export const createAnimationStyles = (
 			${baseTransition}
 			animation-name: ${slideOutToRight};
 		`,
+		overLay: css`
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		`,
 	};
 };
+
+type Slide = 'in' | 'out';
+export type Direction = 'forward' | 'back' | null;
 
 export const SlidingPanels: React.FC<SlidingPanelsProps> = ({
 	direction,
@@ -88,34 +98,34 @@ export const SlidingPanels: React.FC<SlidingPanelsProps> = ({
 		euiTheme.animation.normal,
 		euiTheme.animation.resistance,
 	);
-	const getPanelStyles = (isCurrentPanel: boolean) => {
-		if (!isAnimating) {
-			return animationStyles.panel;
-		}
+
+	const transitionStyles = (slide: Slide) => {
+		if (!isAnimating) return css``;
 
 		const isForward = direction === 'forward';
-
-		if (isCurrentPanel) {
-			// Current panel sliding in
-			return css`
-				${animationStyles.panel}
-				${isForward ? animationStyles.forwardIn : animationStyles.backIn}
-			`;
-		} else {
-			// Previous panel sliding out
-			return css`
-				${animationStyles.panel}
-				position: absolute;
-				top: 0;
-				left: 0;
-				${isForward ? animationStyles.forwardOut : animationStyles.backOut}
-			`;
-		}
+		const map = {
+			in: isForward ? animationStyles.forwardIn : animationStyles.backIn,
+			out: isForward ? animationStyles.forwardOut : animationStyles.backOut,
+		};
+		return map[slide];
 	};
 	return (
 		<>
-			<div css={getPanelStyles(true)}>{current}</div>
-			{isAnimating && <div css={getPanelStyles(false)}>{previous}</div>}
+			<div key="current" css={[animationStyles.panel, transitionStyles('in')]}>
+				{current}
+			</div>
+			{isAnimating && (
+				<div
+					key="previous"
+					css={[
+						animationStyles.panel,
+						animationStyles.overLay,
+						transitionStyles('out'),
+					]}
+				>
+					{previous}
+				</div>
+			)}
 		</>
 	);
 };

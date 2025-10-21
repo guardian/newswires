@@ -5,12 +5,13 @@ import { usePrevious } from '../hooks/usePrevious';
 import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
 import type { PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
+import type { Direction } from './SlidingPanels';
 import { createAnimationStyles, SlidingPanels } from './SlidingPanels';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
 
 type AnimationState = {
 	isAnimating: boolean;
-	direction: 'forward' | 'back' | null;
+	direction: Direction;
 };
 
 /**
