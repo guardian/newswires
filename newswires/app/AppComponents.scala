@@ -1,9 +1,3 @@
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{
-  AWSCredentialsProviderChain,
-  DefaultAWSCredentialsProviderChain
-}
-import com.amazonaws.regions.Regions
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
 import conf.Database
@@ -34,7 +28,6 @@ class AppComponents(context: Context)
   override def httpFilters: Seq[EssentialFilter] =
     super.httpFilters ++ Seq(new GzipFilter, new RequestLoggingFilter)
 
-  private val v1Region = Regions.EU_WEST_1
   private val v2Region = Region.EU_WEST_1
 
   private val awsV2Credentials =
@@ -54,11 +47,6 @@ class AppComponents(context: Context)
   } else if (context.environment.mode == Mode.Prod) {
     Database.configureDeployedDb(configuration)
   }
-
-  private val awsV1Credentials = new AWSCredentialsProviderChain(
-    new ProfileCredentialsProvider("editorial-feeds"),
-    DefaultAWSCredentialsProviderChain.getInstance()
-  )
 
   private val s3Client = S3Client
     .builder()
@@ -85,8 +73,8 @@ class AppComponents(context: Context)
     PermissionsProvider(
       PermissionsConfig(
         stage = permissionsStage,
-        region = v1Region.getName,
-        awsCredentials = awsV1Credentials
+        region = v2Region.id(),
+        awsCredentials = awsV2Credentials
       )
     )
   }
