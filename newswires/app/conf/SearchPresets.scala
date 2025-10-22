@@ -237,9 +237,9 @@ object SearchPresets {
       searchTerm = SearchTerm.Simple(
         "-\"TABULATED RESULTS\" -\"Divisional Summaries\" -GOALSCORERS " +
           "-Goalflash -Summaries -Teams -AMENDMENTS -\"Pools Grid \" -Statistics -CORRECTN -\"Top Goal Scorer\" " +
-          "-BOOKINGS -\"Sending Off\" -\"SENT OFF\" -\"FULL-TIME\" -\"HALF-TIME\" -\"POOLS DIVIDEND\" -\"RACING GOING\"" +
-          "-Postponed -\"SOCCER TEAMS\" -\"MATCH STATS\" -Collated -Advisory" +
-          "-formwatch -Pieces -Straps -\"wind surgery\"",
+          "-BOOKINGS -\"Sending Off\" -\"SENT OFF\" -\"FULL-TIME\" -\"HALF-TIME\" -\"POOLS DIVIDEND\" -\"RACING GOING\" " +
+          "-Postponed -\"SOCCER TEAMS\" -\"MATCH STATS\" -Collated -Advisory " +
+          "-Formwatch -Pieces -Straps -\"wind surgery\" -Traveller -blinkers",
         Slug
       ),
       categoryCodesExcl =
@@ -257,7 +257,8 @@ object SearchPresets {
             "paCat:RMS",
             "paCat:SFU",
             "paCat:NMS",
-            "paCat:SSP"
+            "paCat:SSP",
+            "paCat:MDS"
           ),
       hasDataFormatting = Some(false)
     ),
