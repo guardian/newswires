@@ -297,7 +297,7 @@ object SearchPresets {
       AP,
       searchTerm = SearchTerm.Simple("-BC -SOC", Slug),
       preComputedCategories = List("no-soccer"),
-      keyword = Some(SimpleSearchQueries.NOSOCCER)
+      keywordExcl = List("Soccer")
     )
   )
 
