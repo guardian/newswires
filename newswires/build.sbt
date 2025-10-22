@@ -8,14 +8,14 @@ organization := "com.gu"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.13.16"
+scalaVersion := "2.13.17"
 
 libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "7.0.2"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "13.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "5.0.0"
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
-libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
+libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.8"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
@@ -43,7 +43,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.19.2"
+val jacksonVersion = "2.20"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
