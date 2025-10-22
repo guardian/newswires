@@ -14,6 +14,7 @@ import {
 	isRestricted,
 } from './dateHelpers.ts';
 import { presetLabel } from './presets.ts';
+import { keyValueAfterDeselection } from './queryHelpers.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -44,34 +45,13 @@ const SummaryBadge = ({
 	const { config, handleEnterQuery, toggleSupplier } = useSearch();
 
 	const handleRemoveBadge = (key: keyof Query, value: string) => {
-		switch (key) {
-			case 'q':
-				handleEnterQuery({
-					...config.query,
-					q: '',
-				});
-				break;
-			case 'dateRange':
-			case 'preset':
-			case 'hasDataFormatting':
-				handleEnterQuery({
-					...config.query,
-					[key]: undefined,
-				});
-				break;
-			case 'supplier':
-			case 'supplierExcl':
-				toggleSupplier(value);
-				break;
-			case 'categoryCode':
-			case 'categoryCodeExcl':
-			case 'keyword':
-			case 'keywordExcl':
-				handleEnterQuery({
-					...config.query,
-					[key]: (config.query[key] ?? []).filter((s: string) => s !== value),
-				});
-				break;
+		if (['supplier', 'supplierExcl'].includes(key)) {
+			toggleSupplier(value);
+		} else {
+			handleEnterQuery({
+				...config.query,
+				...keyValueAfterDeselection(key, value, config.query),
+			});
 		}
 	};
 

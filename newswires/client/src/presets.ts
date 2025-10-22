@@ -15,10 +15,6 @@ export interface Preset {
 
 export const sportPresets: Preset[] = [
 	{
-		name: 'All sports',
-		id: 'all-sport',
-	},
-	{
 		name: 'Soccer',
 		id: 'soccer',
 	},
@@ -102,14 +98,20 @@ export const sportPresets: Preset[] = [
 		name: 'All Data Formats',
 		id: 'all-data-formats',
 	},
+	{
+		name: 'Dot Copy',
+		id: 'dot-copy',
+	},
 ];
 
+export const topLevelSportId = 'all-sport';
+export const topLevelPresetId = 'all-presets';
 export const presets: Preset[] = [
-	{ id: 'all-presets', name: 'All' },
+	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
 	{ id: 'all-business', name: 'Business' },
-	{ id: 'sports-sublink', name: 'Sport', child: 'sportPresets' },
+	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },
 ];
 
 export const presetLabel = (presetId: string) => {
@@ -128,4 +130,8 @@ export const presetLabel = (presetId: string) => {
 	}
 
 	return presetId;
+};
+
+export const presetIsInSports = (presetId: string): boolean => {
+	return sportPresets.map((p) => p.id).includes(presetId);
 };

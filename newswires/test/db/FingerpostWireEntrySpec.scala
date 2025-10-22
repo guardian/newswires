@@ -73,7 +73,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         None,
@@ -100,7 +99,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClauseBeforeId =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         maybeBeforeId = Some(10),
@@ -114,7 +112,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClauseSinceId =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         None,
@@ -135,7 +132,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         None,
@@ -158,7 +154,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         None,
@@ -187,7 +182,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         Some(1),
@@ -196,7 +190,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val textSearchWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         SearchParams(Some(SearchTerm.English("text1"))),
         List(),
         None,
@@ -205,7 +198,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val dateRangeWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         SearchParams(
           text = None,
           start = Some("2025-03-10T00:00:00.000Z"),
@@ -218,7 +210,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val keywordsExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         SearchParams(
           text = None,
           keywordExcl = List("keyword1")
@@ -230,7 +221,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val suppliersExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         SearchParams(
           text = None,
           suppliersExcl = List("supplier1", "supplier2")
@@ -242,7 +232,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val categoryCodesExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         SearchParams(
           text = None,
           categoryCodesExcl = List("category1", "category2")
@@ -279,7 +268,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         None,
@@ -300,7 +288,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         searchParams,
         List(),
         None,
@@ -337,7 +324,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val customParamsClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         customParams,
         List(),
         None,
@@ -346,7 +332,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val preset1Clause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         presetSearchParams1,
         List(),
         None,
@@ -355,7 +340,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val preset2Clause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         presetSearchParams2,
         List(),
         None,
@@ -364,7 +348,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = None,
         customParams,
         List(presetSearchParams1, presetSearchParams2),
         None,
@@ -386,7 +369,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "apply date ranges using 'AND' at the top level of the query" in {
-    val baseWhereClause = sqls"1 = 1"
 
     val customParams = SearchParams(
       text = Some(SearchTerm.English("text1")),
@@ -396,7 +378,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val textSearchWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         customParams.copy(start = None, end = None),
         List(),
         None,
@@ -405,7 +386,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val dateRangeWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        baseWhereClause = None,
         customParams.copy(text = None),
         List(),
         None,
@@ -414,7 +394,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        baseWhereClause = Some(baseWhereClause),
         customParams,
         List.empty,
         None,
@@ -422,7 +401,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      sqls"$baseWhereClause and $dateRangeWhereClause and $textSearchWhereClause",
+      sqls"$dateRangeWhereClause and $textSearchWhereClause",
       List(
         "2025-03-10T00:00:00.000Z",
         "2025-03-10T23:59:59.999Z",
