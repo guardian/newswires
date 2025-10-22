@@ -155,6 +155,7 @@ private[conf] object CategoryCodes {
       "paCat:RDJ",
       "paCat:SDF",
       "paCat:SDT",
+      "paCat:SFU",
       "paCat:STE",
       "paCat:STF"
     )
