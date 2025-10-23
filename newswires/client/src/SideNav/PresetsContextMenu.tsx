@@ -1,86 +1,22 @@
-import { useEuiTheme } from '@elastic/eui';
-import { css, keyframes } from '@emotion/react';
-import type { CSSProperties } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
 import { usePrevious } from '../hooks/usePrevious';
 import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
-import type { PresetGroupName } from '../presets';
+import { type PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
+import type { Direction } from './SlidingPanels';
+import { SlidingPanels } from './SlidingPanels';
 import { TopLevelListPresetPanel } from './TopLevelListPreset';
-
-const createAnimationStyles = (
-	animationDuration: CSSProperties['animationDuration'],
-	animationTimingFunction: CSSProperties['animationTimingFunction'],
-) => {
-	/**
-	 * Animation styles are based on EUI's styles for EuiContextMenu, so
-	 * will hopefully feel consistent with other animations we're getting
-	 * from EUI components.
-	 * https://github.com/elastic/eui/blob/0d84a92d3367cf969264d1274a0c9719b15c1479/packages/eui/src/components/context_menu/context_menu_panel.styles.ts#L21
-	 */
-
-	const slideInFromRight = keyframes`
-		from { transform: translateX(100%); }
-		to { transform: translateX(0); }
-	`;
-
-	const slideOutToLeft = keyframes`
-		from { transform: translateX(0); }
-		to { transform: translateX(-100%); }
-	`;
-
-	const slideInFromLeft = keyframes`
-		from { transform: translateX(-100%); }
-		to { transform: translateX(0); }
-	`;
-
-	const slideOutToRight = keyframes`
-		from { transform: translateX(0); }
-		to { transform: translateX(100%); }
-	`;
-
-	const baseTransition = css`
-		pointer-events: none;
-		animation-fill-mode: forwards;
-		animation-duration: ${animationDuration};
-		animation-timing-function: ${animationTimingFunction};
-	`;
-
-	return {
-		container: css`
-			position: relative;
-			overflow: hidden;
-			width: 100%;
-		`,
-		panel: css`
-			width: 100%;
-		`,
-		// Forward animations (going to child panel)
-		forwardIn: css`
-			${baseTransition}
-			animation-name: ${slideInFromRight};
-		`,
-		forwardOut: css`
-			${baseTransition}
-			animation-name: ${slideOutToLeft};
-		`,
-		// Back animations (going to parent panel)
-		backIn: css`
-			${baseTransition}
-			animation-name: ${slideInFromLeft};
-		`,
-		backOut: css`
-			${baseTransition}
-			animation-name: ${slideOutToRight};
-		`,
-	};
-};
 
 type AnimationState = {
 	isAnimating: boolean;
-	direction: 'forward' | 'back' | null;
+	direction: Direction;
 };
+
+const directionMap = {
+	presets: 'back',
+	sportPresets: 'forward',
+} as const satisfies Record<PresetGroupName, Exclude<Direction, null>>;
 
 /**
  * Component modelled after EuiContextMenu, but remade in order to allow
@@ -96,13 +32,6 @@ export const PresetsContextMenu = () => {
 		direction: null,
 	});
 
-	const containerRef = useRef<HTMLDivElement>(null);
-	const { euiTheme } = useEuiTheme();
-	const animationStyles = createAnimationStyles(
-		euiTheme.animation.normal,
-		euiTheme.animation.resistance,
-	);
-
 	const { config, handleEnterQuery } = useSearch();
 	const activePreset = config.query.preset;
 	const previousPreset = usePrevious(activePreset);
@@ -110,49 +39,32 @@ export const PresetsContextMenu = () => {
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(
 		getPresetPanel(activePreset),
 	);
-
-	const openDrawer = () => {
-		setActivePanelId('sportPresets');
-		setAnimationState({
-			isAnimating: true,
-			direction: 'forward',
+	const getPreviousPanelId = (panel: PresetGroupName): PresetGroupName =>
+		panel === 'presets' ? 'sportPresets' : 'presets';
+	const previousPanelId = getPreviousPanelId(activePanelId);
+	const startAnimation = useCallback((nextPanel: keyof typeof directionMap) => {
+		setAnimationState((prev) => {
+			if (prev.isAnimating) return prev;
+			setActivePanelId(nextPanel);
+			return {
+				isAnimating: true,
+				direction: directionMap[nextPanel],
+			};
 		});
-	};
+	}, []);
+	const handleAnimationEnd = useCallback(() => {
+		setAnimationState({ isAnimating: false, direction: null });
+	}, []);
 
-	const closeDrawer = () => {
-		setActivePanelId('presets');
-		setAnimationState({
-			isAnimating: true,
-			direction: 'back',
-		});
-	};
+	const openDrawer = () => startAnimation('sportPresets');
+	const closeDrawer = () => startAnimation('presets');
 
 	useEffect(() => {
 		const nextPanel = getPresetPanel(activePreset);
 		if (nextPanel !== activePanelId && previousPreset !== activePreset) {
-			setActivePanelId(nextPanel);
-			setAnimationState({
-				isAnimating: true,
-				direction: nextPanel === 'presets' ? 'back' : 'forward',
-			});
+			startAnimation(nextPanel);
 		}
-	}, [activePreset, previousPreset, activePanelId]);
-
-	useEffect(() => {
-		const container = containerRef.current;
-		if (!container || !animationState.isAnimating) return;
-
-		const handleAnimationEnd = () => {
-			setAnimationState({
-				isAnimating: false,
-				direction: null,
-			});
-		};
-
-		container.addEventListener('animationend', handleAnimationEnd);
-		return () =>
-			container.removeEventListener('animationend', handleAnimationEnd);
-	}, [animationState.isAnimating]);
+	}, [activePreset, previousPreset, activePanelId, startAnimation]);
 
 	const togglePreset = useCallback(
 		(presetId: string) => {
@@ -165,77 +77,39 @@ export const PresetsContextMenu = () => {
 		[activePreset, config.query, handleEnterQuery],
 	);
 
-	const getPanelStyles = (isCurrentPanel: boolean) => {
-		if (!animationState.isAnimating) {
-			return animationStyles.panel;
-		}
-
-		const isForward = animationState.direction === 'forward';
-
-		if (isCurrentPanel) {
-			// Current panel sliding in
-			return css`
-				${animationStyles.panel}
-				${isForward ? animationStyles.forwardIn : animationStyles.backIn}
-			`;
-		} else {
-			// Previous panel sliding out
-			return css`
-				${animationStyles.panel}
-				position: absolute;
-				top: 0;
-				left: 0;
-				${isForward ? animationStyles.forwardOut : animationStyles.backOut}
-			`;
-		}
+	const sharedPanelProps = {
+		activePreset,
+		openDrawer,
+		closeDrawer,
+		togglePreset,
 	};
 
+	const panelMap = useMemo(
+		() =>
+			({
+				presets: TopLevelListPresetPanel,
+				sportPresets: SecondaryLevelListPresetPanel,
+			}) as const,
+		[],
+	);
+
+	const CurrentPanel = useMemo(() => {
+		return panelMap[activePanelId];
+	}, [activePanelId, panelMap]);
+
+	const PreviousPanel = useMemo(() => {
+		return panelMap[previousPanelId];
+	}, [previousPanelId, panelMap]);
+
 	return (
-		<div ref={containerRef} css={animationStyles.container}>
-			{/* 
-				This is the main panel that is in view depending on what the user has selected.
-			 */}
-			<div css={getPanelStyles(true)}>
-				{' '}
-				{activePanelId === 'presets' ? (
-					<TopLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				) : (
-					<SecondaryLevelListPresetPanel
-						activePreset={activePreset}
-						openDrawer={openDrawer}
-						closeDrawer={closeDrawer}
-						togglePreset={togglePreset}
-					/>
-				)}
-			</div>
-			{/*
-				This is the panel that is animating out of view when the user has selected
-				to go to a different panel.
-			 */}
-			{animationState.isAnimating && (
-				<div css={getPanelStyles(false)}>
-					{activePanelId === 'presets' ? (
-						<SecondaryLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					) : (
-						<TopLevelListPresetPanel
-							activePreset={activePreset}
-							openDrawer={openDrawer}
-							closeDrawer={closeDrawer}
-							togglePreset={togglePreset}
-						/>
-					)}
-				</div>
-			)}
-		</div>
+		<SlidingPanels
+			direction={animationState.direction}
+			isAnimating={animationState.isAnimating}
+			current={<CurrentPanel {...sharedPanelProps} />}
+			currentPanelId={activePanelId}
+			previous={<PreviousPanel {...sharedPanelProps} />}
+			previousPanelId={previousPanelId}
+			onAnimationEnd={handleAnimationEnd}
+		/>
 	);
 };
