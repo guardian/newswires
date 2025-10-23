@@ -84,6 +84,7 @@ object SearchPresets {
     case "all-uk"               => Some(AllUk)
     case "all-business"         => Some(AllBusiness)
     case "all-sport"            => Some(AllSport)
+    case "all-sport-stories"    => Some(AllSportStories)
     case "soccer"               => Some(Soccer)
     case "soccer-scores"        => Some(SoccerScores)
     case "soccer-tables"        => Some(SoccerTables)
@@ -229,11 +230,56 @@ object SearchPresets {
    */
 
   private val AllSport = List(
-    SearchPreset(PA, preComputedCategories = List("all-sports")),
+    SearchPreset(PA, categoryCodesExcl = CategoryCodes.UK.PA ::: CategoryCodes.Business.PA),
     SearchPreset(REUTERS, preComputedCategories = List("all-sports")),
     SearchPreset(AP, preComputedCategories = List("all-sports")),
     SearchPreset(AAP, preComputedCategories = List("all-sports")),
     SearchPreset(AFP, preComputedCategories = List("all-sports"))
+  )
+
+  private val AllSportStories = List(
+    SearchPreset.fromSearchTerm(
+      REUTERS,
+      searchTerm = SearchTerm.Simple("-(OPTA) -Gracenote", SearchField.BodyText),
+      CategoryCodes.Sport.REUTERS
+    ),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerm = SearchTerm.Simple(
+        "-\"TABULATED RESULTS\" -\"Divisional Summaries\" -GOALSCORERS " +
+          "-Goalflash -Summaries -Teams -AMENDMENTS -\"Pools Grid \" -Statistics -CORRECTN -\"Top Goal Scorer\" " +
+          "-BOOKINGS -\"Sending Off\" -\"SENT OFF\" -\"FULL-TIME\" -\"HALF-TIME\" -\"POOLS DIVIDEND\" -\"RACING GOING\" " +
+          "-Postponed -\"SOCCER TEAMS\" -\"MATCH STATS\" -Collated -Advisory " +
+          "-Formwatch -Pieces -Straps -\"wind surgery\" -Traveller -blinkers",
+        Slug
+      ),
+      categoryCodesExcl =
+        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.CricketResults.PA ::: CategoryCodes.SoccerScores.PA
+          ::: CategoryCodes.SoccerTables.PA ::: CategoryCodes.RugbyResults.PA ::: List(
+            "paCat:RSR",
+            "paCat:SRD",
+            "paCat:SRN",
+            "paCat:RRR",
+            "paCat:RDR",
+            "paCat:SFF",
+            "paCat:SSF",
+            "paCat:SSD",
+            "paCat:SRZ",
+            "paCat:RMS",
+            "paCat:SFU",
+            "paCat:NMS",
+            "paCat:SSP",
+            "paCat:MDS"
+          ),
+      hasDataFormatting = Some(false)
+    ),
+    SearchPreset(AFP, CategoryCodes.Sport.AFP),
+    SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP),
+    SearchPreset.fromSearchTerm(
+      AP,
+      searchTerm = SearchTerm.Simple("-\"GLF Scores\"", Slug),
+      CategoryCodes.Sport.AP
+    )
   )
 
   private val Soccer = List(
