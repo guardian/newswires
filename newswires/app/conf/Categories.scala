@@ -148,7 +148,8 @@ private[conf] object CategoryCodes {
       "paCat:SDF",
       "paCat:SDT",
       "paCat:STE",
-      "paCat:STF"
+      "paCat:STF",
+      "paCat:SFU"
     )
   }
   object HorseRacing {
