@@ -41,7 +41,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
           |   fm.composer_sent_by as csb_on_fm,
           |   fm.category_codes as cc_on_fm,
           |   fm.content as c_on_fm,
-          |   fm.s3_key as sk_on_fm
+          |   fm.s3_key as sk_on_fm,
+          |   fm.precomputed_categories as pc_on_fm
           |, '' AS h_on_fm,
           |tl.id as i_on_tl,
           |tl.wire_id as wi_on_tl,
