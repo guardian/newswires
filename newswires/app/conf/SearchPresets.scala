@@ -277,8 +277,11 @@ object SearchPresets {
     SearchPreset(AAP, categoryCodes = CategoryCodes.Sport.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("-\"BC-\" -\"Injury Report \" -Results -\"Inactive Report\" " +
-        "-\"Team List\" -SportsWatch -Transactions -Glance -listings -Prep OR (AP Sports Glance)", Slug),
+      searchTerm = SearchTerm.Simple(
+        "-\"BC-\" -\"Injury Report \" -Results -\"Inactive Report\" " +
+          "-\"Team List\" -SportsWatch -Transactions -Glance -listings -Prep OR (AP Sports Glance)",
+        Slug
+      ),
       CategoryCodes.Sport.AP
     )
   )
@@ -521,9 +524,12 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("GOLF", Slug), categoryCodes = List("paCat:RSR")),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("GLF Scores OR GLF Leaders OR GLF Winners OR GLF Stax OR GLF Standings " +
-        " OR GLF Ranking", Slug),
-      CategoryCodes.Sport.AP,
+      searchTerm = SearchTerm.Simple(
+        "GLF Scores OR GLF Leaders OR GLF Winners OR GLF Stax OR GLF Standings " +
+          "OR GLF Ranking",
+        Slug
+      ),
+      CategoryCodes.Sport.AP
     )
   )
 
