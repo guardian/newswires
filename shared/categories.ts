@@ -1386,7 +1386,6 @@ export const Soccer = [
     'N2:SOCC',
     'paCat:SSO',
     'paCat:SFF',
-    'paCat:SSD',
     'paCat:SSO',
     'subj:15054000'
 ]
