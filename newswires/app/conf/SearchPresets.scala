@@ -279,7 +279,7 @@ object SearchPresets {
       AP,
       searchTerm = SearchTerm.Simple(
         "-\"BC-\" -\"Injury Report \" -Results -\"Inactive Report\" " +
-          "-\"Team List\" -SportsWatch -Transactions -Glance -listings -Prep OR (AP Sports Glance)",
+          "-\"Team List\" -Figures -SportsWatch -Transactions -Glance -listings -Prep OR (AP Sports Glance)",
         Slug
       ),
       CategoryCodes.Sport.AP
@@ -370,9 +370,8 @@ object SearchPresets {
     SearchPreset(AAP, CategoryCodes.Cricket.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("CRI -Glance", Slug),
+      searchTerm = SearchTerm.Simple("\"AP-CRI\" -Glance -Figures", Slug),
       CategoryCodes.Sport.AP,
-      keyword = Some("Cricket")
     )
   )
 
@@ -386,9 +385,8 @@ object SearchPresets {
     SearchPreset(PA, CategoryCodes.CricketResults.PA),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("CRI Glance", Slug),
+      searchTerm = SearchTerm.Simple("\"AP-CRI\" Glance OR Figures", Slug),
       CategoryCodes.Sport.AP,
-      keyword = Some("Cricket")
     )
   )
 
