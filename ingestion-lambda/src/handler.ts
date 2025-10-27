@@ -18,9 +18,13 @@ import { processEmailContent } from './processEmailContent';
 
 function processSESRecord(record: SESEventRecord): OperationResult<{
 	externalId: string;
-	objectKey: string;
+	s3Key: string;
 }> {
 	const { ses } = record;
+
+	const messageId = ses.mail.messageId;
+	const externalId = `EMAIL-${messageId}`;
+	const s3Key = messageId;
 
 	const { hasFailures, failedChecks } = findVerificationFailures(ses.receipt);
 
@@ -30,42 +34,40 @@ function processSESRecord(record: SESEventRecord): OperationResult<{
 			reason: `Email verification failed: ${failedChecks
 				.map((check) => `${check.name}=${check.status}`)
 				.join(', ')}`,
+			s3Key,
 		};
 	}
-
-	const messageId = ses.mail.messageId;
-	const externalId = `EMAIL-${messageId}`;
-	const objectKey = messageId;
 	return {
 		status: 'success',
 		externalId,
-		objectKey,
+		s3Key,
 	};
 }
 
 function processSQSRecord(
 	record: SQSRecord,
-): OperationResult<{ externalId: string; objectKey: string }> {
+): OperationResult<{ externalId: string; s3Key: string }> {
 	const { externalId, objectKey } = JSON.parse(record.body) as unknown as {
-		externalId: string;
-		objectKey: string;
+		externalId?: string;
+		objectKey?: string;
 	};
 	if (!objectKey || !externalId) {
 		return {
 			status: 'failure',
 			reason: `Message is missing required attributes: externalId or objectKey`,
+			s3Key: objectKey ?? 'unknown',
 		};
 	}
 	return {
 		status: 'success',
 		externalId,
-		objectKey,
+		s3Key: objectKey,
 	};
 }
 
 function processRecord(
 	record: SESEventRecord | SQSRecord,
-): OperationResult<{ externalId: string; objectKey: string }> {
+): OperationResult<{ externalId: string; s3Key: string }> {
 	if (isSESRecord(record)) {
 		return processSESRecord(record);
 	} else {
@@ -95,19 +97,21 @@ export const main = async (
 			await Promise.all(
 				records.map(async (record) => {
 					const isSES = isSESRecord(record);
+					const processedMessage = processRecord(record);
+
 					const failureWith = (reason: string): BatchItemFailure => ({
 						status: 'failure',
 						messageId: isSES ? record.ses.mail.messageId : record.messageId,
 						recordType: isSES ? 'SES' : 'SQS',
 						reason,
+						s3Key: processedMessage.s3Key,
 					});
-					const processedMessage = processRecord(record);
+
 					if (processedMessage.status === 'failure') {
 						return failureWith(processedMessage.reason);
 					}
-
 					const s3Result = await getItemFromS3({
-						objectKey: processedMessage.objectKey,
+						objectKey: processedMessage.s3Key,
 						bucketName: isSES ? EMAIL_BUCKET_NAME : FEEDS_BUCKET_NAME,
 					});
 					if (s3Result.status === 'failure') {
@@ -124,7 +128,7 @@ export const main = async (
 					const dbResult = await putItemToDb({
 						processedObject: contentResults,
 						externalId: processedMessage.externalId,
-						s3Key: processedMessage.objectKey,
+						s3Key: processedMessage.s3Key,
 						lastModified: s3Result.lastModified,
 						sql,
 						logger,
@@ -144,15 +148,18 @@ export const main = async (
 			`Processed ${records.length} messages with ${allFailures.length} failures`,
 		);
 
-		const batchItemFailures = allFailures.map(({ messageId, reason }) => {
-			logger.error({
-				message: `Failed to process message for ${messageId}: ${reason}`,
-				eventType: 'INGESTION_FAILURE',
-				messageId,
-				reason,
-			});
-			return { itemIdentifier: messageId };
-		});
+		const batchItemFailures = allFailures.map(
+			({ messageId, reason, s3Key }) => {
+				logger.error({
+					message: `Failed to process message for ${messageId}: ${reason}`,
+					eventType: 'INGESTION_FAILURE',
+					messageId,
+					reason,
+					s3Key,
+				});
+				return { itemIdentifier: messageId };
+			},
+		);
 
 		console.log(
 			`Processed ${records.length} messages with ${batchItemFailures.length} failures`,
