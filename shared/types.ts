@@ -93,7 +93,7 @@ export type ProcessedObject = {
 export type OperationFailure = {
 	status: 'failure';
 	reason: string;
-	s3Key: string;
+	s3Key?: string;
 };
 type BaseOperationSuccess = {
 	status: 'success';

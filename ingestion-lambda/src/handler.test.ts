@@ -64,11 +64,13 @@ const invalidJsonFromSuccessfulS3: OperationResult<{ body: string }> = {
 	body: '{ invalid json content without closing brace',
 };
 
-const failedS3Result = {
+const failedS3ResultWithKey = (
+	s3Key: string,
+): OperationResult<{ body: string }> => ({
 	status: 'failure',
-	sqsMessageId: '123',
 	reason: 'S3 access denied',
-} as OperationResult<{ body: string }>;
+	s3Key,
+});
 
 function generateMockSQSRecord(
 	bodyPayload: Record<string, string>,
@@ -186,7 +188,7 @@ describe('handler.main', () => {
 			} else if (params.key === 'path/to/invalid-object.json') {
 				return Promise.resolve(invalidJsonFromSuccessfulS3);
 			}
-			return Promise.resolve(failedS3Result);
+			return Promise.resolve(failedS3ResultWithKey(params.key));
 		});
 
 		// Create a valid record and a record that will fail due to invalid JSON from S3

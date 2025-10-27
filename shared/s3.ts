@@ -32,7 +32,7 @@ export async function getFromS3({
 }: {
 	bucketName: string;
 	key: string;
-}): Promise<OperationResult<{ body: string, lastModified?: Date }>> {
+}): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
 	logger.log({
 		message: `Getting object from S3 bucket "${bucketName}" with key "${key}"`,
 		key,
@@ -53,12 +53,14 @@ export async function getFromS3({
 			return {
 				status: 'failure',
 				reason: 'No body found in S3 response',
+				s3Key: key,
 			};
 		}
 	} catch (caught) {
 		return {
 			status: 'failure',
 			reason: getErrorMessage(caught),
+			s3Key: key,
 		};
 	}
 }
@@ -89,6 +91,7 @@ export async function putToS3({
 		return {
 			status: 'failure',
 			reason: getErrorMessage(caught),
+			s3Key: key,
 		};
 	}
 }
