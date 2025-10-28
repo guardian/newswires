@@ -20,10 +20,12 @@ jobs:
       id-token: write
       contents: read
       pull-requests: write
+    env:
+      HUSKY: 0
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5 
+        uses: actions/checkout@v5
 
       - name: Setup node for CDK
         uses: actions/setup-node@v5
@@ -36,8 +38,8 @@ jobs:
         uses: VirtusLab/scala-cli-setup@v1.5
 
       - name: Set up test environment
-        run: ./scripts/setup-test-env.sh    
-      
+        run: ./scripts/setup-test-env.sh
+
       # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
         uses: guardian/setup-scala@v1
@@ -46,8 +48,8 @@ jobs:
         run: |
           npm ci
           npm run lint:ci
-          npm run typecheck
-          npm test
+          npm run typecheck:ci
+          npm run test:ci
 
       - name: Build CDK
         working-directory: cdk
