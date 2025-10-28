@@ -115,11 +115,19 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 		const handleKeyUp = (e: KeyboardEvent) => {
 			if (!e.altKey) setIsAltPressed(false);
 		};
+		// Reset state when window loses focus (e.g., Alt+Tab)
+		const handleBlur = () => {
+			setIsAltPressed(false);
+		};
+
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyUp);
+		window.addEventListener('blur', handleBlur);
+
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
+			window.removeEventListener('blur', handleBlur);
 		};
 	}, []);
 
