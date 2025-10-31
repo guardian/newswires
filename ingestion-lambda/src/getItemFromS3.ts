@@ -27,6 +27,7 @@ export async function getItemFromS3({
 			return {
 				status: 'failure' as const,
 				reason: `Error getting object from S3 (key: ${objectKey}): ${getErrorMessage(error)}`,
+				s3Key: objectKey,
 			};
 		});
 }
