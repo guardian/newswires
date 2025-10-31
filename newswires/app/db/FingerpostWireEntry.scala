@@ -248,6 +248,16 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       }
 
+    lazy val searchTermsJoinedWithAndSQL =
+      (searchTerms: List[SearchTerm]) => {
+        sqls.joinWithAnd(searchTerms.map {
+          case SearchTerm.Simple(query, field) =>
+            simpleSearchSQL(SearchTerm.Simple(query, field))
+          case SearchTerm.English(query) =>
+            englishSearchSQL(SearchTerm.English(query))
+        }: _*)
+      }
+
     lazy val keywordsSQL =
       (keywords: List[String]) => keywordCondition(syn, keywords)
 
@@ -313,11 +323,9 @@ object FingerpostWireEntry
     }
 
     val searchQuery = search.text match {
-      case Some(SearchTerm.Simple(query, field)) =>
-        Some(Filters.simpleSearchSQL(SearchTerm.Simple(query, field)))
-      case Some(SearchTerm.English(query)) =>
-        Some(Filters.englishSearchSQL(SearchTerm.English(query)))
-      case _ => None
+      case Nil => None
+      case terms =>
+        Some(Filters.searchTermsJoinedWithAndSQL(terms))
     }
 
     val keywordsQuery = search.keywordIncl match {
@@ -407,7 +415,9 @@ object FingerpostWireEntry
 
     val maybeSinceId = queryParams.maybeSinceId
 
-    val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
+    val highlightsClause = buildHighlightsClause(
+      queryParams.maybeSearchTerm.headOption // Only use the first search term for highlighting, if present. It would be nice to do better here in future but might not be worth the time to implement
+    )
 
     val orderByClause = maybeSinceId match {
       case Some(NextPage(_)) =>

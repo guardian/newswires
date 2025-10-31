@@ -14,5 +14,5 @@ case class BaseRequestParams(
     maybeSinceId: Option[Int] = None,
     hasDataFormatting: Option[Boolean] = None
 ) {
-  val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
+  val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_)).toList
 }
