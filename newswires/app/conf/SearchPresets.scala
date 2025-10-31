@@ -18,7 +18,7 @@ object SearchPreset {
       hasDataFormatting: Option[Boolean] = None
   ): SearchParams =
     SearchParams(
-      text = None,
+      text = List.empty,
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList ::: keywords,
       keywordExcl = keywordExcl,
@@ -37,7 +37,7 @@ object SearchPreset {
       hasDataFormatting: Option[Boolean] = None
   ): SearchParams =
     SearchParams(
-      text = Some(SearchTerm.Simple(text)),
+      text = List(SearchTerm.Simple(text)),
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList,
       keywordExcl = keywordExcl,
@@ -48,7 +48,7 @@ object SearchPreset {
 
   def fromSearchTerm(
       supplier: String,
-      searchTerm: SearchTerm,
+      searchTerms: List[SearchTerm],
       categoryCodes: List[String] = Nil,
       categoryCodesExcl: List[String] = Nil,
       keyword: Option[String] = None,
@@ -56,7 +56,7 @@ object SearchPreset {
       hasDataFormatting: Option[Boolean] = None
   ): SearchParams =
     SearchParams(
-      text = Some(searchTerm),
+      text = searchTerms,
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList,
       keywordExcl = keywordExcl,
@@ -143,7 +143,7 @@ object SearchPresets {
   private val ReutersSchedule = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, SearchField.Headline),
+      searchTerms = List(SearchTerm.Simple(SimpleSearchQueries.REUTERS_NEWS_SCHEDULE, SearchField.Headline)),
       categoryCodes = List("MCC:DED")
     )
   )
@@ -169,7 +169,7 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("News Summary", SearchField.Headline),
+      searchTerms = List(SearchTerm.Simple("News Summary", SearchField.Headline)),
       categoryCodes = List("MCC:OEC"),
       categoryCodesExcl = List("N2:GB", "N2:COM", "N2:ECI")
     )
@@ -228,15 +228,15 @@ object SearchPresets {
   private val Soccer = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("-(OPTA)", SearchField.BodyText)),
       CategoryCodes.Soccer.REUTERS
     ),
     SearchPreset(PA, CategoryCodes.Soccer.PA, hasDataFormatting = Some(false)),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("fbl", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("fbl", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Soccer.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("AP SOC", Slug),
+      searchTerms = List(SearchTerm.Simple("AP SOC", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Soccer")
     )
@@ -245,21 +245,21 @@ object SearchPresets {
   private val SoccerScores = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("(OPTA)", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("(OPTA)", SearchField.BodyText)),
       CategoryCodes.Soccer.REUTERS
     ),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("SOCCER", Slug),
+      searchTerms = List(SearchTerm.Simple("SOCCER", Slug)),
       CategoryCodes.SoccerScores.PA
     ),
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("SOCCER TABULATED RESULTS", Slug))
+    SearchPreset.fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("SOCCER TABULATED RESULTS", Slug)))
   )
 
   private val SoccerTables = List(
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("SOCCER Tables", Slug),
+      searchTerms = List(SearchTerm.Simple("SOCCER Tables", Slug)),
       CategoryCodes.SoccerTables.PA
     )
   )
@@ -272,12 +272,16 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("-SOCCER", Slug),
+      searchTerms = List(SearchTerm.Simple("-SOCCER", Slug)),
       categoryCodes = CategoryCodes.Sport.PA.filterNot(CategoryCodes.Soccer.PA.contains),
       categoryCodesExcl = CategoryCodes.Soccer.PA
     ),
     SearchPreset
-      .fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("-fbl", Slug), categoryCodes = CategoryCodes.Sport.AFP),
+      .fromSearchTerm(
+        AFP,
+        searchTerms = List(SearchTerm.Simple("-fbl", Slug)),
+        categoryCodes = CategoryCodes.Sport.AFP
+      ),
     SearchPreset(
       AAP,
       categoryCodes = CategoryCodes.Sport.AAP.filterNot(CategoryCodes.Soccer.AAP.contains),
@@ -285,7 +289,7 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("-BC -SOC", Slug),
+      searchTerms = List(SearchTerm.Simple("-BC -SOC", Slug)),
       CategoryCodes.Sport.AP,
       keywordExcl = List("Soccer")
     )
@@ -295,12 +299,16 @@ object SearchPresets {
     SearchPreset
       .fromSearchTerm(
         REUTERS,
-        searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
+        searchTerms = List(SearchTerm.Simple("-(OPTA)", SearchField.BodyText)),
         categoryCodes = CategoryCodes.Cricket.REUTERS
       ),
     SearchPreset(PA, CategoryCodes.Cricket.PA),
     SearchPreset
-      .fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("cricket", Slug), categoryCodes = CategoryCodes.Sport.AFP),
+      .fromSearchTerm(
+        AFP,
+        searchTerms = List(SearchTerm.Simple("cricket", Slug)),
+        categoryCodes = CategoryCodes.Sport.AFP
+      ),
     SearchPreset(AAP, CategoryCodes.Cricket.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Cricket"))
   )
@@ -309,7 +317,7 @@ object SearchPresets {
     SearchPreset
       .fromSearchTerm(
         REUTERS,
-        searchTerm = SearchTerm.Simple("(OPTA)", SearchField.BodyText),
+        searchTerms = List(SearchTerm.Simple("(OPTA)", SearchField.BodyText)),
         categoryCodes = CategoryCodes.Cricket.REUTERS
       ),
     SearchPreset(PA, CategoryCodes.CricketResults.PA)
@@ -318,19 +326,19 @@ object SearchPresets {
   private val RugbyLeague = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("-(OPTA)", SearchField.BodyText)),
       CategoryCodes.RugbyLeague.REUTERS
     ),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("RUGBYL", Slug),
+      searchTerms = List(SearchTerm.Simple("RUGBYL", Slug)),
       CategoryCodes.Sport.PA
     ),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("RugbyL", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("RugbyL", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.RugbyLeague.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("RGL", Slug),
+      searchTerms = List(SearchTerm.Simple("RGL", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Rugby")
     )
@@ -339,19 +347,19 @@ object SearchPresets {
   private val RugbyUnion = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("-(OPTA)", SearchField.BodyText)),
       CategoryCodes.RugbyUnion.REUTERS
     ),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("RUGBYU", Slug),
+      searchTerms = List(SearchTerm.Simple("RUGBYU", Slug)),
       CategoryCodes.Sport.PA
     ),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("RugbyU", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("RugbyU", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.RugbyUnion.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("RGU", Slug),
+      searchTerms = List(SearchTerm.Simple("RGU", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Rugby")
     )
@@ -361,7 +369,7 @@ object SearchPresets {
     SearchPreset(PA, categoryCodes = CategoryCodes.RugbyResults.PA),
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("(OPTA)", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("(OPTA)", SearchField.BodyText)),
       CategoryCodes.RugbyLeague.REUTERS
     )
   )
@@ -369,15 +377,15 @@ object SearchPresets {
   private val Tennis = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("-(OPTA)", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("-(OPTA)", SearchField.BodyText)),
       CategoryCodes.Tennis.REUTERS
     ),
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("TENNIS", Slug), CategoryCodes.Sport.PA),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("Tennis", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("TENNIS", Slug)), CategoryCodes.Sport.PA),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Tennis", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Tennis.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("AP TEN", Slug),
+      searchTerms = List(SearchTerm.Simple("AP TEN", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Tennis")
     )
@@ -386,24 +394,28 @@ object SearchPresets {
   private val TennisResults = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("(OPTA)", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("(OPTA)", SearchField.BodyText)),
       CategoryCodes.Tennis.REUTERS
     ),
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("TENNIS", Slug), hasDataFormatting = Some(true))
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms = List(SearchTerm.Simple("TENNIS", Slug)),
+      hasDataFormatting = Some(true)
+    )
   )
 
   private val Cycling = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("-Gracenote", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("-Gracenote", SearchField.BodyText)),
       CategoryCodes.Cycling.REUTERS
     ),
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("CYCLING", Slug), CategoryCodes.Sport.PA),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("cycling", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("CYCLING", Slug)), CategoryCodes.Sport.PA),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("cycling", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Cycling.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("CYC", Slug),
+      searchTerms = List(SearchTerm.Simple("CYC", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Cycling")
     )
@@ -412,14 +424,14 @@ object SearchPresets {
   private val CyclingResults = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerm = SearchTerm.Simple("Gracenote", SearchField.BodyText),
+      searchTerms = List(SearchTerm.Simple("Gracenote", SearchField.BodyText)),
       CategoryCodes.Cycling.REUTERS
     )
   )
   private val MotorRacing = List(
     SearchPreset(REUTERS, CategoryCodes.MotorRacing.REUTERS),
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("auto", Slug), CategoryCodes.Sport.PA),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("auto", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("auto", Slug)), CategoryCodes.Sport.PA),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("auto", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.MotorRacing.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Automobile racing"))
   )
@@ -427,22 +439,23 @@ object SearchPresets {
   private val Golf = List(
     SearchPreset(REUTERS, CategoryCodes.Golf.REUTERS),
     SearchPreset
-      .fromSearchTerm(PA, searchTerm = SearchTerm.Simple("GOLF", Slug), categoryCodesExcl = List("paCat:RSR")),
+      .fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("GOLF", Slug)), categoryCodesExcl = List("paCat:RSR")),
     SearchPreset.fromText(AFP, text = SimpleSearchQueries.GOLF, CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Golf.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("GLF -Scores", Slug),
+      searchTerms = List(SearchTerm.Simple("GLF -Scores", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Golf")
     )
   )
 
   private val GolfResults = List(
-    SearchPreset.fromSearchTerm(PA, searchTerm = SearchTerm.Simple("GOLF", Slug), categoryCodes = List("paCat:RSR")),
+    SearchPreset
+      .fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("GOLF", Slug)), categoryCodes = List("paCat:RSR")),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("GLF Scores", Slug),
+      searchTerms = List(SearchTerm.Simple("GLF Scores", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Golf")
     )
@@ -452,18 +465,18 @@ object SearchPresets {
     SearchPreset(REUTERS, CategoryCodes.Boxing.REUTERS),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("BOXING", Slug),
+      searchTerms = List(SearchTerm.Simple("BOXING", Slug)),
       categoryCodes = List("paCat:SRS", "paCat:SSS")
     ),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("Box", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Box", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Boxing.AAP),
-    SearchPreset.fromSearchTerm(AP, searchTerm = SearchTerm.Simple("BOX", Slug), keyword = Some("Boxing"))
+    SearchPreset.fromSearchTerm(AP, searchTerms = List(SearchTerm.Simple("BOX", Slug)), keyword = Some("Boxing"))
   )
 
   private val HorseRacing = List(
     SearchPreset(REUTERS, CategoryCodes.HorseRacing.REUTERS),
     SearchPreset(PA, CategoryCodes.HorseRacing.PA),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("racing", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("racing", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.HorseRacing.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Horse racing"))
   )
@@ -472,14 +485,14 @@ object SearchPresets {
     SearchPreset(REUTERS, CategoryCodes.Athletics.REUTERS),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerm = SearchTerm.Simple("ATHLETICS", Slug),
+      searchTerms = List(SearchTerm.Simple("ATHLETICS", Slug)),
       categoryCodes = List("paCat:SRS", "paCat:SSS", "paCat:RSR")
     ),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("ATHLETICS", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("ATHLETICS", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Athletics.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerm = SearchTerm.Simple("ATH", Slug),
+      searchTerms = List(SearchTerm.Simple("ATH", Slug)),
       CategoryCodes.Sport.AP,
       keyword = Some("Track and field")
     )
@@ -492,7 +505,7 @@ object SearchPresets {
       text = SimpleSearchQueries.OLYMPICS,
       categoryCodes = List("paCat:SRS", "paCat:SSS")
     ),
-    SearchPreset.fromSearchTerm(AFP, searchTerm = SearchTerm.Simple("Oly", Slug), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Oly", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Olympic games"))
   )
