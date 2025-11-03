@@ -16,7 +16,6 @@ import scalikejdbc._
 import io.circe.parser._
 
 import java.time.Instant
-import java.util.Timer
 
 case class FingerpostWireEntry(
     id: Long,
@@ -185,165 +184,211 @@ object FingerpostWireEntry
       .flatten
   }
 
-  lazy val supplierSQL: List[String] => SQLSyntax =
-    (sourceFeeds: List[String]) => {
+  object Filters {
+    private def exclusionCondition(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry]
+    )(innerClause: SQLSyntax) = {
+      // unpleasant, but the sort of trick you need to pull
+      // because "NOT IN (...)" doesn't hit an index.
+      // https://stackoverflow.com/a/19364694
+
+      sqls"""|NOT EXISTS (
+             |  SELECT FROM ${FingerpostWireEntry as alias}
+             |  WHERE ${syn.id} = ${alias.id}
+             |    AND $innerClause
+             |)""".stripMargin
+    }
+
+    private def supplierCondition(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        suppliers: List[String]
+    ) = {
       sqls.in(
-        sqls"upper(${syn.supplier})",
-        sourceFeeds.map(feed => sqls"upper($feed)")
+        sqls"upper(${alias.supplier})",
+        suppliers.map(feed => sqls"upper($feed)")
       )
     }
 
-  lazy val supplierExclSQL = (sourceFeedsExcl: List[String]) => {
-    val se = this.syntax("sourceFeedsExcl")
-    val doesContainFeeds = sqls.in(
-      sqls"upper(${se.supplier})",
-      sourceFeedsExcl.map(feed => sqls"upper($feed)")
-    )
-    // unpleasant, but the sort of trick you need to pull
-    // because "NOT IN (...)" doesn't hit an index.
-    // https://stackoverflow.com/a/19364694
+    private def keywordCondition(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        keywords: List[String]
+    ): SQLSyntax =
+      // "??|" is actually the "?|" operator - doubled to prevent the
+      // SQL driver from treating it as a placeholder for a parameter
+      // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
+      sqls"(${alias.content} -> 'keywords') ??| ${textArray(keywords)}"
 
-    sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as se}
-           |  WHERE ${syn.id} = ${se.id}
-           |    AND $doesContainFeeds
-           |)""".stripMargin
-
-  }
-
-  lazy val simpleSearchSQL = (searchTerm: SearchTerm.Simple) => {
-    val tsvectorColumn = searchTerm.field match {
-      case SearchField.Headline => "headline_tsv_simple"
-      case SearchField.BodyText => "body_text_tsv_simple"
-      case SearchField.Slug     => "slug_text_tsv_simple"
+    private def categoryCodeConditions(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        categoryCodes: List[String]
+    ) = {
+      sqls"${alias.categoryCodes} && ${textArray(categoryCodes)}"
     }
 
-    sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
+    private def preComputedCategoriesConditions(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        preComputedCategories: List[String]
+    ) = {
+      sqls"${alias.precomputedCategories} && ${textArray(preComputedCategories)}"
+    }
 
+    lazy val supplierSQL: List[String] => SQLSyntax =
+      (sourceFeeds: List[String]) => supplierCondition(syn, sourceFeeds)
+
+    lazy val supplierExclSQL =
+      (sourceFeedsExcl: List[String]) => {
+        val se = syntax("sourceFeedsExcl")
+        exclusionCondition(se)(supplierCondition(se, sourceFeedsExcl))
+      }
+
+    lazy val simpleSearchSQL =
+      (searchTerm: SearchTerm.Simple) => {
+        val tsvectorColumn = searchTerm.field match {
+          case SearchField.Headline => "headline_tsv_simple"
+          case SearchField.BodyText => "body_text_tsv_simple"
+          case SearchField.Slug     => "slug_text_tsv_simple"
+        }
+        sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
+      }
+
+    lazy val englishSearchSQL =
+      (searchTerm: SearchTerm.English) => {
+        sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
+      }
+
+    lazy val keywordsSQL =
+      (keywords: List[String]) => keywordCondition(syn, keywords)
+
+    lazy val keywordsExclSQL =
+      (keywords: List[String]) => {
+        val ke = syntax("keywordsExcl")
+        exclusionCondition(ke)(keywordCondition(ke, keywords))
+      }
+
+    lazy val categoryCodeInclSQL =
+      (categoryCodes: List[String]) =>
+        categoryCodeConditions(syn, categoryCodes)
+
+    lazy val categoryCodeExclSQL =
+      (categoryCodesExcl: List[String]) => {
+        val cce = syntax("categoryCodesExcl")
+        exclusionCondition(cce)(categoryCodeConditions(cce, categoryCodesExcl))
+      }
+
+    lazy val dataFormattingSQL =
+      (hasDataFormatting: Boolean) => {
+        if (hasDataFormatting) sqls"(${syn.content}->'dataformat') IS NOT NULL"
+        else sqls"(${syn.content}->'dataformat') IS NULL"
+      }
+
+    lazy val beforeIdSQL =
+      (beforeId: Int) => sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+
+    lazy val sinceIdSQL =
+      (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
+
+    lazy val dateRangeSQL =
+      (start: Option[String], end: Option[String]) => {
+        (start, end) match {
+          case (Some(startDate), Some(endDate)) =>
+            Some(
+              sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
+            )
+          case (Some(startDate), None) =>
+            Some(
+              sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+            )
+          case (None, Some(endDate)) =>
+            Some(
+              sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+            )
+          case _ => None
+        }
+      }
+
+    lazy val preComputedCategoriesSQL = (preComputedCategories: List[String]) =>
+      {
+        preComputedCategoriesConditions(syn, preComputedCategories)
+      }
+
+    lazy val preComputedCategoriesExclSQL =
+      (preComputedCategories: List[String]) => {
+        val pce = syntax("preComputedCategoriesExcl")
+        exclusionCondition(pce)(
+          preComputedCategoriesConditions(pce, preComputedCategories)
+        )
+      }
   }
 
-  lazy val englishSearchSQL = (searchTerm: SearchTerm.English) => {
-    sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-  }
-
-  lazy val keywordsSQL = (keywords: List[String]) => {
-    // "??|" is actually the "?|" operator - doubled to prevent the
-    // SQL driver from treating it as a placeholder for a parameter
-    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
-    sqls"""(${syn.content} -> 'keywords') ??| ${textArray(keywords)}"""
-
-  }
-
-  lazy val keywordsExclSQL = (keywords: List[String]) => {
-    val ke = this.syntax("keywordsExcl")
-    // "??|" is actually the "?|" operator - doubled to prevent the
-    // SQL driver from treating it as a placeholder for a parameter
-    // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
-    val doesContainKeywords =
-      sqls"(${ke.content}->'keywords') ??| ${textArray(keywords)}"
-    // unpleasant, but the kind of trick you need to pull because
-    // NOT [row] ?| [list] won't use the index.
-    // https://stackoverflow.com/a/19364694
-
-    sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as ke}
-           |  WHERE ${syn.id} = ${ke.id}
-           |    AND $doesContainKeywords
-           |)""".stripMargin
-
-  }
-
-  lazy val categoryCodeInclSQL = (categoryCodes: List[String]) => {
-    sqls"${syn.categoryCodes} && ${textArray(categoryCodes)}"
-  }
-
-  lazy val preComputedCategoriesSQL = (preComputedCategories: List[String]) => {
-    sqls"${syn.precomputedCategories} && ${textArray(preComputedCategories)}"
-  }
-
-  lazy val presetCategoriesExclSQL = (preComputedCategories: List[String]) => {
-    val pce = this.syntax("preComputedCategoriesExcl")
-    val doesContainPresets =
-      sqls"${pce.precomputedCategories} && ${textArray(preComputedCategories)}"
-    sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as pce}
-           |  WHERE ${syn.id} = ${pce.id}
-           |    AND $doesContainPresets
-           |)""".stripMargin
-
-  }
-  lazy val categoryCodeExclSQL = (categoryCodesExcl: List[String]) => {
-    val cce = this.syntax("categoryCodesExcl")
-    val doesContainCategoryCodes =
-      sqls"${cce.categoryCodes} && ${textArray(categoryCodesExcl)}"
-
-    sqls"""|NOT EXISTS (
-           |  SELECT FROM ${FingerpostWireEntry as cce}
-           |  WHERE ${syn.id} = ${cce.id}
-           |    AND $doesContainCategoryCodes
-           |)""".stripMargin
-  }
-
-  lazy val dataFormattingSQL = (hasDataFormatting: Boolean) => {
-    if (hasDataFormatting) sqls"(${syn.content}->'dataformat') IS NOT NULL"
-    else sqls"(${syn.content}->'dataformat') IS NULL"
-  }
   def processSearchParams(
       search: SearchParams
   ): List[SQLSyntax] = {
     val sourceFeedsQuery: Option[SQLSyntax] = search.suppliersIncl match {
       case Nil         => None
-      case sourceFeeds => Some(supplierSQL(sourceFeeds))
+      case sourceFeeds => Some(Filters.supplierSQL(sourceFeeds))
     }
 
     val sourceFeedsExclQuery: Option[SQLSyntax] = search.suppliersExcl match {
       case Nil             => None
-      case sourceFeedsExcl => Some(supplierExclSQL(sourceFeedsExcl))
+      case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
     }
 
     val searchQuery = search.text match {
       case Some(SearchTerm.Simple(query, field)) =>
-        Some(simpleSearchSQL(SearchTerm.Simple(query, field)))
+        Some(Filters.simpleSearchSQL(SearchTerm.Simple(query, field)))
       case Some(SearchTerm.English(query)) =>
-        Some(englishSearchSQL(SearchTerm.English(query)))
+        Some(Filters.englishSearchSQL(SearchTerm.English(query)))
       case _ => None
     }
 
     val keywordsQuery = search.keywordIncl match {
       case Nil      => None
-      case keywords => Some(keywordsSQL(keywords))
+      case keywords => Some(Filters.keywordsSQL(keywords))
     }
 
     val keywordsExclQuery = search.keywordExcl match {
       case Nil      => None
-      case keywords => Some(keywordsExclSQL(keywords))
+      case keywords => Some(Filters.keywordsExclSQL(keywords))
     }
 
     val categoryCodesInclQuery = search.categoryCodesIncl match {
       case Nil           => None
-      case categoryCodes => Some(categoryCodeInclSQL(categoryCodes))
+      case categoryCodes => Some(Filters.categoryCodeInclSQL(categoryCodes))
     }
 
     val categoryCodesExclQuery = search.categoryCodesExcl match {
-      case Nil               => None
-      case categoryCodesExcl => Some(categoryCodeExclSQL(categoryCodesExcl))
+      case Nil => None
+      case categoryCodesExcl =>
+        Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
     }
 
     val hasDataFormattingQuery = search.hasDataFormatting match {
-      case Some(dataFormatting) => Some(dataFormattingSQL(dataFormatting))
-      case None                 => None
+      case Some(dataFormatting) =>
+        Some(Filters.dataFormattingSQL(dataFormatting))
+      case None => None
     }
 
     val preComputedCategoriesQuery = search.preComputedCategories match {
-      case Nil              => None
-      case presetCategories => Some(preComputedCategoriesSQL(presetCategories))
+      case Nil => None
+      case presetCategories =>
+        Some(Filters.preComputedCategoriesSQL(presetCategories))
     }
 
     val preComputedCategoriesExclQuery =
       search.preComputedCategoriesExcl match {
         case Nil => None
         case presetCategoriesExcl =>
-          Some(presetCategoriesExclSQL(presetCategoriesExcl))
+          Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
       }
 
     List(
@@ -368,29 +413,12 @@ object FingerpostWireEntry
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
-      maybeBeforeId.map(beforeId =>
-        sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-      ),
-      maybeSinceId.map(sinceId =>
-        sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-      )
+      maybeBeforeId.map(Filters.beforeIdSQL(_)),
+      maybeSinceId.map(Filters.sinceIdSQL(_))
     )
 
-    val dateRangeQuery = (searchParams.start, searchParams.end) match {
-      case (Some(startDate), Some(endDate)) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
-        )
-      case (Some(startDate), None) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
-        )
-      case (None, Some(endDate)) =>
-        Some(
-          sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
-        )
-      case _ => None
-    }
+    val dateRangeQuery =
+      Filters.dateRangeSQL(searchParams.start, searchParams.end)
 
     val customSearchClauses = processSearchParams(searchParams) match {
       case Nil => None
