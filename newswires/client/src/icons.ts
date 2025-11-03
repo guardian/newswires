@@ -30,6 +30,7 @@ import { icon as link } from '@elastic/eui/es/components/icon/assets/link';
 import { icon as menu } from '@elastic/eui/es/components/icon/assets/menu';
 import { icon as menuLeft } from '@elastic/eui/es/components/icon/assets/menuLeft';
 import { icon as menuRight } from '@elastic/eui/es/components/icon/assets/menuRight';
+import { icon as minusInCircle } from '@elastic/eui/es/components/icon/assets/minus_in_circle';
 import { icon as pin } from '@elastic/eui/es/components/icon/assets/pin_filled';
 import { icon as plusInCircle } from '@elastic/eui/es/components/icon/assets/plus_in_circle';
 import { icon as popout } from '@elastic/eui/es/components/icon/assets/popout';
@@ -78,6 +79,7 @@ const icons = {
 	kqlFunction,
 	filter,
 	plusInCircle,
+	minusInCircle,
 	error,
 	gear,
 	flask,

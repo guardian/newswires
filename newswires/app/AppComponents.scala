@@ -1,10 +1,3 @@
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{
-  AWSCredentialsProviderChain,
-  DefaultAWSCredentialsProviderChain
-}
-import com.amazonaws.regions.Regions
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.permissions.{PermissionsConfig, PermissionsProvider}
 import conf.Database
@@ -22,6 +15,7 @@ import router.Routes
 import service.FeatureSwitchProvider
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.ssm.SsmClient
 
 class AppComponents(context: Context)
@@ -34,7 +28,6 @@ class AppComponents(context: Context)
   override def httpFilters: Seq[EssentialFilter] =
     super.httpFilters ++ Seq(new GzipFilter, new RequestLoggingFilter)
 
-  private val v1Region = Regions.EU_WEST_1
   private val v2Region = Region.EU_WEST_1
 
   private val awsV2Credentials =
@@ -55,15 +48,10 @@ class AppComponents(context: Context)
     Database.configureDeployedDb(configuration)
   }
 
-  private val awsV1Credentials = new AWSCredentialsProviderChain(
-    new ProfileCredentialsProvider("editorial-feeds"),
-    DefaultAWSCredentialsProviderChain.getInstance()
-  )
-
-  private val s3v1Client = AmazonS3ClientBuilder
-    .standard()
-    .withRegion(v1Region.getName)
-    .withCredentials(awsV1Credentials)
+  private val s3Client = S3Client
+    .builder()
+    .region(v2Region)
+    .credentialsProvider(awsV2Credentials)
     .build()
 
   private val panDomainSettings = new PanDomainAuthSettingsRefresher(
@@ -71,7 +59,7 @@ class AppComponents(context: Context)
     settingsFileKey = configuration.get[String]("pandomain.settingsFileKey"),
     system = "newswires",
     bucketName = configuration.get[String]("pan-domain-settings-bucket"),
-    s3Client = s3v1Client
+    s3Client = s3Client
   )
 
   val stage = configuration.get[String]("stage")
@@ -85,8 +73,8 @@ class AppComponents(context: Context)
     PermissionsProvider(
       PermissionsConfig(
         stage = permissionsStage,
-        region = v1Region.getName,
-        awsCredentials = awsV1Credentials
+        region = v2Region.id(),
+        awsCredentials = awsV2Credentials
       )
     )
   }

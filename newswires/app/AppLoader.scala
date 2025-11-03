@@ -62,7 +62,7 @@ object Identity {
     else
       AppIdentity.whoAmI(
         defaultAppName = "newswires",
-        DefaultCredentialsProvider.create()
+        DefaultCredentialsProvider.builder().build()
       )
   }
 }

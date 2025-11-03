@@ -18,7 +18,7 @@ export const SecondaryLevelListPresetPanel = ({
 				key="sports-parent-backlink"
 				isTopLevel={false}
 				isActive={activePreset === topLevelSportId}
-				handleButtonClick={() => closeDrawer()}
+				handleButtonClick={() => togglePreset(topLevelSportId)}
 				arrowSide="left"
 				handleArrowClick={() => closeDrawer()}
 				handleSecondaryActionClick={() =>

@@ -18,7 +18,15 @@ private[conf] object CategoryCodes {
 
   object UK {
     val PA: List[String] =
-      List("paCat:HHH", "paCat:SCN", "paCat:IFN", "paCat:QFF", "paCat:PPP")
+      List(
+        "paCat:HHH",
+        "paCat:SCN",
+        "paCat:IFN",
+        "paCat:QFF",
+        "paCat:PPP",
+        "paCat:XDA",
+        "paCat:XTA"
+      )
     val MINOR_AGENCIES: List[String] = List("N2:GB")
   }
 
@@ -47,7 +55,7 @@ private[conf] object CategoryCodes {
   object Soccer {
     val REUTERS: List[String] = List("N2:SOCC", "N2:SOCC", "subj:15054000")
     val PA: List[String] =
-      List("paCat:SSO", "paCat:SFF", "paCat:SSD", "paCat:SSO", "subj:15054000")
+      List("paCat:SSO", "paCat:SFF", "paCat:SSO", "subj:15054000")
     val AAP: List[String] = List("subj:15054000")
   }
 
@@ -62,6 +70,7 @@ private[conf] object CategoryCodes {
       "paCat:RRB",
       "paCat:SOD",
       "paCat:SOS",
+      "paCat:SSD",
       "paCat:RRD"
     )
   }
@@ -147,7 +156,9 @@ private[conf] object CategoryCodes {
       "paCat:RDJ",
       "paCat:SDF",
       "paCat:SDT",
+      "paCat:SFU",
       "paCat:STE",
+      "paCat:SSD",
       "paCat:STF"
     )
   }

@@ -19,7 +19,7 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
@@ -105,6 +105,32 @@ type CategoryCodeTableItem = {
 function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 	const { handleEnterQuery, config } = useSearch();
 
+	// Track Alt key state
+	const [isAltPressed, setIsAltPressed] = useState(false);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.altKey) setIsAltPressed(true);
+		};
+		const handleKeyUp = (e: KeyboardEvent) => {
+			if (!e.altKey) setIsAltPressed(false);
+		};
+		// Reset state when window loses focus (e.g., Alt+Tab)
+		const handleBlur = () => {
+			setIsAltPressed(false);
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('keyup', handleKeyUp);
+		window.addEventListener('blur', handleBlur);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('keyup', handleKeyUp);
+			window.removeEventListener('blur', handleBlur);
+		};
+	}, []);
+
 	const isCodeInSearch = (code: string) => {
 		const categoryCodesInSearch = config.query.categoryCode ?? [];
 		return categoryCodesInSearch.includes(code);
@@ -118,14 +144,29 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 		}),
 	);
 
-	const handleCategoryClick = (categoryCode: string) => {
-		const codes = config.query.categoryCode ?? [];
-		handleEnterQuery({
-			...config.query,
-			categoryCode: codes.includes(categoryCode)
-				? codes.filter((s) => s !== categoryCode)
-				: [...codes, categoryCode],
-		});
+	// Alt-click support for exclusion filter
+	const handleCategoryClick = (
+		categoryCode: string,
+		event?: React.MouseEvent,
+	) => {
+		const isAlt = event?.altKey;
+		if (isAlt) {
+			const codesExcl = config.query.categoryCodeExcl ?? [];
+			handleEnterQuery({
+				...config.query,
+				categoryCodeExcl: codesExcl.includes(categoryCode)
+					? codesExcl.filter((s) => s !== categoryCode)
+					: [...codesExcl, categoryCode],
+			});
+		} else {
+			const codes = config.query.categoryCode ?? [];
+			handleEnterQuery({
+				...config.query,
+				categoryCode: codes.includes(categoryCode)
+					? codes.filter((s) => s !== categoryCode)
+					: [...codes, categoryCode],
+			});
+		}
 	};
 
 	const columns: Array<EuiBasicTableColumn<CategoryCodeTableItem>> = [
@@ -144,8 +185,14 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 			render: (isSelected, item) => (
 				<EuiButtonIcon
 					color={isSelected ? 'primary' : 'accent'}
-					onClick={() => handleCategoryClick(item.code)}
-					iconType={isSelected ? 'check' : 'plusInCircle'}
+					onClick={(e: React.MouseEvent) => handleCategoryClick(item.code, e)}
+					iconType={
+						isSelected
+							? 'check'
+							: isAltPressed
+								? 'minusInCircle'
+								: 'plusInCircle'
+					}
 					aria-label="Toggle selection"
 				/>
 			),
