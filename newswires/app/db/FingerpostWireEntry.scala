@@ -236,7 +236,7 @@ object FingerpostWireEntry
     private def preComputedCategoriesConditions(alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
       FingerpostWireEntry
     ], FingerpostWireEntry], preComputedCategories: List[String]) = {
-      sqls"${syn.precomputedCategories} && ${textArray(preComputedCategories)}"
+      sqls"${alias.precomputedCategories} && ${textArray(preComputedCategories)}"
     }
 
     lazy val supplierSQL: List[String] => SQLSyntax =
@@ -319,7 +319,7 @@ object FingerpostWireEntry
 
     lazy val preComputedCategoriesExclSQL = (preComputedCategories: List[String]) => {
       val pce = syntax("preComputedCategoriesExcl")
-      exclusionCondition(pce)(categoryCodeConditions(pce, preComputedCategories))
+      exclusionCondition(pce)(preComputedCategoriesConditions(pce, preComputedCategories))
     }
   }
 

@@ -506,7 +506,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       suppliersExcl = List("s2"),
       categoryCodesIncl = List("c1"),
       categoryCodesExcl = List("c2"),
-      hasDataFormatting = Some(true)
+      hasDataFormatting = Some(true),
+      preComputedCategories = List("p1"),
+      preComputedCategoriesExcl = List("p2")
     )
 
     val snippets = FingerpostWireEntry.processSearchParams(fullParams)
@@ -522,6 +524,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     rendered should include("upper(sourceFeedsExcl.supplier) in")
     rendered should include("categoryCodesExcl.category_codes &&")
     rendered should include("(fm.content->'dataformat') IS NOT NULL")
+    rendered should include("fm.precomputed_categories &&")
+    rendered should include("preComputedCategoriesExcl.precomputed_categories &&")
   }
 
   behavior of "Filters"
@@ -628,6 +632,29 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
+  behavior of "precomputed category codes SQL"
+  it should "create the correct sql snippets for precomputedCategories" in {
+    val preComputedCategoriesSQL =
+      FingerpostWireEntry.Filters.preComputedCategoriesSQL(List("category"))
+    preComputedCategoriesSQL should matchSqlSnippet(
+      expectedClause = "fm.precomputed_categories && ?",
+      expectedParams = List(List("category"))
+    )
+  }
+  it should "create the correct sql snippet for precomputedCategoriesExcl" in {
+    val precomputedCategoriesExclClause =
+      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry preComputedCategoriesExcl
+        |WHERE fm.id = preComputedCategoriesExcl.id
+        |AND preComputedCategoriesExcl.precomputed_categories && ? )""".stripMargin
+
+    val precomputedCategoriesExcl =
+      FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(List("category"))
+
+    precomputedCategoriesExcl should matchSqlSnippet(
+      expectedClause = precomputedCategoriesExclClause,
+      expectedParams = List(List("category"))
+    )
+  }
   behavior of "search term SQL helpers"
   it should "create the correct sql snippet for search term query when field is headline" in {
     val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
