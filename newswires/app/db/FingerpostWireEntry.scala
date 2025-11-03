@@ -1,16 +1,10 @@
 package db
 
-import conf.{SearchField, SearchTerm}
+import conf.{SearchConfig, SearchField, SearchTerm}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{
-  FingerpostWire,
-  NextPage,
-  QueryParams,
-  QueryResponse,
-  SearchParams
-}
+import models.{FingerpostWire, NextPage, QueryParams, QueryResponse, SearchParams}
 import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
@@ -462,7 +456,9 @@ object FingerpostWireEntry
     val maybeSinceId = queryParams.maybeSinceId
 
     val highlightsClause = buildHighlightsClause(
-      queryParams.maybeSearchTerm.headOption // Only use the first search term for highlighting, if present. It would be nice to do better here in future but might not be worth the time to implement
+      queryParams.maybeSearchTerm.find(term =>
+        term.searchConfig == SearchConfig.English
+      ) // Only use the first search term for highlighting, if present. It would be nice to do better here in future but might not be worth the time to implement
     )
 
     val orderByClause = maybeSinceId match {
