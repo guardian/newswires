@@ -525,7 +525,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     rendered should include("categoryCodesExcl.category_codes &&")
     rendered should include("(fm.content->'dataformat') IS NOT NULL")
     rendered should include("fm.precomputed_categories &&")
-    rendered should include("preComputedCategoriesExcl.precomputed_categories &&")
+    rendered should include(
+      "preComputedCategoriesExcl.precomputed_categories &&"
+    )
   }
 
   behavior of "Filters"

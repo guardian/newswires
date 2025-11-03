@@ -233,9 +233,12 @@ object FingerpostWireEntry
       sqls"${alias.categoryCodes} && ${textArray(categoryCodes)}"
     }
 
-    private def preComputedCategoriesConditions(alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
-      FingerpostWireEntry
-    ], FingerpostWireEntry], preComputedCategories: List[String]) = {
+    private def preComputedCategoriesConditions(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        preComputedCategories: List[String]
+    ) = {
       sqls"${alias.precomputedCategories} && ${textArray(preComputedCategories)}"
     }
 
@@ -313,14 +316,18 @@ object FingerpostWireEntry
         }
       }
 
-    lazy val preComputedCategoriesSQL = (preComputedCategories: List[String]) => {
-      preComputedCategoriesConditions(syn, preComputedCategories)
-    }
+    lazy val preComputedCategoriesSQL = (preComputedCategories: List[String]) =>
+      {
+        preComputedCategoriesConditions(syn, preComputedCategories)
+      }
 
-    lazy val preComputedCategoriesExclSQL = (preComputedCategories: List[String]) => {
-      val pce = syntax("preComputedCategoriesExcl")
-      exclusionCondition(pce)(preComputedCategoriesConditions(pce, preComputedCategories))
-    }
+    lazy val preComputedCategoriesExclSQL =
+      (preComputedCategories: List[String]) => {
+        val pce = syntax("preComputedCategoriesExcl")
+        exclusionCondition(pce)(
+          preComputedCategoriesConditions(pce, preComputedCategories)
+        )
+      }
   }
 
   def processSearchParams(
@@ -372,8 +379,9 @@ object FingerpostWireEntry
     }
 
     val preComputedCategoriesQuery = search.preComputedCategories match {
-      case Nil              => None
-      case presetCategories => Some(Filters.preComputedCategoriesSQL(presetCategories))
+      case Nil => None
+      case presetCategories =>
+        Some(Filters.preComputedCategoriesSQL(presetCategories))
     }
 
     val preComputedCategoriesExclQuery =
