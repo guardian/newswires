@@ -4,7 +4,13 @@ import conf.{SearchConfig, SearchField, SearchTerm}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{FingerpostWire, NextPage, QueryParams, QueryResponse, SearchParams}
+import models.{
+  FingerpostWire,
+  NextPage,
+  QueryParams,
+  QueryResponse,
+  SearchParams
+}
 import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
