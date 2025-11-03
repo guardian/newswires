@@ -499,7 +499,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "combine all SQL clauses when all filters are set" in {
     val fullParams = SearchParams(
-      text = List(SearchTerm.English("query")),
+      text = List(
+        SearchTerm.English("query"),
+        SearchTerm.Simple("simple text", SearchField.BodyText)
+      ),
       keywordIncl = List("kw1"),
       keywordExcl = List("kw2"),
       suppliersIncl = List("s1"),
@@ -519,6 +522,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     rendered should include("(keywordsExcl.content -> 'keywords')")
     rendered should include(
       "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch"
+    )
+    rendered should include(
+      "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple)"
     )
     rendered should include("upper(fm.supplier) in")
     rendered should include("upper(sourceFeedsExcl.supplier) in")
