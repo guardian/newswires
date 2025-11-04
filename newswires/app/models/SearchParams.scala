@@ -4,7 +4,7 @@ import conf.SearchTerm
 import service.FeatureSwitchProvider
 
 case class SearchParams(
-    text: Option[SearchTerm],
+    text: List[SearchTerm],
     start: Option[String] = None,
     end: Option[String] = None,
     keywordIncl: List[String] = Nil,

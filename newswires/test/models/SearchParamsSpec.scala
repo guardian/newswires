@@ -27,7 +27,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       baseParams,
       featureSwitchShowGuSuppliersOn
     )
-    result.text shouldEqual Some(SearchTerm.English("query"))
+    result.text shouldEqual List(SearchTerm.English("query"))
   }
 
   it should "set keywordExcl when this is defined in the query string" in new models {
@@ -58,7 +58,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       featureSwitchShowGuSuppliersOn
     )
     result shouldEqual SearchParams(
-      text = Some(SearchTerm.English("hello")),
+      text = List(SearchTerm.English("hello")),
       start = Some("start"),
       end = Some("end"),
       keywordIncl = List("keyword1"),
@@ -144,7 +144,7 @@ class SearchParamsSpec extends AnyFlatSpec {
 
 trait models {
   val emptyBaseParams = BaseRequestParams()
-  val emptySearchParams = SearchParams(None)
+  val emptySearchParams = SearchParams(List.empty)
   val emptyQueryString = Map[String, Seq[String]]()
   val featureSwitchShowGuSuppliersOn = mock[FeatureSwitchProvider]
   val featureSwitchShowGuSuppliersOff = mock[FeatureSwitchProvider]
