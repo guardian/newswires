@@ -643,7 +643,7 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(
       PA,
       searchTerms = List(SearchTerm.Simple("ATHLETICS", Slug)),
-      categoryCodes = List("paCat:SRS", "paCat:SSS", "paCat:RSR")
+      CategoryCodes.Sport.PA
     ),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("ATHLETICS", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Athletics.AAP),
