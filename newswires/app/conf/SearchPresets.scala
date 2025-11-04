@@ -532,7 +532,7 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(
       PA,
       searchTerms = List(SearchTerm.Simple("TENNIS", Slug)),
-      hasDataFormatting = Some(true)
+      categoryCodes = List("paCat:RSR")
     ),
     SearchPreset.fromSearchTerm(
       AFP,
