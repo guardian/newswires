@@ -240,7 +240,10 @@ object SearchPresets {
   private val AllSportStories = List(
     SearchPreset.fromSearchTerm(
       REUTERS,
-      searchTerms = List(SearchTerm.Simple("-(OPTA) -Gracenote", SearchField.BodyText)),
+      searchTerms = List(
+        SearchTerm.Simple("-(OPTA) -Gracenote", SearchField.BodyText),
+        SearchTerm.Simple("-/FIXTURES -/RESULTS -/STANDINGS", Slug)
+      ),
       CategoryCodes.Sport.REUTERS
     ),
     SearchPreset.fromSearchTerm(
@@ -577,7 +580,11 @@ object SearchPresets {
   )
 
   private val Golf = List(
-    SearchPreset(REUTERS, CategoryCodes.Golf.REUTERS),
+    SearchPreset.fromSearchTerm(
+      REUTERS,
+      searchTerms = List(SearchTerm.Simple("-(OPTA)", SearchField.BodyText)),
+      CategoryCodes.Golf.REUTERS
+    ),
     SearchPreset
       .fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("GOLF", Slug)), categoryCodesExcl = List("paCat:RSR")),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("golf", Slug)), CategoryCodes.Sport.AFP),
@@ -591,6 +598,11 @@ object SearchPresets {
   )
 
   private val GolfResults = List(
+    SearchPreset.fromSearchTerm(
+      REUTERS,
+      searchTerms = List(SearchTerm.Simple("(OPTA)", SearchField.BodyText)),
+      CategoryCodes.Golf.REUTERS
+    ),
     SearchPreset
       .fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("GOLF", Slug)), categoryCodes = List("paCat:RSR")),
     SearchPreset.fromSearchTerm(
