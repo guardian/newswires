@@ -256,7 +256,8 @@ object SearchPresets {
             "-Postponed -\"SOCCER TEAMS\" -\"MATCH STATS\" -Collated -Advisory " +
             "-Formwatch -Pieces -Straps -\"wind surgery\" -Traveller -blinkers",
           Slug
-        )
+        ),
+        SearchTerm.Simple("-fixtures", SearchField.Headline)
       ),
       categoryCodesExcl =
         CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.CricketResults.PA ::: CategoryCodes.SoccerScores.PA
@@ -398,7 +399,14 @@ object SearchPresets {
         searchTerms = List(SearchTerm.Simple("-(OPTA)", SearchField.BodyText)),
         categoryCodes = CategoryCodes.Cricket.REUTERS
       ),
-    SearchPreset(PA, CategoryCodes.Cricket.PA),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms = List(
+        SearchTerm.Simple("-fixtures -fixture", SearchField.Headline),
+        SearchTerm.Simple("-Summaries", SearchField.Slug)
+      ),
+      CategoryCodes.Cricket.PA
+    ),
     SearchPreset
       .fromSearchTerm(
         AFP,
@@ -422,6 +430,16 @@ object SearchPresets {
       ),
     SearchPreset(PA, CategoryCodes.CricketResults.PA),
     SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms = List(SearchTerm.Simple("fixtures OR fixture", SearchField.Headline)),
+      categoryCodes = List("paCat:SCR")
+    ),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms = List(SearchTerm.Simple("Summaries", SearchField.Slug)),
+      categoryCodes = List("paCat:SCR")
+    ),
+    SearchPreset.fromSearchTerm(
       AP,
       searchTerms = List(SearchTerm.Simple("\"AP-CRI\" Glance OR Figures OR Runs", Slug)),
       CategoryCodes.Sport.AP
@@ -436,7 +454,7 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerms = List(SearchTerm.Simple("RUGBYL", Slug)),
+      searchTerms = List(SearchTerm.Simple("RUGBYL -Summaries -Scorer", Slug)),
       CategoryCodes.Sport.PA
     ),
     SearchPreset.fromSearchTerm(
@@ -462,7 +480,7 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(
       PA,
-      searchTerms = List(SearchTerm.Simple("RUGBYU", Slug)),
+      searchTerms = List(SearchTerm.Simple("RUGBYU -Summaries -Scorer", Slug)),
       CategoryCodes.Sport.PA
     ),
     SearchPreset.fromSearchTerm(
@@ -485,6 +503,12 @@ object SearchPresets {
       PA,
       searchTerms = List(SearchTerm.Simple("-SOCCER", Slug)),
       CategoryCodes.RugbyResults.PA
+    ),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms =
+        List(SearchTerm.Simple("RUGBYU Summaries OR RUGBYL Summaries OR RUGBYU Scorer OR RUGBYL Scorer", Slug)),
+      CategoryCodes.Sport.PA
     ),
     SearchPreset.fromSearchTerm(
       AFP,
