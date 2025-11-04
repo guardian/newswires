@@ -681,10 +681,10 @@ object SearchPresets {
 
   private val Olympics = List(
     SearchPreset(REUTERS, CategoryCodes.Olympics.REUTERS),
-    SearchPreset.fromText(
+    SearchPreset.fromSearchTerm(
       PA,
-      text = SimpleSearchQueries.OLYMPICS,
-      categoryCodes = List("paCat:SRS", "paCat:SSS")
+      searchTerms = List(SearchTerm.Simple("Olympics OR IOC", SearchField.Slug)),
+      CategoryCodes.Sport.PA
     ),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Oly", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
