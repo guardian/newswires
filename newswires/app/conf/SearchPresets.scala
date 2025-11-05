@@ -82,6 +82,7 @@ object SearchPresets {
     case "afp-world"            => Some(AfpWorld)
     case "minor-agencies-world" => Some(MinorAgenciesWorld)
     case "all-uk"               => Some(AllUk)
+    case "all-news"             => Some(AllNews)
     case "all-business"         => Some(AllBusiness)
     case "all-sport"            => Some(AllSport)
     case "all-sport-stories"    => Some(AllSportStories)
@@ -205,6 +206,11 @@ object SearchPresets {
     SearchPreset(PA, categoryCodes = CategoryCodes.UK.PA),
     SearchPreset(MINOR_AGENCIES, CategoryCodes.UK.MINOR_AGENCIES)
   )
+
+  /*
+   * All News
+   */
+  private val AllNews = AllWorld ::: AllUk
 
   /*
    * Business

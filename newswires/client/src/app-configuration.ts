@@ -16,6 +16,7 @@ const configLookup: AppConfiguration = isJest
 			stage: 'test',
 			sendTelemetryAsDev: true,
 			gitCommitId: 'test-commit-id',
+			showAllNewsPresetOption: false,
 		}
 	: window.configuration;
 

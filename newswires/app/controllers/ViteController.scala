@@ -20,7 +20,8 @@ case class ClientConfig(
     switches: Map[String, Boolean],
     stage: String,
     sendTelemetryAsDev: Boolean,
-    gitCommitId: String = buildinfo.BuildInfo.gitCommitId
+    gitCommitId: String = buildinfo.BuildInfo.gitCommitId,
+    showAllNewsPresetOption: Boolean
 )
 
 object ClientConfig {
@@ -52,6 +53,8 @@ class ViteController(
   private val headersToKeep =
     Seq(CACHE_CONTROL, ETAG, DATE, ACCESS_CONTROL_ALLOW_ORIGIN)
   private val devEmails = configuration.get[String]("devEmails").split(",")
+  private val testerEmails =
+    configuration.get[String]("testerEmails").split(",")
 
   private def injectClientCodeIntoPageBody(
       html: String
@@ -74,7 +77,11 @@ class ViteController(
           ClientConfig(
             featureSwitchProvider.clientSideSwitchStates,
             stage = configuration.get[String]("stage"),
-            sendTelemetryAsDev = devEmails.exists(request.user.email.startsWith)
+            sendTelemetryAsDev =
+              devEmails.exists(request.user.email.startsWith),
+            showAllNewsPresetOption = (devEmails ++ testerEmails).exists(
+              request.user.email.startsWith
+            )
           )
         )
 
