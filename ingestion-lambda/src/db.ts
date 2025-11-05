@@ -56,6 +56,7 @@ export async function putItemToDb({
 		return {
 			status: 'failure',
 			reason: `Failed to insert item with externalId ${externalId} into the database: ${errorMessage}`,
+			s3Key,
 		};
 	}
 }

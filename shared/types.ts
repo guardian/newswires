@@ -80,7 +80,7 @@ export type WireEntryContent = z.infer<typeof _WireEntryContentSchema>;
 
 export type ProcessedMessageData = {
 	externalId: string;
-	objectKey: string;
+	s3Key: string;
 	sqsMessageId: string;
 };
 
@@ -93,6 +93,7 @@ export type ProcessedObject = {
 export type OperationFailure = {
 	status: 'failure';
 	reason: string;
+	s3Key?: string;
 };
 type BaseOperationSuccess = {
 	status: 'success';
