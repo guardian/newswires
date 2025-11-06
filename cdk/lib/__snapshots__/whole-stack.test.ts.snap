@@ -152,6 +152,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     "fingerpostqueueDeadLetterQueueTESTC46C734A": {
       "DeletionPolicy": "Delete",
       "Properties": {
+        "MessageRetentionPeriod": 1209600,
         "Tags": [
           {
             "Key": "App",
@@ -557,6 +558,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     "sourcequeueDeadLetterQueueTEST4E4374EA": {
       "DeletionPolicy": "Delete",
       "Properties": {
+        "MessageRetentionPeriod": 1209600,
         "Tags": [
           {
             "Key": "App",

@@ -70,7 +70,7 @@ export class WiresFeeds extends GuStack {
 			const deadLetterQueue = new Queue(
 				scope,
 				`${queueName}DeadLetterQueue-${props.stage}`,
-				{ visibilityTimeout },
+				{ visibilityTimeout, retentionPeriod: Duration.days(14) },
 			);
 
 			const queue = new Queue(scope, queueName, {
