@@ -117,6 +117,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
     "fingerpostqueueDeadLetterQueueTESTC46C734A": {
       "DeletionPolicy": "Delete",
       "Properties": {
+        "MessageRetentionPeriod": 1209600,
         "Tags": [
           {
             "Key": "App",
@@ -530,6 +531,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
     "sourcequeueDeadLetterQueueTEST4E4374EA": {
       "DeletionPolicy": "Delete",
       "Properties": {
+        "MessageRetentionPeriod": 1209600,
         "Tags": [
           {
             "Key": "App",
