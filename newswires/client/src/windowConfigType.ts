@@ -7,6 +7,7 @@ export interface AppConfiguration {
 	stage: string;
 	sendTelemetryAsDev: boolean;
 	gitCommitId: string;
+	showAllNewsPresetOption: boolean;
 }
 
 declare global {

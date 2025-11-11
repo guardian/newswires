@@ -112,6 +112,7 @@ export const topLevelSportId = 'all-sport';
 export const topLevelPresetId = 'all-presets';
 export const presets: Preset[] = [
 	{ id: topLevelPresetId, name: 'All' },
+	{ id: 'all-news', name: 'All News' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
 	{ id: 'all-business', name: 'Business' },
