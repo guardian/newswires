@@ -474,14 +474,17 @@ object FingerpostWireEntry
         sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
     }
 
-    sql"""| SELECT $selectAllStatement, $highlightsClause
+    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
+           | LEFT JOIN ${ToolLink as ToolLink.syn}
+           | ON ${syn.id} = ${ToolLink.syn.wireId}
            | WHERE $whereClause
            | $orderByClause
            | LIMIT $effectivePageSize
            | """.stripMargin
   }
 
+  case class Temp(wireEntry: FingerpostWireEntry, toolLink: Option[ToolLink])
   def query(
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
@@ -495,12 +498,20 @@ object FingerpostWireEntry
     val query = buildSearchQuery(queryParams, whereClause)
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
-
-    val results = query
-      .map(FingerpostWireEntry.fromDb(syn.resultName))
+    val results: List[FingerpostWireEntry] = query
+      .map(rs => {
+        val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
+        val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
+        (wireEntry, toolLinkOpt)
+      })
       .list()
       .apply()
-      .flatten
+      .collect({ case (Some(wire), toolLinkOpt) => Temp(wire, toolLinkOpt) })
+      .groupBy(t => t.wireEntry.id).flatMap {
+        case (_, ls) => ls.headOption.map(l => {
+          l.wireEntry.copy(toolLinks = ls.flatMap(_.toolLink))
+        })
+      }.toList
 
     val countQuery =
       sql"""| SELECT COUNT(*)
