@@ -1,7 +1,9 @@
 package db
 
+import db.FingerpostWireEntry.{processSearchParams, syn}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import play.api.Logging
 import scalikejdbc._
 
 import java.time.Instant
@@ -15,7 +17,7 @@ case class ToolLink(
     ref: Option[String]
 )
 
-object ToolLink extends SQLSyntaxSupport[ToolLink] {
+object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging{
   val syn = this.syntax("tl")
 
   override val tableName = "tool_link"
@@ -28,6 +30,16 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] {
     |${syn.result.sentAt},
     |${syn.result.ref}""".stripMargin
 
+  def temp(tl: ResultName[ToolLink])(rs: WrappedResultSet): ToolLink = {
+      new ToolLink(
+        id = rs.get(tl.id),
+        wireId = rs.long(tl.wireId),
+        tool = rs.get(tl.tool),
+        sentBy = rs.get(tl.sentBy),
+        sentAt = rs.get(tl.sentAt),
+        ref = rs.get(tl.ref)
+      )
+  }
   def opt(tl: ResultName[ToolLink])(rs: WrappedResultSet): Option[ToolLink] = {
     rs.longOpt(tl.wireId)
       .map(wireId =>
@@ -81,4 +93,29 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] {
           | VALUES ($newswiresId, 'incopy', $sentBy, $sentAt)
           | """.stripMargin.update().apply()
     }
+
+  def get(wireIds: List[Long]) = DB readOnly { implicit session =>
+    logger.error(
+      wireIds.toString()
+    )
+
+    val query =  sql"""
+         SELECT $selectAllStatement
+         FROM ${ToolLink as syn}
+         WHERE ${sqls.in(syn.wireId, wireIds)}
+       """
+    logger.error(query.statement)
+    sql"""
+         SELECT $selectAllStatement
+         FROM ${ToolLink as syn}
+         WHERE ${sqls.in(syn.wireId, wireIds)}
+       """.map(rs => {
+        println("&*****")
+        ToolLink.temp(syn.resultName)(rs)
+      })
+      .list()
+      .apply()
+
+
+  }
 }

@@ -156,6 +156,18 @@ class QueryController(
       }
   }
 
+  def toolLinks(ids: List[Long]) = Action {
+    Ok(ToolLink.get(ids).asJson.spaces2)
+  }
+
+  def addToolLink(id: Int) = Action {
+    ToolLink.insertIncopyLink(
+      id,
+      "machine",
+      sentAt = Instant.now()
+    )
+    Ok("")
+  }
 }
 
 case class ComposerLinkRequest(composerId: String)
