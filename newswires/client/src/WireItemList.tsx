@@ -16,8 +16,9 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
-import type { SupplierInfo, WireData } from './sharedTypes.ts';
+import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
+import { ToolSendReport } from './ToolsConnection.tsx';
 
 export const WireItemList = ({
 	wires,
@@ -49,6 +50,7 @@ export const WireItemList = ({
 						isFromRefresh,
 						ingestedAt,
 						hasDataFormatting,
+						toolLinks,
 					}) => (
 						<li key={id}>
 							<WirePreviewCard
@@ -57,6 +59,7 @@ export const WireItemList = ({
 								supplier={supplier}
 								content={content}
 								hasDataFormatting={hasDataFormatting}
+								toolLinks={toolLinks}
 								isFromRefresh={isFromRefresh}
 								highlight={highlight}
 								selected={selectedWireId == id.toString()}
@@ -182,6 +185,7 @@ const WirePreviewCard = ({
 	ingestedAt,
 	content,
 	hasDataFormatting,
+	toolLinks,
 	highlight,
 	selected,
 	view,
@@ -192,6 +196,7 @@ const WirePreviewCard = ({
 	ingestedAt: string;
 	content: WireData['content'];
 	hasDataFormatting: boolean;
+	toolLinks?: ToolLink[];
 	highlight: string | undefined;
 	selected: boolean;
 	isFromRefresh: boolean;
@@ -359,6 +364,17 @@ const WirePreviewCard = ({
 						isPrimary={!hasBeenViewed}
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
+				</div>
+				<div>
+					{toolLinks?.length ? (
+						<ul>
+							{toolLinks.map((toolLink) => (
+								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
+							))}
+						</ul>
+					) : (
+						<></>
+					)}
 				</div>
 				{showSecondaryFeedContent && (
 					<div
