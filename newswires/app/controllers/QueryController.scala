@@ -156,8 +156,8 @@ class QueryController(
       }
   }
 
-  def toolLinks(ids: List[Long]) = Action {
-    Ok(ToolLink.get(ids).asJson.spaces2)
+  def toolLinks(wiresIds: List[Long]) = Action {
+    Ok(ToolLink.get(wiresIds).asJson.spaces2)
   }
 
   def addToolLink(id: Int) = Action {
