@@ -59,10 +59,10 @@ export const fetchResults = async ({
 };
 
 export const fetchToolLinks = async (
-	wireIds: number[],
+	wireIds: string[],
 ): Promise<ToolLink[]> => {
 	if (wireIds.length === 0) return [];
-	const endpoint = 'api/toollinks';
+	const endpoint = '/api/toollinks';
 	const queryString = new URLSearchParams({
 		wireIds: wireIds.join(','),
 	}).toString();

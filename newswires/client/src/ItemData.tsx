@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
+import { fetchToolLinks } from './context/fetchResults.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { transformWireItemQueryResult } from './context/transformQueryResponse.ts';
 import { Item } from './Item';
@@ -56,6 +57,24 @@ export const ItemData = ({ id }: { id: string }) => {
 				setError(errorMessage);
 			});
 	}, [id, config.query.q]);
+
+	useEffect(() => {
+		const intervalId = setInterval(() => {
+			fetchToolLinks([id])
+				.then((toolLinks) => {
+					setItemData((prevItem) => {
+						if (!prevItem) return;
+						return { ...prevItem, toolLinks };
+					});
+				})
+				.catch((error) => {
+					console.log(`Error contacting the server ${error}`);
+				});
+		}, 5000);
+		return () => {
+			clearInterval(intervalId);
+		};
+	}, [id, setItemData]);
 
 	return (
 		<Item
