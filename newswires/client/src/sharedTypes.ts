@@ -69,6 +69,8 @@ export const WiresQueryResponseSchema = z.object({
 	// keywordCounts: z.record(z.string(), z.number()),
 });
 
+export const ToolLinksResponseSchema = z.array(ToolLinkSchema);
+
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
 
 export const suppliers = [

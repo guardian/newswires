@@ -156,8 +156,9 @@ class QueryController(
       }
   }
 
-  def toolLinks(wiresIds: List[Long]) = Action {
-    Ok(ToolLink.get(wiresIds).asJson.spaces2)
+  def toolLinks(wireIds: String) = Action {
+    val ws = wireIds.split(',').toList.map(_.toLong)
+    Ok(ToolLink.get(ws).asJson.spaces2)
   }
 
   def addToolLink(id: Int) = Action {

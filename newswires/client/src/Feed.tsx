@@ -7,10 +7,12 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
+import { fetchToolLinks } from './context/fetchResults.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
+import type { ToolLink } from './sharedTypes.ts';
 import { WireItemList } from './WireItemList.tsx';
 
 export interface FeedProps {
@@ -38,6 +40,7 @@ export const Feed = ({
 	const isPoppedOut = config.ticker;
 
 	const [isColumn, setIsColumn] = useState(false);
+	const [toolLinksMap, setToolLinks] = useState<Record<number, ToolLink[]>>({});
 
 	useEffect(() => {
 		const el = containerRef?.current;
@@ -53,12 +56,47 @@ export const Feed = ({
 		return () => observer.disconnect();
 	}, [containerRef]);
 
-	const sortedResults = useMemo(() => {
-		if (!queryData) return [];
-		return queryData.results.sort((a, b) =>
-			b.ingestedAt.localeCompare(a.ingestedAt),
-		);
+	useEffect(() => {
+		const intervalId = setInterval(() => {
+			if (!queryData) return;
+			fetchToolLinks(queryData.results.map((r) => r.id))
+				.then((toolLinks) => {
+					console.log(toolLinks);
+					const toolLinksMap = toolLinks.reduce<Record<number, ToolLink[]>>(
+						(map, toolLink) => {
+							const existingToolLinks = map[toolLink.wireId] ?? [];
+							return {
+								[toolLink.wireId]: [...existingToolLinks, toolLink],
+								...map,
+							};
+						},
+						{},
+					);
+					setToolLinks(toolLinksMap);
+				})
+				.catch((error) => {
+					console.log(`Error contacting the server ${error}`);
+				});
+		}, 6000);
+		return () => {
+			clearInterval(intervalId);
+		};
 	}, [queryData]);
+
+	const wires = useMemo(() => {
+		if (!queryData) return [];
+		return queryData.results
+			.map((result) => {
+				const toolLinks = toolLinksMap[result.id] ?? [];
+				if (toolLinks.length) {
+					return {
+						...result,
+						toolLinks,
+					};
+				} else return result;
+			})
+			.sort((a, b) => b.ingestedAt.localeCompare(a.ingestedAt));
+	}, [queryData, toolLinksMap]);
 	return (
 		<EuiPageTemplate.Section
 			paddingSize={isPoppedOut ? 's' : 'm'}
@@ -111,10 +149,7 @@ export const Feed = ({
 							</EuiFlexGroup>
 						</div>
 
-						<WireItemList
-							wires={sortedResults}
-							totalCount={queryData.totalCount}
-						/>
+						<WireItemList wires={wires} totalCount={queryData.totalCount} />
 
 						<ScrollToTopButton
 							threshold={300}
