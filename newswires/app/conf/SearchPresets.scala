@@ -692,6 +692,11 @@ object SearchPresets {
       searchTerms = List(SearchTerm.Simple("Olympics OR IOC", SearchField.Slug)),
       CategoryCodes.Sport.PA
     ),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms = List(SearchTerm.Simple("Olympics OR IOC", SearchField.Headline)),
+      CategoryCodes.Sport.PA
+    ),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Oly", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Olympic games"))
