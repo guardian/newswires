@@ -12,8 +12,7 @@ object SearchPreset {
       supplier: String,
       categoryCodes: List[String] = Nil,
       categoryCodesExcl: List[String] = Nil,
-      keyword: Option[String] = None,
-      keywords: List[String] = Nil,
+      keyword: List[String] = Nil,
       keywordExcl: List[String] = Nil,
       hasDataFormatting: Option[Boolean] = None,
       preComputedCategories: List[String] = Nil,
@@ -22,7 +21,7 @@ object SearchPreset {
     SearchParams(
       text = List.empty,
       suppliersIncl = List(supplier),
-      keywordIncl = keyword.toList ::: keywords,
+      keywordIncl = keyword,
       keywordExcl = keywordExcl,
       categoryCodesIncl = categoryCodes,
       categoryCodesExcl = categoryCodesExcl,
@@ -144,7 +143,7 @@ object SearchPresets {
   private val ApWorld = List(
     SearchPreset(
       AP,
-      keywords = List("General news"),
+      keyword = List("General news"),
       categoryCodes = CategoryCodes.World.AP
     )
   )
@@ -607,7 +606,7 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(PA, searchTerms = List(SearchTerm.Simple("auto", Slug)), CategoryCodes.Sport.PA),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("auto", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.MotorRacing.AAP),
-    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Automobile racing"))
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Automobile racing"))
   )
 
   private val Golf = List(
@@ -666,7 +665,7 @@ object SearchPresets {
     SearchPreset(PA, CategoryCodes.HorseRacing.PA),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("racing", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.HorseRacing.AAP),
-    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Horse racing"))
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Horse racing"))
   )
 
   private val Athletics = List(
@@ -695,7 +694,7 @@ object SearchPresets {
     ),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Oly", Slug)), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
-    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = Some("Olympic games"))
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Olympic games"))
   )
 
   private val Baseball = List(
@@ -707,9 +706,10 @@ object SearchPresets {
     SearchPreset(AAP, CategoryCodes.Olympics.AAP),
     SearchPreset.fromSearchTerm(
       AP,
-      searchTerms = List(SearchTerm.Simple("transactions", Slug)),
+      searchTerms = List(SearchTerm.Simple("BBO", Slug)),
       CategoryCodes.Sport.AP,
-      keyword = List("Baseball", "MLB baseball")
+    ),
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Baseball", "MLB baseball")
     )
   )
 
