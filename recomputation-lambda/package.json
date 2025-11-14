@@ -1,8 +1,8 @@
 {
-  "name": "recomputation-lambda",
-  "version": "1.0.0",
-  "description": "",
-  "scripts": {
+	"name": "recomputation-lambda",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
 		"dev": "DISABLED='' tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
