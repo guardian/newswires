@@ -703,7 +703,6 @@ object SearchPresets {
       categoryCodes = List("N2:BASE", "subj:15007000")
     ),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("baseball", Slug)), CategoryCodes.Sport.AFP),
-    SearchPreset(AAP, CategoryCodes.Olympics.AAP),
     SearchPreset.fromSearchTerm(
       AP,
       searchTerms = List(SearchTerm.Simple("BBO", Slug)),
