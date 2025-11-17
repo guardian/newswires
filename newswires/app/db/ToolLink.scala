@@ -1,6 +1,5 @@
 package db
 
-import db.FingerpostWireEntry.{processSearchParams, syn}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 import play.api.Logging
@@ -8,7 +7,10 @@ import scalikejdbc._
 
 import java.time.Instant
 
-case class WireMaybeToolLink(wireEntry: FingerpostWireEntry, toolLink: Option[ToolLink])
+case class WireMaybeToolLink(
+    wireEntry: FingerpostWireEntry,
+    toolLink: Option[ToolLink]
+)
 case class WireToolLinks(wireId: Long, toolLinks: List[ToolLink])
 
 object WireToolLinks {
@@ -117,5 +119,23 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
       .list()
       .apply()
       .flatten
+  }
+
+  def displayToolLinks(
+      toolLinks: List[ToolLink],
+      requestingUser: Option[String]
+  ) = {
+    toolLinks
+      .map(replaceToolLinkUserWithYou(requestingUser))
+      .sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
+  }
+  def replaceToolLinkUserWithYou(
+      requestingUser: Option[String]
+  )(toolLink: ToolLink): ToolLink = {
+    requestingUser match {
+      case Some(username) if username == toolLink.sentBy =>
+        toolLink.copy(sentBy = "you")
+      case _ => toolLink
+    }
   }
 }

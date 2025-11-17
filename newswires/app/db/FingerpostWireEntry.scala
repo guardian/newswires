@@ -2,6 +2,7 @@ package db
 
 import conf.{SearchConfig, SearchField, SearchTerm}
 import db.CustomMappers.textArray
+import db.ToolLink.replaceToolLinkUserWithYou
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
@@ -122,16 +123,6 @@ object FingerpostWireEntry
 
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
-
-  private def replaceToolLinkUserWithYou(
-      requestingUser: Option[String]
-  )(toolLink: ToolLink): ToolLink = {
-    requestingUser match {
-      case Some(username) if username == toolLink.sentBy =>
-        toolLink.copy(sentBy = "you")
-      case _ => toolLink
-    }
-  }
 
   private[db] def buildHighlightsClause(
       maybeFreeTextQuery: Option[SearchTerm],
@@ -486,7 +477,6 @@ object FingerpostWireEntry
            | """.stripMargin
   }
 
-
   def query(
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
@@ -508,7 +498,9 @@ object FingerpostWireEntry
       })
       .list()
       .apply()
-      .collect({ case (Some(wire), toolLinkOpt) => WireMaybeToolLink(wire, toolLinkOpt) })
+      .collect({ case (Some(wire), toolLinkOpt) =>
+        WireMaybeToolLink(wire, toolLinkOpt)
+      })
       .groupBy(t => t.wireEntry.id)
       .flatMap { case (_, ls) =>
         ls.headOption.map(l => {
