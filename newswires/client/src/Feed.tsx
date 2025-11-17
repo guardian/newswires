@@ -7,7 +7,7 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
-import { fetchToolLinks } from './context/fetchResults.ts';
+import { fetchToolLinks } from './context/fetchToolLinks.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
@@ -76,7 +76,7 @@ export const Feed = ({
 				.catch((error) => {
 					console.log(`Error contacting the server ${error}`);
 				});
-		}, 6000);
+		}, 5000);
 		return () => {
 			clearInterval(intervalId);
 		};

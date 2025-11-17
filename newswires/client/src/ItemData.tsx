@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
-import { fetchToolLink } from './context/fetchResults.ts';
+import { fetchToolLink } from './context/fetchToolLinks.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { transformWireItemQueryResult } from './context/transformQueryResponse.ts';
 import { Item } from './Item';
