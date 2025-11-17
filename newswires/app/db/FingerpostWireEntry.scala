@@ -510,7 +510,7 @@ object FingerpostWireEntry
       .groupBy(t => t.wireEntry.id)
       .flatMap { case (_, ls) =>
         ls.headOption.map(l => {
-          l.wireEntry.copy(toolLinks = ls.flatMap(_.toolLink))
+          l.wireEntry.copy(toolLinks = ls.flatMap(_.toolLink).sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt))
         })
       }
       .toList
