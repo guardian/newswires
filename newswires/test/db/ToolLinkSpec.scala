@@ -28,14 +28,14 @@ class ToolLinkSpec extends AnyFlatSpec with Matchers {
     None
   )
   it should "should order the tool links with the most recent at the beginning" in {
-    ToolLink.displayToolLinks(
+    ToolLink.display(
       List(toolLink1, toolLink2),
       None
     ) shouldEqual List(toolLink2, toolLink1)
   }
 
   it should "replace the username with you if the requesting user matches" in {
-    ToolLink.displayToolLinks(List(toolLink1), Some("user")) shouldEqual List(
+    ToolLink.display(List(toolLink1), Some("user")) shouldEqual List(
       toolLink1.copy(sentBy = "you")
     )
   }

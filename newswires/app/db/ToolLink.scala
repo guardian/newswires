@@ -121,21 +121,19 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
       .flatten
   }
 
-  def displayToolLinks(
+  def display(
       toolLinks: List[ToolLink],
       requestingUser: Option[String]
   ) = {
     toolLinks
-      .map(replaceToolLinkUserWithYou(requestingUser))
+      .map(t => t.copy(sentBy = toolLinkUserName(requestingUser, t.sentBy)))
       .sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
   }
-  def replaceToolLinkUserWithYou(
-      requestingUser: Option[String]
-  )(toolLink: ToolLink): ToolLink = {
-    requestingUser match {
-      case Some(username) if username == toolLink.sentBy =>
-        toolLink.copy(sentBy = "you")
-      case _ => toolLink
-    }
+
+  private def toolLinkUserName(
+      requestingUser: Option[String],
+      storedUserName: String
+  ): String = {
+    if (requestingUser.contains(storedUserName)) "you" else storedUserName
   }
 }

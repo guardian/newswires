@@ -156,38 +156,38 @@ class QueryController(
       }
   }
 
-  def toolLinksForWires(wireIds: String) = Action {
-    val idList = wireIds.split(',').toList.map(_.toLong)
-    val toolLinks = ToolLink.get(idList)
-    val wireToolLinks = toolLinks
-      .foldLeft(Map[Long, List[ToolLink]]().empty)((acc, toolLink) => {
-        val links = acc.getOrElse(toolLink.wireId, Nil)
-        acc.updated(toolLink.wireId, toolLink :: links)
-      })
-      .view
-      .mapValues(toolLinks =>
-        toolLinks.sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
-      )
-      .map({ case (k, v) => WireToolLinks(k, v) })
-      .toList
+  def toolLinksForWires(wireIds: String) = apiAuthAction {
+    request: UserRequest[AnyContent] =>
+      val idList = wireIds.split(',').toList.map(_.toLong)
+      val toolLinks = ToolLink.get(idList)
+      val wireToolLinks = toolLinks
+        .foldLeft(Map[Long, List[ToolLink]]().empty)((acc, toolLink) => {
+          val links = acc.getOrElse(toolLink.wireId, Nil)
+          acc.updated(toolLink.wireId, toolLink :: links)
+        })
+        .map({ case (wireId, toolLinks) =>
+          WireToolLinks(
+            wireId,
+            ToolLink.display(toolLinks, Some(request.user.username))
+          )
+        })
+        .toList
 
-    Ok(wireToolLinks.asJson.spaces2)
+      Ok(wireToolLinks.asJson.spaces2)
   }
 
-  def toolLinksForWire(wireId: Long) = Action {
-    Ok(
-      ToolLink
-        .getByWireId(wireId)
-        .sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
-        .asJson
-        .spaces2
-    )
+  def toolLinksForWire(wireId: Long) = apiAuthAction {
+    request: UserRequest[AnyContent] =>
+      val toolLinks = ToolLink.getByWireId(wireId)
+      Ok(
+        ToolLink.display(toolLinks, Some(request.user.username)).asJson.spaces2
+      )
   }
 
   def addToolLink(id: Int) = Action {
     ToolLink.insertIncopyLink(
       id,
-      "machine",
+      "Lindsey",
       sentAt = Instant.now()
     )
     Ok(id.toString)

@@ -2,7 +2,6 @@ package db
 
 import conf.{SearchConfig, SearchField, SearchTerm}
 import db.CustomMappers.textArray
-import db.ToolLink.replaceToolLinkUserWithYou
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
@@ -165,11 +164,7 @@ object FingerpostWireEntry
       // add in the toollinks, but replace the username with "you" if it's the same as the person requesting this wire
       .map { (wire, toolLinks) =>
         wire.map(
-          _.copy(toolLinks =
-            toolLinks.toList
-              .map(replaceToolLinkUserWithYou(requestingUser))
-              .sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
-          )
+          _.copy(toolLinks = ToolLink.display(toolLinks.toList, requestingUser))
         )
       }
       .single()
