@@ -123,7 +123,7 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
 
   def display(
       toolLinks: List[ToolLink],
-      requestingUser: Option[String]
+      requestingUser: String
   ) = {
     toolLinks
       .map(t => t.copy(sentBy = toolLinkUserName(requestingUser, t.sentBy)))
@@ -131,9 +131,9 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
   }
 
   private def toolLinkUserName(
-      requestingUser: Option[String],
+      requestingUser: String,
       storedUserName: String
   ): String = {
-    if (requestingUser.contains(storedUserName)) "you" else storedUserName
+    if (requestingUser == storedUserName) "you" else storedUserName
   }
 }

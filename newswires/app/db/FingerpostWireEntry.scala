@@ -155,16 +155,14 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[SearchTerm],
-      requestingUser: Option[String] = None
+      maybeFreeTextQuery: Option[SearchTerm]
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
       .toMany(ToolLink.opt(ToolLink.syn.resultName))
-      // add in the toollinks, but replace the username with "you" if it's the same as the person requesting this wire
       .map { (wire, toolLinks) =>
         wire.map(
-          _.copy(toolLinks = ToolLink.display(toolLinks.toList, requestingUser))
+          _.copy(toolLinks = toolLinks.toList)
         )
       }
       .single()

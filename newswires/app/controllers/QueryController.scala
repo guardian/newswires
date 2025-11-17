@@ -94,11 +94,21 @@ class QueryController(
     apiAuthAction { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
         id,
-        maybeFreeTextQuery.map(SearchTerm.English(_)),
-        requestingUser = Some(request.user.username)
+        maybeFreeTextQuery.map(SearchTerm.English(_))
       ) match {
-        case Some(entry) => Ok(entry.asJson.spaces2)
-        case None        => NotFound
+        case Some(entry) =>
+          Ok(
+            entry
+              .copy(toolLinks =
+                ToolLink.display(
+                  entry.toolLinks,
+                  requestingUser = request.user.username
+                )
+              )
+              .asJson
+              .spaces2
+          )
+        case None => NotFound
       }
     }
 
@@ -168,7 +178,7 @@ class QueryController(
         .map({ case (wireId, toolLinks) =>
           WireToolLinks(
             wireId,
-            ToolLink.display(toolLinks, Some(request.user.username))
+            ToolLink.display(toolLinks, request.user.username)
           )
         })
         .toList
@@ -180,7 +190,7 @@ class QueryController(
     request: UserRequest[AnyContent] =>
       val toolLinks = ToolLink.getByWireId(wireId)
       Ok(
-        ToolLink.display(toolLinks, Some(request.user.username)).asJson.spaces2
+        ToolLink.display(toolLinks, request.user.username).asJson.spaces2
       )
   }
 
