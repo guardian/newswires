@@ -6,7 +6,13 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import models.{BaseRequestParams, NextPage, QueryParams, SearchParams}
+import models.{
+  BaseRequestParams,
+  NextPage,
+  QueryParams,
+  QueryResponse,
+  SearchParams
+}
 import db._
 import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
@@ -72,13 +78,13 @@ class QueryController(
       pageSize = 30
     )
 
+    val queryResponse = FingerpostWireEntry
+      .query(
+        queryParams
+      )
+
     Ok(
-      FingerpostWireEntry
-        .query(
-          queryParams
-        )
-        .asJson
-        .spaces2
+      QueryResponse.display(queryResponse, request.user.username).asJson.spaces2
     )
   }
 
@@ -193,7 +199,7 @@ class QueryController(
         ToolLink.display(toolLinks, request.user.username).asJson.spaces2
       )
   }
-
+}
 
 case class ComposerLinkRequest(composerId: String)
 object ComposerLinkRequest {

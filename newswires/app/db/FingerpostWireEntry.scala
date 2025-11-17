@@ -494,15 +494,10 @@ object FingerpostWireEntry
       .collect({ case (Some(wire), toolLinkOpt) =>
         WireMaybeToolLink(wire, toolLinkOpt)
       })
-      .groupBy(t => t.wireEntry.id)
-      .flatMap { case (_, ls) =>
-        ls.headOption.map(l => {
-          l.wireEntry.copy(toolLinks =
-            ls.flatMap(_.toolLink)
-              .sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
-          )
-        })
-      }
+      .groupBy(t => t.wireEntry)
+      .map({ case (wire, wireToolLinks) =>
+        wire.copy(toolLinks = wireToolLinks.flatMap(_.toolLink))
+      })
       .toList
 
     val countQuery =
@@ -526,7 +521,7 @@ object FingerpostWireEntry
 //    ) // TODO do this in parallel
 
     QueryResponse(
-      results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
+      results,
       totalCount /*, keywordCounts*/
     )
   }
