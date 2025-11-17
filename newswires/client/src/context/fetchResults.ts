@@ -2,10 +2,12 @@ import { pandaFetch } from '../panda-session.ts';
 import type {
 	Config,
 	Query,
+	ToolLink,
 	WiresQueryData,
 	WireToolLinks,
 } from '../sharedTypes.ts';
 import { ToolLinksResponseSchema } from '../sharedTypes.ts';
+import { WiresToolLinksResponseSchema } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
@@ -58,6 +60,29 @@ export const fetchResults = async ({
 	};
 };
 
+export const fetchToolLink = async (wireId: string): Promise<ToolLink[]> => {
+	const endpoint = `/api/toollinks/${wireId}`;
+	const response = await pandaFetch(`${endpoint}`, {
+		headers: {
+			Accept: 'application/json',
+		},
+	});
+	const data = (await response.json()) as unknown;
+	if (!response.ok) {
+		throw new Error(
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- this is the expected shape from Play but you never know
+			(data as { error: { exception: { description: string } } }).error
+				.exception.description ?? 'Unknown error',
+		);
+	}
+	const parseResult = ToolLinksResponseSchema.safeParse(data);
+	if (!parseResult.success) {
+		throw new Error(
+			`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
+		);
+	}
+	return parseResult.data;
+};
 export const fetchToolLinks = async (
 	wireIds: string[],
 ): Promise<WireToolLinks> => {
@@ -80,7 +105,7 @@ export const fetchToolLinks = async (
 		);
 	}
 
-	const parseResult = ToolLinksResponseSchema.safeParse(data);
+	const parseResult = WiresToolLinksResponseSchema.safeParse(data);
 	if (!parseResult.success) {
 		throw new Error(
 			`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,

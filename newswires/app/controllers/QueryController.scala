@@ -156,16 +156,32 @@ class QueryController(
       }
   }
 
-  def toolLinks(wireIds: String) = Action {
+  def toolLinksForWires(wireIds: String) = Action {
     val idList = wireIds.split(',').toList.map(_.toLong)
     val toolLinks = ToolLink.get(idList)
-    val wireToolLinks = toolLinks.foldLeft(Map[Long, List[ToolLink]]().empty)((acc, toolLink) => {
-      val links = acc.getOrElse(toolLink.wireId, Nil)
-      acc.updated(toolLink.wireId, toolLink :: links)
-    }).view.mapValues(toolLinks => toolLinks.sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt))
-      .map({case (k,v) => WireToolLinks(k, v)}).toList
+    val wireToolLinks = toolLinks
+      .foldLeft(Map[Long, List[ToolLink]]().empty)((acc, toolLink) => {
+        val links = acc.getOrElse(toolLink.wireId, Nil)
+        acc.updated(toolLink.wireId, toolLink :: links)
+      })
+      .view
+      .mapValues(toolLinks =>
+        toolLinks.sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
+      )
+      .map({ case (k, v) => WireToolLinks(k, v) })
+      .toList
 
     Ok(wireToolLinks.asJson.spaces2)
+  }
+
+  def toolLinksForWire(wireId: Long) = Action {
+    Ok(
+      ToolLink
+        .getByWireId(wireId)
+        .sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
+        .asJson
+        .spaces2
+    )
   }
 
   def addToolLink(id: Int) = Action {
@@ -174,7 +190,7 @@ class QueryController(
       "machine",
       sentAt = Instant.now()
     )
-    Ok("")
+    Ok(id.toString)
   }
 }
 

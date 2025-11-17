@@ -507,11 +507,13 @@ object FingerpostWireEntry
       .list()
       .apply()
       .collect({ case (Some(wire), toolLinkOpt) => Temp(wire, toolLinkOpt) })
-      .groupBy(t => t.wireEntry.id).flatMap {
-        case (_, ls) => ls.headOption.map(l => {
+      .groupBy(t => t.wireEntry.id)
+      .flatMap { case (_, ls) =>
+        ls.headOption.map(l => {
           l.wireEntry.copy(toolLinks = ls.flatMap(_.toolLink))
         })
-      }.toList
+      }
+      .toList
 
     val countQuery =
       sql"""| SELECT COUNT(*)

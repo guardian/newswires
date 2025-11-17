@@ -13,7 +13,8 @@ object WireToolLinks {
   implicit val jsonEncoder: Encoder[WireToolLinks] =
     deriveEncoder[WireToolLinks].mapJson(_.dropNullValues)
 
-  implicit val jsonDecoder: Decoder[WireToolLinks] = deriveDecoder[WireToolLinks]
+  implicit val jsonDecoder: Decoder[WireToolLinks] =
+    deriveDecoder[WireToolLinks]
 }
 
 case class ToolLink(
@@ -25,7 +26,7 @@ case class ToolLink(
     ref: Option[String]
 )
 
-object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging{
+object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
   val syn = this.syntax("tl")
 
   override val tableName = "tool_link"
@@ -39,14 +40,14 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging{
     |${syn.result.ref}""".stripMargin
 
   def temp(tl: ResultName[ToolLink])(rs: WrappedResultSet): ToolLink = {
-      new ToolLink(
-        id = rs.get(tl.id),
-        wireId = rs.long(tl.wireId),
-        tool = rs.get(tl.tool),
-        sentBy = rs.get(tl.sentBy),
-        sentAt = rs.get(tl.sentAt),
-        ref = rs.get(tl.ref)
-      )
+    new ToolLink(
+      id = rs.get(tl.id),
+      wireId = rs.long(tl.wireId),
+      tool = rs.get(tl.tool),
+      sentBy = rs.get(tl.sentBy),
+      sentAt = rs.get(tl.sentAt),
+      ref = rs.get(tl.ref)
+    )
   }
   def opt(tl: ResultName[ToolLink])(rs: WrappedResultSet): Option[ToolLink] = {
     rs.longOpt(tl.wireId)
@@ -103,27 +104,33 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging{
     }
 
   def get(wireIds: List[Long]) = DB readOnly { implicit session =>
-    logger.error(
-      wireIds.toString()
-    )
-
-    val query =  sql"""
+    val query = sql"""
          SELECT $selectAllStatement
          FROM ${ToolLink as syn}
          WHERE ${sqls.in(syn.wireId, wireIds)}
        """
-    logger.error(query.statement)
+
     sql"""
          SELECT $selectAllStatement
          FROM ${ToolLink as syn}
          WHERE ${sqls.in(syn.wireId, wireIds)}
-       """.map(rs => {
-        println("&*****")
+       """
+      .map(rs => {
         ToolLink.temp(syn.resultName)(rs)
       })
       .list()
       .apply()
+  }
 
-
+  def getByWireId(wireId: Long) = DB readOnly { implicit session =>
+    sql"""
+       SELECT $selectAllStatement
+       FROM ${ToolLink as syn}
+       WHERE ${syn.wireId} = ${wireId}
+      """
+      .map(rs => opt(ToolLink.syn.resultName)(rs))
+      .list()
+      .apply()
+      .flatten
   }
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
-import { fetchToolLinks } from './context/fetchResults.ts';
+import { fetchToolLink } from './context/fetchResults.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { transformWireItemQueryResult } from './context/transformQueryResponse.ts';
 import { Item } from './Item';
@@ -60,15 +60,11 @@ export const ItemData = ({ id }: { id: string }) => {
 
 	useEffect(() => {
 		const intervalId = setInterval(() => {
-			fetchToolLinks([id])
-				.then((wireToolLinks) => {
+			fetchToolLink(id)
+				.then((toolLinks) => {
 					setItemData((prevItem) => {
 						if (!prevItem) return;
-						if (wireToolLinks.length) {
-							const toolLinks = wireToolLinks[0].toolLinks;
-							return { ...prevItem, toolLinks };
-						}
-						return { ...prevItem };
+						return { ...prevItem, toolLinks };
 					});
 				})
 				.catch((error) => {
