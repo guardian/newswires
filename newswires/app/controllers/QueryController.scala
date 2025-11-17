@@ -194,15 +194,6 @@ class QueryController(
       )
   }
 
-  def addToolLink(id: Int) = Action {
-    ToolLink.insertIncopyLink(
-      id,
-      "Lindsey",
-      sentAt = Instant.now()
-    )
-    Ok(id.toString)
-  }
-}
 
 case class ComposerLinkRequest(composerId: String)
 object ComposerLinkRequest {
