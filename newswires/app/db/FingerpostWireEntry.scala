@@ -175,7 +175,7 @@ object FingerpostWireEntry
       .map { (wire, toolLinks) =>
         wire.map(
           _.copy(toolLinks =
-            toolLinks.toList.map(replaceToolLinkUserWithYou(requestingUser))
+            toolLinks.toList.map(replaceToolLinkUserWithYou(requestingUser)).sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt)
           )
         )
       }
