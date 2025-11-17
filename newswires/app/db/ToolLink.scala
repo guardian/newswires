@@ -7,6 +7,14 @@ import play.api.Logging
 import scalikejdbc._
 
 import java.time.Instant
+case class WireToolLinks(wireId: Long, toolLinks: List[ToolLink])
+
+object WireToolLinks {
+  implicit val jsonEncoder: Encoder[WireToolLinks] =
+    deriveEncoder[WireToolLinks].mapJson(_.dropNullValues)
+
+  implicit val jsonDecoder: Decoder[WireToolLinks] = deriveDecoder[WireToolLinks]
+}
 
 case class ToolLink(
     id: Long,

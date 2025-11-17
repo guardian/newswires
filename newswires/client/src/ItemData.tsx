@@ -61,10 +61,14 @@ export const ItemData = ({ id }: { id: string }) => {
 	useEffect(() => {
 		const intervalId = setInterval(() => {
 			fetchToolLinks([id])
-				.then((toolLinks) => {
+				.then((wireToolLinks) => {
 					setItemData((prevItem) => {
 						if (!prevItem) return;
-						return { ...prevItem, toolLinks };
+						if (wireToolLinks.length) {
+							const toolLinks = wireToolLinks[0].toolLinks;
+							return { ...prevItem, toolLinks };
+						}
+						return { ...prevItem };
 					});
 				})
 				.catch((error) => {

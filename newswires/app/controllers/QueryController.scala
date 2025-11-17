@@ -157,8 +157,15 @@ class QueryController(
   }
 
   def toolLinks(wireIds: String) = Action {
-    val ws = wireIds.split(',').toList.map(_.toLong)
-    Ok(ToolLink.get(ws).asJson.spaces2)
+    val idList = wireIds.split(',').toList.map(_.toLong)
+    val toolLinks = ToolLink.get(idList)
+    val wireToolLinks = toolLinks.foldLeft(Map[Long, List[ToolLink]]().empty)((acc, toolLink) => {
+      val links = acc.getOrElse(toolLink.wireId, Nil)
+      acc.updated(toolLink.wireId, toolLink :: links)
+    }).view.mapValues(toolLinks => toolLinks.sortWith((t1, t2) => t1.sentAt isAfter t2.sentAt))
+      .map({case (k,v) => WireToolLinks(k, v)}).toList
+
+    Ok(wireToolLinks.asJson.spaces2)
   }
 
   def addToolLink(id: Int) = Action {

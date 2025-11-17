@@ -2,8 +2,8 @@ import { pandaFetch } from '../panda-session.ts';
 import type {
 	Config,
 	Query,
-	ToolLink,
 	WiresQueryData,
+	WireToolLinks,
 } from '../sharedTypes.ts';
 import { ToolLinksResponseSchema } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
@@ -60,7 +60,7 @@ export const fetchResults = async ({
 
 export const fetchToolLinks = async (
 	wireIds: string[],
-): Promise<ToolLink[]> => {
+): Promise<WireToolLinks> => {
 	if (wireIds.length === 0) return [];
 	const endpoint = '/api/toollinks';
 	const queryString = new URLSearchParams({
@@ -86,5 +86,5 @@ export const fetchToolLinks = async (
 			`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
 		);
 	}
-	return [...parseResult.data];
+	return parseResult.data;
 };

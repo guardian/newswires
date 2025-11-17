@@ -12,7 +12,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
-import type { ToolLink } from './sharedTypes.ts';
+import type { ToolLink, WireToolLinks } from './sharedTypes.ts';
 import { WireItemList } from './WireItemList.tsx';
 
 export interface FeedProps {
@@ -59,16 +59,16 @@ export const Feed = ({
 	useEffect(() => {
 		const intervalId = setInterval(() => {
 			if (!queryData) return;
-			fetchToolLinks(queryData.results.map((r) => String(r.id)))
-				.then((toolLinks) => {
-					const toolLinksMap = toolLinks.reduce<Record<number, ToolLink[]>>(
-						(map, toolLink) => {
-							const existingToolLinks = map[toolLink.wireId] ?? [];
-							return {
-								[toolLink.wireId]: [...existingToolLinks, toolLink],
-								...map,
-							};
-						},
+			const wireIds = queryData.results.map((r) => String(r.id));
+			fetchToolLinks(wireIds)
+				.then((wireToolLinks: WireToolLinks) => {
+					const toolLinksMap = wireToolLinks.reduce<Record<number, ToolLink[]>>(
+						(acc, wireToolLink) => ({
+							...{
+								[wireToolLink.wireId]: wireToolLink.toolLinks,
+							},
+							...acc,
+						}),
 						{},
 					);
 					setToolLinks(toolLinksMap);
