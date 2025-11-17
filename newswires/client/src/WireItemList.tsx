@@ -367,11 +367,7 @@ const WirePreviewCard = ({
 				</div>
 				<div>
 					{toolLinks?.length ? (
-						<ul>
-							{toolLinks.map((toolLink) => (
-								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
-							))}
-						</ul>
+						<ToolSendReport toolLink={toolLinks[0]} key={toolLinks[0].id} />
 					) : (
 						<></>
 					)}
