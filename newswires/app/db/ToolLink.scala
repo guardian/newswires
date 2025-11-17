@@ -7,6 +7,8 @@ import play.api.Logging
 import scalikejdbc._
 
 import java.time.Instant
+
+case class WireMaybeToolLink(wireEntry: FingerpostWireEntry, toolLink: Option[ToolLink])
 case class WireToolLinks(wireId: Long, toolLinks: List[ToolLink])
 
 object WireToolLinks {
@@ -39,7 +41,7 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
     |${syn.result.sentAt},
     |${syn.result.ref}""".stripMargin
 
-  def temp(tl: ResultName[ToolLink])(rs: WrappedResultSet): ToolLink = {
+  def apply(tl: ResultName[ToolLink])(rs: WrappedResultSet): ToolLink = {
     new ToolLink(
       id = rs.get(tl.id),
       wireId = rs.long(tl.wireId),
@@ -49,18 +51,9 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
       ref = rs.get(tl.ref)
     )
   }
+
   def opt(tl: ResultName[ToolLink])(rs: WrappedResultSet): Option[ToolLink] = {
-    rs.longOpt(tl.wireId)
-      .map(wireId =>
-        new ToolLink(
-          id = rs.get(tl.id),
-          wireId = wireId,
-          tool = rs.get(tl.tool),
-          sentBy = rs.get(tl.sentBy),
-          sentAt = rs.get(tl.sentAt),
-          ref = rs.get(tl.ref)
-        )
-      )
+    rs.longOpt(tl.wireId).map(_ => ToolLink(tl)(rs))
   }
 
   override val columns =
@@ -104,20 +97,12 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
     }
 
   def get(wireIds: List[Long]) = DB readOnly { implicit session =>
-    val query = sql"""
-         SELECT $selectAllStatement
-         FROM ${ToolLink as syn}
-         WHERE ${sqls.in(syn.wireId, wireIds)}
-       """
-
     sql"""
          SELECT $selectAllStatement
          FROM ${ToolLink as syn}
          WHERE ${sqls.in(syn.wireId, wireIds)}
        """
-      .map(rs => {
-        ToolLink.temp(syn.resultName)(rs)
-      })
+      .map(rs => ToolLink(syn.resultName)(rs))
       .list()
       .apply()
   }

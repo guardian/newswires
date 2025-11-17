@@ -486,7 +486,7 @@ object FingerpostWireEntry
            | """.stripMargin
   }
 
-  case class Temp(wireEntry: FingerpostWireEntry, toolLink: Option[ToolLink])
+
   def query(
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
@@ -508,7 +508,7 @@ object FingerpostWireEntry
       })
       .list()
       .apply()
-      .collect({ case (Some(wire), toolLinkOpt) => Temp(wire, toolLinkOpt) })
+      .collect({ case (Some(wire), toolLinkOpt) => WireMaybeToolLink(wire, toolLinkOpt) })
       .groupBy(t => t.wireEntry.id)
       .flatMap { case (_, ls) =>
         ls.headOption.map(l => {
