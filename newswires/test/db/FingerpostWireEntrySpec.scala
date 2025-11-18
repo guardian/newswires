@@ -64,7 +64,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "generate an empty where clause for a empty set of search params" in {
     val searchParams = SearchParams(
-      text = List.empty,
+      text = SearchTermCombo(List.empty),
       start = None,
       end = None,
       keywordIncl = Nil,
@@ -129,7 +129,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "generate a where clause for a single field" in {
     val searchParams =
       SearchParams(
-        text = List(SearchTerm.English("text1"))
+        text = SearchTermCombo(List(SearchTerm.English("text1")))
       )
 
     val whereClause =

@@ -1,6 +1,7 @@
 package models
 
-import conf.SearchTerm
+import conf.SearchField.Slug
+import conf.{SearchTerm, SearchTermCombo}
 import org.mockito.Mockito.when
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -27,7 +28,9 @@ class SearchParamsSpec extends AnyFlatSpec {
       baseParams,
       featureSwitchShowGuSuppliersOn
     )
-    result.text shouldEqual List(SearchTerm.English("query"))
+    result.text shouldEqual SearchTermCombo(
+      List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug))
+    )
   }
 
   it should "set keywordExcl when this is defined in the query string" in new models {
@@ -58,7 +61,9 @@ class SearchParamsSpec extends AnyFlatSpec {
       featureSwitchShowGuSuppliersOn
     )
     result shouldEqual SearchParams(
-      text = List(SearchTerm.English("hello")),
+      text = SearchTermCombo(
+        List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug))
+      ),
       start = Some("start"),
       end = Some("end"),
       keywordIncl = List("keyword1"),
@@ -144,7 +149,7 @@ class SearchParamsSpec extends AnyFlatSpec {
 
 trait models {
   val emptyBaseParams = BaseRequestParams()
-  val emptySearchParams = SearchParams(List.empty)
+  val emptySearchParams = SearchParams(SearchTermCombo(List.empty))
   val emptyQueryString = Map[String, Seq[String]]()
   val featureSwitchShowGuSuppliersOn = mock[FeatureSwitchProvider]
   val featureSwitchShowGuSuppliersOff = mock[FeatureSwitchProvider]
