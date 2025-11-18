@@ -1,5 +1,6 @@
 package models
 
+import conf.SearchField.Slug
 import conf.SearchTerm
 
 case class BaseRequestParams(
@@ -14,5 +15,8 @@ case class BaseRequestParams(
     maybeSinceId: Option[Int] = None,
     hasDataFormatting: Option[Boolean] = None
 ) {
-  val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_)).toList
+  val maybeSearchTerm: List[SearchTerm] =
+    maybeFreeTextQuery.fold[List[SearchTerm]](Nil)(query =>
+      List(SearchTerm.English(query), SearchTerm.Simple(query, Slug))
+    )
 }

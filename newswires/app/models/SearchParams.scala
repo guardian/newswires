@@ -1,6 +1,6 @@
 package models
 
-import conf.{AND, SearchTerm, SearchTermCombo}
+import conf.{AND, OR, SearchTerm, SearchTermCombo}
 import service.FeatureSwitchProvider
 
 case class SearchParams(
@@ -25,7 +25,7 @@ object SearchParams {
       featureSwitch: FeatureSwitchProvider
   ) = {
     SearchParams(
-      text = SearchTermCombo(baseParams.maybeSearchTerm, AND),
+      text = SearchTermCombo(baseParams.maybeSearchTerm, OR),
       start = baseParams.maybeStart,
       end = baseParams.maybeEnd,
       keywordIncl = baseParams.keywords,
