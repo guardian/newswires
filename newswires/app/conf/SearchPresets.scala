@@ -105,6 +105,7 @@ object SearchPresets {
     case "horse-racing"         => Some(HorseRacing)
     case "athletics"            => Some(Athletics)
     case "olympics"             => Some(Olympics)
+    case "american-football"    => Some(AmericanFootball)
     case "baseball"             => Some(Baseball)
     case "basketball"           => Some(Basketball)
     case "all-data-formats"     => Some(AllDataFormats)
@@ -698,6 +699,33 @@ object SearchPresets {
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Olympic games"))
   )
 
+  private val AmericanFootball = List(
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("N2:AMER", "N2:NFL", "subj:15003000", "subj:15003001")
+    ),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms = List(SearchTerm.Simple("GRIDIRON", SearchField.Slug))
+    ),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Amfoot", Slug)), CategoryCodes.Sport.AFP),
+    SearchPreset(
+      AAP,
+      categoryCodes = List("subj:15003000", "subj:15003001")
+    ),
+    SearchPreset.fromSearchTerm(
+      AP,
+      searchTerms = List(SearchTerm.Simple("FBN", Slug)),
+      CategoryCodes.Sport.AP
+    ),
+    SearchPreset.fromSearchTerm(
+      AP,
+      searchTerms = List(SearchTerm.Simple("\"Sports Betting Line\"", SearchField.Headline)),
+      CategoryCodes.Sport.AP
+    ),
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Football", "NFL football", "NFL Playoffs"))
+  )
+
   private val Baseball = List(
     SearchPreset(
       REUTERS,
@@ -723,14 +751,14 @@ object SearchPresets {
       CategoryCodes.Sport.PA ::: List("paCat:RSR")
     ),
     SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Basket", Slug)), CategoryCodes.Sport.AFP),
+    SearchPreset(
+      AAP,
+      categoryCodes = List("subj:15008000", "subj:15008001")
+    ),
     SearchPreset.fromSearchTerm(
       AP,
       searchTerms = List(SearchTerm.Simple("BKN OR BKW", Slug)),
       CategoryCodes.Sport.AP
-    ),
-    SearchPreset(
-      AAP,
-      categoryCodes = List("subj:15008000", "subj:15008001")
     ),
     SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Basketball", "NBA basketball"))
   )
