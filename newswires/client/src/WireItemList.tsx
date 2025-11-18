@@ -365,7 +365,12 @@ const WirePreviewCard = ({
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
 				</div>
-				<div>
+				<div
+					css={css`
+						color: brown;
+						margin-top: 5px;
+					`}
+				>
 					{toolLinks?.length ? (
 						<ToolSendReport toolLink={toolLinks[0]} key={toolLinks[0].id} />
 					) : (
