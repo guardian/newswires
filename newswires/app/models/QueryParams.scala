@@ -12,7 +12,7 @@ case class MostRecent(sinceId: Int) extends UpdateType
 case class QueryParams(
     searchParams: SearchParams,
     savedSearchParamList: List[SearchParams],
-    maybeSearchTerm: List[SearchTerm],
+    maybeSearchTerm: Option[SearchTerm],
     maybeBeforeId: Option[Int],
     maybeSinceId: Option[UpdateType],
     pageSize: Int = 250

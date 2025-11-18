@@ -13,10 +13,13 @@ sealed trait Combination
 case object AND extends Combination
 case object OR extends Combination
 
+sealed trait SearchTerms
 case class SearchTermCombo(
     searchTerms: List[SearchTerm],
-    combiner: Combination = OR
-)
+    combiner: Combination
+) extends SearchTerms
+
+case class SearchTermSingular(searchTerm: SearchTerm) extends SearchTerms
 object SearchConfig {
   case object English extends SearchConfig
   case object Simple extends SearchConfig

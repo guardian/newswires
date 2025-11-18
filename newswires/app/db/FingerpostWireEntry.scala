@@ -1,16 +1,10 @@
 package db
 
-import conf.{AND, OR, SearchConfig, SearchField, SearchTerm, SearchTermCombo}
+import conf.{AND, OR, SearchConfig, SearchField, SearchTerm, SearchTermCombo, SearchTermSingular}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{
-  FingerpostWire,
-  NextPage,
-  QueryParams,
-  QueryResponse,
-  SearchParams
-}
+import models.{FingerpostWire, NextPage, QueryParams, QueryResponse, SearchParams}
 import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
@@ -266,25 +260,15 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       }
 
-    lazy val searchTermsJoinedWithAndSQL =
-      (searchTerms: List[SearchTerm]) => {
-        sqls.joinWithAnd(searchTerms.map {
-          case SearchTerm.Simple(query, field) =>
-            simpleSearchSQL(SearchTerm.Simple(query, field))
-          case SearchTerm.English(query) =>
-            englishSearchSQL(SearchTerm.English(query))
-        }: _*)
-      }
 
-    lazy val searchTermsJoinedWithORSQL =
-      (searchTerms: List[SearchTerm]) => {
-        sqls.joinWithOr(searchTerms.map {
-          case SearchTerm.Simple(query, field) =>
-            simpleSearchSQL(SearchTerm.Simple(query, field))
-          case SearchTerm.English(query) =>
-            englishSearchSQL(SearchTerm.English(query))
-        }: _*)
-      }
+    lazy val searchTermSql = (searchTerm: SearchTerm) => searchTerm match {
+      case SearchTerm.Simple(query, field) =>
+        simpleSearchSQL(SearchTerm.Simple(query, field))
+      case SearchTerm.English(query) =>
+        englishSearchSQL(SearchTerm.English(query))
+    }
+
+    lazy val searchTermsSql = (searchTerms: List[SearchTerm]) => searchTerms.map(searchTermSql)
 
     lazy val keywordsSQL =
       (keywords: List[String]) => keywordCondition(syn, keywords)
@@ -363,12 +347,13 @@ object FingerpostWireEntry
       case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
     }
 
-    val searchQuery = search.text match {
-      case SearchTermCombo(Nil, _) => None
-      case SearchTermCombo(terms, AND) =>
-        Some(Filters.searchTermsJoinedWithAndSQL(terms))
-      case SearchTermCombo(terms, OR) =>
-        Some(Filters.searchTermsJoinedWithORSQL(terms))
+    val searchQuery: Option[SQLSyntax] = search.text match {
+      case None => None
+      case Some(SearchTermCombo(terms, AND)) =>
+        Some(sqls.joinWithAnd(Filters.searchTermsSql(terms) : _*))
+      case Some(SearchTermCombo(terms, OR)) =>
+        Some(sqls.joinWithOr(Filters.searchTermsSql(terms) : _*))
+      case Some(SearchTermSingular(term)) => Some(Filters.searchTermSql(term))
     }
 
     val keywordsQuery = search.keywordIncl match {
