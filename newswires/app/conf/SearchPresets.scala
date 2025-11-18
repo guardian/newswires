@@ -20,7 +20,7 @@ object SearchPreset {
       preComputedCategoriesExcl: List[String] = Nil
   ): SearchParams =
     SearchParams(
-      text = List.empty,
+      text = SearchTermCombo(List.empty),
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList ::: keywords,
       keywordExcl = keywordExcl,
@@ -41,7 +41,7 @@ object SearchPreset {
       hasDataFormatting: Option[Boolean] = None
   ): SearchParams =
     SearchParams(
-      text = List(SearchTerm.Simple(text)),
+      text = SearchTermCombo(List(SearchTerm.Simple(text))),
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList,
       keywordExcl = keywordExcl,
@@ -61,7 +61,7 @@ object SearchPreset {
       preComputedCategories: List[String] = Nil
   ): SearchParams =
     SearchParams(
-      text = searchTerms,
+      text = SearchTermCombo(searchTerms, AND),
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList,
       keywordExcl = keywordExcl,

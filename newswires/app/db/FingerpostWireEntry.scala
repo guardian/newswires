@@ -1,6 +1,6 @@
 package db
 
-import conf.{SearchConfig, SearchField, SearchTerm}
+import conf.{AND, OR, SearchConfig, SearchField, SearchTerm, SearchTermCombo}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
@@ -276,6 +276,16 @@ object FingerpostWireEntry
         }: _*)
       }
 
+    lazy val searchTermsJoinedWithORSQL =
+      (searchTerms: List[SearchTerm]) => {
+        sqls.joinWithOr(searchTerms.map {
+          case SearchTerm.Simple(query, field) =>
+            simpleSearchSQL(SearchTerm.Simple(query, field))
+          case SearchTerm.English(query) =>
+            englishSearchSQL(SearchTerm.English(query))
+        }: _*)
+      }
+
     lazy val keywordsSQL =
       (keywords: List[String]) => keywordCondition(syn, keywords)
 
@@ -354,9 +364,11 @@ object FingerpostWireEntry
     }
 
     val searchQuery = search.text match {
-      case Nil => None
-      case terms =>
+      case SearchTermCombo(Nil, _) => None
+      case SearchTermCombo(terms, AND) =>
         Some(Filters.searchTermsJoinedWithAndSQL(terms))
+      case SearchTermCombo(terms, OR) =>
+        Some(Filters.searchTermsJoinedWithORSQL(terms))
     }
 
     val keywordsQuery = search.keywordIncl match {
