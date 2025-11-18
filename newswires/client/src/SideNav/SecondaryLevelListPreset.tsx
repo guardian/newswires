@@ -1,7 +1,6 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
 import { sportPresets, topLevelPresetId, topLevelSportId } from '../presets';
-import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
 
@@ -10,7 +9,7 @@ export const SecondaryLevelListPresetPanel = ({
 	closeDrawer,
 	togglePreset,
 }: PanelProps) => {
-	const { openTicker } = useSearch();
+	const { config, openTicker } = useSearch();
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
 			<SideNavListItem
@@ -22,7 +21,7 @@ export const SecondaryLevelListPresetPanel = ({
 				arrowSide="left"
 				handleArrowClick={() => closeDrawer()}
 				handleSecondaryActionClick={() =>
-					openTicker({ ...defaultConfig.query, preset: topLevelSportId })
+					openTicker({ ...config.query, preset: topLevelSportId })
 				}
 			/>
 			{sportPresets.map((item) => (
@@ -38,7 +37,7 @@ export const SecondaryLevelListPresetPanel = ({
 						togglePreset(item.id);
 					}}
 					handleSecondaryActionClick={() =>
-						openTicker({ ...defaultConfig.query, preset: item.id })
+						openTicker({ ...config.query, preset: item.id })
 					}
 				/>
 			))}
