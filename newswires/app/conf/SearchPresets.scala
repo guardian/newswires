@@ -106,6 +106,7 @@ object SearchPresets {
     case "athletics"            => Some(Athletics)
     case "olympics"             => Some(Olympics)
     case "baseball"             => Some(Baseball)
+    case "basketball"           => Some(Basketball)
     case "all-data-formats"     => Some(AllDataFormats)
     case "dot-copy"             => Some(DotCopy)
     case _                      => None
@@ -706,10 +707,32 @@ object SearchPresets {
     SearchPreset.fromSearchTerm(
       AP,
       searchTerms = List(SearchTerm.Simple("BBO", Slug)),
-      CategoryCodes.Sport.AP,
+      CategoryCodes.Sport.AP
     ),
-    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Baseball", "MLB baseball")
-    )
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Baseball", "MLB baseball"))
+  )
+
+  private val Basketball = List(
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("N2:BASK", "subj:15008000", "subj:15008001")
+    ),
+    SearchPreset.fromSearchTerm(
+      PA,
+      searchTerms = List(SearchTerm.Simple("BASKETBALL", SearchField.Slug)),
+      CategoryCodes.Sport.PA ::: List("paCat:RSR")
+    ),
+    SearchPreset.fromSearchTerm(AFP, searchTerms = List(SearchTerm.Simple("Basket", Slug)), CategoryCodes.Sport.AFP),
+    SearchPreset.fromSearchTerm(
+      AP,
+      searchTerms = List(SearchTerm.Simple("BKN OR BKW", Slug)),
+      CategoryCodes.Sport.AP
+    ),
+    SearchPreset(
+      AAP,
+      categoryCodes = List("subj:15008000", "subj:15008001")
+    ),
+    SearchPreset(AP, CategoryCodes.Sport.AP, keyword = List("Basketball", "NBA basketball"))
   )
 
   private val AllDataFormats = List(
