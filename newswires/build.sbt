@@ -8,7 +8,7 @@ organization := "com.gu"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.13.16"
+scalaVersion := "2.13.17"
 
 libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "7.0.2"
