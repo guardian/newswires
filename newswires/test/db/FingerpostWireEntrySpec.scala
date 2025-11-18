@@ -192,8 +192,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val textSearchWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        SearchParams(
-          SearchTermCombo(List(SearchTerm.English("text1")))),
+        SearchParams(SearchTermCombo(List(SearchTerm.English("text1")))),
         List(),
         None,
         None
@@ -312,7 +311,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val presetSearchParams1 =
       SearchParams(
-        text = SearchTermCombo(List(SearchTerm.Simple("News Summary", SearchField.Headline))),
+        text = SearchTermCombo(
+          List(SearchTerm.Simple("News Summary", SearchField.Headline))
+        ),
         suppliersIncl = List("REUTERS"),
         categoryCodesIncl = List(
           "N2:GB"
@@ -500,10 +501,13 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "combine all SQL clauses when all filters are set" in {
     val fullParams = SearchParams(
-      text = SearchTermCombo(List(
-        SearchTerm.English("query"),
-        SearchTerm.Simple("simple text", SearchField.BodyText)
-      ), AND),
+      text = SearchTermCombo(
+        List(
+          SearchTerm.English("query"),
+          SearchTerm.Simple("simple text", SearchField.BodyText)
+        ),
+        AND
+      ),
       keywordIncl = List("kw1"),
       keywordExcl = List("kw2"),
       suppliersIncl = List("s1"),
