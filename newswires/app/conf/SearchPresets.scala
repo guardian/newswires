@@ -139,7 +139,7 @@ object SearchPresets {
     ),
     SearchPreset(
       REUTERS,
-      searchTerms = Some(SingleTerm(SearchTerm.Simple("News Summary", SearchField.Headline))),
+      searchTerms = Some(SingleTerm(SearchTerm.Simple("News Summary", Headline))),
       categoryCodes = List("MCC:OEC"),
       categoryCodesExcl = List("N2:GB", "N2:COM", "N2:ECI")
     )
@@ -211,7 +211,7 @@ object SearchPresets {
       searchTerms = Some(
         ComboTerm(
           List(
-            Simple("-(OPTA) -Gracenote", SearchField.BodyText),
+            Simple("-(OPTA) -Gracenote", BodyText),
             Simple("-/FIXTURES -/RESULTS -/STANDINGS", Slug)
           ),
           AND
@@ -232,7 +232,7 @@ object SearchPresets {
                 "-Formwatch -Pieces -Straps -\"wind surgery\" -Traveller -blinkers",
               Slug
             ),
-            Simple("-fixtures", SearchField.Headline)
+            Simple("-fixtures", Headline)
           ),
           AND
         )
@@ -469,7 +469,7 @@ object SearchPresets {
     SearchPreset(
       AFP,
       searchTerms =
-        Some(ComboTerm(List(Simple("RugbyU", Slug), Simple("-result -results", SearchField.Headline)), AND)),
+        Some(ComboTerm(List(Simple("RugbyU", Slug), Simple("-result -results", Headline)), AND)),
       CategoryCodes.Sport.AFP
     ),
     SearchPreset(AAP, categoryCodes = CategoryCodes.RugbyUnion.AAP),
