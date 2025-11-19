@@ -133,16 +133,6 @@ object FingerpostWireEntry
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
 
-  private def replaceToolLinkUserWithYou(
-      requestingUser: Option[String]
-  )(toolLink: ToolLink): ToolLink = {
-    requestingUser match {
-      case Some(username) if username == toolLink.sentBy =>
-        toolLink.copy(sentBy = "you")
-      case _ => toolLink
-    }
-  }
-
   private[db] def buildHighlightsClause(
       maybeFreeTextQuery: Option[English],
       highlightAll: Boolean = false
@@ -176,17 +166,13 @@ object FingerpostWireEntry
   def get(
       id: Int,
       maybeFreeTextQuery: Option[English],
-      requestingUser: Option[String] = None
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
       .toMany(ToolLink.opt(ToolLink.syn.resultName))
-      // add in the toollinks, but replace the username with "you" if it's the same as the person requesting this wire
       .map { (wire, toolLinks) =>
         wire.map(
-          _.copy(toolLinks =
-            toolLinks.toList.map(replaceToolLinkUserWithYou(requestingUser))
-          )
+          _.copy(toolLinks = toolLinks.toList)
         )
       }
       .single()
@@ -488,8 +474,10 @@ object FingerpostWireEntry
         sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
     }
 
-    sql"""| SELECT $selectAllStatement, $highlightsClause
+    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
+           | LEFT JOIN ${ToolLink as ToolLink.syn}
+           | ON ${syn.id} = ${ToolLink.syn.wireId}
            | WHERE $whereClause
            | $orderByClause
            | LIMIT $effectivePageSize
@@ -509,12 +497,22 @@ object FingerpostWireEntry
     val query = buildSearchQuery(queryParams, whereClause)
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
-
-    val results = query
-      .map(FingerpostWireEntry.fromDb(syn.resultName))
+    val results: List[FingerpostWireEntry] = query
+      .map(rs => {
+        val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
+        val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
+        (wireEntry, toolLinkOpt)
+      })
       .list()
       .apply()
-      .flatten
+      .collect({ case (Some(wire), toolLinkOpt) =>
+        WireMaybeToolLink(wire, toolLinkOpt)
+      })
+      .groupBy(t => t.wireEntry)
+      .map({ case (wire, wireToolLinks) =>
+        wire.copy(toolLinks = wireToolLinks.flatMap(_.toolLink))
+      })
+      .toList
 
     val countQuery =
       sql"""| SELECT COUNT(*)
@@ -537,7 +535,7 @@ object FingerpostWireEntry
 //    ) // TODO do this in parallel
 
     QueryResponse(
-      results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
+      results,
       totalCount /*, keywordCounts*/
     )
   }
