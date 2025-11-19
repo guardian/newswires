@@ -7,7 +7,7 @@ describe('parseEmailBody', () => {
 		const { from, subject, text, date } = await parseEmail(emailData);
 		expect(from).toBe('"Correspondent A" <correspondent.a@example.com>');
 		expect(subject).toBe('Test subject line');
-		expect(text).toContain('This is some test copy: hello world');
+		expect(text).toContain('<p>This is some test copy: hello world</p>');
 		expect(date).toBe('Wed, 16 Jul 2025 08:38:29 GMT');
 	});
 });

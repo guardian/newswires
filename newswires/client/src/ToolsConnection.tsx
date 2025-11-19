@@ -114,7 +114,7 @@ const SendOrVisitInComposerButton = ({
 	);
 };
 
-const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
+export const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
 	const sentAt = convertToLocalDate(toolLink.sentAt);
 
 	return (
