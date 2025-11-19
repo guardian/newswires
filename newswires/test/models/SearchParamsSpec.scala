@@ -28,7 +28,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       baseParams,
       featureSwitchShowGuSuppliersOn
     )
-    result.text shouldEqual Some(
+    result.searchTerms shouldEqual Some(
       SearchTermCombo(
         List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug)),
         OR
@@ -64,7 +64,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       featureSwitchShowGuSuppliersOn
     )
     result shouldEqual SearchParams(
-      text = Some(
+      searchTerms = Some(
         SearchTermCombo(
           List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug)),
           OR

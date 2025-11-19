@@ -374,7 +374,7 @@ object FingerpostWireEntry
     }
 
     val searchQuery: Option[SQLSyntax] =
-      search.text.map(Filters.searchQuerySqlCombined)
+      search.searchTerms.map(Filters.searchQuerySqlCombined)
 
     val keywordsQuery = search.keywordIncl match {
       case Nil      => None

@@ -4,7 +4,7 @@ import conf.SearchTerms
 import service.FeatureSwitchProvider
 
 case class SearchParams(
-    text: Option[SearchTerms] = None,
+    searchTerms: Option[SearchTerms] = None,
     start: Option[String] = None,
     end: Option[String] = None,
     keywordIncl: List[String] = Nil,
@@ -25,7 +25,7 @@ object SearchParams {
       featureSwitch: FeatureSwitchProvider
   ) = {
     SearchParams(
-      text = baseParams.maybeSearchTerms,
+      searchTerms = baseParams.maybeSearchTerms,
       start = baseParams.maybeStart,
       end = baseParams.maybeEnd,
       keywordIncl = baseParams.keywords,
