@@ -17,8 +17,12 @@ case class BaseRequestParams(
 ) {
   val maybeSearchTerms: Option[SearchTerms] =
     maybeFreeTextQuery.map(query =>
-      SearchTermCombo(List(SearchTerm.English(query), SearchTerm.Simple(query, Slug)), OR)
+      SearchTermCombo(
+        List(SearchTerm.English(query), SearchTerm.Simple(query, Slug)),
+        OR
+      )
     )
 
-  val maybeSearchTerm: Option[SearchTerm] = maybeFreeTextQuery.map(query => SearchTerm.English(query))
+  val maybeSearchTerm: Option[SearchTerm] =
+    maybeFreeTextQuery.map(query => SearchTerm.English(query))
 }

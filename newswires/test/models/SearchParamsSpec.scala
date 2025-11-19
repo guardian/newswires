@@ -28,10 +28,12 @@ class SearchParamsSpec extends AnyFlatSpec {
       baseParams,
       featureSwitchShowGuSuppliersOn
     )
-    result.text shouldEqual Some(SearchTermCombo(
-      List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug)),
-      OR
-    ))
+    result.text shouldEqual Some(
+      SearchTermCombo(
+        List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug)),
+        OR
+      )
+    )
   }
 
   it should "set keywordExcl when this is defined in the query string" in new models {
@@ -62,9 +64,12 @@ class SearchParamsSpec extends AnyFlatSpec {
       featureSwitchShowGuSuppliersOn
     )
     result shouldEqual SearchParams(
-      text = Some(SearchTermCombo(
-        List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug)), OR
-      )),
+      text = Some(
+        SearchTermCombo(
+          List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug)),
+          OR
+        )
+      ),
       start = Some("start"),
       end = Some("end"),
       keywordIncl = List("keyword1"),

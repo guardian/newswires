@@ -31,7 +31,6 @@ object SearchPreset {
       preComputedCategoriesExcl = preComputedCategoriesExcl
     )
 
-
   def fromSearchTerm(
       supplier: String,
       searchTerms: List[SearchTerm],

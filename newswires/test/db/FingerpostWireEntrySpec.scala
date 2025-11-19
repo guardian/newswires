@@ -1,6 +1,13 @@
 package db
 
-import conf.{AND, SearchField, SearchTerm, SearchTermCombo, SearchTermSingular}
+import conf.{
+  AND,
+  OR,
+  SearchField,
+  SearchTerm,
+  SearchTermCombo,
+  SearchTermSingular
+}
 import io.circe.parser.decode
 import helpers.SqlSnippetMatcher.matchSqlSnippet
 import helpers.models
@@ -8,7 +15,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
 import _root_.models.{MostRecent, NextPage, QueryParams, SearchParams}
-import conf.SearchTerm.English
+import conf.SearchTerm.{English, Simple}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
@@ -311,9 +318,11 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val presetSearchParams1 =
       SearchParams(
-        text = Some(SearchTermSingular(
-          SearchTerm.Simple("News Summary", SearchField.Headline)
-        )),
+        text = Some(
+          SearchTermSingular(
+            SearchTerm.Simple("News Summary", SearchField.Headline)
+          )
+        ),
         suppliersIncl = List("REUTERS"),
         categoryCodesIncl = List(
           "N2:GB"
@@ -418,7 +427,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "order results by descending ingestion_at by default" in {
     val queryParams = QueryParams(
-      searchParams = SearchParams(None),
+      searchParams = SearchParams(),
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
       maybeBeforeId = None,
@@ -432,7 +441,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "order results by descending ingestion_at when using MostRecent update type with maybeSinceId" in {
     val queryParams = QueryParams(
-      searchParams = SearchParams(None),
+      searchParams = SearchParams(),
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
       maybeBeforeId = None,
@@ -501,13 +510,15 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "combine all SQL clauses when all filters are set" in {
     val fullParams = SearchParams(
-      text = Some(SearchTermCombo(
-        List(
-          SearchTerm.English("query"),
-          SearchTerm.Simple("simple text", SearchField.BodyText)
-        ),
-        AND
-      )),
+      text = Some(
+        SearchTermCombo(
+          List(
+            SearchTerm.English("query"),
+            SearchTerm.Simple("simple text", SearchField.BodyText)
+          ),
+          AND
+        )
+      ),
       keywordIncl = List("kw1"),
       keywordExcl = List("kw2"),
       suppliersIncl = List("s1"),
@@ -526,10 +537,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     rendered should include("fm.category_codes &&")
     rendered should include("(keywordsExcl.content -> 'keywords')")
     rendered should include(
-      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch"
-    )
-    rendered should include(
-      "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple)"
+      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple)"
     )
     rendered should include("upper(fm.supplier) in")
     rendered should include("upper(sourceFeedsExcl.supplier) in")
@@ -712,6 +720,41 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
+  behavior of "search terms combined SQL helpers"
+  it should "create the correct SQL for a singular search term" in {
+    val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      SearchTermSingular(English("query"))
+    )
+    searchSQL should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
+      expectedParams = List("query")
+    )
+  }
+  it should "create the correct SQL for a combo or term" in {
+    val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      SearchTermCombo(List(English("english"), Simple("simple")), OR)
+    )
+
+    searchSQL should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch or " +
+          "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple",
+      expectedParams = List("english", "simple")
+    )
+  }
+  it should "create the correct SQL for a combo and term" in {
+    val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      SearchTermCombo(List(English("english"), Simple("simple")), AND)
+    )
+
+    searchSQL should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and " +
+          "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple",
+      expectedParams = List("english", "simple")
+    )
+  }
   behavior of "keywords SQL helpers"
   it should "create the correct sql snippet for keywordsIncl" in {
     val keywordSQL = FingerpostWireEntry.Filters.keywordsSQL(List("keyword"))
