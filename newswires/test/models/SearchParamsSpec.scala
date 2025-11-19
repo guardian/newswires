@@ -1,7 +1,7 @@
 package models
 
 import conf.SearchField.Slug
-import conf.{AND, OR, SearchTerm, SearchTermCombo}
+import conf.{AND, OR, SearchTerm, ComboTerm}
 import org.mockito.Mockito.when
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -29,7 +29,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       featureSwitchShowGuSuppliersOn
     )
     result.searchTerms shouldEqual Some(
-      SearchTermCombo(
+      ComboTerm(
         List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug)),
         OR
       )
@@ -65,7 +65,7 @@ class SearchParamsSpec extends AnyFlatSpec {
     )
     result shouldEqual SearchParams(
       searchTerms = Some(
-        SearchTermCombo(
+        ComboTerm(
           List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug)),
           OR
         )

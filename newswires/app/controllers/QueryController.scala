@@ -4,7 +4,7 @@ import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.SearchField.Slug
-import conf.{OR, SearchPresets, SearchTerm, SearchTermCombo}
+import conf.{OR, SearchPresets, SearchTerm, ComboTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
 import models.{BaseRequestParams, NextPage, QueryParams, SearchParams}

@@ -1,13 +1,6 @@
 package db
 
-import conf.{
-  AND,
-  OR,
-  SearchField,
-  SearchTerm,
-  SearchTermCombo,
-  SearchTermSingular
-}
+import conf.{AND, OR, SearchField, SearchTerm, ComboTerm, SingleTerm}
 import io.circe.parser.decode
 import helpers.SqlSnippetMatcher.matchSqlSnippet
 import helpers.models
@@ -136,7 +129,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "generate a where clause for a single field" in {
     val searchParams =
       SearchParams(
-        searchTerms = Some(SearchTermSingular(SearchTerm.English("text1")))
+        searchTerms = Some(SingleTerm(SearchTerm.English("text1")))
       )
 
     val whereClause =
@@ -181,7 +174,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "join other clauses using 'and'" in {
     val searchParams =
       SearchParams(
-        searchTerms = Some(SearchTermSingular(SearchTerm.English("text1"))),
+        searchTerms = Some(SingleTerm(SearchTerm.English("text1"))),
         start = Some("2025-03-10T00:00:00.000Z"),
         end = Some("2025-03-10T23:59:59.999Z"),
         suppliersExcl = List("supplier1", "supplier2"),
@@ -199,7 +192,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val textSearchWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        SearchParams(Some(SearchTermSingular(SearchTerm.English("text1")))),
+        SearchParams(Some(SingleTerm(SearchTerm.English("text1")))),
         List(),
         None,
         None
@@ -319,7 +312,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val presetSearchParams1 =
       SearchParams(
         searchTerms = Some(
-          SearchTermSingular(
+          SingleTerm(
             SearchTerm.Simple("News Summary", SearchField.Headline)
           )
         ),
@@ -330,7 +323,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
     val presetSearchParams2 =
       SearchParams(
-        searchTerms = Some(SearchTermSingular(SearchTerm.Simple("soccer"))),
+        searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
         suppliersIncl = List("AFP"),
         categoryCodesIncl = List("afpCat:SPO")
       )
@@ -384,7 +377,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "apply date ranges using 'AND' at the top level of the query" in {
 
     val customParams = SearchParams(
-      searchTerms = Some(SearchTermSingular(SearchTerm.English("text1"))),
+      searchTerms = Some(SingleTerm(SearchTerm.English("text1"))),
       start = Some("2025-03-10T00:00:00.000Z"),
       end = Some("2025-03-10T23:59:59.999Z")
     )
@@ -511,7 +504,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "combine all SQL clauses when all filters are set" in {
     val fullParams = SearchParams(
       searchTerms = Some(
-        SearchTermCombo(
+        ComboTerm(
           List(
             SearchTerm.English("query"),
             SearchTerm.Simple("simple text", SearchField.BodyText)
@@ -723,7 +716,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "search terms combined SQL helpers"
   it should "create the correct SQL for a singular search term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      SearchTermSingular(English("query"))
+      SingleTerm(English("query"))
     )
     searchSQL should matchSqlSnippet(
       expectedClause =
@@ -733,7 +726,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct SQL for a combo or term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      SearchTermCombo(List(English("english"), Simple("simple")), OR)
+      ComboTerm(List(English("english"), Simple("simple")), OR)
     )
 
     searchSQL should matchSqlSnippet(
@@ -745,7 +738,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct SQL for a combo and term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      SearchTermCombo(List(English("english"), Simple("simple")), AND)
+      ComboTerm(List(English("english"), Simple("simple")), AND)
     )
 
     searchSQL should matchSqlSnippet(
