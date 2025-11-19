@@ -17,7 +17,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuLambdaFunction",
       "GuLambdaFunction",
       "GuStringParameter",
-      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -710,86 +709,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
-    },
-    "FailedIngestionAlarm4092BF58": {
-      "Properties": {
-        "ActionsEnabled": false,
-        "AlarmActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
-                },
-              ],
-            ],
-          },
-        ],
-        "AlarmDescription": "Stories have failed to ingest into Newswires. We should investigate why and remediate",
-        "AlarmName": "Ingestion failed on Newswires TEST",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "EvaluationPeriods": 1,
-        "MetricName": "IngestionSourceFeeds-ingestion_failure",
-        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
-        "OKActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
-                },
-              ],
-            ],
-          },
-        ],
-        "Period": 60,
-        "Statistic": "Sum",
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "newswires",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-        "Threshold": 1,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
     },
     "FingerpostQueueingLambdaTEST60860D74": {
       "DependsOn": [
@@ -1888,36 +1807,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::Lambda::EventSourceMapping",
-    },
-    "IngestionSourceFeedsFilterINGESTIONFAILUREF1DA2E73": {
-      "Properties": {
-        "FilterPattern": "{ $.eventType = "INGESTION_FAILURE" }",
-        "LogGroupName": {
-          "Fn::Join": [
-            "",
-            [
-              "/aws/lambda/",
-              {
-                "Ref": "IngestionLambdaTESTC02B3E43",
-              },
-            ],
-          ],
-        },
-        "MetricTransformations": [
-          {
-            "Dimensions": [
-              {
-                "Key": "supplier",
-                "Value": "$.supplier",
-              },
-            ],
-            "MetricName": "IngestionSourceFeeds-ingestion_failure",
-            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
-            "MetricValue": "1",
-          },
-        ],
-      },
-      "Type": "AWS::Logs::MetricFilter",
     },
     "IngestionSourceFeedsFilterINGESTIONSUCCESS27AB7930": {
       "Properties": {
