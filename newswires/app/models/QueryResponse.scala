@@ -1,6 +1,6 @@
 package models
 
-import db.FingerpostWireEntry
+import db.{FingerpostWireEntry, ToolLink}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 
@@ -16,4 +16,18 @@ object QueryResponse {
 
   implicit val jsonDecoder: Decoder[QueryResponse] =
     deriveDecoder[QueryResponse]
+
+  def display(
+      queryResponse: QueryResponse,
+      requestingUser: String
+  ): QueryResponse = {
+    queryResponse.copy(
+      results = queryResponse.results
+        .map(wire => {
+          wire
+            .copy(toolLinks = ToolLink.display(wire.toolLinks, requestingUser))
+        })
+        .sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt))
+    )
+  }
 }
