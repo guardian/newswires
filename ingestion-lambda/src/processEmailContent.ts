@@ -47,7 +47,7 @@ export async function parseEmail(rawEmail: string): Promise<EmailObject> {
 		return {
 			from: parsed.from?.text,
 			subject: parsed.subject,
-			text: parsed.text,
+			text: parsed.textAsHtml,
 			date: parsed.date?.toUTCString(),
 		};
 	} catch (error) {
