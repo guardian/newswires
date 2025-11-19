@@ -25,7 +25,7 @@ object SearchParams {
       featureSwitch: FeatureSwitchProvider
   ) = {
     SearchParams(
-      searchTerms = baseParams.maybeSearchTerms,
+      searchTerms = baseParams.textSearchTerms,
       start = baseParams.maybeStart,
       end = baseParams.maybeEnd,
       keywordIncl = baseParams.keywords,

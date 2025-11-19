@@ -1,5 +1,6 @@
 package db
 
+import conf.SearchTerm.English
 import conf.{
   AND,
   OR,
@@ -143,7 +144,7 @@ object FingerpostWireEntry
   }
 
   private[db] def buildHighlightsClause(
-      maybeFreeTextQuery: Option[SearchTerm],
+      maybeFreeTextQuery: Option[English],
       highlightAll: Boolean = false
   ): SQLSyntax = {
     maybeFreeTextQuery match {
@@ -159,7 +160,7 @@ object FingerpostWireEntry
 
   private[db] def buildSingleGetQuery(
       id: Int,
-      maybeFreeTextQuery: Option[SearchTerm]
+      maybeFreeTextQuery: Option[English]
   ): SQLSyntax = {
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
@@ -174,7 +175,7 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[SearchTerm],
+      maybeFreeTextQuery: Option[English],
       requestingUser: Option[String] = None
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
@@ -478,11 +479,7 @@ object FingerpostWireEntry
 
     val maybeSinceId = queryParams.maybeSinceId
 
-    val highlightsClause = buildHighlightsClause(
-      queryParams.maybeSearchTerm.find(term =>
-        term.searchConfig == SearchConfig.English
-      ) // Only use the first search term for highlighting, if present. It would be nice to do better here in future but might not be worth the time to implement
-    )
+    val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause = maybeSinceId match {
       case Some(NextPage(_)) =>

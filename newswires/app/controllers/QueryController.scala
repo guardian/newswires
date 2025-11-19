@@ -67,7 +67,7 @@ class QueryController(
         .getQueryString("preset")
         .flatMap(SearchPresets.get)
         .getOrElse(Nil),
-      maybeSearchTerm = baseParams.maybeSearchTerm,
+      maybeSearchTerm = baseParams.textForHighlighting,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId.map(NextPage(_)),
       pageSize = 30
