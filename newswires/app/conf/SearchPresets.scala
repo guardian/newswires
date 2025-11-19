@@ -468,8 +468,7 @@ object SearchPresets {
     ),
     SearchPreset(
       AFP,
-      searchTerms =
-        Some(ComboTerm(List(Simple("RugbyU", Slug), Simple("-result -results", Headline)), AND)),
+      searchTerms = Some(ComboTerm(List(Simple("RugbyU", Slug), Simple("-result -results", Headline)), AND)),
       CategoryCodes.Sport.AFP
     ),
     SearchPreset(AAP, categoryCodes = CategoryCodes.RugbyUnion.AAP),
