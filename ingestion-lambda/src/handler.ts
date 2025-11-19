@@ -144,15 +144,23 @@ export const main = async (
 			`Processed ${records.length} messages with ${allFailures.length} failures`,
 		);
 
-		const batchItemFailures = allFailures.map(({ messageId, reason }) => {
+		allFailures.forEach(({ messageId, reason }) => {
 			logger.error({
 				message: `Failed to process message for ${messageId}: ${reason}`,
 				eventType: 'INGESTION_FAILURE',
 				messageId,
 				reason,
 			});
-			return { itemIdentifier: messageId };
 		});
+
+		const batchItemFailures = allFailures
+			.filter(({ reason }) => {
+				// no need to retry if the email does not pass its checks
+				return !reason.includes(`Email verification failed`);
+			})
+			.map(({ messageId }) => {
+				return { itemIdentifier: messageId };
+			});
 
 		console.log(
 			`Processed ${records.length} messages with ${batchItemFailures.length} failures`,
