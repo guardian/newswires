@@ -67,6 +67,7 @@ object SearchPresets {
     case "golf-scores"          => Some(GolfScores)
     case "boxing"               => Some(Boxing)
     case "horse-racing"         => Some(HorseRacing)
+    case "ice-hockey"           => Some(IceHockey)
     case "athletics"            => Some(Athletics)
     case "olympics"             => Some(Olympics)
     case "all-data-formats"     => Some(AllDataFormats)
@@ -701,6 +702,33 @@ object SearchPresets {
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("racing", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.HorseRacing.AAP),
     SearchPreset(AP, categoryCodes = CategoryCodes.Sport.AP, keyword = Some("Horse racing"))
+  )
+
+  private val IceHockey = List(
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("N2:ICEH", "N2:NHL", "subj:15031000")
+    ),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("ICEHOCKEY", Slug))),
+      CategoryCodes.Sport.PA ::: List("paCat:RSR")
+    ),
+    SearchPreset(
+      AFP,
+      searchTerms = Some(SingleTerm(Simple("IHockey", Slug))),
+      categoryCodes = CategoryCodes.Sport.AFP
+    ),
+    SearchPreset(
+      AP,
+      searchTerms = Some(SingleTerm(Simple("HKN", Slug))),
+      CategoryCodes.Sport.AP
+    ),
+    SearchPreset(
+      AP,
+      keywords = List("Hockey", "NHL hockey"),
+      categoryCodes = CategoryCodes.Sport.AP
+    )
   )
 
   private val Athletics = List(

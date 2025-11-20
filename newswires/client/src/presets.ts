@@ -79,6 +79,10 @@ export const sportPresets: Preset[] = [
 		id: 'horse-racing',
 	},
 	{
+		name: 'Ice hockey',
+		id: 'ice-hockey',
+	},
+	{
 		name: 'Motor sport',
 		id: 'motor-sport',
 	},
