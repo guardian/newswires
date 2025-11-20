@@ -7,6 +7,8 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuStringParameter",
       "GuAlarm",
       "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -146,6 +148,89 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "Threshold": 0,
         "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "fingerpostDeadLetterQueueDeltaAlarmF684E3A5": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "Dead letter queue has increased by more than 100 messages in a single evaluation.",
+        "AlarmName": "DLQ growth by >5 in 5 minute TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 1,
+        "Metrics": [
+          {
+            "Expression": "m1 - PREVIOUS(m1)",
+            "Id": "expr_1",
+            "ReturnData": true,
+          },
+          {
+            "Id": "m1",
+            "MetricStat": {
+              "Metric": {
+                "Dimensions": [
+                  {
+                    "Name": "QueueName",
+                    "Value": {
+                      "Fn::GetAtt": [
+                        "fingerpostqueueDeadLetterQueueTESTC46C734A",
+                        "QueueName",
+                      ],
+                    },
+                  },
+                ],
+                "MetricName": "ApproximateNumberOfMessagesVisible",
+                "Namespace": "AWS/SQS",
+              },
+              "Period": 300,
+              "Stat": "Maximum",
+            },
+            "ReturnData": false,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 5,
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
@@ -512,6 +597,89 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "Threshold": 0,
         "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "sourceDeadLetterQueueDeltaAlarm8AB039A9": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "Dead letter queue has increased by more than 100 messages in a single evaluation.",
+        "AlarmName": "DLQ growth by >5 in 5 minute TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 1,
+        "Metrics": [
+          {
+            "Expression": "m1 - PREVIOUS(m1)",
+            "Id": "expr_1",
+            "ReturnData": true,
+          },
+          {
+            "Id": "m1",
+            "MetricStat": {
+              "Metric": {
+                "Dimensions": [
+                  {
+                    "Name": "QueueName",
+                    "Value": {
+                      "Fn::GetAtt": [
+                        "sourcequeueDeadLetterQueueTEST4E4374EA",
+                        "QueueName",
+                      ],
+                    },
+                  },
+                ],
+                "MetricName": "ApproximateNumberOfMessagesVisible",
+                "Namespace": "AWS/SQS",
+              },
+              "Period": 300,
+              "Stat": "Maximum",
+            },
+            "ReturnData": false,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 5,
       },
       "Type": "AWS::CloudWatch::Alarm",
     },

@@ -5,6 +5,7 @@ import type { App } from 'aws-cdk-lib';
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
 	ComparisonOperator,
+	MathExpression,
 	Stats,
 	TreatMissingData,
 } from 'aws-cdk-lib/aws-cloudwatch';
@@ -91,6 +92,11 @@ export class WiresFeeds extends GuStack {
 				new SqsSubscription(queue, { rawMessageDelivery: true }),
 			);
 
+			const visible = deadLetterQueue.metricApproximateNumberOfMessagesVisible({
+				period: Duration.minutes(1),
+				statistic: Stats.MAXIMUM,
+			});
+
 			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm`, {
 				actionsEnabled: scope.stage === 'PROD',
 				okAction: true,
@@ -99,13 +105,29 @@ export class WiresFeeds extends GuStack {
 				app: appName,
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
 				treatMissingData: TreatMissingData.NOT_BREACHING,
-				metric: deadLetterQueue.metricApproximateNumberOfMessagesVisible({
-					period: Duration.minutes(1),
-					statistic: Stats.MAXIMUM,
-				}),
+				metric: visible,
 				snsTopicName: alarmSnsTopic.topicName,
 				threshold: 0,
 				evaluationPeriods: 1,
+			});
+
+			const delta = new MathExpression({
+				expression: 'm1 - PREVIOUS(m1)',
+				usingMetrics: { m1: visible },
+				period: Duration.minutes(5),
+			});
+
+			new GuAlarm(scope, `${topicType}DeadLetterQueueDeltaAlarm`, {
+				actionsEnabled: scope.stage === 'PROD',
+				alarmName: `DLQ growth by >5 in 5 minute ${scope.stage}`,
+				alarmDescription:
+					'Dead letter queue has increased by more than 100 messages in a single evaluation.',
+				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				threshold: 5,
+				metric: delta,
+				evaluationPeriods: 1,
+				snsTopicName: alarmSnsTopic.topicName,
+				app: appName,
 			});
 
 			return queue;
