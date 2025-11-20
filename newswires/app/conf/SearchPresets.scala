@@ -60,7 +60,6 @@ object SearchPresets {
     case "tennis"               => Some(Tennis)
     case "tennis-results"       => Some(TennisResults)
     case "cycling"              => Some(Cycling)
-    case "cycling-results"      => Some(CyclingResults)
     case "motor-racing"         => Some(MotorRacing)
     case "golf"                 => Some(Golf)
     case "golf-results"         => Some(GolfResults)
@@ -558,11 +557,7 @@ object SearchPresets {
   )
 
   private val Cycling = List(
-    SearchPreset(
-      REUTERS,
-      searchTerms = Some(SingleTerm(Simple("-Gracenote", BodyText))),
-      CategoryCodes.Cycling.REUTERS
-    ),
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.Cycling.REUTERS),
     SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("CYCLING", Slug))), CategoryCodes.Sport.PA),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("cycling", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Cycling.AAP),
@@ -574,13 +569,6 @@ object SearchPresets {
     )
   )
 
-  private val CyclingResults = List(
-    SearchPreset(
-      REUTERS,
-      searchTerms = Some(SingleTerm(Simple("Gracenote", BodyText))),
-      CategoryCodes.Cycling.REUTERS
-    )
-  )
   private val MotorRacing = List(
     SearchPreset(REUTERS, categoryCodes = CategoryCodes.MotorRacing.REUTERS),
     SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("auto", Slug))), CategoryCodes.Sport.PA),

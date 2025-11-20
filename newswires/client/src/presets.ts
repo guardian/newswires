@@ -67,10 +67,6 @@ export const sportPresets: Preset[] = [
 		id: 'cycling',
 	},
 	{
-		name: 'Cycling Results',
-		id: 'cycling-results',
-	},
-	{
 		name: 'Motor Racing',
 		id: 'motor-racing',
 	},
