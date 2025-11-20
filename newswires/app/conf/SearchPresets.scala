@@ -53,16 +53,16 @@ object SearchPresets {
     case "soccer-tables"        => Some(SoccerTables)
     case "no-soccer"            => Some(NoSoccer)
     case "cricket"              => Some(Cricket)
-    case "cricket-scores"      => Some(CricketScores)
+    case "cricket-scores"       => Some(CricketScores)
     case "rugby-league"         => Some(RugbyLeague)
     case "rugby-union"          => Some(RugbyUnion)
-    case "rugby-scores"        => Some(RugbyScores)
+    case "rugby-scores"         => Some(RugbyScores)
     case "tennis"               => Some(Tennis)
-    case "tennis-scores"       => Some(TennisScores)
+    case "tennis-scores"        => Some(TennisScores)
     case "cycling"              => Some(Cycling)
-    case "motor-racing"         => Some(MotorRacing)
+    case "motor-sport"          => Some(MotorSport)
     case "golf"                 => Some(Golf)
-    case "golf-scores"         => Some(GolfScores)
+    case "golf-scores"          => Some(GolfScores)
     case "boxing"               => Some(Boxing)
     case "horse-racing"         => Some(HorseRacing)
     case "athletics"            => Some(Athletics)
@@ -569,11 +569,11 @@ object SearchPresets {
     )
   )
 
-  private val MotorRacing = List(
-    SearchPreset(REUTERS, categoryCodes = CategoryCodes.MotorRacing.REUTERS),
+  private val MotorSport = List(
+    SearchPreset(REUTERS, categoryCodes = CategoryCodes.MotorSport.REUTERS),
     SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("auto", Slug))), CategoryCodes.Sport.PA),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("auto", Slug))), CategoryCodes.Sport.AFP),
-    SearchPreset(AAP, categoryCodes = CategoryCodes.MotorRacing.AAP),
+    SearchPreset(AAP, categoryCodes = CategoryCodes.MotorSport.AAP),
     SearchPreset(AP, categoryCodes = CategoryCodes.Sport.AP, keyword = Some("Automobile racing"))
   )
 

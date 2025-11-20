@@ -125,7 +125,7 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = List("subj:15019000")
   }
 
-  object MotorRacing {
+  object MotorSport {
     val REUTERS: List[String] = List("N2:MORA", "subj:15039000")
     val AAP: List[String] = List("subj:15039000")
   }
