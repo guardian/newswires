@@ -15,7 +15,11 @@ export interface Preset {
 
 export const sportPresets: Preset[] = [
 	{
-		name: 'All Sport Stories',
+		name: 'Sport copy',
+		id: 'dot-copy',
+	},
+	{
+		name: 'All sport stories',
 		id: 'all-sport-stories',
 	},
 	{
@@ -23,35 +27,67 @@ export const sportPresets: Preset[] = [
 		id: 'soccer',
 	},
 	{
-		name: 'Soccer Scores',
+		name: 'Soccer scores',
 		id: 'soccer-scores',
 	},
 	{
-		name: 'Soccer Tables',
+		name: 'Soccer tables',
 		id: 'soccer-tables',
 	},
 	{
-		name: 'No Soccer',
+		name: 'No soccer',
 		id: 'no-soccer',
+	},
+	{
+		name: 'Athletics',
+		id: 'athletics',
+	},
+	{
+		name: 'Boxing',
+		id: 'boxing',
 	},
 	{
 		name: 'Cricket',
 		id: 'cricket',
 	},
 	{
-		name: 'Cricket Results',
+		name: 'Cricket scores',
 		id: 'cricket-results',
 	},
 	{
-		name: 'Rugby League',
+		name: 'Cycling',
+		id: 'cycling',
+	},
+	{
+		name: 'Golf',
+		id: 'golf',
+	},
+	{
+		name: 'Golf scores',
+		id: 'golf-results',
+	},
+	{
+		name: 'Horse racing',
+		id: 'horse-racing',
+	},
+	{
+		name: 'Motor sport',
+		id: 'motor-racing',
+	},
+	{
+		name: 'Olympics',
+		id: 'olympics',
+	},
+	{
+		name: 'Rugby league',
 		id: 'rugby-league',
 	},
 	{
-		name: 'Rugby Union',
+		name: 'Rugby union',
 		id: 'rugby-union',
 	},
 	{
-		name: 'Rugby Results',
+		name: 'Rugby scores',
 		id: 'rugby-results',
 	},
 	{
@@ -59,48 +95,12 @@ export const sportPresets: Preset[] = [
 		id: 'tennis',
 	},
 	{
-		name: 'Tennis Results',
+		name: 'Tennis scores',
 		id: 'tennis-results',
 	},
 	{
-		name: 'Cycling',
-		id: 'cycling',
-	},
-	{
-		name: 'Motor Racing',
-		id: 'motor-racing',
-	},
-	{
-		name: 'Golf',
-		id: 'golf',
-	},
-	{
-		name: 'Golf Results',
-		id: 'golf-results',
-	},
-	{
-		name: 'Boxing',
-		id: 'boxing',
-	},
-	{
-		name: 'Horse racing',
-		id: 'horse-racing',
-	},
-	{
-		name: 'Athletics',
-		id: 'athletics',
-	},
-	{
-		name: 'Olympics',
-		id: 'olympics',
-	},
-	{
-		name: 'All Data Formats',
+		name: 'All data formats',
 		id: 'all-data-formats',
-	},
-	{
-		name: 'Dot Copy',
-		id: 'dot-copy',
 	},
 ];
 
