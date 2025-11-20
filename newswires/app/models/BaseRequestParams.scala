@@ -2,7 +2,7 @@ package models
 
 import conf.SearchField.Slug
 import conf.SearchTerm.English
-import conf.{OR, SearchTerm, SearchTermCombo, SearchTermSingular, SearchTerms}
+import conf.{OR, SearchTerm, ComboTerm, SingleTerm, SearchTerms}
 
 case class BaseRequestParams(
     maybeFreeTextQuery: Option[String] = None,
@@ -21,7 +21,7 @@ case class BaseRequestParams(
   // text fields, and we also search on slug field as well
   val textSearchTerms: Option[SearchTerms] =
     maybeFreeTextQuery.map(query =>
-      SearchTermCombo(
+      ComboTerm(
         List(SearchTerm.English(query), SearchTerm.Simple(query, Slug)),
         OR
       )

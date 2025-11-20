@@ -7,8 +7,8 @@ import conf.{
   SearchConfig,
   SearchField,
   SearchTerm,
-  SearchTermCombo,
-  SearchTermSingular,
+  ComboTerm,
+  SingleTerm,
   SearchTerms
 }
 import db.CustomMappers.textArray
@@ -275,11 +275,11 @@ object FingerpostWireEntry
 
     val searchQuerySqlCombined = (searchTerms: SearchTerms) => {
       searchTerms match {
-        case SearchTermCombo(terms, AND) =>
+        case ComboTerm(terms, AND) =>
           sqls.joinWithAnd(Filters.searchTermsSql(terms): _*)
-        case SearchTermCombo(terms, OR) =>
+        case ComboTerm(terms, OR) =>
           sqls.joinWithOr(Filters.searchTermsSql(terms): _*)
-        case SearchTermSingular(term) => Filters.searchTermSql(term)
+        case SingleTerm(term) => Filters.searchTermSql(term)
       }
     }
 
