@@ -9,6 +9,17 @@ sealed trait SearchConfig
   *   - "simple": no stemming or stop-word removal; fully compatible with
   *     web-style query syntax.
   */
+sealed trait Combination
+case object AND extends Combination
+case object OR extends Combination
+
+sealed trait SearchTerms
+case class SearchTermCombo(
+    searchTerms: List[SearchTerm],
+    combiner: Combination
+) extends SearchTerms
+
+case class SearchTermSingular(searchTerm: SearchTerm) extends SearchTerms
 object SearchConfig {
   case object English extends SearchConfig
   case object Simple extends SearchConfig

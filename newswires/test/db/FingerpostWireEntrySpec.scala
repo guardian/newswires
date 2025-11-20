@@ -1,14 +1,21 @@
 package db
 
-import conf.{SearchField, SearchTerm}
+import conf.{
+  AND,
+  OR,
+  SearchField,
+  SearchTerm,
+  SearchTermCombo,
+  SearchTermSingular
+}
 import io.circe.parser.decode
 import helpers.SqlSnippetMatcher.matchSqlSnippet
 import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
-import models.{MostRecent, NextPage, QueryParams, SearchParams}
-import conf.SearchTerm.English
+import _root_.models.{MostRecent, NextPage, QueryParams, SearchParams}
+import conf.SearchTerm.{English, Simple}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
@@ -64,7 +71,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "generate an empty where clause for a empty set of search params" in {
     val searchParams = SearchParams(
-      text = List.empty,
+      searchTerms = None,
       start = None,
       end = None,
       keywordIncl = Nil,
@@ -90,7 +97,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "apply beforeId or sinceId even if no other custom search params are set" in {
 
     val searchParams = SearchParams(
-      text = List.empty,
+      searchTerms = None,
       start = None,
       end = None,
       keywordIncl = Nil,
@@ -129,7 +136,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "generate a where clause for a single field" in {
     val searchParams =
       SearchParams(
-        text = List(SearchTerm.English("text1"))
+        searchTerms = Some(SearchTermSingular(SearchTerm.English("text1")))
       )
 
     val whereClause =
@@ -149,7 +156,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "concatenate keywords and category codes with 'and'" in {
     val searchParams =
       SearchParams(
-        text = List.empty,
+        searchTerms = None,
         keywordIncl = List("keyword1", "keyword2"),
         categoryCodesIncl = List("category1", "category2")
       )
@@ -174,7 +181,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "join other clauses using 'and'" in {
     val searchParams =
       SearchParams(
-        text = List(SearchTerm.English("text1")),
+        searchTerms = Some(SearchTermSingular(SearchTerm.English("text1"))),
         start = Some("2025-03-10T00:00:00.000Z"),
         end = Some("2025-03-10T23:59:59.999Z"),
         suppliersExcl = List("supplier1", "supplier2"),
@@ -192,7 +199,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val textSearchWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        SearchParams(List(SearchTerm.English("text1"))),
+        SearchParams(Some(SearchTermSingular(SearchTerm.English("text1")))),
         List(),
         None,
         None
@@ -201,7 +208,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val dateRangeWhereClause = FingerpostWireEntry
       .buildWhereClause(
         SearchParams(
-          text = List.empty,
+          searchTerms = None,
           start = Some("2025-03-10T00:00:00.000Z"),
           end = Some("2025-03-10T23:59:59.999Z")
         ),
@@ -213,7 +220,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val keywordsExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
         SearchParams(
-          text = List.empty,
+          searchTerms = None,
           keywordExcl = List("keyword1")
         ),
         List(),
@@ -224,7 +231,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val suppliersExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
         SearchParams(
-          text = List.empty,
+          searchTerms = None,
           suppliersExcl = List("supplier1", "supplier2")
         ),
         List(),
@@ -235,7 +242,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val categoryCodesExclWhereClause = FingerpostWireEntry
       .buildWhereClause(
         SearchParams(
-          text = List.empty,
+          searchTerms = None,
           categoryCodesExcl = List("category1", "category2")
         ),
         List(),
@@ -264,7 +271,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "Should cast a lower bound date only" in {
     val searchParams = SearchParams(
-      text = List.empty,
+      searchTerms = None,
       start = Some("2025-03-10T00:00:00.000Z")
     )
 
@@ -284,7 +291,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "Should cast an upper bound date only" in {
     val searchParams = SearchParams(
-      text = List.empty,
+      searchTerms = None,
       end = Some("2025-03-10T23:59:59.999Z")
     )
 
@@ -305,13 +312,17 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "should join complex search presets using 'or'" in {
 
     val customParams = SearchParams(
-      text = List.empty,
+      searchTerms = None,
       suppliersExcl = List("supplier1")
     )
 
     val presetSearchParams1 =
       SearchParams(
-        text = List(SearchTerm.Simple("News Summary", SearchField.Headline)),
+        searchTerms = Some(
+          SearchTermSingular(
+            SearchTerm.Simple("News Summary", SearchField.Headline)
+          )
+        ),
         suppliersIncl = List("REUTERS"),
         categoryCodesIncl = List(
           "N2:GB"
@@ -319,7 +330,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
     val presetSearchParams2 =
       SearchParams(
-        text = List(SearchTerm.Simple("soccer")),
+        searchTerms = Some(SearchTermSingular(SearchTerm.Simple("soccer"))),
         suppliersIncl = List("AFP"),
         categoryCodesIncl = List("afpCat:SPO")
       )
@@ -373,7 +384,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "apply date ranges using 'AND' at the top level of the query" in {
 
     val customParams = SearchParams(
-      text = List(SearchTerm.English("text1")),
+      searchTerms = Some(SearchTermSingular(SearchTerm.English("text1"))),
       start = Some("2025-03-10T00:00:00.000Z"),
       end = Some("2025-03-10T23:59:59.999Z")
     )
@@ -388,7 +399,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val dateRangeWhereClause = FingerpostWireEntry
       .buildWhereClause(
-        customParams.copy(text = List.empty),
+        customParams.copy(searchTerms = None),
         List(),
         None,
         None
@@ -416,9 +427,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "order results by descending ingestion_at by default" in {
     val queryParams = QueryParams(
-      searchParams = SearchParams(List.empty),
+      searchParams = SearchParams(),
       savedSearchParamList = Nil,
-      maybeSearchTerm = List.empty,
+      maybeSearchTerm = None,
       maybeBeforeId = None,
       maybeSinceId = None
     )
@@ -430,9 +441,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "order results by descending ingestion_at when using MostRecent update type with maybeSinceId" in {
     val queryParams = QueryParams(
-      searchParams = SearchParams(List.empty),
+      searchParams = SearchParams(),
       savedSearchParamList = Nil,
-      maybeSearchTerm = List.empty,
+      maybeSearchTerm = None,
       maybeBeforeId = None,
       maybeSinceId = Some(MostRecent(123))
     )
@@ -444,9 +455,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "order results by *ascending* ingestion_at when using NextPage update type with maybeSinceId" in {
     val queryParams = QueryParams(
-      searchParams = SearchParams(List.empty),
+      searchParams = SearchParams(None),
       savedSearchParamList = Nil,
-      maybeSearchTerm = List.empty,
+      maybeSearchTerm = None,
       maybeBeforeId = None,
       maybeSinceId = Some(NextPage(123))
     )
@@ -459,7 +470,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "FingerpostWireEntry.processSearchParams"
 
   val emptySearchParams = SearchParams(
-    text = List.empty,
+    searchTerms = None,
     start = None,
     end = None,
     keywordIncl = Nil,
@@ -499,9 +510,14 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "combine all SQL clauses when all filters are set" in {
     val fullParams = SearchParams(
-      text = List(
-        SearchTerm.English("query"),
-        SearchTerm.Simple("simple text", SearchField.BodyText)
+      searchTerms = Some(
+        SearchTermCombo(
+          List(
+            SearchTerm.English("query"),
+            SearchTerm.Simple("simple text", SearchField.BodyText)
+          ),
+          AND
+        )
       ),
       keywordIncl = List("kw1"),
       keywordExcl = List("kw2"),
@@ -521,10 +537,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     rendered should include("fm.category_codes &&")
     rendered should include("(keywordsExcl.content -> 'keywords')")
     rendered should include(
-      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch"
-    )
-    rendered should include(
-      "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple)"
+      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple)"
     )
     rendered should include("upper(fm.supplier) in")
     rendered should include("upper(sourceFeedsExcl.supplier) in")
@@ -707,6 +720,41 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
+  behavior of "search terms combined SQL helpers"
+  it should "create the correct SQL for a singular search term" in {
+    val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      SearchTermSingular(English("query"))
+    )
+    searchSQL should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
+      expectedParams = List("query")
+    )
+  }
+  it should "create the correct SQL for a combo or term" in {
+    val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      SearchTermCombo(List(English("english"), Simple("simple")), OR)
+    )
+
+    searchSQL should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch or " +
+          "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple",
+      expectedParams = List("english", "simple")
+    )
+  }
+  it should "create the correct SQL for a combo and term" in {
+    val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      SearchTermCombo(List(English("english"), Simple("simple")), AND)
+    )
+
+    searchSQL should matchSqlSnippet(
+      expectedClause =
+        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and " +
+          "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple",
+      expectedParams = List("english", "simple")
+    )
+  }
   behavior of "keywords SQL helpers"
   it should "create the correct sql snippet for keywordsIncl" in {
     val keywordSQL = FingerpostWireEntry.Filters.keywordsSQL(List("keyword"))

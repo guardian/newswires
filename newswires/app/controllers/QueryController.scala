@@ -3,7 +3,8 @@ package controllers
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
-import conf.{SearchPresets, SearchTerm}
+import conf.SearchField.Slug
+import conf.{OR, SearchPresets, SearchTerm, SearchTermCombo}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
 import models.{
@@ -72,7 +73,7 @@ class QueryController(
         .getQueryString("preset")
         .flatMap(SearchPresets.get)
         .getOrElse(Nil),
-      maybeSearchTerm = baseParams.maybeSearchTerm,
+      maybeSearchTerm = baseParams.textForHighlighting,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId.map(NextPage(_)),
       pageSize = 30

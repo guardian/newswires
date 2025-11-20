@@ -1,6 +1,16 @@
 package db
 
-import conf.{SearchConfig, SearchField, SearchTerm}
+import conf.SearchTerm.English
+import conf.{
+  AND,
+  OR,
+  SearchConfig,
+  SearchField,
+  SearchTerm,
+  SearchTermCombo,
+  SearchTermSingular,
+  SearchTerms
+}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
@@ -124,7 +134,7 @@ object FingerpostWireEntry
     math.min(math.max(x, low), high)
 
   private[db] def buildHighlightsClause(
-      maybeFreeTextQuery: Option[SearchTerm],
+      maybeFreeTextQuery: Option[English],
       highlightAll: Boolean = false
   ): SQLSyntax = {
     maybeFreeTextQuery match {
@@ -140,7 +150,7 @@ object FingerpostWireEntry
 
   private[db] def buildSingleGetQuery(
       id: Int,
-      maybeFreeTextQuery: Option[SearchTerm]
+      maybeFreeTextQuery: Option[English]
   ): SQLSyntax = {
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
@@ -155,7 +165,7 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[SearchTerm]
+      maybeFreeTextQuery: Option[English]
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
@@ -252,15 +262,26 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       }
 
-    lazy val searchTermsJoinedWithAndSQL =
-      (searchTerms: List[SearchTerm]) => {
-        sqls.joinWithAnd(searchTerms.map {
-          case SearchTerm.Simple(query, field) =>
-            simpleSearchSQL(SearchTerm.Simple(query, field))
-          case SearchTerm.English(query) =>
-            englishSearchSQL(SearchTerm.English(query))
-        }: _*)
+    lazy val searchTermSql = (searchTerm: SearchTerm) =>
+      searchTerm match {
+        case SearchTerm.Simple(query, field) =>
+          simpleSearchSQL(SearchTerm.Simple(query, field))
+        case SearchTerm.English(query) =>
+          englishSearchSQL(SearchTerm.English(query))
       }
+
+    lazy val searchTermsSql = (searchTerms: List[SearchTerm]) =>
+      searchTerms.map(searchTermSql)
+
+    val searchQuerySqlCombined = (searchTerms: SearchTerms) => {
+      searchTerms match {
+        case SearchTermCombo(terms, AND) =>
+          sqls.joinWithAnd(Filters.searchTermsSql(terms): _*)
+        case SearchTermCombo(terms, OR) =>
+          sqls.joinWithOr(Filters.searchTermsSql(terms): _*)
+        case SearchTermSingular(term) => Filters.searchTermSql(term)
+      }
+    }
 
     lazy val keywordsSQL =
       (keywords: List[String]) => keywordCondition(syn, keywords)
@@ -339,11 +360,8 @@ object FingerpostWireEntry
       case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
     }
 
-    val searchQuery = search.text match {
-      case Nil => None
-      case terms =>
-        Some(Filters.searchTermsJoinedWithAndSQL(terms))
-    }
+    val searchQuery: Option[SQLSyntax] =
+      search.searchTerms.map(Filters.searchQuerySqlCombined)
 
     val keywordsQuery = search.keywordIncl match {
       case Nil      => None
@@ -447,11 +465,7 @@ object FingerpostWireEntry
 
     val maybeSinceId = queryParams.maybeSinceId
 
-    val highlightsClause = buildHighlightsClause(
-      queryParams.maybeSearchTerm.find(term =>
-        term.searchConfig == SearchConfig.English
-      ) // Only use the first search term for highlighting, if present. It would be nice to do better here in future but might not be worth the time to implement
-    )
+    val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause = maybeSinceId match {
       case Some(NextPage(_)) =>
