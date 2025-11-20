@@ -97,7 +97,7 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = List("subj:15017000")
   }
 
-  object CricketResults {
+  object CricketScores {
     val PA: List[String] = List(
       "paCat:RCD",
       "paCat:RCK",
@@ -145,7 +145,7 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = List("subj:15048000")
   }
 
-  object RugbyResults {
+  object RugbyScores {
     val PA: List[String] = List(
       "paCat:RRG",
       "paCat:RRE",

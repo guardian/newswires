@@ -53,16 +53,16 @@ object SearchPresets {
     case "soccer-tables"        => Some(SoccerTables)
     case "no-soccer"            => Some(NoSoccer)
     case "cricket"              => Some(Cricket)
-    case "cricket-results"      => Some(CricketResults)
+    case "cricket-scores"      => Some(CricketScores)
     case "rugby-league"         => Some(RugbyLeague)
     case "rugby-union"          => Some(RugbyUnion)
-    case "rugby-results"        => Some(RugbyResults)
+    case "rugby-scores"        => Some(RugbyScores)
     case "tennis"               => Some(Tennis)
-    case "tennis-results"       => Some(TennisResults)
+    case "tennis-scores"       => Some(TennisScores)
     case "cycling"              => Some(Cycling)
     case "motor-racing"         => Some(MotorRacing)
     case "golf"                 => Some(Golf)
-    case "golf-results"         => Some(GolfResults)
+    case "golf-scores"         => Some(GolfScores)
     case "boxing"               => Some(Boxing)
     case "horse-racing"         => Some(HorseRacing)
     case "athletics"            => Some(Athletics)
@@ -237,8 +237,8 @@ object SearchPresets {
         )
       ),
       categoryCodesExcl =
-        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.CricketResults.PA ::: CategoryCodes.SoccerScores.PA
-          ::: CategoryCodes.SoccerTables.PA ::: CategoryCodes.RugbyResults.PA ::: List(
+        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.CricketScores.PA ::: CategoryCodes.SoccerScores.PA
+          ::: CategoryCodes.SoccerTables.PA ::: CategoryCodes.RugbyScores.PA ::: List(
             "paCat:RSR",
             "paCat:SRD",
             "paCat:SRN",
@@ -405,13 +405,13 @@ object SearchPresets {
     )
   )
 
-  private val CricketResults = List(
+  private val CricketScores = List(
     SearchPreset(
       REUTERS,
       searchTerms = Some(SingleTerm(Simple("(OPTA)", BodyText))),
       categoryCodes = CategoryCodes.Cricket.REUTERS
     ),
-    SearchPreset(PA, categoryCodes = CategoryCodes.CricketResults.PA),
+    SearchPreset(PA, categoryCodes = CategoryCodes.CricketScores.PA),
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(Simple("fixtures OR fixture", Headline))),
@@ -479,11 +479,11 @@ object SearchPresets {
     )
   )
 
-  private val RugbyResults = List(
+  private val RugbyScores = List(
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(Simple("-SOCCER", Slug))),
-      CategoryCodes.RugbyResults.PA
+      CategoryCodes.RugbyScores.PA
     ),
     SearchPreset(
       PA,
@@ -533,7 +533,7 @@ object SearchPresets {
     )
   )
 
-  private val TennisResults = List(
+  private val TennisScores = List(
     SearchPreset(
       REUTERS,
       searchTerms = Some(SingleTerm(Simple("(OPTA)", BodyText))),
@@ -598,7 +598,7 @@ object SearchPresets {
     )
   )
 
-  private val GolfResults = List(
+  private val GolfScores = List(
     SearchPreset(
       REUTERS,
       searchTerms = Some(SingleTerm(Simple("(OPTA)", BodyText))),

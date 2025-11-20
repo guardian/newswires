@@ -52,7 +52,7 @@ export const sportPresets: Preset[] = [
 	},
 	{
 		name: 'Cricket scores',
-		id: 'cricket-results',
+		id: 'cricket-scores',
 	},
 	{
 		name: 'Cycling',
@@ -64,7 +64,7 @@ export const sportPresets: Preset[] = [
 	},
 	{
 		name: 'Golf scores',
-		id: 'golf-results',
+		id: 'golf-scores',
 	},
 	{
 		name: 'Horse racing',
@@ -88,7 +88,7 @@ export const sportPresets: Preset[] = [
 	},
 	{
 		name: 'Rugby scores',
-		id: 'rugby-results',
+		id: 'rugby-scores',
 	},
 	{
 		name: 'Tennis',
@@ -96,7 +96,7 @@ export const sportPresets: Preset[] = [
 	},
 	{
 		name: 'Tennis scores',
-		id: 'tennis-results',
+		id: 'tennis-scores',
 	},
 	{
 		name: 'All data formats',
