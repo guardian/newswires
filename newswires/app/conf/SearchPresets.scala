@@ -53,6 +53,7 @@ object SearchPresets {
     case "soccer-tables"        => Some(SoccerTables)
     case "no-soccer"            => Some(NoSoccer)
     case "baseball"             => Some(Baseball)
+    case "basketball"           => Some(Basketball)
     case "cricket"              => Some(Cricket)
     case "cricket-scores"       => Some(CricketScores)
     case "rugby-league"         => Some(RugbyLeague)
@@ -393,6 +394,37 @@ object SearchPresets {
       AP,
         keywords = List("Baseball", "MLB baseball"),
         categoryCodes = CategoryCodes.Sport.AP
+    )
+  )
+
+  private val Basketball = List(
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("N2:BASK", "subj:15008000", "subj:15008001")
+    ),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("BASKETBALL", Slug))),
+      CategoryCodes.Sport.PA ::: List("paCat:RSR")
+    ),
+    SearchPreset(
+      AAP,
+      categoryCodes = List("subj:15008000", "subj:15008001")
+    ),
+    SearchPreset(
+      AFP,
+      searchTerms = Some(SingleTerm(Simple("Basket", Slug))),
+      categoryCodes = CategoryCodes.Sport.AFP
+    ),
+    SearchPreset(
+      AP,
+      searchTerms = Some(SingleTerm(Simple("BKN OR BKW", Slug))),
+      CategoryCodes.Sport.AP
+    ),
+    SearchPreset(
+      AP,
+      keywords = List("Basketball", "NBA basketball"),
+      categoryCodes = CategoryCodes.Sport.AP
     )
   )
 
