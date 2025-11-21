@@ -666,10 +666,15 @@ object SearchPresets {
 
   private val MotorSport = List(
     SearchPreset(REUTERS, categoryCodes = CategoryCodes.MotorSport.REUTERS),
-    SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("auto", Slug))), CategoryCodes.Sport.PA),
-    SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("auto", Slug))), CategoryCodes.Sport.AFP),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("auto OR MOTO", Slug))),
+      categoryCodes = CategoryCodes.Sport.PA ::: List("paCat:RSR")
+    ),
+    SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("auto OR moto", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.MotorSport.AAP),
-    SearchPreset(AP, categoryCodes = CategoryCodes.Sport.AP, keyword = Some("Automobile racing"))
+    SearchPreset(AP, searchTerms = Some(SingleTerm(Simple("CAR", Slug))), categoryCodes = CategoryCodes.Sport.AP),
+    SearchPreset(AP, categoryCodes = CategoryCodes.Sport.AP, keywords = List("Automobile racing", "Formula One racing"))
   )
 
   private val Golf = List(

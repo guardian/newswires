@@ -126,8 +126,45 @@ private[conf] object CategoryCodes {
   }
 
   object MotorSport {
-    val REUTERS: List[String] = List("N2:MORA", "subj:15039000")
-    val AAP: List[String] = List("subj:15039000")
+    val REUTERS: List[String] = List(
+      "N2:FO1",
+      "N2:MORA",
+      "N2:MOCY",
+      "subj:15039000",
+      "subj:15039001",
+      "subj:15039002",
+      "subj:15039003",
+      "subj:15039004",
+      "subj:15041000",
+      "subj:15041002",
+      "subj:15041003",
+      "subj:15041004",
+      "subj:15041005",
+      "subj:15041014",
+      "subj:15041006",
+      "subj:15041007",
+      "subj:15041008",
+      "subj:15041013",
+      "subj:15057000"
+    )
+    val AAP: List[String] = List(
+      "subj:15039000",
+      "subj:15039001",
+      "subj:15039002",
+      "subj:15039003",
+      "subj:15039004",
+      "subj:15041000",
+      "subj:15041002",
+      "subj:15041003",
+      "subj:15041004",
+      "subj:15041005",
+      "subj:15041014",
+      "subj:15041006",
+      "subj:15041007",
+      "subj:15041008",
+      "subj:15041013",
+      "subj:15057000"
+    )
   }
 
   object Golf {
