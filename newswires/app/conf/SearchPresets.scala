@@ -402,7 +402,7 @@ object SearchPresets {
       searchTerms = Some(
         ComboTerm(
           List(
-            Simple("FBN", Slug),
+            Simple("FBN -FBC", Slug),
             Simple("\"Sports Betting Line\"", Headline)
           ),
           OR
@@ -412,6 +412,7 @@ object SearchPresets {
     ),
     SearchPreset(
       AP,
+      searchTerms = Some(SingleTerm(Simple("-FBC", Slug))),
       keywords = List("Football", "NFL football", "NFL Playoffs"),
       categoryCodes = CategoryCodes.Sport.AP
     )
@@ -425,7 +426,7 @@ object SearchPresets {
     SearchPreset(
       AAP,
       categoryCodes = List("subj:15084000")
-    ),
+    )
   )
 
   private val Baseball = List(
@@ -440,11 +441,12 @@ object SearchPresets {
     ),
     SearchPreset(
       AP,
-      searchTerms = Some(SingleTerm(Simple("BBO", Slug))),
+      searchTerms = Some(SingleTerm(Simple("BBO -BBC", Slug))),
       CategoryCodes.Sport.AP
     ),
     SearchPreset(
       AP,
+      searchTerms = Some(SingleTerm(Simple("-BBC", Slug))),
       keywords = List("Baseball", "MLB baseball"),
       categoryCodes = CategoryCodes.Sport.AP
     )
@@ -471,12 +473,7 @@ object SearchPresets {
     ),
     SearchPreset(
       AP,
-      searchTerms = Some(SingleTerm(Simple("BKN OR BKW", Slug))),
-      CategoryCodes.Sport.AP
-    ),
-    SearchPreset(
-      AP,
-      keywords = List("Basketball", "NBA basketball"),
+      searchTerms = Some(SingleTerm(Simple("-BKC -BKW BKN OR BKL", Slug))),
       categoryCodes = CategoryCodes.Sport.AP
     )
   )
@@ -489,7 +486,7 @@ object SearchPresets {
     SearchPreset(
       AP,
       searchTerms = Some(SingleTerm(Simple("BKC OR BKW OR FBC OR HKC", Slug))),
-      categoryCodes = CategoryCodes.Sport.AP,
+      categoryCodes = CategoryCodes.Sport.AP
     ),
     SearchPreset(
       AP,
@@ -795,7 +792,7 @@ object SearchPresets {
     ),
     SearchPreset(
       AP,
-      searchTerms = Some(SingleTerm(Simple("HKN", Slug))),
+      searchTerms = Some(SingleTerm(Simple("HKN OR HKW", Slug))),
       CategoryCodes.Sport.AP
     ),
     SearchPreset(
