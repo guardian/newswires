@@ -384,7 +384,7 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("GRIDIRON", Slug))),
+      searchTerms = Some(SingleTerm(Simple("GRIDIRON", Slug)))
     ),
     SearchPreset(
       AAP,
@@ -430,10 +430,10 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("BBO", Slug))),
       CategoryCodes.Sport.AP
     ),
-      SearchPreset(
+    SearchPreset(
       AP,
-        keywords = List("Baseball", "MLB baseball"),
-        categoryCodes = CategoryCodes.Sport.AP
+      keywords = List("Baseball", "MLB baseball"),
+      categoryCodes = CategoryCodes.Sport.AP
     )
   )
 
