@@ -43,7 +43,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.19.2"
+val jacksonVersion = "2.19.4"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
