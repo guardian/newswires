@@ -47,6 +47,10 @@ export const sportPresets: Preset[] = [
 		id: 'athletics',
 	},
 	{
+		name: 'Australian rules',
+		id: 'australian-rules',
+	},
+	{
 		name: 'Baseball',
 		id: 'baseball',
 	},

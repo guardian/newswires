@@ -53,6 +53,7 @@ object SearchPresets {
     case "soccer-tables"        => Some(SoccerTables)
     case "no-soccer"            => Some(NoSoccer)
     case "american-football"    => Some(AmericanFootball)
+    case "australian-rules"     => Some(AustralianRules)
     case "baseball"             => Some(Baseball)
     case "basketball"           => Some(Basketball)
     case "cricket"              => Some(Cricket)
@@ -413,6 +414,17 @@ object SearchPresets {
       keywords = List("Football", "NFL football", "NFL Playoffs"),
       categoryCodes = CategoryCodes.Sport.AP
     )
+  )
+
+  private val AustralianRules = List(
+    SearchPreset(
+      REUTERS,
+      categoryCodes = List("N2:AUSR", "subj:15084000")
+    ),
+    SearchPreset(
+      AAP,
+      categoryCodes = List("subj:15084000")
+    ),
   )
 
   private val Baseball = List(
