@@ -289,7 +289,12 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("-(OPTA)", BodyText))),
       CategoryCodes.Soccer.REUTERS
     ),
-    SearchPreset(PA, categoryCodes = CategoryCodes.Soccer.PA, hasDataFormatting = Some(false)),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("-RUGBYU", Slug))),
+      categoryCodes = CategoryCodes.Soccer.PA,
+      hasDataFormatting = Some(false)
+    ),
     SearchPreset(
       AFP,
       searchTerms = Some(
