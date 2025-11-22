@@ -66,6 +66,11 @@ startDockerContainers() {
   yes | ./db/flyway.sc migrate local
 }
 
+startQueueingLambda() {
+  pushd "$ROOT_DIR/fingerpost-queueing-lambda"
+  npm install
+  npm run dev
+}
 startIngestionLambda() {
   pushd "$ROOT_DIR/ingestion-lambda"
   npm install
@@ -100,7 +105,7 @@ main() {
       echo "Using the local stack. Starting Docker, Ingestion Lambda and Play App."
       startDockerContainers
       # run all three, and terminate together when the user presses `ctrl+c`: https://stackoverflow.com/a/52033580
-      (trap 'kill 0' SIGINT; startIngestionLambda & startPlayApp & wait)
+      (trap 'kill 0' SIGINT; startQueueingLambda & startIngestionLambda & startPlayApp & wait)
     fi
 }
 
