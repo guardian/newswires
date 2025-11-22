@@ -291,7 +291,7 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("-RUGBYU", Slug))),
+      searchTerms = Some(SingleTerm(Simple("-RUGBYU -RUGBY", Slug))),
       categoryCodes = CategoryCodes.Soccer.PA,
       hasDataFormatting = Some(false)
     ),
