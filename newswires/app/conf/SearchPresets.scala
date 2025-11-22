@@ -594,8 +594,8 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("RUGBYU -Summaries -Scorer", Slug))),
-      CategoryCodes.Sport.PA
+      searchTerms = Some(SingleTerm(Simple("\"RUGBY UNION\" OR RUGBYU -Summaries -Scorer", Slug))),
+      CategoryCodes.Sport.PA ::: List("paCat:SFF")
     ),
     SearchPreset(
       AFP,
