@@ -323,7 +323,12 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("SOCCER", Slug))),
       CategoryCodes.SoccerScores.PA
     ),
-    SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("SOCCER TABULATED RESULTS", Slug)))),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("\"Divisional Summaries\"", Slug))),
+      CategoryCodes.SoccerScores.PA
+    ),
+    SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("\"SOCCER TABULATED RESULTS\" OR `\"DATA FORMAT\"", Slug)))),
     SearchPreset(
       AFP,
       searchTerms = Some(ComboTerm(List(Simple("fbl", Slug), Simple("result OR results OR scorers", Headline)), AND)),
@@ -606,6 +611,11 @@ object SearchPresets {
       PA,
       searchTerms = Some(SingleTerm(Simple("-SOCCER", Slug))),
       CategoryCodes.RugbyScores.PA
+    ),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("RUGBY TABULATED", Slug))),
+      categoryCodes = List("paCat:RFC")
     ),
     SearchPreset(
       PA,
