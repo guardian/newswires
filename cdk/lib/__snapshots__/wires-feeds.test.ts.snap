@@ -144,7 +144,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "Dead letter queue has increased by more than 5 messages in a single evaluation.",
-        "AlarmName": "DLQ growth by >5 in 5 minute TEST",
+        "AlarmName": "DLQ growth by >5 in 5 minute for fingerpost queue TEST",
         "ComparisonOperator": "GreaterThanThreshold",
         "EvaluationPeriods": 1,
         "Metrics": [
@@ -605,7 +605,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "Dead letter queue has increased by more than 5 messages in a single evaluation.",
-        "AlarmName": "DLQ growth by >5 in 5 minute TEST",
+        "AlarmName": "DLQ growth by >5 in 5 minute for source queue TEST",
         "ComparisonOperator": "GreaterThanThreshold",
         "EvaluationPeriods": 1,
         "Metrics": [
