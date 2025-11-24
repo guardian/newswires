@@ -117,7 +117,7 @@ export class WiresFeeds extends GuStack {
 			});
 
 			new GuAlarm(scope, `${topicType}DeadLetterQueueDeltaAlarm`, {
-				alarmName: `DLQ growth by >5 in 5 minute ${scope.stage}`,
+				alarmName: `DLQ growth by >5 in 5 minute for ${topicType} queue ${scope.stage}`,
 				alarmDescription:
 					'Dead letter queue has increased by more than 5 messages in a single evaluation.',
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
