@@ -121,7 +121,7 @@ export class WiresFeeds extends GuStack {
 				actionsEnabled: scope.stage === 'PROD',
 				alarmName: `DLQ growth by >5 in 5 minute ${scope.stage}`,
 				alarmDescription:
-					'Dead letter queue has increased by more than 100 messages in a single evaluation.',
+					'Dead letter queue has increased by more than 5 messages in a single evaluation.',
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
 				threshold: 5,
 				metric: delta,
