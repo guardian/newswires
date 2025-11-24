@@ -173,9 +173,9 @@ class QueryController(
   }
 
   def toolLinksForWires = apiAuthAction { request: UserRequest[AnyContent] =>
-    request.body.asJson.flatMap(_.asOpt[List[Long]]) match {
-      case None => BadRequest
-      case Some(idList) =>
+    request.body.asJson
+      .flatMap(_.asOpt[List[Long]])
+      .fold(BadRequest("invalid or missing request body")) { idList =>
         val toolLinks = ToolLink.get(idList)
         val linksByWire = toolLinks.groupBy(_.wireId)
         val wireToolLinks = linksByWire
@@ -188,7 +188,7 @@ class QueryController(
           .toList
 
         Ok(wireToolLinks.asJson.spaces2)
-    }
+      }
   }
 
   def toolLinksForWire(wireId: Long) = apiAuthAction {
