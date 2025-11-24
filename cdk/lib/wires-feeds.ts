@@ -96,9 +96,9 @@ export class WiresFeeds extends GuStack {
 				statistic: Stats.MAXIMUM,
 			});
 
-			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm`, {
+			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm-Warning`, {
 				okAction: true,
-				alarmName: `Messages in DLQ for ${topicType} queue ${scope.stage}`,
+				alarmName: `Warning: Messages in DLQ for ${topicType} queue ${scope.stage}`,
 				alarmDescription: `There are messages in the dead letter queue for the ${topicType} queue. We should investigate why and remediate`,
 				app: appName,
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
@@ -109,11 +109,24 @@ export class WiresFeeds extends GuStack {
 				evaluationPeriods: 1,
 			});
 
-			new GuAlarm(scope, `${topicType}DeadLetterQueueDeltaAlarm`, {
+			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm-Growing`, {
 				alarmName: `DLQ is over 10 for ${topicType} queue ${scope.stage}`,
-				alarmDescription: `There are over 10 messages in the dead letter queue for the ${topicType}. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.`,
+				alarmDescription: `Strong Warning: There are over 10 messages in the dead letter queue for the ${topicType}. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.`,
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
 				threshold: 10,
+				metric: visible,
+				evaluationPeriods: 1,
+				snsTopicName: alarmSnsTopic.topicName,
+				app: appName,
+			});
+
+			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm-High`, {
+				alarmName: `DLQ is over 50 for ${topicType} queue ${scope.stage}`,
+				alarmDescription: `High concern: There are over 50 messages in the dead letter queue for the ${topicType}. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.`,
+				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				threshold: 50,
 				metric: visible,
 				evaluationPeriods: 1,
 				snsTopicName: alarmSnsTopic.topicName,
