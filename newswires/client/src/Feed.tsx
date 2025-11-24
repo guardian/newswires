@@ -59,7 +59,7 @@ export const Feed = ({
 	useEffect(() => {
 		const intervalId = setInterval(() => {
 			if (!queryData) return;
-			const wireIds = queryData.results.map((r) => String(r.id));
+			const wireIds = queryData.results.map((r) => r.id);
 			fetchToolLinks(wireIds)
 				.then((wireToolLinks: WireToolLinks) => {
 					const toolLinksMap = wireToolLinks.reduce<Record<number, ToolLink[]>>(
