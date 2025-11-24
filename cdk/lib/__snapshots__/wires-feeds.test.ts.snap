@@ -21,7 +21,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
   "Resources": {
     "fingerpostDeadLetterQueueAlarm105C0EED": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -118,7 +118,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
     },
     "fingerpostDeadLetterQueueDeltaAlarmF684E3A5": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -482,7 +482,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
     },
     "sourceDeadLetterQueueAlarm6BA1CE93": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -579,7 +579,7 @@ exports[`The WiresFeeds stack matches the snapshot 1`] = `
     },
     "sourceDeadLetterQueueDeltaAlarm8AB039A9": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [

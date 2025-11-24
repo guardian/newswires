@@ -64,7 +64,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
   "Resources": {
     "fingerpostDeadLetterQueueAlarm105C0EED": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -153,7 +153,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     },
     "fingerpostDeadLetterQueueDeltaAlarmF684E3A5": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -513,7 +513,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     },
     "sourceDeadLetterQueueAlarm6BA1CE93": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -602,7 +602,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     },
     "sourceDeadLetterQueueDeltaAlarm8AB039A9": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [

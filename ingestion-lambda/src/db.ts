@@ -29,7 +29,7 @@ export async function putItemToDb({
 	try {
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
-			(external_id, supplier, content, category_codes, s3_key, ingested_at, precomputed_categories, last_updated_at)
+			(external_id, supplier1, content, category_codes, s3_key, ingested_at, precomputed_categories, last_updated_at)
 		VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}, ${ingestedAt}, ${computedCategories}, now()) ON CONFLICT (external_id) DO NOTHING
 		RETURNING id`;
 
