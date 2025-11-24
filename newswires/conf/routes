@@ -12,7 +12,8 @@ GET     /ticker/item/*id            controllers.ViteController.item(id: String)
 GET     /api/search                 controllers.QueryController.query(q: Option[String], keyword: List[String], supplier: List[String], categoryCode: List[String], categoryCodeExcl: List[String], start: Option[String], end: Option[String], beforeId: Option[Int], sinceId: Option[Int], hasDataFormatting: Option[Boolean])
 GET     /api/keywords               controllers.QueryController.keywords(inLastHours: Option[Int], limit:Option[Int])
 GET     /api/item/:id               controllers.QueryController.item(id: Int, q: Option[String])
-GET     /api/toollinks              controllers.QueryController.toolLinksForWires(wireIds: String)
++nocsrf # justification: body only used to query, makes no change to database
+POST    /api/toollinks              controllers.QueryController.toolLinksForWires
 GET     /api/toollinks/:wireId      controllers.QueryController.toolLinksForWire(wireId: Long)
 
 +nocsrf # justification: we are only processing very minimal information here -- composer ID and who the article was sent by. And CSRF protections have caused multiple issues for users. But if we ever start processing more information, or loosen CORS configuration, then we should look at adding CSRF protections back.

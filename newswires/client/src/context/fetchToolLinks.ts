@@ -13,31 +13,30 @@ export const fetchToolLink = async (wireId: string): Promise<ToolLink[]> => {
 	);
 };
 export const fetchToolLinks = async (
-	wireIds: string[],
+	wireIds: number[],
 ): Promise<WireToolLinks> => {
 	if (wireIds.length === 0) return [];
 	const endpoint = '/api/toollinks';
-	const queryString = new URLSearchParams({
-		wireIds: wireIds.join(','),
-	}).toString();
+	const body = JSON.stringify(wireIds);
 	return apiFetch<WireToolLinks>(
 		endpoint,
 		(data) => WiresToolLinksResponseSchema.safeParse(data),
-		queryString,
+		{ body },
 	);
 };
 
 const apiFetch = async <T>(
 	endpoint: string,
 	parser: (data: unknown) => ZodSafeParseResult<T>,
-	queryString?: string,
+	{ queryString, body }: { queryString?: string; body?: string } = {},
 ): Promise<T> => {
 	const url = queryString ? `${endpoint}?${queryString}` : `${endpoint}`;
-	const response = await pandaFetch(url, {
-		headers: {
-			Accept: 'application/json',
-		},
-	});
+	const headers: Record<string, string> = { Accept: 'application/json' };
+	if (body) {
+		headers['Content-Type'] = 'application/json';
+	}
+	const method = body ? 'POST' : 'GET';
+	const response = await pandaFetch(url, { headers, body, method });
 	const data = (await response.json()) as unknown;
 	if (!response.ok) {
 		throw new Error(

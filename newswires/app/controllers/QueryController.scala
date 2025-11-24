@@ -172,24 +172,23 @@ class QueryController(
       }
   }
 
-  def toolLinksForWires(wireIds: String) = apiAuthAction {
-    request: UserRequest[AnyContent] =>
-      val idList = wireIds.split(',').toList.map(_.toLong)
-      val toolLinks = ToolLink.get(idList)
-      val wireToolLinks = toolLinks
-        .foldLeft(Map[Long, List[ToolLink]]().empty)((acc, toolLink) => {
-          val links = acc.getOrElse(toolLink.wireId, Nil)
-          acc.updated(toolLink.wireId, toolLink :: links)
-        })
-        .map({ case (wireId, toolLinks) =>
-          WireToolLinks(
-            wireId,
-            ToolLink.display(toolLinks, request.user.username)
-          )
-        })
-        .toList
+  def toolLinksForWires = apiAuthAction { request: UserRequest[AnyContent] =>
+    request.body.asJson
+      .flatMap(_.asOpt[List[Long]])
+      .fold(BadRequest("invalid or missing request body")) { idList =>
+        val toolLinks = ToolLink.get(idList)
+        val linksByWire = toolLinks.groupBy(_.wireId)
+        val wireToolLinks = linksByWire
+          .map({ case (wireId, toolLinks) =>
+            WireToolLinks(
+              wireId,
+              ToolLink.display(toolLinks, request.user.username)
+            )
+          })
+          .toList
 
-      Ok(wireToolLinks.asJson.spaces2)
+        Ok(wireToolLinks.asJson.spaces2)
+      }
   }
 
   def toolLinksForWire(wireId: Long) = apiAuthAction {
