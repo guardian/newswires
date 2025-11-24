@@ -174,40 +174,25 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             ],
           },
         ],
-        "AlarmDescription": "Dead letter queue has increased by more than 5 messages in a single evaluation.",
-        "AlarmName": "DLQ growth by >5 in 5 minute for fingerpost queue TEST",
+        "AlarmDescription": "There are over 10 messages in the dead letter queue for the fingerpost. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.",
+        "AlarmName": "DLQ is over 10 for fingerpost queue TEST",
         "ComparisonOperator": "GreaterThanThreshold",
-        "EvaluationPeriods": 1,
-        "Metrics": [
+        "Dimensions": [
           {
-            "Expression": "m1 - PREVIOUS(m1)",
-            "Id": "expr_1",
-            "ReturnData": true,
-          },
-          {
-            "Id": "m1",
-            "MetricStat": {
-              "Metric": {
-                "Dimensions": [
-                  {
-                    "Name": "QueueName",
-                    "Value": {
-                      "Fn::GetAtt": [
-                        "fingerpostqueueDeadLetterQueueTESTC46C734A",
-                        "QueueName",
-                      ],
-                    },
-                  },
-                ],
-                "MetricName": "ApproximateNumberOfMessagesVisible",
-                "Namespace": "AWS/SQS",
-              },
-              "Period": 300,
-              "Stat": "Maximum",
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "fingerpostqueueDeadLetterQueueTESTC46C734A",
+                "QueueName",
+              ],
             },
-            "ReturnData": false,
           },
         ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "Period": 60,
+        "Statistic": "Maximum",
         "Tags": [
           {
             "Key": "App",
@@ -230,7 +215,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Value": "TEST",
           },
         ],
-        "Threshold": 5,
+        "Threshold": 10,
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
@@ -623,40 +608,25 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             ],
           },
         ],
-        "AlarmDescription": "Dead letter queue has increased by more than 5 messages in a single evaluation.",
-        "AlarmName": "DLQ growth by >5 in 5 minute for source queue TEST",
+        "AlarmDescription": "There are over 10 messages in the dead letter queue for the source. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.",
+        "AlarmName": "DLQ is over 10 for source queue TEST",
         "ComparisonOperator": "GreaterThanThreshold",
-        "EvaluationPeriods": 1,
-        "Metrics": [
+        "Dimensions": [
           {
-            "Expression": "m1 - PREVIOUS(m1)",
-            "Id": "expr_1",
-            "ReturnData": true,
-          },
-          {
-            "Id": "m1",
-            "MetricStat": {
-              "Metric": {
-                "Dimensions": [
-                  {
-                    "Name": "QueueName",
-                    "Value": {
-                      "Fn::GetAtt": [
-                        "sourcequeueDeadLetterQueueTEST4E4374EA",
-                        "QueueName",
-                      ],
-                    },
-                  },
-                ],
-                "MetricName": "ApproximateNumberOfMessagesVisible",
-                "Namespace": "AWS/SQS",
-              },
-              "Period": 300,
-              "Stat": "Maximum",
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "sourcequeueDeadLetterQueueTEST4E4374EA",
+                "QueueName",
+              ],
             },
-            "ReturnData": false,
           },
         ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "Period": 60,
+        "Statistic": "Maximum",
         "Tags": [
           {
             "Key": "App",
@@ -679,7 +649,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Value": "TEST",
           },
         ],
-        "Threshold": 5,
+        "Threshold": 10,
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
