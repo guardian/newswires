@@ -5,7 +5,6 @@ import type { App } from 'aws-cdk-lib';
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
 	ComparisonOperator,
-	MathExpression,
 	Stats,
 	TreatMissingData,
 } from 'aws-cdk-lib/aws-cloudwatch';
@@ -111,20 +110,13 @@ export class WiresFeeds extends GuStack {
 				evaluationPeriods: 1,
 			});
 
-			const delta = new MathExpression({
-				expression: 'm1 - PREVIOUS(m1)',
-				usingMetrics: { m1: visible },
-				period: Duration.minutes(5),
-			});
-
 			new GuAlarm(scope, `${topicType}DeadLetterQueueDeltaAlarm`, {
 				actionsEnabled: scope.stage === 'PROD',
-				alarmName: `DLQ growth by >5 in 5 minute for ${topicType} queue ${scope.stage}`,
-				alarmDescription:
-					'Dead letter queue has increased by more than 5 messages in a single evaluation.',
+				alarmName: `DLQ is over 10 for ${topicType} queue ${scope.stage}`,
+				alarmDescription: `There are over 10 messages in the dead letter queue for the ${topicType}. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.`,
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-				threshold: 5,
-				metric: delta,
+				threshold: 10,
+				metric: visible,
 				evaluationPeriods: 1,
 				snsTopicName: alarmSnsTopic.topicName,
 				app: appName,
