@@ -1030,6 +1030,13 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuLambdaFunction",
       "GuLambdaFunction",
       "GuStringParameter",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -3059,6 +3066,552 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "ToPort": 9000,
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "MissingLogsINGESTIONSUCCESSAAP24EF5EBF": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for AAP in a while. This could indicate there is an issue with our integration with AAP. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AAP",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "AAP",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 30,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSAFPEB9F75F2": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for AFP in a while. This could indicate there is an issue with our integration with AFP. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AFP",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "AFP",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 30,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSAP38E5D9DD": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for AP in a while. This could indicate there is an issue with our integration with AP. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AP",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "AP",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 30,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSMINORAGENCIESE3A8E820": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for MINOR_AGENCIES in a while. This could indicate there is an issue with our integration with MINOR_AGENCIES. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: MINOR_AGENCIES",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "MINOR_AGENCIES",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 30,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSPA319171CD": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for PA in a while. This could indicate there is an issue with our integration with PA. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: PA",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "PA",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 30,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSREUTERS1DF07EDB": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for REUTERS in a while. This could indicate there is an issue with our integration with REUTERS. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: REUTERS",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "REUTERS",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 30,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSUNAUTHEDEMAILFEEDAD6AC6D6": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for UNAUTHED_EMAIL_FEED in a while. This could indicate there is an issue with our integration with UNAUTHED_EMAIL_FEED. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: UNAUTHED_EMAIL_FEED",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "UNAUTHED_EMAIL_FEED",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 30,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "NewswiresCopyEmailBucketNewswires26C541A0": {
       "DeletionPolicy": "Retain",
