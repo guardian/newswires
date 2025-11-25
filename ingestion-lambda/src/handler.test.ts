@@ -325,7 +325,7 @@ describe('handler.main', () => {
 		expect(mockInitialiseDbConnection).toHaveBeenCalled();
 	});
 
-	it('should fail if SES verification contains non-PASS values', async () => {
+	it('should log a failure if SES verification contains non-PASS values, but not return errors for retry', async () => {
 		mockGetFromS3.mockResolvedValue({
 			status: 'success',
 			body: sampleMimeEmailData,
@@ -344,8 +344,9 @@ describe('handler.main', () => {
 		} as unknown as SESEvent;
 
 		const result = (await main(failingSesEvent)) as SQSBatchResponse;
+		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
 
-		expect(result.batchItemFailures).toEqual([{ itemIdentifier: '123' }]);
+		expect(result.batchItemFailures).toEqual([]);
 	});
 });
 

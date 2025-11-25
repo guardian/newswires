@@ -7,6 +7,10 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuStringParameter",
       "GuAlarm",
       "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -60,7 +64,145 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     },
   },
   "Resources": {
-    "fingerpostDeadLetterQueueAlarm105C0EED": {
+    "fingerpostDeadLetterQueueAlarmGrowing58148672": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "Strong Warning: There are over 10 messages in the dead letter queue for the fingerpost. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.",
+        "AlarmName": "DLQ is over 10 for fingerpost queue TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "fingerpostqueueDeadLetterQueueTESTC46C734A",
+                "QueueName",
+              ],
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "Period": 60,
+        "Statistic": "Maximum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 10,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "fingerpostDeadLetterQueueAlarmHigh6D0B964F": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "High concern: There are over 50 messages in the dead letter queue for the fingerpost. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.",
+        "AlarmName": "DLQ is over 50 for fingerpost queue TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "fingerpostqueueDeadLetterQueueTESTC46C734A",
+                "QueueName",
+              ],
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "Period": 60,
+        "Statistic": "Maximum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 50,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "fingerpostDeadLetterQueueAlarmWarning3D7F9681": {
       "Properties": {
         "ActionsEnabled": false,
         "AlarmActions": [
@@ -84,7 +226,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
           },
         ],
         "AlarmDescription": "There are messages in the dead letter queue for the fingerpost queue. We should investigate why and remediate",
-        "AlarmName": "Messages in DLQ for fingerpost queue TEST",
+        "AlarmName": "Warning: Messages in DLQ for fingerpost queue TEST",
         "ComparisonOperator": "GreaterThanThreshold",
         "Dimensions": [
           {
@@ -144,7 +286,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Value": "TEST",
           },
         ],
-        "Threshold": 10,
+        "Threshold": 0,
         "TreatMissingData": "notBreaching",
       },
       "Type": "AWS::CloudWatch::Alarm",
@@ -426,7 +568,145 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::SNS::Subscription",
     },
-    "sourceDeadLetterQueueAlarm6BA1CE93": {
+    "sourceDeadLetterQueueAlarmGrowing98BA873A": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "Strong Warning: There are over 10 messages in the dead letter queue for the source. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.",
+        "AlarmName": "DLQ is over 10 for source queue TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "sourcequeueDeadLetterQueueTEST4E4374EA",
+                "QueueName",
+              ],
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "Period": 60,
+        "Statistic": "Maximum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 10,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "sourceDeadLetterQueueAlarmHighD64CF03E": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::GetAtt": [
+                    "newswiresemailalarmtopicB2906D97",
+                    "TopicName",
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "High concern: There are over 50 messages in the dead letter queue for the source. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.",
+        "AlarmName": "DLQ is over 50 for source queue TEST",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "sourcequeueDeadLetterQueueTEST4E4374EA",
+                "QueueName",
+              ],
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Namespace": "AWS/SQS",
+        "Period": 60,
+        "Statistic": "Maximum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "wires-feeds",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 50,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "sourceDeadLetterQueueAlarmWarningF2BFA615": {
       "Properties": {
         "ActionsEnabled": false,
         "AlarmActions": [
@@ -450,7 +730,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
           },
         ],
         "AlarmDescription": "There are messages in the dead letter queue for the source queue. We should investigate why and remediate",
-        "AlarmName": "Messages in DLQ for source queue TEST",
+        "AlarmName": "Warning: Messages in DLQ for source queue TEST",
         "ComparisonOperator": "GreaterThanThreshold",
         "Dimensions": [
           {
@@ -510,7 +790,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "Value": "TEST",
           },
         ],
-        "Threshold": 10,
+        "Threshold": 0,
         "TreatMissingData": "notBreaching",
       },
       "Type": "AWS::CloudWatch::Alarm",
@@ -750,7 +1030,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuLambdaFunction",
       "GuLambdaFunction",
       "GuStringParameter",
-      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -1431,78 +1710,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::IAM::Policy",
-    },
-    "FailedIngestionAlarm4092BF58": {
-      "Properties": {
-        "ActionsEnabled": false,
-        "AlarmActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:eu-west-1:",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
-                },
-              ],
-            ],
-          },
-        ],
-        "AlarmDescription": "Stories have failed to ingest into Newswires. We should investigate why and remediate",
-        "AlarmName": "Ingestion failed on Newswires TEST",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "EvaluationPeriods": 1,
-        "MetricName": "IngestionSourceFeeds-ingestion_failure",
-        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
-        "OKActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:eu-west-1:",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
-                },
-              ],
-            ],
-          },
-        ],
-        "Period": 60,
-        "Statistic": "Sum",
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "newswires",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-        "Threshold": 1,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
     },
     "FingerpostQueueingLambdaTEST60860D74": {
       "DependsOn": [
@@ -2573,36 +2780,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
       },
       "Type": "AWS::Lambda::EventSourceMapping",
-    },
-    "IngestionSourceFeedsFilterINGESTIONFAILUREF1DA2E73": {
-      "Properties": {
-        "FilterPattern": "{ $.eventType = "INGESTION_FAILURE" }",
-        "LogGroupName": {
-          "Fn::Join": [
-            "",
-            [
-              "/aws/lambda/",
-              {
-                "Ref": "IngestionLambdaTESTC02B3E43",
-              },
-            ],
-          ],
-        },
-        "MetricTransformations": [
-          {
-            "Dimensions": [
-              {
-                "Key": "supplier",
-                "Value": "$.supplier",
-              },
-            ],
-            "MetricName": "IngestionSourceFeeds-ingestion_failure",
-            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
-            "MetricValue": "1",
-          },
-        ],
-      },
-      "Type": "AWS::Logs::MetricFilter",
     },
     "IngestionSourceFeedsFilterINGESTIONSUCCESS27AB7930": {
       "Properties": {

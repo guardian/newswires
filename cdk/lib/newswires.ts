@@ -1,10 +1,7 @@
 import type { Alarms } from '@guardian/cdk';
 import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
-import {
-	GuAlarm,
-	type NoMonitoring,
-} from '@guardian/cdk/lib/constructs/cloudwatch';
+import { type NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import {
 	GuParameter,
@@ -32,11 +29,6 @@ import {
 } from 'aws-cdk-lib/aws-cloudfront';
 import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
-	ComparisonOperator,
-	Stats,
-	TreatMissingData,
-} from 'aws-cdk-lib/aws-cloudwatch';
-import {
 	InstanceClass,
 	InstanceSize,
 	InstanceType,
@@ -61,10 +53,7 @@ import {
 	ParameterTier,
 	StringParameter,
 } from 'aws-cdk-lib/aws-ssm';
-import {
-	FAILED_INGESTION_EVENT_TYPE,
-	SUCCESSFUL_INGESTION_EVENT_TYPE,
-} from '../../shared/constants';
+import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
@@ -328,26 +317,6 @@ export class Newswires extends GuStack {
 			});
 
 		ingestionEventMetricFilter(SUCCESSFUL_INGESTION_EVENT_TYPE);
-		const failedIngestionMetricFilter = ingestionEventMetricFilter(
-			FAILED_INGESTION_EVENT_TYPE,
-		);
-
-		new GuAlarm(this, 'FailedIngestionAlarm', {
-			actionsEnabled: this.stage === 'PROD',
-			okAction: true,
-			alarmName: `Ingestion failed on Newswires ${this.stage}`,
-			alarmDescription: `Stories have failed to ingest into Newswires. We should investigate why and remediate`,
-			app: appName,
-			comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-			treatMissingData: TreatMissingData.NOT_BREACHING,
-			metric: failedIngestionMetricFilter.metric({
-				period: Duration.minutes(1),
-				statistic: Stats.SUM,
-			}),
-			snsTopicName: props.alarmSnsTopic.topicName,
-			threshold: 1,
-			evaluationPeriods: 1,
-		});
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
 			this,

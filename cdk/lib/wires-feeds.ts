@@ -91,21 +91,48 @@ export class WiresFeeds extends GuStack {
 				new SqsSubscription(queue, { rawMessageDelivery: true }),
 			);
 
-			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm`, {
+			const visible = deadLetterQueue.metricApproximateNumberOfMessagesVisible({
+				period: Duration.minutes(1),
+				statistic: Stats.MAXIMUM,
+			});
+
+			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm-Warning`, {
 				actionsEnabled: scope.stage === 'PROD',
 				okAction: true,
-				alarmName: `Messages in DLQ for ${topicType} queue ${scope.stage}`,
+				alarmName: `Warning: Messages in DLQ for ${topicType} queue ${scope.stage}`,
 				alarmDescription: `There are messages in the dead letter queue for the ${topicType} queue. We should investigate why and remediate`,
 				app: appName,
 				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
 				treatMissingData: TreatMissingData.NOT_BREACHING,
-				metric: deadLetterQueue.metricApproximateNumberOfMessagesVisible({
-					period: Duration.minutes(1),
-					statistic: Stats.MAXIMUM,
-				}),
+				metric: visible,
 				snsTopicName: alarmSnsTopic.topicName,
-				threshold: 10,
+				threshold: 0,
 				evaluationPeriods: 1,
+			});
+
+			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm-Growing`, {
+				actionsEnabled: scope.stage === 'PROD',
+				alarmName: `DLQ is over 10 for ${topicType} queue ${scope.stage}`,
+				alarmDescription: `Strong Warning: There are over 10 messages in the dead letter queue for the ${topicType}. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.`,
+				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				threshold: 10,
+				metric: visible,
+				evaluationPeriods: 1,
+				snsTopicName: alarmSnsTopic.topicName,
+				app: appName,
+			});
+
+			new GuAlarm(scope, `${topicType}DeadLetterQueueAlarm-High`, {
+				alarmName: `DLQ is over 50 for ${topicType} queue ${scope.stage}`,
+				alarmDescription: `High concern: There are over 50 messages in the dead letter queue for the ${topicType}. This may indicate no data is getting through to the wires tool and we should investigate this ASAP.`,
+				comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				threshold: 50,
+				metric: visible,
+				evaluationPeriods: 1,
+				snsTopicName: alarmSnsTopic.topicName,
+				app: appName,
 			});
 
 			return queue;
