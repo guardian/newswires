@@ -24,10 +24,11 @@ class AppLoader extends ApplicationLoader with Logging {
 
     val loadedConfig = for {
       identity <- discoveredIdentity
-      config <- Try(ConfigurationLoader.load(identity) {
-        case identity: AwsIdentity =>
+      config <- Try(
+        ConfigurationLoader.load(identity) { case identity: AwsIdentity =>
           SSMConfigurationLocation.default(identity)
-      })
+        }
+      )
       stage <- discoveredIdentity.map({
         case id: AwsIdentity => id.stage
         case _               => "dev"
