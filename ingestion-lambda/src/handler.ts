@@ -95,11 +95,15 @@ export const main = async (
 			await Promise.all(
 				records.map(async (record) => {
 					const isSES = isSESRecord(record);
-					const failureWith = (reason: string): BatchItemFailure => ({
+					const failureWith = (
+						reason: string,
+						s3Key?: string,
+					): BatchItemFailure => ({
 						status: 'failure',
 						messageId: isSES ? record.ses.mail.messageId : record.messageId,
 						recordType: isSES ? 'SES' : 'SQS',
 						reason,
+						s3Key,
 					});
 					const processedMessage = processRecord(record);
 					if (processedMessage.status === 'failure') {
@@ -111,14 +115,17 @@ export const main = async (
 						bucketName: isSES ? EMAIL_BUCKET_NAME : FEEDS_BUCKET_NAME,
 					});
 					if (s3Result.status === 'failure') {
-						return failureWith(s3Result.reason);
+						return failureWith(s3Result.reason, processedMessage.objectKey);
 					}
 
 					const contentResults = isSES
 						? await processEmailContent(s3Result.body)
 						: processFingerpostJsonContent(s3Result.body);
 					if (contentResults.status === 'failure') {
-						return failureWith(contentResults.reason);
+						return failureWith(
+							contentResults.reason,
+							processedMessage.objectKey,
+						);
 					}
 
 					const dbResult = await putItemToDb({
@@ -130,7 +137,7 @@ export const main = async (
 						logger,
 					});
 					if (dbResult.status === 'failure') {
-						return failureWith(dbResult.reason);
+						return failureWith(dbResult.reason, processedMessage.objectKey);
 					}
 					return dbResult;
 				}),
@@ -144,12 +151,13 @@ export const main = async (
 			`Processed ${records.length} messages with ${allFailures.length} failures`,
 		);
 
-		allFailures.forEach(({ messageId, reason }) => {
+		allFailures.forEach(({ messageId, reason, s3Key }) => {
 			logger.error({
 				message: `Failed to process message for ${messageId}: ${reason}`,
 				eventType: 'INGESTION_FAILURE',
 				messageId,
 				reason,
+				s3Key,
 			});
 		});
 
