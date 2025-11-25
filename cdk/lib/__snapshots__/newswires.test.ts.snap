@@ -2100,7 +2100,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSAAP24EF5EBF": {
       "Properties": {
-        "ActionsEnabled": true,
+        "ActionsEnabled": false,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2123,7 +2123,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for AAP in a while. This could indicate there is an issue with our integration with AAP. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AAP",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AAP in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
@@ -2155,7 +2155,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 30,
+        "Period": 43200,
         "Statistic": "Sum",
         "Tags": [
           {
@@ -2186,7 +2186,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSAFPEB9F75F2": {
       "Properties": {
-        "ActionsEnabled": true,
+        "ActionsEnabled": false,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2209,7 +2209,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for AFP in a while. This could indicate there is an issue with our integration with AFP. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AFP",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AFP in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
@@ -2241,7 +2241,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 30,
+        "Period": 43200,
         "Statistic": "Sum",
         "Tags": [
           {
@@ -2272,7 +2272,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSAP38E5D9DD": {
       "Properties": {
-        "ActionsEnabled": true,
+        "ActionsEnabled": false,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2295,7 +2295,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for AP in a while. This could indicate there is an issue with our integration with AP. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AP",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AP in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
@@ -2327,7 +2327,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 30,
+        "Period": 43200,
         "Statistic": "Sum",
         "Tags": [
           {
@@ -2358,7 +2358,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSMINORAGENCIESE3A8E820": {
       "Properties": {
-        "ActionsEnabled": true,
+        "ActionsEnabled": false,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2381,7 +2381,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for MINOR_AGENCIES in a while. This could indicate there is an issue with our integration with MINOR_AGENCIES. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: MINOR_AGENCIES",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: MINOR_AGENCIES in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
@@ -2413,7 +2413,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 30,
+        "Period": 43200,
         "Statistic": "Sum",
         "Tags": [
           {
@@ -2444,7 +2444,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSPA319171CD": {
       "Properties": {
-        "ActionsEnabled": true,
+        "ActionsEnabled": false,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2467,7 +2467,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for PA in a while. This could indicate there is an issue with our integration with PA. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: PA",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: PA in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
@@ -2499,7 +2499,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 30,
+        "Period": 43200,
         "Statistic": "Sum",
         "Tags": [
           {
@@ -2530,7 +2530,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSREUTERS1DF07EDB": {
       "Properties": {
-        "ActionsEnabled": true,
+        "ActionsEnabled": false,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2553,7 +2553,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for REUTERS in a while. This could indicate there is an issue with our integration with REUTERS. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: REUTERS",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: REUTERS in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
@@ -2585,7 +2585,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 30,
+        "Period": 43200,
         "Statistic": "Sum",
         "Tags": [
           {
@@ -2616,7 +2616,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSUNAUTHEDEMAILFEEDAD6AC6D6": {
       "Properties": {
-        "ActionsEnabled": true,
+        "ActionsEnabled": false,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2639,7 +2639,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for UNAUTHED_EMAIL_FEED in a while. This could indicate there is an issue with our integration with UNAUTHED_EMAIL_FEED. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: UNAUTHED_EMAIL_FEED",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: UNAUTHED_EMAIL_FEED in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
@@ -2671,7 +2671,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 30,
+        "Period": 43200,
         "Statistic": "Sum",
         "Tags": [
           {

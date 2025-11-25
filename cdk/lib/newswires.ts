@@ -332,12 +332,13 @@ export class Newswires extends GuStack {
 				metricName: `IngestionSourceFeeds-${eventType.toLowerCase()}`,
 				dimensionsMap: { supplier },
 				statistic: 'sum',
-				period: Duration.seconds(30),
+				period: Duration.hours(12),
 			});
 
 			new GuAlarm(this, `MissingLogs-${eventType}-${supplier}`, {
+				actionsEnabled: this.stage === 'PROD',
 				okAction: true,
-				alarmName: `Missing logs: ${eventType} for supplier: ${supplier}`,
+				alarmName: `Missing logs: ${eventType} for supplier: ${supplier} in ${this.stage}`,
 				alarmDescription: `We have not seen a successful processing of a wire for ${supplier} in a while. This could indicate there is an issue with our integration with ${supplier}. Please investigate.`,
 				evaluationPeriods: 1,
 				threshold: 1,
