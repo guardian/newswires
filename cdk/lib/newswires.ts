@@ -326,13 +326,13 @@ export class Newswires extends GuStack {
 
 		ingestionEventMetricFilter(SUCCESSFUL_INGESTION_EVENT_TYPE);
 
-		const ingestionAlerts = (eventType: string, supplier: string) => {
+		const ingestionAlerts = (eventType: string, supplier: string, period: Duration = Duration.hours(12)) => {
 			const noSuccessLogsBySupplier = new Metric({
 				namespace: `${stageStackApp}-ingestion-lambda`,
 				metricName: `IngestionSourceFeeds-${eventType.toLowerCase()}`,
 				dimensionsMap: { supplier },
 				statistic: 'sum',
-				period: Duration.hours(12),
+				period,
 			});
 
 			new GuAlarm(this, `MissingLogs-${eventType}-${supplier}`, {
@@ -357,12 +357,13 @@ export class Newswires extends GuStack {
 			'MINOR_AGENCIES',
 			'PA',
 			'REUTERS',
-			'UNAUTHED_EMAIL_FEED',
 		];
 
 		suppliers.forEach((supplier) => {
 			ingestionAlerts(SUCCESSFUL_INGESTION_EVENT_TYPE, supplier);
 		});
+
+		ingestionAlerts(SUCCESSFUL_INGESTION_EVENT_TYPE, 'UNAUTHED_EMAIL_FEED', Duration.hours(36));
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
 			this,

@@ -3584,7 +3584,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             ],
           },
         ],
-        "Period": 43200,
+        "Period": 129600,
         "Statistic": "Sum",
         "Tags": [
           {
