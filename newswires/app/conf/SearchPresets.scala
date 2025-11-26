@@ -44,7 +44,7 @@ object SearchPresets {
     case "afp-world"            => Some(AfpWorld)
     case "minor-agencies-world" => Some(MinorAgenciesWorld)
     case "all-uk"               => Some(AllUk)
-    case "all-news"             => Some(AllNews)
+    case "world-plus-uk"        => Some(WorldPlusUK)
     case "all-business"         => Some(AllBusiness)
     case "all-sport"            => Some(AllSport)
     case "all-sport-stories"    => Some(AllSportStories)
@@ -177,7 +177,7 @@ object SearchPresets {
   /*
    * All News
    */
-  private val AllNews = AllWorld ::: AllUk
+  private val WorldPlusUK = AllWorld ::: AllUk
 
   /*
    * Business

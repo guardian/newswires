@@ -15,14 +15,10 @@ export const TopLevelListPresetPanel = ({
 	const maybeActiveSportPreset = sportPresets.find(
 		(_) => _.id === activePreset,
 	);
-	const presetsToShow =
-		window.configuration.showAllNewsPresetOption || activePreset === 'all-news'
-			? presets
-			: presets.filter((p) => p.id !== 'all-news');
 
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
-			{presetsToShow.map((item) => (
+			{presets.map((item) => (
 				<SideNavListItem
 					label={item.name}
 					key={item.id}
