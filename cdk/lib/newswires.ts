@@ -354,7 +354,7 @@ export class Newswires extends GuStack {
 			});
 		};
 
-		const suppliers = ['AAP', 'AFP', 'AP', 'MINOR_AGENCIES', 'PA', 'REUTERS'];
+		const suppliers = ['AAP', 'AFP', 'AP', 'PA', 'REUTERS'];
 
 		suppliers.forEach((supplier) => {
 			ingestionAlerts(SUCCESSFUL_INGESTION_EVENT_TYPE, supplier);
