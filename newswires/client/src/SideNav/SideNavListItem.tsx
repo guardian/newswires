@@ -138,8 +138,6 @@ export const SideNavListItem = ({
 					</span>
 				</div>
 
-				<span></span>
-
 				{arrowSide === 'right' && (
 					<EuiIcon
 						css={css`
