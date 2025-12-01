@@ -24,6 +24,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { DefaultLayout } from './DefaultLayout.tsx';
 import { fontStyles } from './fontStyles.ts';
+import { LinkCopyHint } from './LinkCopyHint.tsx';
 import { presetLabel } from './presets.ts';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { TickerLayout } from './TickerLayout.tsx';
@@ -166,6 +167,7 @@ export function App() {
 						{config.ticker && <TickerLayout />}
 						{!config.ticker && <DefaultLayout />}
 					</div>
+					<LinkCopyHint />
 				</EuiPageTemplate>
 			</EuiProvider>
 		</>
