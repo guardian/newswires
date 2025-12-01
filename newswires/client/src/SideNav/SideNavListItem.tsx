@@ -9,8 +9,8 @@ function getGridStyles({
 	iconButtonWidth: string;
 }) {
 	const gridTemplateColumns = isTopLevel
-		? `0px 1fr ${iconButtonWidth} ${iconButtonWidth}`
-		: `${iconButtonWidth} 1fr ${iconButtonWidth} 0px`;
+		? `[primaryButton-start label-start] 1fr [label-end secondaryButton-start] ${iconButtonWidth} [secondaryButton-end rightArrow-start] ${iconButtonWidth} [rightArrow-end primaryButton-end]`
+		: `[primaryButton-start leftArrow-start] ${iconButtonWidth} [leftArrow-end label-start] 1fr [label-end secondaryButton-start] ${iconButtonWidth} [secondaryButton-end primaryButton-end]`;
 
 	const liStyle = `
 		display: grid;
@@ -21,7 +21,7 @@ function getGridStyles({
 	`;
 
 	const primaryButtonStyle = `
-		grid-column: 1 / -1;
+		grid-column: primaryButton;
 		grid-row: 1;
 		display: grid;
 		grid-template-columns: subgrid;
@@ -31,11 +31,10 @@ function getGridStyles({
 	`;
 
 	const secondaryButtonStyle = `
+		grid-column: secondaryButton;
 		grid-row: 1;
-		grid-column: 3;
 		width: ${iconButtonWidth};
 		height: ${iconButtonWidth};
-		z-index: 1;
 	`;
 
 	return {
@@ -105,14 +104,19 @@ export const SideNavListItem = ({
 					padding: ${euiTheme.size.xs};
 				`}
 			>
-				{arrowSide === 'left' ? (
-					<EuiIcon type={'arrowLeft'} onClick={handleArrowClick} />
-				) : (
-					<span></span>
+				{arrowSide === 'left' && (
+					<EuiIcon
+						css={css`
+							grid-column: leftArrow;
+						`}
+						type={'arrowLeft'}
+						onClick={handleArrowClick}
+					/>
 				)}
 
 				<div
 					css={css`
+						grid-column: label;
 						display: flex;
 						align-items: center;
 						gap: ${euiTheme.size.xs};
@@ -136,10 +140,14 @@ export const SideNavListItem = ({
 
 				<span></span>
 
-				{arrowSide === 'right' ? (
-					<EuiIcon type={'arrowRight'} onClick={handleArrowClick} />
-				) : (
-					<span></span>
+				{arrowSide === 'right' && (
+					<EuiIcon
+						css={css`
+							grid-column: leftArrow;
+						`}
+						type={'arrowRight'}
+						onClick={handleArrowClick}
+					/>
 				)}
 			</button>
 			{!!handleSecondaryActionClick && (
