@@ -57,7 +57,7 @@ dependencyOverrides ++= Seq(
 ).map(_ % jacksonVersion)
 
 dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
-  "software.amazon.awssdk" % _ % "2.32.33"
+  "software.amazon.awssdk" % _ % "2.39.6"
 )
 
 // needed to parse conditional statements in `logback.xml`
