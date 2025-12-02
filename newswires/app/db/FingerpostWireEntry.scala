@@ -379,7 +379,7 @@ object FingerpostWireEntry
     }
 
     val categoryCodesExclQuery = search.categoryCodesExcl match {
-      case Nil => None
+      case Nil               => None
       case categoryCodesExcl =>
         Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
     }
@@ -391,14 +391,14 @@ object FingerpostWireEntry
     }
 
     val preComputedCategoriesQuery = search.preComputedCategories match {
-      case Nil => None
+      case Nil              => None
       case presetCategories =>
         Some(Filters.preComputedCategoriesSQL(presetCategories))
     }
 
     val preComputedCategoriesExclQuery =
       search.preComputedCategoriesExcl match {
-        case Nil => None
+        case Nil                  => None
         case presetCategoriesExcl =>
           Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
       }
@@ -433,7 +433,7 @@ object FingerpostWireEntry
       Filters.dateRangeSQL(searchParams.start, searchParams.end)
 
     val customSearchClauses = processSearchParams(searchParams) match {
-      case Nil => None
+      case Nil     => None
       case clauses =>
         Some(sqls.joinWithAnd(clauses: _*))
     }
@@ -442,7 +442,7 @@ object FingerpostWireEntry
       savedSearchParamList.map(params =>
         sqls.joinWithAnd(processSearchParams(params): _*)
       ) match {
-        case Nil => None
+        case Nil      => None
         case nonEmpty =>
           Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
       }
@@ -451,7 +451,7 @@ object FingerpostWireEntry
       (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
 
     allClauses match {
-      case Nil => sqls"true"
+      case Nil     => sqls"true"
       case clauses =>
         sqls.joinWithAnd(clauses: _*)
     }
