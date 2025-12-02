@@ -1,7 +1,10 @@
 import type { Alarms } from '@guardian/cdk';
 import { GuPlayApp, GuScheduledLambda } from '@guardian/cdk';
 import { AccessScope } from '@guardian/cdk/lib/constants';
-import { type NoMonitoring } from '@guardian/cdk/lib/constructs/cloudwatch';
+import {
+	GuAlarm,
+	type NoMonitoring,
+} from '@guardian/cdk/lib/constructs/cloudwatch';
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import {
 	GuParameter,
@@ -28,6 +31,11 @@ import {
 	OriginRequestPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import {
+	ComparisonOperator,
+	Metric,
+	TreatMissingData,
+} from 'aws-cdk-lib/aws-cloudwatch';
 import {
 	InstanceClass,
 	InstanceSize,
@@ -317,6 +325,46 @@ export class Newswires extends GuStack {
 			});
 
 		ingestionEventMetricFilter(SUCCESSFUL_INGESTION_EVENT_TYPE);
+
+		const ingestionAlerts = (
+			eventType: string,
+			supplier: string,
+			period: Duration = Duration.hours(12),
+		) => {
+			const noSuccessLogsBySupplier = new Metric({
+				namespace: `${stageStackApp}-ingestion-lambda`,
+				metricName: `IngestionSourceFeeds-${eventType.toLowerCase()}`,
+				dimensionsMap: { supplier },
+				statistic: 'sum',
+				period,
+			});
+
+			new GuAlarm(this, `MissingLogs-${eventType}-${supplier}`, {
+				actionsEnabled: this.stage === 'PROD',
+				okAction: true,
+				alarmName: `Missing logs: ${eventType} for supplier: ${supplier} in ${this.stage}`,
+				alarmDescription: `We have not seen a successful processing of a wire for ${supplier} in a while. This could indicate there is an issue with our integration with ${supplier}. Please investigate.`,
+				evaluationPeriods: 1,
+				threshold: 1,
+				comparisonOperator: ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				metric: noSuccessLogsBySupplier,
+				snsTopicName: props.alarmSnsTopic.topicName,
+				app: `ingestion-lambda`,
+			});
+		};
+
+		const suppliers = ['AAP', 'AFP', 'AP', 'PA', 'REUTERS'];
+
+		suppliers.forEach((supplier) => {
+			ingestionAlerts(SUCCESSFUL_INGESTION_EVENT_TYPE, supplier);
+		});
+
+		ingestionAlerts(
+			SUCCESSFUL_INGESTION_EVENT_TYPE,
+			'UNAUTHED_EMAIL_FEED',
+			Duration.hours(36),
+		);
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
 			this,
