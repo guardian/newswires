@@ -7,6 +7,7 @@ import type {
 } from 'aws-lambda';
 import { getFromEnv, isRunningLocally } from '../../shared/config';
 import { findVerificationFailures } from '../../shared/findVerificationFailures';
+import type { Logger } from '../../shared/lambda-logging';
 import { createLogger } from '../../shared/lambda-logging';
 import { initialiseDbConnection } from '../../shared/rds';
 import { FEEDS_BUCKET_NAME } from '../../shared/s3';
@@ -16,7 +17,10 @@ import { getItemFromS3 } from './getItemFromS3';
 import { processFingerpostJsonContent } from './processContentObject';
 import { processEmailContent } from './processEmailContent';
 
-function processSESRecord(record: SESEventRecord): OperationResult<{
+function processSESRecord(
+	record: SESEventRecord,
+	logger: Logger,
+): OperationResult<{
 	externalId: string;
 	objectKey: string;
 }> {
@@ -25,11 +29,19 @@ function processSESRecord(record: SESEventRecord): OperationResult<{
 	const { hasFailures, failedChecks } = findVerificationFailures(ses.receipt);
 
 	if (hasFailures) {
+		const message = `Email verification failed: ${failedChecks
+			.map((check) => `${check.name}=${check.status}`)
+			.join(', ')}. Sender: ${ses.mail.source}`;
+		logger.warn({
+			message,
+			eventType: 'EMAIL_VERIFICATION_FAILURE',
+			emailMessageId: ses.mail.messageId,
+			failedChecks,
+			sender: ses.mail.source,
+		});
 		return {
 			status: 'failure',
-			reason: `Email verification failed: ${failedChecks
-				.map((check) => `${check.name}=${check.status}`)
-				.join(', ')}`,
+			reason: message,
 		};
 	}
 
@@ -65,9 +77,10 @@ function processSQSRecord(
 
 function processRecord(
 	record: SESEventRecord | SQSRecord,
+	logger: Logger,
 ): OperationResult<{ externalId: string; objectKey: string }> {
 	if (isSESRecord(record)) {
-		return processSESRecord(record);
+		return processSESRecord(record, logger);
 	} else {
 		return processSQSRecord(record);
 	}
@@ -105,7 +118,7 @@ export const main = async (
 						reason,
 						s3Key,
 					});
-					const processedMessage = processRecord(record);
+					const processedMessage = processRecord(record, logger);
 					if (processedMessage.status === 'failure') {
 						return failureWith(processedMessage.reason);
 					}
