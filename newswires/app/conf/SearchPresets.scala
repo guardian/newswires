@@ -409,15 +409,7 @@ object SearchPresets {
     ),
     SearchPreset(
       AP,
-      searchTerms = Some(
-        ComboTerm(
-          List(
-            Simple("FBN -FBC", Slug),
-            Simple("\"Sports Betting Line\"", Headline)
-          ),
-          OR
-        )
-      ),
+      searchTerms = Some(SingleTerm(Simple("FBN -FBC", Slug))),
       CategoryCodes.Sport.AP
     ),
     SearchPreset(
