@@ -70,7 +70,7 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] {
     sql"""| INSERT INTO $table
           |  (${tl.wireId}, ${tl.tool}, ${tl.sentBy}, ${tl.sentAt}, ${tl.ref})
           | VALUES ($newswiresId, 'composer', $sentBy, $sentAt, $composerUrl)
-          | """.stripMargin.update().apply()
+          | """.stripMargin.update()
   }
 
   def insertIncopyLink(newswiresId: Int, sentBy: String, sentAt: Instant): Int =
@@ -79,6 +79,6 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] {
       sql"""| INSERT INTO $table
           |  (${tl.wireId}, ${tl.tool}, ${tl.sentBy}, ${tl.sentAt})
           | VALUES ($newswiresId, 'incopy', $sentBy, $sentAt)
-          | """.stripMargin.update().apply()
+          | """.stripMargin.update()
     }
 }

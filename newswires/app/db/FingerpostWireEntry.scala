@@ -180,7 +180,6 @@ object FingerpostWireEntry
         )
       }
       .single()
-      .apply()
       .flatten
   }
 
@@ -499,7 +498,6 @@ object FingerpostWireEntry
     val results = query
       .map(FingerpostWireEntry.fromDb(syn.resultName))
       .list()
-      .apply()
       .flatten
 
     val countQuery =
@@ -513,7 +511,7 @@ object FingerpostWireEntry
     )
 
     val totalCount: Long = {
-      countQuery.map(_.long(1)).single().apply().getOrElse(0)
+      countQuery.map(_.long(1)).single().getOrElse(0)
     }
     val finish = System.currentTimeMillis()
     logger.info(s"QUERY TIME: ${finish - start}")
@@ -561,7 +559,6 @@ object FingerpostWireEntry
             | """.stripMargin
         .map(rs => rs.string("keyword") -> rs.int("count"))
         .list()
-        .apply()
         .toMap // TODO would a list be better?
     }
   }
