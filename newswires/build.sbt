@@ -14,15 +14,16 @@ libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "7.0.2"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "13.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "5.0.0"
-libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude(
-  "org.scala-lang.modules", "scala-parser-combinators_2.13"
+libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
+  "org.scala-lang.modules",
+  "scala-parser-combinators_2.13"
 )
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "9.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.8"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.6.5"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.15"
-libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
 
