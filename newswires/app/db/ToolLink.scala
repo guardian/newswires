@@ -86,7 +86,7 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
     sql"""| INSERT INTO $table
           |  (${tl.wireId}, ${tl.tool}, ${tl.sentBy}, ${tl.sentAt}, ${tl.ref})
           | VALUES ($newswiresId, 'composer', $sentBy, $sentAt, $composerUrl)
-          | """.stripMargin.update().apply()
+          | """.stripMargin.update()
   }
 
   def insertIncopyLink(newswiresId: Int, sentBy: String, sentAt: Instant): Int =
@@ -95,7 +95,7 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
       sql"""| INSERT INTO $table
           |  (${tl.wireId}, ${tl.tool}, ${tl.sentBy}, ${tl.sentAt})
           | VALUES ($newswiresId, 'incopy', $sentBy, $sentAt)
-          | """.stripMargin.update().apply()
+          | """.stripMargin.update()
     }
 
   def get(wireIds: List[Long]) = DB readOnly { implicit session =>
@@ -106,7 +106,6 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
        """
       .map(rs => ToolLink(syn.resultName)(rs))
       .list()
-      .apply()
   }
 
   def getByWireId(wireId: Long) = DB readOnly { implicit session =>
@@ -117,7 +116,6 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
       """
       .map(rs => opt(ToolLink.syn.resultName)(rs))
       .list()
-      .apply()
       .flatten
   }
 

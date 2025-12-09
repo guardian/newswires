@@ -176,7 +176,6 @@ object FingerpostWireEntry
         )
       }
       .single()
-      .apply()
       .flatten
   }
 
@@ -504,7 +503,6 @@ object FingerpostWireEntry
         (wireEntry, toolLinkOpt)
       })
       .list()
-      .apply()
       .collect({ case (Some(wire), toolLinkOpt) =>
         WireMaybeToolLink(wire, toolLinkOpt)
       })
@@ -525,7 +523,7 @@ object FingerpostWireEntry
     )
 
     val totalCount: Long = {
-      countQuery.map(_.long(1)).single().apply().getOrElse(0)
+      countQuery.map(_.long(1)).single().getOrElse(0)
     }
     val finish = System.currentTimeMillis()
     logger.info(s"QUERY TIME: ${finish - start}")
@@ -573,7 +571,6 @@ object FingerpostWireEntry
             | """.stripMargin
         .map(rs => rs.string("keyword") -> rs.int("count"))
         .list()
-        .apply()
         .toMap // TODO would a list be better?
     }
   }
