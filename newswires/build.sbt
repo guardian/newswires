@@ -8,16 +8,16 @@ organization := "com.gu"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.13.17"
+scalaVersion := "2.13.18"
 
 libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "8.0.0"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "13.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "5.0.0"
-libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
+libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "9.0"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.8"
-libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.3.7"
+libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.6.5"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.15"
 
@@ -43,7 +43,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.19.2"
+val jacksonVersion = "2.19.4"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
@@ -57,7 +57,7 @@ dependencyOverrides ++= Seq(
 ).map(_ % jacksonVersion)
 
 dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
-  "software.amazon.awssdk" % _ % "2.32.28"
+  "software.amazon.awssdk" % _ % "2.39.6"
 )
 
 // needed to parse conditional statements in `logback.xml`

@@ -19,6 +19,7 @@ config_pairs=(
   'pandomain.domain="local.dev-gutools.co.uk"'
   'pandomain.settingsFileKey="local.dev-gutools.co.uk.settings"'
   'devEmails="your.email.here@"'
+  'testerEmails=""'
 )
 
 overwrite_config() {

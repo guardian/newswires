@@ -23,7 +23,6 @@ import { FeedbackContent } from '../FeedbackContent.tsx';
 import { presets, sportPresets } from '../presets.ts';
 import type { Query } from '../sharedTypes';
 import { recognisedSuppliers } from '../suppliers.ts';
-import { defaultConfig } from '../urlState.ts';
 import { PresetsContextMenu } from './PresetsContextMenu.tsx';
 import { SideNavListItem } from './SideNavListItem.tsx';
 
@@ -203,7 +202,7 @@ export const SideNav = ({
 									handleButtonClick={item.onClick}
 									handleSecondaryActionClick={() =>
 										openTicker({
-											...defaultConfig.query,
+											...config.query,
 											supplier: item.label === 'All' ? [] : [item.id],
 										})
 									}

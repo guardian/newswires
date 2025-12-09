@@ -15,6 +15,7 @@ export const TopLevelListPresetPanel = ({
 	const maybeActiveSportPreset = sportPresets.find(
 		(_) => _.id === activePreset,
 	);
+
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
 			{presets.map((item) => (

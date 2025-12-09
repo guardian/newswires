@@ -18,7 +18,15 @@ private[conf] object CategoryCodes {
 
   object UK {
     val PA: List[String] =
-      List("paCat:HHH", "paCat:SCN", "paCat:IFN", "paCat:QFF", "paCat:PPP")
+      List(
+        "paCat:HHH",
+        "paCat:SCN",
+        "paCat:IFN",
+        "paCat:QFF",
+        "paCat:PPP",
+        "paCat:XDA",
+        "paCat:XTA"
+      )
     val MINOR_AGENCIES: List[String] = List("N2:GB")
   }
 
@@ -47,7 +55,7 @@ private[conf] object CategoryCodes {
   object Soccer {
     val REUTERS: List[String] = List("N2:SOCC", "N2:SOCC", "subj:15054000")
     val PA: List[String] =
-      List("paCat:SSO", "paCat:SFF", "paCat:SSD", "paCat:SSO", "subj:15054000")
+      List("paCat:SSO", "paCat:SFF", "paCat:SSO", "paCat:RSP", "subj:15054000")
     val AAP: List[String] = List("subj:15054000")
   }
 
@@ -58,11 +66,12 @@ private[conf] object CategoryCodes {
       "paCat:RSF",
       "paCat:RSH",
       "paCat:RFC",
-      "paCat:RSP",
       "paCat:RRB",
       "paCat:SOD",
       "paCat:SOS",
-      "paCat:RRD"
+      "paCat:SSD",
+      "paCat:RRD",
+      "paCat:RMS"
     )
   }
 
@@ -88,7 +97,7 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = List("subj:15017000")
   }
 
-  object CricketResults {
+  object CricketScores {
     val PA: List[String] = List(
       "paCat:RCD",
       "paCat:RCK",
@@ -116,9 +125,46 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = List("subj:15019000")
   }
 
-  object MotorRacing {
-    val REUTERS: List[String] = List("N2:MORA", "subj:15039000")
-    val AAP: List[String] = List("subj:15039000")
+  object MotorSport {
+    val REUTERS: List[String] = List(
+      "N2:FO1",
+      "N2:MORA",
+      "N2:MOCY",
+      "subj:15039000",
+      "subj:15039001",
+      "subj:15039002",
+      "subj:15039003",
+      "subj:15039004",
+      "subj:15041000",
+      "subj:15041002",
+      "subj:15041003",
+      "subj:15041004",
+      "subj:15041005",
+      "subj:15041014",
+      "subj:15041006",
+      "subj:15041007",
+      "subj:15041008",
+      "subj:15041013",
+      "subj:15057000"
+    )
+    val AAP: List[String] = List(
+      "subj:15039000",
+      "subj:15039001",
+      "subj:15039002",
+      "subj:15039003",
+      "subj:15039004",
+      "subj:15041000",
+      "subj:15041002",
+      "subj:15041003",
+      "subj:15041004",
+      "subj:15041005",
+      "subj:15041014",
+      "subj:15041006",
+      "subj:15041007",
+      "subj:15041008",
+      "subj:15041013",
+      "subj:15057000"
+    )
   }
 
   object Golf {
@@ -136,7 +182,7 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = List("subj:15048000")
   }
 
-  object RugbyResults {
+  object RugbyScores {
     val PA: List[String] = List(
       "paCat:RRG",
       "paCat:RRE",
@@ -147,7 +193,9 @@ private[conf] object CategoryCodes {
       "paCat:RDJ",
       "paCat:SDF",
       "paCat:SDT",
+      "paCat:SFU",
       "paCat:STE",
+      "paCat:SSD",
       "paCat:STF"
     )
   }

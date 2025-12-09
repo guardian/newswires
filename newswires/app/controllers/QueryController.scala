@@ -6,7 +6,13 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import models.{BaseRequestParams, NextPage, QueryParams, SearchParams}
+import models.{
+  BaseRequestParams,
+  NextPage,
+  QueryParams,
+  QueryResponse,
+  SearchParams
+}
 import db._
 import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
@@ -66,19 +72,19 @@ class QueryController(
         .getQueryString("preset")
         .flatMap(SearchPresets.get)
         .getOrElse(Nil),
-      maybeSearchTerm = baseParams.maybeSearchTerm,
+      maybeSearchTerm = baseParams.textForHighlighting,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId.map(NextPage(_)),
       pageSize = 30
     )
 
+    val queryResponse = FingerpostWireEntry
+      .query(
+        queryParams
+      )
+
     Ok(
-      FingerpostWireEntry
-        .query(
-          queryParams
-        )
-        .asJson
-        .spaces2
+      QueryResponse.display(queryResponse, request.user.username).asJson.spaces2
     )
   }
 
@@ -94,11 +100,21 @@ class QueryController(
     apiAuthAction { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
         id,
-        maybeFreeTextQuery.map(SearchTerm.English(_)),
-        requestingUser = Some(request.user.username)
+        maybeFreeTextQuery.map(SearchTerm.English(_))
       ) match {
-        case Some(entry) => Ok(entry.asJson.spaces2)
-        case None        => NotFound
+        case Some(entry) =>
+          Ok(
+            entry
+              .copy(toolLinks =
+                ToolLink.display(
+                  entry.toolLinks,
+                  requestingUser = request.user.username
+                )
+              )
+              .asJson
+              .spaces2
+          )
+        case None => NotFound
       }
     }
 
@@ -156,6 +172,32 @@ class QueryController(
       }
   }
 
+  def toolLinksForWires = apiAuthAction { request: UserRequest[AnyContent] =>
+    request.body.asJson
+      .flatMap(_.asOpt[List[Long]])
+      .fold(BadRequest("invalid or missing request body")) { idList =>
+        val toolLinks = ToolLink.get(idList)
+        val linksByWire = toolLinks.groupBy(_.wireId)
+        val wireToolLinks = linksByWire
+          .map({ case (wireId, toolLinks) =>
+            WireToolLinks(
+              wireId,
+              ToolLink.display(toolLinks, request.user.username)
+            )
+          })
+          .toList
+
+        Ok(wireToolLinks.asJson.spaces2)
+      }
+  }
+
+  def toolLinksForWire(wireId: Long) = apiAuthAction {
+    request: UserRequest[AnyContent] =>
+      val toolLinks = ToolLink.getByWireId(wireId)
+      Ok(
+        ToolLink.display(toolLinks, request.user.username).asJson.spaces2
+      )
+  }
 }
 
 case class ComposerLinkRequest(composerId: String)
