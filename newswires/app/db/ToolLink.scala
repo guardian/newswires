@@ -106,7 +106,6 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
        """
       .map(rs => ToolLink(syn.resultName)(rs))
       .list()
-      .apply()
   }
 
   def getByWireId(wireId: Long) = DB readOnly { implicit session =>
@@ -117,7 +116,6 @@ object ToolLink extends SQLSyntaxSupport[ToolLink] with Logging {
       """
       .map(rs => opt(ToolLink.syn.resultName)(rs))
       .list()
-      .apply()
       .flatten
   }
 
