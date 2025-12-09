@@ -212,12 +212,20 @@ describe('handler.main', () => {
 
 		const result = await main(mockSQSEvent);
 
+		// assert logline for ingestion failure metrics
+		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
+		const loggedEvent = (
+			mockCreateLogger({}).error as jest.MockedFn<loggingModule.Logger['error']>
+		).mock.calls[0]?.[0];
+		console.log(loggedEvent);
+		expect(loggedEvent?.eventType).toBe('INGESTION_FAILURE');
+		expect(loggedEvent?.s3Key).toBe('path/to/invalid-object.json');
+
 		expect(result).toBeDefined();
 		expect(result?.batchItemFailures.length).toBe(1);
 		expect(result?.batchItemFailures[0]?.itemIdentifier).toBe(
 			'INVALID_JSON_RECORD_ID',
 		);
-
 		// Verify S3 was called for both records
 		expect(mockGetFromS3).toHaveBeenCalledTimes(2);
 		expect(mockGetFromS3).toHaveBeenCalledWith({
@@ -325,7 +333,7 @@ describe('handler.main', () => {
 		expect(mockInitialiseDbConnection).toHaveBeenCalled();
 	});
 
-	it('should fail if SES verification contains non-PASS values', async () => {
+	it('should log a failure if SES verification contains non-PASS values, but not return errors for retry', async () => {
 		mockGetFromS3.mockResolvedValue({
 			status: 'success',
 			body: sampleMimeEmailData,
@@ -344,8 +352,9 @@ describe('handler.main', () => {
 		} as unknown as SESEvent;
 
 		const result = (await main(failingSesEvent)) as SQSBatchResponse;
+		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
 
-		expect(result.batchItemFailures).toEqual([{ itemIdentifier: '123' }]);
+		expect(result.batchItemFailures).toEqual([]);
 	});
 });
 

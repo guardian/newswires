@@ -1,6 +1,8 @@
 package models
 
-import conf.SearchTerm
+import conf.SearchField.Slug
+import conf.SearchTerm.English
+import conf.{OR, SearchTerm, ComboTerm, SingleTerm, SearchTerms}
 
 case class BaseRequestParams(
     maybeFreeTextQuery: Option[String] = None,
@@ -14,5 +16,18 @@ case class BaseRequestParams(
     maybeSinceId: Option[Int] = None,
     hasDataFormatting: Option[Boolean] = None
 ) {
-  val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_)).toList
+  // When we do a text search from the U.I we make an english query
+  // which queries the `combined_textsearch` column which includes several
+  // text fields, and we also search on slug field as well
+  val textSearchTerms: Option[SearchTerms] =
+    maybeFreeTextQuery.map(query =>
+      ComboTerm(
+        List(SearchTerm.English(query), SearchTerm.Simple(query, Slug)),
+        OR
+      )
+    )
+
+  // This is used to highlight the text matches in the body of the document
+  val textForHighlighting: Option[English] =
+    maybeFreeTextQuery.map(query => SearchTerm.English(query))
 }

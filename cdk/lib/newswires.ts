@@ -33,7 +33,7 @@ import {
 import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
 	ComparisonOperator,
-	Stats,
+	Metric,
 	TreatMissingData,
 } from 'aws-cdk-lib/aws-cloudwatch';
 import {
@@ -61,10 +61,7 @@ import {
 	ParameterTier,
 	StringParameter,
 } from 'aws-cdk-lib/aws-ssm';
-import {
-	FAILED_INGESTION_EVENT_TYPE,
-	SUCCESSFUL_INGESTION_EVENT_TYPE,
-} from '../../shared/constants';
+import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
 import type { PollerId } from '../../shared/pollers';
 import { POLLERS_CONFIG } from '../../shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
@@ -328,26 +325,46 @@ export class Newswires extends GuStack {
 			});
 
 		ingestionEventMetricFilter(SUCCESSFUL_INGESTION_EVENT_TYPE);
-		const failedIngestionMetricFilter = ingestionEventMetricFilter(
-			FAILED_INGESTION_EVENT_TYPE,
-		);
 
-		new GuAlarm(this, 'FailedIngestionAlarm', {
-			actionsEnabled: this.stage === 'PROD',
-			okAction: true,
-			alarmName: `Ingestion failed on Newswires ${this.stage}`,
-			alarmDescription: `Stories have failed to ingest into Newswires. We should investigate why and remediate`,
-			app: appName,
-			comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-			treatMissingData: TreatMissingData.NOT_BREACHING,
-			metric: failedIngestionMetricFilter.metric({
-				period: Duration.minutes(1),
-				statistic: Stats.SUM,
-			}),
-			snsTopicName: props.alarmSnsTopic.topicName,
-			threshold: 1,
-			evaluationPeriods: 1,
+		const ingestionAlerts = (
+			eventType: string,
+			supplier: string,
+			period: Duration = Duration.hours(12),
+		) => {
+			const noSuccessLogsBySupplier = new Metric({
+				namespace: `${stageStackApp}-ingestion-lambda`,
+				metricName: `IngestionSourceFeeds-${eventType.toLowerCase()}`,
+				dimensionsMap: { supplier },
+				statistic: 'sum',
+				period,
+			});
+
+			new GuAlarm(this, `MissingLogs-${eventType}-${supplier}`, {
+				actionsEnabled: this.stage === 'PROD',
+				okAction: true,
+				alarmName: `Missing logs: ${eventType} for supplier: ${supplier} in ${this.stage}`,
+				alarmDescription: `We have not seen a successful processing of a wire for ${supplier} in a while. This could indicate there is an issue with our integration with ${supplier}. Please investigate.`,
+				evaluationPeriods: 1,
+				threshold: 1,
+				comparisonOperator: ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
+				treatMissingData: TreatMissingData.NOT_BREACHING,
+				metric: noSuccessLogsBySupplier,
+				snsTopicName: props.alarmSnsTopic.topicName,
+				app: `ingestion-lambda`,
+			});
+		};
+
+		const suppliers = ['AAP', 'AFP', 'AP', 'PA', 'REUTERS'];
+
+		suppliers.forEach((supplier) => {
+			ingestionAlerts(SUCCESSFUL_INGESTION_EVENT_TYPE, supplier);
 		});
+
+		ingestionAlerts(
+			SUCCESSFUL_INGESTION_EVENT_TYPE,
+			'UNAUTHED_EMAIL_FEED',
+			Duration.hours(36),
+		);
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
 			this,

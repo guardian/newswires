@@ -18,6 +18,11 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuLambdaFunction",
       "GuStringParameter",
       "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
+      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -47,6 +52,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuHttpsEgressSecurityGroup",
       "GuAutoScalingGroup",
       "GuApplicationLoadBalancer",
+      "GuAccessLoggingBucketParameter",
       "GuApplicationTargetGroup",
       "GuHttpsApplicationListener",
       "GuAlb5xxPercentageAlarm",
@@ -81,6 +87,11 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     "AMINewswires": {
       "Description": "Amazon Machine Image ID for the app newswires. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
+    },
+    "AccessLoggingBucket": {
+      "Default": "/account/services/access-logging/bucket",
+      "Description": "S3 bucket to store your access logs",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "CloudFrontCertificateArn": {
       "Default": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
@@ -143,11 +154,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -663,11 +670,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -686,11 +689,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -710,86 +709,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
-    },
-    "FailedIngestionAlarm4092BF58": {
-      "Properties": {
-        "ActionsEnabled": false,
-        "AlarmActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
-                },
-              ],
-            ],
-          },
-        ],
-        "AlarmDescription": "Stories have failed to ingest into Newswires. We should investigate why and remediate",
-        "AlarmName": "Ingestion failed on Newswires TEST",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "EvaluationPeriods": 1,
-        "MetricName": "IngestionSourceFeeds-ingestion_failure",
-        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
-        "OKActions": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
-                {
-                  "Ref": "AWS::AccountId",
-                },
-                ":",
-                {
-                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
-                },
-              ],
-            ],
-          },
-        ],
-        "Period": 60,
-        "Statistic": "Sum",
-        "Tags": [
-          {
-            "Key": "App",
-            "Value": "newswires",
-          },
-          {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          {
-            "Key": "gu:repo",
-            "Value": "guardian/newswires",
-          },
-          {
-            "Key": "Stack",
-            "Value": "editorial-feeds",
-          },
-          {
-            "Key": "Stage",
-            "Value": "TEST",
-          },
-        ],
-        "Threshold": 1,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
     },
     "FingerpostQueueingLambdaTEST60860D74": {
       "DependsOn": [
@@ -962,11 +881,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -985,11 +900,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1266,11 +1177,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:kinesis:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:kinesis:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1302,11 +1209,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -1690,11 +1593,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1713,11 +1612,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1787,11 +1682,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":rds-db:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":rds-db:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1889,36 +1780,6 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
-    "IngestionSourceFeedsFilterINGESTIONFAILUREF1DA2E73": {
-      "Properties": {
-        "FilterPattern": "{ $.eventType = "INGESTION_FAILURE" }",
-        "LogGroupName": {
-          "Fn::Join": [
-            "",
-            [
-              "/aws/lambda/",
-              {
-                "Ref": "IngestionLambdaTESTC02B3E43",
-              },
-            ],
-          ],
-        },
-        "MetricTransformations": [
-          {
-            "Dimensions": [
-              {
-                "Key": "supplier",
-                "Value": "$.supplier",
-              },
-            ],
-            "MetricName": "IngestionSourceFeeds-ingestion_failure",
-            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
-            "MetricValue": "1",
-          },
-        ],
-      },
-      "Type": "AWS::Logs::MetricFilter",
-    },
     "IngestionSourceFeedsFilterINGESTIONSUCCESS27AB7930": {
       "Properties": {
         "FilterPattern": "{ $.eventType = "INGESTION_SUCCESS" }",
@@ -2004,11 +1865,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":rds-db:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":rds-db:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2080,6 +1937,20 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           {
             "Key": "routing.http.drop_invalid_header_fields.enabled",
             "Value": "true",
+          },
+          {
+            "Key": "access_logs.s3.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "access_logs.s3.bucket",
+            "Value": {
+              "Ref": "AccessLoggingBucket",
+            },
+          },
+          {
+            "Key": "access_logs.s3.prefix",
+            "Value": "application-load-balancer/TEST/editorial-feeds/newswires",
           },
         ],
         "Scheme": "internet-facing",
@@ -2201,6 +2072,474 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "ToPort": 9000,
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "MissingLogsINGESTIONSUCCESSAAP24EF5EBF": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for AAP in a while. This could indicate there is an issue with our integration with AAP. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AAP in TEST",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "AAP",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 43200,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSAFPEB9F75F2": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for AFP in a while. This could indicate there is an issue with our integration with AFP. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AFP in TEST",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "AFP",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 43200,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSAP38E5D9DD": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for AP in a while. This could indicate there is an issue with our integration with AP. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AP in TEST",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "AP",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 43200,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSPA319171CD": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for PA in a while. This could indicate there is an issue with our integration with PA. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: PA in TEST",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "PA",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 43200,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSREUTERS1DF07EDB": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for REUTERS in a while. This could indicate there is an issue with our integration with REUTERS. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: REUTERS in TEST",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "REUTERS",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 43200,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "MissingLogsINGESTIONSUCCESSUNAUTHEDEMAILFEEDAD6AC6D6": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for UNAUTHED_EMAIL_FEED in a while. This could indicate there is an issue with our integration with UNAUTHED_EMAIL_FEED. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: UNAUTHED_EMAIL_FEED in TEST",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "UNAUTHED_EMAIL_FEED",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_success",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 129600,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "NewswiresCopyEmailBucketNewswires26C541A0": {
       "DeletionPolicy": "Retain",
@@ -2603,11 +2942,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2626,11 +2961,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2926,11 +3257,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2949,11 +3276,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -2973,11 +3296,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":rds-db:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":rds-db:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -3118,6 +3437,28 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "Properties": {
         "ScheduleExpression": "cron(00 5 ? * * *)",
         "State": "ENABLED",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "cleanup-lambda",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
         "Targets": [
           {
             "Arn": {
@@ -3222,11 +3563,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -3245,11 +3582,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -3269,11 +3602,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                     {
                       "Ref": "AWS::Partition",
                     },
-                    ":rds-db:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    ":rds-db:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -3463,11 +3792,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3714,11 +4039,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3797,11 +4118,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3848,11 +4165,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -3881,11 +4194,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4063,11 +4372,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -4086,11 +4391,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -4113,6 +4414,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
               "Action": [
                 "secretsmanager:PutSecretValue",
                 "secretsmanager:UpdateSecret",
+                "secretsmanager:UpdateSecretVersionStage",
               ],
               "Effect": "Allow",
               "Resource": {
@@ -4251,11 +4553,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4284,11 +4582,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4337,11 +4631,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4372,11 +4662,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4915,11 +5201,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -4998,11 +5280,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -5049,11 +5327,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -5082,11 +5356,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -5264,11 +5534,7 @@ dpkg -i /newswires/newswires.deb",
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -5287,11 +5553,7 @@ dpkg -i /newswires/newswires.deb",
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -5314,6 +5576,7 @@ dpkg -i /newswires/newswires.deb",
               "Action": [
                 "secretsmanager:PutSecretValue",
                 "secretsmanager:UpdateSecret",
+                "secretsmanager:UpdateSecretVersionStage",
               ],
               "Effect": "Allow",
               "Resource": {
@@ -5452,11 +5715,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -5485,11 +5744,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -5538,11 +5793,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },
@@ -5573,11 +5824,7 @@ dpkg -i /newswires/newswires.deb",
             "Fn::Join": [
               "",
               [
-                "arn:aws:sns:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":",
+                "arn:aws:sns:eu-west-1:",
                 {
                   "Ref": "AWS::AccountId",
                 },

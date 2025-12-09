@@ -1,6 +1,16 @@
 package db
 
-import conf.{SearchConfig, SearchField, SearchTerm}
+import conf.SearchTerm.English
+import conf.{
+  AND,
+  OR,
+  SearchConfig,
+  SearchField,
+  SearchTerm,
+  ComboTerm,
+  SingleTerm,
+  SearchTerms
+}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
@@ -123,18 +133,8 @@ object FingerpostWireEntry
   private def clamp(low: Int, x: Int, high: Int): Int =
     math.min(math.max(x, low), high)
 
-  private def replaceToolLinkUserWithYou(
-      requestingUser: Option[String]
-  )(toolLink: ToolLink): ToolLink = {
-    requestingUser match {
-      case Some(username) if username == toolLink.sentBy =>
-        toolLink.copy(sentBy = "you")
-      case _ => toolLink
-    }
-  }
-
   private[db] def buildHighlightsClause(
-      maybeFreeTextQuery: Option[SearchTerm],
+      maybeFreeTextQuery: Option[English],
       highlightAll: Boolean = false
   ): SQLSyntax = {
     maybeFreeTextQuery match {
@@ -150,7 +150,7 @@ object FingerpostWireEntry
 
   private[db] def buildSingleGetQuery(
       id: Int,
-      maybeFreeTextQuery: Option[SearchTerm]
+      maybeFreeTextQuery: Option[English]
   ): SQLSyntax = {
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
@@ -165,18 +165,14 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[SearchTerm],
-      requestingUser: Option[String] = None
+      maybeFreeTextQuery: Option[English]
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
       .toMany(ToolLink.opt(ToolLink.syn.resultName))
-      // add in the toollinks, but replace the username with "you" if it's the same as the person requesting this wire
       .map { (wire, toolLinks) =>
         wire.map(
-          _.copy(toolLinks =
-            toolLinks.toList.map(replaceToolLinkUserWithYou(requestingUser))
-          )
+          _.copy(toolLinks = toolLinks.toList)
         )
       }
       .single()
@@ -265,15 +261,26 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
       }
 
-    lazy val searchTermsJoinedWithAndSQL =
-      (searchTerms: List[SearchTerm]) => {
-        sqls.joinWithAnd(searchTerms.map {
-          case SearchTerm.Simple(query, field) =>
-            simpleSearchSQL(SearchTerm.Simple(query, field))
-          case SearchTerm.English(query) =>
-            englishSearchSQL(SearchTerm.English(query))
-        }: _*)
+    lazy val searchTermSql = (searchTerm: SearchTerm) =>
+      searchTerm match {
+        case SearchTerm.Simple(query, field) =>
+          simpleSearchSQL(SearchTerm.Simple(query, field))
+        case SearchTerm.English(query) =>
+          englishSearchSQL(SearchTerm.English(query))
       }
+
+    lazy val searchTermsSql = (searchTerms: List[SearchTerm]) =>
+      searchTerms.map(searchTermSql)
+
+    val searchQuerySqlCombined = (searchTerms: SearchTerms) => {
+      searchTerms match {
+        case ComboTerm(terms, AND) =>
+          sqls.joinWithAnd(Filters.searchTermsSql(terms): _*)
+        case ComboTerm(terms, OR) =>
+          sqls.joinWithOr(Filters.searchTermsSql(terms): _*)
+        case SingleTerm(term) => Filters.searchTermSql(term)
+      }
+    }
 
     lazy val keywordsSQL =
       (keywords: List[String]) => keywordCondition(syn, keywords)
@@ -352,11 +359,8 @@ object FingerpostWireEntry
       case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
     }
 
-    val searchQuery = search.text match {
-      case Nil => None
-      case terms =>
-        Some(Filters.searchTermsJoinedWithAndSQL(terms))
-    }
+    val searchQuery: Option[SQLSyntax] =
+      search.searchTerms.map(Filters.searchQuerySqlCombined)
 
     val keywordsQuery = search.keywordIncl match {
       case Nil      => None
@@ -374,7 +378,7 @@ object FingerpostWireEntry
     }
 
     val categoryCodesExclQuery = search.categoryCodesExcl match {
-      case Nil => None
+      case Nil               => None
       case categoryCodesExcl =>
         Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
     }
@@ -386,14 +390,14 @@ object FingerpostWireEntry
     }
 
     val preComputedCategoriesQuery = search.preComputedCategories match {
-      case Nil => None
+      case Nil              => None
       case presetCategories =>
         Some(Filters.preComputedCategoriesSQL(presetCategories))
     }
 
     val preComputedCategoriesExclQuery =
       search.preComputedCategoriesExcl match {
-        case Nil => None
+        case Nil                  => None
         case presetCategoriesExcl =>
           Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
       }
@@ -428,7 +432,7 @@ object FingerpostWireEntry
       Filters.dateRangeSQL(searchParams.start, searchParams.end)
 
     val customSearchClauses = processSearchParams(searchParams) match {
-      case Nil => None
+      case Nil     => None
       case clauses =>
         Some(sqls.joinWithAnd(clauses: _*))
     }
@@ -437,7 +441,7 @@ object FingerpostWireEntry
       savedSearchParamList.map(params =>
         sqls.joinWithAnd(processSearchParams(params): _*)
       ) match {
-        case Nil => None
+        case Nil      => None
         case nonEmpty =>
           Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
       }
@@ -446,7 +450,7 @@ object FingerpostWireEntry
       (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
 
     allClauses match {
-      case Nil => sqls"true"
+      case Nil     => sqls"true"
       case clauses =>
         sqls.joinWithAnd(clauses: _*)
     }
@@ -460,11 +464,7 @@ object FingerpostWireEntry
 
     val maybeSinceId = queryParams.maybeSinceId
 
-    val highlightsClause = buildHighlightsClause(
-      queryParams.maybeSearchTerm.find(term =>
-        term.searchConfig == SearchConfig.English
-      ) // Only use the first search term for highlighting, if present. It would be nice to do better here in future but might not be worth the time to implement
-    )
+    val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause = maybeSinceId match {
       case Some(NextPage(_)) =>
@@ -473,8 +473,10 @@ object FingerpostWireEntry
         sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
     }
 
-    sql"""| SELECT $selectAllStatement, $highlightsClause
+    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
+           | LEFT JOIN ${ToolLink as ToolLink.syn}
+           | ON ${syn.id} = ${ToolLink.syn.wireId}
            | WHERE $whereClause
            | $orderByClause
            | LIMIT $effectivePageSize
@@ -494,11 +496,21 @@ object FingerpostWireEntry
     val query = buildSearchQuery(queryParams, whereClause)
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
-
-    val results = query
-      .map(FingerpostWireEntry.fromDb(syn.resultName))
+    val results: List[FingerpostWireEntry] = query
+      .map(rs => {
+        val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
+        val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
+        (wireEntry, toolLinkOpt)
+      })
       .list()
-      .flatten
+      .collect({ case (Some(wire), toolLinkOpt) =>
+        WireMaybeToolLink(wire, toolLinkOpt)
+      })
+      .groupBy(t => t.wireEntry)
+      .map({ case (wire, wireToolLinks) =>
+        wire.copy(toolLinks = wireToolLinks.flatMap(_.toolLink))
+      })
+      .toList
 
     val countQuery =
       sql"""| SELECT COUNT(*)
@@ -521,7 +533,7 @@ object FingerpostWireEntry
 //    ) // TODO do this in parallel
 
     QueryResponse(
-      results.sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt)),
+      results,
       totalCount /*, keywordCounts*/
     )
   }
