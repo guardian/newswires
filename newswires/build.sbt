@@ -14,8 +14,9 @@ libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "7.0.2"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "13.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "5.0.0"
-libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude(
-  "org.scala-lang.modules", "scala-parser-combinators_2.13"
+libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
+  "org.scala-lang.modules",
+  "scala-parser-combinators_2.13"
 )
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "9.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.8"
@@ -45,7 +46,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.19.4"
+val jacksonVersion = "2.20"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
