@@ -48,6 +48,12 @@ export const ToolLinkSchema = z.object({
 });
 export type ToolLink = z.infer<typeof ToolLinkSchema>;
 
+export const CollectionSchema = z.object({
+	id: z.number(),
+	name: z.string(),
+	createdAt: z.string(),
+});
+
 export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
@@ -60,6 +66,7 @@ export const WireDataFromAPISchema = z.object({
 	highlight: z.string().optional(),
 	isFromRefresh: z.boolean().default(false),
 	toolLinks: z.array(ToolLinkSchema).optional(),
+	collections: z.array(CollectionSchema),
 	s3Key: z.string().optional(),
 });
 
