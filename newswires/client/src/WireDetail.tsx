@@ -33,6 +33,7 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import { headlineForComposer } from './utils/formatHeadline.ts';
 
 function TitleContentForItem({
 	id,
@@ -495,17 +496,6 @@ export const WireDetail = ({
 		[keywords],
 	);
 
-	const headlineForTools = () => {
-		if (wire.supplier.name === 'UNAUTHED_EMAIL_FEED') {
-			const existingHeadline = wire.content.headline;
-			if (!existingHeadline) return undefined;
-			const parts = existingHeadline.split(':');
-			const [, afterFirstColon] = parts;
-			return afterFirstColon.trim();
-		}
-		return wire.content.headline;
-	};
-
 	const wordCount = useMemo(() => {
 		return wire.content.bodyText
 			? sanitizeHtml(wire.content.bodyText, {
@@ -560,7 +550,10 @@ export const WireDetail = ({
 					`}
 				>
 					<ToolsConnection
-						headline={headlineForTools()}
+						headline={headlineForComposer(
+							wire.supplier.name,
+							wire.content.headline,
+						)}
 						itemData={wire}
 						key={wire.id}
 						addToolLink={addToolLink}
