@@ -538,7 +538,6 @@ export const WireDetail = ({
 						wordCount={wordCount}
 					/>
 				</div>
-
 				<EuiPanel
 					hasBorder
 					hasShadow={false}

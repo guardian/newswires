@@ -9,7 +9,7 @@ import java.time.Instant
 
 case class WireMaybeToolLink(
     wireEntry: FingerpostWireEntry,
-    toolLink: Option[ToolLink]
+    toolLink: Option[ToolLink],
 )
 case class WireToolLinks(wireId: Long, toolLinks: List[ToolLink])
 
