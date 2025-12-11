@@ -13,10 +13,10 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
-      "GuLambdaFunction",
-      "GuLambdaFunction",
-      "GuLambdaFunction",
       "GuStringParameter",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
       "GuAlarm",
       "GuAlarm",
       "GuAlarm",
@@ -1375,6 +1375,9 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "NewswiresDBNewswires2A5A9AC6",
                 "Endpoint.Port",
               ],
+            },
+            "DOTCOPY_EMAIL_ADDRESS": {
+              "Ref": "incomingcopyemailaddress",
             },
             "EMAIL_BUCKET_NAME": {
               "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
