@@ -144,7 +144,7 @@ deployments:
         AMINewswires:
           BuiltBy: amigo
           AmigoStage: PROD
-          Recipe: editorial-tools-jammy-java17
+          Recipe: editorial-tools-jammy-java21
           Encrypted: 'true'
     dependencies:
       - lambda-upload-eu-west-1-editorial-feeds-fingerpost-queueing-lambda

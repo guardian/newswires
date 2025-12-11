@@ -461,7 +461,7 @@ export class Newswires extends GuStack {
 			},
 			scaling,
 			applicationLogging: { enabled: true, systemdUnitName: appName },
-			imageRecipe: 'editorial-tools-jammy-java17',
+			imageRecipe: 'editorial-tools-jammy-java21',
 			roleConfiguration: {
 				additionalPolicies: [
 					new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
