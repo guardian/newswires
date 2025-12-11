@@ -13,6 +13,12 @@ type EmailObject = {
 	date?: string;
 };
 
+// The newswires client is expecting the headline of the dotcopy content to include
+// a colon, as it uses this to strip out the subject
+export const constructHeadline = (from?: string, subject?: string) => {
+	return `from ${from ?? 'Unknown'}: ${subject ?? 'No Subject'}`;
+};
+
 export async function processEmailContent(
 	rawEmail: string,
 ): Promise<OperationResult<ProcessedObject>> {
@@ -20,7 +26,7 @@ export async function processEmailContent(
 		const { from, subject, text, date } = await parseEmail(rawEmail);
 
 		const content: IngestorInputBody = {
-			headline: `from ${from ?? 'Unknown'}: ${subject ?? 'No Subject'}`,
+			headline: constructHeadline(from, subject),
 			body_text: text ?? '',
 			sourceFeed: 'email',
 			firstVersion: date ?? new Date().toUTCString(),
