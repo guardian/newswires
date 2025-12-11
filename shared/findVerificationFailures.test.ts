@@ -1,7 +1,20 @@
-import type { SESReceipt } from 'aws-lambda';
+import type { SESMail, SESReceipt } from 'aws-lambda';
 import { findVerificationFailures } from './findVerificationFailures';
 
 describe('findVerificationFailures', () => {
+	const mail: SESMail = {
+		timestamp: '',
+		source: '',
+		messageId: '',
+		destination: [],
+		headersTruncated: false,
+		headers: [],
+		commonHeaders: {
+			returnPath: '',
+			date: '',
+			messageId: '',
+		},
+	};
 	it('should return hasFailures false and empty failedChecks for all PASS verdicts', () => {
 		const receipt = {
 			spamVerdict: { status: 'PASS' },
@@ -10,7 +23,7 @@ describe('findVerificationFailures', () => {
 			dkimVerdict: { status: 'PASS' },
 			dmarcVerdict: { status: 'PASS' },
 		} as unknown as SESReceipt;
-		const result = findVerificationFailures(receipt);
+		const result = findVerificationFailures({ receipt, mail });
 		expect(result.hasFailures).toBe(false);
 		expect(result.failedChecks).toEqual([]);
 	});
@@ -24,7 +37,7 @@ describe('findVerificationFailures', () => {
 			dmarcVerdict: { status: 'FAIL' },
 		} as unknown as SESReceipt;
 
-		const result = findVerificationFailures(receipt);
+		const result = findVerificationFailures({ receipt, mail });
 		expect(result.hasFailures).toBe(true);
 		expect(result.failedChecks).toEqual([
 			{ name: 'spamVerdict', status: 'FAIL' },

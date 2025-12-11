@@ -1026,10 +1026,10 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
-      "GuLambdaFunction",
-      "GuLambdaFunction",
-      "GuLambdaFunction",
       "GuStringParameter",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
       "GuAlarm",
       "GuAlarm",
       "GuAlarm",
@@ -2388,6 +2388,9 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
                 "NewswiresDBNewswires2A5A9AC6",
                 "Endpoint.Port",
               ],
+            },
+            "DOTCOPY_EMAIL_ADDRESS": {
+              "Ref": "incomingcopyemailaddress",
             },
             "EMAIL_BUCKET_NAME": {
               "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
