@@ -1,8 +1,22 @@
 import { pandaFetch } from '../panda-session.ts';
+import { TASTED_COLLECTION_ID } from '../presets.ts';
 import type { Config, Query, WiresQueryData } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
+
+function decideEndpoint(
+	view: Config['view'],
+	maybePreset: string | undefined,
+): string {
+	if (view.includes('dotcopy')) {
+		return '/api/dotcopy';
+	}
+	if (maybePreset === 'tasted') {
+		return `/api/collections/${TASTED_COLLECTION_ID}`;
+	}
+	return '/api/search';
+}
 
 export const fetchResults = async ({
 	query,
@@ -17,7 +31,7 @@ export const fetchResults = async ({
 	beforeTimeStamp?: string;
 	abortController?: AbortController;
 }): Promise<WiresQueryData> => {
-	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
+	const endpoint = decideEndpoint(view, query.preset);
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,

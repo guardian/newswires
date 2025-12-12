@@ -3,13 +3,14 @@ package controllers
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
-import db.Collection
+import db.{Collection, CollectionItemsSearchParams}
 import play.api.{Configuration, Logging}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import io.circe.syntax.EncoderOps
-
 import service.FeatureSwitchProvider
+
+import scala.util.Try
 
 class CollectionsController(
     val controllerComponents: ControllerComponents,
@@ -22,13 +23,32 @@ class CollectionsController(
     with Logging
     with AppAuthActions {
   def collections: Action[AnyContent] = apiAuthAction {
-    request: UserRequest[AnyContent] => Ok(Collection.getAll().asJson.spaces2)
+    request: UserRequest[AnyContent] =>
+      Ok(Collection.listCollections().asJson.spaces2)
   }
 
-  def collection(
+  def fetchCollection(
       collectionId: Long
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
-    Collection.getByIdWithWireEntries(collectionId) match {
+    val maybeStart = request
+      .getQueryString("start")
+    val maybeEnd = request
+      .getQueryString("end")
+    val maybeBeforeId = request
+      .getQueryString("beforeId")
+      .flatMap(idStr => Try(idStr.toInt).toOption)
+    val maybeSinceId = request
+      .getQueryString("sinceId")
+      .flatMap(idStr => Try(idStr.toInt).toOption)
+    Collection.fetchCollectionById(
+      collectionId,
+      CollectionItemsSearchParams(
+        start = maybeStart,
+        end = maybeEnd,
+        maybeBeforeId = maybeBeforeId,
+        maybeSinceId = maybeSinceId
+      )
+    ) match {
       case Some(collectionWithWires) => Ok(collectionWithWires.asJson.spaces2)
       case None => NotFound(s"Collection with ID $collectionId not found")
     }

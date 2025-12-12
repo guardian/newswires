@@ -1,5 +1,4 @@
 import {
-	EuiBadge,
 	EuiButton,
 	EuiFlexGroup,
 	EuiFlexItem,
@@ -14,7 +13,6 @@ import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
 import composerLogoUrl from './icons/composer.svg';
 import incopyLogoUrl from './icons/incopy.svg';
-import { pandaFetch } from './panda-session.ts';
 import { composerPageForId, sendToComposer } from './send-to-composer.ts';
 import { sendToIncopy } from './send-to-incopy.ts';
 import type { ToolLink, WireData } from './sharedTypes.ts';
@@ -184,24 +182,7 @@ export const ToolsConnection = ({
 	itemData: WireData;
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
-	const { showIncopyImport, showTastedList } = useUserSettings();
-	const [isInTastedCollection, setIsInTastedCollection] = useState<boolean>(
-		() => itemData.collections.some((collection) => collection.id === 4),
-	);
-
-	const toggleItemToTasted = useCallback((): void => {
-		const url = isInTastedCollection
-			? `/api/collections/4/remove-item/${itemData.id}`
-			: `/api/collections/4/add-item/${itemData.id}`;
-		pandaFetch(url, {
-			method: 'PUT',
-			headers: {
-				Accept: 'application/json',
-			},
-		})
-			.then(() => setIsInTastedCollection(!isInTastedCollection))
-			.catch(console.error);
-	}, [isInTastedCollection, itemData.id]);
+	const { showIncopyImport } = useUserSettings();
 
 	return (
 		<>
@@ -219,17 +200,6 @@ export const ToolsConnection = ({
 								itemData={itemData}
 								addToolLink={addToolLink}
 							/>
-						)}
-						{showTastedList && (
-							<EuiFlexItem>
-								<EuiBadge
-									color={isInTastedCollection ? 'primary' : 'hollow'}
-									onClick={() => toggleItemToTasted()}
-									onClickAriaLabel="Add item to Tasted collection"
-								>
-									Tasted
-								</EuiBadge>
-							</EuiFlexItem>
 						)}
 					</EuiFlexGroup>
 				</EuiFlexItem>

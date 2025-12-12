@@ -17,7 +17,7 @@ GET     /api/item/:id               controllers.QueryController.item(id: Int, q:
 POST    /api/toollinks              controllers.QueryController.toolLinksForWires
 GET     /api/toollinks/:wireId      controllers.QueryController.toolLinksForWire(wireId: Long)
 GET     /api/collections            controllers.CollectionsController.collections()
-GET     /api/collections/:collectionId  controllers.CollectionsController.collection(collectionId: Long)
+GET     /api/collections/:collectionId  controllers.CollectionsController.fetchCollection(collectionId: Long)
 +nocsrf # justification:
 PUT     /api/collections            controllers.CollectionsController.createCollection(name: String)
 +nocsrf # justification:

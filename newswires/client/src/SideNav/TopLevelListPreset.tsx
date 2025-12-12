@@ -1,5 +1,6 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
+import { useUserSettings } from '../context/UserSettingsContext';
 import { shouldTogglePreset } from '../presetHelpers';
 import { presets, sportPresets, topLevelPresetId } from '../presets';
 import { defaultConfig } from '../urlState';
@@ -15,10 +16,16 @@ export const TopLevelListPresetPanel = ({
 	const maybeActiveSportPreset = sportPresets.find(
 		(_) => _.id === activePreset,
 	);
+	const { showTastedList } = useUserSettings();
+
+	const presetsToShow =
+		showTastedList || activePreset === 'tasted'
+			? presets
+			: presets.filter((preset) => preset.id !== 'tasted');
 
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
-			{presets.map((item) => (
+			{presetsToShow.map((item) => (
 				<SideNavListItem
 					label={item.name}
 					key={item.id}

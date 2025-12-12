@@ -13,8 +13,7 @@ import {
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
-import { type ToolLink } from './sharedTypes';
-import { type WireData } from './sharedTypes';
+import { type ToolLink, type WireData } from './sharedTypes';
 import { Tooltip } from './Tooltip.tsx';
 import { WireDetail } from './WireDetail';
 
@@ -25,6 +24,7 @@ export const Item = ({
 	handlePreviousItem,
 	handleNextItem,
 	addToolLink,
+	refreshItemData,
 }: {
 	error: string | undefined;
 	itemData: WireData | undefined;
@@ -32,6 +32,7 @@ export const Item = ({
 	handlePreviousItem: () => void;
 	handleNextItem: () => Promise<void>;
 	addToolLink: (toolLink: ToolLink) => void;
+	refreshItemData: () => void;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
@@ -147,6 +148,7 @@ export const Item = ({
 							wire={itemData}
 							isShowingJson={isShowingJson}
 							addToolLink={addToolLink}
+							refreshItemData={refreshItemData}
 						/>
 					</EuiSplitPanel.Inner>
 					<EuiSplitPanel.Inner>
