@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../shared/getErrorMessage';
+import { getErrorMessage } from '@guardian/libs';
 import { getFromS3 } from '../../shared/s3';
 import type { OperationResult } from '../../shared/types';
 
