@@ -1,8 +1,9 @@
 package db
 
-import db.FingerpostWireEntry.syn
+import db.FingerpostWireEntry.Filters
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import models.QueryResponse
 import play.api.Logging
 import scalikejdbc._
 
@@ -28,6 +29,13 @@ object CollectionWithWireEntries {
       : Decoder[CollectionWithWireEntries] =
     deriveDecoder[CollectionWithWireEntries]
 }
+
+case class CollectionItemsSearchParams(
+    start: Option[String] = None,
+    end: Option[String] = None,
+    maybeBeforeId: Option[Int] = None,
+    maybeSinceId: Option[Int] = None
+)
 
 object Collection extends SQLSyntaxSupport[Collection] with Logging {
   val syn = this.syntax("c")
@@ -101,7 +109,9 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
     }
   }
 
-  def getById(id: Long): Option[Collection] = DB readOnly { implicit session =>
+  def getById(
+      id: Long
+  ): Option[Collection] = DB readOnly { implicit session =>
     sql"""
        SELECT ${selectAllStatement}
        FROM ${Collection as syn}
@@ -112,37 +122,6 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
       })
       .single()
   }
-
-  def getByIdWithWireEntries(id: Long): Option[CollectionWithWireEntries] =
-    DB readOnly { implicit session =>
-      val highlightsClause = FingerpostWireEntry.buildHighlightsClause(None)
-      sql"""
-       SELECT ${Collection.selectAllStatement}, ${FingerpostWireEntry.selectAllStatement}, ${highlightsClause}
-       FROM ${Collection as syn}
-       LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
-        ON ${syn.id} = ${WireEntryForCollection.syn.collectionId}
-       LEFT JOIN ${FingerpostWireEntry as FingerpostWireEntry.syn}
-        ON ${FingerpostWireEntry.syn.id} = ${WireEntryForCollection.syn.wireEntryId}
-       WHERE ${syn.id} = $id
-      """
-        .map(rs => {
-          val collection = Collection.opt(syn.resultName)(rs)
-          val wireEntry =
-            FingerpostWireEntry.fromDb(FingerpostWireEntry.syn.resultName)(rs)
-          (collection, wireEntry)
-        })
-        .list()
-        .collect({ case (Some(collection), maybeWireEntry) =>
-          (collection, maybeWireEntry)
-        })
-        .groupBy(_._1)
-        .map({ case (collection, entries) =>
-          val wireEntries = entries.flatMap(_._2)
-          CollectionWithWireEntries(collection, wireEntries)
-        })
-        .headOption
-
-    }
 
   def getByName(name: String): Option[Collection] = DB readOnly {
     implicit session =>
@@ -155,7 +134,7 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
         .single()
   }
 
-  def getAll(): List[Collection] = DB readOnly { implicit session =>
+  def listCollections(): List[Collection] = DB readOnly { implicit session =>
     sql"""
        SELECT $selectAllStatement
        FROM ${Collection as syn}
@@ -165,16 +144,96 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
       .list()
   }
 
-  def get(ids: List[Long]): List[Collection] = DB readOnly { implicit session =>
-    sql"""
-       SELECT $selectAllStatement
-       FROM ${Collection as syn}
-       WHERE ${sqls.in(syn.id, ids)}
-       ORDER BY ${syn.name}
-      """
-      .map(rs => Collection(syn.resultName)(rs))
-      .list()
-  }
+  def fetchCollectionById(
+      id: Long,
+      searchParams: CollectionItemsSearchParams,
+      pageSize: Int = 100
+  ): Option[QueryResponse] =
+    getById(id).map { collection =>
+      getWireEntriesForCollection(
+        collection,
+        searchParams,
+        pageSize
+      )
+    }
+
+  def fetchCollectionByName(
+      name: String,
+      searchParams: CollectionItemsSearchParams,
+      pageSize: Int = 100
+  ): Option[QueryResponse] =
+    getByName(name).map { collection =>
+      getWireEntriesForCollection(
+        collection,
+        searchParams,
+        pageSize
+      )
+    }
+
+  private def getWireEntriesForCollection(
+      collection: Collection,
+      searchParams: CollectionItemsSearchParams,
+      pageSize: Int
+  ): QueryResponse =
+    DB readOnly { implicit session =>
+      val dataOnlyWhereClauses = List(
+        searchParams.maybeBeforeId.map(Filters.beforeIdSQL(_)),
+        searchParams.maybeSinceId.map(Filters.sinceIdSQL(_))
+      )
+
+      val dateRangeQuery =
+        Filters.dateRangeSQL(searchParams.start, searchParams.end)
+
+      val collectionIdQuery = sqls"${syn.id} = ${collection.id}"
+
+      val whereClause = sqls.joinWithAnd(
+        collectionIdQuery :: (dateRangeQuery :: dataOnlyWhereClauses).flatten: _*
+      )
+
+      val highlightsClause = FingerpostWireEntry.buildHighlightsClause(
+        None
+      ) // We aren't doing free-text search here but the 'FingerpostWireEntry.fromDb' method needs there to be a column in the result
+
+      val query =
+        sql"""
+           SELECT ${FingerpostWireEntry.selectAllStatement}, ${highlightsClause}
+           FROM ${Collection as syn}
+           LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+            ON ${syn.id} = ${WireEntryForCollection.syn.collectionId}
+           LEFT JOIN ${FingerpostWireEntry as FingerpostWireEntry.syn}
+            ON ${FingerpostWireEntry.syn.id} = ${WireEntryForCollection.syn.wireEntryId}
+           WHERE ${whereClause}
+           ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+           LIMIT $pageSize
+          """
+      val wireEntries = query
+        .map(rs => {
+          FingerpostWireEntry.fromDb(FingerpostWireEntry.syn.resultName)(rs)
+        })
+        .list()
+        .flatten
+
+      val countQuery =
+        sql"""
+             |SELECT COUNT(*)
+             |FROM ${Collection as syn}
+             |LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+             |  ON ${syn.id} = ${WireEntryForCollection.syn.collectionId}
+             |LEFT JOIN ${FingerpostWireEntry as FingerpostWireEntry.syn}
+             |  ON ${FingerpostWireEntry.syn.id} = ${WireEntryForCollection.syn.wireEntryId}
+             | WHERE ${whereClause}
+             | """.stripMargin
+
+      logger.info(
+        s"COUNT QUERY: ${countQuery.statement}; PARAMS: ${countQuery.parameters}"
+      )
+
+      val totalCount: Long = {
+        countQuery.map(_.long(1)).single().getOrElse(0)
+      }
+
+      QueryResponse(wireEntries, totalCount)
+    }
 
   def delete(id: Long): Int = DB localTx { implicit session =>
     sql"""

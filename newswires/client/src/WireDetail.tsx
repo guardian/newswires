@@ -19,7 +19,7 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
@@ -27,6 +27,8 @@ import { useTelemetry } from './context/TelemetryContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
+import { pandaFetch } from './panda-session.ts';
+import { TASTED_COLLECTION_ID } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
@@ -42,6 +44,8 @@ function TitleContentForItem({
 	ingestedAt,
 	supplier,
 	wordCount,
+	collections,
+	refreshItemData,
 }: {
 	id: number;
 	slug?: string;
@@ -50,8 +54,28 @@ function TitleContentForItem({
 	ingestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
+	collections: WireData['collections'];
+	refreshItemData: () => void;
 }) {
 	const theme = useEuiTheme();
+
+	const isInTastedCollection = collections.some(
+		(collection) => collection.id.toString() === TASTED_COLLECTION_ID,
+	);
+
+	const toggleItemToTasted = useCallback((): void => {
+		const url = isInTastedCollection
+			? `/api/collections/${TASTED_COLLECTION_ID}/remove-item/${id}`
+			: `/api/collections/${TASTED_COLLECTION_ID}/add-item/${id}`;
+		pandaFetch(url, {
+			method: 'PUT',
+			headers: {
+				Accept: 'application/json',
+			},
+		})
+			.then(() => refreshItemData())
+			.catch(console.error);
+	}, [isInTastedCollection, id, refreshItemData]);
 
 	const headlineText =
 		headline && headline.length > 0 ? headline : (slug ?? 'No title');
@@ -80,6 +104,23 @@ function TitleContentForItem({
 					gap: 0.5rem;
 				`}
 			>
+				<Tooltip
+					tooltipContent={
+						isInTastedCollection
+							? "Remove from 'Tasted' list"
+							: "Add to 'Tasted' list"
+					}
+				>
+					<EuiButtonIcon
+						iconType={isInTastedCollection ? 'starFilled' : 'starEmpty'}
+						onClick={toggleItemToTasted}
+						aria-label={
+							isInTastedCollection
+								? "Remove from 'Tasted' list"
+								: "Add to 'Tasted' list"
+						}
+					></EuiButtonIcon>
+				</Tooltip>
 				<CopyButton id={id} headlineText={headlineText} />
 				<EuiTitle size="xs">
 					<h2>{headlineText}</h2>
@@ -462,10 +503,12 @@ export const WireDetail = ({
 	wire,
 	isShowingJson,
 	addToolLink,
+	refreshItemData,
 }: {
 	wire: WireData;
 	isShowingJson: boolean;
 	addToolLink: (toolLink: ToolLink) => void;
+	refreshItemData: () => void;
 }) => {
 	const theme = useEuiTheme();
 	const { categoryCodes } = wire;
@@ -536,6 +579,8 @@ export const WireDetail = ({
 						ingestedAt={convertToLocalDate(wire.ingestedAt)}
 						supplier={wire.supplier}
 						wordCount={wordCount}
+						collections={wire.collections}
+						refreshItemData={refreshItemData}
 					/>
 				</div>
 				<EuiPanel
