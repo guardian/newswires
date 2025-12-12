@@ -1,4 +1,5 @@
 import type { SESMessage } from 'aws-lambda';
+import './typings/mailauth.d.ts';
 import { authenticate } from 'mailauth';
 import { getFromEnv, isRunningLocally } from './config';
 import { getFromS3 } from './s3';
