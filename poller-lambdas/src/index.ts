@@ -2,11 +2,11 @@ import {
 	GetSecretValueCommand,
 	PutSecretValueCommand,
 } from '@aws-sdk/client-secrets-manager';
+import { getErrorMessage } from '@guardian/libs';
 import {
 	POLLER_FAILURE_EVENT_TYPE,
 	POLLER_INVOCATION_EVENT_TYPE,
 } from '../../shared/constants';
-import { getErrorMessage } from '../../shared/getErrorMessage';
 import { createLogger } from '../../shared/lambda-logging';
 import type { PollerId } from '../../shared/pollers';
 import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';

@@ -4,8 +4,8 @@ import {
 	PutObjectCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
+import { getErrorMessage } from '@guardian/libs';
 import { getFromEnv, isRunningLocally } from './config';
-import { getErrorMessage } from './getErrorMessage';
 import { createLogger } from './lambda-logging';
 import type { OperationResult } from './types';
 
@@ -32,7 +32,7 @@ export async function getFromS3({
 }: {
 	bucketName: string;
 	key: string;
-}): Promise<OperationResult<{ body: string, lastModified?: Date }>> {
+}): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
 	logger.log({
 		message: `Getting object from S3 bucket "${bucketName}" with key "${key}"`,
 		key,

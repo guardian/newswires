@@ -1,9 +1,9 @@
+import { getErrorMessage } from '@guardian/libs';
 import type postgres from 'postgres';
 import {
 	DATABASE_TABLE_NAME,
 	SUCCESSFUL_INGESTION_EVENT_TYPE,
 } from '../../shared/constants';
-import { getErrorMessage } from '../../shared/getErrorMessage';
 import type { Logger } from '../../shared/lambda-logging';
 import { computePresetCategories } from '../../shared/precomputeCategories';
 import type { OperationResult, ProcessedObject } from '../../shared/types';

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../shared/getErrorMessage';
+import { getErrorMessage } from '@guardian/libs';
 import type {
 	IngestorInputBody,
 	OperationResult,

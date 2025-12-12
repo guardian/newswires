@@ -1,5 +1,5 @@
+import { getErrorMessage } from '@guardian/libs';
 import { z } from 'zod/v4';
-import { getErrorMessage } from '../../../../shared/getErrorMessage';
 
 const AuthSchema = z.object({
 	access_token: z.string(),
