@@ -508,7 +508,7 @@ object FingerpostWireEntry
     val orderByClause =
       sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
 
-    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, ${Collection.syn.result.*}, $highlightsClause
+    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
            | LEFT JOIN ${ToolLink as ToolLink.syn}
            | ON ${syn.id} = ${ToolLink.syn.wireId}
