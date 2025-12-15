@@ -10,6 +10,8 @@ interface UserSettingsContextShape {
 	toggleResizablePanelsDirection: () => void;
 	showIncopyImport: boolean;
 	toggleShowIncopyImport: () => void;
+	showTastedList: boolean;
+	toggleShowTastedList: () => void;
 }
 
 const UserSettingsContext = createContext<UserSettingsContextShape | null>(
@@ -72,6 +74,18 @@ export const UserSettingsContextProvider = ({
 		});
 	};
 
+	const [showTastedList, setShowTastedList] = useState<boolean>(
+		loadOrSetInLocalStorage<boolean>('showTastedList', z.boolean(), false),
+	);
+
+	const toggleShowTastedList = () => {
+		setShowTastedList(!showTastedList);
+		saveToLocalStorage<boolean>('showTastedList', !showTastedList);
+		sendTelemetryEvent('toggleShowTastedList', {
+			showTastedList: !showTastedList ? 'on' : 'off',
+		});
+	};
+
 	return (
 		<UserSettingsContext.Provider
 			value={{
@@ -81,6 +95,8 @@ export const UserSettingsContextProvider = ({
 				toggleResizablePanelsDirection,
 				showIncopyImport,
 				toggleShowIncopyImport,
+				showTastedList,
+				toggleShowTastedList,
 			}}
 		>
 			{children}

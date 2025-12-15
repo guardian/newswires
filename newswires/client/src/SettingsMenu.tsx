@@ -18,6 +18,8 @@ export const SettingsMenu = () => {
 		toggleShowSecondaryFeedContent,
 		showIncopyImport,
 		toggleShowIncopyImport,
+		showTastedList,
+		toggleShowTastedList,
 	} = useUserSettings();
 
 	const [isPopoverOpen, setPopover] = useState(false);
@@ -93,6 +95,23 @@ export const SettingsMenu = () => {
 									checked={showIncopyImport}
 									onChange={() => {
 										toggleShowIncopyImport();
+									}}
+								/>
+							</EuiFormRow>
+						</div>
+					),
+				},
+				{
+					renderItem: () => (
+						<div style={{ padding: 16 }}>
+							<EuiFormRow hasChildLabel={true}>
+								<EuiSwitch
+									name="switch"
+									id={embeddedCodeSwitchId__3}
+									label="COMING SOON: show Tasted List badge"
+									checked={showTastedList}
+									onChange={() => {
+										toggleShowTastedList();
 									}}
 								/>
 							</EuiFormRow>

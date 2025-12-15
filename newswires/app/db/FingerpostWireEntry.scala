@@ -39,7 +39,8 @@ case class FingerpostWireEntry(
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil,
     s3Key: Option[String],
-    precomputedCategories: List[String]
+    precomputedCategories: List[String],
+    collections: List[Collection] = Nil
 )
 
 object FingerpostWireEntry
@@ -69,7 +70,7 @@ object FingerpostWireEntry
     )
   val syn = this.syntax("fm")
 
-  private lazy val selectAllStatement = sqls"""
+  lazy val selectAllStatement = sqls"""
     |   ${FingerpostWireEntry.syn.result.id},
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
@@ -155,10 +156,14 @@ object FingerpostWireEntry
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
 
-    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}, ${Collection.selectAllStatement}
            | FROM ${FingerpostWireEntry as syn}
            | LEFT JOIN ${ToolLink as ToolLink.syn}
            |   ON ${syn.id} = ${ToolLink.syn.wireId}
+           | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+           |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+           | LEFT JOIN ${Collection as Collection.syn}
+           |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
            | WHERE ${FingerpostWireEntry.syn.id} = $id
            |""".stripMargin
   }
@@ -169,10 +174,13 @@ object FingerpostWireEntry
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
-      .toMany(ToolLink.opt(ToolLink.syn.resultName))
-      .map { (wire, toolLinks) =>
+      .toManies(
+        ToolLink.opt(ToolLink.syn.resultName),
+        Collection.opt(Collection.syn.resultName)
+      )
+      .map { (wire, toolLinks, collections) =>
         wire.map(
-          _.copy(toolLinks = toolLinks.toList)
+          _.copy(toolLinks = toolLinks.toList, collections = collections.toList)
         )
       }
       .single()
@@ -507,8 +515,10 @@ object FingerpostWireEntry
         WireMaybeToolLink(wire, toolLinkOpt)
       })
       .groupBy(t => t.wireEntry)
-      .map({ case (wire, wireToolLinks) =>
-        wire.copy(toolLinks = wireToolLinks.flatMap(_.toolLink))
+      .map({ case (wire, wireRelations) =>
+        wire.copy(
+          toolLinks = wireRelations.flatMap(_.toolLink).distinct
+        )
       })
       .toList
 

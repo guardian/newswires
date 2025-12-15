@@ -179,11 +179,12 @@ export const ToolsConnection = ({
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
 	const { showIncopyImport } = useUserSettings();
+
 	return (
 		<>
 			<EuiFlexGroup direction="column" gutterSize="s">
 				<EuiFlexItem grow={false}>
-					<EuiFlexGroup direction="row" wrap gutterSize="s">
+					<EuiFlexGroup direction="row" wrap gutterSize="s" alignItems="center">
 						<SendOrVisitInComposerButton
 							itemData={itemData}
 							addToolLink={addToolLink}
