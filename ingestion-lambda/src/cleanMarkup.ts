@@ -1,7 +1,7 @@
+import type { Logger } from 'newswires-shared/lambda-logging';
+import { createLogger } from 'newswires-shared/lambda-logging';
 import type { Node } from 'node-html-parser';
 import { HTMLElement, parse, TextNode } from 'node-html-parser';
-import type { Logger } from '../../shared/lambda-logging';
-import { createLogger } from '../../shared/lambda-logging';
 
 export function cleanBodyTextMarkup(
 	bodyText: string,

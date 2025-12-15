@@ -1,9 +1,9 @@
+import { DATABASE_TABLE_NAME } from 'newswires-shared/constants';
+import * as loggingModule from 'newswires-shared/lambda-logging';
 import postgres from 'postgres';
-import { DATABASE_TABLE_NAME } from '../../shared/constants';
-import * as loggingModule from '../../shared/lambda-logging';
 import { putItemToDb } from './db';
 
-jest.mock('../../shared/lambda-logging', () => {
+jest.mock('newswires-shared/lambda-logging', () => {
 	const logs = {
 		log: jest.fn(),
 		debug: jest.fn(),

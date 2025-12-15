@@ -1,12 +1,12 @@
 import { getErrorMessage } from '@guardian/libs';
-import type postgres from 'postgres';
 import {
 	DATABASE_TABLE_NAME,
 	SUCCESSFUL_INGESTION_EVENT_TYPE,
-} from '../../shared/constants';
-import type { Logger } from '../../shared/lambda-logging';
-import { computePresetCategories } from '../../shared/precomputeCategories';
-import type { OperationResult, ProcessedObject } from '../../shared/types';
+} from 'newswires-shared/constants';
+import type { Logger } from 'newswires-shared/lambda-logging';
+import { computePresetCategories } from 'newswires-shared/precomputeCategories';
+import type { OperationResult, ProcessedObject } from 'newswires-shared/types';
+import type postgres from 'postgres';
 
 export async function putItemToDb({
 	processedObject,
