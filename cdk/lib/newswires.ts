@@ -61,9 +61,9 @@ import {
 	ParameterTier,
 	StringParameter,
 } from 'aws-cdk-lib/aws-ssm';
-import { SUCCESSFUL_INGESTION_EVENT_TYPE } from '../../shared/constants';
-import type { PollerId } from '../../shared/pollers';
-import { POLLERS_CONFIG } from '../../shared/pollers';
+import { SUCCESSFUL_INGESTION_EVENT_TYPE } from 'newswires-shared/constants';
+import type { PollerId } from 'newswires-shared/pollers';
+import { POLLERS_CONFIG } from 'newswires-shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';

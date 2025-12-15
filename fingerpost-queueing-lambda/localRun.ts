@@ -1,6 +1,6 @@
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
 import { LoremIpsum } from 'lorem-ipsum';
-import type { IngestorInputBody } from '../shared/types';
+import type { IngestorInputBody } from 'newswires-shared/types';
 import { main } from './src/handler';
 
 const lorem = new LoremIpsum({});
