@@ -8,5 +8,8 @@
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
 		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
+	},
+	"dependencies": {
+		"newswires-shared": "*"
 	}
 }

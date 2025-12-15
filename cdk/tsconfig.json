@@ -2,11 +2,6 @@
 	"extends": "../tsconfig.json",
 	"include": ["lib/**/*", "bin/**/*"],
 	"exclude": ["node_modules", "cdk.out", "lib/**/__snapshots__/**", "dist"],
-	"compilerOptions": {
-		"module": "ES2020",
-		"moduleResolution": "node",
-		"noEmit": true
-	},
 	"ts-node": {
 		// these options are overrides used only by ts-node
 		// same as the --compilerOptions flag and the TS_NODE_COMPILER_OPTIONS environment variable
