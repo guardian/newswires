@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc -noEmit",
 		"typecheck": "tsc --noEmit",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects cdk",
 		"test-update": "jest -u",
