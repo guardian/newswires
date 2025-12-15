@@ -42,10 +42,10 @@ export const fetchResults = async ({
 		 * removed from the the search results after they've been added. However, neither
 		 * of these assumptions hold true for user-created collections like 'tasted', where
 		 * items can be removed from the collection by users, and where new items may
-		 * be added in any order. So this is just temporary.
+		 * be added in any order.
 		 */
-		beforeId: query.preset === 'tasted' ? undefined : beforeId,
-		sinceId: query.preset === 'tasted' ? undefined : sinceId,
+		beforeId,
+		sinceId,
 	});
 	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {
