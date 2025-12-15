@@ -2,11 +2,9 @@
 	"name": "newswires-shared",
 	"version": "1.0.0",
 	"description": "",
-  "__main": "src/index.ts",
-  "t__ypes": "src/index.ts",
-  "exports": {
-    "./*": "./src/*.ts"
-  },
+	"exports": {
+		"./*": "./src/*.ts"
+	},
 	"scripts": {
 		"typecheck": "tsc -noEmit",
 		"pretest": "cd ../ && ./scripts/setup-test-env.sh",
