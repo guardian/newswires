@@ -39,28 +39,35 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildSingleGetQuery(id, maybeFreeTextQuery = None)
 
     getQuery should matchSqlSnippet(
-      expectedClause = """ SELECT
-          |   fm.id as i_on_fm,
-          |   fm.external_id as ei_on_fm,
-          |   fm.ingested_at as ia_on_fm,
-          |   fm.supplier as s_on_fm,
-          |   fm.composer_id as ci_on_fm,
-          |   fm.composer_sent_by as csb_on_fm,
-          |   fm.category_codes as cc_on_fm,
-          |   fm.content as c_on_fm,
-          |   fm.s3_key as sk_on_fm,
-          |   fm.precomputed_categories as pc_on_fm
-          |, '' AS h_on_fm,
-          |tl.id as i_on_tl,
-          |tl.wire_id as wi_on_tl,
-          |tl.tool as t_on_tl,
-          |tl.sent_by as sb_on_tl,
-          |tl.sent_at as sa_on_tl,
-          |tl.ref as r_on_tl
-          | FROM fingerpost_wire_entry fm
-          | LEFT JOIN tool_link tl
-          |   ON fm.id = tl.wire_id
-          | WHERE fm.id = ?
+      expectedClause = """ SELECT fm.id as i_on_fm,
+          | fm.external_id as ei_on_fm,
+          | fm.ingested_at as ia_on_fm,
+          | fm.supplier as s_on_fm,
+          | fm.composer_id as ci_on_fm,
+          | fm.composer_sent_by as csb_on_fm,
+          | fm.category_codes as cc_on_fm,
+          | fm.content as c_on_fm,
+          | fm.s3_key as sk_on_fm,
+          | fm.precomputed_categories as pc_on_fm ,
+          | '' AS h_on_fm,
+          | tl.id as i_on_tl,
+          | tl.wire_id as wi_on_tl,
+          | tl.tool as t_on_tl,
+          | tl.sent_by as sb_on_tl,
+          | tl.sent_at as sa_on_tl,
+          | tl.ref as r_on_tl,
+          | c.id as i_on_c,
+          | c.name as n_on_c,
+          | c.description as d_on_c,
+          | c.created_at as ca_on_c
+          |   FROM fingerpost_wire_entry fm
+          |   LEFT JOIN tool_link tl
+          |     ON fm.id = tl.wire_id
+          |   LEFT JOIN wire_entry_collection wec
+          |     ON wec.wire_entry_id = fm.id
+          |   LEFT JOIN collection c
+          |     ON c.id = wec.collection_id
+          |   WHERE fm.id = ?
           |""".stripMargin,
       expectedParams = List(153)
     )

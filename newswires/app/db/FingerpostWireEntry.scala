@@ -164,9 +164,9 @@ object FingerpostWireEntry
            | LEFT JOIN ${ToolLink as ToolLink.syn}
            |   ON ${syn.id} = ${ToolLink.syn.wireId}
            | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
-           |   ON ${syn.id} = ${WireEntryForCollection.syn.wireEntryId}
+           |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
            | LEFT JOIN ${Collection as Collection.syn}
-           |   ON ${WireEntryForCollection.syn.collectionId} = ${Collection.syn.id}
+           |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
            | WHERE ${FingerpostWireEntry.syn.id} = $id
            |""".stripMargin
   }
