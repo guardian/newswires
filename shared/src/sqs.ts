@@ -7,6 +7,7 @@ import {
 } from './config';
 
 const SQS_QUEUE_URL = getOptionalFromEnv('INGESTION_LAMBDA_QUEUE_URL') ?? '';
+
 export const sqs = isRunningLocally
 	? new SQSClient({ region: 'eu-west-1', endpoint: SQS_QUEUE_URL })
 	: new SQSClient(remoteAwsConfig);
