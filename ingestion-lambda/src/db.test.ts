@@ -28,7 +28,7 @@ describe('putItemToDb', () => {
 
 	beforeEach(async () => {
 		jest.resetAllMocks();
-		await sql`TRUNCATE TABLE ${sql(DATABASE_TABLE_NAME)};`;
+		await sql`DELETE FROM ${sql(DATABASE_TABLE_NAME)};`;
 	});
 
 	afterAll(async () => {
