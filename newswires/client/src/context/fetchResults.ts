@@ -35,8 +35,17 @@ export const fetchResults = async ({
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
-		beforeId,
-		sinceId,
+		/**
+		 * @todo we need to decide what the desired behaviour is for the tasted preset.
+		 * At the moment, our auto-update and pagination logic relies on sinceId and beforeId,
+		 * on the assumption that new items will have higher IDs, AND that items won't be
+		 * removed from the the search results after they've been added. However, neither
+		 * of these assumptions hold true for user-created collections like 'tasted', where
+		 * items can be removed from the collection by users, and where new items may
+		 * be added in any order. So this is just temporary.
+		 */
+		beforeId: query.preset === 'tasted' ? undefined : beforeId,
+		sinceId: query.preset === 'tasted' ? undefined : sinceId,
 	});
 	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {
