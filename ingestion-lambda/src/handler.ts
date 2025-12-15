@@ -5,13 +5,13 @@ import type {
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
-import { getFromEnv, isRunningLocally } from '../../shared/config';
-import { findVerificationFailures } from '../../shared/findVerificationFailures';
-import type { Logger } from '../../shared/lambda-logging';
-import { createLogger } from '../../shared/lambda-logging';
-import { initialiseDbConnection } from '../../shared/rds';
-import { FEEDS_BUCKET_NAME } from '../../shared/s3';
-import type { BatchItemFailure, OperationResult } from '../../shared/types';
+import { getFromEnv, isRunningLocally } from 'newswires-shared/config';
+import { findVerificationFailures } from 'newswires-shared/findVerificationFailures';
+import type { Logger } from 'newswires-shared/lambda-logging';
+import { createLogger } from 'newswires-shared/lambda-logging';
+import { initialiseDbConnection } from 'newswires-shared/rds';
+import { FEEDS_BUCKET_NAME } from 'newswires-shared/s3';
+import type { BatchItemFailure, OperationResult } from 'newswires-shared/types';
 import { putItemToDb } from './db';
 import { getItemFromS3 } from './getItemFromS3';
 import { processFingerpostJsonContent } from './processContentObject';
