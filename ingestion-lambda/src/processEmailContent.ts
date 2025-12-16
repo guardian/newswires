@@ -1,5 +1,5 @@
+import { getErrorMessage } from '@guardian/libs';
 import { simpleParser } from 'mailparser';
-import { getErrorMessage } from '../../shared/getErrorMessage';
 import type {
 	IngestorInputBody,
 	OperationResult,

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@guardian/libs';
 import type { Context, PropsWithChildren } from 'react';
 import {
 	createContext,
@@ -9,7 +10,6 @@ import {
 	useState,
 } from 'react';
 import { z } from 'zod/v4';
-import { getErrorMessage } from '../../../../shared/getErrorMessage.ts';
 import type { Config, Query } from '../sharedTypes.ts';
 import {
 	ConfigSchema,

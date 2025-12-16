@@ -270,6 +270,7 @@ export const reutersPoller = (async ({
 	}
 
 	const searchData = [];
+	// eslint-disable-next-line @typescript-eslint/await-thenable -- eslint recently started claiming that this is not async-iterable after a typescript upgrade but we think it's a bug in eslint. Our usage seems to fit with typescript-eslint's example of correct usage: https://typescript-eslint.io/rules/await-thenable/#async-iteration-for-awaitof-loops
 	for await (const page of fetchAllPages(textItemsSearchQuery())) {
 		const { data, success } = SearchDataSchema.safeParse(page);
 		if (!success) {
