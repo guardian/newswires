@@ -1,6 +1,12 @@
 import type { SESMail, SESReceipt } from 'aws-lambda';
 import { findVerificationFailures } from './findVerificationFailures';
 
+jest.mock('./s3.ts', () => ({
+	getFromS3: jest.fn().mockResolvedValue({
+		status: 'success',
+		body: ``,
+	}),
+}));
 describe('findVerificationFailures', () => {
 	const mail: SESMail = {
 		timestamp: '',
@@ -44,5 +50,21 @@ describe('findVerificationFailures', () => {
 			{ name: 'spfVerdict', status: 'FAIL' },
 			{ name: 'dmarcVerdict', status: 'FAIL' },
 		]);
+	});
+
+	// This test requires a fully logged email to be included. We don't want to commit one to this public repo,
+	// but it's handy to use this to debug, so it's left here commented out in case it's useful in the future.
+	it.skip('should run mail verification for mail which failed spf ONLY', async () => {
+		const receipt = {
+			spamVerdict: { status: 'PASS' },
+			virusVerdict: { status: 'PASS' },
+			spfVerdict: { status: 'FAIL' },
+			dkimVerdict: { status: 'PASS' },
+			dmarcVerdict: { status: 'PASS' },
+		} as unknown as SESReceipt;
+
+		const result = await findVerificationFailures({ receipt, mail });
+		expect(result.failedChecks).toBe([]);
+		expect(result.pass).toBe(true);
 	});
 });
