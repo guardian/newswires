@@ -47,17 +47,17 @@ buildInfoKeys := Seq[BuildInfoKey](
 )
 
 val jacksonVersion = "2.20.1"
+val jacksonAnnotationVersion = "2.20"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
-  "com.fasterxml.jackson.core" % "jackson-annotations",
   "com.fasterxml.jackson.core" % "jackson-databind",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
-).map(_ % jacksonVersion)
+).map(_ % jacksonVersion) ++ Seq("com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion)
 
 dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
   "software.amazon.awssdk" % _ % "2.39.6"
