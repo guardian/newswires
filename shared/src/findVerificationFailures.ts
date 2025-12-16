@@ -18,7 +18,7 @@ const EMAIL_BUCKET_NAME: string = isRunningLocally
 	: getFromEnv('EMAIL_BUCKET_NAME');
 
 const DOTCOPY_EMAIL_ADDRESS = isRunningLocally
-	? 'FIXME'
+	? 'FIXME' // FIXME what address to give for local running / unit tests especially?
 	: getFromEnv('DOTCOPY_EMAIL_ADDRESS');
 
 const dotcopyUsernameEnd = DOTCOPY_EMAIL_ADDRESS.indexOf('@');
@@ -88,7 +88,6 @@ export async function findVerificationFailures(
 			arc.signature.signingDomain === 'google.com' &&
 			arc.signature.status.result === 'pass' &&
 			arc.authenticationResults.mta === 'mx.google.com' &&
-			arc.authenticationResults.arc.result === 'pass' &&
 			arc.authenticationResults.spf.result === 'pass';
 
 		if (!wasSentToDotCopy) {
