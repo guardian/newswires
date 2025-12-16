@@ -1,5 +1,5 @@
+import { getErrorMessage } from '@guardian/libs';
 import { DATABASE_TABLE_NAME } from '../../shared/constants';
-import { getErrorMessage } from '../../shared/getErrorMessage';
 import { initialiseDbConnection } from '../../shared/rds';
 
 export const main = async (): Promise<void> => {

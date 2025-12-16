@@ -6,8 +6,8 @@ import {
 	EuiText,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { getErrorMessage } from '@guardian/libs';
 import { useCallback, useState } from 'react';
-import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
