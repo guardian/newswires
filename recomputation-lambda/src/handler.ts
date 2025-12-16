@@ -1,4 +1,4 @@
-import { initialiseDbConnection } from '../../shared/rds';
+import { initialiseDbConnection } from 'newswires-shared/rds';
 import { countQuery, getQuery, updateRecords } from './query';
 
 function computeOffsets(max: number, batchSize: number): number[] {

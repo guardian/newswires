@@ -1,4 +1,4 @@
-import { createLogger } from '../../../../shared/lambda-logging';
+import { createLogger } from 'newswires-shared/lambda-logging';
 import { apPoller } from './apPoller'; // Replace with actual path
 import { apItems, apTransformedItems } from './fixtures/apItems';
 import { parseNitfContent } from './parseNitfContent';

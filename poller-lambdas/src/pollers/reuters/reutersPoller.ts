@@ -1,8 +1,8 @@
+import { POLLER_FAILURE_EVENT_TYPE } from 'newswires-shared/constants';
+import { REUTERS_POLLING_FREQUENCY_IN_SECONDS } from 'newswires-shared/pollers';
+import type { IngestorInputBody } from 'newswires-shared/types';
 import { parse } from 'node-html-parser';
 import { z } from 'zod/v4';
-import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
-import { REUTERS_POLLING_FREQUENCY_IN_SECONDS } from '../../../../shared/pollers';
-import type { IngestorInputBody } from '../../../../shared/types';
 import type {
 	FixedFrequencyPollFunction,
 	PollFunctionInput,

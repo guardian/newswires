@@ -1,9 +1,12 @@
 import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
 import { App } from 'aws-cdk-lib';
 import 'source-map-support/register';
-import { STACK } from '../../shared/constants';
-import type { PollerId } from '../../shared/pollers';
-import { pollerIdToLambdaAppName, POLLERS_CONFIG } from '../../shared/pollers';
+import { STACK } from 'newswires-shared/constants';
+import type { PollerId } from 'newswires-shared/pollers';
+import {
+	pollerIdToLambdaAppName,
+	POLLERS_CONFIG,
+} from 'newswires-shared/pollers';
 import { NewswiresCloudfrontCertificate } from '../lib/cloudfront-certificate';
 import { Newswires } from '../lib/newswires';
 import { WiresFeeds } from '../lib/wires-feeds';

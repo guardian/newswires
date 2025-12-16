@@ -4,6 +4,7 @@
 	"description": "Newswires feed app",
 	"workspaces": [
 		"cdk",
+		"shared",
 		"ingestion-lambda",
 		"cleanup-lambda",
 		"poller-lambdas",

@@ -10,7 +10,9 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern",
 		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects poller-lambdas"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"newswires-shared": "*"
+	},
 	"devDependencies": {
 		"@aws-sdk/client-secrets-manager": "3.848.0",
 		"@aws-sdk/client-sqs": "3.848.0",

@@ -6,30 +6,30 @@ import type {
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
-import type postgres from 'postgres';
+import * as loggingModule from 'newswires-shared/lambda-logging';
+import * as rdsModule from 'newswires-shared/rds';
+import * as s3Module from 'newswires-shared/s3';
+import type { OperationResult } from 'newswires-shared/types';
 import type { Row, RowList } from 'postgres';
-import * as loggingModule from '../../shared/lambda-logging';
-import * as rdsModule from '../../shared/rds';
-import * as s3Module from '../../shared/s3';
-import type { OperationResult } from '../../shared/types';
+import type postgres from 'postgres';
 import { main } from './handler';
 import { sampleMimeEmailData } from './sampleMimeEmailData';
 
 type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
 // mock the s3 sdk module
-jest.mock('../../shared/s3', () => ({
+jest.mock('newswires-shared/s3', () => ({
 	getFromS3: jest.fn(),
 	putToS3: jest.fn(),
 	FEEDS_BUCKET_NAME: 'test-feeds-bucket',
 	EMAIL_BUCKET_NAME: 'test-email-bucket',
 }));
 // and the postgres sql module
-jest.mock('../../shared/rds', () => ({
+jest.mock('newswires-shared/rds', () => ({
 	initialiseDbConnection: jest.fn(),
 }));
 // and even the lambda-logging module
-jest.mock('../../shared/lambda-logging', () => {
+jest.mock('newswires-shared/lambda-logging', () => {
 	const logs = {
 		log: jest.fn(),
 		debug: jest.fn(),

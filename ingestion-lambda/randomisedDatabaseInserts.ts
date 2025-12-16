@@ -1,9 +1,9 @@
-import { IngestorInputBody } from "../shared/types";
 import { LoremIpsum } from 'lorem-ipsum';
-import { processFingerpostJsonContent } from "./src/processContentObject";
-import { createLogger } from "../shared/lambda-logging";
-import { initialiseDbConnection } from "../shared/rds";
-import { putItemToDb } from "./src/db";
+import { createLogger } from 'newswires-shared/lambda-logging';
+import { initialiseDbConnection } from 'newswires-shared/rds';
+import type { IngestorInputBody } from 'newswires-shared/types';
+import { putItemToDb } from './src/db';
+import { processFingerpostJsonContent } from './src/processContentObject';
 
 const lorem = new LoremIpsum({});
 
@@ -67,28 +67,31 @@ function createDummyFeedEntry(): {
 	};
 }
 async function main() {
+	setInterval(async () => {
+		const content = createDummyFeedEntry();
 
-    setInterval(async() => { 
-        const content = createDummyFeedEntry();
+		const processedMessage = processFingerpostJsonContent(
+			JSON.stringify(content.body),
+		);
+		if (processedMessage.status === 'failure') {
+			console.error(
+				`Failed to process generated message: ${processedMessage.reason}`,
+			);
+			return;
+		}
+		const logger = createLogger({});
+		const { sql, closeDbConnection } = await initialiseDbConnection();
 
-        const processedMessage = processFingerpostJsonContent(JSON.stringify(content.body))
-        if (processedMessage.status === 'failure') {
-            console.error(`Failed to process generated message: ${processedMessage.reason}`);
-            return;
-        }   
-        const logger = createLogger({});
-        const { sql, closeDbConnection } = await initialiseDbConnection();
-
-
-        const dbResult = await putItemToDb({
-                                processedObject: processedMessage,
-                                externalId: content.externalId,
-                                s3Key: content.externalId,
-                                sql,
-                                logger,
-                            });
-        console.log(dbResult)  
-        await closeDbConnection()
-    }, 5000);                 
+		const dbResult = await putItemToDb({
+			processedObject: processedMessage,
+			externalId: content.externalId,
+			s3Key: content.externalId,
+			sql,
+			logger,
+		});
+		console.log(dbResult);
+		await closeDbConnection();
+	}, 5000);
 }
 main().catch(console.error);
+

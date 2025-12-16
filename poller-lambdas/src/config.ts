@@ -1,5 +1,5 @@
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
-import type { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
+import type { POLLER_LAMBDA_ENV_VAR_KEYS } from 'newswires-shared/pollers';
 
 /**
  * Is this application running locally, or in AWS?

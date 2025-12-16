@@ -1,6 +1,6 @@
 import type { SESEvent, SESHandler } from 'aws-lambda';
-import { findVerificationFailures } from '../../shared/findVerificationFailures';
-import { createLogger } from '../../shared/lambda-logging';
+import { findVerificationFailures } from 'newswires-shared/findVerificationFailures';
+import { createLogger } from 'newswires-shared/lambda-logging';
 
 const logger = createLogger({});
 

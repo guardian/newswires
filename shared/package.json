@@ -1,15 +1,19 @@
 {
-	"name": "email-filter-lambda",
+	"name": "newswires-shared",
 	"version": "1.0.0",
 	"description": "",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
 	"scripts": {
 		"typecheck": "tsc -noEmit",
-		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
+		"pretest": "cd ../ && ./scripts/setup-test-env.sh",
+		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects shared",
 		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
-		"newswires-shared": "*"
 	},
-	"devDependencies": {}
+	"devDependencies": {
+	}
 }
