@@ -17,12 +17,15 @@ const EMAIL_BUCKET_NAME: string = isRunningLocally
 	? 'local-email-bucket'
 	: getFromEnv('EMAIL_BUCKET_NAME');
 
-const DOTCOPY_EMAIL_ADDRESS = isRunningLocally
+const DOTCOPY_EMAIL_PUBLIC_ADDRESS = isRunningLocally
 	? 'FIXME' // FIXME what address to give for local running / unit tests especially?
-	: getFromEnv('DOTCOPY_EMAIL_ADDRESS');
+	: getFromEnv('DOTCOPY_EMAIL_PUBLIC_ADDRESS');
 
-const dotcopyUsernameEnd = DOTCOPY_EMAIL_ADDRESS.indexOf('@');
-const dotcopyUsername = DOTCOPY_EMAIL_ADDRESS.slice(0, dotcopyUsernameEnd);
+const dotcopyUsernameEnd = DOTCOPY_EMAIL_PUBLIC_ADDRESS.indexOf('@');
+const dotcopyUsername = DOTCOPY_EMAIL_PUBLIC_ADDRESS.slice(
+	0,
+	dotcopyUsernameEnd,
+);
 
 const validForCopy = (forAddress: string): boolean => {
 	const validCopyAddresses = [
