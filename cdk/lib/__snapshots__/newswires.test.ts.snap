@@ -13,10 +13,11 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
-      "GuLambdaFunction",
-      "GuLambdaFunction",
-      "GuLambdaFunction",
       "GuStringParameter",
+      "GuStringParameter",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
+      "GuLambdaFunction",
       "GuAlarm",
       "GuAlarm",
       "GuAlarm",
@@ -125,6 +126,10 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "incomingcopyemailaddress": {
       "Default": "/fingerpost/TEST/incomingCopyEmailAddress",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "incomingcopyemailpublicaddress": {
+      "Default": "/fingerpost/TEST/incomingCopyEmailPublicAddress",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "newswiresPrivateSubnets": {
@@ -1375,6 +1380,12 @@ exports[`The Newswires stack matches the snapshot 1`] = `
                 "NewswiresDBNewswires2A5A9AC6",
                 "Endpoint.Port",
               ],
+            },
+            "DOTCOPY_EMAIL_ADDRESS": {
+              "Ref": "incomingcopyemailaddress",
+            },
+            "DOTCOPY_EMAIL_PUBLIC_ADDRESS": {
+              "Ref": "incomingcopyemailpublicaddress",
             },
             "EMAIL_BUCKET_NAME": {
               "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
