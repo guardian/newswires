@@ -183,6 +183,14 @@ export class Newswires extends GuStack {
 				default: `/fingerpost/${this.stage}/incomingCopyEmailAddress`,
 			},
 		).valueAsString;
+		const incomingEmailPublicAddress = new GuStringParameter(
+			this,
+			`incoming-copy-email-public-address`,
+			{
+				fromSSM: true,
+				default: `/fingerpost/${this.stage}/incomingCopyEmailPublicAddress`,
+			},
+		).valueAsString;
 
 		const ingestionLambda = new GuLambdaFunction(
 			this,
@@ -204,6 +212,7 @@ export class Newswires extends GuStack {
 					DATABASE_PORT: database.dbInstanceEndpointPort,
 					DATABASE_NAME: databaseName,
 					DOTCOPY_EMAIL_ADDRESS: incomingEmailAddress,
+					DOTCOPY_EMAIL_PUBLIC_ADDRESS: incomingEmailPublicAddress,
 				},
 				vpc,
 				vpcSubnets: {
