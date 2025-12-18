@@ -47,13 +47,27 @@ export async function processEmailContent(
 	}
 }
 
+// This regex matches all break tags that aren't immediately followed by
+// another break tag. For `textAsHtml`, this will remove all line breaks
+// from the automatically added wrapping, while paragraphs formed by
+// double breaks added by the email author will be reduced to a single break.
+// This does mean that paragraphs formed by authors by a single linebreak will
+// be indistinguishable from a break added for wrapping, so the two paragraphs
+// will be merged into one, but this behaviour is consistent with old wires,
+// meaning no regressions and we can always investigate improvements later.
+// It does look like the parser will replace a double linebreak by ending the
+// current <p> tag and starting a new one.
+const matchNonwrappingBreakTags = /<br\/>(?!<br\/>)/g;
+
 export async function parseEmail(rawEmail: string): Promise<EmailObject> {
 	try {
 		const parsed = await simpleParser(rawEmail);
+		const text = parsed.textAsHtml?.replaceAll(matchNonwrappingBreakTags, ' ');
+
 		return {
 			from: parsed.from?.text,
 			subject: parsed.subject,
-			text: parsed.textAsHtml,
+			text: text,
 			date: parsed.date?.toUTCString(),
 		};
 	} catch (error) {
