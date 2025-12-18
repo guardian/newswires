@@ -75,9 +75,12 @@ const COMPOSER_HOST = window.location.hostname.endsWith('.gutools.co.uk')
 export const composerPageForId = (composerId: string): string =>
 	`https://${COMPOSER_HOST}/content/${composerId}`;
 
-export const sendToComposer = async (wireData: WireData) => {
+export const sendToComposer = async (
+	headline: string | undefined,
+	wireData: WireData,
+) => {
 	const fields: ComposerImportFields = {
-		headline: wireData.content.headline,
+		headline: headline,
 		standfirst: wireData.content.subhead,
 		trailText: wireData.content.subhead,
 		byline: wireData.content.byline,

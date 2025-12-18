@@ -33,6 +33,7 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import { headlineForComposer } from './utils/formatHeadline.ts';
 
 function TitleContentForItem({
 	id,
@@ -549,6 +550,10 @@ export const WireDetail = ({
 					`}
 				>
 					<ToolsConnection
+						headline={headlineForComposer(
+							wire.supplier.name,
+							wire.content.headline,
+						)}
 						itemData={wire}
 						key={wire.id}
 						addToolLink={addToolLink}
