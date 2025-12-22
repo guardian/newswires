@@ -5,7 +5,8 @@ on:
 jobs: 
   check-latest-migration:
     name: Check latest migration
-    runs-on: ubuntu-22.04
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
