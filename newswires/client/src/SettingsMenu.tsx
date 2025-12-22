@@ -89,7 +89,7 @@ export const SettingsMenu = () => {
 								<EuiSwitch
 									name="switch"
 									id={embeddedCodeSwitchId__3}
-									label="COMING SOON: send wire to InCopy"
+									label="Show button to send wire to InCopy"
 									checked={showIncopyImport}
 									onChange={() => {
 										toggleShowIncopyImport();
