@@ -42,6 +42,14 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
 
   override val tableName = "collection"
 
+  override val columns =
+    Seq(
+      "id",
+      "name",
+      "description",
+      "created_at"
+    )
+
   lazy val selectAllStatement: SQLSyntax = sqls"""
     |${syn.result.id},
     |${syn.result.name},
@@ -63,13 +71,6 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
     rs.longOpt(c.id).map(_ => Collection(c)(rs))
   }
 
-  override val columns =
-    Seq(
-      "id",
-      "name",
-      "description",
-      "created_at"
-    )
 
   implicit val jsonEncoder: Encoder[Collection] =
     deriveEncoder[Collection].mapJson(_.dropNullValues)
@@ -157,19 +158,6 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
       )
     }
 
-  def fetchCollectionByName(
-      name: String,
-      searchParams: CollectionItemsSearchParams,
-      pageSize: Int = 100
-  ): Option[QueryResponse] =
-    getByName(name).map { collection =>
-      getWireEntriesForCollection(
-        collection,
-        searchParams,
-        pageSize
-      )
-    }
-
   private def getWireEntriesForCollection(
       collection: Collection,
       searchParams: CollectionItemsSearchParams,
@@ -203,7 +191,7 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
            LEFT JOIN ${FingerpostWireEntry as FingerpostWireEntry.syn}
             ON ${FingerpostWireEntry.syn.id} = ${WireEntryForCollection.syn.wireEntryId}
            WHERE ${whereClause}
-           ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC
+           ORDER BY ${WireEntryForCollection.syn.addedAt} DESC
            LIMIT $pageSize
           """
       val wireEntries = query

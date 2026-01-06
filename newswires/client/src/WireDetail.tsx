@@ -10,12 +10,14 @@ import {
 	EuiDescriptionListTitle,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiHorizontalRule,
 	EuiIcon,
-	EuiPanel,
+	EuiLoadingSpinner,
 	EuiSpacer,
 	EuiText,
 	EuiTitle,
 	useEuiTheme,
+	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
@@ -60,7 +62,7 @@ function TitleContentForItem({
 	const theme = useEuiTheme();
 
 	const isInTastedCollection = collections.some(
-		(collection) => collection.id.toString() === TASTED_COLLECTION_ID,
+		(collection) => collection.collectionId.toString() === TASTED_COLLECTION_ID,
 	);
 
 	const toggleItemToTasted = useCallback((): void => {
@@ -101,27 +103,10 @@ function TitleContentForItem({
 				css={css`
 					display: flex;
 					align-items: center;
-					gap: 0.5rem;
+					margin-top: ${theme.euiTheme.size.xs};
+					gap: ${theme.euiTheme.size.s};
 				`}
 			>
-				<Tooltip
-					tooltipContent={
-						isInTastedCollection
-							? "Remove from 'Tasted' list"
-							: "Add to 'Tasted' list"
-					}
-				>
-					<EuiButtonIcon
-						iconType={isInTastedCollection ? 'starFilled' : 'starEmpty'}
-						onClick={toggleItemToTasted}
-						aria-label={
-							isInTastedCollection
-								? "Remove from 'Tasted' list"
-								: "Add to 'Tasted' list"
-						}
-					></EuiButtonIcon>
-				</Tooltip>
-				<CopyButton id={id} headlineText={headlineText} />
 				<EuiTitle size="xs">
 					<h2>{headlineText}</h2>
 				</EuiTitle>
@@ -475,7 +460,7 @@ function CopyButton({
 		>
 			<EuiButtonIcon
 				aria-label="Copy headline and URL"
-				size="xs"
+				size="s"
 				iconType={copied ? 'check' : 'link'}
 				onClick={() => void handleCopy()}
 			/>
@@ -510,6 +495,14 @@ export const WireDetail = ({
 	addToolLink: (toolLink: ToolLink) => void;
 	refreshItemData: () => void;
 }) => {
+	const { state, handleDeselectItem, handlePreviousItem, handleNextItem } =
+		useSearch();
+	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+
+	const isFirst = state.queryData?.results[0]?.id === wire.id;
+	const isLast =
+		state.queryData?.results[state.queryData.totalCount - 1]?.id === wire.id;
+
 	const theme = useEuiTheme();
 	const { categoryCodes } = wire;
 	const { byline, keywords, usage, ednote, headline, slug, abstract } =
@@ -533,6 +526,9 @@ export const WireDetail = ({
 
 	const bodyTextContent = safeHighlightText ?? safeBodyText;
 
+	const headlineText =
+		headline && headline.length > 0 ? headline : (slug ?? 'No title');
+
 	const nonEmptyKeywords = useMemo(
 		() => keywords?.filter((keyword) => keyword.trim().length > 0) ?? [],
 		[keywords],
@@ -552,12 +548,107 @@ export const WireDetail = ({
 
 	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
 
+	const isInTastedCollection = wire.collections.some(
+		(collection) => collection.collectionId.toString() === TASTED_COLLECTION_ID,
+	);
+
+	const toggleItemToTasted = useCallback((): void => {
+		const url = isInTastedCollection
+			? `/api/collections/${TASTED_COLLECTION_ID}/remove-item/${wire.id}`
+			: `/api/collections/${TASTED_COLLECTION_ID}/add-item/${wire.id}`;
+		pandaFetch(url, {
+			method: 'PUT',
+			headers: {
+				Accept: 'application/json',
+			},
+		})
+			.then(() => refreshItemData())
+			.catch(console.error);
+	}, [isInTastedCollection, refreshItemData, wire.id]);
+
 	return (
 		<div
 			css={css`
 				container-type: inline-size;
 			`}
 		>
+			<div
+				css={css`
+					display: flex;
+					align-items: center;
+					justify-content: flex-end;
+					gap: ${theme.euiTheme.size.s};
+				`}
+			></div>
+			<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
+				<Tooltip
+					tooltipContent="Previous story"
+					position={isSmallScreen ? 'right' : 'top'}
+				>
+					<EuiButtonIcon
+						iconType="arrowLeft"
+						onClick={handlePreviousItem}
+						aria-label="Previous story"
+						disabled={isFirst}
+					/>
+				</Tooltip>
+				{state.loadingMore ? (
+					<EuiLoadingSpinner size="m" />
+				) : (
+					<Tooltip tooltipContent="Next story">
+						<EuiButtonIcon
+							iconType="arrowRight"
+							onClick={() => {
+								void handleNextItem();
+							}}
+							aria-label="Next story"
+							disabled={isLast}
+						/>
+					</Tooltip>
+				)}
+				<div
+					css={css`
+						display: flex;
+						align-items: center;
+						gap: ${theme.euiTheme.size.s};
+					`}
+				>
+					<Tooltip
+						tooltipContent={
+							isInTastedCollection
+								? "Remove from 'Tasted' list"
+								: "Add to 'Tasted' list"
+						}
+					>
+						<EuiButtonIcon
+							iconType={isInTastedCollection ? 'starFilled' : 'starEmpty'}
+							onClick={toggleItemToTasted}
+							aria-label={
+								isInTastedCollection
+									? "Remove from 'Tasted' list"
+									: "Add to 'Tasted' list"
+							}
+							size="s"
+						></EuiButtonIcon>
+					</Tooltip>
+					<CopyButton id={wire.id} headlineText={headlineText} />
+					<ToolsConnection
+						itemData={wire}
+						key={wire.id}
+						addToolLink={addToolLink}
+					/>
+				</div>
+				<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
+					<Tooltip tooltipContent="Close story" position="left">
+						<EuiButtonIcon
+							iconType="cross"
+							onClick={handleDeselectItem}
+							aria-label="Close story"
+						/>
+					</Tooltip>
+				</EuiFlexGroup>
+			</EuiFlexGroup>
+			<EuiHorizontalRule margin="xs" />
 			<div
 				css={css`
 					display: flex;
@@ -583,21 +674,6 @@ export const WireDetail = ({
 						refreshItemData={refreshItemData}
 					/>
 				</div>
-				<EuiPanel
-					hasBorder
-					hasShadow={false}
-					grow={false}
-					css={css`
-						flex-shrink: 1;
-						align-self: flex-end;
-					`}
-				>
-					<ToolsConnection
-						itemData={wire}
-						key={wire.id}
-						addToolLink={addToolLink}
-					/>
-				</EuiPanel>
 			</div>
 			<EuiSpacer size="s" />
 			{isShowingJson ? (

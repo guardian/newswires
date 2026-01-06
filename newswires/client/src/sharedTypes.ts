@@ -47,9 +47,9 @@ export const ToolLinkSchema = z.object({
 export type ToolLink = z.infer<typeof ToolLinkSchema>;
 
 export const CollectionSchema = z.object({
-	id: z.number(),
-	name: z.string(),
-	createdAt: z.string(),
+	wireEntryId: z.number(),
+	collectionId: z.number(),
+	addedAt: z.string(),
 });
 
 export const WireDataFromAPISchema = z.object({

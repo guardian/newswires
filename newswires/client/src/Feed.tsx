@@ -10,9 +10,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchToolLinks } from './context/fetchToolLinks.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
+import { TASTED_COLLECTION_ID } from './presets.ts';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
-import type { ToolLink, WireToolLinks } from './sharedTypes.ts';
+import type {
+	Query,
+	ToolLink,
+	WireData,
+	WireToolLinks,
+} from './sharedTypes.ts';
 import { WireItemList } from './WireItemList.tsx';
 
 export interface FeedProps {
@@ -28,6 +34,37 @@ const baseStyles = css`
 const columnStyles = css`
 	flex-direction: column;
 `;
+
+type SortFunction = (a: WireData, b: WireData) => number;
+
+function decideSortFunction(query: Query): SortFunction {
+	function compareByIngestedAt(a: WireData, b: WireData): number {
+		return b.ingestedAt.localeCompare(a.ingestedAt);
+	}
+	function compareByAddedAt(a: WireData, b: WireData): number {
+		const aCollection = a.collections.find(
+			(collection) =>
+				collection.collectionId.toString() === TASTED_COLLECTION_ID,
+		);
+		const bCollection = b.collections.find(
+			(collection) =>
+				collection.collectionId.toString() === TASTED_COLLECTION_ID,
+		);
+		if (aCollection && bCollection) {
+			return bCollection.addedAt.localeCompare(aCollection.addedAt);
+		} else if (aCollection) {
+			return -1;
+		} else if (bCollection) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	if (query.preset === 'tasted') {
+		return compareByAddedAt;
+	}
+	return compareByIngestedAt;
+}
 
 export const Feed = ({
 	containerRef,
@@ -84,6 +121,8 @@ export const Feed = ({
 
 	const wires = useMemo(() => {
 		if (!queryData) return [];
+		const sortFunction = decideSortFunction(config.query);
+
 		return queryData.results
 			.map((result) => {
 				const toolLinks = toolLinksMap[result.id] ?? [];
@@ -94,8 +133,8 @@ export const Feed = ({
 					};
 				} else return result;
 			})
-			.sort((a, b) => b.ingestedAt.localeCompare(a.ingestedAt));
-	}, [queryData, toolLinksMap]);
+			.sort(sortFunction);
+	}, [config.query, queryData, toolLinksMap]);
 	return (
 		<EuiPageTemplate.Section
 			paddingSize={isPoppedOut ? 's' : 'm'}
