@@ -33,6 +33,7 @@ export const sampleWireResponse = {
 	content: sampleFingerpostContent,
 	highlight: 'Sample Highlight',
 	isFromRefresh: false,
+	collections: [],
 };
 
 export const sampleWireData: WireData = {

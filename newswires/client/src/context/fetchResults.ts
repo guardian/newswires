@@ -1,8 +1,22 @@
 import { pandaFetch } from '../panda-session.ts';
+import { TASTED_COLLECTION_ID } from '../presets.ts';
 import type { Config, Query, WiresQueryData } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
+
+function decideEndpoint(
+	view: Config['view'],
+	maybePreset: string | undefined,
+): string {
+	if (view.includes('dotcopy')) {
+		return '/api/dotcopy';
+	}
+	if (maybePreset === 'tasted') {
+		return `/api/collections/${TASTED_COLLECTION_ID}`;
+	}
+	return '/api/search';
+}
 
 export const fetchResults = async ({
 	query,
@@ -17,10 +31,19 @@ export const fetchResults = async ({
 	beforeId?: string;
 	abortController?: AbortController;
 }): Promise<WiresQueryData> => {
-	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
+	const endpoint = decideEndpoint(view, query.preset);
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
+		/**
+		 * @todo we need to decide what the desired behaviour is for the tasted preset.
+		 * At the moment, our auto-update and pagination logic relies on sinceId and beforeId,
+		 * on the assumption that new items will have higher IDs, AND that items won't be
+		 * removed from the the search results after they've been added. However, neither
+		 * of these assumptions hold true for user-created collections like 'tasted', where
+		 * items can be removed from the collection by users, and where new items may
+		 * be added in any order.
+		 */
 		beforeId,
 		sinceId,
 	});

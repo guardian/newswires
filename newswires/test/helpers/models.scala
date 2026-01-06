@@ -212,6 +212,8 @@ trait models {
       |  "s3Key" : "key.json",
       |  "precomputedCategories" : [
       |    "all-sport"
+      |  ],
+      |  "collections" : [
       |  ]
       |}""".stripMargin
 
