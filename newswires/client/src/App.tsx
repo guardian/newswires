@@ -13,7 +13,6 @@ import {
 	EuiProvider,
 	EuiSwitch,
 	EuiText,
-	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
 import { useEffect, useState } from 'react';
@@ -25,34 +24,15 @@ import {
 	saveToLocalStorage,
 } from './context/localStorage.tsx';
 import { useSearch } from './context/SearchContext.tsx';
-import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { DefaultLayout } from './DefaultLayout.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { presetLabel } from './presets.ts';
+import { useSettingsSwitches } from './SetttingsSwitches.tsx';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { TickerLayout } from './TickerLayout.tsx';
 
 export function App() {
-	const {
-		resizablePanelsDirection,
-		toggleResizablePanelsDirection,
-		showSecondaryFeedContent,
-		toggleShowSecondaryFeedContent,
-		showIncopyImport,
-		toggleShowIncopyImport,
-	} = useUserSettings();
-
-	const embeddedCodeSwitchId__1 = useGeneratedHtmlId({
-		prefix: 'embeddedCodeSwitchId',
-	});
-	const embeddedCodeSwitchId__2 = useGeneratedHtmlId({
-		prefix: 'embeddedCodeSwitchId',
-	});
-	const embeddedCodeSwitchId__3 = useGeneratedHtmlId({
-		prefix: 'embeddedCodeSwitchId',
-	});
-
 	const { config, state } = useSearch();
 
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
@@ -102,6 +82,8 @@ export function App() {
 		}
 	}, [isTickerView, config.query]);
 
+	const switches = useSettingsSwitches();
+
 	return (
 		<>
 			<Global styles={fontStyles} />
@@ -139,45 +121,19 @@ export function App() {
 										`}
 									>
 										<EuiForm>
-											<div style={{ padding: 4 }}>
-												<EuiFormRow hasChildLabel={true}>
-													<EuiSwitch
-														name="switch"
-														id={embeddedCodeSwitchId__1}
-														label="Show subheadings in feed"
-														checked={showSecondaryFeedContent}
-														onChange={() => {
-															toggleShowSecondaryFeedContent();
-														}}
-													/>
-												</EuiFormRow>
-											</div>
-											<div style={{ padding: 4 }}>
-												<EuiFormRow hasChildLabel={true}>
-													<EuiSwitch
-														name="switch"
-														id={embeddedCodeSwitchId__2}
-														label="Display wire details below feed"
-														checked={resizablePanelsDirection === 'vertical'}
-														onChange={() => {
-															toggleResizablePanelsDirection();
-														}}
-													/>
-												</EuiFormRow>
-											</div>
-											<div style={{ padding: 4 }}>
-												<EuiFormRow hasChildLabel={true}>
-													<EuiSwitch
-														name="switch"
-														id={embeddedCodeSwitchId__3}
-														label="Show button to send wire to InCopy"
-														checked={showIncopyImport}
-														onChange={() => {
-															toggleShowIncopyImport();
-														}}
-													/>
-												</EuiFormRow>
-											</div>
+											{switches.map(({ id, label, checked, onChange }) => (
+												<div style={{ padding: 4 }} key={id}>
+													<EuiFormRow hasChildLabel={true}>
+														<EuiSwitch
+															name="switch"
+															id={id}
+															label={label}
+															checked={checked}
+															onChange={onChange}
+														/>
+													</EuiFormRow>
+												</div>
+											))}
 										</EuiForm>
 									</div>
 									Join the{' '}
