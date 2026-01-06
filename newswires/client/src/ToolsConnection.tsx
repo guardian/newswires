@@ -1,18 +1,17 @@
 import {
-	EuiButton,
+	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiLoadingSpinner,
 	EuiText,
 } from '@elastic/eui';
-import { css } from '@emotion/react';
 import { getErrorMessage } from '@guardian/libs';
 import { useCallback, useState } from 'react';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
-import composerLogoUrl from './icons/composer.svg';
-import incopyLogoUrl from './icons/incopy.svg';
+import { ComposerLogo } from './icons/ComposerLogo.tsx';
+import { InCopyLogo } from './icons/InCopyLogo.tsx';
 import { composerPageForId, sendToComposer } from './send-to-composer.ts';
 import { sendToIncopy } from './send-to-incopy.ts';
 import type { ToolLink, WireData } from './sharedTypes.ts';
@@ -42,10 +41,6 @@ const SendOrVisitInComposerButton = ({
 		previousSend?.ref ? 'sent' : 'unsent',
 	);
 
-	const style = css`
-		flex-basis: fit-content;
-		flex-shrink: 0;
-	`;
 	const send = useCallback(() => {
 		setSendState('sending');
 
@@ -82,23 +77,25 @@ const SendOrVisitInComposerButton = ({
 
 	if (sendState === 'sent' && composerId) {
 		return (
-			<EuiButton
-				href={composerPageForId(composerId)}
-				target="_blank"
-				iconType="link"
-				css={style}
-			>
-				Open in Composer
-			</EuiButton>
+			<Tooltip tooltipContent="Open existing document in Composer">
+				<EuiButtonIcon
+					href={composerPageForId(composerId)}
+					target="_blank"
+					iconType={ComposerLogo}
+					size="s"
+				>
+					Open in Composer
+				</EuiButtonIcon>
+			</Tooltip>
 		);
 	}
 	if (sendState === 'sent' || sendState === 'failed') {
 		return (
 			<>
-				<EuiButton iconType="error" disabled css={style}>
+				<EuiButtonIcon iconType="error" disabled>
 					Send to Composer failed
-				</EuiButton>
-				<EuiText size="xs" color="danger">
+				</EuiButtonIcon>
+				<EuiText size="s" color="danger">
 					{failureReason}
 				</EuiText>
 			</>
@@ -109,10 +106,16 @@ const SendOrVisitInComposerButton = ({
 	}
 
 	return (
-		// TODO why does the icon have a black fill? Why not the primary colour, like the native eui icons?
-		<EuiButton onClick={send} iconType={composerLogoUrl} css={style}>
-			Send to Composer
-		</EuiButton>
+		<Tooltip tooltipContent="Send wire to Composer">
+			<EuiButtonIcon
+				onClick={send}
+				iconType={ComposerLogo}
+				size="s"
+				aria-label="Send wire to Composer"
+			>
+				Send to Composer
+			</EuiButtonIcon>
+		</Tooltip>
 	);
 };
 
@@ -138,38 +141,29 @@ const SendToIncopyButton = ({
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
 	return (
-		<EuiButton
-			onClick={() =>
-				void sendToIncopy(itemData.id).then(() => {
-					addToolLink({
-						// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
-						id: Math.floor(Math.random() * 0xfffffffff),
-						wireId: itemData.id,
-						tool: 'incopy',
-						sentBy: 'you',
-						sentAt: new Date().toISOString(),
-					});
-				})
-			}
-			target="_blank"
-			css={css`
-				flex-basis: fit-content;
-				flex-shrink: 0;
-
-				/* I hate EUI's default to center the text & icon in the button, so the icons don't align :yuck: */
-				& > span {
-					justify-content: start;
+		<Tooltip tooltipContent="Send wire to InCopy">
+			<EuiButtonIcon
+				onClick={() =>
+					void sendToIncopy(itemData.id).then(() => {
+						addToolLink({
+							// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
+							id: Math.floor(Math.random() * 0xfffffffff),
+							wireId: itemData.id,
+							tool: 'incopy',
+							sentBy: 'you',
+							sentAt: new Date().toISOString(),
+						});
+					})
 				}
-				& > span > span {
-					width: 100%;
-					justify-items: center;
-				}
-			`}
-			rel="noreferrer"
-			iconType={incopyLogoUrl}
-		>
-			Send to InCopy
-		</EuiButton>
+				target="_blank"
+				size="s"
+				rel="noreferrer"
+				iconType={InCopyLogo}
+				aria-label="Send wire to InCopy"
+			>
+				Send to InCopy
+			</EuiButtonIcon>
+		</Tooltip>
 	);
 };
 
@@ -186,35 +180,30 @@ export const ToolsConnection = ({
 
 	return (
 		<>
-			<EuiFlexGroup direction="column" gutterSize="s">
-				<EuiFlexItem grow={false}>
-					<EuiFlexGroup direction="row" wrap gutterSize="s" alignItems="center">
-						<SendOrVisitInComposerButton
-							headline={headline}
-							itemData={itemData}
-							addToolLink={addToolLink}
-						/>
+			<EuiFlexItem grow={false}>
+				<EuiFlexGroup direction="row" wrap gutterSize="s" alignItems="center">
+					<SendOrVisitInComposerButton
+						headline={headline}
+						itemData={itemData}
+						addToolLink={addToolLink}
+					/>
 
-						{showIncopyImport && (
-							<SendToIncopyButton
-								itemData={itemData}
-								addToolLink={addToolLink}
-							/>
-						)}
-					</EuiFlexGroup>
+					{showIncopyImport && (
+						<SendToIncopyButton itemData={itemData} addToolLink={addToolLink} />
+					)}
+				</EuiFlexGroup>
+			</EuiFlexItem>
+			{itemData.toolLinks?.length ? (
+				<EuiFlexItem grow={false}>
+					<ul>
+						{itemData.toolLinks.map((toolLink) => (
+							<ToolSendReport toolLink={toolLink} key={toolLink.id} />
+						))}
+					</ul>
 				</EuiFlexItem>
-				{itemData.toolLinks?.length ? (
-					<EuiFlexItem grow={false}>
-						<ul>
-							{itemData.toolLinks.map((toolLink) => (
-								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
-							))}
-						</ul>
-					</EuiFlexItem>
-				) : (
-					<></>
-				)}
-			</EuiFlexGroup>
+			) : (
+				<></>
+			)}
 		</>
 	);
 };

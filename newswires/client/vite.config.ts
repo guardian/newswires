@@ -1,15 +1,16 @@
-import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
+import svgr from 'vite-plugin-svgr';
 
-// eslint-disable-next-line import/no-default-export -- this is the recommended way in https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
 		react(),
 		checker({
 			typescript: true,
 		}),
+		svgr(),
 	],
 	build: {
 		manifest: true,

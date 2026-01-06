@@ -43,7 +43,7 @@ case class FingerpostWireEntry(
     toolLinks: List[ToolLink] = Nil,
     s3Key: Option[String],
     precomputedCategories: List[String],
-    collections: List[Collection] = Nil
+    collections: List[WireEntryForCollection] = Nil
 )
 
 object FingerpostWireEntry
@@ -159,7 +159,7 @@ object FingerpostWireEntry
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
 
-    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}, ${Collection.selectAllStatement}
+    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}
            | FROM ${FingerpostWireEntry as syn}
            | LEFT JOIN ${ToolLink as ToolLink.syn}
            |   ON ${syn.id} = ${ToolLink.syn.wireId}
@@ -179,7 +179,9 @@ object FingerpostWireEntry
       .one(FingerpostWireEntry.fromDb(syn.resultName))
       .toManies(
         ToolLink.opt(ToolLink.syn.resultName),
-        Collection.opt(Collection.syn.resultName)
+        WireEntryForCollection.opt(
+          WireEntryForCollection.syn.resultName
+        )
       )
       .map { (wire, toolLinks, collections) =>
         wire.map(

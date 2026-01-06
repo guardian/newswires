@@ -47,7 +47,8 @@ class CollectionsController(
         end = maybeEnd,
         maybeBeforeId = maybeBeforeId,
         maybeSinceId = maybeSinceId
-      )
+      ),
+      pageSize = 10
     ) match {
       case Some(collectionWithWires) => Ok(collectionWithWires.asJson.spaces2)
       case None => NotFound(s"Collection with ID $collectionId not found")

@@ -3,7 +3,6 @@ import {
 	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiHorizontalRule,
-	EuiLoadingSpinner,
 	EuiSplitPanel,
 	EuiSwitch,
 	EuiText,
@@ -102,47 +101,7 @@ export const Item = ({
 			{!error && itemData && (
 				<>
 					<EuiSplitPanel.Inner>
-						<EuiFlexGroup
-							justifyContent="spaceBetween"
-							alignItems="center"
-							ref={headingRef}
-						>
-							<Tooltip
-								tooltipContent="Previous story"
-								position={isSmallScreen ? 'right' : 'top'}
-							>
-								<EuiButtonIcon
-									iconType="arrowLeft"
-									onClick={handlePreviousItem}
-									aria-label="Previous story"
-									disabled={isFirst}
-								/>
-							</Tooltip>
-							{state.loadingMore ? (
-								<EuiLoadingSpinner size="m" />
-							) : (
-								<Tooltip tooltipContent="Next story">
-									<EuiButtonIcon
-										iconType="arrowRight"
-										onClick={() => {
-											void handleNextItem();
-										}}
-										aria-label="Next story"
-										disabled={isLast}
-									/>
-								</Tooltip>
-							)}
-							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
-								<Tooltip tooltipContent="Close story" position="left">
-									<EuiButtonIcon
-										iconType="cross"
-										onClick={handleDeselectItem}
-										aria-label="Close story"
-									/>
-								</Tooltip>
-							</EuiFlexGroup>
-						</EuiFlexGroup>
-						<EuiHorizontalRule margin="s" />
+						<span ref={headingRef} />
 
 						<WireDetail
 							wire={itemData}
