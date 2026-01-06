@@ -1,6 +1,49 @@
 import { EuiButtonIcon, EuiIcon, useEuiTheme } from '@elastic/eui';
 import { css } from '@emotion/react';
 
+function getGridStyles({
+	isTopLevel,
+	iconButtonWidth,
+}: {
+	isTopLevel: boolean;
+	iconButtonWidth: string;
+}) {
+	const gridTemplateColumns = isTopLevel
+		? `[primaryButton-start label-start] 1fr [label-end secondaryButton-start] ${iconButtonWidth} [secondaryButton-end rightArrow-start] ${iconButtonWidth} [rightArrow-end primaryButton-end]`
+		: `[primaryButton-start leftArrow-start] ${iconButtonWidth} [leftArrow-end label-start] 1fr [label-end secondaryButton-start] ${iconButtonWidth} [secondaryButton-end primaryButton-end]`;
+
+	const liStyle = `
+		display: grid;
+		grid-template-columns: ${gridTemplateColumns};
+		align-items: center;
+		position: relative;
+		width: 100%;
+	`;
+
+	const primaryButtonStyle = `
+		grid-column: primaryButton;
+		grid-row: 1;
+		display: grid;
+		grid-template-columns: subgrid;
+		align-items: center;
+		justify-items: start;
+		width: 100%;
+	`;
+
+	const secondaryButtonStyle = `
+		grid-column: secondaryButton;
+		grid-row: 1;
+		width: ${iconButtonWidth};
+		height: ${iconButtonWidth};
+	`;
+
+	return {
+		liStyle,
+		primaryButtonStyle,
+		secondaryButtonStyle,
+	};
+}
+
 export const SideNavListItem = ({
 	label,
 	isActive,
@@ -22,13 +65,17 @@ export const SideNavListItem = ({
 }) => {
 	const { euiTheme } = useEuiTheme();
 
+	const gridStyles = getGridStyles({
+		isTopLevel,
+		iconButtonWidth: euiTheme.size.l,
+	});
+
 	return (
 		<li
 			aria-current={isActive ? 'true' : undefined}
 			css={css`
-				display: flex;
-				align-items: center;
-				gap: ${euiTheme.size.xs};
+				${gridStyles.liStyle}
+				padding-left: ${euiTheme.size.xs};
 				padding-right: ${euiTheme.size.xs};
 				margin-bottom: ${euiTheme.size.xs};
 				border-radius: ${euiTheme.size.xs};
@@ -49,30 +96,30 @@ export const SideNavListItem = ({
 				}
 			`}
 		>
-			{arrowSide === 'left' && (
-				<EuiIcon type={'arrowLeft'} onClick={handleArrowClick}></EuiIcon>
-			)}
 			<button
 				type="button"
 				onClick={handleButtonClick}
 				css={css`
-					padding: ${euiTheme.size.xs} ${euiTheme.size.xs};
-					display: flex;
-					align-items: center;
-
-					${!isTopLevel &&
-					arrowSide !== 'left' &&
-					`margin-left: ${euiTheme.size.l};`}
-					flex-grow: 1;
+					${gridStyles.primaryButtonStyle}
+					padding: ${euiTheme.size.xs};
 				`}
 			>
+				{arrowSide === 'left' && (
+					<EuiIcon
+						css={css`
+							grid-column: leftArrow;
+						`}
+						type={'arrowLeft'}
+						onClick={handleArrowClick}
+					/>
+				)}
+
 				<div
 					css={css`
-						flex-grow: 1;
+						grid-column: label;
 						display: flex;
 						align-items: center;
-						gap: 5px;
-						${arrowSide === 'left' && 'font-weight: bold;'}
+						gap: ${euiTheme.size.xs};
 					`}
 				>
 					<div
@@ -82,34 +129,44 @@ export const SideNavListItem = ({
 							background-color: ${isActive ? colour : 'transparent'};
 						`}
 					/>
-					<span>{label}</span>
+					<span
+						css={css`
+							${arrowSide === 'left' && 'font-weight: bold;'}
+						`}
+					>
+						{label}
+					</span>
 				</div>
+
+				{arrowSide === 'right' && (
+					<EuiIcon
+						css={css`
+							grid-column: leftArrow;
+						`}
+						type={'arrowRight'}
+						onClick={handleArrowClick}
+					/>
+				)}
 			</button>
 			{!!handleSecondaryActionClick && (
-				<button
-					type="button"
-					className="secondary-action-button"
+				<EuiButtonIcon
 					onClick={() => {
 						handleSecondaryActionClick();
 					}}
+					className="secondary-action-button"
+					iconType="popout"
+					size="xs"
+					aria-label={`open ${label} ticker`}
 					css={css`
+						${gridStyles.secondaryButtonStyle}
 						opacity: 0;
-						margin-left: auto;
-						margin-right: ${arrowSide === 'right' || !isTopLevel
-							? '0px'
-							: '20px'};
 
 						&:hover,
 						&:focus {
 							opacity: 1;
 						}
 					`}
-				>
-					<EuiButtonIcon iconType="popout" size="xs" />
-				</button>
-			)}
-			{arrowSide === 'right' && (
-				<EuiIcon type={'arrowRight'} onClick={handleArrowClick}></EuiIcon>
+				/>
 			)}
 		</li>
 	);
