@@ -59,7 +59,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
           | c.id as i_on_c,
           | c.name as n_on_c,
           | c.description as d_on_c,
-          | c.created_at as ca_on_c
+          | c.created_at as ca_on_c,
+          | wec.wire_entry_id as wei_on_wec,
+          | wec.collection_id as ci_on_wec,
+          | wec.added_at as aa_on_wec
           |   FROM fingerpost_wire_entry fm
           |   LEFT JOIN tool_link tl
           |     ON fm.id = tl.wire_id
