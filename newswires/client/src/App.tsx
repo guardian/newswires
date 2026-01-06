@@ -2,6 +2,8 @@ import {
 	EuiButton,
 	EuiButtonEmpty,
 	EuiCallOut,
+	EuiForm,
+	EuiFormRow,
 	EuiModal,
 	EuiModalBody,
 	EuiModalFooter,
@@ -9,7 +11,9 @@ import {
 	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
+	EuiSwitch,
 	EuiText,
+	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
 import { useEffect, useState } from 'react';
@@ -21,6 +25,7 @@ import {
 	saveToLocalStorage,
 } from './context/localStorage.tsx';
 import { useSearch } from './context/SearchContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { DefaultLayout } from './DefaultLayout.tsx';
 import { fontStyles } from './fontStyles.ts';
@@ -29,6 +34,25 @@ import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { TickerLayout } from './TickerLayout.tsx';
 
 export function App() {
+	const {
+		resizablePanelsDirection,
+		toggleResizablePanelsDirection,
+		showSecondaryFeedContent,
+		toggleShowSecondaryFeedContent,
+		showIncopyImport,
+		toggleShowIncopyImport,
+	} = useUserSettings();
+
+	const embeddedCodeSwitchId__1 = useGeneratedHtmlId({
+		prefix: 'embeddedCodeSwitchId',
+	});
+	const embeddedCodeSwitchId__2 = useGeneratedHtmlId({
+		prefix: 'embeddedCodeSwitchId',
+	});
+	const embeddedCodeSwitchId__3 = useGeneratedHtmlId({
+		prefix: 'embeddedCodeSwitchId',
+	});
+
 	const { config, state } = useSearch();
 
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
@@ -100,14 +124,63 @@ export function App() {
 									title={'Newswires is ready to use'}
 									id="disclaimer-title"
 								>
-									Newswires is ready to use
+									Welcome to Newswires
 								</EuiModalHeaderTitle>
 							</EuiModalHeader>
-
 							<EuiModalBody>
 								<EuiText size="m">
-									You&rsquo;re using an early version of Newswires. It&rsquo;s
-									fully available, with ongoing improvements. Join the{' '}
+									As a new user of newswires, you may want to customise some
+									features of the application. If you want to revise any of
+									these later, you&apos;ll find them in the settings control on
+									the top right.
+									<div
+										css={css`
+											margin: 8px 0;
+										`}
+									>
+										<EuiForm>
+											<div style={{ padding: 4 }}>
+												<EuiFormRow hasChildLabel={true}>
+													<EuiSwitch
+														name="switch"
+														id={embeddedCodeSwitchId__1}
+														label="Show subheadings in feed"
+														checked={showSecondaryFeedContent}
+														onChange={() => {
+															toggleShowSecondaryFeedContent();
+														}}
+													/>
+												</EuiFormRow>
+											</div>
+											<div style={{ padding: 4 }}>
+												<EuiFormRow hasChildLabel={true}>
+													<EuiSwitch
+														name="switch"
+														id={embeddedCodeSwitchId__2}
+														label="Display wire details below feed"
+														checked={resizablePanelsDirection === 'vertical'}
+														onChange={() => {
+															toggleResizablePanelsDirection();
+														}}
+													/>
+												</EuiFormRow>
+											</div>
+											<div style={{ padding: 4 }}>
+												<EuiFormRow hasChildLabel={true}>
+													<EuiSwitch
+														name="switch"
+														id={embeddedCodeSwitchId__3}
+														label="Show button to send wire to InCopy"
+														checked={showIncopyImport}
+														onChange={() => {
+															toggleShowIncopyImport();
+														}}
+													/>
+												</EuiFormRow>
+											</div>
+										</EuiForm>
+									</div>
+									Join the{' '}
 									<a
 										href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
 										target="_blank"
@@ -115,14 +188,8 @@ export function App() {
 									>
 										chat group
 									</a>{' '}
-									to stay updated or share feedback with the{' '}
-									<a
-										href="https://mail.google.com/mail/?view=cm&fs=1&to=media.and.feeds@theguardian.com&su=Newswires feedback"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Media & Feeds team
-									</a>
+									to stay updated with new features or share feedback with the
+									development team.
 								</EuiText>
 							</EuiModalBody>
 
@@ -131,7 +198,7 @@ export function App() {
 									Close
 								</EuiButtonEmpty>
 								<EuiButton onClick={() => dismissDisclaimer(true)} fill>
-									Don&apos;t show again
+									Save Settings
 								</EuiButton>
 							</EuiModalFooter>
 						</EuiModal>
