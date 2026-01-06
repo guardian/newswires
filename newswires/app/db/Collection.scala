@@ -71,7 +71,6 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
     rs.longOpt(c.id).map(_ => Collection(c)(rs))
   }
 
-
   implicit val jsonEncoder: Encoder[Collection] =
     deriveEncoder[Collection].mapJson(_.dropNullValues)
 

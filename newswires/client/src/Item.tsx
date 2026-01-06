@@ -7,11 +7,9 @@ import {
 	EuiSwitch,
 	EuiText,
 	EuiTitle,
-	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
-import { useSearch } from './context/SearchContext.tsx';
 import { type ToolLink, type WireData } from './sharedTypes';
 import { Tooltip } from './Tooltip.tsx';
 import { WireDetail } from './WireDetail';
@@ -20,8 +18,6 @@ export const Item = ({
 	error,
 	itemData,
 	handleDeselectItem,
-	handlePreviousItem,
-	handleNextItem,
 	addToolLink,
 	refreshItemData,
 }: {
@@ -34,15 +30,8 @@ export const Item = ({
 	refreshItemData: () => void;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
-	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
-	const { state } = useSearch();
 
 	const headingRef = useRef<HTMLHeadingElement>(null);
-
-	const isFirst = state.queryData?.results[0]?.id === itemData?.id;
-	const isLast =
-		state.queryData?.results[state.queryData.totalCount - 1]?.id ===
-		itemData?.id;
 
 	// scroll to heading when a new item is selected
 	useEffect(() => {

@@ -39,45 +39,21 @@ import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
 function TitleContentForItem({
-	id,
 	slug,
 	subhead,
 	headline,
 	ingestedAt,
 	supplier,
 	wordCount,
-	collections,
-	refreshItemData,
 }: {
-	id: number;
 	slug?: string;
 	subhead?: string;
 	headline?: string;
 	ingestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
-	collections: WireData['collections'];
-	refreshItemData: () => void;
 }) {
 	const theme = useEuiTheme();
-
-	const isInTastedCollection = collections.some(
-		(collection) => collection.collectionId.toString() === TASTED_COLLECTION_ID,
-	);
-
-	const toggleItemToTasted = useCallback((): void => {
-		const url = isInTastedCollection
-			? `/api/collections/${TASTED_COLLECTION_ID}/remove-item/${id}`
-			: `/api/collections/${TASTED_COLLECTION_ID}/add-item/${id}`;
-		pandaFetch(url, {
-			method: 'PUT',
-			headers: {
-				Accept: 'application/json',
-			},
-		})
-			.then(() => refreshItemData())
-			.catch(console.error);
-	}, [isInTastedCollection, id, refreshItemData]);
 
 	const headlineText =
 		headline && headline.length > 0 ? headline : (slug ?? 'No title');
@@ -663,15 +639,12 @@ export const WireDetail = ({
 			>
 				<div>
 					<TitleContentForItem
-						id={wire.id}
 						headline={headline}
 						subhead={wire.content.subhead}
 						slug={slug}
 						ingestedAt={convertToLocalDate(wire.ingestedAt)}
 						supplier={wire.supplier}
 						wordCount={wordCount}
-						collections={wire.collections}
-						refreshItemData={refreshItemData}
 					/>
 				</div>
 			</div>
