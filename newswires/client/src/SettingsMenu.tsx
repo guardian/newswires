@@ -25,11 +25,11 @@ export const SettingsMenu = () => {
 		setPopover(false);
 	};
 	const switches = useSettingsSwitches().map(
-		({ id, label, checked, onChange }) => {
+		({ id, label, checked, onChange, helpText }) => {
 			return {
 				renderItem: () => (
 					<div style={{ padding: 16 }} key={id}>
-						<EuiFormRow hasChildLabel={true}>
+						<EuiFormRow hasChildLabel={true} helpText={helpText}>
 							<EuiSwitch
 								name="switch"
 								id={id}

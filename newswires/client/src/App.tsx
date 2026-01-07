@@ -128,19 +128,24 @@ export function App() {
 										`}
 									>
 										<EuiForm>
-											{switches.map(({ id, label, checked, onChange }) => (
-												<div style={{ padding: 4 }} key={id}>
-													<EuiFormRow hasChildLabel={true}>
-														<EuiSwitch
-															name="switch"
-															id={id}
-															label={label}
-															checked={checked}
-															onChange={onChange}
-														/>
-													</EuiFormRow>
-												</div>
-											))}
+											{switches.map(
+												({ id, label, checked, onChange, helpText }) => (
+													<div style={{ padding: 4 }} key={id}>
+														<EuiFormRow
+															hasChildLabel={true}
+															helpText={helpText}
+														>
+															<EuiSwitch
+																name="switch"
+																id={id}
+																label={label}
+																checked={checked}
+																onChange={onChange}
+															/>
+														</EuiFormRow>
+													</div>
+												),
+											)}
 										</EuiForm>
 									</div>
 									Join the{' '}
