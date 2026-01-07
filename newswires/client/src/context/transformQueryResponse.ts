@@ -1,4 +1,4 @@
-import { convertToLocalDateString } from '../dateHelpers';
+import { convertToLocalDate } from '../dateHelpers';
 import type { SupplierInfo, WireData, WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 
@@ -9,7 +9,7 @@ function enhanceSupplier(supplier: string): SupplierInfo {
 export function transformWireItemQueryResult(data: WireDataFromAPI): WireData {
 	return {
 		...data,
-		ingestedAt: convertToLocalDateString(data.ingestedAt),
+		localIngestedAt: convertToLocalDate(data.ingestedAt),
 		supplier: enhanceSupplier(data.supplier),
 		hasDataFormatting: data.content.composerCompatible === false ? true : false, // if composerCompatible is missing or true, we assume true
 	};
