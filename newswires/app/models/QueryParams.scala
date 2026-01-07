@@ -3,17 +3,17 @@ package models
 import conf.SearchTerm.English
 
 sealed trait UpdateType {
-  val sinceId: Int
+  val sinceTimeStamp: String
 }
 
-case class NextPage(sinceId: Int) extends UpdateType
-case class MostRecent(sinceId: Int) extends UpdateType
+case class NextPage(sinceTimeStamp: String) extends UpdateType
+case class MostRecent(sinceTimeStamp: String) extends UpdateType
 
 case class QueryParams(
     searchParams: SearchParams,
     savedSearchParamList: List[SearchParams],
     maybeSearchTerm: Option[English],
-    maybeBeforeId: Option[Int],
-    maybeSinceId: Option[UpdateType],
+    maybeBeforeTimeStamp: Option[String],
+    maybeAfterTimeStamp: Option[UpdateType],
     pageSize: Int = 250
 )

@@ -25,6 +25,10 @@ import {
 } from './localStorage.tsx';
 import { safeReducer, SearchReducer } from './SearchReducer.ts';
 import { useTelemetry } from './TelemetryContext.tsx';
+import {
+	getEarliestTimeStamp,
+	getLatestTimeStamp,
+} from './timestamp-compare.ts';
 
 const SearchHistorySchema = z.array(
 	z.object({
@@ -127,7 +131,7 @@ export type SearchContextShape = {
 	handlePreviousItem: () => void;
 	toggleAutoUpdate: () => void;
 	openTicker: (query: Query) => void;
-	loadMoreResults: (beforeId: string) => Promise<void>;
+	loadMoreResults: () => Promise<void>;
 	activeSuppliers: string[];
 	toggleSupplier: (supplier: string) => void;
 };
@@ -236,15 +240,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		if (state.status === 'success' || state.status === 'offline') {
 			pollingInterval = setInterval(() => {
 				if (state.autoUpdate) {
-					const sinceId =
-						state.queryData.results.length > 0
-							? Math.max(
-									...state.queryData.results.map((wire) => wire.id),
-								).toString()
-							: undefined;
+					const afterTimeStamp = getLatestTimeStamp(
+						state.queryData.results.map((_) => _.ingestedAt),
+					);
 					fetchResults({
 						query: currentConfig.query,
-						sinceId,
+						afterTimeStamp,
 						abortController,
 						view: currentConfig.view,
 					})
@@ -357,7 +358,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		const nextIndex = currentIndex + 1;
 
 		if (nextIndex >= results.length) {
-			await loadMoreResults(results[currentIndex].id.toString(), true);
+			await loadMoreResults(true);
 			return;
 		}
 
@@ -397,20 +398,27 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	};
 
 	const loadMoreResults = async (
-		beforeId: string,
 		selectNextItem: boolean = false,
 	): Promise<void> => {
+		const beforeTimeStamp = getEarliestTimeStamp(
+			state.queryData?.results.map((_) => _.ingestedAt) ?? [],
+		);
+
+		if (!beforeTimeStamp) {
+			return;
+		}
+
 		dispatch({
 			type: 'LOADING_MORE',
 		});
 
 		sendTelemetryEvent('NEWSWIRES_LOAD_MORE', {
-			beforeId,
+			beforeTimeStamp,
 		});
 
 		return fetchResults({
 			query: currentConfig.query,
-			beforeId,
+			beforeTimeStamp,
 			view: currentConfig.view,
 		})
 			.then((data) => {

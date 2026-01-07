@@ -47,8 +47,8 @@ class QueryController(
       categoryCodeExcl: List[String],
       maybeStart: Option[String],
       maybeEnd: Option[String],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int],
+      maybeBeforeTimeStamp: Option[String],
+      maybeAfterTimeStamp: Option[String],
       hasDataFormatting: Option[Boolean]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val baseParams = BaseRequestParams(
@@ -59,8 +59,8 @@ class QueryController(
       categoryCodeExcl,
       maybeStart,
       maybeEnd,
-      maybeBeforeId,
-      maybeSinceId,
+      maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+      maybeAfterTimeStamp = maybeAfterTimeStamp,
       hasDataFormatting
     )
     val searchParams =
@@ -73,8 +73,8 @@ class QueryController(
         .flatMap(SearchPresets.get)
         .getOrElse(Nil),
       maybeSearchTerm = baseParams.textForHighlighting,
-      maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId.map(NextPage(_)),
+      maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+      maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
       pageSize = 30
     )
 

@@ -178,13 +178,13 @@ const processDateRange = (query: Query, useAbsoluteDateTimeValues: boolean) => {
 
 export const paramsToQuerystring = ({
 	query,
-	sinceId,
-	beforeId,
+	afterTimeStamp,
+	beforeTimeStamp,
 	useAbsoluteDateTimeValues,
 }: {
 	query: Query;
-	sinceId?: string;
-	beforeId?: string;
+	afterTimeStamp?: string;
+	beforeTimeStamp?: string;
 	useAbsoluteDateTimeValues: boolean;
 }): string => {
 	const flattenedQuery = processDateRange(query, useAbsoluteDateTimeValues);
@@ -208,12 +208,12 @@ export const paramsToQuerystring = ({
 		[],
 	);
 
-	if (sinceId !== undefined) {
-		params.push(['sinceId', sinceId]);
+	if (afterTimeStamp !== undefined) {
+		params.push(['afterTimeStamp', afterTimeStamp]);
 	}
 
-	if (beforeId !== undefined) {
-		params.push(['beforeId', beforeId]);
+	if (beforeTimeStamp !== undefined) {
+		params.push(['beforeTimeStamp', beforeTimeStamp]);
 	}
 
 	const querystring = new URLSearchParams(params).toString();
