@@ -26,6 +26,7 @@ import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
@@ -430,10 +431,7 @@ function CopyButton({
 	};
 
 	return (
-		<Tooltip
-			tooltipContent={copied ? 'Copied!' : 'Copy headline and URL'}
-			position="left"
-		>
+		<Tooltip tooltipContent={copied ? 'Copied!' : 'Copy headline and URL'}>
 			<EuiButtonIcon
 				aria-label="Copy headline and URL"
 				size="s"
@@ -474,6 +472,7 @@ export const WireDetail = ({
 	const { state, handleDeselectItem, handlePreviousItem, handleNextItem } =
 		useSearch();
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const { showTastedList } = useUserSettings();
 
 	const isFirst = state.queryData?.results[0]?.id === wire.id;
 	const isLast =
@@ -589,24 +588,26 @@ export const WireDetail = ({
 						gap: ${theme.euiTheme.size.s};
 					`}
 				>
-					<Tooltip
-						tooltipContent={
-							isInTastedCollection
-								? "Remove from 'Tasted' list"
-								: "Add to 'Tasted' list"
-						}
-					>
-						<EuiButtonIcon
-							iconType={isInTastedCollection ? 'starFilled' : 'starEmpty'}
-							onClick={toggleItemToTasted}
-							aria-label={
+					{showTastedList && (
+						<Tooltip
+							tooltipContent={
 								isInTastedCollection
 									? "Remove from 'Tasted' list"
 									: "Add to 'Tasted' list"
 							}
-							size="s"
-						></EuiButtonIcon>
-					</Tooltip>
+						>
+							<EuiButtonIcon
+								iconType={isInTastedCollection ? 'starFilled' : 'starEmpty'}
+								onClick={toggleItemToTasted}
+								aria-label={
+									isInTastedCollection
+										? "Remove from 'Tasted' list"
+										: "Add to 'Tasted' list"
+								}
+								size="s"
+							></EuiButtonIcon>
+						</Tooltip>
+					)}
 					<CopyButton id={wire.id} headlineText={headlineText} />
 					<ToolsConnection
 						itemData={wire}

@@ -40,13 +40,19 @@ class CollectionsController(
     val maybeSinceId = request
       .getQueryString("sinceId")
       .flatMap(idStr => Try(idStr.toInt).toOption)
+    val maybeAddedSinceTimestamp: Option[String] = request
+      .getQueryString("addedSinceTimestamp")
+    val maybeAddedBeforeTimestamp: Option[String] = request
+      .getQueryString("addedBeforeTimestamp")
     Collection.fetchCollectionById(
       collectionId,
       CollectionItemsSearchParams(
         start = maybeStart,
         end = maybeEnd,
         maybeBeforeId = maybeBeforeId,
-        maybeSinceId = maybeSinceId
+        maybeSinceId = maybeSinceId,
+        maybeAddedToCollectionSinceTimestamp = maybeAddedSinceTimestamp,
+        maybeAddedToCollectionBeforeTimestamp = maybeAddedBeforeTimestamp
       ),
       pageSize = 10
     ) match {

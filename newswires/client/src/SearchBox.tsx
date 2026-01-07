@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext.tsx';
 import { debounce } from './debounce';
+import { SupplierFilterGroup } from './SupplierFilterGroup.tsx';
 
 export function SearchBox({
 	currentTextQuery,
@@ -23,29 +24,32 @@ export function SearchBox({
 	);
 
 	return (
-		<StopShortcutPropagationWrapper>
-			<EuiFieldSearch
-				id="searchBox"
-				compressed={true}
-				value={inputValue}
-				placeholder="Search stories"
-				onChange={(e) => {
-					const newQuery = e.target.value;
-					setInputValue(newQuery);
-					debouncedUpdate(newQuery);
-				}}
-				aria-label="search wires"
-				fullWidth={true}
-				css={css`
-					border: none;
-					background-color: #edf1f8;
-					transition: background-color 0.2s ease;
+		<>
+			<SupplierFilterGroup />
+			<StopShortcutPropagationWrapper>
+				<EuiFieldSearch
+					id="searchBox"
+					compressed={true}
+					value={inputValue}
+					placeholder="Search stories"
+					onChange={(e) => {
+						const newQuery = e.target.value;
+						setInputValue(newQuery);
+						debouncedUpdate(newQuery);
+					}}
+					aria-label="search wires"
+					fullWidth={true}
+					css={css`
+						border: none;
+						background-color: #edf1f8;
+						transition: background-color 0.2s ease;
 
-					&:focus {
-						background-color: #ffffff;
-					}
-				`}
-			/>
-		</StopShortcutPropagationWrapper>
+						&:focus {
+							background-color: #ffffff;
+						}
+					`}
+				/>
+			</StopShortcutPropagationWrapper>
+		</>
 	);
 }

@@ -34,7 +34,9 @@ case class CollectionItemsSearchParams(
     start: Option[String] = None,
     end: Option[String] = None,
     maybeBeforeId: Option[Int] = None,
-    maybeSinceId: Option[Int] = None
+    maybeSinceId: Option[Int] = None,
+    maybeAddedToCollectionSinceTimestamp: Option[String] = None,
+    maybeAddedToCollectionBeforeTimestamp: Option[String] = None
 )
 
 object Collection extends SQLSyntaxSupport[Collection] with Logging {
@@ -173,8 +175,17 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
 
       val collectionIdQuery = sqls"${syn.id} = ${collection.id}"
 
+      val addedToCollectionSinceClause =
+        searchParams.maybeAddedToCollectionSinceTimestamp.map { timestampStr =>
+          sqls"${WireEntryForCollection.syn.addedAt} >= CAST($timestampStr AS timestamptz)"
+        }
+      val addedToCollectionBeforeClause =
+        searchParams.maybeAddedToCollectionBeforeTimestamp.map { timestampStr =>
+          sqls"${WireEntryForCollection.syn.addedAt} <= CAST($timestampStr AS timestamptz)"
+        }
+
       val whereClause = sqls.joinWithAnd(
-        collectionIdQuery :: (dateRangeQuery :: dataOnlyWhereClauses).flatten: _*
+        collectionIdQuery :: (dateRangeQuery :: addedToCollectionSinceClause :: addedToCollectionBeforeClause :: dataOnlyWhereClauses).flatten: _*
       )
 
       val highlightsClause = FingerpostWireEntry.buildHighlightsClause(
