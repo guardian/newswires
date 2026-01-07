@@ -29,7 +29,7 @@ export const useSettingsSwitches = () => {
 		},
 		{
 			id: embeddedCodeSwitchId__2,
-			label: 'Show hidden items',
+			label: 'Use vertical layout',
 			checked: resizablePanelsDirection === 'vertical',
 			onChange: () => toggleResizablePanelsDirection(),
 		},

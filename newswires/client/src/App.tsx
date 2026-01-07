@@ -1,6 +1,7 @@
 import {
 	EuiButton,
 	EuiButtonEmpty,
+	EuiButtonIcon,
 	EuiCallOut,
 	EuiForm,
 	EuiFormRow,
@@ -113,8 +114,14 @@ export function App() {
 								<EuiText size="m">
 									As a new user of newswires, you may want to customise some
 									features of the application. If you want to revise any of
-									these later, you&apos;ll find them in the settings control on
-									the top right.
+									these later, you&apos;ll find them in the settings control:{' '}
+									<EuiButtonIcon
+										aria-label="Settings"
+										display="base"
+										size="s"
+										iconType={'gear'}
+									/>{' '}
+									on the top right.
 									<div
 										css={css`
 											margin: 8px 0;
