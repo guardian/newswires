@@ -510,14 +510,18 @@ object FingerpostWireEntry
     val orderByClause =
       sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
 
-    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
-           | FROM ${FingerpostWireEntry as syn}
-           | LEFT JOIN ${ToolLink as ToolLink.syn}
-           | ON ${syn.id} = ${ToolLink.syn.wireId}
-           | WHERE $whereClause
-           | $orderByClause
-           | LIMIT $effectivePageSize
-           | """.stripMargin
+    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, $highlightsClause
+          | FROM ${FingerpostWireEntry as syn}
+          | LEFT JOIN ${ToolLink as ToolLink.syn}
+          |  ON ${syn.id} = ${ToolLink.syn.wireId}
+          | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+          |   ON ${syn.id} = ${WireEntryForCollection.syn.wireEntryId}
+          | LEFT JOIN ${Collection as Collection.syn}
+          |   ON ${WireEntryForCollection.syn.collectionId} = ${Collection.syn.id}
+          | WHERE $whereClause
+          | $orderByClause
+          | LIMIT $effectivePageSize
+          | """.stripMargin
   }
 
   def query(
