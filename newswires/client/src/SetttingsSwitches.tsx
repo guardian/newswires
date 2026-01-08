@@ -26,7 +26,7 @@ export const useSettingsSwitches = () => {
 			label: 'Show subheadings in feed',
 			checked: showSecondaryFeedContent,
 			onChange: () => toggleShowSecondaryFeedContent(),
-			helpText: 'This adds extra detail to the wire items on the feed',
+			helpText: 'Show a preview of the wire text under each headline',
 		},
 		{
 			id: embeddedCodeSwitchId__2,
@@ -41,7 +41,7 @@ export const useSettingsSwitches = () => {
 			label: 'Show button to send wire to InCopy',
 			checked: showIncopyImport,
 			onChange: () => toggleShowIncopyImport(),
-			helpText: 'This adds the ability to integrate with InCopy if needed',
+			helpText: '',
 		},
 	];
 };
