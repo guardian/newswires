@@ -54,8 +54,8 @@ class SearchParamsSpec extends AnyFlatSpec {
       categoryCodeExcl = List("code2"),
       maybeStart = Some("start"),
       maybeEnd = Some("end"),
-      maybeBeforeId = Some(2),
-      maybeSinceId = Some(1),
+      maybeBeforeTimeStamp = Some("2023-01-01T00:00:00Z"),
+      maybeAfterTimeStamp = Some("2023-01-02T00:00:00Z"),
       hasDataFormatting = Some(true)
     )
     val result = SearchParams.build(

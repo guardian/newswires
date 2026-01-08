@@ -87,7 +87,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  it should "apply beforeId or sinceId even if no other custom search params are set" in {
+  it should "apply beforeTimeStamp or afterTimeStamp even if no other custom search params are set" in {
 
     val searchParams = SearchParams(
       searchTerms = None,
@@ -103,13 +103,13 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         searchParams,
         List(),
-        maybeBeforeId = Some(10),
+        maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
         None
       )
 
     whereClauseBeforeId should matchSqlSnippet(
-      expectedClause = "fm.id < ?",
-      expectedParams = List(10)
+      expectedClause = "fm.ingested_at <= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
     )
 
     val whereClauseSinceId =
@@ -117,12 +117,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         searchParams,
         List(),
         None,
-        maybeSinceId = Some(20)
+        maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z"))
       )
 
     whereClauseSinceId should matchSqlSnippet(
-      expectedClause = "fm.id > ?",
-      expectedParams = List(20)
+      expectedClause = "fm.ingested_at >= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
     )
   }
 
@@ -186,7 +186,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         searchParams,
         List(),
-        Some(1),
+        Some("2025-01-01T00:00:00Z"),
         None
       )
 
@@ -244,20 +244,21 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      sqls"""fm.id < ? and $dateRangeWhereClause
+      sqls"""$dateRangeWhereClause
          | and $keywordsExclWhereClause
          | and $textSearchWhereClause
          | and $suppliersExclWhereClause
-         | and $categoryCodesExclWhereClause""".stripMargin,
+         | and $categoryCodesExclWhereClause
+         | and fm.ingested_at <= CAST(? AS timestamptz)""".stripMargin,
       List(
-        1,
         "2025-03-10T00:00:00.000Z",
         "2025-03-10T23:59:59.999Z",
         List("keyword1"),
         "text1",
         "supplier1",
         "supplier2",
-        List("category1", "category2")
+        List("category1", "category2"),
+        "2025-01-01T00:00:00Z"
       )
     )
   }
@@ -423,8 +424,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       searchParams = SearchParams(),
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
-      maybeBeforeId = None,
-      maybeSinceId = None
+      maybeBeforeTimeStamp = None,
+      maybeAfterTimeStamp = None
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -437,8 +438,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       searchParams = SearchParams(),
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
-      maybeBeforeId = None,
-      maybeSinceId = Some(MostRecent(123))
+      maybeBeforeTimeStamp = None,
+      maybeAfterTimeStamp = Some(MostRecent("2025-01-01T00:00:00Z"))
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -451,8 +452,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       searchParams = SearchParams(None),
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
-      maybeBeforeId = None,
-      maybeSinceId = Some(NextPage(123))
+      maybeBeforeTimeStamp = None,
+      maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z"))
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -544,20 +545,24 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "Filters"
 
-  behavior of "id filters"
-  it should "create the correct sql for beforeId" in {
-    val beforeIdSQL = FingerpostWireEntry.Filters.beforeIdSQL(1)
+  behavior of "time stamp filters"
+  it should "create the correct sql for beforeTimeStamp" in {
+    val beforeIdSQL =
+      FingerpostWireEntry.Filters.beforeTimeStampSQL("2025-01-01T00:00:00Z")
     beforeIdSQL should matchSqlSnippet(
-      expectedClause = sqls"${FingerpostWireEntry.syn.id} < ?",
-      expectedParams = List(1)
+      expectedClause =
+        sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
     )
   }
 
-  it should "create the correct sql for sinceId" in {
-    val sinceIdSQL = FingerpostWireEntry.Filters.sinceIdSQL(1)
+  it should "create the correct sql for sinceTimeStamp" in {
+    val sinceIdSQL =
+      FingerpostWireEntry.Filters.afterTimeStampSQL("2025-01-01T00:00:00Z")
     sinceIdSQL should matchSqlSnippet(
-      expectedClause = sqls"${FingerpostWireEntry.syn.id} > ?",
-      expectedParams = List(1)
+      expectedClause =
+        sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
     )
   }
 

@@ -78,12 +78,16 @@ describe('fetchResults', () => {
 
 	it('should append sinceId to the query if provided', async () => {
 		const mockQuery = { q: 'value' };
-		await fetchResults({ query: mockQuery, view: 'feed', sinceId: '123' });
+		await fetchResults({
+			query: mockQuery,
+			view: 'feed',
+			afterTimeStamp: '2026-01-07T15:37:15Z',
+		});
 
 		expect(paramsToQuerystring).toHaveBeenCalledWith({
 			query: mockQuery,
 			useAbsoluteDateTimeValues: true,
-			sinceId: '123',
+			afterTimeStamp: '2026-01-07T15:37:15Z',
 		});
 	});
 
@@ -92,13 +96,13 @@ describe('fetchResults', () => {
 		await fetchResults({
 			query: mockQuery,
 			view: 'feed',
-			beforeId: '123',
+			beforeTimeStamp: '2026-01-07T15:37:15Z',
 		});
 
 		expect(paramsToQuerystring).toHaveBeenCalledWith({
 			query: mockQuery,
 			useAbsoluteDateTimeValues: true,
-			beforeId: '123',
+			beforeTimeStamp: '2026-01-07T15:37:15Z',
 		});
 	});
 

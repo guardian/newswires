@@ -128,24 +128,6 @@ describe('SearchContext', () => {
 		);
 	});
 
-	it('should load more stories', async () => {
-		const contextRef = await renderWithContext();
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
-
-		await act(async () => {
-			await contextRef.current?.loadMoreResults('1');
-		});
-
-		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
-			'NEWSWIRES_LOAD_MORE',
-			expect.objectContaining({
-				beforeId: '1',
-			}),
-		);
-	});
-
 	it('should toggle the auto update flag', async () => {
 		const contextRef = await renderWithContext();
 

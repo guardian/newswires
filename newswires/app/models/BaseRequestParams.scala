@@ -12,8 +12,8 @@ case class BaseRequestParams(
     categoryCodeExcl: List[String] = Nil,
     maybeStart: Option[String] = None,
     maybeEnd: Option[String] = None,
-    maybeBeforeId: Option[Int] = None,
-    maybeSinceId: Option[Int] = None,
+    maybeBeforeTimeStamp: Option[String] = None,
+    maybeAfterTimeStamp: Option[String] = None,
     hasDataFormatting: Option[Boolean] = None
 ) {
   // When we do a text search from the U.I we make an english query

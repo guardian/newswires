@@ -184,6 +184,52 @@ describe('SearchReducer', () => {
 		expect(newState.queryData?.results.map((_) => _.id)).toEqual([4, 3, 2]);
 	});
 
+	it('should deduplicate items based on id when adding new results as part of the UPDATE_RESULTS action', () => {
+		const itemOne = {
+			...sampleWireData,
+			id: 1,
+			ingestedAt: '2025-01-01T02:04:00Z',
+		};
+		const itemTwo = {
+			...sampleWireData,
+			id: 2,
+			ingestedAt: '2025-01-01T02:04:00Z',
+		};
+
+		const state: State = {
+			...successState,
+			queryData: {
+				results: [itemOne],
+				totalCount: 1,
+			},
+		};
+
+		(dateMath.parse as jest.Mock).mockImplementation(() =>
+			moment('2025-01-01T02:04:00Z'),
+		);
+
+		const action: Action = {
+			type: 'UPDATE_RESULTS',
+			data: {
+				results: [itemOne, itemTwo],
+				totalCount: 2,
+			},
+			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
+		};
+
+		expect(state.queryData.results).toContainEqual(itemOne);
+
+		const newState = SearchReducer(state, action);
+
+		expect(newState.status).toBe('success');
+		expect(newState.queryData?.results).toHaveLength(2);
+		expect(newState.queryData?.totalCount).toBe(2);
+
+		expect(newState.queryData?.results).toContainEqual(itemOne);
+
+		expect(newState.queryData?.results).not.toContainEqual(itemTwo);
+	});
+
 	it(`should handle APPEND_RESULTS action in success state`, () => {
 		const state: State = {
 			...successState,
@@ -196,6 +242,41 @@ describe('SearchReducer', () => {
 		const action: Action = {
 			type: 'APPEND_RESULTS',
 			data: { results: [{ ...sampleWireData, id: 1 }], totalCount: 1 },
+		};
+
+		const newState = SearchReducer(state, action);
+
+		expect(newState.status).toBe('success');
+		expect(newState.queryData?.totalCount).toBe(2);
+		expect(newState.queryData?.results).toHaveLength(2);
+		expect(newState.queryData?.results).toContainEqual({
+			...sampleWireData,
+			id: 1,
+		});
+		expect(newState.queryData?.results).toContainEqual({
+			...sampleWireData,
+			id: 2,
+		});
+	});
+
+	it(`should deduplicate results by id when handling APPEND_RESULTS`, () => {
+		const state: State = {
+			...successState,
+			queryData: {
+				results: [{ ...sampleWireData, id: 2 }],
+				totalCount: 2,
+			},
+		};
+
+		const action: Action = {
+			type: 'APPEND_RESULTS',
+			data: {
+				results: [
+					{ ...sampleWireData, id: 1 },
+					{ ...sampleWireData, id: 2 },
+				],
+				totalCount: 2,
+			},
 		};
 
 		const newState = SearchReducer(state, action);
