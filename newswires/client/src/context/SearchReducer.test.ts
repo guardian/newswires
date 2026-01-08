@@ -26,7 +26,7 @@ describe('SearchReducer', () => {
 		...initialState,
 		status: 'success',
 		queryData: {
-			results: [{ ...sampleWireData, ingestedAt: '2025-01-01T00:00:00+00:00' }],
+			results: [{ ...sampleWireData }],
 			totalCount: 1,
 		},
 	};
@@ -34,7 +34,7 @@ describe('SearchReducer', () => {
 	const offlineState: State = {
 		status: 'offline',
 		queryData: {
-			results: [{ ...sampleWireData, ingestedAt: '2025-01-01T00:00:00+00:00' }],
+			results: [{ ...sampleWireData }],
 			totalCount: 1,
 		},
 		successfulQueryHistory: [],
@@ -46,7 +46,7 @@ describe('SearchReducer', () => {
 	const errorState: State = {
 		status: 'error',
 		queryData: {
-			results: [{ ...sampleWireData, ingestedAt: '2025-01-01T00:00:00+00:00' }],
+			results: [{ ...sampleWireData }],
 			totalCount: 1,
 		},
 		successfulQueryHistory: [],
@@ -70,7 +70,6 @@ describe('SearchReducer', () => {
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
 			id: 1,
-			ingestedAt: '2025-01-01T00:00:00+00:00',
 		});
 		expect(newState.successfulQueryHistory).toEqual([
 			{ query: action.query, resultsCount: 1 },
@@ -130,23 +129,21 @@ describe('SearchReducer', () => {
 				...sampleWireData,
 				id: 2,
 				isFromRefresh: true,
-				ingestedAt: '2025-01-01T00:00:00+00:00',
 			});
 			expect(newState.queryData?.results).toContainEqual({
 				...sampleWireData,
 				id: 1,
-				ingestedAt: '2025-01-01T00:00:00+00:00',
 			});
 		});
 	});
 
-	it(`should filter stories when handling UPDATE_RESULTS action in success state`, () => {
+	it(`should filter out stories which now fall outside the query's relative date window when handling UPDATE_RESULTS action in success state`, () => {
 		const state: State = {
 			...successState,
 			queryData: {
 				results: [
-					{ ...sampleWireData, id: 1, ingestedAt: '2025-01-01T02:00:00+00:00' },
-					{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T02:05:00+00:00' },
+					{ ...sampleWireData, id: 1, ingestedAt: '2025-01-01T00:00:00Z' },
+					{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T02:04:00Z' },
 				],
 				totalCount: 2,
 			},
@@ -163,12 +160,12 @@ describe('SearchReducer', () => {
 					{
 						...sampleWireData,
 						id: 4,
-						ingestedAt: '2025-01-01T02:07:00+00:00',
+						ingestedAt: '2025-01-01T02:05:00Z',
 					},
 					{
 						...sampleWireData,
 						id: 3,
-						ingestedAt: '2025-01-01T02:06:00+00:00',
+						ingestedAt: '2025-01-01T02:05:00Z',
 					},
 				],
 				totalCount: 2,
@@ -176,17 +173,7 @@ describe('SearchReducer', () => {
 			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
 		};
 
-		expect(state.queryData.results).toContainEqual({
-			...sampleWireData,
-			id: 2,
-			ingestedAt: '2025-01-01T02:05:00+00:00',
-		});
-
-		expect(state.queryData.results).toContainEqual({
-			...sampleWireData,
-			id: 1,
-			ingestedAt: '2025-01-01T02:00:00+00:00',
-		});
+		expect(state.queryData.results.map((_) => _.id)).toEqual([1, 2]);
 
 		const newState = SearchReducer(state, action);
 
@@ -194,40 +181,14 @@ describe('SearchReducer', () => {
 		expect(newState.queryData?.results).toHaveLength(3);
 		expect(newState.queryData?.totalCount).toBe(3);
 
-		expect(newState.queryData?.results).toContainEqual({
-			...sampleWireData,
-			id: 4,
-			ingestedAt: '2025-01-01T02:07:00+00:00',
-			isFromRefresh: true,
-		});
-
-		expect(newState.queryData?.results).toContainEqual({
-			...sampleWireData,
-			id: 3,
-			ingestedAt: '2025-01-01T02:06:00+00:00',
-			isFromRefresh: true,
-		});
-
-		expect(newState.queryData?.results).toContainEqual({
-			...sampleWireData,
-			id: 2,
-			ingestedAt: '2025-01-01T02:05:00+00:00',
-		});
-
-		expect(newState.queryData?.results).not.toContainEqual({
-			...sampleWireData,
-			id: 1,
-			ingestedAt: '2025-01-01T02:00:00+00:00',
-		});
+		expect(newState.queryData?.results.map((_) => _.id)).toEqual([4, 3, 2]);
 	});
 
 	it(`should handle APPEND_RESULTS action in success state`, () => {
 		const state: State = {
 			...successState,
 			queryData: {
-				results: [
-					{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T00:00:00+00:00' },
-				],
+				results: [{ ...sampleWireData, id: 2 }],
 				totalCount: 2,
 			},
 		};
@@ -245,12 +206,10 @@ describe('SearchReducer', () => {
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
 			id: 1,
-			ingestedAt: '2025-01-01T00:00:00+00:00',
 		});
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
 			id: 2,
-			ingestedAt: '2025-01-01T00:00:00+00:00',
 		});
 	});
 

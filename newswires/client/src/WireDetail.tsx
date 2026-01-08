@@ -24,7 +24,7 @@ import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
-import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
+import { convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
@@ -40,7 +40,7 @@ function TitleContentForItem({
 	slug,
 	subhead,
 	headline,
-	ingestedAt,
+	localIngestedAt,
 	supplier,
 	wordCount,
 }: {
@@ -48,7 +48,7 @@ function TitleContentForItem({
 	slug?: string;
 	subhead?: string;
 	headline?: string;
-	ingestedAt: Moment;
+	localIngestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
 }) {
@@ -89,8 +89,8 @@ function TitleContentForItem({
 			<h3>
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
 				<span>{wordCount} words &#183; </span>
-				<Tooltip tooltipContent={ingestedAt.format()}>
-					{ingestedAt.fromNow()}
+				<Tooltip tooltipContent={localIngestedAt.format()}>
+					{localIngestedAt.fromNow()}
 				</Tooltip>
 			</h3>
 		</div>
@@ -534,7 +534,7 @@ export const WireDetail = ({
 						headline={headline}
 						subhead={wire.content.subhead}
 						slug={slug}
-						ingestedAt={convertToLocalDate(wire.ingestedAt)}
+						localIngestedAt={wire.localIngestedAt}
 						supplier={wire.supplier}
 						wordCount={wordCount}
 					/>

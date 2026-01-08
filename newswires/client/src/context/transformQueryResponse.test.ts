@@ -1,3 +1,4 @@
+import { convertToLocalDate } from '../dateHelpers';
 import type { WireData, WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { sampleFingerpostContent } from '../tests/fixtures/wireData';
@@ -17,7 +18,7 @@ describe('transformWireItemQueryResult', () => {
 		const expectedOutput: WireData = {
 			...input,
 			supplier: supplierData.find((supplier) => supplier.name === 'REUTERS')!,
-			ingestedAt: '2025-01-01T00:00:00+00:00',
+			localIngestedAt: convertToLocalDate(input.ingestedAt),
 			hasDataFormatting: false,
 		};
 
@@ -37,7 +38,7 @@ describe('transformWireItemQueryResult', () => {
 		const expectedOutput: WireData = {
 			...input,
 			supplier: UNKNOWN_SUPPLIER,
-			ingestedAt: '2025-01-02T00:00:00+00:00',
+			localIngestedAt: convertToLocalDate(input.ingestedAt),
 			hasDataFormatting: false,
 		};
 		expect(transformWireItemQueryResult(input)).toEqual(expectedOutput);
@@ -56,7 +57,7 @@ describe('transformWireItemQueryResult', () => {
 		const expectedOutput: WireData = {
 			...input,
 			supplier: supplierData.find((supplier) => supplier.name === 'AP')!,
-			ingestedAt: '2025-01-03T00:00:00+00:00',
+			localIngestedAt: convertToLocalDate(input.ingestedAt),
 			hasDataFormatting: true,
 		};
 		expect(transformWireItemQueryResult(input)).toEqual(expectedOutput);
@@ -75,7 +76,7 @@ describe('transformWireItemQueryResult', () => {
 		const expectedOutputWithTrue: WireData = {
 			...inputWithTrue,
 			supplier: supplierData.find((supplier) => supplier.name === 'AAP')!,
-			ingestedAt: '2025-01-04T00:00:00+00:00',
+			localIngestedAt: convertToLocalDate(inputWithTrue.ingestedAt),
 			hasDataFormatting: false,
 		};
 		expect(transformWireItemQueryResult(inputWithTrue)).toEqual(
@@ -94,7 +95,9 @@ describe('transformWireItemQueryResult', () => {
 		const expectedOutputWithoutComposerCompatible: WireData = {
 			...inputWithoutComposerCompatible,
 			supplier: supplierData.find((supplier) => supplier.name === 'AFP')!,
-			ingestedAt: '2025-01-05T00:00:00+00:00',
+			localIngestedAt: convertToLocalDate(
+				inputWithoutComposerCompatible.ingestedAt,
+			),
 			hasDataFormatting: false,
 		};
 		expect(
