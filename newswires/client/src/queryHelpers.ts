@@ -1,27 +1,33 @@
-import { presetIsInSports, topLevelSportId } from './presets.ts';
+import {
+	presetIsInSports,
+	topLevelPresetId,
+	topLevelSportId,
+} from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 
-export const keyValueAfterDeselection = (
+export const queryAfterDeselection = (
 	key: keyof Query,
 	value: string,
 	query: Query,
-): Partial<Query> => {
+): Query => {
 	if (key === 'q') {
-		return { q: '' };
+		return { ...query, q: '' };
 	}
 	if (key === 'preset') {
 		return {
-			[key]: presetIsInSports(value) ? topLevelSportId : undefined,
+			...query,
+			preset: presetIsInSports(value) ? topLevelSportId : topLevelPresetId,
+			collection: undefined,
 		};
 	}
 	if (['dateRange', 'hasDataFormatting'].includes(key)) {
-		return { [key]: undefined };
+		return { ...query, [key]: undefined };
 	}
 	if (
 		['categoryCode', 'categoryCodeExcl', 'keyword', 'keywordExcl'].includes(key)
 	) {
 		const current = query[key] as string[] | undefined;
-		return { [key]: (current ?? []).filter((s) => s !== value) };
+		return { ...query, [key]: (current ?? []).filter((s) => s !== value) };
 	}
-	return {};
+	return { ...query };
 };

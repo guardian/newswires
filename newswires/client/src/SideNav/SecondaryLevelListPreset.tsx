@@ -21,7 +21,11 @@ export const SecondaryLevelListPresetPanel = ({
 				arrowSide="left"
 				handleArrowClick={() => closeDrawer()}
 				handleSecondaryActionClick={() =>
-					openTicker({ ...config.query, preset: topLevelSportId })
+					openTicker({
+						...config.query,
+						preset: topLevelSportId,
+						collection: undefined,
+					})
 				}
 			/>
 			{sportPresets.map((item) => (
@@ -37,7 +41,11 @@ export const SecondaryLevelListPresetPanel = ({
 						togglePreset(item.id);
 					}}
 					handleSecondaryActionClick={() =>
-						openTicker({ ...config.query, preset: item.id })
+						openTicker({
+							...config.query,
+							preset: item.id,
+							collection: undefined,
+						})
 					}
 				/>
 			))}

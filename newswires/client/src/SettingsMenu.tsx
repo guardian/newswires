@@ -108,7 +108,7 @@ export const SettingsMenu = () => {
 								<EuiSwitch
 									name="switch"
 									id={embeddedCodeSwitchId__3}
-									label="COMING SOON: show Tasted List badge"
+									label="COMING SOON: show collections"
 									checked={showTastedList}
 									onChange={() => {
 										toggleShowTastedList();

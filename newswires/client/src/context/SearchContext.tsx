@@ -39,6 +39,25 @@ const SearchHistorySchema = z.array(
 
 export type SearchHistory = z.infer<typeof SearchHistorySchema>;
 
+const SortByIngestedAtSchema = z.object({ sortByKey: 'ingestedAt' });
+
+const SortByAddedToCollectionAtSchema = z.object({
+	sortByKey: z.literal('addedToCollectionAt'),
+	collectionId: z.number(),
+});
+
+export function isSortByAddedToCollectionAt(
+	sortBy: SortBy,
+): sortBy is z.infer<typeof SortByAddedToCollectionAtSchema> {
+	return sortBy.sortByKey === 'addedToCollectionAt';
+}
+
+const SortBySchema = z
+	.union([SortByIngestedAtSchema, SortByAddedToCollectionAtSchema])
+	.default({ sortByKey: 'ingestedAt' });
+
+export type SortBy = z.infer<typeof SortBySchema>;
+
 // State Schema
 const _StateSchema = z.discriminatedUnion('status', [
 	z.object({
@@ -49,6 +68,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('loading'),
@@ -58,6 +78,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('success'),
@@ -67,6 +88,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('error'),
@@ -76,6 +98,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('offline'),
@@ -85,6 +108,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 ]);
 
@@ -93,7 +117,7 @@ export type State = z.infer<typeof _StateSchema>;
 
 // Action Schema
 const _ActionSchema = z.discriminatedUnion('type', [
-	z.object({ type: z.literal('ENTER_QUERY') }),
+	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
 	z.object({ type: z.literal('LOADING_MORE') }),
 	z.object({
 		type: z.literal('FETCH_SUCCESS'),
@@ -159,6 +183,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		status: 'loading',
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
 	});
 
 	function handleFetchError(error: ErrorEvent) {
@@ -291,6 +316,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			);
 			dispatch({
 				type: 'ENTER_QUERY',
+				query,
 			});
 
 			pushConfigState({

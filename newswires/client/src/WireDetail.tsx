@@ -524,7 +524,7 @@ export const WireDetail = ({
 	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
 
 	const isInTastedCollection = wire.collections.some(
-		(collection) => collection.collectionId.toString() === TASTED_COLLECTION_ID,
+		(collection) => collection.collectionId === TASTED_COLLECTION_ID,
 	);
 
 	const toggleItemToTasted = useCallback((): void => {

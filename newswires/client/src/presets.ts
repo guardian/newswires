@@ -136,11 +136,10 @@ export const presets: Preset[] = [
 	{ id: 'all-uk', name: 'UK' },
 	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
-	{ id: 'tasted', name: 'Tasted (Aus)' },
 	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },
 ];
 
-export const TASTED_COLLECTION_ID = '1';
+export const TASTED_COLLECTION_ID = 1;
 
 export const presetLabel = (presetId: string) => {
 	const preset = presets.find((preset) => preset.id === presetId);

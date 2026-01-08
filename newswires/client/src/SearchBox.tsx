@@ -3,7 +3,6 @@ import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext.tsx';
 import { debounce } from './debounce';
-import { SupplierFilterGroup } from './SupplierFilterGroup.tsx';
 
 export function SearchBox({
 	currentTextQuery,
@@ -25,7 +24,6 @@ export function SearchBox({
 
 	return (
 		<>
-			<SupplierFilterGroup />
 			<StopShortcutPropagationWrapper>
 				<EuiFieldSearch
 					id="searchBox"

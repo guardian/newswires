@@ -49,8 +49,6 @@ class CollectionsController(
       CollectionItemsSearchParams(
         start = maybeStart,
         end = maybeEnd,
-        maybeBeforeId = maybeBeforeId,
-        maybeSinceId = maybeSinceId,
         maybeAddedToCollectionSinceTimestamp = maybeAddedSinceTimestamp,
         maybeAddedToCollectionBeforeTimestamp = maybeAddedBeforeTimestamp
       ),

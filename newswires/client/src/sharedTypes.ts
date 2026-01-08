@@ -54,6 +54,8 @@ export const CollectionSchema = z.object({
 	addedAt: z.string(),
 });
 
+export type CollectionMetadata = z.infer<typeof CollectionSchema>;
+
 export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
@@ -140,7 +142,7 @@ const DateRange = z.object({
 	end: z.string(),
 });
 
-export const QuerySchema = z.object({
+export const BaseQuerySchema = z.object({
 	q: z.string(),
 	supplier: z.array(z.string()).optional(),
 	supplierExcl: z.array(z.string()).optional(),
@@ -148,10 +150,24 @@ export const QuerySchema = z.object({
 	keywordExcl: z.array(z.string()).optional(),
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
-	preset: z.string().optional(),
 	dateRange: DateRange.optional(),
 	hasDataFormatting: z.boolean().optional(),
 });
+
+export const QuerySchema = z.union([
+	BaseQuerySchema.extend({
+		preset: z.undefined(),
+		collection: z.undefined(),
+	}),
+	BaseQuerySchema.extend({
+		preset: z.string(),
+		collection: z.undefined(),
+	}),
+	BaseQuerySchema.extend({
+		preset: z.undefined(),
+		collection: z.number(),
+	}),
+]);
 
 export type Query = z.infer<typeof QuerySchema>;
 

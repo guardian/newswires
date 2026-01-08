@@ -7,12 +7,12 @@ import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
 function decideEndpoint(
 	view: Config['view'],
-	maybePreset: string | undefined,
+	maybeCollection: number | undefined,
 ): string {
 	if (view.includes('dotcopy')) {
 		return '/api/dotcopy';
 	}
-	if (maybePreset === 'tasted') {
+	if (maybeCollection !== undefined) {
 		return `/api/collections/${TASTED_COLLECTION_ID}`;
 	}
 	return '/api/search';
@@ -31,7 +31,7 @@ export const fetchResults = async ({
 	beforeTimeStamp?: string;
 	abortController?: AbortController;
 }): Promise<WiresQueryData> => {
-	const endpoint = decideEndpoint(view, query.preset);
+	const endpoint = decideEndpoint(view, query.collection);
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,

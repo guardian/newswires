@@ -17,7 +17,12 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
-import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
+import type {
+	CollectionMetadata,
+	SupplierInfo,
+	ToolLink,
+	WireData,
+} from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
 
@@ -45,6 +50,7 @@ export const WireItemList = ({
 						localIngestedAt,
 						hasDataFormatting,
 						toolLinks,
+						collections,
 					}) => (
 						<li key={id}>
 							<WirePreviewCard
@@ -59,6 +65,7 @@ export const WireItemList = ({
 								selected={selectedWireId == id.toString()}
 								view={config.view}
 								previousItemId={previousItemId}
+								collectionMetadata={collections}
 							/>
 						</li>
 					),
@@ -184,6 +191,7 @@ const WirePreviewCard = ({
 	selected,
 	view,
 	previousItemId,
+	collectionMetadata,
 }: {
 	id: number;
 	supplier: SupplierInfo;
@@ -196,13 +204,19 @@ const WirePreviewCard = ({
 	isFromRefresh: boolean;
 	view: string;
 	previousItemId: string | undefined;
+	collectionMetadata: CollectionMetadata[];
 }) => {
 	const { viewedItemIds, config } = useSearch();
 	const { showSecondaryFeedContent } = useUserSettings();
+	const showCollectionMetadata = config.query.collection !== undefined;
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const isPoppedOut = config.ticker;
+
+	const maybeTastedCollectionMetadata = collectionMetadata.filter(
+		(collection) => collection.collectionId === config.query.collection,
+	);
 
 	useEffect(() => {
 		if (selected && ref.current) {
@@ -371,6 +385,20 @@ const WirePreviewCard = ({
 						<></>
 					)}
 				</div>
+				{showCollectionMetadata && maybeTastedCollectionMetadata.length > 0 && (
+					<div
+						css={css`
+							margin-top: 0.5rem;
+							grid-area: content;
+							${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
+							font-weight: ${hasBeenViewed
+								? theme.euiTheme.font.weight.light
+								: theme.euiTheme.font.weight.regular};
+						`}
+					>
+						<p>{maybeTastedCollectionMetadata.map((_) => _.addedAt)}</p>
+					</div>
+				)}
 				{showSecondaryFeedContent && (
 					<div
 						css={css`

@@ -33,8 +33,6 @@ object CollectionWithWireEntries {
 case class CollectionItemsSearchParams(
     start: Option[String] = None,
     end: Option[String] = None,
-    maybeBeforeId: Option[Int] = None,
-    maybeSinceId: Option[Int] = None,
     maybeAddedToCollectionSinceTimestamp: Option[String] = None,
     maybeAddedToCollectionBeforeTimestamp: Option[String] = None
 )
@@ -165,11 +163,6 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
       pageSize: Int
   ): QueryResponse =
     DB readOnly { implicit session =>
-      val dataOnlyWhereClauses = List(
-        searchParams.maybeBeforeId.map(Filters.beforeIdSQL(_)),
-        searchParams.maybeSinceId.map(Filters.sinceIdSQL(_))
-      )
-
       val dateRangeQuery =
         Filters.dateRangeSQL(searchParams.start, searchParams.end)
 
@@ -185,7 +178,11 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
         }
 
       val whereClause = sqls.joinWithAnd(
-        collectionIdQuery :: (dateRangeQuery :: addedToCollectionSinceClause :: addedToCollectionBeforeClause :: dataOnlyWhereClauses).flatten: _*
+        collectionIdQuery :: List(
+          dateRangeQuery,
+          addedToCollectionSinceClause,
+          addedToCollectionBeforeClause
+        ).flatten: _*
       )
 
       val highlightsClause = FingerpostWireEntry.buildHighlightsClause(

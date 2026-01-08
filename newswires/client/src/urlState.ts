@@ -4,6 +4,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { topLevelPresetId } from './presets.ts';
 import type { Config, Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
@@ -12,7 +13,8 @@ export const defaultQuery: Query = {
 	supplierExcl: [],
 	keyword: [],
 	keywordExcl: [],
-	preset: undefined,
+	preset: topLevelPresetId,
+	collection: undefined,
 	categoryCode: [],
 	categoryCodeExcl: [],
 	dateRange: {
@@ -44,6 +46,21 @@ function maybeStringToBooleanOrUndefined(
 	return undefined;
 }
 
+function maybeStringToNumberOrUndefined(
+	value: string | null,
+): number | undefined {
+	if (value === null) {
+		return undefined;
+	}
+	try {
+		const parsed = parseInt(value);
+		return isNaN(parsed) ? undefined : parsed;
+	} catch (e) {
+		console.error(`Error parsing string to number: ${getErrorMessage(e)}`);
+		return undefined;
+	}
+}
+
 function searchParamsToQuery(params: URLSearchParams): Query {
 	const queryString = params.get('q');
 
@@ -66,11 +83,12 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const categoryCode = params.getAll('categoryCode');
 	const categoryCodeExcl = params.getAll('categoryCodeExcl');
 	const preset = params.get('preset') ?? undefined;
+	const collection = maybeStringToNumberOrUndefined(params.get('collection'));
 	const hasDataFormatting = maybeStringToBooleanOrUndefined(
 		params.get('hasDataFormatting'),
 	);
 
-	return {
+	const baseQuery = {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
 				? queryString.toString()
@@ -81,10 +99,15 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		keywordExcl,
 		categoryCode,
 		categoryCodeExcl,
-		preset,
 		dateRange: { start, end },
 		hasDataFormatting,
 	};
+
+	if (preset !== undefined) {
+		return { ...baseQuery, preset, collection: undefined };
+	} else {
+		return { ...baseQuery, collection, preset: undefined };
+	}
 }
 
 export function urlToConfig(location: {
@@ -201,6 +224,8 @@ export const paramsToQuerystring = ({
 					return [...acc, ...items];
 				}
 			} else if (typeof v === 'boolean') {
+				return [...acc, [k, v.toString()]];
+			} else if (typeof v === 'number') {
 				return [...acc, [k, v.toString()]];
 			}
 			return acc;

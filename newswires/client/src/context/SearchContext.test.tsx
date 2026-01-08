@@ -78,6 +78,8 @@ describe('SearchContext', () => {
 		const q: Query = {
 			q: 'text search term',
 			supplier: ['A', 'B'],
+			preset: undefined,
+			collection: undefined,
 		};
 
 		act(() => {
@@ -107,6 +109,8 @@ describe('SearchContext', () => {
 		const q: Query = {
 			q: 'text search term',
 			supplier: ['A', 'B'],
+			preset: undefined,
+			collection: undefined,
 		};
 
 		act(() => {

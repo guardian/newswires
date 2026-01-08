@@ -2,6 +2,7 @@ import dateMath from '@elastic/datemath';
 import { getErrorMessage } from '@guardian/libs';
 import { isEqual as deepIsEqual } from 'lodash';
 import moment from 'moment-timezone';
+import { TASTED_COLLECTION_ID } from '../presets.ts';
 import type { Query, WiresQueryData } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
@@ -193,6 +194,13 @@ export const SearchReducer = (state: State, action: Action): State => {
 			return {
 				...state,
 				status: 'loading',
+				sortBy:
+					action.query.preset === 'tasted'
+						? {
+								sortByKey: 'addedToCollectionAt',
+								collectionId: TASTED_COLLECTION_ID,
+							}
+						: { sortByKey: 'ingestedAt' },
 			};
 		case 'LOADING_MORE':
 			return {
