@@ -3,8 +3,8 @@ import type {
 	IngestorInputBody,
 	OperationResult,
 	ProcessedObject,
-} from '../../shared/types';
-import { IngestorInputBodySchema } from '../../shared/types';
+} from 'newswires-shared/types';
+import { IngestorInputBodySchema } from 'newswires-shared/types';
 import {
 	dedupeStrings,
 	inferGBCategoryFromText,

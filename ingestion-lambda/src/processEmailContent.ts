@@ -4,7 +4,7 @@ import type {
 	IngestorInputBody,
 	OperationResult,
 	ProcessedObject,
-} from '../../shared/types';
+} from 'newswires-shared/types';
 
 type EmailObject = {
 	from?: string;

@@ -1,6 +1,6 @@
 import { getErrorMessage } from '@guardian/libs';
-import { getFromS3 } from '../../shared/s3';
-import type { OperationResult } from '../../shared/types';
+import { getFromS3 } from 'newswires-shared/s3';
+import type { OperationResult } from 'newswires-shared/types';
 
 export async function getItemFromS3({
 	objectKey,

@@ -1,6 +1,6 @@
+import { DATABASE_TABLE_NAME } from 'newswires-shared/constants';
+import { computePresetCategories } from 'newswires-shared/precomputeCategories';
 import type { Row, Sql } from 'postgres';
-import { DATABASE_TABLE_NAME } from '../../shared/constants';
-import { computePresetCategories } from '../../shared/precomputeCategories';
 
 export type DBRecord = {
 	external_id: string;

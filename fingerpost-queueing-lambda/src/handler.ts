@@ -1,8 +1,8 @@
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
-import { getFromEnv } from '../../shared/config';
-import { createLogger } from '../../shared/lambda-logging';
-import { putToS3AndQueueIngestion } from '../../shared/putToS3AndQueueIngestion';
-import { putToS3 } from '../../shared/s3';
+import { getFromEnv } from 'newswires-shared/config';
+import { createLogger } from 'newswires-shared/lambda-logging';
+import { putToS3AndQueueIngestion } from 'newswires-shared/putToS3AndQueueIngestion';
+import { putToS3 } from 'newswires-shared/s3';
 
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 	const results = await Promise.all(
