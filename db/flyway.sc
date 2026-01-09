@@ -2,7 +2,7 @@
 
 //> using jvm "corretto:17"
 
-//> using dep com.lihaoyi::ujson:4.3.2
+//> using dep com.lihaoyi::ujson:4.4.2
 //> using dep org.flywaydb:flyway-core:11.19.1
 //> using dep org.flywaydb:flyway-database-postgresql:11.19.1
 //> using dep org.postgresql:postgresql:42.7.5
