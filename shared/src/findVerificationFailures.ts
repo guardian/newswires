@@ -1,6 +1,5 @@
 import type { SESMessage } from 'aws-lambda';
 import { authenticate } from 'mailauth';
-import './typings/mailauth.d.ts';
 import { getFromEnv, isRunningLocally } from './config';
 import { getFromS3 } from './s3';
 
@@ -81,17 +80,20 @@ export async function findVerificationFailures(
 			trustReceived: true,
 		});
 
-		const wasSentToDotCopy = receivedChain.some((chainLink) => {
+		const wasSentToDotCopy = receivedChain?.some((chainLink) => {
 			const value = chainLink.for?.value;
 			return value ? validForCopy(value) : false;
 		});
 
 		const arcValid =
+			arc &&
 			arc.status.result === 'pass' &&
+			arc.signature &&
 			arc.signature.signingDomain === 'google.com' &&
 			arc.signature.status.result === 'pass' &&
-			arc.authenticationResults.mta === 'mx.google.com' &&
-			arc.authenticationResults.spf.result === 'pass';
+			arc.authenticationResults?.mta === 'mx.google.com' &&
+			(arc.authenticationResults.spf as undefined | { result?: string })
+				?.result === 'pass';
 
 		if (!wasSentToDotCopy) {
 			return {
