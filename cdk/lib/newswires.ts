@@ -175,6 +175,23 @@ export class Newswires extends GuStack {
 
 		feedsBucket.grantWrite(fingerpostQueueingLambda);
 
+		const incomingEmailAddress = new GuStringParameter(
+			this,
+			`incoming-copy-email-address`,
+			{
+				fromSSM: true,
+				default: `/fingerpost/${this.stage}/incomingCopyEmailAddress`,
+			},
+		).valueAsString;
+		const incomingEmailPublicAddress = new GuStringParameter(
+			this,
+			`incoming-copy-email-public-address`,
+			{
+				fromSSM: true,
+				default: `/fingerpost/${this.stage}/incomingCopyEmailPublicAddress`,
+			},
+		).valueAsString;
+
 		const ingestionLambda = new GuLambdaFunction(
 			this,
 			`IngestionLambda-${this.stage}`,
@@ -194,6 +211,8 @@ export class Newswires extends GuStack {
 					DATABASE_ENDPOINT_ADDRESS: database.dbInstanceEndpointAddress,
 					DATABASE_PORT: database.dbInstanceEndpointPort,
 					DATABASE_NAME: databaseName,
+					DOTCOPY_EMAIL_ADDRESS: incomingEmailAddress,
+					DOTCOPY_EMAIL_PUBLIC_ADDRESS: incomingEmailPublicAddress,
 				},
 				vpc,
 				vpcSubnets: {
@@ -251,15 +270,6 @@ export class Newswires extends GuStack {
 				loggingFormat: LoggingFormat.TEXT,
 			},
 		);
-
-		const incomingEmailAddress = new GuStringParameter(
-			this,
-			`incoming-copy-email-address`,
-			{
-				fromSSM: true,
-				default: `/fingerpost/${this.stage}/incomingCopyEmailAddress`,
-			},
-		).valueAsString;
 
 		/** There can only be one active ruleset at a time. And you can only activate a ruleset as a manual action in
 		 * the AWS console. So we have manually created and activated a ruleset called "default", which CODE and PROD
