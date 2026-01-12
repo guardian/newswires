@@ -17,10 +17,12 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
   FingerpostWire,
   NextPage,
+  NextPageInt,
   QueryParams,
   QueryResponse,
   SearchParams,
-  UpdateType
+  UpdateType,
+  UpdateTypeInt
 }
 import play.api.Logging
 import scalikejdbc._
@@ -308,6 +310,12 @@ object FingerpostWireEntry
         else sqls"(${syn.content}->'dataformat') IS NULL"
       }
 
+    lazy val beforeIdSQL =
+      (beforeId: Int) => sqls"${FingerpostWireEntry.syn.id} < $beforeId"
+
+    lazy val sinceIdSQL =
+      (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
+
     lazy val beforeTimeStampSQL =
       (endDate: String) =>
         sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
@@ -423,12 +431,16 @@ object FingerpostWireEntry
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
       maybeBeforeTimeStamp: Option[String],
-      maybeAfterTimeStamp: Option[UpdateType]
+      maybeAfterTimeStamp: Option[UpdateType],
+      maybeBeforeId: Option[Int],
+      maybeSinceId: Option[UpdateTypeInt]
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
       maybeBeforeTimeStamp.map(Filters.beforeTimeStampSQL(_)),
-      maybeAfterTimeStamp.map(u => Filters.afterTimeStampSQL(u.sinceTimeStamp))
+      maybeAfterTimeStamp.map(u => Filters.afterTimeStampSQL(u.sinceTimeStamp)),
+      maybeBeforeId.map(Filters.beforeIdSQL(_)),
+      maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
     )
 
     val dateRangeQuery =
@@ -470,15 +482,19 @@ object FingerpostWireEntry
     val effectivePageSize = clamp(0, queryParams.pageSize, 250)
 
     val maybeAfterTimeStamp = queryParams.maybeAfterTimeStamp
+    val maybeSinceId = queryParams.maybeSinceId
 
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
-    val orderByClause = maybeAfterTimeStamp match {
-      case Some(NextPage(_)) =>
-        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
-      case _ =>
-        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
-    }
+    val orderByClause =
+      (maybeAfterTimeStamp, maybeSinceId) match {
+        case (Some(NextPage(_)), _) =>
+          sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
+        case (_, Some(NextPageInt(_))) =>
+          sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
+        case _ =>
+          sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
+      }
 
     sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
@@ -497,7 +513,9 @@ object FingerpostWireEntry
       queryParams.searchParams,
       queryParams.savedSearchParamList,
       queryParams.maybeBeforeTimeStamp,
-      queryParams.maybeAfterTimeStamp
+      queryParams.maybeAfterTimeStamp,
+      queryParams.maybeBeforeId,
+      queryParams.maybeSinceId
     )
 
     val start = System.currentTimeMillis()

@@ -1,13 +1,19 @@
 package db
 
-import conf.{AND, OR, SearchField, SearchTerm, ComboTerm, SingleTerm}
+import conf.{AND, ComboTerm, OR, SearchField, SearchTerm, SingleTerm}
 import io.circe.parser.decode
 import helpers.SqlSnippetMatcher.matchSqlSnippet
 import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
-import _root_.models.{MostRecent, NextPage, QueryParams, SearchParams}
+import _root_.models.{
+  MostRecent,
+  NextPage,
+  NextPageInt,
+  QueryParams,
+  SearchParams
+}
 import conf.SearchTerm.{English, Simple}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
@@ -78,6 +84,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         searchParams,
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -104,6 +112,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         searchParams,
         List(),
         maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
+        None,
+        None,
         None
       )
 
@@ -117,7 +127,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         searchParams,
         List(),
         None,
-        maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z"))
+        maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z")),
+        maybeBeforeId = None,
+        maybeSinceId = None
       )
 
     whereClauseSinceId should matchSqlSnippet(
@@ -136,6 +148,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         searchParams,
         List(),
+        None,
+        None,
         None,
         None
       )
@@ -158,6 +172,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         searchParams,
         List(),
+        None,
+        None,
         None,
         None
       )
@@ -186,14 +202,18 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         searchParams,
         List(),
-        Some("2025-01-01T00:00:00Z"),
-        None
+        maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
+        maybeAfterTimeStamp = None,
+        maybeBeforeId = None,
+        maybeSinceId = None
       )
 
     val textSearchWhereClause = FingerpostWireEntry
       .buildWhereClause(
         SearchParams(Some(SingleTerm(SearchTerm.English("text1")))),
         List(),
+        None,
+        None,
         None,
         None
       )
@@ -207,6 +227,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         ),
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -217,6 +239,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
           keywordExcl = List("keyword1")
         ),
         List(),
+        None,
+        None,
         None,
         None
       )
@@ -229,6 +253,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         ),
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -239,6 +265,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
           categoryCodesExcl = List("category1", "category2")
         ),
         List(),
+        None,
+        None,
         None,
         None
       )
@@ -274,6 +302,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         searchParams,
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -293,6 +323,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         searchParams,
         List(),
+        None,
+        None,
         None,
         None
       )
@@ -334,6 +366,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         customParams,
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -341,6 +375,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       .buildWhereClause(
         presetSearchParams1,
         List(),
+        None,
+        None,
         None,
         None
       )
@@ -350,6 +386,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         presetSearchParams2,
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -357,6 +395,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         customParams,
         List(presetSearchParams1, presetSearchParams2),
+        None,
+        None,
         None,
         None
       )
@@ -388,6 +428,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         customParams.copy(start = None, end = None),
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -396,6 +438,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         customParams.copy(searchTerms = None),
         List(),
         None,
+        None,
+        None,
         None
       )
 
@@ -403,6 +447,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildWhereClause(
         customParams,
         List.empty,
+        None,
+        None,
         None,
         None
       )
@@ -425,7 +471,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
       maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = None
+      maybeAfterTimeStamp = None,
+      maybeBeforeId = None,
+      maybeSinceId = None
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -433,13 +481,15 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     query.statement should include("ORDER BY fm.ingested_at DESC")
   }
 
-  it should "order results by descending ingestion_at when using MostRecent update type with maybeSinceId" in {
+  it should "order results by descending ingestion_at when using MostRecent update type with maybeafterTimeStamp" in {
     val queryParams = QueryParams(
       searchParams = SearchParams(),
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
       maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = Some(MostRecent("2025-01-01T00:00:00Z"))
+      maybeAfterTimeStamp = Some(MostRecent("2025-01-01T00:00:00Z")),
+      None,
+      None
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -447,13 +497,31 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     query.statement should include("ORDER BY fm.ingested_at DESC")
   }
 
-  it should "order results by *ascending* ingestion_at when using NextPage update type with maybeSinceId" in {
+  it should "order results by *ascending* ingestion_at when using NextPage update type with maybeafterTimeStamp" in {
     val queryParams = QueryParams(
       searchParams = SearchParams(None),
       savedSearchParamList = Nil,
       maybeSearchTerm = None,
       maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z"))
+      maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z")),
+      maybeBeforeId = None,
+      maybeSinceId = None
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.statement should include("ORDER BY fm.ingested_at ASC")
+  }
+
+  it should "order results by *ascending* ingestion_at when using NextPageInt update type with maybeSinceId" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(None),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeTimeStamp = None,
+      maybeAfterTimeStamp = None,
+      maybeBeforeId = None,
+      maybeSinceId = Some(NextPageInt(100))
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -557,9 +625,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql for sinceTimeStamp" in {
-    val sinceIdSQL =
+    val maybeafterTimeStamp =
       FingerpostWireEntry.Filters.afterTimeStampSQL("2025-01-01T00:00:00Z")
-    sinceIdSQL should matchSqlSnippet(
+    maybeafterTimeStamp should matchSqlSnippet(
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST(? AS timestamptz)",
       expectedParams = List("2025-01-01T00:00:00Z")
