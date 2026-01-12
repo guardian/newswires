@@ -59,11 +59,16 @@ export async function findVerificationFailures(
 		({ status }) => status !== 'PASS',
 	);
 
-	if (sesFailedChecks.length === 0) {
-		console.log(`Email validation for ${message.mail.messageId}: PASS`);
-		return { pass: true, failedChecks: [] };
-	}
+	let failedChecks = sesFailedChecks;
 
+	// If _only_ the SPF check has failed, give the email another chance.
+	// SPF would be expected to fail if the original author is not using Gmail
+	// (or a custom email domain via Google Workspace) since all emails are
+	// redirected here from a Google Workspace inbox. Other providers will not
+	// allow emails to be sent from Google's IP ranges, so SPF will fail.
+	// Run an ARC check to see if SPF was valid when the Google inbox received
+	// the email, and if so allow it to pass.
+	// Unfortunately SES doesn't parse ARC headers so we need to do it ourselves.
 	if (
 		sesFailedChecks.length === 1 &&
 		sesFailedChecks[0]?.name === 'spfVerdict'
@@ -94,22 +99,26 @@ export async function findVerificationFailures(
 				?.result === 'pass';
 
 		if (!wasSentToDotCopy) {
-			return {
-				pass: false,
-				failedChecks: [{ name: 'sent_to_dotcopy', status: 'FAIL' }],
-			};
+			failedChecks = [{ name: 'sent_to_dotcopy', status: 'FAIL' }];
 		} else if (!arcValid) {
-			return {
-				pass: false,
-				failedChecks: [{ name: 'newswires_arc_spf_check', status: 'FAIL' }],
-			};
+			failedChecks = [{ name: 'newswires_arc_spf_check', status: 'FAIL' }];
 		} else {
-			return { pass: true, failedChecks: [] };
+			failedChecks = [];
 		}
 	}
 
+	if (failedChecks.length === 0) {
+		console.log(`Email validation for ${message.mail.messageId}: PASS`);
+	} else {
+		console.log(
+			`Email validation for ${message.mail.messageId}: FAIL: [${failedChecks
+				.map((failedCheck) => failedCheck.name)
+				.join(', ')}]`,
+		);
+	}
+
 	return {
-		pass: sesFailedChecks.length === 0,
-		failedChecks: sesFailedChecks,
+		pass: failedChecks.length === 0,
+		failedChecks: failedChecks,
 	};
 }
