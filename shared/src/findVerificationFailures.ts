@@ -76,9 +76,7 @@ export async function findVerificationFailures(
 			throw new Error(mailObject.reason);
 		}
 
-		const { arc, receivedChain } = await authenticate(mailObject.body, {
-			trustReceived: true,
-		});
+		const { arc, receivedChain } = await authenticate(mailObject.body);
 
 		const wasSentToDotCopy = receivedChain?.some((chainLink) => {
 			const value = chainLink.for?.value;
