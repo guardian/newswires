@@ -9,12 +9,12 @@ sealed trait UpdateType {
 case class NextPage(sinceTimeStamp: String) extends UpdateType
 case class MostRecent(sinceTimeStamp: String) extends UpdateType
 
-sealed trait UpdateTypeInt {
+sealed trait UpdateTypeId {
   val sinceId: Int
 }
 
-case class NextPageInt(sinceId: Int) extends UpdateTypeInt
-case class MostRecentInt(sinceId: Int) extends UpdateTypeInt
+case class NextPageId(sinceId: Int) extends UpdateTypeId
+case class MostRecentId(sinceId: Int) extends UpdateTypeId
 
 case class QueryParams(
     searchParams: SearchParams,
@@ -23,6 +23,6 @@ case class QueryParams(
     maybeBeforeTimeStamp: Option[String],
     maybeAfterTimeStamp: Option[UpdateType],
     maybeBeforeId: Option[Int],
-    maybeSinceId: Option[UpdateTypeInt],
+    maybeSinceId: Option[UpdateTypeId],
     pageSize: Int = 250
 )

@@ -9,7 +9,7 @@ import db.FingerpostWireEntry._
 import models.{
   BaseRequestParams,
   NextPage,
-  NextPageInt,
+  NextPageId,
   QueryParams,
   QueryResponse,
   SearchParams
@@ -81,7 +81,7 @@ class QueryController(
       maybeBeforeTimeStamp = maybeBeforeTimeStamp,
       maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
       maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId.map(NextPageInt(_)),
+      maybeSinceId = maybeSinceId.map(NextPageId(_)),
       pageSize = 30
     )
 

@@ -7,18 +7,21 @@ export function sortByTimeStamp(
 	return (a: string, b: string) => b.localeCompare(a);
 }
 
-export function getLatestTimeStamp(timestamps: string[]): string | undefined {
+function sortAndGetFirstItem(
+	timestamps: string[],
+	ascending: boolean,
+): string | undefined {
 	if (timestamps.length === 0) {
 		return undefined;
 	}
-	const sorted = timestamps.toSorted(sortByTimeStamp({ ascending: false }));
+	const sorted = timestamps.toSorted(sortByTimeStamp({ ascending }));
 	return sorted[0];
 }
 
+export function getLatestTimeStamp(timestamps: string[]): string | undefined {
+	return sortAndGetFirstItem(timestamps, false);
+}
+
 export function getEarliestTimeStamp(timestamps: string[]): string | undefined {
-	if (timestamps.length === 0) {
-		return undefined;
-	}
-	const sorted = timestamps.toSorted(sortByTimeStamp({ ascending: true }));
-	return sorted[0];
+	return sortAndGetFirstItem(timestamps, true);
 }

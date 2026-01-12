@@ -17,12 +17,12 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
   FingerpostWire,
   NextPage,
-  NextPageInt,
+  NextPageId,
   QueryParams,
   QueryResponse,
   SearchParams,
   UpdateType,
-  UpdateTypeInt
+  UpdateTypeId
 }
 import play.api.Logging
 import scalikejdbc._
@@ -433,7 +433,7 @@ object FingerpostWireEntry
       maybeBeforeTimeStamp: Option[String],
       maybeAfterTimeStamp: Option[UpdateType],
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[UpdateTypeInt]
+      maybeSinceId: Option[UpdateTypeId]
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
@@ -475,6 +475,17 @@ object FingerpostWireEntry
     }
   }
 
+  private[db] def decideSortDirection(
+      maybeAfterTimeStamp: Option[UpdateType],
+      maybeSinceId: Option[UpdateTypeId]
+  ): SQLSyntax = {
+    (maybeAfterTimeStamp, maybeSinceId) match {
+      case (Some(NextPage(_)), _)   => sqls"ASC"
+      case (_, Some(NextPageId(_))) => sqls"ASC"
+      case _                        => sqls"DESC"
+    }
+  }
+
   private[db] def buildSearchQuery(
       queryParams: QueryParams,
       whereClause: SQLSyntax
@@ -487,14 +498,7 @@ object FingerpostWireEntry
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause =
-      (maybeAfterTimeStamp, maybeSinceId) match {
-        case (Some(NextPage(_)), _) =>
-          sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
-        case (_, Some(NextPageInt(_))) =>
-          sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
-        case _ =>
-          sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
-      }
+      sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
 
     sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}

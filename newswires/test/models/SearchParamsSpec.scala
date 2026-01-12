@@ -56,6 +56,8 @@ class SearchParamsSpec extends AnyFlatSpec {
       maybeEnd = Some("end"),
       maybeBeforeTimeStamp = Some("2023-01-01T00:00:00Z"),
       maybeAfterTimeStamp = Some("2023-01-02T00:00:00Z"),
+      maybeBeforeId = Some(100),
+      maybeSinceId = Some(50),
       hasDataFormatting = Some(true)
     )
     val result = SearchParams.build(
