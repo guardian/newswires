@@ -381,7 +381,7 @@ const WirePreviewCard = ({
 						margin-top: 5px;
 						display: grid;
 						grid-template-columns: min-content 1fr;
-						gap: 0.5rem;
+						gap: 0.1rem;
 					`}
 				>
 					{showCollectionMetadata &&

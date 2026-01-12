@@ -26,10 +26,12 @@ const SendOrVisitInComposerButton = ({
 	headline,
 	itemData,
 	addToolLink,
+	reportError,
 }: {
 	headline: string | undefined;
 	itemData: WireData;
 	addToolLink: (toolLink: ToolLink) => void;
+	reportError: (errorMessage: string) => void;
 }) => {
 	const { sendTelemetryEvent } = useTelemetry();
 	const previousSend = itemData.toolLinks?.find(
@@ -38,7 +40,6 @@ const SendOrVisitInComposerButton = ({
 	const [composerId, setComposerId] = useState<string | undefined>(
 		previousSend?.ref,
 	);
-	const [failureReason, setFailureReason] = useState<string | undefined>();
 
 	const [sendState, setSendState] = useState<SendState>(
 		previousSend?.ref ? 'sent' : 'unsent',
@@ -68,7 +69,7 @@ const SendOrVisitInComposerButton = ({
 				});
 			})
 			.catch((cause) => {
-				setFailureReason(getErrorMessage(cause));
+				reportError(getErrorMessage(cause));
 
 				sendTelemetryEvent('NEWSWIRES_SEND_TO_COMPOSER', {
 					itemId: itemData.id,
@@ -76,7 +77,7 @@ const SendOrVisitInComposerButton = ({
 				});
 				setSendState('failed');
 			});
-	}, [headline, itemData, sendTelemetryEvent, addToolLink]);
+	}, [headline, itemData, addToolLink, sendTelemetryEvent, reportError]);
 
 	if (sendState === 'sent' && composerId) {
 		return (
@@ -95,12 +96,9 @@ const SendOrVisitInComposerButton = ({
 	if (sendState === 'sent' || sendState === 'failed') {
 		return (
 			<>
-				<EuiButtonIcon iconType="error" disabled>
-					Send to Composer failed
+				<EuiButtonIcon iconType="refresh" size="s" onClick={send}>
+					Send to Composer failed. Click to retry.
 				</EuiButtonIcon>
-				<EuiText size="s" color="danger">
-					{failureReason}
-				</EuiText>
 			</>
 		);
 	}
@@ -205,6 +203,7 @@ export const ToolsConnection = ({
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
 	const { showIncopyImport } = useUserSettings();
+	const [reports, setReports] = useState<string[]>([]);
 
 	return (
 		<>
@@ -214,6 +213,9 @@ export const ToolsConnection = ({
 						headline={headline}
 						itemData={itemData}
 						addToolLink={addToolLink}
+						reportError={(errorMessage) => {
+							setReports((prevReports) => [...prevReports, errorMessage]);
+						}}
 					/>
 
 					{showIncopyImport && (
