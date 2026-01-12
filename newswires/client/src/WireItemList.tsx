@@ -9,6 +9,7 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
+import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
@@ -48,14 +49,14 @@ export const WireItemList = ({
 						supplier,
 						highlight,
 						isFromRefresh,
-						ingestedAt,
+						localIngestedAt,
 						hasDataFormatting,
 						toolLinks,
 					}) => (
 						<li key={id}>
 							<WirePreviewCard
 								id={id}
-								ingestedAt={ingestedAt}
+								localIngestedAt={localIngestedAt}
 								supplier={supplier}
 								content={content}
 								hasDataFormatting={hasDataFormatting}
@@ -182,7 +183,7 @@ function scrollElementIntoView(
 const WirePreviewCard = ({
 	id,
 	supplier,
-	ingestedAt,
+	localIngestedAt,
 	content,
 	hasDataFormatting,
 	toolLinks,
@@ -193,7 +194,7 @@ const WirePreviewCard = ({
 }: {
 	id: number;
 	supplier: SupplierInfo;
-	ingestedAt: string;
+	localIngestedAt: Moment;
 	content: WireData['content'];
 	hasDataFormatting: boolean;
 	toolLinks?: ToolLink[];
@@ -334,7 +335,7 @@ const WirePreviewCard = ({
 						line-break: strict;
 					`}
 				>
-					{formatTimestamp(ingestedAt)
+					{formatTimestamp(localIngestedAt.format())
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>

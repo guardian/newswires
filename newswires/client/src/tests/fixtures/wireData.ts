@@ -1,3 +1,4 @@
+import { convertToLocalDate } from '../../dateHelpers.ts';
 import type { WireData } from '../../sharedTypes.ts';
 
 export const sampleFingerpostContent = {
@@ -43,6 +44,6 @@ export const sampleWireData: WireData = {
 		shortLabel: 'Unknown',
 		colour: '#000000',
 	},
-	ingestedAt: '2025-01-01T00:00:00+00:00',
+	localIngestedAt: convertToLocalDate('2025-01-01T00:00:00Z'),
 	hasDataFormatting: false,
 };
