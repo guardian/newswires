@@ -17,7 +17,7 @@ const EMAIL_BUCKET_NAME: string = isRunningLocally
 	: getFromEnv('EMAIL_BUCKET_NAME');
 
 const DOTCOPY_EMAIL_PUBLIC_ADDRESS = isRunningLocally
-	? 'test.example'
+	? 'test.copy@guardian.co.uk'
 	: getFromEnv('DOTCOPY_EMAIL_PUBLIC_ADDRESS');
 
 const dotcopyUsernameEnd = DOTCOPY_EMAIL_PUBLIC_ADDRESS.indexOf('@');
