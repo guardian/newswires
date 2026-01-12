@@ -19,7 +19,7 @@ describe('findVerificationFailures', () => {
 			messageId: '',
 		},
 	};
-	it('should return hasFailures false and empty failedChecks for all PASS verdicts', async () => {
+	it('should return `pass: true` and empty failedChecks for all PASS verdicts', async () => {
 		const receipt = {
 			spamVerdict: { status: 'PASS' },
 			virusVerdict: { status: 'PASS' },
@@ -32,7 +32,7 @@ describe('findVerificationFailures', () => {
 		expect(result.failedChecks).toEqual([]);
 	});
 
-	it('should return hasFailures true and failedChecks for ALL failing verdicts', async () => {
+	it('should return `pass: false` and failedChecks for ALL failing verdicts', async () => {
 		const receipt = {
 			spamVerdict: { status: 'FAIL' },
 			virusVerdict: { status: 'PASS' },
