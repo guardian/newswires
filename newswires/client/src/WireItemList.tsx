@@ -15,7 +15,9 @@ import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
+import { convertToLocalDate } from './dateHelpers.ts';
 import { formatTimestamp } from './formatTimestamp.ts';
+import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
 import type {
 	CollectionMetadata,
@@ -373,32 +375,48 @@ const WirePreviewCard = ({
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
 				</div>
-				<div
+				<ul
 					css={css`
-						color: brown;
+						color: ${theme.euiTheme.colors.textAccent};
 						margin-top: 5px;
+						display: grid;
+						grid-template-columns: min-content 1fr;
+						gap: 0.5rem;
 					`}
 				>
+					{showCollectionMetadata &&
+						maybeTastedCollectionMetadata.length > 0 && (
+							<li
+								css={css`
+									display: contents;
+								`}
+							>
+								<span
+									css={css`
+										color: ${theme.euiTheme.colors.backgroundFilledAccent};
+									`}
+								>
+									<EuiIcon type={CollectionsIcon} size="original" />
+								</span>
+								<EuiText size="xs">
+									Added to collection
+									{' • '}
+									{maybeTastedCollectionMetadata.map((_) =>
+										convertToLocalDate(_.addedAt).fromNow(),
+									)}
+								</EuiText>
+							</li>
+						)}
 					{toolLinks?.length ? (
-						<ToolSendReport toolLink={toolLinks[0]} key={toolLinks[0].id} />
+						<ToolSendReport
+							toolLink={toolLinks[0]}
+							key={toolLinks[0].id}
+							showIcon={true}
+						/>
 					) : (
 						<></>
 					)}
-				</div>
-				{showCollectionMetadata && maybeTastedCollectionMetadata.length > 0 && (
-					<div
-						css={css`
-							margin-top: 0.5rem;
-							grid-area: content;
-							${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
-							font-weight: ${hasBeenViewed
-								? theme.euiTheme.font.weight.light
-								: theme.euiTheme.font.weight.regular};
-						`}
-					>
-						<p>{maybeTastedCollectionMetadata.map((_) => _.addedAt)}</p>
-					</div>
-				)}
+				</ul>
 				{showSecondaryFeedContent && (
 					<div
 						css={css`

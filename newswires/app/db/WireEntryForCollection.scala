@@ -21,14 +21,6 @@ object WireEntryForCollection extends SQLSyntaxSupport[WireEntryForCollection] {
 
   override val tableName = "wire_entry_collection"
 
-  override val columns =
-    Seq(
-      "id",
-      "wire_entry_id",
-      "collection_id",
-      "added_at"
-    )
-
   lazy val selectAllStatement: SQLSyntax = sqls"""
     |${syn.result.wireEntryId},
     |${syn.result.collectionId},
@@ -47,8 +39,15 @@ object WireEntryForCollection extends SQLSyntaxSupport[WireEntryForCollection] {
   def opt(
       wec: ResultName[WireEntryForCollection]
   )(rs: WrappedResultSet): Option[WireEntryForCollection] = {
-    rs.longOpt(wec.wireEntryId).map(_ => WireEntryForCollection(wec)(rs))
+    rs.longOpt(wec.collectionId).map(_ => WireEntryForCollection(wec)(rs))
   }
+
+  override val columns =
+    Seq(
+      "wire_entry_id",
+      "collection_id",
+      "added_at"
+    )
 
   implicit val jsonEncoder: Encoder[WireEntryForCollection] =
     deriveEncoder[WireEntryForCollection].mapJson(_.dropNullValues)

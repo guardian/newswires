@@ -510,14 +510,14 @@ object FingerpostWireEntry
     val orderByClause =
       sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
 
-    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, $highlightsClause
+    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}, $highlightsClause
           | FROM ${FingerpostWireEntry as syn}
           | LEFT JOIN ${ToolLink as ToolLink.syn}
           |  ON ${syn.id} = ${ToolLink.syn.wireId}
           | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
-          |   ON ${syn.id} = ${WireEntryForCollection.syn.wireEntryId}
+          |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
           | LEFT JOIN ${Collection as Collection.syn}
-          |   ON ${WireEntryForCollection.syn.collectionId} = ${Collection.syn.id}
+          |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
           | WHERE $whereClause
           | $orderByClause
           | LIMIT $effectivePageSize
@@ -544,16 +544,20 @@ object FingerpostWireEntry
       .map(rs => {
         val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
         val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
-        (wireEntry, toolLinkOpt)
+        val collectionOpt = WireEntryForCollection.opt(
+          WireEntryForCollection.syn.resultName
+        )(rs)
+        (wireEntry, toolLinkOpt, collectionOpt)
       })
       .list()
-      .collect({ case (Some(wire), toolLinkOpt) =>
-        WireMaybeToolLink(wire, toolLinkOpt)
+      .collect({ case (Some(wire), toolLinkOpt, collectionOpt) =>
+        WireMaybeToolLinkAndCollection(wire, toolLinkOpt, collectionOpt)
       })
       .groupBy(t => t.wireEntry)
       .map({ case (wire, wireRelations) =>
         wire.copy(
-          toolLinks = wireRelations.flatMap(_.toolLink).distinct
+          toolLinks = wireRelations.flatMap(_.toolLink).distinct,
+          collections = wireRelations.flatMap(_.collection).distinct
         )
       })
       .toList

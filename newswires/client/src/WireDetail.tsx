@@ -30,6 +30,8 @@ import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
+import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
+import { CollectionsOutlineIcon } from './icons/CollectionsOutlineIcon.tsx';
 import { pandaFetch } from './panda-session.ts';
 import { TASTED_COLLECTION_ID } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
@@ -597,7 +599,12 @@ export const WireDetail = ({
 							}
 						>
 							<EuiButtonIcon
-								iconType={isInTastedCollection ? 'starFilled' : 'starEmpty'}
+								iconType={
+									isInTastedCollection
+										? CollectionsIcon
+										: CollectionsOutlineIcon
+								}
+								iconSize="xxl"
 								onClick={toggleItemToTasted}
 								aria-label={
 									isInTastedCollection

@@ -11,6 +11,11 @@ case class WireMaybeToolLink(
     wireEntry: FingerpostWireEntry,
     toolLink: Option[ToolLink]
 )
+case class WireMaybeToolLinkAndCollection(
+    wireEntry: FingerpostWireEntry,
+    toolLink: Option[ToolLink],
+    collection: Option[WireEntryForCollection]
+)
 case class WireToolLinks(wireId: Long, toolLinks: List[ToolLink])
 
 object WireToolLinks {

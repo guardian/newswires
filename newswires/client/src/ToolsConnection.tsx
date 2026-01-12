@@ -2,9 +2,12 @@ import {
 	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiIcon,
 	EuiLoadingSpinner,
 	EuiText,
+	useEuiTheme,
 } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { getErrorMessage } from '@guardian/libs';
 import { useCallback, useState } from 'react';
 import { useTelemetry } from './context/TelemetryContext.tsx';
@@ -119,11 +122,36 @@ const SendOrVisitInComposerButton = ({
 	);
 };
 
-export const ToolSendReport = ({ toolLink }: { toolLink: ToolLink }) => {
+export const ToolSendReport = ({
+	toolLink,
+	showIcon,
+}: {
+	toolLink: ToolLink;
+	showIcon?: boolean;
+}) => {
+	const theme = useEuiTheme();
+
 	const sentAt = convertToLocalDate(toolLink.sentAt);
 
 	return (
-		<li key={toolLink.id}>
+		<li
+			key={toolLink.id}
+			css={css`
+				display: contents;
+			`}
+		>
+			{showIcon && (
+				<span
+					css={css`
+						color: ${theme.euiTheme.colors.backgroundFilledAccent};
+					`}
+				>
+					<EuiIcon
+						type={toolLink.tool === 'incopy' ? InCopyLogo : ComposerLogo}
+						size="s"
+					/>
+				</span>
+			)}
 			<EuiText size="xs">
 				Sent to {toolLink.tool} by {toolLink.sentBy}
 				{' • '}

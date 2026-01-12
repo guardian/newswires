@@ -15,7 +15,8 @@ case class SearchParams(
     categoryCodesExcl: List[String] = Nil,
     hasDataFormatting: Option[Boolean] = None,
     preComputedCategories: List[String] = Nil,
-    preComputedCategoriesExcl: List[String] = Nil
+    preComputedCategoriesExcl: List[String] = Nil,
+    collectionId: Option[Int] = None
 )
 
 object SearchParams {

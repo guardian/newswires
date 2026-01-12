@@ -1,6 +1,6 @@
 package db
 
-import db.FingerpostWireEntry.Filters
+import db.FingerpostWireEntry.{Filters, logger, selectAllStatement, syn}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 import models.QueryResponse
@@ -190,23 +190,46 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
       ) // We aren't doing free-text search here but the 'FingerpostWireEntry.fromDb' method needs there to be a column in the result
 
       val query =
-        sql"""
-           SELECT ${FingerpostWireEntry.selectAllStatement}, ${highlightsClause}
-           FROM ${Collection as syn}
-           LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
-            ON ${syn.id} = ${WireEntryForCollection.syn.collectionId}
-           LEFT JOIN ${FingerpostWireEntry as FingerpostWireEntry.syn}
-            ON ${FingerpostWireEntry.syn.id} = ${WireEntryForCollection.syn.wireEntryId}
-           WHERE ${whereClause}
+        sql"""| SELECT ${FingerpostWireEntry.selectAllStatement}, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}, $highlightsClause
+          | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+          | LEFT JOIN ${ToolLink as ToolLink.syn}
+          |  ON ${FingerpostWireEntry.syn.id} = ${ToolLink.syn.wireId}
+          | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+          |   ON ${WireEntryForCollection.syn.wireEntryId} = ${FingerpostWireEntry.syn.id}
+          | LEFT JOIN ${Collection as Collection.syn}
+          |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
+          | WHERE $whereClause
            ORDER BY ${WireEntryForCollection.syn.addedAt} DESC
            LIMIT $pageSize
-          """
+          """.stripMargin
       val wireEntries = query
         .map(rs => {
-          FingerpostWireEntry.fromDb(FingerpostWireEntry.syn.resultName)(rs)
+          val wireEntry =
+            FingerpostWireEntry.fromDb(FingerpostWireEntry.syn.resultName)(rs)
+          val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
+          val collectionOpt = WireEntryForCollection.opt(
+            WireEntryForCollection.syn.resultName
+          )(rs)
+          logger.info(
+            s"Row: wireEntry=${wireEntry.map(_.id)}, toolLink=${toolLinkOpt.map(_.id)}, collection=${collectionOpt}"
+          )
+          (wireEntry, toolLinkOpt, collectionOpt)
         })
         .list()
-        .flatten
+        .collect({ case (Some(wire), toolLinkOpt, collectionOpt) =>
+          WireMaybeToolLinkAndCollection(wire, toolLinkOpt, collectionOpt)
+        })
+        .groupBy(t => t.wireEntry)
+        .map({ case (wire, wireRelations) =>
+          logger.info(
+            s"Wire ${wire.id}: toolLinks=${wireRelations.flatMap(_.toolLink).size}, collections=${wireRelations.flatMap(_.collection).size}"
+          )
+          wire.copy(
+            toolLinks = wireRelations.flatMap(_.toolLink).distinct,
+            collections = wireRelations.flatMap(_.collection).distinct
+          )
+        })
+        .toList
 
       val countQuery =
         sql"""
