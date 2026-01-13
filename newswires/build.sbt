@@ -23,7 +23,7 @@ libraryDependencies += "org.postgresql" % "postgresql" % "42.7.8"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "3.0.0"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.15"
-libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
 
@@ -56,9 +56,10 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala"
+  "com.fasterxml.jackson.module" %% "jackson-module-scala",
 ).map(_ % jacksonVersion) ++ Seq(
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion,
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 )
 
 dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
