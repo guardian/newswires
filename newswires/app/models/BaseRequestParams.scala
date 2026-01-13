@@ -12,6 +12,8 @@ case class BaseRequestParams(
     categoryCodeExcl: List[String] = Nil,
     maybeStart: Option[String] = None,
     maybeEnd: Option[String] = None,
+    maybeBeforeTimeStamp: Option[String] = None,
+    maybeAfterTimeStamp: Option[String] = None,
     maybeBeforeId: Option[Int] = None,
     maybeSinceId: Option[Int] = None,
     hasDataFormatting: Option[Boolean] = None

@@ -7,22 +7,22 @@ import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 export const fetchResults = async ({
 	query,
 	view,
-	sinceId,
-	beforeId,
+	afterTimeStamp,
+	beforeTimeStamp,
 	abortController,
 }: {
 	query: Query;
 	view: Config['view'];
-	sinceId?: string;
-	beforeId?: string;
+	afterTimeStamp?: string;
+	beforeTimeStamp?: string;
 	abortController?: AbortController;
 }): Promise<WiresQueryData> => {
 	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
-		beforeId,
-		sinceId,
+		beforeTimeStamp,
+		afterTimeStamp,
 	});
 	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {

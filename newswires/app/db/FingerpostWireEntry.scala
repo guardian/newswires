@@ -3,13 +3,13 @@ package db
 import conf.SearchTerm.English
 import conf.{
   AND,
+  ComboTerm,
   OR,
   SearchConfig,
   SearchField,
   SearchTerm,
-  ComboTerm,
-  SingleTerm,
-  SearchTerms
+  SearchTerms,
+  SingleTerm
 }
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
@@ -17,9 +17,12 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
   FingerpostWire,
   NextPage,
+  NextPageId,
   QueryParams,
   QueryResponse,
-  SearchParams
+  SearchParams,
+  UpdateType,
+  UpdateTypeId
 }
 import play.api.Logging
 import scalikejdbc._
@@ -313,6 +316,14 @@ object FingerpostWireEntry
     lazy val sinceIdSQL =
       (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
 
+    lazy val beforeTimeStampSQL =
+      (endDate: String) =>
+        sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+
+    lazy val afterTimeStampSQL =
+      (startDate: String) =>
+        sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+
     lazy val dateRangeSQL =
       (start: Option[String], end: Option[String]) => {
         (start, end) match {
@@ -322,11 +333,11 @@ object FingerpostWireEntry
             )
           case (Some(startDate), None) =>
             Some(
-              sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+              afterTimeStampSQL(startDate)
             )
           case (None, Some(endDate)) =>
             Some(
-              sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+              beforeTimeStampSQL(endDate)
             )
           case _ => None
         }
@@ -419,13 +430,17 @@ object FingerpostWireEntry
   private[db] def buildWhereClause(
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
+      maybeBeforeTimeStamp: Option[String],
+      maybeAfterTimeStamp: Option[UpdateType],
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
+      maybeSinceId: Option[UpdateTypeId]
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
+      maybeBeforeTimeStamp.map(Filters.beforeTimeStampSQL(_)),
+      maybeAfterTimeStamp.map(u => Filters.afterTimeStampSQL(u.sinceTimeStamp)),
       maybeBeforeId.map(Filters.beforeIdSQL(_)),
-      maybeSinceId.map(Filters.sinceIdSQL(_))
+      maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
     )
 
     val dateRangeQuery =
@@ -447,12 +462,27 @@ object FingerpostWireEntry
       }
 
     val allClauses =
-      (dataOnlyWhereClauses :+ dateRangeQuery :+ customSearchClauses :+ presetSearchClauses).flatten
+      (List(
+        dateRangeQuery,
+        customSearchClauses,
+        presetSearchClauses
+      ) ++ dataOnlyWhereClauses).flatten
 
     allClauses match {
       case Nil     => sqls"true"
       case clauses =>
         sqls.joinWithAnd(clauses: _*)
+    }
+  }
+
+  private[db] def decideSortDirection(
+      maybeAfterTimeStamp: Option[UpdateType],
+      maybeSinceId: Option[UpdateTypeId]
+  ): SQLSyntax = {
+    (maybeAfterTimeStamp, maybeSinceId) match {
+      case (Some(NextPage(_)), _)   => sqls"ASC"
+      case (_, Some(NextPageId(_))) => sqls"ASC"
+      case _                        => sqls"DESC"
     }
   }
 
@@ -462,16 +492,13 @@ object FingerpostWireEntry
   ): SQL[Nothing, NoExtractor] = {
     val effectivePageSize = clamp(0, queryParams.pageSize, 250)
 
+    val maybeAfterTimeStamp = queryParams.maybeAfterTimeStamp
     val maybeSinceId = queryParams.maybeSinceId
 
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
-    val orderByClause = maybeSinceId match {
-      case Some(NextPage(_)) =>
-        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ASC"
-      case _ =>
-        sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} DESC"
-    }
+    val orderByClause =
+      sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
 
     sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
            | FROM ${FingerpostWireEntry as syn}
@@ -489,9 +516,12 @@ object FingerpostWireEntry
     val whereClause = buildWhereClause(
       queryParams.searchParams,
       queryParams.savedSearchParamList,
-      maybeBeforeId = queryParams.maybeBeforeId,
-      maybeSinceId = queryParams.maybeSinceId.map(_.sinceId)
+      queryParams.maybeBeforeTimeStamp,
+      queryParams.maybeAfterTimeStamp,
+      queryParams.maybeBeforeId,
+      queryParams.maybeSinceId
     )
+
     val start = System.currentTimeMillis()
     val query = buildSearchQuery(queryParams, whereClause)
 

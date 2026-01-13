@@ -32,13 +32,6 @@ export const WireItemList = ({
 
 	const selectedWireId = config.itemId;
 
-	const handleLoadMoreResults = () => {
-		if (wires.length > 0) {
-			const beforeId = Math.min(...wires.map((wire) => wire.id)).toString();
-			void loadMoreResults(beforeId);
-		}
-	};
-
 	return (
 		<>
 			<ul>
@@ -77,7 +70,7 @@ export const WireItemList = ({
 					css={css`
 						margin-top: 12px;
 					`}
-					onClick={handleLoadMoreResults}
+					onClick={() => void loadMoreResults()}
 				>
 					{state.loadingMore ? 'Loading' : 'Load more'}
 				</EuiButton>

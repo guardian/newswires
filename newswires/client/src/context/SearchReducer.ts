@@ -42,13 +42,19 @@ function mergeQueryData(
 		const filteredOutCount =
 			existing.results.length - filteredExistingResults.length;
 
+		const dedupedNewItems = newData.results.filter(
+			(newItem) => !existingIds.has(newItem.id),
+		);
+
 		return {
 			...newData,
-			totalCount: existing.totalCount + newData.totalCount - filteredOutCount,
+			totalCount:
+				existing.totalCount + dedupedNewItems.length - filteredOutCount,
 			results: [
-				...newData.results
-					.filter((newItem) => !existingIds.has(newItem.id))
-					.map((newItem) => ({ ...newItem, isFromRefresh: true })),
+				...dedupedNewItems.map((newItem) => ({
+					...newItem,
+					isFromRefresh: true,
+				})),
 				...filteredExistingResults.map((item) => ({
 					...item,
 					isFromRefresh: false,
@@ -68,10 +74,14 @@ function appendQueryData(
 	newData: WiresQueryData,
 ): WiresQueryData {
 	if (existing) {
+		const existingIds = new Set(existing.results.map((item) => item.id));
+		const dedupedNewItems = newData.results.filter(
+			(newItem) => !existingIds.has(newItem.id),
+		);
 		return {
 			...newData,
 			totalCount: existing.totalCount,
-			results: [...existing.results, ...newData.results],
+			results: [...existing.results, ...dedupedNewItems],
 		};
 	} else {
 		return newData;
