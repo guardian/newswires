@@ -15,101 +15,128 @@ export interface Preset {
 
 export const sportPresets: Preset[] = [
 	{
-		name: 'All sports',
-		id: 'all-sport',
+		name: 'Sport copy',
+		id: 'dot-copy',
+	},
+	{
+		name: 'All sport stories',
+		id: 'all-sport-stories',
 	},
 	{
 		name: 'Soccer',
 		id: 'soccer',
 	},
 	{
-		name: 'Soccer Scores',
+		name: 'Soccer scores',
 		id: 'soccer-scores',
 	},
 	{
-		name: 'Soccer Tables',
+		name: 'Soccer tables',
 		id: 'soccer-tables',
 	},
 	{
-		name: 'No Soccer',
+		name: 'No soccer',
 		id: 'no-soccer',
 	},
 	{
-		name: 'Cricket',
-		id: 'cricket',
-	},
-	{
-		name: 'Cricket Results',
-		id: 'cricket-results',
-	},
-	{
-		name: 'Rugby League',
-		id: 'rugby-league',
-	},
-	{
-		name: 'Rugby Union',
-		id: 'rugby-union',
-	},
-	{
-		name: 'Rugby Results',
-		id: 'rugby-results',
-	},
-	{
-		name: 'Tennis',
-		id: 'tennis',
-	},
-	{
-		name: 'Tennis Results',
-		id: 'tennis-results',
-	},
-	{
-		name: 'Cycling',
-		id: 'cycling',
-	},
-	{
-		name: 'Cycling Results',
-		id: 'cycling-results',
-	},
-	{
-		name: 'Motor Racing',
-		id: 'motor-racing',
-	},
-	{
-		name: 'Golf',
-		id: 'golf',
-	},
-	{
-		name: 'Golf Results',
-		id: 'golf-results',
-	},
-	{
-		name: 'Boxing',
-		id: 'boxing',
-	},
-	{
-		name: 'Horse racing',
-		id: 'horse-racing',
+		name: 'American football',
+		id: 'american-football',
 	},
 	{
 		name: 'Athletics',
 		id: 'athletics',
 	},
 	{
+		name: 'Australian rules',
+		id: 'australian-rules',
+	},
+	{
+		name: 'Baseball',
+		id: 'baseball',
+	},
+	{
+		name: 'Basketball',
+		id: 'basketball',
+	},
+	{
+		name: 'Boxing',
+		id: 'boxing',
+	},
+	{
+		name: 'College sports',
+		id: 'college-sports',
+	},
+	{
+		name: 'Cricket',
+		id: 'cricket',
+	},
+	{
+		name: 'Cricket scores',
+		id: 'cricket-scores',
+	},
+	{
+		name: 'Cycling',
+		id: 'cycling',
+	},
+	{
+		name: 'Golf',
+		id: 'golf',
+	},
+	{
+		name: 'Golf scores',
+		id: 'golf-scores',
+	},
+	{
+		name: 'Horse racing',
+		id: 'horse-racing',
+	},
+	{
+		name: 'Ice hockey',
+		id: 'ice-hockey',
+	},
+	{
+		name: 'Motor sport',
+		id: 'motor-sport',
+	},
+	{
 		name: 'Olympics',
 		id: 'olympics',
 	},
 	{
-		name: 'All Data Formats',
+		name: 'Rugby league',
+		id: 'rugby-league',
+	},
+	{
+		name: 'Rugby union',
+		id: 'rugby-union',
+	},
+	{
+		name: 'Rugby scores',
+		id: 'rugby-scores',
+	},
+	{
+		name: 'Tennis',
+		id: 'tennis',
+	},
+	{
+		name: 'Tennis scores',
+		id: 'tennis-scores',
+	},
+	{
+		name: 'All data formats',
 		id: 'all-data-formats',
 	},
 ];
 
+export const topLevelSportId = 'all-sport';
+export const topLevelPresetId = 'all-presets';
 export const presets: Preset[] = [
-	{ id: 'all-presets', name: 'All' },
+	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
+	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
-	{ id: 'sports-sublink', name: 'Sport', child: 'sportPresets' },
+	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },
 ];
 
 export const presetLabel = (presetId: string) => {
@@ -128,4 +155,8 @@ export const presetLabel = (presetId: string) => {
 	}
 
 	return presetId;
+};
+
+export const presetIsInSports = (presetId: string): boolean => {
+	return sportPresets.map((p) => p.id).includes(presetId);
 };

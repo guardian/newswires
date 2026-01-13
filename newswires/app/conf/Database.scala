@@ -15,7 +15,6 @@ object Database extends Logging {
       sql""" SELECT 1 as successes """
         .map(_.int("successes"))
         .single()
-        .apply()
         .get
     }
   }

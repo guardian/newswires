@@ -1,5 +1,5 @@
-import type { Logger } from '../../shared/lambda-logging';
-import type { IngestorInputBody } from '../../shared/types';
+import type { Logger } from 'newswires-shared/lambda-logging';
+import type { IngestorInputBody } from 'newswires-shared/types';
 
 export type SecretValue = string;
 

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
@@ -25,6 +26,17 @@ const toolsDomain = window.location.hostname.substring(
 const script = document.createElement('script');
 script.src = `https://pinboard${toolsDomain}/pinboard.loader.js`;
 document.head.appendChild(script);
+
+// Ignore these errors
+// https://docs.sentry.io/platforms/javascript/#decluttering-sentry
+const ignoreErrors = ['TypeError: Failed to fetch', 'Item not found'];
+Sentry.init({
+	ignoreErrors,
+	dsn: 'https://4a8c1375f8d9254c818749b5db0415dd@o14302.ingest.us.sentry.io/4510426750779392',
+	sendDefaultPii: false,
+	environment: STAGE,
+	integrations: [Sentry.captureConsoleIntegration({ levels: ['error'] })],
+});
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>

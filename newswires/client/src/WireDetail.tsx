@@ -19,12 +19,12 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
-import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
+import { convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
@@ -33,13 +33,14 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import { headlineForComposer } from './utils/formatHeadline.ts';
 
 function TitleContentForItem({
 	id,
 	slug,
 	subhead,
 	headline,
-	ingestedAt,
+	localIngestedAt,
 	supplier,
 	wordCount,
 }: {
@@ -47,7 +48,7 @@ function TitleContentForItem({
 	slug?: string;
 	subhead?: string;
 	headline?: string;
-	ingestedAt: Moment;
+	localIngestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
 }) {
@@ -88,8 +89,8 @@ function TitleContentForItem({
 			<h3>
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
 				<span>{wordCount} words &#183; </span>
-				<Tooltip tooltipContent={ingestedAt.format()}>
-					{ingestedAt.fromNow()}
+				<Tooltip tooltipContent={localIngestedAt.format()}>
+					{localIngestedAt.fromNow()}
 				</Tooltip>
 			</h3>
 		</div>
@@ -105,6 +106,32 @@ type CategoryCodeTableItem = {
 function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 	const { handleEnterQuery, config } = useSearch();
 
+	// Track Alt key state
+	const [isAltPressed, setIsAltPressed] = useState(false);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.altKey) setIsAltPressed(true);
+		};
+		const handleKeyUp = (e: KeyboardEvent) => {
+			if (!e.altKey) setIsAltPressed(false);
+		};
+		// Reset state when window loses focus (e.g., Alt+Tab)
+		const handleBlur = () => {
+			setIsAltPressed(false);
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('keyup', handleKeyUp);
+		window.addEventListener('blur', handleBlur);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('keyup', handleKeyUp);
+			window.removeEventListener('blur', handleBlur);
+		};
+	}, []);
+
 	const isCodeInSearch = (code: string) => {
 		const categoryCodesInSearch = config.query.categoryCode ?? [];
 		return categoryCodesInSearch.includes(code);
@@ -118,14 +145,29 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 		}),
 	);
 
-	const handleCategoryClick = (categoryCode: string) => {
-		const codes = config.query.categoryCode ?? [];
-		handleEnterQuery({
-			...config.query,
-			categoryCode: codes.includes(categoryCode)
-				? codes.filter((s) => s !== categoryCode)
-				: [...codes, categoryCode],
-		});
+	// Alt-click support for exclusion filter
+	const handleCategoryClick = (
+		categoryCode: string,
+		event?: React.MouseEvent,
+	) => {
+		const isAlt = event?.altKey;
+		if (isAlt) {
+			const codesExcl = config.query.categoryCodeExcl ?? [];
+			handleEnterQuery({
+				...config.query,
+				categoryCodeExcl: codesExcl.includes(categoryCode)
+					? codesExcl.filter((s) => s !== categoryCode)
+					: [...codesExcl, categoryCode],
+			});
+		} else {
+			const codes = config.query.categoryCode ?? [];
+			handleEnterQuery({
+				...config.query,
+				categoryCode: codes.includes(categoryCode)
+					? codes.filter((s) => s !== categoryCode)
+					: [...codes, categoryCode],
+			});
+		}
 	};
 
 	const columns: Array<EuiBasicTableColumn<CategoryCodeTableItem>> = [
@@ -144,8 +186,14 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 			render: (isSelected, item) => (
 				<EuiButtonIcon
 					color={isSelected ? 'primary' : 'accent'}
-					onClick={() => handleCategoryClick(item.code)}
-					iconType={isSelected ? 'check' : 'plusInCircle'}
+					onClick={(e: React.MouseEvent) => handleCategoryClick(item.code, e)}
+					iconType={
+						isSelected
+							? 'check'
+							: isAltPressed
+								? 'minusInCircle'
+								: 'plusInCircle'
+					}
 					aria-label="Toggle selection"
 				/>
 			),
@@ -486,7 +534,7 @@ export const WireDetail = ({
 						headline={headline}
 						subhead={wire.content.subhead}
 						slug={slug}
-						ingestedAt={convertToLocalDate(wire.ingestedAt)}
+						localIngestedAt={wire.localIngestedAt}
 						supplier={wire.supplier}
 						wordCount={wordCount}
 					/>
@@ -502,6 +550,10 @@ export const WireDetail = ({
 					`}
 				>
 					<ToolsConnection
+						headline={headlineForComposer(
+							wire.supplier.name,
+							wire.content.headline,
+						)}
 						itemData={wire}
 						key={wire.id}
 						addToolLink={addToolLink}

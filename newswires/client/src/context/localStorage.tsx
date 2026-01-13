@@ -1,5 +1,5 @@
+import { getErrorMessage } from '@guardian/libs';
 import type { z } from 'zod/v4';
-import { getErrorMessage } from '../../../../shared/getErrorMessage';
 
 function loadFromLocalStorage<T>(
 	key: string,

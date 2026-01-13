@@ -1,4 +1,3 @@
-
 export const sportsRelatedTopicCodes = [
 	'N2:DOP',
 	'N2:FO1',
@@ -1383,13 +1382,12 @@ export const businessRelatedTopicCodes = [
 ];
 
 export const Soccer = [
-    'N2:SOCC',
-    'paCat:SSO',
-    'paCat:SFF',
-    'paCat:SSD',
-    'paCat:SSO',
-    'subj:15054000'
-]
+	'N2:SOCC',
+	'paCat:SSO',
+	'paCat:SFF',
+	'paCat:SSO',
+	'subj:15054000',
+];
 
 export const AllSports = [
 	'afpCat:SPO',
@@ -1400,42 +1398,42 @@ export const AllSports = [
 	'paCat:SCR', // Cricket News
 	'paCat:SRR', // Racing News
 	'paCat:SST', // Rugby Union News
-    ...sportsRelatedTopicCodes,
-    ...sportsRelatedNewsCodes
+	...sportsRelatedTopicCodes,
+	...sportsRelatedNewsCodes,
 ];
 
 export const otherTopicCodes = [
-    // Arts/Culture/Entertainment
-    'N2:ART',
-    'N2:BKS',
-    'N2:ENT',
-    'N2:FLM',
-    'N2:LIF',
-    'N2:CLEB',
-    'N2:FASH',
-    'N2:MSIC',
-    'N2:TELE',
-    'N2:THTR',
-    'N2:TOUR',
-    'N2:VGAME',
-    // Religion
-    'N2:BUD',
-    'N2:JUD',
-    'N2:REL',
-    'N2:CHRI',
-    'N2:HIND',
-    'N2:ISLM',
-    // Odd
-    'N2:ODD',
-    // Science/Technology
-    'N2:ENV',
-    'N2:GMO',
-    'N2:HEA',
-    'N2:SCI',
-    'N2:WWW',
-    'N2:AWLQ',
-    'N2:ITEC',
-    'N2:LSCI',
-    'N2:NATU',
-    'N2:SPEX'
-]
+	// Arts/Culture/Entertainment
+	'N2:ART',
+	'N2:BKS',
+	'N2:ENT',
+	'N2:FLM',
+	'N2:LIF',
+	'N2:CLEB',
+	'N2:FASH',
+	'N2:MSIC',
+	'N2:TELE',
+	'N2:THTR',
+	'N2:TOUR',
+	'N2:VGAME',
+	// Religion
+	'N2:BUD',
+	'N2:JUD',
+	'N2:REL',
+	'N2:CHRI',
+	'N2:HIND',
+	'N2:ISLM',
+	// Odd
+	'N2:ODD',
+	// Science/Technology
+	'N2:ENV',
+	'N2:GMO',
+	'N2:HEA',
+	'N2:SCI',
+	'N2:WWW',
+	'N2:AWLQ',
+	'N2:ITEC',
+	'N2:LSCI',
+	'N2:NATU',
+	'N2:SPEX',
+];

@@ -105,6 +105,7 @@ export type OperationResult<T> = OperationFailure | OperationSuccess<T>;
 export type BatchItemFailure = OperationFailure & {
 	messageId: string;
 	recordType: 'SES' | 'SQS';
+	s3Key?: string;
 };
 
 export type BatchItemResult = BaseOperationSuccess | BatchItemFailure;

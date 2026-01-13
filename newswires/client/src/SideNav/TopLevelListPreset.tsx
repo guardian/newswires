@@ -1,19 +1,21 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
-import { presets, sportPresets } from '../presets';
+import { shouldTogglePreset } from '../presetHelpers';
+import { presets, sportPresets, topLevelPresetId } from '../presets';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
 
 export const TopLevelListPresetPanel = ({
 	activePreset,
-	swapActivePanel,
+	openDrawer,
 	togglePreset,
 }: PanelProps) => {
 	const { config, openTicker } = useSearch();
 	const maybeActiveSportPreset = sportPresets.find(
 		(_) => _.id === activePreset,
 	);
+
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
 			{presets.map((item) => (
@@ -22,22 +24,26 @@ export const TopLevelListPresetPanel = ({
 					key={item.id}
 					isActive={
 						activePreset === item.id ||
-						(item.id === 'all-presets' && !activePreset)
+						(item.id === topLevelPresetId && !activePreset)
 					}
 					isTopLevel={true}
 					handleButtonClick={() => {
-						if (item.child) {
-							swapActivePanel(item.child, 'forward');
-						} else {
-							togglePreset(item.id);
-						}
+						togglePreset(item.id);
 					}}
-					handleSecondaryActionClick={
-						item.child
-							? undefined
-							: () => openTicker({ ...defaultConfig.query, preset: item.id })
+					handleSecondaryActionClick={() =>
+						openTicker({ ...defaultConfig.query, preset: item.id })
 					}
 					arrowSide={item.child ? 'right' : undefined}
+					handleArrowClick={
+						item.child
+							? () => {
+									if (shouldTogglePreset(activePreset, item.id)) {
+										togglePreset(item.id);
+									}
+									openDrawer();
+								}
+							: undefined
+					}
 				/>
 			))}
 			{maybeActiveSportPreset && (

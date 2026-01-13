@@ -239,7 +239,7 @@ describe('urlToConfig', () => {
 				q: 'abc',
 				dateRange: {
 					start: 'now/d',
-					end: 'now/d',
+					end: 'now',
 				},
 			},
 			ticker: false,
@@ -459,7 +459,7 @@ describe('paramsToQuerystring', () => {
 			q: 'abc',
 			dateRange: {
 				start: 'now-3d',
-				end: 'now',
+				end: 'now/d',
 			},
 		};
 
@@ -467,7 +467,7 @@ describe('paramsToQuerystring', () => {
 			query,
 			useAbsoluteDateTimeValues: false,
 		});
-		expect(url).toBe('?q=abc&start=now-3d&end=now');
+		expect(url).toBe('?q=abc&start=now-3d&end=now%2Fd');
 	});
 
 	it('converts relative date range to an absolute date range', () => {

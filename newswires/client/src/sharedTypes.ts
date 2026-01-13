@@ -1,3 +1,5 @@
+import type { Moment } from 'moment';
+import moment from 'moment';
 import { z } from 'zod/v4';
 
 /**
@@ -50,7 +52,7 @@ export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
 	externalId: z.string(),
-	ingestedAt: z.string(),
+	ingestedAt: z.iso.datetime(),
 	categoryCodes: z.array(z.string()),
 	content: FingerpostContentSchema,
 	composerId: z.string().optional(), //deprecated
@@ -68,6 +70,17 @@ export const WiresQueryResponseSchema = z.object({
 	totalCount: z.number(),
 	// keywordCounts: z.record(z.string(), z.number()),
 });
+
+export const WiresToolLinksResponseSchema = z.array(
+	z.object({
+		wireId: z.number(),
+		toolLinks: z.array(ToolLinkSchema),
+	}),
+);
+
+export const ToolLinksResponseSchema = z.array(ToolLinkSchema);
+
+export type WireToolLinks = z.infer<typeof WiresToolLinksResponseSchema>;
 
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
 
@@ -97,9 +110,12 @@ const SupplierInfoSchema = z.object({
 
 export type SupplierInfo = z.infer<typeof SupplierInfoSchema>;
 
+const MomentSchema = z.custom<Moment>((val) => moment.isMoment(val));
+
 export const WireDataSchema = WireDataFromAPISchema.extend({
 	supplier: SupplierInfoSchema,
 	hasDataFormatting: z.boolean(),
+	localIngestedAt: MomentSchema,
 });
 
 export type WireData = z.infer<typeof WireDataSchema>;

@@ -11,12 +11,12 @@ import {
 import { LoggingFormat, RecursiveLoop } from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
-import type { PollerConfig, PollerId } from '../../../shared/pollers';
+import type { PollerConfig, PollerId } from 'newswires-shared/pollers';
 import {
 	getPollerSecretName,
 	POLLER_LAMBDA_ENV_VAR_KEYS,
 	pollerIdToLambdaAppName,
-} from '../../../shared/pollers';
+} from 'newswires-shared/pollers';
 import { LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from '../constants';
 
 interface PollerLambdaProps {

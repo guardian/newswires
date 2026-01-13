@@ -9,6 +9,7 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
+import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
@@ -16,8 +17,9 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
-import type { SupplierInfo, WireData } from './sharedTypes.ts';
+import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
+import { ToolSendReport } from './ToolsConnection.tsx';
 
 export const WireItemList = ({
 	wires,
@@ -47,16 +49,18 @@ export const WireItemList = ({
 						supplier,
 						highlight,
 						isFromRefresh,
-						ingestedAt,
+						localIngestedAt,
 						hasDataFormatting,
+						toolLinks,
 					}) => (
 						<li key={id}>
 							<WirePreviewCard
 								id={id}
-								ingestedAt={ingestedAt}
+								localIngestedAt={localIngestedAt}
 								supplier={supplier}
 								content={content}
 								hasDataFormatting={hasDataFormatting}
+								toolLinks={toolLinks}
 								isFromRefresh={isFromRefresh}
 								highlight={highlight}
 								selected={selectedWireId == id.toString()}
@@ -179,9 +183,10 @@ function scrollElementIntoView(
 const WirePreviewCard = ({
 	id,
 	supplier,
-	ingestedAt,
+	localIngestedAt,
 	content,
 	hasDataFormatting,
+	toolLinks,
 	highlight,
 	selected,
 	view,
@@ -189,9 +194,10 @@ const WirePreviewCard = ({
 }: {
 	id: number;
 	supplier: SupplierInfo;
-	ingestedAt: string;
+	localIngestedAt: Moment;
 	content: WireData['content'];
 	hasDataFormatting: boolean;
+	toolLinks?: ToolLink[];
 	highlight: string | undefined;
 	selected: boolean;
 	isFromRefresh: boolean;
@@ -329,7 +335,7 @@ const WirePreviewCard = ({
 						line-break: strict;
 					`}
 				>
-					{formatTimestamp(ingestedAt)
+					{formatTimestamp(localIngestedAt.format())
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>
@@ -359,6 +365,18 @@ const WirePreviewCard = ({
 						isPrimary={!hasBeenViewed}
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
+				</div>
+				<div
+					css={css`
+						color: brown;
+						margin-top: 5px;
+					`}
+				>
+					{toolLinks?.length ? (
+						<ToolSendReport toolLink={toolLinks[0]} key={toolLinks[0].id} />
+					) : (
+						<></>
+					)}
 				</div>
 				{showSecondaryFeedContent && (
 					<div

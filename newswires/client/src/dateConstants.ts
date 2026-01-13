@@ -9,5 +9,5 @@ export const END_OF_TODAY = moment().endOf('day');
 
 export const DEFAULT_DATE_RANGE = {
 	start: TODAY,
-	end: TODAY,
+	end: 'now',
 };

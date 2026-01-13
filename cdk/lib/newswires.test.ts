@@ -24,11 +24,13 @@ describe('The Newswires stack', () => {
 
 		const { mockFingerpostQueue, mockSourceQueue, mockSnsTopic } =
 			new MockWiresFeedsStack(app, 'mockWiresFeeds', {
+				env: { region: 'eu-west-1' },
 				stack: 'editorial-feeds',
 				stage: 'TEST',
 			});
 
 		const stack = new Newswires(app, 'Newswires', {
+			env: { region: 'eu-west-1' },
 			stack: 'editorial-feeds',
 			stage: 'TEST',
 			domainName: 'newswires.TEST.dev-gutools.co.uk',

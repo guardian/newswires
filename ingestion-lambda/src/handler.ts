@@ -5,31 +5,45 @@ import type {
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
-import { getFromEnv, isRunningLocally } from '../../shared/config';
-import { findVerificationFailures } from '../../shared/findVerificationFailures';
-import { createLogger } from '../../shared/lambda-logging';
-import { initialiseDbConnection } from '../../shared/rds';
-import { FEEDS_BUCKET_NAME } from '../../shared/s3';
-import type { BatchItemFailure, OperationResult } from '../../shared/types';
+import { getFromEnv, isRunningLocally } from 'newswires-shared/config';
+import { findVerificationFailures } from 'newswires-shared/findVerificationFailures';
+import type { Logger } from 'newswires-shared/lambda-logging';
+import { createLogger } from 'newswires-shared/lambda-logging';
+import { initialiseDbConnection } from 'newswires-shared/rds';
+import { FEEDS_BUCKET_NAME } from 'newswires-shared/s3';
+import type { BatchItemFailure, OperationResult } from 'newswires-shared/types';
 import { putItemToDb } from './db';
 import { getItemFromS3 } from './getItemFromS3';
 import { processFingerpostJsonContent } from './processContentObject';
 import { processEmailContent } from './processEmailContent';
 
-function processSESRecord(record: SESEventRecord): OperationResult<{
-	externalId: string;
-	objectKey: string;
-}> {
+async function processSESRecord(
+	record: SESEventRecord,
+	logger: Logger,
+): Promise<
+	OperationResult<{
+		externalId: string;
+		objectKey: string;
+	}>
+> {
 	const { ses } = record;
 
-	const { hasFailures, failedChecks } = findVerificationFailures(ses.receipt);
+	const { pass, failedChecks } = await findVerificationFailures(ses);
 
-	if (hasFailures) {
+	if (!pass) {
+		const message = `Email verification failed: ${failedChecks
+			.map((check) => `${check.name}=${check.status}`)
+			.join(', ')}. Sender: ${ses.mail.source}`;
+		logger.warn({
+			message,
+			eventType: 'EMAIL_VERIFICATION_FAILURE',
+			emailMessageId: ses.mail.messageId,
+			failedChecks,
+			sender: ses.mail.source,
+		});
 		return {
 			status: 'failure',
-			reason: `Email verification failed: ${failedChecks
-				.map((check) => `${check.name}=${check.status}`)
-				.join(', ')}`,
+			reason: message,
 		};
 	}
 
@@ -63,11 +77,12 @@ function processSQSRecord(
 	};
 }
 
-function processRecord(
+async function processRecord(
 	record: SESEventRecord | SQSRecord,
-): OperationResult<{ externalId: string; objectKey: string }> {
+	logger: Logger,
+): Promise<OperationResult<{ externalId: string; objectKey: string }>> {
 	if (isSESRecord(record)) {
-		return processSESRecord(record);
+		return await processSESRecord(record, logger);
 	} else {
 		return processSQSRecord(record);
 	}
@@ -95,13 +110,17 @@ export const main = async (
 			await Promise.all(
 				records.map(async (record) => {
 					const isSES = isSESRecord(record);
-					const failureWith = (reason: string): BatchItemFailure => ({
+					const failureWith = (
+						reason: string,
+						s3Key?: string,
+					): BatchItemFailure => ({
 						status: 'failure',
 						messageId: isSES ? record.ses.mail.messageId : record.messageId,
 						recordType: isSES ? 'SES' : 'SQS',
 						reason,
+						s3Key,
 					});
-					const processedMessage = processRecord(record);
+					const processedMessage = await processRecord(record, logger);
 					if (processedMessage.status === 'failure') {
 						return failureWith(processedMessage.reason);
 					}
@@ -111,14 +130,17 @@ export const main = async (
 						bucketName: isSES ? EMAIL_BUCKET_NAME : FEEDS_BUCKET_NAME,
 					});
 					if (s3Result.status === 'failure') {
-						return failureWith(s3Result.reason);
+						return failureWith(s3Result.reason, processedMessage.objectKey);
 					}
 
 					const contentResults = isSES
 						? await processEmailContent(s3Result.body)
 						: processFingerpostJsonContent(s3Result.body);
 					if (contentResults.status === 'failure') {
-						return failureWith(contentResults.reason);
+						return failureWith(
+							contentResults.reason,
+							processedMessage.objectKey,
+						);
 					}
 
 					const dbResult = await putItemToDb({
@@ -130,7 +152,7 @@ export const main = async (
 						logger,
 					});
 					if (dbResult.status === 'failure') {
-						return failureWith(dbResult.reason);
+						return failureWith(dbResult.reason, processedMessage.objectKey);
 					}
 					return dbResult;
 				}),
@@ -144,15 +166,24 @@ export const main = async (
 			`Processed ${records.length} messages with ${allFailures.length} failures`,
 		);
 
-		const batchItemFailures = allFailures.map(({ messageId, reason }) => {
+		allFailures.forEach(({ messageId, reason, s3Key }) => {
 			logger.error({
 				message: `Failed to process message for ${messageId}: ${reason}`,
 				eventType: 'INGESTION_FAILURE',
 				messageId,
 				reason,
+				s3Key,
 			});
-			return { itemIdentifier: messageId };
 		});
+
+		const batchItemFailures = allFailures
+			.filter(({ reason }) => {
+				// no need to retry if the email does not pass its checks
+				return !reason.includes(`Email verification failed`);
+			})
+			.map(({ messageId }) => {
+				return { itemIdentifier: messageId };
+			});
 
 		console.log(
 			`Processed ${records.length} messages with ${batchItemFailures.length} failures`,

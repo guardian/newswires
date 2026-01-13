@@ -1,6 +1,6 @@
-import { DATABASE_TABLE_NAME } from '../../shared/constants';
-import { getErrorMessage } from '../../shared/getErrorMessage';
-import { initialiseDbConnection } from '../../shared/rds';
+import { getErrorMessage } from '@guardian/libs';
+import { DATABASE_TABLE_NAME } from 'newswires-shared/constants';
+import { initialiseDbConnection } from 'newswires-shared/rds';
 
 export const main = async (): Promise<void> => {
 	const { sql, closeDbConnection } = await initialiseDbConnection();

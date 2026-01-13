@@ -1,16 +1,15 @@
 import type { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { SQSClient } from '@aws-sdk/client-sqs';
-import prompts from 'prompts';
-import type { PollerId } from '../shared/pollers';
+import type { PollerId } from 'newswires-shared/pollers';
 import {
 	getPollerSecretName,
 	POLLER_LAMBDA_ENV_VAR_KEYS,
 	POLLERS_CONFIG,
-} from '../shared/pollers';
-import { fakeSQS } from '../shared/sqs';
+} from 'newswires-shared/pollers';
+import { fakeSQS } from 'newswires-shared/sqs';
+import prompts from 'prompts';
 import { handlers } from './src/index';
 import type { HandlerInputSqsPayload } from './src/types';
-
 
 const fakeInvoke = async (
 	handler: (sqsEvent: HandlerInputSqsPayload) => Promise<void>,

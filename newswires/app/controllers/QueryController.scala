@@ -6,7 +6,13 @@ import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
 import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import models.{NextPage, QueryParams, SearchParams}
+import models.{
+  BaseRequestParams,
+  NextPage,
+  QueryParams,
+  QueryResponse,
+  SearchParams
+}
 import db._
 import lib.Base64Encoder
 import play.api.libs.json.{Json, OFormat}
@@ -33,21 +39,6 @@ class QueryController(
   ): List[String] =
     request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
 
-  def copy(): Action[AnyContent] = {
-    query(
-      maybeFreeTextQuery = None,
-      keywords = Nil,
-      suppliers = List("UNAUTHED_EMAIL_FEED"),
-      categoryCode = Nil,
-      categoryCodeExcl = Nil,
-      maybeStart = None,
-      maybeEnd = None,
-      maybeBeforeId = None,
-      maybeSinceId = None,
-      hasDataFormatting = None
-    )
-  }
-
   def query(
       maybeFreeTextQuery: Option[String],
       keywords: List[String],
@@ -60,54 +51,40 @@ class QueryController(
       maybeSinceId: Option[Int],
       hasDataFormatting: Option[Boolean]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
-    val maybePreset =
-      request.getQueryString("preset").flatMap(SearchPresets.get)
-
-    val maybeSearchTerm = maybeFreeTextQuery.map(SearchTerm.English(_))
-
-    val suppliersToExcludeByDefault =
-      if (featureSwitchProvider.ShowGuSuppliers.isOn())
-        List("GuReuters", "GuAP").filterNot(
-          suppliers.contains
-        )
-      else Nil
-    val suppliersExcl = request.queryString
-      .get("supplierExcl")
-      .map(_.toList)
-      .getOrElse(Nil) ++ suppliersToExcludeByDefault
-
-    val keywordsExcl =
-      request.queryString.get("keywordExcl").map(_.toList).getOrElse(Nil)
-
-    val searchParams = SearchParams(
-      text = maybeSearchTerm,
-      start = maybeStart,
-      end = maybeEnd,
-      keywordIncl = keywords,
-      keywordExcl = keywordsExcl,
-      suppliersIncl = suppliers,
-      suppliersExcl = suppliersExcl,
-      categoryCodesIncl = categoryCode,
-      categoryCodesExcl = categoryCodeExcl,
-      hasDataFormatting = hasDataFormatting
+    val baseParams = BaseRequestParams(
+      maybeFreeTextQuery,
+      keywords,
+      suppliers,
+      categoryCode,
+      categoryCodeExcl,
+      maybeStart,
+      maybeEnd,
+      maybeBeforeId,
+      maybeSinceId,
+      hasDataFormatting
     )
+    val searchParams =
+      SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
 
     val queryParams = QueryParams(
       searchParams = searchParams,
-      savedSearchParamList = maybePreset.getOrElse(Nil),
-      maybeSearchTerm = maybeSearchTerm,
+      savedSearchParamList = request
+        .getQueryString("preset")
+        .flatMap(SearchPresets.get)
+        .getOrElse(Nil),
+      maybeSearchTerm = baseParams.textForHighlighting,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId.map(NextPage(_)),
       pageSize = 30
     )
 
+    val queryResponse = FingerpostWireEntry
+      .query(
+        queryParams
+      )
+
     Ok(
-      FingerpostWireEntry
-        .query(
-          queryParams
-        )
-        .asJson
-        .spaces2
+      QueryResponse.display(queryResponse, request.user.username).asJson.spaces2
     )
   }
 
@@ -123,11 +100,21 @@ class QueryController(
     apiAuthAction { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
         id,
-        maybeFreeTextQuery.map(SearchTerm.English(_)),
-        requestingUser = Some(request.user.username)
+        maybeFreeTextQuery.map(SearchTerm.English(_))
       ) match {
-        case Some(entry) => Ok(entry.asJson.spaces2)
-        case None        => NotFound
+        case Some(entry) =>
+          Ok(
+            entry
+              .copy(toolLinks =
+                ToolLink.display(
+                  entry.toolLinks,
+                  requestingUser = request.user.username
+                )
+              )
+              .asJson
+              .spaces2
+          )
+        case None => NotFound
       }
     }
 
@@ -185,26 +172,32 @@ class QueryController(
       }
   }
 
-  def dotCopy(
-      maybeFreeTextQuery: Option[String],
-      start: Option[String],
-      end: Option[String],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int]
-  ): Action[AnyContent] = {
-    authAction { request: UserRequest[AnyContent] =>
-      val dotCopyData =
-        FingerpostWireEntry.dotCopy(
-          maybeFreeTextQuery = maybeFreeTextQuery.map(SearchTerm.English(_)),
-          start = start,
-          end = end,
-          maybeBeforeId = maybeBeforeId,
-          maybeSinceId = maybeSinceId
-        )
-      Ok(dotCopyData.asJson.spaces2)
-    }
+  def toolLinksForWires = apiAuthAction { request: UserRequest[AnyContent] =>
+    request.body.asJson
+      .flatMap(_.asOpt[List[Long]])
+      .fold(BadRequest("invalid or missing request body")) { idList =>
+        val toolLinks = ToolLink.get(idList)
+        val linksByWire = toolLinks.groupBy(_.wireId)
+        val wireToolLinks = linksByWire
+          .map({ case (wireId, toolLinks) =>
+            WireToolLinks(
+              wireId,
+              ToolLink.display(toolLinks, request.user.username)
+            )
+          })
+          .toList
+
+        Ok(wireToolLinks.asJson.spaces2)
+      }
   }
 
+  def toolLinksForWire(wireId: Long) = apiAuthAction {
+    request: UserRequest[AnyContent] =>
+      val toolLinks = ToolLink.getByWireId(wireId)
+      Ok(
+        ToolLink.display(toolLinks, request.user.username).asJson.spaces2
+      )
+  }
 }
 
 case class ComposerLinkRequest(composerId: String)

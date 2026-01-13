@@ -6,30 +6,30 @@ import type {
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
-import type postgres from 'postgres';
+import * as loggingModule from 'newswires-shared/lambda-logging';
+import * as rdsModule from 'newswires-shared/rds';
+import * as s3Module from 'newswires-shared/s3';
+import type { OperationResult } from 'newswires-shared/types';
 import type { Row, RowList } from 'postgres';
-import * as loggingModule from '../../shared/lambda-logging';
-import * as rdsModule from '../../shared/rds';
-import * as s3Module from '../../shared/s3';
-import type { OperationResult } from '../../shared/types';
+import type postgres from 'postgres';
 import { main } from './handler';
 import { sampleMimeEmailData } from './sampleMimeEmailData';
 
 type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
 // mock the s3 sdk module
-jest.mock('../../shared/s3', () => ({
+jest.mock('newswires-shared/s3', () => ({
 	getFromS3: jest.fn(),
 	putToS3: jest.fn(),
 	FEEDS_BUCKET_NAME: 'test-feeds-bucket',
 	EMAIL_BUCKET_NAME: 'test-email-bucket',
 }));
 // and the postgres sql module
-jest.mock('../../shared/rds', () => ({
+jest.mock('newswires-shared/rds', () => ({
 	initialiseDbConnection: jest.fn(),
 }));
 // and even the lambda-logging module
-jest.mock('../../shared/lambda-logging', () => {
+jest.mock('newswires-shared/lambda-logging', () => {
 	const logs = {
 		log: jest.fn(),
 		debug: jest.fn(),
@@ -212,12 +212,20 @@ describe('handler.main', () => {
 
 		const result = await main(mockSQSEvent);
 
+		// assert logline for ingestion failure metrics
+		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
+		const loggedEvent = (
+			mockCreateLogger({}).error as jest.MockedFn<loggingModule.Logger['error']>
+		).mock.calls[0]?.[0];
+		console.log(loggedEvent);
+		expect(loggedEvent?.eventType).toBe('INGESTION_FAILURE');
+		expect(loggedEvent?.s3Key).toBe('path/to/invalid-object.json');
+
 		expect(result).toBeDefined();
 		expect(result?.batchItemFailures.length).toBe(1);
 		expect(result?.batchItemFailures[0]?.itemIdentifier).toBe(
 			'INVALID_JSON_RECORD_ID',
 		);
-
 		// Verify S3 was called for both records
 		expect(mockGetFromS3).toHaveBeenCalledTimes(2);
 		expect(mockGetFromS3).toHaveBeenCalledWith({
@@ -325,7 +333,7 @@ describe('handler.main', () => {
 		expect(mockInitialiseDbConnection).toHaveBeenCalled();
 	});
 
-	it('should fail if SES verification contains non-PASS values', async () => {
+	it('should log a failure if SES verification contains non-PASS values, but not return errors for retry', async () => {
 		mockGetFromS3.mockResolvedValue({
 			status: 'success',
 			body: sampleMimeEmailData,
@@ -344,8 +352,9 @@ describe('handler.main', () => {
 		} as unknown as SESEvent;
 
 		const result = (await main(failingSesEvent)) as SQSBatchResponse;
+		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
 
-		expect(result.batchItemFailures).toEqual([{ itemIdentifier: '123' }]);
+		expect(result.batchItemFailures).toEqual([]);
 	});
 });
 

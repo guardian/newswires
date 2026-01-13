@@ -1,5 +1,5 @@
-import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
-import { getErrorMessage } from '../../../../shared/getErrorMessage';
+import { getErrorMessage } from '@guardian/libs';
+import { POLLER_FAILURE_EVENT_TYPE } from 'newswires-shared/constants';
 import type {
 	IngestorPayload,
 	LongPollFunction,
