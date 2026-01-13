@@ -1,8 +1,8 @@
+import { POLLER_FAILURE_EVENT_TYPE } from 'newswires-shared/constants';
+import { REUTERS_POLLING_FREQUENCY_IN_SECONDS } from 'newswires-shared/pollers';
+import type { IngestorInputBody } from 'newswires-shared/types';
 import { parse } from 'node-html-parser';
 import { z } from 'zod/v4';
-import { POLLER_FAILURE_EVENT_TYPE } from '../../../../shared/constants';
-import { REUTERS_POLLING_FREQUENCY_IN_SECONDS } from '../../../../shared/pollers';
-import type { IngestorInputBody } from '../../../../shared/types';
 import type {
 	FixedFrequencyPollFunction,
 	PollFunctionInput,
@@ -270,6 +270,7 @@ export const reutersPoller = (async ({
 	}
 
 	const searchData = [];
+	// eslint-disable-next-line @typescript-eslint/await-thenable -- eslint recently started claiming that this is not async-iterable after a typescript upgrade but we think it's a bug in eslint. Our usage seems to fit with typescript-eslint's example of correct usage: https://typescript-eslint.io/rules/await-thenable/#async-iteration-for-awaitof-loops
 	for await (const page of fetchAllPages(textItemsSearchQuery())) {
 		const { data, success } = SearchDataSchema.safeParse(page);
 		if (!success) {

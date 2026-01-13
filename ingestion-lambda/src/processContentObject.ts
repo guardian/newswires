@@ -1,10 +1,10 @@
-import { getErrorMessage } from '../../shared/getErrorMessage';
+import { getErrorMessage } from '@guardian/libs';
 import type {
 	IngestorInputBody,
 	OperationResult,
 	ProcessedObject,
-} from '../../shared/types';
-import { IngestorInputBodySchema } from '../../shared/types';
+} from 'newswires-shared/types';
+import { IngestorInputBodySchema } from 'newswires-shared/types';
 import {
 	dedupeStrings,
 	inferGBCategoryFromText,

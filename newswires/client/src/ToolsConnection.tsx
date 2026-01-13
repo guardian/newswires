@@ -6,8 +6,8 @@ import {
 	EuiText,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { getErrorMessage } from '@guardian/libs';
 import { useCallback, useState } from 'react';
-import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
@@ -21,9 +21,11 @@ import { Tooltip } from './Tooltip.tsx';
 type SendState = 'sending' | 'sent' | 'failed' | 'unsent';
 
 const SendOrVisitInComposerButton = ({
+	headline,
 	itemData,
 	addToolLink,
 }: {
+	headline: string | undefined;
 	itemData: WireData;
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
@@ -47,7 +49,7 @@ const SendOrVisitInComposerButton = ({
 	const send = useCallback(() => {
 		setSendState('sending');
 
-		sendToComposer(itemData)
+		sendToComposer(headline, itemData)
 			.then(({ composerId }) => {
 				setComposerId(composerId);
 				window.open(composerPageForId(composerId));
@@ -76,7 +78,7 @@ const SendOrVisitInComposerButton = ({
 				});
 				setSendState('failed');
 			});
-	}, [itemData, sendTelemetryEvent, addToolLink]);
+	}, [headline, itemData, sendTelemetryEvent, addToolLink]);
 
 	if (sendState === 'sent' && composerId) {
 		return (
@@ -172,9 +174,11 @@ const SendToIncopyButton = ({
 };
 
 export const ToolsConnection = ({
+	headline,
 	itemData,
 	addToolLink,
 }: {
+	headline: string | undefined;
 	itemData: WireData;
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
@@ -185,6 +189,7 @@ export const ToolsConnection = ({
 				<EuiFlexItem grow={false}>
 					<EuiFlexGroup direction="row" wrap gutterSize="s">
 						<SendOrVisitInComposerButton
+							headline={headline}
 							itemData={itemData}
 							addToolLink={addToolLink}
 						/>

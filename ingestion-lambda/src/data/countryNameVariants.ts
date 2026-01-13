@@ -66,4 +66,5 @@ export const countryNameVariants: Partial<Record<Alpha2Code, string[]>> = {
 		'Occupied Palestine',
 	],
 	CN: ['Macau'],
+	VE: ['Venezuela'],
 } as const;

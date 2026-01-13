@@ -11,16 +11,16 @@ version := "1.0-SNAPSHOT"
 scalaVersion := "2.13.18"
 
 libraryDependencies += ws
-libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "7.0.2"
-libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "13.0.0"
-libraryDependencies += "com.gu" %% "editorial-permissions-client" % "5.0.0"
+libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "8.0.1"
+libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "15.0.0"
+libraryDependencies += "com.gu" %% "editorial-permissions-client" % "6.0.2"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
   "org.scala-lang.modules",
   "scala-parser-combinators_2.13"
 )
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "9.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.8"
-libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "2.6.5"
+libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "3.0.0"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.15"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
@@ -46,18 +46,20 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.19.4"
+val jacksonVersion = "2.20.1"
+val jacksonAnnotationVersion = "2.20"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
-  "com.fasterxml.jackson.core" % "jackson-annotations",
   "com.fasterxml.jackson.core" % "jackson-databind",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
-).map(_ % jacksonVersion)
+).map(_ % jacksonVersion) ++ Seq(
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion
+)
 
 dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds").map(
   "software.amazon.awssdk" % _ % "2.39.6"

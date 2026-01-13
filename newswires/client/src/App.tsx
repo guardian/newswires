@@ -1,7 +1,10 @@
 import {
 	EuiButton,
 	EuiButtonEmpty,
+	EuiButtonIcon,
 	EuiCallOut,
+	EuiForm,
+	EuiFormRow,
 	EuiModal,
 	EuiModalBody,
 	EuiModalFooter,
@@ -9,6 +12,7 @@ import {
 	EuiModalHeaderTitle,
 	EuiPageTemplate,
 	EuiProvider,
+	EuiSwitch,
 	EuiText,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
@@ -25,6 +29,7 @@ import { isRestricted } from './dateHelpers.ts';
 import { DefaultLayout } from './DefaultLayout.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { presetLabel } from './presets.ts';
+import { useSettingsSwitches } from './SetttingsSwitches.tsx';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { TickerLayout } from './TickerLayout.tsx';
 
@@ -78,6 +83,8 @@ export function App() {
 		}
 	}, [isTickerView, config.query]);
 
+	const switches = useSettingsSwitches();
+
 	return (
 		<>
 			<Global styles={fontStyles} />
@@ -100,14 +107,48 @@ export function App() {
 									title={'Newswires is ready to use'}
 									id="disclaimer-title"
 								>
-									Newswires is ready to use
+									Welcome to Newswires
 								</EuiModalHeaderTitle>
 							</EuiModalHeader>
-
 							<EuiModalBody>
 								<EuiText size="m">
-									You&rsquo;re using an early version of Newswires. It&rsquo;s
-									fully available, with ongoing improvements. Join the{' '}
+									As a new user of newswires, you may want to customise some
+									features of the application. If you want to revise any of
+									these later, you&apos;ll find them in the settings control:{' '}
+									<EuiButtonIcon
+										aria-label="Settings"
+										display="base"
+										size="s"
+										iconType={'gear'}
+									/>{' '}
+									on the top right.
+									<div
+										css={css`
+											margin: 8px 0;
+										`}
+									>
+										<EuiForm>
+											{switches.map(
+												({ id, label, checked, onChange, helpText }) => (
+													<div style={{ padding: 4 }} key={id}>
+														<EuiFormRow
+															hasChildLabel={true}
+															helpText={helpText}
+														>
+															<EuiSwitch
+																name="switch"
+																id={id}
+																label={label}
+																checked={checked}
+																onChange={onChange}
+															/>
+														</EuiFormRow>
+													</div>
+												),
+											)}
+										</EuiForm>
+									</div>
+									Join the{' '}
 									<a
 										href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
 										target="_blank"
@@ -115,14 +156,8 @@ export function App() {
 									>
 										chat group
 									</a>{' '}
-									to stay updated or share feedback with the{' '}
-									<a
-										href="https://mail.google.com/mail/?view=cm&fs=1&to=media.and.feeds@theguardian.com&su=Newswires feedback"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Media & Feeds team
-									</a>
+									to stay updated with new features or share feedback with the
+									development team.
 								</EuiText>
 							</EuiModalBody>
 
@@ -131,7 +166,7 @@ export function App() {
 									Close
 								</EuiButtonEmpty>
 								<EuiButton onClick={() => dismissDisclaimer(true)} fill>
-									Don&apos;t show again
+									Save Settings
 								</EuiButton>
 							</EuiModalFooter>
 						</EuiModal>

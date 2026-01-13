@@ -80,12 +80,9 @@ startPlayApp() {
   echo "========================================================="
   pushd "$ROOT_DIR/${APP_NAME}"
   if [ "$IS_DEBUG" == true ] ; then
-    SBT_OPTS="-jvm-debug 5005"
-  fi
-  if [[ $USE_CODE == true ]]; then
-    sbt "${SBT_OPTS} run"
+    sbt -jvm-debug 5005 run
   else
-    sbt "${SBT_OPTS} run"
+    sbt run
   fi
   popd
 }

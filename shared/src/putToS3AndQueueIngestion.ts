@@ -2,8 +2,8 @@ import {
 	SendMessageCommand,
 	type SendMessageCommandInput,
 } from '@aws-sdk/client-sqs';
+import { getErrorMessage } from '@guardian/libs';
 import { getFromEnv } from './config';
-import { getErrorMessage } from './getErrorMessage';
 import { putToS3 } from './s3';
 import { sqs } from './sqs';
 

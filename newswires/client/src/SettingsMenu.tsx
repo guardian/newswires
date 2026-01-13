@@ -8,31 +8,13 @@ import {
 } from '@elastic/eui';
 import { useState } from 'react';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
-import { useUserSettings } from './context/UserSettingsContext';
+import { useSettingsSwitches } from './SetttingsSwitches';
 
 export const SettingsMenu = () => {
-	const {
-		resizablePanelsDirection,
-		toggleResizablePanelsDirection,
-		showSecondaryFeedContent,
-		toggleShowSecondaryFeedContent,
-		showIncopyImport,
-		toggleShowIncopyImport,
-	} = useUserSettings();
-
 	const [isPopoverOpen, setPopover] = useState(false);
 
 	const contextMenuPopoverId = useGeneratedHtmlId({
 		prefix: 'contextMenuPopover',
-	});
-	const embeddedCodeSwitchId__1 = useGeneratedHtmlId({
-		prefix: 'embeddedCodeSwitchId',
-	});
-	const embeddedCodeSwitchId__2 = useGeneratedHtmlId({
-		prefix: 'embeddedCodeSwitchId',
-	});
-	const embeddedCodeSwitchId__3 = useGeneratedHtmlId({
-		prefix: 'embeddedCodeSwitchId',
 	});
 
 	const onButtonClick = () => {
@@ -42,63 +24,31 @@ export const SettingsMenu = () => {
 	const closePopover = () => {
 		setPopover(false);
 	};
-
+	const switches = useSettingsSwitches().map(
+		({ id, label, checked, onChange, helpText }) => {
+			return {
+				renderItem: () => (
+					<div style={{ padding: 16 }} key={id}>
+						<EuiFormRow hasChildLabel={true} helpText={helpText}>
+							<EuiSwitch
+								name="switch"
+								id={id}
+								label={label}
+								checked={checked}
+								onChange={onChange}
+							/>
+						</EuiFormRow>
+					</div>
+				),
+			};
+		},
+	);
 	const panels = [
 		{
 			id: 0,
 			title: 'Site settings',
 			items: [
-				{
-					renderItem: () => (
-						<div style={{ padding: 16 }}>
-							<EuiFormRow hasChildLabel={true}>
-								<EuiSwitch
-									name="switch"
-									id={embeddedCodeSwitchId__1}
-									label="Show subheadings in feed"
-									checked={showSecondaryFeedContent}
-									onChange={() => {
-										toggleShowSecondaryFeedContent();
-									}}
-								/>
-							</EuiFormRow>
-						</div>
-					),
-				},
-				{
-					renderItem: () => (
-						<div style={{ padding: 16 }}>
-							<EuiFormRow hasChildLabel={true}>
-								<EuiSwitch
-									name="switch"
-									id={embeddedCodeSwitchId__2}
-									label="Display wire details below feed"
-									checked={resizablePanelsDirection === 'vertical'}
-									onChange={() => {
-										toggleResizablePanelsDirection();
-									}}
-								/>
-							</EuiFormRow>
-						</div>
-					),
-				},
-				{
-					renderItem: () => (
-						<div style={{ padding: 16 }}>
-							<EuiFormRow hasChildLabel={true}>
-								<EuiSwitch
-									name="switch"
-									id={embeddedCodeSwitchId__3}
-									label="COMING SOON: send wire to InCopy"
-									checked={showIncopyImport}
-									onChange={() => {
-										toggleShowIncopyImport();
-									}}
-								/>
-							</EuiFormRow>
-						</div>
-					),
-				},
+				...switches,
 				{ name: 'Close', icon: 'cross', onClick: closePopover },
 			],
 		},

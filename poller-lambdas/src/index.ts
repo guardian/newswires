@@ -2,15 +2,15 @@ import {
 	GetSecretValueCommand,
 	PutSecretValueCommand,
 } from '@aws-sdk/client-secrets-manager';
+import { getErrorMessage } from '@guardian/libs';
 import {
 	POLLER_FAILURE_EVENT_TYPE,
 	POLLER_INVOCATION_EVENT_TYPE,
-} from '../../shared/constants';
-import { getErrorMessage } from '../../shared/getErrorMessage';
-import { createLogger } from '../../shared/lambda-logging';
-import type { PollerId } from '../../shared/pollers';
-import { POLLER_LAMBDA_ENV_VAR_KEYS } from '../../shared/pollers';
-import { putToS3AndQueueIngestion } from '../../shared/putToS3AndQueueIngestion';
+} from 'newswires-shared/constants';
+import { createLogger } from 'newswires-shared/lambda-logging';
+import type { PollerId } from 'newswires-shared/pollers';
+import { POLLER_LAMBDA_ENV_VAR_KEYS } from 'newswires-shared/pollers';
+import { putToS3AndQueueIngestion } from 'newswires-shared/putToS3AndQueueIngestion';
 import { queueNextInvocation, secretsManager } from './aws';
 import { getEnvironmentVariableOrCrash } from './config';
 import { apPoller } from './pollers/ap/apPoller';

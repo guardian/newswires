@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../../shared/getErrorMessage.ts';
+import { getErrorMessage } from '@guardian/libs';
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
 import {
 	isValidDateValue,
