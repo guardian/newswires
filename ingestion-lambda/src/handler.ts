@@ -6,6 +6,7 @@ import type {
 	SQSRecord,
 } from 'aws-lambda';
 import { getFromEnv, isRunningLocally } from 'newswires-shared/config';
+import { INGESTION_HEARTBEAT } from 'newswires-shared/constants';
 import { findVerificationFailures } from 'newswires-shared/findVerificationFailures';
 import type { Logger } from 'newswires-shared/lambda-logging';
 import { createLogger } from 'newswires-shared/lambda-logging';
@@ -136,11 +137,23 @@ export const main = async (
 					const contentResults = isSES
 						? await processEmailContent(s3Result.body)
 						: processFingerpostJsonContent(s3Result.body);
+
 					if (contentResults.status === 'failure') {
 						return failureWith(
 							contentResults.reason,
 							processedMessage.objectKey,
 						);
+					}
+
+					if (contentResults.supplier == 'HEARTBEAT') {
+						logger.debug({
+							message: `Successfully received heartbeat`,
+							eventType: INGESTION_HEARTBEAT,
+						});
+						return {
+							status: 'success',
+							didCreateNewItem: false,
+						};
 					}
 
 					const dbResult = await putItemToDb({
