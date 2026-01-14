@@ -12,6 +12,7 @@ import { icon as boxesVertical } from '@elastic/eui/es/components/icon/assets/bo
 import { icon as calendar } from '@elastic/eui/es/components/icon/assets/calendar';
 import { icon as check } from '@elastic/eui/es/components/icon/assets/check';
 import { icon as clock } from '@elastic/eui/es/components/icon/assets/clock';
+import { icon as clockCounter } from '@elastic/eui/es/components/icon/assets/clockCounter';
 import { icon as copyClipboard } from '@elastic/eui/es/components/icon/assets/copy_clipboard';
 import { icon as cross } from '@elastic/eui/es/components/icon/assets/cross';
 import { icon as dot } from '@elastic/eui/es/components/icon/assets/dot';
@@ -39,6 +40,8 @@ import { icon as returnKey } from '@elastic/eui/es/components/icon/assets/return
 import { icon as search } from '@elastic/eui/es/components/icon/assets/search';
 import { icon as sortLeft } from '@elastic/eui/es/components/icon/assets/sortLeft';
 import { icon as sortRight } from '@elastic/eui/es/components/icon/assets/sortRight';
+import { icon as starEmpty } from '@elastic/eui/es/components/icon/assets/star_empty';
+import { icon as starFilled } from '@elastic/eui/es/components/icon/assets/star_filled';
 import { icon as visTable } from '@elastic/eui/es/components/icon/assets/vis_table';
 import { icon as warning } from '@elastic/eui/es/components/icon/assets/warning';
 import { appendIconComponentCache } from '@elastic/eui/es/components/icon/icon';
@@ -84,6 +87,9 @@ const icons = {
 	gear,
 	flask,
 	visTable,
+	starEmpty,
+	starFilled,
+	clockCounter,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

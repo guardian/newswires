@@ -3,18 +3,14 @@ import {
 	EuiButtonIcon,
 	EuiFlexGroup,
 	EuiHorizontalRule,
-	EuiLoadingSpinner,
 	EuiSplitPanel,
 	EuiSwitch,
 	EuiText,
 	EuiTitle,
-	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useRef, useState } from 'react';
-import { useSearch } from './context/SearchContext.tsx';
-import { type ToolLink } from './sharedTypes';
-import { type WireData } from './sharedTypes';
+import { type ToolLink, type WireData } from './sharedTypes';
 import { Tooltip } from './Tooltip.tsx';
 import { WireDetail } from './WireDetail';
 
@@ -22,8 +18,6 @@ export const Item = ({
 	error,
 	itemData,
 	handleDeselectItem,
-	handlePreviousItem,
-	handleNextItem,
 	addToolLink,
 }: {
 	error: string | undefined;
@@ -34,15 +28,8 @@ export const Item = ({
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
-	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
-	const { state } = useSearch();
 
 	const headingRef = useRef<HTMLHeadingElement>(null);
-
-	const isFirst = state.queryData?.results[0]?.id === itemData?.id;
-	const isLast =
-		state.queryData?.results[state.queryData.totalCount - 1]?.id ===
-		itemData?.id;
 
 	// scroll to heading when a new item is selected
 	useEffect(() => {
@@ -101,47 +88,7 @@ export const Item = ({
 			{!error && itemData && (
 				<>
 					<EuiSplitPanel.Inner>
-						<EuiFlexGroup
-							justifyContent="spaceBetween"
-							alignItems="center"
-							ref={headingRef}
-						>
-							<Tooltip
-								tooltipContent="Previous story"
-								position={isSmallScreen ? 'right' : 'top'}
-							>
-								<EuiButtonIcon
-									iconType="arrowLeft"
-									onClick={handlePreviousItem}
-									aria-label="Previous story"
-									disabled={isFirst}
-								/>
-							</Tooltip>
-							{state.loadingMore ? (
-								<EuiLoadingSpinner size="m" />
-							) : (
-								<Tooltip tooltipContent="Next story">
-									<EuiButtonIcon
-										iconType="arrowRight"
-										onClick={() => {
-											void handleNextItem();
-										}}
-										aria-label="Next story"
-										disabled={isLast}
-									/>
-								</Tooltip>
-							)}
-							<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
-								<Tooltip tooltipContent="Close story" position="left">
-									<EuiButtonIcon
-										iconType="cross"
-										onClick={handleDeselectItem}
-										aria-label="Close story"
-									/>
-								</Tooltip>
-							</EuiFlexGroup>
-						</EuiFlexGroup>
-						<EuiHorizontalRule margin="s" />
+						<span ref={headingRef} />
 
 						<WireDetail
 							wire={itemData}
