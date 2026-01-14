@@ -6,6 +6,7 @@ import {
 	EuiListGroupItem,
 	EuiLoadingSpinner,
 	EuiPopover,
+	EuiScreenReaderOnly,
 	EuiText,
 	useEuiTheme,
 } from '@elastic/eui';
@@ -163,7 +164,11 @@ const SendOrVisitInComposerButton = ({
 			closePopover={() => {
 				setIsOpen(false);
 			}}
+			aria-labelledby="composer-popover-id"
 		>
+			<EuiScreenReaderOnly>
+				<h1 id="composer-popover-id">Composer integration</h1>
+			</EuiScreenReaderOnly>
 			<EuiListGroup flush={true}>
 				<EuiListGroupItem label={decideIntegrationButton()}></EuiListGroupItem>
 				{errorMessages.map((errorMessage) => (
@@ -276,7 +281,11 @@ const SendToIncopyButton = ({
 			closePopover={() => {
 				setIsOpen(false);
 			}}
+			aria-labelledby="incopy-popover-id"
 		>
+			<EuiScreenReaderOnly>
+				<h1 id="incopy-popover-id">InCopy integration</h1>
+			</EuiScreenReaderOnly>
 			<EuiListGroup flush={true}>
 				<EuiListGroupItem
 					label={
