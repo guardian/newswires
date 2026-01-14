@@ -24,6 +24,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       "GuAlarm",
       "GuAlarm",
       "GuAlarm",
+      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -1791,6 +1792,36 @@ exports[`The Newswires stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
+    "IngestionSourceFeedsFilterINGESTIONHEARTBEAT8D0D513A": {
+      "Properties": {
+        "FilterPattern": "{ $.eventType = "INGESTION_HEARTBEAT" }",
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "IngestionLambdaTESTC02B3E43",
+              },
+            ],
+          ],
+        },
+        "MetricTransformations": [
+          {
+            "Dimensions": [
+              {
+                "Key": "supplier",
+                "Value": "$.supplier",
+              },
+            ],
+            "MetricName": "IngestionSourceFeeds-ingestion_heartbeat",
+            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+            "MetricValue": "1",
+          },
+        ],
+      },
+      "Type": "AWS::Logs::MetricFilter",
+    },
     "IngestionSourceFeedsFilterINGESTIONSUCCESS27AB7930": {
       "Properties": {
         "FilterPattern": "{ $.eventType = "INGESTION_SUCCESS" }",
@@ -2083,6 +2114,84 @@ exports[`The Newswires stack matches the snapshot 1`] = `
         "ToPort": 9000,
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "MissingLogsINGESTIONHEARTBEATHEARTBEAT9C35B78E": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "We have not seen a successful processing of a wire for HEARTBEAT in a while. This could indicate there is an issue with our integration with HEARTBEAT. Please investigate.",
+        "AlarmName": "Missing logs: INGESTION_HEARTBEAT for supplier: HEARTBEAT in TEST",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "HEARTBEAT",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_heartbeat",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 900,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "MissingLogsINGESTIONSUCCESSAAP24EF5EBF": {
       "Properties": {

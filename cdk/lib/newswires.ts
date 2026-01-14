@@ -61,7 +61,10 @@ import {
 	ParameterTier,
 	StringParameter,
 } from 'aws-cdk-lib/aws-ssm';
-import { SUCCESSFUL_INGESTION_EVENT_TYPE } from 'newswires-shared/constants';
+import {
+	INGESTION_HEARTBEAT_EVENT_TYPE,
+	SUCCESSFUL_INGESTION_EVENT_TYPE,
+} from 'newswires-shared/constants';
 import type { PollerId } from 'newswires-shared/pollers';
 import { POLLERS_CONFIG } from 'newswires-shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
@@ -336,6 +339,8 @@ export class Newswires extends GuStack {
 
 		ingestionEventMetricFilter(SUCCESSFUL_INGESTION_EVENT_TYPE);
 
+		ingestionEventMetricFilter(INGESTION_HEARTBEAT_EVENT_TYPE);
+
 		const ingestionAlerts = (
 			eventType: string,
 			supplier: string,
@@ -374,6 +379,12 @@ export class Newswires extends GuStack {
 			SUCCESSFUL_INGESTION_EVENT_TYPE,
 			'UNAUTHED_EMAIL_FEED',
 			Duration.hours(36),
+		);
+
+		ingestionAlerts(
+			INGESTION_HEARTBEAT_EVENT_TYPE,
+			'HEARTBEAT',
+			Duration.minutes(15),
 		);
 
 		const scheduledCleanupLambda = new GuScheduledLambda(

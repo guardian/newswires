@@ -6,7 +6,7 @@ import type {
 	SQSRecord,
 } from 'aws-lambda';
 import { getFromEnv, isRunningLocally } from 'newswires-shared/config';
-import { INGESTION_HEARTBEAT } from 'newswires-shared/constants';
+import { INGESTION_HEARTBEAT_EVENT_TYPE } from 'newswires-shared/constants';
 import { findVerificationFailures } from 'newswires-shared/findVerificationFailures';
 import type { Logger } from 'newswires-shared/lambda-logging';
 import { createLogger } from 'newswires-shared/lambda-logging';
@@ -148,7 +148,8 @@ export const main = async (
 					if (contentResults.supplier == 'HEARTBEAT') {
 						logger.debug({
 							message: `Successfully received heartbeat`,
-							eventType: INGESTION_HEARTBEAT,
+							eventType: INGESTION_HEARTBEAT_EVENT_TYPE,
+							supplier: 'HEARTBEAT',
 						});
 						return {
 							status: 'success',
