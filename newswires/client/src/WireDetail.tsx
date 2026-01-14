@@ -37,7 +37,7 @@ import { TASTED_COLLECTION_ID } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
-import { ToolsConnection } from './ToolsConnection.tsx';
+import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 
@@ -674,6 +674,30 @@ export const WireDetail = ({
 					`}
 				>
 					<EuiSpacer size="xs" />
+					{wire.toolLinks?.length ? (
+						<>
+							<EuiCallOut>
+								<ul
+									css={css`
+										display: grid;
+										grid-template-columns: min-content 1fr;
+										gap: 0.5rem;
+									`}
+								>
+									{wire.toolLinks.map((toolLink) => (
+										<ToolSendReport
+											toolLink={toolLink}
+											key={toolLink.id}
+											showIcon={true}
+										/>
+									))}
+								</ul>
+							</EuiCallOut>
+							<EuiSpacer size="s" />
+						</>
+					) : (
+						<></>
+					)}
 					{ednoteToRender && (
 						<>
 							<EuiCallOut size="s" title={ednoteToRender} color="success" />

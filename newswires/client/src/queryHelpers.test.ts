@@ -51,7 +51,12 @@ describe('queryAfterDeselection', () => {
 				preset: undefined,
 				categoryCode: ['code'],
 			}),
-		).toStrictEqual({ categoryCode: [] });
+		).toStrictEqual({
+			q: 'value',
+			collection: undefined,
+			preset: undefined,
+			categoryCode: [],
+		});
 	});
 	it('should only remove input categoryCode when categoryCode is key and there are existing categoryCode', () => {
 		expect(
@@ -71,13 +76,13 @@ describe('queryAfterDeselection', () => {
 	it('should remove keywordExcl value correctly', () => {
 		expect(
 			queryAfterDeselection('keywordExcl', 'bar', {
-				q: '',
+				q: 'value',
 				collection: undefined,
 				preset: undefined,
 				keywordExcl: ['foo', 'bar'],
 			}),
 		).toStrictEqual({
-			q: '',
+			q: 'value',
 			collection: undefined,
 			preset: undefined,
 			keywordExcl: ['foo'],
@@ -86,7 +91,7 @@ describe('queryAfterDeselection', () => {
 	it('should return preset : undefined for a top level preset', () => {
 		expect(
 			queryAfterDeselection('preset', 'all-world', {
-				q: '',
+				q: 'value',
 				collection: undefined,
 				preset: 'all-world',
 			}),
@@ -99,7 +104,7 @@ describe('queryAfterDeselection', () => {
 	it('should return preset : all-sports for a secondary level preset', () => {
 		expect(
 			queryAfterDeselection('preset', 'no-soccer', {
-				q: '',
+				q: 'value',
 				collection: undefined,
 				preset: 'no-soccer',
 			}),

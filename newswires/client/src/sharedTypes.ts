@@ -137,10 +137,12 @@ export const WiresQueryDataSchema = z.object({
 
 export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
 
-const DateRange = z.object({
+const DateRangeSchema = z.object({
 	start: z.string(),
 	end: z.string(),
 });
+
+export type DateRange = z.infer<typeof DateRangeSchema>;
 
 export const BaseQuerySchema = z.object({
 	q: z.string(),
@@ -150,7 +152,7 @@ export const BaseQuerySchema = z.object({
 	keywordExcl: z.array(z.string()).optional(),
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
-	dateRange: DateRange.optional(),
+	dateRange: DateRangeSchema.optional(),
 	hasDataFormatting: z.boolean().optional(),
 });
 
@@ -170,6 +172,19 @@ export const QuerySchema = z.union([
 ]);
 
 export type Query = z.infer<typeof QuerySchema>;
+
+const _FlattenedQueryForSerialisationSchema = BaseQuerySchema.omit({
+	dateRange: true,
+}).extend({
+	start: z.string().optional(),
+	end: z.string().optional(),
+	preset: z.string().optional(),
+	collection: z.number().optional(),
+});
+
+export type FlattenedQueryForSerialisation = z.infer<
+	typeof _FlattenedQueryForSerialisationSchema
+>;
 
 export const ConfigSchema = z.discriminatedUnion('view', [
 	z.object({

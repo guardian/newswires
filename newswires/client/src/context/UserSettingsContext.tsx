@@ -14,9 +14,8 @@ interface UserSettingsContextShape {
 	toggleShowTastedList: () => void;
 }
 
-const UserSettingsContext = createContext<UserSettingsContextShape | null>(
-	null,
-);
+export const UserSettingsContext =
+	createContext<UserSettingsContextShape | null>(null);
 
 export const UserSettingsContextProvider = ({
 	children,

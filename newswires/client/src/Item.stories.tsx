@@ -2,7 +2,7 @@ import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
-import { UserSettingsContextProvider } from './context/UserSettingsContext';
+import { UserSettingsContext } from './context/UserSettingsContext';
 import { convertToLocalDate } from './dateHelpers';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
@@ -55,13 +55,24 @@ const meta = {
 		(Story) => (
 			<EuiProvider colorMode="light">
 				<TelemetryContextProvider sendTelemetryEvent={console.log}>
-					<UserSettingsContextProvider>
+					<UserSettingsContext.Provider
+						value={{
+							showSecondaryFeedContent: false,
+							toggleShowSecondaryFeedContent: () => {},
+							resizablePanelsDirection: 'horizontal',
+							toggleResizablePanelsDirection: () => {},
+							showIncopyImport: true,
+							toggleShowIncopyImport: () => {},
+							showTastedList: false,
+							toggleShowTastedList: () => {},
+						}}
+					>
 						<SearchContextProvider>
 							<div style={{ maxWidth: '800px', margin: '0 auto' }}>
 								<Story />
 							</div>
 						</SearchContextProvider>
-					</UserSettingsContextProvider>
+					</UserSettingsContext.Provider>
 				</TelemetryContextProvider>
 			</EuiProvider>
 		),
@@ -73,6 +84,36 @@ type Story = StoryObj<typeof meta>;
 export const LoadedItem: Story = {
 	args: {
 		itemData: sampleItemData,
+		error: undefined,
+		handleDeselectItem: () => console.log('deselect clicked'),
+		handlePreviousItem: () => console.log('previous item clicked'),
+		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
+		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
+	},
+};
+
+export const WithToolLinks: Story = {
+	args: {
+		itemData: {
+			...sampleItemData,
+			toolLinks: [
+				{
+					id: 1,
+					wireId: sampleItemData.id,
+					tool: 'incopy',
+					sentBy: 'Curlew',
+					sentAt: '2025-02-26T10:00:00.000Z',
+				},
+				{
+					id: 2,
+					wireId: sampleItemData.id,
+					tool: 'composer',
+					sentBy: 'Chaffinch',
+					sentAt: '2025-02-26T10:05:00.000Z',
+				},
+			],
+		},
 		error: undefined,
 		handleDeselectItem: () => console.log('deselect clicked'),
 		handlePreviousItem: () => console.log('previous item clicked'),
