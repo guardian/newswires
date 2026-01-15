@@ -230,12 +230,7 @@ export const ToolSendReport = ({
 	const iconType = toolLink.tool === 'composer' ? ComposerLogo : InCopyLogo;
 
 	return (
-		<li
-			key={toolLink.id}
-			css={css`
-				display: contents;
-			`}
-		>
+		<>
 			{showIcon && (
 				<span
 					css={css`
@@ -250,7 +245,7 @@ export const ToolSendReport = ({
 				{' • '}
 				<Tooltip tooltipContent={sentAt.format()}>{sentAt.fromNow()}</Tooltip>
 			</EuiText>
-		</li>
+		</>
 	);
 };
 

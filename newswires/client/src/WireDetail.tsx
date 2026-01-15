@@ -634,11 +634,18 @@ export const WireDetail = ({
 									`}
 								>
 									{wire.toolLinks.map((toolLink) => (
-										<ToolSendReport
-											toolLink={toolLink}
+										<li
 											key={toolLink.id}
-											showIcon={true}
-										/>
+											css={css`
+												display: contents;
+											`}
+										>
+											<ToolSendReport
+												toolLink={toolLink}
+												key={toolLink.id}
+												showIcon={true}
+											/>
+										</li>
 									))}
 								</ul>
 							</EuiCallOut>
