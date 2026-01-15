@@ -10,12 +10,14 @@ import {
 	EuiDescriptionListTitle,
 	EuiFlexGroup,
 	EuiFlexItem,
+	EuiHorizontalRule,
 	EuiIcon,
-	EuiPanel,
+	EuiLoadingSpinner,
 	EuiSpacer,
 	EuiText,
 	EuiTitle,
 	useEuiTheme,
+	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
@@ -30,13 +32,11 @@ import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
-import { ToolsConnection } from './ToolsConnection.tsx';
+import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
-import { headlineForComposer } from './utils/formatHeadline.ts';
 
 function TitleContentForItem({
-	id,
 	slug,
 	subhead,
 	headline,
@@ -44,7 +44,6 @@ function TitleContentForItem({
 	supplier,
 	wordCount,
 }: {
-	id: number;
 	slug?: string;
 	subhead?: string;
 	headline?: string;
@@ -78,10 +77,10 @@ function TitleContentForItem({
 				css={css`
 					display: flex;
 					align-items: center;
-					gap: 0.5rem;
+					margin-top: ${theme.euiTheme.size.xs};
+					gap: ${theme.euiTheme.size.s};
 				`}
 			>
-				<CopyButton id={id} headlineText={headlineText} />
 				<EuiTitle size="xs">
 					<h2>{headlineText}</h2>
 				</EuiTitle>
@@ -429,13 +428,10 @@ function CopyButton({
 	};
 
 	return (
-		<Tooltip
-			tooltipContent={copied ? 'Copied!' : 'Copy headline and URL'}
-			position="left"
-		>
+		<Tooltip tooltipContent={copied ? 'Copied!' : 'Copy headline and URL'}>
 			<EuiButtonIcon
 				aria-label="Copy headline and URL"
-				size="xs"
+				size="s"
 				iconType={copied ? 'check' : 'link'}
 				onClick={() => void handleCopy()}
 			/>
@@ -468,6 +464,14 @@ export const WireDetail = ({
 	isShowingJson: boolean;
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
+	const { state, handleDeselectItem, handlePreviousItem, handleNextItem } =
+		useSearch();
+	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+
+	const isFirst = state.queryData?.results[0]?.id === wire.id;
+	const isLast =
+		state.queryData?.results[state.queryData.totalCount - 1]?.id === wire.id;
+
 	const theme = useEuiTheme();
 	const { categoryCodes } = wire;
 	const { byline, keywords, usage, ednote, headline, slug, abstract } =
@@ -490,6 +494,9 @@ export const WireDetail = ({
 	}, [wire]);
 
 	const bodyTextContent = safeHighlightText ?? safeBodyText;
+
+	const headlineText =
+		headline && headline.length > 0 ? headline : (slug ?? 'No title');
 
 	const nonEmptyKeywords = useMemo(
 		() => keywords?.filter((keyword) => keyword.trim().length > 0) ?? [],
@@ -519,6 +526,66 @@ export const WireDetail = ({
 			<div
 				css={css`
 					display: flex;
+					align-items: center;
+					justify-content: flex-end;
+					gap: ${theme.euiTheme.size.s};
+				`}
+			></div>
+			<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
+				<Tooltip
+					tooltipContent="Previous story"
+					position={isSmallScreen ? 'right' : 'top'}
+				>
+					<EuiButtonIcon
+						iconType="arrowLeft"
+						onClick={handlePreviousItem}
+						aria-label="Previous story"
+						disabled={isFirst}
+					/>
+				</Tooltip>
+				{state.loadingMore ? (
+					<EuiLoadingSpinner size="m" />
+				) : (
+					<Tooltip tooltipContent="Next story">
+						<EuiButtonIcon
+							iconType="arrowRight"
+							onClick={() => {
+								void handleNextItem();
+							}}
+							aria-label="Next story"
+							disabled={isLast}
+						/>
+					</Tooltip>
+				)}
+				<div
+					css={css`
+						display: flex;
+						align-items: center;
+						gap: ${theme.euiTheme.size.s};
+					`}
+				>
+					<CopyButton id={wire.id} headlineText={headlineText} />
+					<ToolsConnection
+						itemData={wire}
+						key={wire.id}
+						addToolLink={addToolLink}
+						headline={headline}
+					/>
+				</div>
+				<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
+					<Tooltip tooltipContent="Close story" position="left">
+						<EuiButtonIcon
+							iconType="cross"
+							onClick={handleDeselectItem}
+							aria-label="Close story"
+						/>
+					</Tooltip>
+				</EuiFlexGroup>
+			</EuiFlexGroup>
+			<EuiHorizontalRule margin="xs" />
+			<div
+				css={css`
+					display: flex;
 					flex-direction: column;
 					justify-content: space-between;
 					gap: ${theme.euiTheme.size.s};
@@ -530,7 +597,6 @@ export const WireDetail = ({
 			>
 				<div>
 					<TitleContentForItem
-						id={wire.id}
 						headline={headline}
 						subhead={wire.content.subhead}
 						slug={slug}
@@ -539,26 +605,6 @@ export const WireDetail = ({
 						wordCount={wordCount}
 					/>
 				</div>
-
-				<EuiPanel
-					hasBorder
-					hasShadow={false}
-					grow={false}
-					css={css`
-						flex-shrink: 1;
-						align-self: flex-end;
-					`}
-				>
-					<ToolsConnection
-						headline={headlineForComposer(
-							wire.supplier.name,
-							wire.content.headline,
-						)}
-						itemData={wire}
-						key={wire.id}
-						addToolLink={addToolLink}
-					/>
-				</EuiPanel>
 			</div>
 			<EuiSpacer size="s" />
 			{isShowingJson ? (
@@ -577,6 +623,37 @@ export const WireDetail = ({
 					`}
 				>
 					<EuiSpacer size="xs" />
+					{wire.toolLinks?.length ? (
+						<>
+							<EuiCallOut>
+								<ul
+									css={css`
+										display: grid;
+										grid-template-columns: min-content 1fr;
+										gap: 0.5rem;
+									`}
+								>
+									{wire.toolLinks.map((toolLink) => (
+										<li
+											key={toolLink.id}
+											css={css`
+												display: contents;
+											`}
+										>
+											<ToolSendReport
+												toolLink={toolLink}
+												key={toolLink.id}
+												showIcon={true}
+											/>
+										</li>
+									))}
+								</ul>
+							</EuiCallOut>
+							<EuiSpacer size="s" />
+						</>
+					) : (
+						<></>
+					)}
 					{ednoteToRender && (
 						<>
 							<EuiCallOut size="s" title={ednoteToRender} color="success" />

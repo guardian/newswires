@@ -12,9 +12,8 @@ interface UserSettingsContextShape {
 	toggleShowIncopyImport: () => void;
 }
 
-const UserSettingsContext = createContext<UserSettingsContextShape | null>(
-	null,
-);
+export const UserSettingsContext =
+	createContext<UserSettingsContextShape | null>(null);
 
 export const UserSettingsContextProvider = ({
 	children,
