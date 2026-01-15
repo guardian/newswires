@@ -139,7 +139,11 @@ const SendOrVisitInComposerButton = ({
 		}
 		if (sendState === 'sending') {
 			return (
-				<EuiButton iconType={EuiLoadingSpinner} size="s" disabled={true}>
+				<EuiButton
+					iconType={() => <EuiLoadingSpinner />}
+					size="s"
+					disabled={true}
+				>
 					Sending...
 				</EuiButton>
 			);
