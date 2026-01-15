@@ -359,18 +359,25 @@ const WirePreviewCard = ({
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
 				</div>
-				<div
-					css={css`
-						color: brown;
-						margin-top: 5px;
-					`}
-				>
-					{toolLinks?.length ? (
-						<ToolSendReport toolLink={toolLinks[0]} key={toolLinks[0].id} />
-					) : (
-						<></>
-					)}
-				</div>
+				{toolLinks && toolLinks.length > 0 && (
+					<ul
+						css={css`
+							color: brown;
+							margin-top: 5px;
+						`}
+					>
+						{toolLinks.map((toolLink) => (
+							<li
+								key={toolLink.id}
+								css={css`
+									display: contents;
+								`}
+							>
+								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
+							</li>
+						))}
+					</ul>
+				)}
 				{showSecondaryFeedContent && (
 					<div
 						css={css`
