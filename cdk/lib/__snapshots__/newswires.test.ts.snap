@@ -2135,8 +2135,8 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "AlarmDescription": "We have not seen a successful processing of a wire for HEARTBEAT in a while. This could indicate there is an issue with our integration with HEARTBEAT. Please investigate.",
-        "AlarmName": "Missing logs: INGESTION_HEARTBEAT for supplier: HEARTBEAT in TEST",
+        "AlarmDescription": "Heartbeat from Fingerpost has stopped being received. This likely means we are not receiving data in the wires tool. Please investigate urgently.",
+        "AlarmName": "Heartbeat from Fingerpost not received",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {

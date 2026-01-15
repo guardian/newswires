@@ -341,6 +341,13 @@ export class Newswires extends GuStack {
 
 		ingestionEventMetricFilter(INGESTION_HEARTBEAT_EVENT_TYPE);
 
+		const SUPPLIER_MISSING_ALARM_NAME = (supplier: string) =>
+			`Missing logs: ${SUCCESSFUL_INGESTION_EVENT_TYPE} for supplier: ${supplier} in ${this.stage}`;
+		const SUPPLIER_MISSING_ALARM_MESSAGE = (supplier: string) =>
+			`We have not seen a successful processing of a wire for ${supplier} in a while. This could indicate there is an issue with our integration with ${supplier}. Please investigate.`;
+
+		const HEARTBEAT_MISSING_ALARM_NAME = `Heartbeat from Fingerpost not received`;
+		const HEARTBEAT_MISSING_ALARM_MESSAGE = `Heartbeat from Fingerpost has stopped being received. This likely means we are not receiving data in the wires tool. Please investigate urgently.`;
 		const ingestionAlerts = (
 			eventType: string,
 			supplier: string,
@@ -354,11 +361,19 @@ export class Newswires extends GuStack {
 				period,
 			});
 
+			const name =
+				eventType == INGESTION_HEARTBEAT_EVENT_TYPE
+					? HEARTBEAT_MISSING_ALARM_NAME
+					: SUPPLIER_MISSING_ALARM_NAME(supplier);
+			const description =
+				eventType == INGESTION_HEARTBEAT_EVENT_TYPE
+					? HEARTBEAT_MISSING_ALARM_MESSAGE
+					: SUPPLIER_MISSING_ALARM_MESSAGE(supplier);
 			new GuAlarm(this, `MissingLogs-${eventType}-${supplier}`, {
 				actionsEnabled: this.stage === 'PROD',
 				okAction: true,
-				alarmName: `Missing logs: ${eventType} for supplier: ${supplier} in ${this.stage}`,
-				alarmDescription: `We have not seen a successful processing of a wire for ${supplier} in a while. This could indicate there is an issue with our integration with ${supplier}. Please investigate.`,
+				alarmName: name,
+				alarmDescription: description,
 				evaluationPeriods: 1,
 				threshold: 1,
 				comparisonOperator: ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
