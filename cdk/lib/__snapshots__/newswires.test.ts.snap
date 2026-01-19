@@ -2128,7 +2128,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           },
         ],
         "AlarmDescription": "Heartbeat from Fingerpost has stopped being received. This likely means we are not receiving data in the wires tool. Please investigate urgently.",
-        "AlarmName": "Heartbeat from Fingerpost not received",
+        "AlarmName": "Heartbeat from Fingerpost not received in TEST",
         "ComparisonOperator": "LessThanOrEqualToThreshold",
         "Dimensions": [
           {
