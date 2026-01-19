@@ -349,7 +349,7 @@ export class Newswires extends GuStack {
 		const SUPPLIER_MISSING_ALARM_MESSAGE = (supplier: string) =>
 			`We have not seen a successful processing of a wire for ${supplier} in a while. This could indicate there is an issue with our integration with ${supplier}. Please investigate.`;
 
-		const HEARTBEAT_MISSING_ALARM_NAME = `Heartbeat from Fingerpost not received`;
+		const HEARTBEAT_MISSING_ALARM_NAME = `Heartbeat from Fingerpost not received in ${this.stage}`;
 		const HEARTBEAT_MISSING_ALARM_MESSAGE = `Heartbeat from Fingerpost has stopped being received. This likely means we are not receiving data in the wires tool. Please investigate urgently.`;
 		const ingestionAlerts = (
 			eventType: string,
