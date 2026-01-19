@@ -16,32 +16,6 @@ const EMAIL_BUCKET_NAME: string = isRunningLocally
 	? 'local-email-bucket'
 	: getFromEnv('EMAIL_BUCKET_NAME');
 
-const DOTCOPY_EMAIL_PUBLIC_ADDRESS = isRunningLocally
-	? 'test.copy@guardian.co.uk'
-	: getFromEnv('DOTCOPY_EMAIL_PUBLIC_ADDRESS');
-
-const dotcopyUsernameEnd = DOTCOPY_EMAIL_PUBLIC_ADDRESS.indexOf('@');
-const dotcopyUsername = DOTCOPY_EMAIL_PUBLIC_ADDRESS.slice(
-	0,
-	dotcopyUsernameEnd,
-);
-
-const validForCopy = (forAddress: string): boolean => {
-	const validCopyAddresses = [
-		`${dotcopyUsername}@guardian.co.uk`,
-		`${dotcopyUsername}@theguardian.com`,
-	];
-
-	// forAddress seems to (sometimes?) come through wrapped in angle brackets...
-	// trim those off
-	if (forAddress.startsWith('<')) {
-		return validCopyAddresses.includes(
-			forAddress.slice(1, forAddress.length - 1),
-		);
-	}
-	return validCopyAddresses.includes(forAddress);
-};
-
 export async function findVerificationFailures(
 	message: SESMessage,
 ): Promise<EmailVerificationResult> {
@@ -81,12 +55,7 @@ export async function findVerificationFailures(
 			throw new Error(mailObject.reason);
 		}
 
-		const { arc, receivedChain } = await authenticate(mailObject.body);
-
-		const wasSentToDotCopy = receivedChain?.some((chainLink) => {
-			const value = chainLink.for?.value;
-			return value ? validForCopy(value) : false;
-		});
+		const { arc } = await authenticate(mailObject.body);
 
 		const arcValid =
 			arc &&
@@ -98,9 +67,7 @@ export async function findVerificationFailures(
 			(arc.authenticationResults.spf as undefined | { result?: string })
 				?.result === 'pass';
 
-		if (!wasSentToDotCopy) {
-			failedChecks = [{ name: 'sent_to_dotcopy', status: 'FAIL' }];
-		} else if (!arcValid) {
+		if (!arcValid) {
 			failedChecks = [{ name: 'newswires_arc_spf_check', status: 'FAIL' }];
 		} else {
 			failedChecks = [];

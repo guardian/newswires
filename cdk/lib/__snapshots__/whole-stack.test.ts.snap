@@ -1027,7 +1027,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
       "GuStringParameter",
-      "GuStringParameter",
       "GuLambdaFunction",
       "GuLambdaFunction",
       "GuLambdaFunction",
@@ -1139,10 +1138,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
     },
     "incomingcopyemailaddress": {
       "Default": "/fingerpost/TEST/incomingCopyEmailAddress",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
-    "incomingcopyemailpublicaddress": {
-      "Default": "/fingerpost/TEST/incomingCopyEmailPublicAddress",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "newswiresPrivateSubnets": {
@@ -2396,9 +2391,6 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             },
             "DOTCOPY_EMAIL_ADDRESS": {
               "Ref": "incomingcopyemailaddress",
-            },
-            "DOTCOPY_EMAIL_PUBLIC_ADDRESS": {
-              "Ref": "incomingcopyemailpublicaddress",
             },
             "EMAIL_BUCKET_NAME": {
               "Ref": "NewswiresCopyEmailBucketNewswires26C541A0",
