@@ -1036,6 +1036,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuAlarm",
       "GuAlarm",
       "GuAlarm",
+      "GuAlarm",
       "GuScheduledLambda",
       "GuParameter",
       "GuParameter",
@@ -2796,6 +2797,36 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       },
       "Type": "AWS::Lambda::EventSourceMapping",
     },
+    "IngestionSourceFeedsFilterINGESTIONHEARTBEAT8D0D513A": {
+      "Properties": {
+        "FilterPattern": "{ $.eventType = "INGESTION_HEARTBEAT" }",
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "IngestionLambdaTESTC02B3E43",
+              },
+            ],
+          ],
+        },
+        "MetricTransformations": [
+          {
+            "Dimensions": [
+              {
+                "Key": "supplier",
+                "Value": "$.supplier",
+              },
+            ],
+            "MetricName": "IngestionSourceFeeds-ingestion_heartbeat",
+            "MetricNamespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+            "MetricValue": "1",
+          },
+        ],
+      },
+      "Type": "AWS::Logs::MetricFilter",
+    },
     "IngestionSourceFeedsFilterINGESTIONSUCCESS27AB7930": {
       "Properties": {
         "FilterPattern": "{ $.eventType = "INGESTION_SUCCESS" }",
@@ -3088,6 +3119,84 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "ToPort": 9000,
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "MissingLogsINGESTIONHEARTBEATHEARTBEAT9C35B78E": {
+      "Properties": {
+        "ActionsEnabled": false,
+        "AlarmActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "AlarmDescription": "Heartbeat from Fingerpost has stopped being received. This likely means we are not receiving data in the wires tool. Please investigate urgently.",
+        "AlarmName": "Heartbeat from Fingerpost not received",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "supplier",
+            "Value": "HEARTBEAT",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "IngestionSourceFeeds-ingestion_heartbeat",
+        "Namespace": "TEST/editorial-feeds/newswires-ingestion-lambda",
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
+        "Period": 900,
+        "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Threshold": 1,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
     },
     "MissingLogsINGESTIONSUCCESSAAP24EF5EBF": {
       "Properties": {

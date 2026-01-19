@@ -59,6 +59,13 @@ const validJsonFromSuccessfulS3: OperationResult<{ body: string }> = {
 	}),
 };
 
+const heartbeatJson: OperationResult<{ body: string }> = {
+	status: 'success',
+	body: JSON.stringify({
+		'source-feed': 'FIP',
+	}),
+};
+
 const invalidJsonFromSuccessfulS3: OperationResult<{ body: string }> = {
 	status: 'success',
 	body: '{ invalid json content without closing brace',
@@ -217,7 +224,7 @@ describe('handler.main', () => {
 		const loggedEvent = (
 			mockCreateLogger({}).error as jest.MockedFn<loggingModule.Logger['error']>
 		).mock.calls[0]?.[0];
-		console.log(loggedEvent);
+
 		expect(loggedEvent?.eventType).toBe('INGESTION_FAILURE');
 		expect(loggedEvent?.s3Key).toBe('path/to/invalid-object.json');
 
@@ -355,6 +362,32 @@ describe('handler.main', () => {
 		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
 
 		expect(result.batchItemFailures).toEqual([]);
+	});
+
+	it('should log a debug message if message is a finger post heartbeat', async () => {
+		mockGetFromS3.mockResolvedValue(heartbeatJson);
+
+		const validSQSRecord: SQSRecord = generateMockSQSRecord({
+			externalId: 'ext-123',
+			objectKey: 'path/to/object.json',
+		});
+
+		const mockSQSEvent: SQSEvent = {
+			Records: [validSQSRecord],
+		};
+		const mockSql = jest.fn();
+		mockInitialiseDbConnection.mockResolvedValue({
+			sql: mockSql as unknown as postgres.Sql,
+			closeDbConnection: jest.fn(),
+		});
+		const result = await main(mockSQSEvent);
+
+		expect(mockCreateLogger({}).debug).toHaveBeenCalledTimes(1);
+		const loggedEvent = (
+			mockCreateLogger({}).debug as jest.MockedFn<loggingModule.Logger['debug']>
+		).mock.calls[0]?.[0];
+		expect(loggedEvent?.eventType).toBe('INGESTION_HEARTBEAT');
+		expect(result?.batchItemFailures.length).toBe(0);
 	});
 });
 

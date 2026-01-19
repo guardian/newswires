@@ -96,6 +96,7 @@ const supplierLookupMap: Record<string, string[]> = {
 		'PA ACCESS NEWSWIRE',
 	],
 	MINOR_AGENCIES: ['COMET', 'WIREFAST'],
+	HEARTBEAT: ['FIP'],
 };
 
 export const lookupSupplier = (
