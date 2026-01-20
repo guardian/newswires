@@ -1,6 +1,7 @@
 package models
 
 import conf.SearchTerm.English
+import db.TimeStampColumn
 
 sealed trait UpdateType {
   val sinceTimeStamp: String
@@ -25,5 +26,6 @@ case class QueryParams(
     maybeBeforeId: Option[Int],
     maybeSinceId: Option[UpdateTypeId],
     pageSize: Int = 250,
+    timeStampColumn: TimeStampColumn,
     negatedSearchParamList: List[SearchParams] = Nil
 )

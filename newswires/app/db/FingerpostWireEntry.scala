@@ -30,6 +30,12 @@ import io.circe.parser._
 
 import java.time.Instant
 
+case class WireMaybeToolLinkAndCollection(
+    wireEntry: FingerpostWireEntry,
+    toolLink: Option[ToolLink],
+    collection: Option[WireEntryForCollection]
+)
+
 case class FingerpostWireEntry(
     id: Long,
     supplier: String,
@@ -42,7 +48,8 @@ case class FingerpostWireEntry(
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil,
     s3Key: Option[String],
-    precomputedCategories: List[String]
+    precomputedCategories: List[String],
+    collections: List[WireEntryForCollection] = Nil
 )
 
 object FingerpostWireEntry
@@ -72,7 +79,7 @@ object FingerpostWireEntry
     )
   val syn = this.syntax("fm")
 
-  private lazy val selectAllStatement = sqls"""
+  lazy val selectAllStatement = sqls"""
     |   ${FingerpostWireEntry.syn.result.id},
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
@@ -158,10 +165,14 @@ object FingerpostWireEntry
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
 
-    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}
            | FROM ${FingerpostWireEntry as syn}
            | LEFT JOIN ${ToolLink as ToolLink.syn}
            |   ON ${syn.id} = ${ToolLink.syn.wireId}
+           | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+           |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+           | LEFT JOIN ${Collection as Collection.syn}
+           |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
            | WHERE ${FingerpostWireEntry.syn.id} = $id
            |""".stripMargin
   }
@@ -172,10 +183,15 @@ object FingerpostWireEntry
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
-      .toMany(ToolLink.opt(ToolLink.syn.resultName))
-      .map { (wire, toolLinks) =>
+      .toManies(
+        ToolLink.opt(ToolLink.syn.resultName),
+        WireEntryForCollection.opt(
+          WireEntryForCollection.syn.resultName
+        )
+      )
+      .map { (wire, toolLinks, collections) =>
         wire.map(
-          _.copy(toolLinks = toolLinks.toList)
+          _.copy(toolLinks = toolLinks.toList, collections = collections.toList)
         )
       }
       .single()
@@ -317,12 +333,12 @@ object FingerpostWireEntry
       (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
 
     lazy val beforeTimeStampSQL =
-      (endDate: String) =>
-        sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+      (endDate: String, column: TimeStampColumn) =>
+        sqls"${column.columnName} <= CAST($endDate AS timestamptz)"
 
     lazy val afterTimeStampSQL =
-      (startDate: String) =>
-        sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+      (startDate: String, column: TimeStampColumn) =>
+        sqls"${column.columnName} >= CAST($startDate AS timestamptz)"
 
     lazy val dateRangeSQL =
       (start: Option[String], end: Option[String]) => {
@@ -333,11 +349,11 @@ object FingerpostWireEntry
             )
           case (Some(startDate), None) =>
             Some(
-              afterTimeStampSQL(startDate)
+              afterTimeStampSQL(startDate, IngestedAtTime)
             )
           case (None, Some(endDate)) =>
             Some(
-              beforeTimeStampSQL(endDate)
+              beforeTimeStampSQL(endDate, IngestedAtTime)
             )
           case _ => None
         }
@@ -355,6 +371,9 @@ object FingerpostWireEntry
           preComputedCategoriesConditions(pce, preComputedCategories)
         )
       }
+
+    lazy val collectionIdSQL = (collectionId: Int) =>
+      sqls"${Collection.syn.id} = ${collectionId}"
   }
 
   def processSearchParams(
@@ -413,6 +432,11 @@ object FingerpostWireEntry
           Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
       }
 
+    val collectionIdQuery = search.collectionId match {
+      case Some(collectionId) => Some(Filters.collectionIdSQL(collectionId))
+      case None               => None
+    }
+
     List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -423,7 +447,8 @@ object FingerpostWireEntry
       categoryCodesExclQuery,
       hasDataFormattingQuery,
       preComputedCategoriesQuery,
-      preComputedCategoriesExclQuery
+      preComputedCategoriesExclQuery,
+      collectionIdQuery
     ).flatten
   }
 
@@ -434,12 +459,17 @@ object FingerpostWireEntry
       maybeAfterTimeStamp: Option[UpdateType],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[UpdateTypeId],
+      timeStampColumn: TimeStampColumn,
       negatedSearchParamList: List[SearchParams] = List()
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
-      maybeBeforeTimeStamp.map(Filters.beforeTimeStampSQL(_)),
-      maybeAfterTimeStamp.map(u => Filters.afterTimeStampSQL(u.sinceTimeStamp)),
+      maybeBeforeTimeStamp.map(
+        Filters.beforeTimeStampSQL(_, timeStampColumn)
+      ),
+      maybeAfterTimeStamp.map(u =>
+        Filters.afterTimeStampSQL(u.sinceTimeStamp, timeStampColumn)
+      ),
       maybeBeforeId.map(Filters.beforeIdSQL(_)),
       maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
     )
@@ -497,11 +527,12 @@ object FingerpostWireEntry
     }
   }
 
-  private[db] def buildSearchQuery(
+  def buildFeedQuery(
       queryParams: QueryParams,
-      whereClause: SQLSyntax
+      whereClause: SQLSyntax,
+      pageSize: Int = 30
   ): SQL[Nothing, NoExtractor] = {
-    val effectivePageSize = clamp(0, queryParams.pageSize, 250)
+    val effectivePageSize = clamp(0, pageSize, 250)
 
     val maybeAfterTimeStamp = queryParams.maybeAfterTimeStamp
     val maybeSinceId = queryParams.maybeSinceId
@@ -509,54 +540,77 @@ object FingerpostWireEntry
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause =
-      sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
+      sqls"ORDER BY ${queryParams.timeStampColumn.columnName} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
 
-    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
-           | FROM ${FingerpostWireEntry as syn}
-           | LEFT JOIN ${ToolLink as ToolLink.syn}
-           | ON ${syn.id} = ${ToolLink.syn.wireId}
-           | WHERE $whereClause
-           | $orderByClause
-           | LIMIT $effectivePageSize
-           | """.stripMargin
+    sql"""| SELECT ${FingerpostWireEntry.selectAllStatement}, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}, $highlightsClause
+          | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+          | LEFT JOIN ${ToolLink as ToolLink.syn}
+          |  ON ${syn.id} = ${ToolLink.syn.wireId}
+          | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+          |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+          | LEFT JOIN ${Collection as Collection.syn}
+          |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
+          | WHERE $whereClause
+          | $orderByClause
+          | LIMIT $effectivePageSize
+          | """.stripMargin
   }
 
   def query(
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
-      queryParams.searchParams,
-      queryParams.savedSearchParamList,
-      queryParams.maybeBeforeTimeStamp,
-      queryParams.maybeAfterTimeStamp,
-      queryParams.maybeBeforeId,
-      queryParams.maybeSinceId,
-      queryParams.negatedSearchParamList
+      searchParams = queryParams.searchParams,
+      savedSearchParamList = queryParams.savedSearchParamList,
+      maybeBeforeTimeStamp = queryParams.maybeBeforeTimeStamp,
+      maybeAfterTimeStamp = queryParams.maybeAfterTimeStamp,
+      maybeBeforeId = queryParams.maybeBeforeId,
+      maybeSinceId = queryParams.maybeSinceId,
+      timeStampColumn = queryParams.timeStampColumn,
+      negatedSearchParamList = queryParams.negatedSearchParamList
     )
 
     val start = System.currentTimeMillis()
-    val query = buildSearchQuery(queryParams, whereClause)
+
+    val query = buildFeedQuery(
+      queryParams = queryParams,
+      whereClause = whereClause,
+      pageSize = queryParams.pageSize
+    )
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
     val results: List[FingerpostWireEntry] = query
       .map(rs => {
         val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
         val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
-        (wireEntry, toolLinkOpt)
+        val collectionOpt = WireEntryForCollection.opt(
+          WireEntryForCollection.syn.resultName
+        )(rs)
+        (wireEntry, toolLinkOpt, collectionOpt)
       })
       .list()
-      .collect({ case (Some(wire), toolLinkOpt) =>
-        WireMaybeToolLink(wire, toolLinkOpt)
+      .collect({ case (Some(wire), toolLinkOpt, collectionOpt) =>
+        WireMaybeToolLinkAndCollection(wire, toolLinkOpt, collectionOpt)
       })
       .groupBy(t => t.wireEntry)
-      .map({ case (wire, wireToolLinks) =>
-        wire.copy(toolLinks = wireToolLinks.flatMap(_.toolLink))
+      .map({ case (wire, wireRelations) =>
+        wire.copy(
+          toolLinks = wireRelations.flatMap(_.toolLink).distinct,
+          collections = wireRelations.flatMap(_.collection).distinct
+        )
       })
       .toList
+      .sortWith(queryParams.timeStampColumn.sortDesc)
 
     val countQuery =
       sql"""| SELECT COUNT(*)
-            | FROM ${FingerpostWireEntry as syn}
+            | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+            | LEFT JOIN ${ToolLink as ToolLink.syn}
+            |  ON ${syn.id} = ${ToolLink.syn.wireId}
+            | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+            |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+            | LEFT JOIN ${Collection as Collection.syn}
+            |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
             | WHERE $whereClause
             | """.stripMargin
 
