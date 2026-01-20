@@ -75,6 +75,7 @@ object SearchPresets {
     case "olympics"             => Some(Olympics)
     case "all-data-formats"     => Some(AllDataFormats)
     case "dot-copy"             => Some(DotCopy)
+    case "sport-other"          => Some(SportOther)
     case _                      => None
   }
 
@@ -386,6 +387,49 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("-BC -SOC", Slug))),
       preComputedCategories = List("no-soccer"),
       keywordExcl = List("Soccer")
+    )
+  )
+
+
+  private val SportOther = List(
+    SearchPreset(PA,
+      categoryCodesExcl =
+        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.Sport.PA
+          ::: List("paCat:RSR", "paCat:SCR") ::: CategoryCodes.Cricket.PA
+      ::: CategoryCodes.RugbyScores.PA ::: List("paCat:RFC") ::: List("paCat:RSR")
+      ::: List("paCat:SRS", "paCat:SSS")
+      ::: CategoryCodes.HorseRacing.PA
+
+    ),
+    SearchPreset(REUTERS,
+      preComputedCategories = List("all-sports"),
+      categoryCodesExcl = List("N2:AMER", "N2:NFL", "subj:15003000", "subj:15003001", "N2:AUSR",
+        "subj:15084000", "N2:BASE", "subj:15007000", "N2:FBC", "N2:BKC", "N2:HKC")
+        ::: CategoryCodes.Cricket.REUTERS ::: CategoryCodes.Cycling.REUTERS
+      ::: CategoryCodes.MotorSport.REUTERS ::: CategoryCodes.Golf.REUTERS
+      ::: CategoryCodes.Boxing.REUTERS ::: CategoryCodes.HorseRacing.REUTERS
+      ::: List("N2:ICEH", "N2:NHL", "subj:15031000")
+      ::: CategoryCodes.Athletics.REUTERS
+      ::: CategoryCodes.Olympics.REUTERS
+    ),
+    SearchPreset(AP,
+      preComputedCategories = List("all-sports"),
+      categoryCodesExcl = CategoryCodes.Sport.AP,
+      keywordExcl = List("College sports", "Cycling", "Automobile racing",
+        "Formula One racing", "Golf", "Boxing", "Horse racing", "Hockey", "NHL hockey", "Track and field",
+        "Olympic games"
+      )
+    ),
+    SearchPreset(AAP,
+      preComputedCategories = List("all-sports"),
+      categoryCodesExcl = List("subj:15003000", "subj:15003001", "subj:15084000", "subj:15008001")
+        ::: CategoryCodes.Cricket.AAP ::: CategoryCodes.Cycling.AAP ::: CategoryCodes.MotorSport.AAP
+      ::: CategoryCodes.Golf.AAP ::: CategoryCodes.Boxing.AAP ::: CategoryCodes.Athletics.AAP
+      ::: CategoryCodes.Olympics.AAP
+    ),
+    SearchPreset(AFP,
+      preComputedCategories = List("all-sports"),
+      categoryCodesExcl = CategoryCodes.Sport.AFP
     )
   )
 
