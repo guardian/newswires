@@ -46,7 +46,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.20.1"
+val jacksonVersion = "2.20.2"
 val jacksonAnnotationVersion = "2.20"
 
 dependencyOverrides ++= Seq(
@@ -56,7 +56,7 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion) ++ Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion,
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
