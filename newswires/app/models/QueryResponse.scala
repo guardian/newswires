@@ -27,7 +27,6 @@ object QueryResponse {
           wire
             .copy(toolLinks = ToolLink.display(wire.toolLinks, requestingUser))
         })
-        .sortWith((a, b) => a.ingestedAt.isAfter(b.ingestedAt))
     )
   }
 }
