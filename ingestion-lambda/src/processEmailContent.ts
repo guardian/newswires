@@ -1,4 +1,5 @@
 import { getErrorMessage } from '@guardian/libs';
+import { encode as encodeHtmlEntities } from 'html-entities';
 import { simpleParser } from 'mailparser';
 import type {
 	IngestorInputBody,
@@ -47,6 +48,53 @@ export async function processEmailContent(
 	}
 }
 
+type ParagraphReductionAccumulator = {
+	currentParagraph: string[];
+	allParagraphs: string[];
+};
+function paragraphReducer(
+	acc: ParagraphReductionAccumulator,
+	line: string,
+	i: number,
+	allLines: string[],
+): ParagraphReductionAccumulator {
+	if (line.length === 0) {
+		return acc;
+	}
+
+	const nextAcc = { ...acc, currentParagraph: [...acc.currentParagraph, line] };
+
+	const nextLine = allLines[i + 1];
+	const firstWordNextLine = nextLine?.split(/\s/)[0];
+	if (firstWordNextLine !== undefined) {
+		const isOverrun = line.length + 1 + firstWordNextLine.length > 75;
+		if (!isOverrun) {
+			// end this paragraph
+			const endParaAcc = {
+				currentParagraph: [],
+				allParagraphs: [
+					...acc.allParagraphs,
+					nextAcc.currentParagraph.join(' '),
+				],
+			};
+			return endParaAcc;
+		}
+	}
+
+	return nextAcc;
+}
+
+function collectParagraphs(raw: string) {
+	return raw
+		.split('\n')
+		.reduce(paragraphReducer, {
+			currentParagraph: [],
+			allParagraphs: [],
+		})
+		.allParagraphs.map((para) => `<p>${encodeHtmlEntities(para)}</p>`)
+		.join('\n');
+}
+
 // This regex matches all break tags that aren't immediately followed by
 // another break tag. For `textAsHtml`, this will remove all line breaks
 // from the automatically added wrapping, while paragraphs formed by
@@ -57,12 +105,12 @@ export async function processEmailContent(
 // meaning no regressions and we can always investigate improvements later.
 // It does look like the parser will replace a double linebreak by ending the
 // current <p> tag and starting a new one.
-const matchNonwrappingBreakTags = /<br\/>(?!<br\/>)/g;
+// const matchNonwrappingBreakTags = /<br\/>(?!<br\/>)/g;
 
 export async function parseEmail(rawEmail: string): Promise<EmailObject> {
 	try {
 		const parsed = await simpleParser(rawEmail);
-		const text = parsed.textAsHtml?.replaceAll(matchNonwrappingBreakTags, ' ');
+		const text = collectParagraphs(parsed.text ?? '');
 
 		return {
 			from: parsed.from?.text,

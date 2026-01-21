@@ -19,7 +19,8 @@ describe('parseEmailBody', () => {
 		const { text } = await parseEmail(emailData);
 		// paragraph exists without linebreak
 		expect(text).toContain('sed do eiusmod tempor');
-		expect(text).toContain('est laborum.</p><p>Sed ut perspiciatis');
+		expect(text).toContain('est laborum.</p>\n<p>Sed ut perspiciatis');
+		expect(text).toContain('nulla pariatur?</p>\n<p>Cras molestie');
 	});
 });
 
@@ -38,3 +39,5 @@ describe('constructHeadline', () => {
 		expect(headline).toBe('from hello@world.com: No Subject');
 	});
 });
+
+// TODO add some unit tests for the paragraphing logic, especially for behaviour around lines that are 74/75/76 lines long, after comparison to actual gmail behaviour
