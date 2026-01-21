@@ -1,11 +1,29 @@
 package db
 
 import conf.SearchTerm.English
-import conf.{AND, ComboTerm, OR, SearchConfig, SearchField, SearchTerm, SearchTerms, SingleTerm}
+import conf.{
+  AND,
+  ComboTerm,
+  OR,
+  SearchConfig,
+  SearchField,
+  SearchTerm,
+  SearchTerms,
+  SingleTerm
+}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{FingerpostWire, NextPage, NextPageId, QueryParams, QueryResponse, SearchParams, UpdateType, UpdateTypeId}
+import models.{
+  FingerpostWire,
+  NextPage,
+  NextPageId,
+  QueryParams,
+  QueryResponse,
+  SearchParams,
+  UpdateType,
+  UpdateTypeId
+}
 import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
@@ -456,13 +474,15 @@ object FingerpostWireEntry
       (List(
         dateRangeQuery,
         customSearchClauses,
-        presetSearchClauses,
+        presetSearchClauses
       ) ++ dataOnlyWhereClauses).flatten
 
     allClauses match {
       case Nil     => sqls"true"
       case clauses =>
-        negatedPresetSearchClauses.fold(sqls.joinWithAnd(clauses: _*))(p => sqls"${sqls.joinWithAnd(clauses: _*)} and not ($p)")
+        negatedPresetSearchClauses.fold(sqls.joinWithAnd(clauses: _*))(p =>
+          sqls"${sqls.joinWithAnd(clauses: _*)} and not ($p)"
+        )
     }
   }
 
@@ -510,7 +530,8 @@ object FingerpostWireEntry
       queryParams.maybeBeforeTimeStamp,
       queryParams.maybeAfterTimeStamp,
       queryParams.maybeBeforeId,
-      queryParams.maybeSinceId
+      queryParams.maybeSinceId,
+      queryParams.negatedSearchParamList
     )
 
     val start = System.currentTimeMillis()

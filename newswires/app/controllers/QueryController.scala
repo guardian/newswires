@@ -71,18 +71,21 @@ class QueryController(
     val searchParams =
       SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
 
+    val (savedSearchParams, negatedSearchParams) = request
+      .getQueryString("preset")
+      .flatMap(SearchPresets.get)
+      .getOrElse((Nil, Nil))
+
     val queryParams = QueryParams(
       searchParams = searchParams,
-      savedSearchParamList = request
-        .getQueryString("preset")
-        .flatMap(SearchPresets.get)
-        .getOrElse(Nil),
+      savedSearchParamList = savedSearchParams,
       maybeSearchTerm = baseParams.textForHighlighting,
       maybeBeforeTimeStamp = maybeBeforeTimeStamp,
       maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId.map(NextPageId(_)),
-      pageSize = 30
+      pageSize = 30,
+      negatedSearchParamList = negatedSearchParams
     )
 
     val queryResponse = FingerpostWireEntry

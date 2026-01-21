@@ -35,47 +35,47 @@ object SearchPreset {
 }
 
 object SearchPresets {
-  def get(name: String): Option[List[SearchParams]] = name match {
-    case "reuters-world"        => Some(ReutersWorld)
-    case "reuters-schedule"     => Some(ReutersSchedule)
-    case "ap-world"             => Some(ApWorld)
-    case "aap-world"            => Some(AapWorld)
-    case "all-world"            => Some(AllWorld)
-    case "afp-world"            => Some(AfpWorld)
-    case "minor-agencies-world" => Some(MinorAgenciesWorld)
-    case "all-uk"               => Some(AllUk)
-    case "world-plus-uk"        => Some(WorldPlusUK)
-    case "all-business"         => Some(AllBusiness)
-    case "all-sport"            => Some(AllSport)
-    case "all-sport-stories"    => Some(AllSportStories)
-    case "soccer"               => Some(Soccer)
-    case "soccer-scores"        => Some(SoccerScores)
-    case "soccer-tables"        => Some(SoccerTables)
-    case "no-soccer"            => Some(NoSoccer)
-    case "american-football"    => Some(AmericanFootball)
-    case "australian-rules"     => Some(AustralianRules)
-    case "baseball"             => Some(Baseball)
-    case "basketball"           => Some(Basketball)
-    case "college-sports"       => Some(CollegeSports)
-    case "cricket"              => Some(Cricket)
-    case "cricket-scores"       => Some(CricketScores)
-    case "rugby-league"         => Some(RugbyLeague)
-    case "rugby-union"          => Some(RugbyUnion)
-    case "rugby-scores"         => Some(RugbyScores)
-    case "tennis"               => Some(Tennis)
-    case "tennis-scores"        => Some(TennisScores)
-    case "cycling"              => Some(Cycling)
-    case "motor-sport"          => Some(MotorSport)
-    case "golf"                 => Some(Golf)
-    case "golf-scores"          => Some(GolfScores)
-    case "boxing"               => Some(Boxing)
-    case "horse-racing"         => Some(HorseRacing)
-    case "ice-hockey"           => Some(IceHockey)
-    case "athletics"            => Some(Athletics)
-    case "olympics"             => Some(Olympics)
-    case "all-data-formats"     => Some(AllDataFormats)
-    case "dot-copy"             => Some(DotCopy)
-    case "sport-other"          => Some(SportOther)
+  def get(name: String): Option[(List[SearchParams], List[SearchParams])] = name match {
+    case "reuters-world"        => Some((ReutersWorld, Nil))
+    case "reuters-schedule"     => Some((ReutersSchedule, Nil))
+    case "ap-world"             => Some((ApWorld, Nil))
+    case "aap-world"            => Some((AapWorld, Nil))
+    case "all-world"            => Some((AllWorld, Nil))
+    case "afp-world"            => Some((AfpWorld, Nil))
+    case "minor-agencies-world" => Some((MinorAgenciesWorld, Nil))
+    case "all-uk"               => Some((AllUk, Nil))
+    case "world-plus-uk"        => Some((WorldPlusUK, Nil))
+    case "all-business"         => Some((AllBusiness, Nil))
+    case "all-sport"            => Some((AllSport, Nil))
+    case "all-sport-stories"    => Some((AllSportStories, Nil))
+    case "soccer"               => Some((Soccer, Nil))
+    case "soccer-scores"        => Some((SoccerScores, Nil))
+    case "soccer-tables"        => Some((SoccerTables, Nil))
+    case "no-soccer"            => Some((NoSoccer, Nil))
+    case "american-football"    => Some((AmericanFootball, Nil))
+    case "australian-rules"     => Some((AustralianRules, Nil))
+    case "baseball"             => Some((Baseball, Nil))
+    case "basketball"           => Some((Basketball, Nil))
+    case "college-sports"       => Some((CollegeSports, Nil))
+    case "cricket"              => Some((Cricket, Nil))
+    case "cricket-scores"       => Some((CricketScores, Nil))
+    case "rugby-league"         => Some((RugbyLeague, Nil))
+    case "rugby-union"          => Some((RugbyUnion, Nil))
+    case "rugby-scores"         => Some((RugbyScores, Nil))
+    case "tennis"               => Some((Tennis, Nil))
+    case "tennis-scores"        => Some((TennisScores, Nil))
+    case "cycling"              => Some((Cycling, Nil))
+    case "motor-sport"          => Some((MotorSport, Nil))
+    case "golf"                 => Some((Golf, Nil))
+    case "golf-scores"          => Some((GolfScores, Nil))
+    case "boxing"               => Some((Boxing, Nil))
+    case "horse-racing"         => Some((HorseRacing, Nil))
+    case "ice-hockey"           => Some((IceHockey, Nil))
+    case "athletics"            => Some((Athletics, Nil))
+    case "olympics"             => Some((Olympics, Nil))
+    case "all-data-formats"     => Some((AllDataFormats, Nil))
+    case "dot-copy"             => Some((DotCopy, Nil))
+    case "sport-other"          => Some((AllSport, SportOther))
     case _                      => None
   }
 
@@ -387,49 +387,6 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("-BC -SOC", Slug))),
       preComputedCategories = List("no-soccer"),
       keywordExcl = List("Soccer")
-    )
-  )
-
-
-  private val SportOther = List(
-    SearchPreset(PA,
-      categoryCodesExcl =
-        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.Sport.PA
-          ::: List("paCat:RSR", "paCat:SCR") ::: CategoryCodes.Cricket.PA
-      ::: CategoryCodes.RugbyScores.PA ::: List("paCat:RFC") ::: List("paCat:RSR")
-      ::: List("paCat:SRS", "paCat:SSS")
-      ::: CategoryCodes.HorseRacing.PA
-
-    ),
-    SearchPreset(REUTERS,
-      preComputedCategories = List("all-sports"),
-      categoryCodesExcl = List("N2:AMER", "N2:NFL", "subj:15003000", "subj:15003001", "N2:AUSR",
-        "subj:15084000", "N2:BASE", "subj:15007000", "N2:FBC", "N2:BKC", "N2:HKC")
-        ::: CategoryCodes.Cricket.REUTERS ::: CategoryCodes.Cycling.REUTERS
-      ::: CategoryCodes.MotorSport.REUTERS ::: CategoryCodes.Golf.REUTERS
-      ::: CategoryCodes.Boxing.REUTERS ::: CategoryCodes.HorseRacing.REUTERS
-      ::: List("N2:ICEH", "N2:NHL", "subj:15031000")
-      ::: CategoryCodes.Athletics.REUTERS
-      ::: CategoryCodes.Olympics.REUTERS
-    ),
-    SearchPreset(AP,
-      preComputedCategories = List("all-sports"),
-      categoryCodesExcl = CategoryCodes.Sport.AP,
-      keywordExcl = List("College sports", "Cycling", "Automobile racing",
-        "Formula One racing", "Golf", "Boxing", "Horse racing", "Hockey", "NHL hockey", "Track and field",
-        "Olympic games"
-      )
-    ),
-    SearchPreset(AAP,
-      preComputedCategories = List("all-sports"),
-      categoryCodesExcl = List("subj:15003000", "subj:15003001", "subj:15084000", "subj:15008001")
-        ::: CategoryCodes.Cricket.AAP ::: CategoryCodes.Cycling.AAP ::: CategoryCodes.MotorSport.AAP
-      ::: CategoryCodes.Golf.AAP ::: CategoryCodes.Boxing.AAP ::: CategoryCodes.Athletics.AAP
-      ::: CategoryCodes.Olympics.AAP
-    ),
-    SearchPreset(AFP,
-      preComputedCategories = List("all-sports"),
-      categoryCodesExcl = CategoryCodes.Sport.AFP
     )
   )
 
@@ -892,5 +849,8 @@ object SearchPresets {
   )
 
   private val DotCopy = List(SearchPreset("UNAUTHED_EMAIL_FEED"))
+
+  val SportOther: List[SearchParams] =
+    Soccer ::: SoccerScores ::: SoccerTables ::: AmericanFootball ::: Athletics ::: AustralianRules ::: Baseball ::: Basketball ::: Boxing ::: CollegeSports ::: Cricket ::: CricketScores ::: Cycling ::: Golf ::: GolfScores ::: HorseRacing ::: IceHockey ::: MotorSport ::: Olympics ::: RugbyLeague ::: RugbyUnion ::: RugbyScores ::: Tennis ::: TennisScores ::: AllDataFormats
 
 }
