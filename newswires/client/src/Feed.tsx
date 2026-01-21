@@ -9,10 +9,17 @@ import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { fetchToolLinks } from './context/fetchToolLinks.ts';
 import { useSearch } from './context/SearchContext.tsx';
+import { sortByTimeStamp } from './context/timestamp-compare.ts';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
-import type { ToolLink, WireToolLinks } from './sharedTypes.ts';
+import type {
+	SortBy,
+	ToolLink,
+	WireData,
+	WireToolLinks,
+} from './sharedTypes.ts';
+import { isSortByAddedToCollectionAt } from './sharedTypes.ts';
 import { WireItemList } from './WireItemList.tsx';
 
 export interface FeedProps {
@@ -28,6 +35,34 @@ const baseStyles = css`
 const columnStyles = css`
 	flex-direction: column;
 `;
+
+type WireSortingFunction = (a: WireData, b: WireData) => number;
+
+function decideSortFunction(sortBy: SortBy): WireSortingFunction {
+	if (isSortByAddedToCollectionAt(sortBy)) {
+		return (a, b) => {
+			const aTimestamp = a.collections.find(
+				(c) => c.collectionId === sortBy.collectionId,
+			)?.addedAt;
+			const bTimestamp = b.collections.find(
+				(c) => c.collectionId === sortBy.collectionId,
+			)?.addedAt;
+
+			if (aTimestamp && bTimestamp) {
+				return sortByTimeStamp({ ascending: false })(aTimestamp, bTimestamp);
+			} else if (aTimestamp) {
+				return -1; // a comes before b
+			} else if (bTimestamp) {
+				return 1; // b comes before a
+			} else {
+				return 0; // maintain original order
+			}
+		};
+	}
+
+	return (a, b) =>
+		sortByTimeStamp({ ascending: false })(a.ingestedAt, b.ingestedAt);
+}
 
 export const Feed = ({
 	containerRef,
@@ -84,6 +119,8 @@ export const Feed = ({
 
 	const wires = useMemo(() => {
 		if (!queryData) return [];
+		const sortFunction = decideSortFunction(state.sortBy);
+
 		return queryData.results
 			.map((result) => {
 				const toolLinks = toolLinksMap[result.id] ?? [];
@@ -94,8 +131,8 @@ export const Feed = ({
 					};
 				} else return result;
 			})
-			.sort((a, b) => b.ingestedAt.localeCompare(a.ingestedAt));
-	}, [queryData, toolLinksMap]);
+			.sort(sortFunction);
+	}, [queryData, state.sortBy, toolLinksMap]);
 	return (
 		<EuiPageTemplate.Section
 			paddingSize={isPoppedOut ? 's' : 'm'}

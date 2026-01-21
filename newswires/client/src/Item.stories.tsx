@@ -41,6 +41,7 @@ const sampleItemData: WireData = {
 	categoryCodes: ['C:US', 'C:CA'],
 	isFromRefresh: false,
 	hasDataFormatting: false,
+	collections: [],
 };
 
 const meta = {
@@ -62,6 +63,8 @@ const meta = {
 							toggleResizablePanelsDirection: () => {},
 							showIncopyImport: true,
 							toggleShowIncopyImport: () => {},
+							showTastedList: false,
+							toggleShowTastedList: () => {},
 						}}
 					>
 						<SearchContextProvider>
@@ -86,6 +89,7 @@ export const LoadedItem: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 
@@ -115,6 +119,7 @@ export const WithToolLinks: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 
@@ -126,6 +131,7 @@ export const WithError: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 

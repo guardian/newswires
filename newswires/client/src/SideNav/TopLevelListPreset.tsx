@@ -31,7 +31,11 @@ export const TopLevelListPresetPanel = ({
 						togglePreset(item.id);
 					}}
 					handleSecondaryActionClick={() =>
-						openTicker({ ...defaultConfig.query, preset: item.id })
+						openTicker({
+							...defaultConfig.query,
+							preset: item.id,
+							collectionId: undefined,
+						})
 					}
 					arrowSide={item.child ? 'right' : undefined}
 					handleArrowClick={
@@ -54,7 +58,11 @@ export const TopLevelListPresetPanel = ({
 					isTopLevel={false}
 					handleButtonClick={() => togglePreset(maybeActiveSportPreset.id)}
 					handleSecondaryActionClick={() =>
-						openTicker({ ...config.query, preset: maybeActiveSportPreset.id })
+						openTicker({
+							...config.query,
+							preset: maybeActiveSportPreset.id,
+							collectionId: undefined,
+						})
 					}
 				/>
 			)}

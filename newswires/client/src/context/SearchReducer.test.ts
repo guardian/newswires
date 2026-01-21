@@ -20,6 +20,7 @@ describe('SearchReducer', () => {
 		successfulQueryHistory: [],
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
 	};
 
 	const successState: State = {
@@ -41,6 +42,7 @@ describe('SearchReducer', () => {
 		error: 'Network error',
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
 	};
 
 	const errorState: State = {
@@ -53,13 +55,14 @@ describe('SearchReducer', () => {
 		error: 'Fetch error',
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
 	};
 
 	it('should handle FETCH_SUCCESS action in loading state', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
 			data: { results: [sampleWireData], totalCount: 1 },
-			query: { q: 'test' },
+			query: { q: 'test', collectionId: undefined, preset: undefined },
 		};
 
 		const newState = SearchReducer(initialState, action);
@@ -117,7 +120,7 @@ describe('SearchReducer', () => {
 					],
 					totalCount: 1,
 				},
-				query: { q: 'test' },
+				query: { q: 'test', collectionId: undefined, preset: undefined },
 			};
 
 			const newState = SearchReducer(state, action);
@@ -170,7 +173,12 @@ describe('SearchReducer', () => {
 				],
 				totalCount: 2,
 			},
-			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
+			query: {
+				q: 'test',
+				collectionId: undefined,
+				preset: undefined,
+				dateRange: { start: 'now-30', end: 'now' },
+			},
 		};
 
 		expect(state.queryData.results.map((_) => _.id)).toEqual([1, 2]);
@@ -214,7 +222,12 @@ describe('SearchReducer', () => {
 				results: [itemOne, itemTwo],
 				totalCount: 2,
 			},
-			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
+			query: {
+				q: 'test',
+				dateRange: { start: 'now-30', end: 'now' },
+				preset: undefined,
+				collectionId: undefined,
+			},
 		};
 
 		expect(state.queryData.results).toContainEqual(itemOne);
@@ -325,11 +338,48 @@ describe('SearchReducer', () => {
 		it(`should handle ENTER_QUERY action in ${state.status} state`, () => {
 			const action: Action = {
 				type: 'ENTER_QUERY',
+				query: { q: 'new search', collectionId: undefined, preset: undefined },
 			};
 
 			const newState = SearchReducer(state, action);
 
 			expect(newState.status).toBe('loading');
 		});
+	});
+
+	it('should toggle sortBy between ingestion time and added-to-collection time when collectionId is set or unset', () => {
+		const setCollectionIdAction: Action = {
+			type: 'ENTER_QUERY',
+			query: { q: 'test', collectionId: 123, preset: undefined },
+		};
+
+		const stateWithIngestedAt: State = {
+			...initialState,
+			sortBy: { sortByKey: 'ingestedAt' },
+		};
+
+		const newState = SearchReducer(stateWithIngestedAt, setCollectionIdAction);
+
+		expect(newState.sortBy).toEqual({
+			sortByKey: 'addedToCollectionAt',
+			collectionId: 123,
+		});
+
+		const unsetCollectionIdAction: Action = {
+			type: 'ENTER_QUERY',
+			query: { q: 'test', collectionId: undefined, preset: undefined },
+		};
+
+		const stateWithAddedToCollectionAt: State = {
+			...initialState,
+			sortBy: { sortByKey: 'addedToCollectionAt' },
+		};
+
+		const newState2 = SearchReducer(
+			stateWithAddedToCollectionAt,
+			unsetCollectionIdAction,
+		);
+
+		expect(newState2.sortBy).toEqual({ sortByKey: 'ingestedAt' });
 	});
 });
