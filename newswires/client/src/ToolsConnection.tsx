@@ -337,7 +337,6 @@ export const ToolsConnection = ({
 				itemData={itemData}
 				addToolLink={addToolLink}
 			/>
-
 			{showIncopyImport && (
 				<SendToIncopyButton
 					itemData={itemData}

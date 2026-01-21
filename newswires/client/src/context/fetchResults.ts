@@ -4,6 +4,13 @@ import { WiresQueryResponseSchema } from '../sharedTypes.ts';
 import { paramsToQuerystring } from '../urlState.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
+function decideEndpoint(view: Config['view']): string {
+	if (view.includes('dotcopy')) {
+		return '/api/dotcopy';
+	}
+	return '/api/search';
+}
+
 export const fetchResults = async ({
 	query,
 	view,
@@ -17,7 +24,7 @@ export const fetchResults = async ({
 	beforeTimeStamp?: string;
 	abortController?: AbortController;
 }): Promise<WiresQueryData> => {
-	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
+	const endpoint = decideEndpoint(view);
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
