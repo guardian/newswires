@@ -1,29 +1,11 @@
 package db
 
 import conf.SearchTerm.English
-import conf.{
-  AND,
-  ComboTerm,
-  OR,
-  SearchConfig,
-  SearchField,
-  SearchTerm,
-  SearchTerms,
-  SingleTerm
-}
+import conf.{AND, ComboTerm, OR, SearchConfig, SearchField, SearchTerm, SearchTerms, SingleTerm}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{
-  FingerpostWire,
-  NextPage,
-  NextPageId,
-  QueryParams,
-  QueryResponse,
-  SearchParams,
-  UpdateType,
-  UpdateTypeId
-}
+import models.{FingerpostWire, NextPage, NextPageId, QueryParams, QueryResponse, SearchParams, UpdateType, UpdateTypeId}
 import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
@@ -433,7 +415,8 @@ object FingerpostWireEntry
       maybeBeforeTimeStamp: Option[String],
       maybeAfterTimeStamp: Option[UpdateType],
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[UpdateTypeId]
+      maybeSinceId: Option[UpdateTypeId],
+      negatedSearchParamList: List[SearchParams] = List()
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
@@ -461,17 +444,25 @@ object FingerpostWireEntry
           Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
       }
 
+    val negatedPresetSearchClauses =
+      negatedSearchParamList.map(params => {
+        sqls.joinWithAnd(processSearchParams(params): _*)
+      }) match {
+        case Nil      => None
+        case nonEmpty =>
+          Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
+      }
     val allClauses =
       (List(
         dateRangeQuery,
         customSearchClauses,
-        presetSearchClauses
+        presetSearchClauses,
       ) ++ dataOnlyWhereClauses).flatten
 
     allClauses match {
       case Nil     => sqls"true"
       case clauses =>
-        sqls.joinWithAnd(clauses: _*)
+        negatedPresetSearchClauses.fold(sqls.joinWithAnd(clauses: _*))(p => sqls"${sqls.joinWithAnd(clauses: _*)} and not ($p)")
     }
   }
 

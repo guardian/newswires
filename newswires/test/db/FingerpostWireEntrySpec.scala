@@ -458,6 +458,86 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
+  it should "should join complex search negation presets using 'or not'" in {
+
+    val customParams = SearchParams(
+      searchTerms = None,
+      suppliersExcl = List("supplier1")
+    )
+
+    val presetSearchParams1 =
+      SearchParams(
+        searchTerms = Some(
+          SingleTerm(
+            SearchTerm.Simple("News Summary", SearchField.Headline)
+          )
+        ),
+        suppliersIncl = List("REUTERS"),
+        categoryCodesIncl = List(
+          "N2:GB"
+        )
+      )
+    val presetSearchParams2 =
+      SearchParams(
+        searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
+        suppliersIncl = List("AFP"),
+        categoryCodesIncl = List("afpCat:SPO")
+      )
+
+    val customParamsClause = FingerpostWireEntry
+      .buildWhereClause(
+        customParams,
+        List(),
+        None,
+        None,
+        None,
+        None
+      )
+
+    val preset1Clause = FingerpostWireEntry
+      .buildWhereClause(
+        presetSearchParams1,
+        List(),
+        None,
+        None,
+        None,
+        None
+      )
+
+    val preset2Clause = FingerpostWireEntry
+      .buildWhereClause(
+        presetSearchParams2,
+        List(),
+        None,
+        None,
+        None,
+        None
+      )
+
+    val whereClause =
+      FingerpostWireEntry.buildWhereClause(
+        customParams,
+        List(presetSearchParams1),
+        None,
+        None,
+        None,
+        None,
+        List(presetSearchParams2)
+      )
+
+    whereClause should matchSqlSnippet(
+      sqls"$customParamsClause and (($preset1Clause)) and  not (($preset2Clause))",
+      List(
+        "supplier1",
+        List("N2:GB"),
+        "News Summary",
+        "REUTERS",
+        List("afpCat:SPO"),
+        "soccer",
+        "AFP"
+      )
+    )
+  }
   it should "apply date ranges using 'AND' at the top level of the query" in {
 
     val customParams = SearchParams(
