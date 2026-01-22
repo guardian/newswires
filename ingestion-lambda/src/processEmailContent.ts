@@ -25,7 +25,7 @@ export const constructHeadline = (from?: string, subject?: string) => {
 	return `from ${from ?? 'Unknown'}: ${subject ?? 'No Subject'}`;
 };
 
-const startNewParagraphElements = ['BR', 'DIV', 'BLOCKQUOTE', 'LI'];
+const startNewParagraphElements = ['BR', 'DIV', 'BLOCKQUOTE', 'LI', 'P'];
 
 export function traverse(root: Node) {
 	const stack = [root];
