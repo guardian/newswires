@@ -463,21 +463,20 @@ object FingerpostWireEntry
 
     val customSearchClauses = searchClause(searchParams)
     val presetSearchClauses = searchClauses(savedSearchParamList)
-    val negatedPresetSearchClauses = searchClauses(negatedSearchParamList)
+    val negatedPresetSearchClauses =
+      searchClauses(negatedSearchParamList).map(clause => sqls"NOT $clause")
 
     val allClauses =
       (List(
         dateRangeQuery,
         customSearchClauses,
-        presetSearchClauses
+        presetSearchClauses,
+        negatedPresetSearchClauses
       ) ++ dataOnlyWhereClauses).flatten
 
-    (allClauses, negatedPresetSearchClauses) match {
-      case (Nil, None)                    => sqls"true"
-      case (clauses, None)                => sqls.joinWithAnd(clauses: _*)
-      case (clauses, Some(negatedPreset)) =>
-        sqls"${sqls.joinWithAnd(clauses ::: List(sqls"NOT $negatedPreset"): _*)}"
-      case (Nil, Some(negatedPreset)) => sqls"NOT $negatedPreset"
+    allClauses match {
+      case Nil     => sqls"true"
+      case clauses => sqls.joinWithAnd(clauses: _*)
     }
   }
 
