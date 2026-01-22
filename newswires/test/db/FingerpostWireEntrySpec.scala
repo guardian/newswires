@@ -517,43 +517,47 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val customParamsClause = FingerpostWireEntry
       .buildWhereClause(
-        customParams,
-        List(),
-        None,
-        None,
-        None,
-        None
+        searchParams = customParams,
+        savedSearchParamList = List(),
+        maybeBeforeTimeStamp = None,
+        maybeAfterTimeStamp = None,
+        maybeBeforeId = None,
+        maybeSinceId = None,
+        timeStampColumn = IngestedAtTime
       )
 
     val preset1Clause = FingerpostWireEntry
       .buildWhereClause(
-        presetSearchParams1,
-        List(),
-        None,
-        None,
-        None,
-        None
+        searchParams = presetSearchParams1,
+        savedSearchParamList = List(),
+        maybeBeforeTimeStamp = None,
+        maybeAfterTimeStamp = None,
+        maybeBeforeId = None,
+        maybeSinceId = None,
+        timeStampColumn = IngestedAtTime
       )
 
     val preset2Clause = FingerpostWireEntry
       .buildWhereClause(
-        presetSearchParams2,
-        List(),
-        None,
-        None,
-        None,
-        None
+        searchParams = presetSearchParams2,
+        savedSearchParamList = List(),
+        maybeBeforeTimeStamp = None,
+        maybeAfterTimeStamp = None,
+        maybeBeforeId = None,
+        maybeSinceId = None,
+        timeStampColumn = IngestedAtTime
       )
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        customParams,
-        List(presetSearchParams1),
-        None,
-        None,
-        None,
-        None,
-        List(presetSearchParams2)
+        searchParams = customParams,
+        savedSearchParamList = List(presetSearchParams1),
+        maybeBeforeTimeStamp = None,
+        maybeAfterTimeStamp = None,
+        maybeBeforeId = None,
+        maybeSinceId = None,
+        timeStampColumn = IngestedAtTime,
+        negatedSearchParamList = List(presetSearchParams2)
       )
 
     whereClause should matchSqlSnippet(
