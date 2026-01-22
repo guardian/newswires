@@ -1,8 +1,8 @@
 module.exports = {
 	pipeline: {
-		test: [],
+		test: ['^test'],
 		lint: [],
-		typecheck: [],
+		typecheck: ['^typecheck'], // because there are cross-package types
 		precommit: ['test', 'lint', 'typecheck'],
 		build: ['typecheck', 'lint'],
 	},
