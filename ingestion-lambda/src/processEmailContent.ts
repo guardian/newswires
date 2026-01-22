@@ -80,11 +80,18 @@ function paragraphReducer(
 			return endParaAcc;
 		}
 	}
+	if (nextLine === undefined) {
+		// reached end of text, make sure to finish this current paragraph
+		return {
+			currentParagraph: [],
+			allParagraphs: [...acc.allParagraphs, nextAcc.currentParagraph.join(' ')],
+		};
+	}
 
 	return nextAcc;
 }
 
-function collectParagraphs(raw: string) {
+export function collectParagraphs(raw: string) {
 	return raw
 		.split('\n')
 		.reduce(paragraphReducer, {
