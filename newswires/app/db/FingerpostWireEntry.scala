@@ -427,6 +427,20 @@ object FingerpostWireEntry
     ).flatten
   }
 
+  def searchClauses(searchParams: List[SearchParams]) = searchParams.map(
+    params => sqls.joinWithAnd(processSearchParams(params): _*)
+  ) match {
+    case Nil      => None
+    case nonEmpty => Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
+  }
+
+  def searchClause(searchParams: SearchParams) = processSearchParams(
+    searchParams
+  ) match {
+    case Nil     => None
+    case clauses => Some(sqls.joinWithAnd(clauses: _*))
+  }
+
   private[db] def buildWhereClause(
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
@@ -447,29 +461,10 @@ object FingerpostWireEntry
     val dateRangeQuery =
       Filters.dateRangeSQL(searchParams.start, searchParams.end)
 
-    val customSearchClauses = processSearchParams(searchParams) match {
-      case Nil     => None
-      case clauses =>
-        Some(sqls.joinWithAnd(clauses: _*))
-    }
+    val customSearchClauses = searchClause(searchParams)
+    val presetSearchClauses = searchClauses(savedSearchParamList)
+    val negatedPresetSearchClauses = searchClauses(negatedSearchParamList)
 
-    val presetSearchClauses =
-      savedSearchParamList.map(params =>
-        sqls.joinWithAnd(processSearchParams(params): _*)
-      ) match {
-        case Nil      => None
-        case nonEmpty =>
-          Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
-      }
-
-    val negatedPresetSearchClauses =
-      negatedSearchParamList.map(params => {
-        sqls.joinWithAnd(processSearchParams(params): _*)
-      }) match {
-        case Nil      => None
-        case nonEmpty =>
-          Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
-      }
     val allClauses =
       (List(
         dateRangeQuery,
@@ -477,12 +472,12 @@ object FingerpostWireEntry
         presetSearchClauses
       ) ++ dataOnlyWhereClauses).flatten
 
-    allClauses match {
-      case Nil     => sqls"true"
-      case clauses =>
-        negatedPresetSearchClauses.fold(sqls.joinWithAnd(clauses: _*))(p =>
-          sqls"${sqls.joinWithAnd(clauses: _*)} and not ($p)"
-        )
+    (allClauses, negatedPresetSearchClauses) match {
+      case (Nil, None)                    => sqls"true"
+      case (clauses, None)                => sqls.joinWithAnd(clauses: _*)
+      case (clauses, Some(negatedPreset)) =>
+        sqls"${sqls.joinWithAnd(clauses ::: List(sqls"NOT $negatedPreset"): _*)}"
+      case (Nil, Some(negatedPreset)) => sqls"NOT $negatedPreset"
     }
   }
 
