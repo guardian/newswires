@@ -1,11 +1,16 @@
 import { getErrorMessage } from '@guardian/libs';
-import { encode as encodeHtmlEntities } from 'html-entities';
 import { simpleParser } from 'mailparser';
 import type {
 	IngestorInputBody,
 	OperationResult,
 	ProcessedObject,
 } from 'newswires-shared/types';
+import {
+	HTMLElement,
+	parse as htmlParse,
+	type Node,
+	TextNode,
+} from 'node-html-parser';
 
 type EmailObject = {
 	from?: string;
@@ -19,6 +24,38 @@ type EmailObject = {
 export const constructHeadline = (from?: string, subject?: string) => {
 	return `from ${from ?? 'Unknown'}: ${subject ?? 'No Subject'}`;
 };
+
+const startNewParagraphElements = ['BR', 'DIV', 'BLOCKQUOTE', 'LI'];
+
+export function traverse(root: Node) {
+	const stack = [root];
+	const paragraphs = [];
+	let currentParagraph = '';
+
+	while (stack.length > 0) {
+		const el = stack.pop();
+
+		if (el instanceof TextNode) {
+			currentParagraph += el.trimmedRawText;
+		} else {
+			if (
+				el instanceof HTMLElement &&
+				startNewParagraphElements.includes(el.tagName) &&
+				currentParagraph.length > 0
+			) {
+				paragraphs.push(currentParagraph);
+				currentParagraph = '';
+			}
+			for (const ch of Array.from(el?.childNodes ?? []).reverse()) {
+				stack.push(ch);
+			}
+		}
+	}
+
+	if (currentParagraph.length > 0) paragraphs.push(currentParagraph);
+
+	return `<p>${paragraphs.join('</p>\n<p>')}</p>`;
+}
 
 export async function processEmailContent(
 	rawEmail: string,
@@ -48,76 +85,11 @@ export async function processEmailContent(
 	}
 }
 
-type ParagraphReductionAccumulator = {
-	currentParagraph: string[];
-	allParagraphs: string[];
-};
-function paragraphReducer(
-	acc: ParagraphReductionAccumulator,
-	line: string,
-	i: number,
-	allLines: string[],
-): ParagraphReductionAccumulator {
-	if (line.length === 0) {
-		return acc;
-	}
-
-	const nextAcc = { ...acc, currentParagraph: [...acc.currentParagraph, line] };
-
-	const nextLine = allLines[i + 1];
-	const firstWordNextLine = nextLine?.split(/\s/)[0];
-	if (firstWordNextLine !== undefined) {
-		const isOverrun = line.length + 1 + firstWordNextLine.length > 75;
-		if (!isOverrun) {
-			// end this paragraph
-			const endParaAcc = {
-				currentParagraph: [],
-				allParagraphs: [
-					...acc.allParagraphs,
-					nextAcc.currentParagraph.join(' '),
-				],
-			};
-			return endParaAcc;
-		}
-	}
-	if (nextLine === undefined) {
-		// reached end of text, make sure to finish this current paragraph
-		return {
-			currentParagraph: [],
-			allParagraphs: [...acc.allParagraphs, nextAcc.currentParagraph.join(' ')],
-		};
-	}
-
-	return nextAcc;
-}
-
-export function collectParagraphs(raw: string) {
-	return raw
-		.split('\n')
-		.reduce(paragraphReducer, {
-			currentParagraph: [],
-			allParagraphs: [],
-		})
-		.allParagraphs.map((para) => `<p>${encodeHtmlEntities(para)}</p>`)
-		.join('\n');
-}
-
-// This regex matches all break tags that aren't immediately followed by
-// another break tag. For `textAsHtml`, this will remove all line breaks
-// from the automatically added wrapping, while paragraphs formed by
-// double breaks added by the email author will be reduced to a single break.
-// This does mean that paragraphs formed by authors by a single linebreak will
-// be indistinguishable from a break added for wrapping, so the two paragraphs
-// will be merged into one, but this behaviour is consistent with old wires,
-// meaning no regressions and we can always investigate improvements later.
-// It does look like the parser will replace a double linebreak by ending the
-// current <p> tag and starting a new one.
-// const matchNonwrappingBreakTags = /<br\/>(?!<br\/>)/g;
-
 export async function parseEmail(rawEmail: string): Promise<EmailObject> {
 	try {
 		const parsed = await simpleParser(rawEmail);
-		const text = collectParagraphs(parsed.text ?? '');
+		console.log(parsed.html);
+		const text = parsed.html ? traverse(htmlParse(parsed.html)) : '';
 
 		return {
 			from: parsed.from?.text,

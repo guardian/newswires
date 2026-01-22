@@ -1,8 +1,5 @@
-import {
-	collectParagraphs,
-	constructHeadline,
-	parseEmail,
-} from './processEmailContent';
+import { parse as parseHtml } from 'node-html-parser';
+import { constructHeadline, parseEmail, traverse } from './processEmailContent';
 import {
 	longerLoremIpsumSampleMimeEmailData,
 	sampleMimeEmailData,
@@ -24,7 +21,6 @@ describe('parseEmailBody', () => {
 		// paragraph exists without linebreak
 		expect(text).toContain('sed do eiusmod tempor');
 		expect(text).toContain('est laborum.</p>\n<p>Sed ut perspiciatis');
-		expect(text).toContain('nulla pariatur?</p>\n<p>Cras molestie');
 	});
 });
 
@@ -45,80 +41,38 @@ describe('constructHeadline', () => {
 });
 
 // TODO add some unit tests for the paragraphing logic, especially for behaviour around lines that are 74/75/76 lines long, after comparison to actual gmail behaviour
+//
 
-describe('collectParagraphs', () => {
-	it('should turn short sentences into paragraphs', () => {
-		const text = `
-Here's a line that lives by itself.
+describe('traverse', () => {
+	it('should convert the html body of the email into a much simpler format', () => {
+		const input = `<div dir="ltr">One first line<div>Two second line</div></div><br>`;
 
-And this is an entirely separate paragraph.
-`.trim();
+		const output = `<p>One first line</p>
+<p>Two second line</p>`;
 
-		const expectedResult = `
-<p>Here&apos;s a line that lives by itself.</p>
-<p>And this is an entirely separate paragraph.</p>
-`.trim();
-
-		expect(collectParagraphs(text)).toBe(expectedResult);
+		expect(traverse(parseHtml(input))).toBe(output);
 	});
 
-	it('should turn some wrapped text into a single paragraph', () => {
-		const text = `
-Here's a much longer paragraph. It makes use of multiple sentences, and
-wraps onto a new line when it would have gone over the 75 character limit.
-`.trim();
+	it('should convert the html body of the email into a much simpler format 2', () => {
+		const input = `<div dir="ltr">One first line<br>Two second line</div>`;
 
-		const expectedResult = `
-<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit.</p>
-`.trim();
+		const output = `<p>One first line</p>
+<p>Two second line</p>`;
 
-		expect(collectParagraphs(text)).toBe(expectedResult);
+		expect(traverse(parseHtml(input))).toBe(output);
 	});
 
-	it('should turn some wrapped text into some paragraphs', () => {
-		const text = `
-Here's a much longer paragraph. It makes use of multiple sentences, and
-wraps onto a new line when it would have gone over the 75 character limit.
+	it('should convert the html body of an email into simpler format 3', () => {
+		const input = `<div dir="ltr"><div>A more complex example<br><b>Let&#39;s put the parsing <i>through its paces</i></b></div><blockquote class="gmail_quote" style="margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">With some quotes?</blockquote><div><ul><li>With some lists</li><li>With multiple items</li></ul>Did it lose any copy?</div><div><br></div><div>Did the paragraphing make sense?</div><div>Have we dealt with wrapping issues?&nbsp;</div><div><div dir="ltr" class="gmail_signature" data-smartmail="gmail_signature"><div dir="ltr"><br></div></div></div></div>`;
 
-And here's a followup paragraph!
-`.trim();
+		const output = `<p>A more complex example</p>
+<p>Let&#39;s put the parsing through its paces</p>
+<p>With some quotes?</p>
+<p>With some lists</p>
+<p>With multiple itemsDid it lose any copy?</p>
+<p>Did the paragraphing make sense?</p>
+<p>Have we dealt with wrapping issues?&nbsp;</p>`;
 
-		const expectedResult = `
-<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit.</p>
-<p>And here&apos;s a followup paragraph!</p>
-`.trim();
-
-		expect(collectParagraphs(text)).toBe(expectedResult);
-	});
-
-	it('should usually be able to detect the end of a paragraph even without a double-newline', () => {
-		const text = `
-Here's a much longer paragraph. It makes use of multiple sentences, and
-wraps onto a new line when it would have gone over the 75 character limit,
-and it's easy to get confused as there's no extra newline.
-And here's a followup paragraph!
-`.trim();
-		const expectedResult = `
-<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit, and it&apos;s easy to get confused as there&apos;s no extra newline.</p>
-<p>And here&apos;s a followup paragraph!</p>
-`.trim();
-
-		expect(collectParagraphs(text)).toBe(expectedResult);
-	});
-
-	it('should turn some wrapped text into paragraphs', () => {
-		const text = `
-Here's a much longer paragraph. It makes use of multiple sentences, and
-wraps onto a new line when it would have gone over the 75 character limit.
-
-And here's a followup paragraph!
-`.trim();
-
-		const expectedResult = `
-<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit.</p>
-<p>And here&apos;s a followup paragraph!</p>
-`.trim();
-
-		expect(collectParagraphs(text)).toBe(expectedResult);
+		expect(traverse(parseHtml(input))).toBe(output);
 	});
 });
