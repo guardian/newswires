@@ -2316,6 +2316,23 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
             "ReturnData": false,
           },
         ],
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "WiresFeeds-TEST:ExportsOutputFnGetAttnewswiresemailalarmtopicB2906D97TopicName2C988424",
+                },
+              ],
+            ],
+          },
+        ],
         "Tags": [
           {
             "Key": "App",

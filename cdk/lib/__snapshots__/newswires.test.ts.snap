@@ -1303,6 +1303,23 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             "ReturnData": false,
           },
         ],
+        "OKActions": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:sns:eu-west-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":",
+                {
+                  "Fn::ImportValue": "mockWiresFeeds:ExportsOutputFnGetAttMockSnsTopicB286F519TopicName22952B8C",
+                },
+              ],
+            ],
+          },
+        ],
         "Tags": [
           {
             "Key": "App",

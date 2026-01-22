@@ -468,6 +468,7 @@ export class Newswires extends GuStack {
 					http5xxAlarm: {
 						tolerated5xxPercentage: 10,
 						numberOfMinutesAboveThresholdBeforeAlarm: 1,
+						okAction: true,
 					},
 				}
 			: { noMonitoring: true };
