@@ -1,5 +1,10 @@
 import { parse as parseHtml } from 'node-html-parser';
-import { constructHeadline, parseEmail, traverse } from './processEmailContent';
+import {
+	constructHeadline,
+	createParagraphsFromEmailHtmlBody,
+	createParagraphsFromEmailTextBody,
+	parseEmail,
+} from './processEmailContent';
 import {
 	longerLoremIpsumSampleMimeEmailData,
 	sampleMimeEmailData,
@@ -50,7 +55,7 @@ describe('traverse', () => {
 		const output = `<p>One first line</p>
 <p>Two second line</p>`;
 
-		expect(traverse(parseHtml(input))).toBe(output);
+		expect(createParagraphsFromEmailHtmlBody(parseHtml(input))).toBe(output);
 	});
 
 	it('should convert the html body of the email into a much simpler format 2', () => {
@@ -59,7 +64,7 @@ describe('traverse', () => {
 		const output = `<p>One first line</p>
 <p>Two second line</p>`;
 
-		expect(traverse(parseHtml(input))).toBe(output);
+		expect(createParagraphsFromEmailHtmlBody(parseHtml(input))).toBe(output);
 	});
 
 	it('should convert the html body of an email into simpler format 3', () => {
@@ -73,6 +78,83 @@ describe('traverse', () => {
 <p>Did the paragraphing make sense?</p>
 <p>Have we dealt with wrapping issues?&nbsp;</p>`;
 
-		expect(traverse(parseHtml(input))).toBe(output);
+		expect(createParagraphsFromEmailHtmlBody(parseHtml(input))).toBe(output);
+	});
+});
+
+describe('createParagraphsFromEmailTextBody', () => {
+	it('should turn short sentences into paragraphs', () => {
+		const text = `
+Here's a line that lives by itself.
+
+And this is an entirely separate paragraph.
+`.trim();
+
+		const expectedResult = `
+<p>Here&apos;s a line that lives by itself.</p>
+<p>And this is an entirely separate paragraph.</p>
+`.trim();
+
+		expect(createParagraphsFromEmailTextBody(text)).toBe(expectedResult);
+	});
+
+	it('should turn some wrapped text into a single paragraph', () => {
+		const text = `
+Here's a much longer paragraph. It makes use of multiple sentences, and
+wraps onto a new line when it would have gone over the 75 character limit.
+`.trim();
+
+		const expectedResult = `
+<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit.</p>
+`.trim();
+
+		expect(createParagraphsFromEmailTextBody(text)).toBe(expectedResult);
+	});
+
+	it('should turn some wrapped text into some paragraphs', () => {
+		const text = `
+Here's a much longer paragraph. It makes use of multiple sentences, and
+wraps onto a new line when it would have gone over the 75 character limit.
+
+And here's a followup paragraph!
+`.trim();
+
+		const expectedResult = `
+<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit.</p>
+<p>And here&apos;s a followup paragraph!</p>
+`.trim();
+
+		expect(createParagraphsFromEmailTextBody(text)).toBe(expectedResult);
+	});
+
+	it('should usually be able to detect the end of a paragraph even without a double-newline', () => {
+		const text = `
+Here's a much longer paragraph. It makes use of multiple sentences, and
+wraps onto a new line when it would have gone over the 75 character limit,
+and it's easy to get confused as there's no extra newline.
+And here's a followup paragraph!
+`.trim();
+		const expectedResult = `
+<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit, and it&apos;s easy to get confused as there&apos;s no extra newline.</p>
+<p>And here&apos;s a followup paragraph!</p>
+`.trim();
+
+		expect(createParagraphsFromEmailTextBody(text)).toBe(expectedResult);
+	});
+
+	it('should turn some wrapped text into paragraphs', () => {
+		const text = `
+Here's a much longer paragraph. It makes use of multiple sentences, and
+wraps onto a new line when it would have gone over the 75 character limit.
+
+And here's a followup paragraph!
+`.trim();
+
+		const expectedResult = `
+<p>Here&apos;s a much longer paragraph. It makes use of multiple sentences, and wraps onto a new line when it would have gone over the 75 character limit.</p>
+<p>And here&apos;s a followup paragraph!</p>
+`.trim();
+
+		expect(createParagraphsFromEmailTextBody(text)).toBe(expectedResult);
 	});
 });
