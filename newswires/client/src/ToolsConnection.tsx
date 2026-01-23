@@ -44,7 +44,7 @@ const SendOrVisitInComposerButton = ({
 	const previousSend = itemData.toolLinks?.find(
 		(toolLink) => toolLink.tool === 'composer',
 	);
-	const [composerId, setComposerId] = useState<string | undefined>(
+	const [composerRef, setComposerRef] = useState<string | undefined>(
 		previousSend?.ref,
 	);
 
@@ -64,8 +64,9 @@ const SendOrVisitInComposerButton = ({
 
 		sendToComposer(headline, itemData)
 			.then(({ composerId }) => {
-				setComposerId(composerId);
-				window.open(composerPageForId(composerId));
+				const composerRef = composerPageForId(composerId);
+				setComposerRef(composerRef);
+				window.open(composerRef);
 				setSendState('sent');
 				addToolLink({
 					// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
@@ -74,7 +75,7 @@ const SendOrVisitInComposerButton = ({
 					tool: 'composer',
 					sentBy: 'you',
 					sentAt: new Date().toISOString(),
-					ref: composerPageForId(composerId),
+					ref: composerRef,
 				});
 				setErrorMessages([]);
 				sendTelemetryEvent('NEWSWIRES_SEND_TO_COMPOSER', {
@@ -109,11 +110,11 @@ const SendOrVisitInComposerButton = ({
 	);
 
 	function decideIntegrationButton() {
-		if (sendState === 'sent' && composerId) {
+		if (sendState === 'sent' && composerRef) {
 			return (
 				<Tooltip tooltipContent="Open existing document in Composer">
 					<EuiButton
-						href={composerPageForId(composerId)}
+						href={composerRef}
 						target="_blank"
 						iconType={ComposerLogo}
 						size="s"
