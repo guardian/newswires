@@ -17,8 +17,8 @@ class SearchParamsSpec extends AnyFlatSpec {
       emptyQueryString,
       emptyBaseParams,
       featureSwitchShowGuSuppliersOn
-    ) shouldEqual emptySearchParams.copy(suppliersExcl =
-      List("UNAUTHED_EMAIL_FEED")
+    ) shouldEqual emptySearchParams.copy(filters =
+      emptyFilters.copy(suppliersExcl = List("UNAUTHED_EMAIL_FEED"))
     )
   }
   it should "set an english search term when maybeFreeTextQuery is set" in new models {
@@ -28,7 +28,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       baseParams,
       featureSwitchShowGuSuppliersOn
     )
-    result.searchTerms shouldEqual Some(
+    result.filters.searchTerms shouldEqual Some(
       ComboTerm(
         List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug)),
         OR
@@ -42,7 +42,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       emptyBaseParams,
       featureSwitchShowGuSuppliersOn
     )
-    result.keywordExcl shouldEqual List("a", "b")
+    result.filters.keywordExcl shouldEqual List("a", "b")
   }
 
   it should "return full search params when all fields are set" in new models {
@@ -66,21 +66,25 @@ class SearchParamsSpec extends AnyFlatSpec {
       featureSwitchShowGuSuppliersOn
     )
     result shouldEqual SearchParams(
-      searchTerms = Some(
-        ComboTerm(
-          List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug)),
-          OR
-        )
+      FilterParams(
+        searchTerms = Some(
+          ComboTerm(
+            List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug)),
+            OR
+          )
+        ),
+        keywordIncl = List("keyword1"),
+        keywordExcl = Nil,
+        suppliersIncl = List("supplier1"),
+        suppliersExcl = List("UNAUTHED_EMAIL_FEED"),
+        categoryCodesIncl = List("code1"),
+        categoryCodesExcl = List("code2"),
+        hasDataFormatting = Some(true)
       ),
-      start = Some("start"),
-      end = Some("end"),
-      keywordIncl = List("keyword1"),
-      keywordExcl = Nil,
-      suppliersIncl = List("supplier1"),
-      suppliersExcl = List("UNAUTHED_EMAIL_FEED"),
-      categoryCodesIncl = List("code1"),
-      categoryCodesExcl = List("code2"),
-      hasDataFormatting = Some(true)
+      DateRange(
+        start = Some("start"),
+        end = Some("end")
+      )
     )
   }
 
@@ -91,7 +95,7 @@ class SearchParamsSpec extends AnyFlatSpec {
         emptyBaseParams,
         featureSwitchShowGuSuppliersOff
       )
-    result.suppliersExcl shouldEqual List(
+    result.filters.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
       "GuAP"
@@ -157,7 +161,9 @@ class SearchParamsSpec extends AnyFlatSpec {
 
 trait models {
   val emptyBaseParams = BaseRequestParams()
-  val emptySearchParams = SearchParams()
+  val emptyFilters = FilterParams()
+  val emptyDateRange = DateRange(start = None, end = None)
+  val emptySearchParams = SearchParams(emptyFilters, emptyDateRange)
   val emptyQueryString = Map[String, Seq[String]]()
   val featureSwitchShowGuSuppliersOn = mock[FeatureSwitchProvider]
   val featureSwitchShowGuSuppliersOff = mock[FeatureSwitchProvider]

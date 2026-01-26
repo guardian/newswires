@@ -3,10 +3,8 @@ package models
 import conf.SearchTerms
 import service.FeatureSwitchProvider
 
-case class SearchParams(
+case class FilterParams(
     searchTerms: Option[SearchTerms] = None,
-    start: Option[String] = None,
-    end: Option[String] = None,
     keywordIncl: List[String] = Nil,
     keywordExcl: List[String] = Nil,
     suppliersIncl: List[String] = Nil,
@@ -18,6 +16,15 @@ case class SearchParams(
     preComputedCategoriesExcl: List[String] = Nil
 )
 
+case class DateRange(
+    start: Option[String],
+    end: Option[String]
+)
+case class SearchParams(
+    filters: FilterParams,
+    dateRange: DateRange
+)
+
 object SearchParams {
   def build(
       query: Map[String, Seq[String]],
@@ -25,20 +32,24 @@ object SearchParams {
       featureSwitch: FeatureSwitchProvider
   ) = {
     SearchParams(
-      searchTerms = baseParams.textSearchTerms,
-      start = baseParams.maybeStart,
-      end = baseParams.maybeEnd,
-      keywordIncl = baseParams.keywords,
-      keywordExcl = query.get("keywordExcl").map(_.toList).getOrElse(Nil),
-      suppliersIncl = baseParams.suppliers,
-      suppliersExcl = computeSupplierExcl(
-        query,
-        featureSwitch.ShowGuSuppliers.isOn(),
-        baseParams.suppliers
+      FilterParams(
+        searchTerms = baseParams.textSearchTerms,
+        keywordIncl = baseParams.keywords,
+        keywordExcl = query.get("keywordExcl").map(_.toList).getOrElse(Nil),
+        suppliersIncl = baseParams.suppliers,
+        suppliersExcl = computeSupplierExcl(
+          query,
+          featureSwitch.ShowGuSuppliers.isOn(),
+          baseParams.suppliers
+        ),
+        categoryCodesIncl = baseParams.categoryCode,
+        categoryCodesExcl = baseParams.categoryCodeExcl,
+        hasDataFormatting = baseParams.hasDataFormatting
       ),
-      categoryCodesIncl = baseParams.categoryCode,
-      categoryCodesExcl = baseParams.categoryCodeExcl,
-      hasDataFormatting = baseParams.hasDataFormatting
+      DateRange(
+        start = baseParams.maybeStart,
+        end = baseParams.maybeEnd
+      )
     )
   }
 

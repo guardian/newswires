@@ -3,11 +3,11 @@ package conf
 import conf.SearchField.{BodyText, Headline, Slug}
 import conf.SearchTerm.Simple
 import conf.Suppliers._
-import models.SearchParams
+import models.{FilterParams, SearchParams}
 
 // Increase max line length to improve readability of search presets
 // scalafmt: { maxColumn = 120 }
-case class SearchPreset(searchParams: List[SearchParams], negatedSearchParams: List[SearchParams])
+case class SearchPreset(searchParams: List[FilterParams], negatedSearchParams: List[FilterParams])
 object SearchPreset {
   def apply(
       supplier: String,
@@ -20,8 +20,8 @@ object SearchPreset {
       hasDataFormatting: Option[Boolean] = None,
       preComputedCategories: List[String] = Nil,
       preComputedCategoriesExcl: List[String] = Nil
-  ): SearchParams =
-    SearchParams(
+  ): FilterParams =
+    FilterParams(
       searchTerms = searchTerms,
       suppliersIncl = List(supplier),
       keywordIncl = keyword.toList ::: keywords,
@@ -850,7 +850,7 @@ object SearchPresets {
 
   private val DotCopy = List(SearchPreset("UNAUTHED_EMAIL_FEED"))
 
-  val SportOther: List[SearchParams] =
+  val SportOther: List[FilterParams] =
     Soccer ::: SoccerScores ::: SoccerTables ::: AmericanFootball ::: Athletics ::: AustralianRules ::: Baseball ::: Basketball ::: Boxing ::: CollegeSports ::: Cricket ::: CricketScores ::: Cycling ::: Golf ::: GolfScores ::: HorseRacing ::: IceHockey ::: MotorSport ::: Olympics ::: RugbyLeague ::: RugbyUnion ::: RugbyScores ::: Tennis ::: TennisScores ::: AllDataFormats
 
 }

@@ -15,6 +15,7 @@ import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
+  FilterParams,
   FingerpostWire,
   NextPage,
   NextPageId,
@@ -358,56 +359,56 @@ object FingerpostWireEntry
   }
 
   def processSearchParams(
-      search: SearchParams
+      filters: FilterParams
   ): List[SQLSyntax] = {
-    val sourceFeedsQuery: Option[SQLSyntax] = search.suppliersIncl match {
+    val sourceFeedsQuery: Option[SQLSyntax] = filters.suppliersIncl match {
       case Nil         => None
       case sourceFeeds => Some(Filters.supplierSQL(sourceFeeds))
     }
 
-    val sourceFeedsExclQuery: Option[SQLSyntax] = search.suppliersExcl match {
+    val sourceFeedsExclQuery: Option[SQLSyntax] = filters.suppliersExcl match {
       case Nil             => None
       case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
     }
 
     val searchQuery: Option[SQLSyntax] =
-      search.searchTerms.map(Filters.searchQuerySqlCombined)
+      filters.searchTerms.map(Filters.searchQuerySqlCombined)
 
-    val keywordsQuery = search.keywordIncl match {
+    val keywordsQuery = filters.keywordIncl match {
       case Nil      => None
       case keywords => Some(Filters.keywordsSQL(keywords))
     }
 
-    val keywordsExclQuery = search.keywordExcl match {
+    val keywordsExclQuery = filters.keywordExcl match {
       case Nil      => None
       case keywords => Some(Filters.keywordsExclSQL(keywords))
     }
 
-    val categoryCodesInclQuery = search.categoryCodesIncl match {
+    val categoryCodesInclQuery = filters.categoryCodesIncl match {
       case Nil           => None
       case categoryCodes => Some(Filters.categoryCodeInclSQL(categoryCodes))
     }
 
-    val categoryCodesExclQuery = search.categoryCodesExcl match {
+    val categoryCodesExclQuery = filters.categoryCodesExcl match {
       case Nil               => None
       case categoryCodesExcl =>
         Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
     }
 
-    val hasDataFormattingQuery = search.hasDataFormatting match {
+    val hasDataFormattingQuery = filters.hasDataFormatting match {
       case Some(dataFormatting) =>
         Some(Filters.dataFormattingSQL(dataFormatting))
       case None => None
     }
 
-    val preComputedCategoriesQuery = search.preComputedCategories match {
+    val preComputedCategoriesQuery = filters.preComputedCategories match {
       case Nil              => None
       case presetCategories =>
         Some(Filters.preComputedCategoriesSQL(presetCategories))
     }
 
     val preComputedCategoriesExclQuery =
-      search.preComputedCategoriesExcl match {
+      filters.preComputedCategoriesExcl match {
         case Nil                  => None
         case presetCategoriesExcl =>
           Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
@@ -427,14 +428,14 @@ object FingerpostWireEntry
     ).flatten
   }
 
-  def searchClauses(searchParams: List[SearchParams]) = searchParams.map(
+  def searchClauses(searchParams: List[FilterParams]) = searchParams.map(
     params => sqls.joinWithAnd(processSearchParams(params): _*)
   ) match {
     case Nil      => None
     case nonEmpty => Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
   }
 
-  def searchClause(searchParams: SearchParams) = processSearchParams(
+  def searchClause(searchParams: FilterParams) = processSearchParams(
     searchParams
   ) match {
     case Nil     => None
@@ -443,12 +444,12 @@ object FingerpostWireEntry
 
   private[db] def buildWhereClause(
       searchParams: SearchParams,
-      savedSearchParamList: List[SearchParams],
+      savedSearchParamList: List[FilterParams],
       maybeBeforeTimeStamp: Option[String],
       maybeAfterTimeStamp: Option[UpdateType],
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[UpdateTypeId],
-      negatedSearchParamList: List[SearchParams] = List()
+      negatedSearchParamList: List[FilterParams] = List()
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
@@ -459,9 +460,12 @@ object FingerpostWireEntry
     )
 
     val dateRangeQuery =
-      Filters.dateRangeSQL(searchParams.start, searchParams.end)
+      Filters.dateRangeSQL(
+        searchParams.dateRange.start,
+        searchParams.dateRange.end
+      )
 
-    val customSearchClauses = searchClause(searchParams)
+    val customSearchClauses = searchClause(searchParams.filters)
     val presetSearchClauses = searchClauses(savedSearchParamList)
     val negatedPresetSearchClauses =
       searchClauses(negatedSearchParamList).map(clause => sqls"NOT $clause")
