@@ -19,6 +19,19 @@ import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
+  val emptySearchParams = SearchParams(
+    searchTerms = None,
+    start = None,
+    end = None,
+    keywordIncl = Nil,
+    keywordExcl = Nil,
+    suppliersIncl = Nil,
+    suppliersExcl = Nil,
+    categoryCodesIncl = Nil,
+    categoryCodesExcl = Nil,
+    hasDataFormatting = None
+  )
+
   behavior of "FingerpostWireEntry Json encoders / decoders"
 
   it should "serialise json" in {
@@ -69,19 +82,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "FingerpostWireEntry.buildWhereClause"
 
   it should "generate an empty where clause for a empty set of search params" in {
-    val searchParams = SearchParams(
-      searchTerms = None,
-      start = None,
-      end = None,
-      keywordIncl = Nil,
-      keywordExcl = Nil,
-      suppliersIncl = Nil,
-      suppliersExcl = Nil
-    )
-
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        searchParams,
+        emptySearchParams,
         List(),
         None,
         None,
@@ -97,19 +100,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "apply beforeTimeStamp or afterTimeStamp even if no other custom search params are set" in {
 
-    val searchParams = SearchParams(
-      searchTerms = None,
-      start = None,
-      end = None,
-      keywordIncl = Nil,
-      keywordExcl = Nil,
-      suppliersIncl = Nil,
-      suppliersExcl = Nil
-    )
-
     val whereClauseBeforeId =
       FingerpostWireEntry.buildWhereClause(
-        searchParams,
+        emptySearchParams,
         List(),
         maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
         None,
@@ -124,7 +117,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClauseSinceId =
       FingerpostWireEntry.buildWhereClause(
-        searchParams,
+        emptySearchParams,
         List(),
         None,
         maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z")),
@@ -140,19 +133,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "apply beforeId or afterId even if no other custom search params are set" in {
 
-    val searchParams = SearchParams(
-      searchTerms = None,
-      start = None,
-      end = None,
-      keywordIncl = Nil,
-      keywordExcl = Nil,
-      suppliersIncl = Nil,
-      suppliersExcl = Nil
-    )
-
     val whereClauseBeforeId =
       FingerpostWireEntry.buildWhereClause(
-        searchParams,
+        emptySearchParams,
         List(),
         None,
         None,
@@ -167,7 +150,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val whereClauseSinceId =
       FingerpostWireEntry.buildWhereClause(
-        searchParams,
+        emptySearchParams,
         List(),
         None,
         maybeAfterTimeStamp = None,
@@ -704,18 +687,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "FingerpostWireEntry.processSearchParams"
 
-  val emptySearchParams = SearchParams(
-    searchTerms = None,
-    start = None,
-    end = None,
-    keywordIncl = Nil,
-    keywordExcl = Nil,
-    suppliersIncl = Nil,
-    suppliersExcl = Nil,
-    categoryCodesIncl = Nil,
-    categoryCodesExcl = Nil,
-    hasDataFormatting = None
-  )
   it should "return an empty list when no filters are set" in {
     val snippets = FingerpostWireEntry.processSearchParams(emptySearchParams)
     snippets shouldEqual Nil
