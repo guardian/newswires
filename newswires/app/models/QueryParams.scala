@@ -1,5 +1,6 @@
 package models
 
+import conf.SearchPreset
 import conf.SearchTerm.English
 
 sealed trait UpdateType {
@@ -18,12 +19,11 @@ case class MostRecentId(sinceId: Int) extends UpdateTypeId
 
 case class QueryParams(
     searchParams: SearchParams,
-    savedSearchParamList: List[SearchParams],
+    searchPreset: Option[SearchPreset],
     maybeSearchTerm: Option[English],
     maybeBeforeTimeStamp: Option[String],
     maybeAfterTimeStamp: Option[UpdateType],
     maybeBeforeId: Option[Int],
     maybeSinceId: Option[UpdateTypeId],
-    pageSize: Int = 250,
-    negatedSearchParamList: List[SearchParams] = Nil
+    pageSize: Int = 250
 )

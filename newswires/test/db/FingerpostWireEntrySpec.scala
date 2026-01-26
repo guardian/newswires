@@ -654,31 +654,28 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "FingerpostWireEntry.buildSearchQuery"
 
+  val emptyQueryParams = QueryParams(
+    searchParams = SearchParams(),
+    searchPreset = None,
+    maybeSearchTerm = None,
+    maybeBeforeTimeStamp = None,
+    maybeAfterTimeStamp = None,
+    maybeBeforeId = None,
+    maybeSinceId = None
+  )
+
   it should "order results by descending ingestion_at by default" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = None,
-      maybeBeforeId = None,
-      maybeSinceId = None
-    )
+
     val whereClause = sqls""
-    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+    val query =
+      FingerpostWireEntry.buildSearchQuery(emptyQueryParams, whereClause)
 
     query.statement should include("ORDER BY fm.ingested_at DESC")
   }
 
   it should "order results by descending ingestion_at when using MostRecent update type with maybeafterTimeStamp" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = Some(MostRecent("2025-01-01T00:00:00Z")),
-      None,
-      None
+    val queryParams = emptyQueryParams.copy(maybeAfterTimeStamp =
+      Some(MostRecent("2025-01-01T00:00:00Z"))
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -687,14 +684,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "order results by *ascending* ingestion_at when using NextPage update type with maybeafterTimeStamp" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(None),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z")),
-      maybeBeforeId = None,
-      maybeSinceId = None
+    val queryParams = emptyQueryParams.copy(maybeAfterTimeStamp =
+      Some(NextPage("2025-01-01T00:00:00Z"))
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -703,15 +694,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "order results by *ascending* ingestion_at when using NextPageId update type with maybeSinceId" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(None),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = None,
-      maybeBeforeId = None,
-      maybeSinceId = Some(NextPageId(100))
-    )
+    val queryParams =
+      emptyQueryParams.copy(maybeSinceId = Some(NextPageId(100)))
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
 

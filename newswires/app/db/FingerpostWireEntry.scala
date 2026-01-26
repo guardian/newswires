@@ -520,12 +520,12 @@ object FingerpostWireEntry
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
       queryParams.searchParams,
-      queryParams.savedSearchParamList,
+      queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
       queryParams.maybeBeforeTimeStamp,
       queryParams.maybeAfterTimeStamp,
       queryParams.maybeBeforeId,
       queryParams.maybeSinceId,
-      queryParams.negatedSearchParamList
+      queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil)
     )
 
     val start = System.currentTimeMillis()
