@@ -381,18 +381,34 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql snippet with multiple parameters defined" in {
-    val categoryCodesIncl =
+    val multiClauses =
       emptyFilterParams
         .copy(suppliersIncl = List("supplier"))
         .copy(categoryCodesIncl = List("code"))
-    val snippets = FingerpostWireEntry.filtersBuilder(categoryCodesIncl)
+    val snippets = FingerpostWireEntry.filtersBuilder(multiClauses)
 
     val rendered = sqls"${snippets.get}".value
     rendered should include("fm.category_codes && ?")
     rendered should include("upper(fm.supplier)")
   }
 
-  it should "combine all SQL clauses when all filters are set with an 'and'" in {
+  it should "combine filters with an 'and'" in {
+    val multiClauses =
+      emptyFilterParams
+        .copy(suppliersIncl = List("supplier"))
+        .copy(categoryCodesIncl = List("code"))
+
+    val supplierClause = Filters.supplierSQL(List("supplier"))
+    val codeClause = Filters.categoryCodeInclSQL(List("code"))
+
+    val snippets = FingerpostWireEntry.filtersBuilder(multiClauses)
+
+    snippets.get should matchSqlSnippet(
+      expectedClause = sqls"${codeClause} and ${supplierClause}",
+      expectedParams = List(List("code"), "supplier")
+    )
+  }
+  it should "produce all SQL clauses when all filters are set" in {
     val fullParams = FilterParams(
       searchTerms = Some(
         ComboTerm(
