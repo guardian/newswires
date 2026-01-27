@@ -221,97 +221,62 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-//  it should "join other clauses using 'and'" in {
-//    val dateRange = DateRange(
-//      start = Some("2025-03-10T00:00:00.000Z"),
-//      end = Some("2025-03-10T23:59:59.999Z"),
-//    )
-//    val filters = FilterParams(
-//      searchTerms = Some(SingleTerm(SearchTerm.English("text1"))),
-//      suppliersExcl = List("supplier1", "supplier2"),
-//      keywordExcl = List("keyword1"),
-//      categoryCodesExcl = List("category1", "category2")
-//    )
-//    val searchParams = emptySearchParams.copy(dateRange = dateRange, filters = filters)
-//    val whereClause =
-//      FingerpostWireEntry.buildWhereClause(
-//        searchParams,
-//        List(),
-//        maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
-//        maybeAfterTimeStamp = None,
-//        maybeBeforeId = None,
-//        maybeSinceId = None
-//      )
-//
-//    val textSearchWhereClause = FingerpostWireEntry
-//      .buildWhereClause(
-//        searchParams,
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    val dateRangeWhereClause = FingerpostWireEntry
-//      .buildWhereClause(
-//        emptySearchParams.copy(dateRange = dateRange),
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    val keywordsExclWhereClause = FingerpostWireEntry
-//      .buildWhereClause(
-//        emptySearchParams.copy(filters = filters.copy(keywordExcl = List("keyword1"))),
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    val suppliersExclWhereClause = FingerpostWireEntry
-//      .buildWhereClause(
-//        emptySearchParams.copy(filters = filters.copy(suppliersExcl = List("supplier1", "supplier2"))),
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    val categoryCodesExclWhereClause = FingerpostWireEntry
-//      .buildWhereClause(
-//        emptySearchParams.copy(filters = filters.copy(categoryCodesExcl = List("category1", "category2"))),
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    whereClause should matchSqlSnippet(
-//      sqls"""$dateRangeWhereClause
-//         | and $keywordsExclWhereClause
-//         | and $textSearchWhereClause
-//         | and $suppliersExclWhereClause
-//         | and $categoryCodesExclWhereClause
-//         | and fm.ingested_at <= CAST(? AS timestamptz)""".stripMargin,
-//      List(
-//        "2025-03-10T00:00:00.000Z",
-//        "2025-03-10T23:59:59.999Z",
-//        List("keyword1"),
-//        "text1",
-//        "supplier1",
-//        "supplier2",
-//        List("category1", "category2"),
-//        "2025-01-01T00:00:00Z"
-//      )
-//    )
-//  }
+  it should "join other clauses using 'and'" in {
+    val dateRange = DateRange(
+      start = Some("2025-03-10T00:00:00.000Z"),
+      end = Some("2025-03-10T23:59:59.999Z")
+    )
+    val filters = FilterParams(
+      searchTerms = Some(SingleTerm(SearchTerm.English("text1"))),
+      suppliersExcl = List("supplier1", "supplier2"),
+      keywordExcl = List("keyword1"),
+      categoryCodesExcl = List("category1", "category2")
+    )
+    val searchParams =
+      emptySearchParams.copy(dateRange = dateRange, filters = filters)
+    val whereClause =
+      FingerpostWireEntry.buildWhereClause(
+        searchParams,
+        List(),
+        maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
+        maybeAfterTimeStamp = None,
+        maybeBeforeId = None,
+        maybeSinceId = None
+      )
+
+    val rendered = sqls"${whereClause}".value
+    rendered should include(
+      "fm.ingested_at BETWEEN CAST(? AS timestamptz) AND CAST(? AS timestamptz)"
+    )
+
+    rendered should include(
+      """and NOT EXISTS (
+  SELECT FROM fingerpost_wire_entry keywordsExcl
+  WHERE fm.id = keywordsExcl.id
+    AND (keywordsExcl.content -> 'keywords') ??| ?
+) """
+    )
+
+    rendered should include(
+      """and websearch_to_tsquery('english', ?) @@ fm.combined_textsearch"""
+    )
+
+    rendered should include(
+      """and NOT EXISTS (
+  SELECT FROM fingerpost_wire_entry sourceFeedsExcl
+  WHERE fm.id = sourceFeedsExcl.id
+    AND  upper(sourceFeedsExcl.supplier) in (upper(?), upper(?))
+)"""
+    )
+    rendered should include(
+      """and NOT EXISTS (
+  SELECT FROM fingerpost_wire_entry categoryCodesExcl
+  WHERE fm.id = categoryCodesExcl.id
+    AND categoryCodesExcl.category_codes && ?
+)"""
+    )
+
+  }
 
   it should "Should cast a lower bound date only" in {
     val searchParams = emptySearchParams.copy(dateRange =
