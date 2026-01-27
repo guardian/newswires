@@ -28,7 +28,10 @@ import {
 	CachePolicy,
 	Distribution,
 	OriginProtocolPolicy,
+	OriginRequestCookieBehavior,
+	OriginRequestHeaderBehavior,
 	OriginRequestPolicy,
+	OriginRequestQueryStringBehavior,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
@@ -536,6 +539,22 @@ export class Newswires extends GuStack {
 			certificateArn.valueAsString,
 		);
 
+		const originRequestPolicy = new OriginRequestPolicy(
+			this,
+			`newswires-cloudfront-distro-${this.stage}-origin-req-policy`,
+			{
+				queryStringBehavior: OriginRequestQueryStringBehavior.all(),
+				headerBehavior: OriginRequestHeaderBehavior.all(),
+				cookieBehavior: OriginRequestCookieBehavior.allowList(
+					'gutoolsAuth-assym',
+					'PLAY_SESSION',
+					'panda-antiForgeryToken',
+					'panda-loginOriginUrl',
+					'panda-forceExpiry',
+				),
+			},
+		);
+
 		const newswiresCloudFrontDistro = new Distribution(
 			this,
 			`newswires-cloudfront-distro-${this.stage}`,
@@ -545,7 +564,7 @@ export class Newswires extends GuStack {
 						protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
 					}),
 					allowedMethods: AllowedMethods.ALLOW_ALL,
-					originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+					originRequestPolicy: originRequestPolicy,
 					cachePolicy: CachePolicy.CACHING_DISABLED,
 				},
 				logBucket: cloudFrontLogsBucket,
