@@ -427,13 +427,28 @@ object FingerpostWireEntry
     ).flatten
   }
 
+  def searchClauses(searchParams: List[SearchParams]) = searchParams.map(
+    params => sqls.joinWithAnd(processSearchParams(params): _*)
+  ) match {
+    case Nil      => None
+    case nonEmpty => Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
+  }
+
+  def searchClause(searchParams: SearchParams) = processSearchParams(
+    searchParams
+  ) match {
+    case Nil     => None
+    case clauses => Some(sqls.joinWithAnd(clauses: _*))
+  }
+
   private[db] def buildWhereClause(
       searchParams: SearchParams,
       savedSearchParamList: List[SearchParams],
       maybeBeforeTimeStamp: Option[String],
       maybeAfterTimeStamp: Option[UpdateType],
       maybeBeforeId: Option[Int],
-      maybeSinceId: Option[UpdateTypeId]
+      maybeSinceId: Option[UpdateTypeId],
+      negatedSearchParamList: List[SearchParams] = List()
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
@@ -446,32 +461,22 @@ object FingerpostWireEntry
     val dateRangeQuery =
       Filters.dateRangeSQL(searchParams.start, searchParams.end)
 
-    val customSearchClauses = processSearchParams(searchParams) match {
-      case Nil     => None
-      case clauses =>
-        Some(sqls.joinWithAnd(clauses: _*))
-    }
-
-    val presetSearchClauses =
-      savedSearchParamList.map(params =>
-        sqls.joinWithAnd(processSearchParams(params): _*)
-      ) match {
-        case Nil      => None
-        case nonEmpty =>
-          Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
-      }
+    val customSearchClauses = searchClause(searchParams)
+    val presetSearchClauses = searchClauses(savedSearchParamList)
+    val negatedPresetSearchClauses =
+      searchClauses(negatedSearchParamList).map(clause => sqls"NOT $clause")
 
     val allClauses =
       (List(
         dateRangeQuery,
         customSearchClauses,
-        presetSearchClauses
+        presetSearchClauses,
+        negatedPresetSearchClauses
       ) ++ dataOnlyWhereClauses).flatten
 
     allClauses match {
       case Nil     => sqls"true"
-      case clauses =>
-        sqls.joinWithAnd(clauses: _*)
+      case clauses => sqls.joinWithAnd(clauses: _*)
     }
   }
 
@@ -519,7 +524,8 @@ object FingerpostWireEntry
       queryParams.maybeBeforeTimeStamp,
       queryParams.maybeAfterTimeStamp,
       queryParams.maybeBeforeId,
-      queryParams.maybeSinceId
+      queryParams.maybeSinceId,
+      queryParams.negatedSearchParamList
     )
 
     val start = System.currentTimeMillis()

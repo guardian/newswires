@@ -24,5 +24,6 @@ case class QueryParams(
     maybeAfterTimeStamp: Option[UpdateType],
     maybeBeforeId: Option[Int],
     maybeSinceId: Option[UpdateTypeId],
-    pageSize: Int = 250
+    pageSize: Int = 250,
+    negatedSearchParamList: List[SearchParams] = Nil
 )

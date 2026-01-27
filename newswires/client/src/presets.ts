@@ -126,6 +126,10 @@ export const sportPresets: Preset[] = [
 		name: 'All data formats',
 		id: 'all-data-formats',
 	},
+	{
+		name: 'Sport other',
+		id: 'sport-other',
+	},
 ];
 
 export const topLevelSportId = 'all-sport';
