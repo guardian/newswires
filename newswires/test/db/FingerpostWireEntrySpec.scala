@@ -546,18 +546,18 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     query.statement should include("ORDER BY fm.ingested_at ASC")
   }
 
-  behavior of "FingerpostWireEntry.processSearchParams"
+  behavior of "FingerpostWireEntry.filtersBuilder"
 
   it should "return an empty list when no filters are set" in {
-    val snippets = FingerpostWireEntry.processSearchParams(emptyFilterParams)
-    snippets shouldEqual Nil
+    val snippets = FingerpostWireEntry.filtersBuilder(emptyFilterParams)
+    snippets shouldEqual None
   }
 
   it should "create the correct sql snippet with one parameter defined" in {
     val supplierClause = " upper(fm.supplier) in (upper(?))"
     val suppliersInc = emptyFilterParams.copy(suppliersIncl = List("supplier"))
-    val snippets = FingerpostWireEntry.processSearchParams(suppliersInc)
-    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+    val snippets = FingerpostWireEntry.filtersBuilder(suppliersInc)
+    snippets.get should matchSqlSnippet(
       expectedClause = supplierClause,
       expectedParams = List("supplier")
     )
@@ -568,9 +568,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       emptyFilterParams
         .copy(suppliersIncl = List("supplier"))
         .copy(categoryCodesIncl = List("code"))
-    val snippets = FingerpostWireEntry.processSearchParams(categoryCodesIncl)
+    val snippets = FingerpostWireEntry.filtersBuilder(categoryCodesIncl)
 
-    val rendered = sqls"${sqls.joinWithAnd(snippets: _*)}".value
+    val rendered = sqls"${snippets.get}".value
     rendered should include("fm.category_codes && ?")
     rendered should include("upper(fm.supplier)")
   }
@@ -597,8 +597,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       preComputedCategoriesExcl = List("p2")
     )
 
-    val snippets = FingerpostWireEntry.processSearchParams(fullParams)
-    val rendered = sqls"${sqls.joinWithAnd(snippets: _*)}".value
+    val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
+    val rendered = sqls"${snippets.get}".value
 
     rendered should include("(fm.content -> 'keywords')")
     rendered should include("fm.category_codes &&")

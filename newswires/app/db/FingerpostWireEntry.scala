@@ -359,9 +359,9 @@ object FingerpostWireEntry
       }
   }
 
-  def processSearchParams(
+  private[db] def filtersBuilder(
       filters: FilterParams
-  ): List[SQLSyntax] = {
+  ): Option[SQLSyntax] = {
     val sourceFeedsQuery: Option[SQLSyntax] = filters.suppliersIncl match {
       case Nil         => None
       case sourceFeeds => Some(Filters.supplierSQL(sourceFeeds))
@@ -415,7 +415,7 @@ object FingerpostWireEntry
           Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
       }
 
-    List(
+    val clauses = List(
       keywordsQuery,
       categoryCodesInclQuery,
       keywordsExclQuery,
@@ -427,20 +427,21 @@ object FingerpostWireEntry
       preComputedCategoriesQuery,
       preComputedCategoriesExclQuery
     ).flatten
+    clauses match {
+      case Nil => None
+      case _   => Some(sqls.joinWithAnd(clauses: _*))
+    }
   }
 
-  def searchClauses(searchParams: List[FilterParams]) = searchParams.map(
-    params => sqls.joinWithAnd(processSearchParams(params): _*)
-  ) match {
-    case Nil      => None
-    case nonEmpty => Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
-  }
+  private[db] def presetsBuilder(
+      presets: List[FilterParams]
+  ): Option[SQLSyntax] = {
+    val andClauses = presets.flatMap(filtersBuilder)
 
-  def searchClause(searchParams: FilterParams) = processSearchParams(
-    searchParams
-  ) match {
-    case Nil     => None
-    case clauses => Some(sqls.joinWithAnd(clauses: _*))
+    andClauses match {
+      case Nil => None
+      case xs  => Some(sqls"(${sqls.joinWithOr(xs: _*)})")
+    }
   }
 
   private[db] def buildWhereClause(
@@ -465,10 +466,10 @@ object FingerpostWireEntry
         searchParams.dateRange.end
       )
 
-    val customSearchClauses = searchClause(searchParams.filters)
-    val presetSearchClauses = searchClauses(savedSearchParamList)
+    val customSearchClauses = filtersBuilder(searchParams.filters)
+    val presetSearchClauses = presetsBuilder(savedSearchParamList)
     val negatedPresetSearchClauses =
-      searchClauses(negatedSearchParamList).map(clause => sqls"NOT $clause")
+      presetsBuilder(negatedSearchParamList).map(clause => sqls"NOT $clause")
 
     val allClauses =
       (List(
