@@ -840,7 +840,12 @@ object SearchPresets {
     ),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("Oly", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Olympics.AAP),
-    SearchPreset(AP, categoryCodes = CategoryCodes.Sport.AP, keyword = Some("Olympic games"))
+    SearchPreset(
+      AP,
+      categoryCodes = CategoryCodes.Sport.AP,
+      keywords = List("Olympic games", "2026 Milan Cortina Olympic Games")
+    ),
+    SearchPreset(AP, categoryCodes = CategoryCodes.Sport.AP, searchTerms = Some(SingleTerm(Simple("OLY-", Slug))))
   )
 
   private val AllDataFormats = List(
