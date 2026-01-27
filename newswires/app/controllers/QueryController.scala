@@ -10,6 +10,7 @@ import models.{
   BaseRequestParams,
   NextPage,
   NextPageId,
+  QueryCursor,
   QueryParams,
   QueryResponse,
   SearchParams
@@ -79,10 +80,12 @@ class QueryController(
       searchParams = searchParams,
       searchPreset = searchPreset,
       maybeSearchTerm = baseParams.textForHighlighting,
-      maybeBeforeTimeStamp = maybeBeforeTimeStamp,
-      maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
-      maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId.map(NextPageId(_)),
+      queryCursor = QueryCursor(
+        maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+        maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
+        maybeBeforeId = maybeBeforeId,
+        maybeSinceId = maybeSinceId.map(NextPageId(_))
+      ),
       pageSize = 30
     )
 

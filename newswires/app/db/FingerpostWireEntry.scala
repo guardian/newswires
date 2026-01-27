@@ -19,6 +19,7 @@ import models.{
   FingerpostWire,
   NextPage,
   NextPageId,
+  QueryCursor,
   QueryParams,
   QueryResponse,
   SearchParams,
@@ -444,19 +445,18 @@ object FingerpostWireEntry
 
   private[db] def buildWhereClause(
       searchParams: SearchParams,
-      savedSearchParamList: List[FilterParams],
-      maybeBeforeTimeStamp: Option[String],
-      maybeAfterTimeStamp: Option[UpdateType],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[UpdateTypeId],
-      negatedSearchParamList: List[FilterParams] = List()
+      queryCursor: QueryCursor,
+      savedSearchParamList: List[FilterParams] = Nil,
+      negatedSearchParamList: List[FilterParams] = Nil
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = List(
-      maybeBeforeTimeStamp.map(Filters.beforeTimeStampSQL(_)),
-      maybeAfterTimeStamp.map(u => Filters.afterTimeStampSQL(u.sinceTimeStamp)),
-      maybeBeforeId.map(Filters.beforeIdSQL(_)),
-      maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
+      queryCursor.maybeBeforeTimeStamp.map(Filters.beforeTimeStampSQL(_)),
+      queryCursor.maybeAfterTimeStamp.map(u =>
+        Filters.afterTimeStampSQL(u.sinceTimeStamp)
+      ),
+      queryCursor.maybeBeforeId.map(Filters.beforeIdSQL(_)),
+      queryCursor.maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
     )
 
     val dateRangeQuery =
@@ -501,8 +501,8 @@ object FingerpostWireEntry
   ): SQL[Nothing, NoExtractor] = {
     val effectivePageSize = clamp(0, queryParams.pageSize, 250)
 
-    val maybeAfterTimeStamp = queryParams.maybeAfterTimeStamp
-    val maybeSinceId = queryParams.maybeSinceId
+    val maybeAfterTimeStamp = queryParams.queryCursor.maybeAfterTimeStamp
+    val maybeSinceId = queryParams.queryCursor.maybeSinceId
 
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
@@ -524,11 +524,8 @@ object FingerpostWireEntry
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
       queryParams.searchParams,
+      queryParams.queryCursor,
       queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
-      queryParams.maybeBeforeTimeStamp,
-      queryParams.maybeAfterTimeStamp,
-      queryParams.maybeBeforeId,
-      queryParams.maybeSinceId,
       queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil)
     )
 

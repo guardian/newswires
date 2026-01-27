@@ -21,9 +21,6 @@ case class QueryParams(
     searchParams: SearchParams,
     searchPreset: Option[SearchPreset],
     maybeSearchTerm: Option[English],
-    maybeBeforeTimeStamp: Option[String],
-    maybeAfterTimeStamp: Option[UpdateType],
-    maybeBeforeId: Option[Int],
-    maybeSinceId: Option[UpdateTypeId],
+    queryCursor: QueryCursor,
     pageSize: Int = 250
 )
