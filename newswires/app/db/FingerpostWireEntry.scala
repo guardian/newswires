@@ -520,6 +520,29 @@ object FingerpostWireEntry
     }
   }
 
+  private[db] def marshallJoinedRowsToWireEntries(
+      rows: List[
+        (
+            Option[FingerpostWireEntry],
+            Option[ToolLink],
+            Option[WireEntryForCollection]
+        )
+      ]
+  ): List[FingerpostWireEntry] = {
+    rows
+      .collect({ case (Some(wire), toolLinkOpt, collectionOpt) =>
+        WireMaybeToolLinkAndCollection(wire, toolLinkOpt, collectionOpt)
+      })
+      .groupBy(t => t.wireEntry)
+      .map({ case (wire, wireRelations) =>
+        wire.copy(
+          toolLinks = wireRelations.flatMap(_.toolLink).distinct,
+          collections = wireRelations.flatMap(_.collection).distinct
+        )
+      })
+      .toList
+  }
+
   private[db] def buildSearchQuery(
       queryParams: QueryParams,
       whereClause: SQLSyntax,
@@ -572,7 +595,7 @@ object FingerpostWireEntry
     )
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
-    val results: List[FingerpostWireEntry] = query
+    val rows = query
       .map(rs => {
         val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
         val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
@@ -582,18 +605,9 @@ object FingerpostWireEntry
         (wireEntry, toolLinkOpt, collectionOpt)
       })
       .list()
-      .collect({ case (Some(wire), toolLinkOpt, collectionOpt) =>
-        WireMaybeToolLinkAndCollection(wire, toolLinkOpt, collectionOpt)
-      })
-      .groupBy(t => t.wireEntry)
-      .map({ case (wire, wireRelations) =>
-        wire.copy(
-          toolLinks = wireRelations.flatMap(_.toolLink).distinct,
-          collections = wireRelations.flatMap(_.collection).distinct
-        )
-      })
-      .toList
-      .sortWith(queryParams.timeStampColumn.sortDesc)
+
+    val results: List[FingerpostWireEntry] =
+      marshallJoinedRowsToWireEntries(rows)
 
     val countQuery =
       sql"""| SELECT COUNT(*)

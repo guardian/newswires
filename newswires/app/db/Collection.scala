@@ -77,6 +77,11 @@ object Collection extends SQLSyntaxSupport[Collection] with Logging {
   def insert(name: String, description: Option[String]): Long = DB localTx {
     implicit session =>
       val c = Collection.column
+
+      /** todo handle the case where the unique name constraint is violated --
+        * the current query will error in this case and we want to handle it
+        * with good feedback to the user
+        */
       sql"""| INSERT INTO $table
           |  (${c.name}, ${c.description})
           | VALUES ($name, $description)

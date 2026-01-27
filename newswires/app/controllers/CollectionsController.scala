@@ -29,7 +29,6 @@ class CollectionsController(
 
   def createCollection(name: String): Action[AnyContent] = apiAuthAction {
     request: UserRequest[AnyContent] =>
-      logger.warn(request.body.asText.toString)
       val maybeDescriptionFromBody = request.body.asJson.flatMap { json =>
         (json \ "description").asOpt[String]
       }

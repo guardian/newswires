@@ -1,6 +1,6 @@
 package models
 
-import db.{FingerpostWireEntry, ToolLink}
+import db.{FingerpostWireEntry, TimeStampColumn, ToolLink}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 
@@ -19,7 +19,8 @@ object QueryResponse {
 
   def display(
       queryResponse: QueryResponse,
-      requestingUser: String
+      requestingUser: String,
+      timeStampColumn: TimeStampColumn
   ): QueryResponse = {
     queryResponse.copy(
       results = queryResponse.results
@@ -27,6 +28,7 @@ object QueryResponse {
           wire
             .copy(toolLinks = ToolLink.display(wire.toolLinks, requestingUser))
         })
+        .sortWith(timeStampColumn.sortDesc)
     )
   }
 }

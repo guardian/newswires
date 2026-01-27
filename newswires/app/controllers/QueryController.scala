@@ -102,7 +102,10 @@ class QueryController(
       )
 
     Ok(
-      QueryResponse.display(queryResponse, request.user.username).asJson.spaces2
+      QueryResponse
+        .display(queryResponse, request.user.username, timeStampColumn)
+        .asJson
+        .spaces2
     )
   }
 

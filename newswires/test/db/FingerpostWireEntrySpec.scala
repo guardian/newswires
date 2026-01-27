@@ -699,22 +699,22 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "FingerpostWireEntry.buildSearchQuery"
 
-//  it should "order results by descending ingestion_at by default" in {
-//    val queryParams = QueryParams(
-//      searchParams = SearchParams(),
-//      savedSearchParamList = Nil,
-//      maybeSearchTerm = None,
-//      maybeBeforeTimeStamp = None,
-//      maybeAfterTimeStamp = None,
-//      maybeBeforeId = None,
-//      maybeSinceId = None,
-//      timeStampColumn = IngestedAtTime
-//    )
-//    val whereClause = sqls""
-//    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
-//
-//    query.statement should include("ORDER BY fm.ingested_at DESC")
-//  }
+  it should "order results by descending ingestion_at by default" in {
+    val queryParams = QueryParams(
+      searchParams = SearchParams(),
+      savedSearchParamList = Nil,
+      maybeSearchTerm = None,
+      maybeBeforeTimeStamp = None,
+      maybeAfterTimeStamp = None,
+      maybeBeforeId = None,
+      maybeSinceId = None,
+      timeStampColumn = IngestedAtTime
+    )
+    val whereClause = sqls""
+    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+
+    query.statement should include("ORDER BY fm.ingested_at DESC")
+  }
 
   it should "order results by descending ingestion_at when using MostRecent update type with maybeafterTimeStamp" in {
     val queryParams = QueryParams(
@@ -1122,5 +1122,127 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       expectedClause = "(fm.content->'dataformat') IS NULL",
       expectedParams = List()
     )
+  }
+
+  behavior of "marshallJoinedRowsToWireEntries"
+  it should "collect toolLinks shared by a given wire entry" in {
+    val wireEntryWithNoToolLinks = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val toolLink1 = toolLink
+    val toolLink2 = toolLink.copy(id = 202, tool = "AnotherTool")
+
+    val joinedRows = List(
+      (
+        Some(wireEntryWithNoToolLinks),
+        Some(toolLink1),
+        None
+      ),
+      (
+        Some(wireEntryWithNoToolLinks),
+        Some(toolLink2),
+        None
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(
+      wireEntryWithNoToolLinks.copy(
+        toolLinks = List(
+          toolLink1,
+          toolLink2
+        )
+      )
+    )
+  }
+  it should "collect collections shared by a given wire entry" in {
+    val wireEntryWithNoCollections = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val collection1 = collectionData
+    val collection2 = collectionData.copy(collectionId = 2L)
+
+    val joinedRows = List(
+      (
+        Some(wireEntryWithNoCollections),
+        None,
+        Some(collection1)
+      ),
+      (
+        Some(wireEntryWithNoCollections),
+        None,
+        Some(collection2)
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(
+      wireEntryWithNoCollections.copy(
+        collections = List(
+          collection1,
+          collection2
+        )
+      )
+    )
+  }
+  it should "handle both tool links and collections for a given wire entry" in {
+    val wireEntryWithNoLinksOrCollections = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val toolLink1 = toolLink
+    val collection1 = collectionData
+
+    val joinedRows = List(
+      (
+        Some(wireEntryWithNoLinksOrCollections),
+        Some(toolLink1),
+        Some(collection1)
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(
+      wireEntryWithNoLinksOrCollections.copy(
+        toolLinks = List(toolLink1),
+        collections = List(collection1)
+      )
+    )
+  }
+  it should "handle the case where there are no tool links or collections" in {
+    val entryWithNoLinksOrCollections = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val joinedRows = List(
+      (
+        Some(entryWithNoLinksOrCollections),
+        None,
+        None
+      ),
+      (
+        Some(entryWithNoLinksOrCollections),
+        None,
+        None
+      ),
+      (
+        Some(entryWithNoLinksOrCollections),
+        None,
+        None
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(entryWithNoLinksOrCollections)
   }
 }
