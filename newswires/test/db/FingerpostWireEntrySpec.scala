@@ -319,85 +319,72 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-//  it should "should join complex search presets using 'or'" in {
-//
-//    val customParams = SearchParams(
-//      searchTerms = None,
-//      suppliersExcl = List("supplier1")
-//    )
-//
-//    val presetSearchParams1 =
-//      SearchParams(
-//        searchTerms = Some(
-//          SingleTerm(
-//            SearchTerm.Simple("News Summary", SearchField.Headline)
-//          )
-//        ),
-//        suppliersIncl = List("REUTERS"),
-//        categoryCodesIncl = List(
-//          "N2:GB"
-//        )
-//      )
-//    val presetSearchParams2 =
-//      SearchParams(
-//        searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
-//        suppliersIncl = List("AFP"),
-//        categoryCodesIncl = List("afpCat:SPO")
-//      )
-//
-//    val customParamsClause = FingerpostWireEntry
-//      .buildWhereClause(
-//        customParams,
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    val preset1Clause = FingerpostWireEntry
-//      .buildWhereClause(
-//        presetSearchParams1,
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    val preset2Clause = FingerpostWireEntry
-//      .buildWhereClause(
-//        presetSearchParams2,
-//        List(),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    val whereClause =
-//      FingerpostWireEntry.buildWhereClause(
-//        customParams,
-//        List(presetSearchParams1, presetSearchParams2),
-//        None,
-//        None,
-//        None,
-//        None
-//      )
-//
-//    whereClause should matchSqlSnippet(
-//      sqls"$customParamsClause and (($preset1Clause or $preset2Clause))",
-//      List(
-//        "supplier1",
-//        List("N2:GB"),
-//        "News Summary",
-//        "REUTERS",
-//        List("afpCat:SPO"),
-//        "soccer",
-//        "AFP"
-//      )
-//    )
-//  }
+  it should "should join complex search presets using 'or'" in {
+
+    val filters = emptyFilterParams.copy(suppliersIncl = List("supplier1"))
+    val searchParams =
+      emptySearchParams.copy(filters = filters)
+
+    val presetSearchParams1 = filters.copy(
+      searchTerms = Some(
+        SingleTerm(SearchTerm.Simple("News Summary", SearchField.Headline))
+      ),
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List("N2:GB")
+    )
+
+    val presetSearchParams2 = filters.copy(
+      searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
+      suppliersIncl = List("AFP"),
+      categoryCodesIncl = List("afpCat:SPO")
+    )
+
+    val customParamsClause = FingerpostWireEntry.buildWhereClause(
+      searchParams,
+      Nil,
+      None,
+      None,
+      None,
+      None
+    )
+    val preset1Clause = FingerpostWireEntry.buildWhereClause(
+      emptySearchParams.copy(filters = presetSearchParams1),
+      Nil,
+      None,
+      None,
+      None,
+      None
+    )
+    val preset2Clause = FingerpostWireEntry.buildWhereClause(
+      emptySearchParams.copy(filters = presetSearchParams2),
+      Nil,
+      None,
+      None,
+      None,
+      None
+    )
+    val whereClause = FingerpostWireEntry.buildWhereClause(
+      searchParams,
+      List(presetSearchParams1, presetSearchParams2),
+      None,
+      None,
+      None,
+      None
+    )
+
+    whereClause should matchSqlSnippet(
+      sqls"$customParamsClause and (($preset1Clause or $preset2Clause))",
+      List(
+        "supplier1",
+        List("N2:GB"),
+        "News Summary",
+        "REUTERS",
+        List("afpCat:SPO"),
+        "soccer",
+        "AFP"
+      )
+    )
+  }
 
 //  it should "join negation presets using 'or'" in {
 //
