@@ -338,11 +338,48 @@ describe('SearchReducer', () => {
 		it(`should handle ENTER_QUERY action in ${state.status} state`, () => {
 			const action: Action = {
 				type: 'ENTER_QUERY',
+				query: { q: 'new search', collectionId: undefined, preset: undefined },
 			};
 
 			const newState = SearchReducer(state, action);
 
 			expect(newState.status).toBe('loading');
 		});
+	});
+
+	it('should toggle sortBy between ingestion time and added-to-collection time when collectionId is set or unset', () => {
+		const setCollectionIdAction: Action = {
+			type: 'ENTER_QUERY',
+			query: { q: 'test', collectionId: 123, preset: undefined },
+		};
+
+		const stateWithIngestedAt: State = {
+			...initialState,
+			sortBy: { sortByKey: 'ingestedAt' },
+		};
+
+		const newState = SearchReducer(stateWithIngestedAt, setCollectionIdAction);
+
+		expect(newState.sortBy).toEqual({
+			sortByKey: 'addedToCollectionAt',
+			collectionId: 123,
+		});
+
+		const unsetCollectionIdAction: Action = {
+			type: 'ENTER_QUERY',
+			query: { q: 'test', collectionId: undefined, preset: undefined },
+		};
+
+		const stateWithAddedToCollectionAt: State = {
+			...initialState,
+			sortBy: { sortByKey: 'addedToCollectionAt' },
+		};
+
+		const newState2 = SearchReducer(
+			stateWithAddedToCollectionAt,
+			unsetCollectionIdAction,
+		);
+
+		expect(newState2.sortBy).toEqual({ sortByKey: 'ingestedAt' });
 	});
 });
