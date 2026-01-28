@@ -84,7 +84,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
         hasDataFormatting = Some(true),
         collectionId = Some(1),
         preComputedCategories = Nil,
-        preComputedCategoriesExcl = Nil,
+        preComputedCategoriesExcl = Nil
       ),
       DateRange(
         start = Some("start"),

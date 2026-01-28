@@ -1,7 +1,20 @@
 package helpers
 
-import db.{FingerpostWireEntry, IngestedAtTime, ToolLink, WireEntryForCollection}
-import models.{Dataformat, DateRange, FilterParams, FingerpostWire, FingerpostWireSubjects, QueryCursor, SearchParams}
+import db.{
+  FingerpostWireEntry,
+  IngestedAtTime,
+  ToolLink,
+  WireEntryForCollection
+}
+import models.{
+  Dataformat,
+  DateRange,
+  FilterParams,
+  FingerpostWire,
+  FingerpostWireSubjects,
+  QueryCursor,
+  SearchParams
+}
 
 import java.time.Instant
 

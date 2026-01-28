@@ -23,8 +23,6 @@ import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
-
-
   behavior of "FingerpostWireEntry Json encoders / decoders"
 
   it should "serialise json" in {
@@ -196,7 +194,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "generate a where clause for a single field" in {
     val filterParams =
-      emptyFilterParams.copy(searchTerms = Some(SingleTerm(SearchTerm.English("text1"))))
+      emptyFilterParams.copy(searchTerms =
+        Some(SingleTerm(SearchTerm.English("text1")))
+      )
     val searchParams = emptySearchParams.copy(filters = filterParams)
 
     val whereClause =
@@ -433,24 +433,51 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
 
     val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
-    val rendered = sqls"${snippets.get}".value
+    val keywordsClause = FingerpostWireEntry.Filters.keywordsSQL(List("kw1"))
+    val categoryCodesClause =
+      FingerpostWireEntry.Filters.categoryCodeInclSQL(List("c1"))
+    val keywordsExclClause =
+      FingerpostWireEntry.Filters.keywordsExclSQL(List("kw2"))
+    val textSearchClause = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      ComboTerm(
+        List(
+          SearchTerm.English("query"),
+          SearchTerm.Simple("simple text", SearchField.BodyText)
+        ),
+        AND
+      )
+    )
+    val supplierClause = FingerpostWireEntry.Filters.supplierSQL(List("s1"))
+    val supplierExclClause =
+      FingerpostWireEntry.Filters.supplierExclSQL(List("s2"))
+    val categoryCodesExclClause =
+      FingerpostWireEntry.Filters.categoryCodeExclSQL(List("c2"))
+    val dataFormatClause = FingerpostWireEntry.Filters.dataFormattingSQL(true)
+    val preCompClause =
+      FingerpostWireEntry.Filters.preComputedCategoriesSQL(List("p1"))
+    val preCompExclClause =
+      FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(List("p2"))
+    val collectionClause = FingerpostWireEntry.Filters.collectionIdSQL(1)
 
-    rendered should include("(fm.content -> 'keywords')")
-    rendered should include("fm.category_codes &&")
-    rendered should include("(keywordsExcl.content -> 'keywords')")
-    rendered should include(
-      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple)"
-    )
-    rendered should include("upper(fm.supplier) in")
-    rendered should include("upper(sourceFeedsExcl.supplier) in")
-    rendered should include("categoryCodesExcl.category_codes &&")
-    rendered should include("(fm.content->'dataformat') IS NOT NULL")
-    rendered should include("fm.precomputed_categories &&")
-    rendered should include(
-      "preComputedCategoriesExcl.precomputed_categories &&"
-    )
-    rendered should include(
-      "c.id ="
+    snippets.get should matchSqlSnippet(
+      expectedClause = sqls"""${keywordsClause} and ${categoryCodesClause}
+              and ${keywordsExclClause} and (${textSearchClause})
+              and ${supplierClause} and ${supplierExclClause}
+              and ${categoryCodesExclClause} and ${dataFormatClause}
+              and ${preCompClause} and ${preCompExclClause} and ${collectionClause}""",
+      expectedParams = List(
+        List("kw1"),
+        List("c1"),
+        List("kw2"),
+        "query",
+        "simple text",
+        "s1",
+        "s2",
+        List("c2"),
+        List("p1"),
+        List("p2"),
+        1
+      )
     )
   }
 
