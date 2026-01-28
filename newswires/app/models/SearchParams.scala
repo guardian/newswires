@@ -4,17 +4,17 @@ import conf.SearchTerms
 import service.FeatureSwitchProvider
 
 case class FilterParams(
-    searchTerms: Option[SearchTerms] = None,
-    keywordIncl: List[String] = Nil,
-    keywordExcl: List[String] = Nil,
-    suppliersIncl: List[String] = Nil,
-    suppliersExcl: List[String] = Nil,
-    categoryCodesIncl: List[String] = Nil,
-    categoryCodesExcl: List[String] = Nil,
-    hasDataFormatting: Option[Boolean] = None,
-    preComputedCategories: List[String] = Nil,
-    preComputedCategoriesExcl: List[String] = Nil,
-    collectionId: Option[Int] = None
+    searchTerms: Option[SearchTerms],
+    keywordIncl: List[String],
+    keywordExcl: List[String],
+    suppliersIncl: List[String],
+    suppliersExcl: List[String],
+    categoryCodesIncl: List[String],
+    categoryCodesExcl: List[String],
+    hasDataFormatting: Option[Boolean],
+    preComputedCategories: List[String],
+    preComputedCategoriesExcl: List[String],
+    collectionId: Option[Int]
 )
 
 case class DateRange(
@@ -46,6 +46,8 @@ object SearchParams {
         categoryCodesIncl = baseParams.categoryCode,
         categoryCodesExcl = baseParams.categoryCodeExcl,
         hasDataFormatting = baseParams.hasDataFormatting,
+        preComputedCategories = Nil,
+        preComputedCategoriesExcl = Nil,
         collectionId = baseParams.maybeCollectionId
       ),
       DateRange(

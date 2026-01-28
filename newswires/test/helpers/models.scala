@@ -1,7 +1,7 @@
 package helpers
 
-import db.{FingerpostWireEntry, ToolLink, WireEntryForCollection}
-import models.{Dataformat, FingerpostWire, FingerpostWireSubjects}
+import db.{FingerpostWireEntry, IngestedAtTime, ToolLink, WireEntryForCollection}
+import models.{Dataformat, DateRange, FilterParams, FingerpostWire, FingerpostWireSubjects, QueryCursor, SearchParams}
 
 import java.time.Instant
 
@@ -229,5 +229,35 @@ trait models {
       |    }
       |  ]
       |}""".stripMargin
+
+  val emptyFilterParams = FilterParams(
+    searchTerms = None,
+    keywordIncl = Nil,
+    keywordExcl = Nil,
+    suppliersIncl = Nil,
+    suppliersExcl = Nil,
+    categoryCodesIncl = Nil,
+    categoryCodesExcl = Nil,
+    hasDataFormatting = None,
+    preComputedCategories = Nil,
+    preComputedCategoriesExcl = Nil,
+    collectionId = None
+  )
+
+  val emptyDateParams = DateRange(
+    start = None,
+    end = None
+  )
+
+  val emptySearchParams = SearchParams(emptyFilterParams, emptyDateParams)
+
+  val emptyQueryCursor = QueryCursor(
+    maybeBeforeTimeStamp = None,
+    maybeAfterTimeStamp = None,
+    maybeBeforeId = None,
+    maybeSinceId = None
+  )
+
+  val defaultOrdering = IngestedAtTime
 
 }

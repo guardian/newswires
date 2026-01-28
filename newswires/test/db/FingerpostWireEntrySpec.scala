@@ -23,32 +23,7 @@ import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
-  val emptyFilterParams = FilterParams(
-    searchTerms = None,
-    keywordIncl = Nil,
-    keywordExcl = Nil,
-    suppliersIncl = Nil,
-    suppliersExcl = Nil,
-    categoryCodesIncl = Nil,
-    categoryCodesExcl = Nil,
-    hasDataFormatting = None
-  )
 
-  val emptyDateParams = DateRange(
-    start = None,
-    end = None
-  )
-
-  val emptySearchParams = SearchParams(emptyFilterParams, emptyDateParams)
-
-  val emptyQueryCursor = QueryCursor(
-    maybeBeforeTimeStamp = None,
-    maybeAfterTimeStamp = None,
-    maybeBeforeId = None,
-    maybeSinceId = None
-  )
-
-  val defaultOrdering = IngestedAtTime
 
   behavior of "FingerpostWireEntry Json encoders / decoders"
 
@@ -221,7 +196,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "generate a where clause for a single field" in {
     val filterParams =
-      FilterParams(searchTerms = Some(SingleTerm(SearchTerm.English("text1"))))
+      emptyFilterParams.copy(searchTerms = Some(SingleTerm(SearchTerm.English("text1"))))
     val searchParams = emptySearchParams.copy(filters = filterParams)
 
     val whereClause =

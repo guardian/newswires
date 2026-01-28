@@ -24,13 +24,15 @@ object SearchPreset {
     FilterParams(
       searchTerms = searchTerms,
       suppliersIncl = List(supplier),
+      suppliersExcl = Nil,
       keywordIncl = keyword.toList ::: keywords,
       keywordExcl = keywordExcl,
       categoryCodesIncl = categoryCodes,
       categoryCodesExcl = categoryCodesExcl,
       hasDataFormatting = hasDataFormatting,
       preComputedCategories = preComputedCategories,
-      preComputedCategoriesExcl = preComputedCategoriesExcl
+      preComputedCategoriesExcl = preComputedCategoriesExcl,
+      collectionId = None
     )
 }
 
