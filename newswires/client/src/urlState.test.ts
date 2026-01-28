@@ -259,6 +259,8 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
+				collectionId: undefined,
+				preset: undefined,
 			},
 			ticker: false,
 			itemId: undefined,
@@ -274,6 +276,8 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
+				collectionId: undefined,
+				preset: undefined,
 			},
 			ticker: true,
 			itemId: undefined,
@@ -298,7 +302,13 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			query: {
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+				collectionId: undefined,
+				preset: undefined,
+			},
 			ticker: false,
 		};
 		const url = configToUrl(config);
@@ -309,7 +319,13 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			query: {
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+				collectionId: undefined,
+				preset: undefined,
+			},
 			ticker: true,
 		};
 		const url = configToUrl(config);
@@ -330,6 +346,8 @@ describe('configToUrl', () => {
 					start: 'now-1d/d',
 					end: 'now-1d/d',
 				},
+				collectionId: undefined,
+				preset: undefined,
 			},
 			ticker: false,
 		};
@@ -343,7 +361,13 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: [], subject: [] },
+			query: {
+				q: 'abc',
+				supplier: [],
+				subject: [],
+				collectionId: undefined,
+				preset: undefined,
+			},
 			ticker: false,
 		};
 		const url = configToUrl(config);
@@ -358,6 +382,8 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['AP' as const, 'PA' as const, 'REUTERS' as const],
 				subject: [],
+				collectionId: undefined,
+				preset: undefined,
 			},
 			ticker: false,
 		};
@@ -370,7 +396,12 @@ describe('configToUrl', () => {
 	it('converts config with many excluded suppliers to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', supplierExcl: ['AP', 'PA', 'REUTERS'] },
+			query: {
+				q: 'abc',
+				supplierExcl: ['AP', 'PA', 'REUTERS'],
+				collectionId: undefined,
+				preset: undefined,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -383,7 +414,12 @@ describe('configToUrl', () => {
 	it('converts config with many keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keyword: ['Sports', 'Politics'] },
+			query: {
+				q: 'abc',
+				keyword: ['Sports', 'Politics'],
+				collectionId: undefined,
+				preset: undefined,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -394,7 +430,12 @@ describe('configToUrl', () => {
 	it('converts config with many excluded keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keywordExcl: ['Sports', 'Politics'] },
+			query: {
+				q: 'abc',
+				keywordExcl: ['Sports', 'Politics'],
+				collectionId: undefined,
+				preset: undefined,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -405,7 +446,12 @@ describe('configToUrl', () => {
 	it('converts config with many categoryCode to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', categoryCode: ['medtop:08000000', 'medtop:20001340'] },
+			query: {
+				q: 'abc',
+				categoryCode: ['medtop:08000000', 'medtop:20001340'],
+				collectionId: undefined,
+				preset: undefined,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -421,6 +467,8 @@ describe('configToUrl', () => {
 			query: {
 				q: 'abc',
 				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
+				collectionId: undefined,
+				preset: undefined,
 			},
 			ticker: false,
 			itemId: undefined,
@@ -440,6 +488,8 @@ describe('paramsToQuerystring', () => {
 	it('converts text search param to querystring', () => {
 		const query = {
 			q: 'abc',
+			collectionId: undefined,
+			preset: undefined,
 		};
 
 		const url = paramsToQuerystring({
@@ -461,6 +511,8 @@ describe('paramsToQuerystring', () => {
 				start: 'now-3d',
 				end: 'now/d',
 			},
+			collectionId: undefined,
+			preset: undefined,
 		};
 
 		const url = paramsToQuerystring({
@@ -482,6 +534,8 @@ describe('paramsToQuerystring', () => {
 				start: 'now/d',
 				end: 'now/d',
 			},
+			collectionId: undefined,
+			preset: undefined,
 		};
 
 		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
@@ -501,6 +555,8 @@ describe('paramsToQuerystring', () => {
 				start: 'now/d',
 				end: 'now/d',
 			},
+			collectionId: undefined,
+			preset: undefined,
 		};
 
 		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });

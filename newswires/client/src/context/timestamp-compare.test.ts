@@ -1,8 +1,4 @@
-import {
-	getEarliestTimeStamp,
-	getLatestTimeStamp,
-	sortByTimeStamp,
-} from './timestamp-compare';
+import { sortAndGetFirstItem, sortByTimeStamp } from './timestamp-compare';
 
 describe('sortByTimeStamp', () => {
 	const timestamps = [
@@ -67,23 +63,23 @@ describe('sortByTimeStamp', () => {
 	});
 });
 
-describe('getLatestTimeStamp', () => {
+describe('sortAndGetFirstItem with ascending: false', () => {
 	it('should return the latest timestamp from an array', () => {
 		const timestamps = [
 			'2025-01-01T00:00:00Z',
 			'2025-01-03T12:30:00Z',
 			'2025-01-02T15:45:30Z',
 		];
-		expect(getLatestTimeStamp(timestamps)).toBe('2025-01-03T12:30:00Z');
+		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-03T12:30:00Z');
 	});
 
 	it('should return the only timestamp when array has one element', () => {
 		const timestamps = ['2025-01-01T00:00:00Z'];
-		expect(getLatestTimeStamp(timestamps)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-01T00:00:00Z');
 	});
 
 	it('should return undefined for empty array', () => {
-		expect(getLatestTimeStamp([])).toBeUndefined();
+		expect(sortAndGetFirstItem([], false)).toBeUndefined();
 	});
 
 	it('should handle timestamps with same date but different times', () => {
@@ -92,12 +88,12 @@ describe('getLatestTimeStamp', () => {
 			'2025-01-01T23:59:59Z',
 			'2025-01-01T12:00:00Z',
 		];
-		expect(getLatestTimeStamp(timestamps)).toBe('2025-01-01T23:59:59Z');
+		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-01T23:59:59Z');
 	});
 
 	it('should handle identical timestamps', () => {
 		const timestamps = ['2025-01-01T00:00:00Z', '2025-01-01T00:00:00Z'];
-		expect(getLatestTimeStamp(timestamps)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-01T00:00:00Z');
 	});
 
 	it('should not modify the original array', () => {
@@ -107,28 +103,28 @@ describe('getLatestTimeStamp', () => {
 			'2025-01-02T15:45:30Z',
 		];
 		const original = [...timestamps];
-		getLatestTimeStamp(timestamps);
+		sortAndGetFirstItem(timestamps, false);
 		expect(timestamps).toEqual(original);
 	});
 });
 
-describe('getEarliestTimeStamp', () => {
+describe('sortAndGetFirstItem with ascending: true', () => {
 	it('should return the earliest timestamp from an array', () => {
 		const timestamps = [
 			'2025-01-03T12:30:00Z',
 			'2025-01-01T00:00:00Z',
 			'2025-01-02T15:45:30Z',
 		];
-		expect(getEarliestTimeStamp(timestamps)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
 	});
 
 	it('should return the only timestamp when array has one element', () => {
 		const timestamps = ['2025-01-01T00:00:00Z'];
-		expect(getEarliestTimeStamp(timestamps)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
 	});
 
 	it('should return undefined for empty array', () => {
-		expect(getEarliestTimeStamp([])).toBeUndefined();
+		expect(sortAndGetFirstItem([], true)).toBeUndefined();
 	});
 
 	it('should handle timestamps with same date but different times', () => {
@@ -137,12 +133,12 @@ describe('getEarliestTimeStamp', () => {
 			'2025-01-01T00:00:00Z',
 			'2025-01-01T12:00:00Z',
 		];
-		expect(getEarliestTimeStamp(timestamps)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
 	});
 
 	it('should handle identical timestamps', () => {
 		const timestamps = ['2025-01-01T00:00:00Z', '2025-01-01T00:00:00Z'];
-		expect(getEarliestTimeStamp(timestamps)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
 	});
 
 	it('should not modify the original array', () => {
@@ -152,7 +148,7 @@ describe('getEarliestTimeStamp', () => {
 			'2025-01-02T15:45:30Z',
 		];
 		const original = [...timestamps];
-		getEarliestTimeStamp(timestamps);
+		sortAndGetFirstItem(timestamps, true);
 		expect(timestamps).toEqual(original);
 	});
 });
