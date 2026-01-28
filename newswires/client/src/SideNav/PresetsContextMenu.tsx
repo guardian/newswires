@@ -71,6 +71,7 @@ export const PresetsContextMenu = () => {
 			handleEnterQuery({
 				...config.query,
 				preset: getNextActivePreset(activePreset, presetId),
+				collectionId: undefined,
 				hasDataFormatting: undefined,
 			});
 		},
