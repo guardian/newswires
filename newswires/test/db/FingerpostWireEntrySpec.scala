@@ -482,7 +482,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "Filters"
 
   behavior of "time stamp filters"
-  it should "create the correct sql for beforeTimeStamp" in {
+  it should "create the correct sql for beforeTimeStamp sorted by ingestedtime" in {
     val beforeIdSQL =
       FingerpostWireEntry.Filters.beforeTimeStampSQL(
         "2025-01-01T00:00:00Z",
@@ -495,7 +495,33 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  it should "create the correct sql for sinceTimeStamp" in {
+  it should "create the correct sql for beforeTimeStamp sorted by collection time" in {
+    val beforeIdSQL =
+      FingerpostWireEntry.Filters.beforeTimeStampSQL(
+        "2025-01-01T00:00:00Z",
+        AddedToCollectionAtTime(1)
+      )
+    beforeIdSQL should matchSqlSnippet(
+      expectedClause =
+        sqls"${WireEntryForCollection.syn.addedAt} <= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
+    )
+  }
+
+  it should "create the correct sql for sinceTimeStamp sorted by ingestedtime" in {
+    val maybeafterTimeStamp =
+      FingerpostWireEntry.Filters.afterTimeStampSQL(
+        "2025-01-01T00:00:00Z",
+        IngestedAtTime
+      )
+    maybeafterTimeStamp should matchSqlSnippet(
+      expectedClause =
+        sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
+    )
+  }
+
+  it should "create the correct sql for sinceTimeStamp sorted by collection time" in {
     val maybeafterTimeStamp =
       FingerpostWireEntry.Filters.afterTimeStampSQL(
         "2025-01-01T00:00:00Z",
