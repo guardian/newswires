@@ -14,7 +14,7 @@ import {
 	isRestricted,
 } from './dateHelpers.ts';
 import { presetLabel } from './presets.ts';
-import { keyValueAfterDeselection } from './queryHelpers.ts';
+import { queryAfterDeselection } from './queryHelpers.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -29,6 +29,7 @@ const SearchTermBadgeLabelLookup: Record<keyof Query, string> = {
 	hasDataFormatting: 'Has data formatting',
 	keyword: 'Keyword',
 	keywordExcl: '(NOT) Keyword',
+	collectionId: 'Collection',
 } as const;
 
 const SummaryBadge = ({
@@ -48,10 +49,7 @@ const SummaryBadge = ({
 		if (['supplier', 'supplierExcl'].includes(key)) {
 			toggleSupplier(value);
 		} else {
-			handleEnterQuery({
-				...config.query,
-				...keyValueAfterDeselection(key, value, config.query),
-			});
+			handleEnterQuery(queryAfterDeselection(key, value, config.query));
 		}
 	};
 
