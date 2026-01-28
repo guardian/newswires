@@ -47,6 +47,7 @@ class QueryController(
       suppliers: List[String],
       categoryCode: List[String],
       categoryCodeExcl: List[String],
+      maybeCollectionId: Option[Int],
       maybeStart: Option[String],
       maybeEnd: Option[String],
       maybeBeforeTimeStamp: Option[String],
@@ -56,18 +57,19 @@ class QueryController(
       hasDataFormatting: Option[Boolean]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val baseParams = BaseRequestParams(
-      maybeFreeTextQuery,
-      keywords,
-      suppliers,
-      categoryCode,
-      categoryCodeExcl,
-      maybeStart,
-      maybeEnd,
+      maybeFreeTextQuery = maybeFreeTextQuery,
+      keywords = keywords,
+      suppliers = suppliers,
+      categoryCode = categoryCode,
+      categoryCodeExcl = categoryCodeExcl,
+      maybeCollectionId = maybeCollectionId,
+      maybeStart = maybeStart,
+      maybeEnd = maybeEnd,
       maybeBeforeTimeStamp = maybeBeforeTimeStamp,
       maybeAfterTimeStamp = maybeAfterTimeStamp,
       maybeBeforeId = maybeBeforeId,
       maybeSinceId = maybeSinceId,
-      hasDataFormatting
+      hasDataFormatting = hasDataFormatting
     )
     val searchParams =
       SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
@@ -76,6 +78,10 @@ class QueryController(
       .getQueryString("preset")
       .flatMap(SearchPresets.get)
 
+    val timeStampColumn = maybeCollectionId match {
+      case Some(id) => AddedToCollectionAtTime(id)
+      case None     => IngestedAtTime
+    }
     val queryParams = QueryParams(
       searchParams = searchParams,
       searchPreset = searchPreset,
@@ -86,16 +92,19 @@ class QueryController(
         maybeBeforeId = maybeBeforeId,
         maybeSinceId = maybeSinceId.map(NextPageId(_))
       ),
-      pageSize = 30
+      pageSize = 30,
+      timeStampColumn = timeStampColumn
     )
 
-    val queryResponse = FingerpostWireEntry
-      .query(
-        queryParams
-      )
+    val queryResponse = FingerpostWireEntry.query(
+      queryParams
+    )
 
     Ok(
-      QueryResponse.display(queryResponse, request.user.username).asJson.spaces2
+      QueryResponse
+        .display(queryResponse, request.user.username, timeStampColumn)
+        .asJson
+        .spaces2
     )
   }
 

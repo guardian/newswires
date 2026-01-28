@@ -18,7 +18,7 @@ import _root_.models.{
   SearchParams
 }
 import conf.SearchTerm.{English, Simple}
-import db.FingerpostWireEntry.Filters
+import db.FingerpostWireEntry.{Filters, decideSortDirection}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
@@ -48,6 +48,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     maybeSinceId = None
   )
 
+  val defaultOrdering = IngestedAtTime
+
   behavior of "FingerpostWireEntry Json encoders / decoders"
 
   it should "serialise json" in {
@@ -68,28 +70,38 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.buildSingleGetQuery(id, maybeFreeTextQuery = None)
 
     getQuery should matchSqlSnippet(
-      expectedClause = """ SELECT
-          |   fm.id as i_on_fm,
-          |   fm.external_id as ei_on_fm,
-          |   fm.ingested_at as ia_on_fm,
-          |   fm.supplier as s_on_fm,
-          |   fm.composer_id as ci_on_fm,
-          |   fm.composer_sent_by as csb_on_fm,
-          |   fm.category_codes as cc_on_fm,
-          |   fm.content as c_on_fm,
-          |   fm.s3_key as sk_on_fm,
-          |   fm.precomputed_categories as pc_on_fm
-          |, '' AS h_on_fm,
-          |tl.id as i_on_tl,
-          |tl.wire_id as wi_on_tl,
-          |tl.tool as t_on_tl,
-          |tl.sent_by as sb_on_tl,
-          |tl.sent_at as sa_on_tl,
-          |tl.ref as r_on_tl
-          | FROM fingerpost_wire_entry fm
-          | LEFT JOIN tool_link tl
-          |   ON fm.id = tl.wire_id
-          | WHERE fm.id = ?
+      expectedClause = """ SELECT fm.id as i_on_fm,
+          | fm.external_id as ei_on_fm,
+          | fm.ingested_at as ia_on_fm,
+          | fm.supplier as s_on_fm,
+          | fm.composer_id as ci_on_fm,
+          | fm.composer_sent_by as csb_on_fm,
+          | fm.category_codes as cc_on_fm,
+          | fm.content as c_on_fm,
+          | fm.s3_key as sk_on_fm,
+          | fm.precomputed_categories as pc_on_fm ,
+          | '' AS h_on_fm,
+          | tl.id as i_on_tl,
+          | tl.wire_id as wi_on_tl,
+          | tl.tool as t_on_tl,
+          | tl.sent_by as sb_on_tl,
+          | tl.sent_at as sa_on_tl,
+          | tl.ref as r_on_tl,
+          | c.id as i_on_c,
+          | c.name as n_on_c,
+          | c.description as d_on_c,
+          | c.created_at as ca_on_c,
+          | wec.wire_entry_id as wei_on_wec,
+          | wec.collection_id as ci_on_wec,
+          | wec.added_at as aa_on_wec
+          |   FROM fingerpost_wire_entry fm
+          |   LEFT JOIN tool_link tl
+          |     ON fm.id = tl.wire_id
+          |   LEFT JOIN wire_entry_collection wec
+          |     ON wec.wire_entry_id = fm.id
+          |   LEFT JOIN collection c
+          |     ON c.id = wec.collection_id
+          |   WHERE fm.id = ?
           |""".stripMargin,
       expectedParams = List(153)
     )
@@ -102,7 +114,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.queryCursorQuery(
         emptyQueryCursor.copy(maybeBeforeTimeStamp =
           Some("2025-01-01T00:00:00Z")
-        )
+        ),
+        defaultOrdering
       )
 
     clauseBeforeId.get should matchSqlSnippet(
@@ -116,7 +129,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.queryCursorQuery(
         emptyQueryCursor.copy(maybeAfterTimeStamp =
           Some(NextPage("2025-01-01T00:00:00Z"))
-        )
+        ),
+        defaultOrdering
       )
 
     clauseSinceId.get should matchSqlSnippet(
@@ -129,7 +143,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val clauseBeforeId =
       FingerpostWireEntry.queryCursorQuery(
-        emptyQueryCursor.copy(maybeBeforeId = Some(100))
+        emptyQueryCursor.copy(maybeBeforeId = Some(100)),
+        defaultOrdering
       )
 
     clauseBeforeId.get should matchSqlSnippet(
@@ -141,7 +156,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "apply afterId" in {
     val clauseSinceId =
       FingerpostWireEntry.queryCursorQuery(
-        emptyQueryCursor.copy(maybeSinceId = Some(NextPageId(200)))
+        emptyQueryCursor.copy(maybeSinceId = Some(NextPageId(200))),
+        defaultOrdering
       )
 
     clauseSinceId.get should matchSqlSnippet(
@@ -193,7 +209,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
         emptySearchParams,
-        emptyQueryCursor
+        emptyQueryCursor,
+        queryOrdering = IngestedAtTime
       )
 
     whereClause should matchSqlSnippet(
@@ -210,7 +227,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
         searchParams,
-        emptyQueryCursor
+        emptyQueryCursor,
+        queryOrdering = defaultOrdering
       )
 
     whereClause should matchSqlSnippet(
@@ -235,7 +253,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val customParams = SearchParams(filters = filters, dateRange = dateRange)
     val whereClause = FingerpostWireEntry.buildWhereClause(
       customParams,
-      emptyQueryCursor
+      emptyQueryCursor,
+      defaultOrdering
     )
 
     whereClause should matchSqlSnippet(
@@ -247,6 +266,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
     )
   }
+
   it should "join complex search negation presets using 'and not'" in {
 
     val filters = emptyFilterParams.copy(suppliersIncl = List("supplier1"))
@@ -273,25 +293,29 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val customParamsClause = FingerpostWireEntry
       .buildWhereClause(
         searchParams,
-        emptyQueryCursor
+        emptyQueryCursor,
+        defaultOrdering
       )
 
     val preset1Clause = FingerpostWireEntry
       .buildWhereClause(
         emptySearchParams.copy(filters = presetSearchParams1),
-        emptyQueryCursor
+        emptyQueryCursor,
+        defaultOrdering
       )
 
     val preset2Clause = FingerpostWireEntry
       .buildWhereClause(
         emptySearchParams.copy(filters = presetSearchParams2),
-        emptyQueryCursor
+        emptyQueryCursor,
+        defaultOrdering
       )
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
         searchParams,
         emptyQueryCursor,
+        defaultOrdering,
         List(presetSearchParams1),
         List(presetSearchParams2)
       )
@@ -316,7 +340,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     searchParams = emptySearchParams,
     searchPreset = None,
     maybeSearchTerm = None,
-    queryCursor = emptyQueryCursor
+    queryCursor = emptyQueryCursor,
+    timeStampColumn = defaultOrdering
   )
 
   it should "order results by descending ingestion_at by default" in {
@@ -347,7 +372,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
     )
     val whereClause = sqls""
-    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+    val query =
+      FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
 
     query.statement should include("ORDER BY fm.ingested_at ASC")
   }
@@ -454,7 +480,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "time stamp filters"
   it should "create the correct sql for beforeTimeStamp" in {
     val beforeIdSQL =
-      FingerpostWireEntry.Filters.beforeTimeStampSQL("2025-01-01T00:00:00Z")
+      FingerpostWireEntry.Filters.beforeTimeStampSQL(
+        "2025-01-01T00:00:00Z",
+        IngestedAtTime
+      )
     beforeIdSQL should matchSqlSnippet(
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST(? AS timestamptz)",
@@ -464,7 +493,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql for sinceTimeStamp" in {
     val maybeafterTimeStamp =
-      FingerpostWireEntry.Filters.afterTimeStampSQL("2025-01-01T00:00:00Z")
+      FingerpostWireEntry.Filters.afterTimeStampSQL(
+        "2025-01-01T00:00:00Z",
+        IngestedAtTime
+      )
     maybeafterTimeStamp should matchSqlSnippet(
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST(? AS timestamptz)",
@@ -715,5 +747,127 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       expectedClause = "(fm.content->'dataformat') IS NULL",
       expectedParams = List()
     )
+  }
+
+  behavior of "marshallJoinedRowsToWireEntries"
+  it should "collect toolLinks shared by a given wire entry" in {
+    val wireEntryWithNoToolLinks = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val toolLink1 = toolLink
+    val toolLink2 = toolLink.copy(id = 202, tool = "AnotherTool")
+
+    val joinedRows = List(
+      (
+        Some(wireEntryWithNoToolLinks),
+        Some(toolLink1),
+        None
+      ),
+      (
+        Some(wireEntryWithNoToolLinks),
+        Some(toolLink2),
+        None
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(
+      wireEntryWithNoToolLinks.copy(
+        toolLinks = List(
+          toolLink1,
+          toolLink2
+        )
+      )
+    )
+  }
+  it should "collect collections shared by a given wire entry" in {
+    val wireEntryWithNoCollections = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val collection1 = collectionData
+    val collection2 = collectionData.copy(collectionId = 2L)
+
+    val joinedRows = List(
+      (
+        Some(wireEntryWithNoCollections),
+        None,
+        Some(collection1)
+      ),
+      (
+        Some(wireEntryWithNoCollections),
+        None,
+        Some(collection2)
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(
+      wireEntryWithNoCollections.copy(
+        collections = List(
+          collection1,
+          collection2
+        )
+      )
+    )
+  }
+  it should "handle both tool links and collections for a given wire entry" in {
+    val wireEntryWithNoLinksOrCollections = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val toolLink1 = toolLink
+    val collection1 = collectionData
+
+    val joinedRows = List(
+      (
+        Some(wireEntryWithNoLinksOrCollections),
+        Some(toolLink1),
+        Some(collection1)
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(
+      wireEntryWithNoLinksOrCollections.copy(
+        toolLinks = List(toolLink1),
+        collections = List(collection1)
+      )
+    )
+  }
+  it should "handle the case where there are no tool links or collections" in {
+    val entryWithNoLinksOrCollections = fingerpostWireEntry.copy(
+      toolLinks = Nil,
+      collections = Nil
+    )
+    val joinedRows = List(
+      (
+        Some(entryWithNoLinksOrCollections),
+        None,
+        None
+      ),
+      (
+        Some(entryWithNoLinksOrCollections),
+        None,
+        None
+      ),
+      (
+        Some(entryWithNoLinksOrCollections),
+        None,
+        None
+      )
+    )
+
+    val result =
+      FingerpostWireEntry.marshallJoinedRowsToWireEntries(joinedRows)
+
+    result shouldEqual List(entryWithNoLinksOrCollections)
   }
 }

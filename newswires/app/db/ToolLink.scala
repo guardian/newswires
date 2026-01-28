@@ -7,10 +7,6 @@ import scalikejdbc._
 
 import java.time.Instant
 
-case class WireMaybeToolLink(
-    wireEntry: FingerpostWireEntry,
-    toolLink: Option[ToolLink]
-)
 case class WireToolLinks(wireId: Long, toolLinks: List[ToolLink])
 
 object WireToolLinks {

@@ -1,6 +1,6 @@
 package helpers
 
-import db.{FingerpostWireEntry, ToolLink}
+import db.{FingerpostWireEntry, ToolLink, WireEntryForCollection}
 import models.{Dataformat, FingerpostWire, FingerpostWireSubjects}
 
 import java.time.Instant
@@ -108,6 +108,23 @@ trait models {
                           |  }
                           |}""".stripMargin
 
+  val toolLink = ToolLink(
+    id = 1L,
+    wireId = 1L,
+    tool = "composer",
+    sentBy = "jane.doe",
+    // 2010-01-01T00:00:00.000Z
+    sentAt = Instant.ofEpochMilli(1262304000000L),
+    ref = Some("https://composer.example/abcdef")
+  )
+
+  val collectionData = WireEntryForCollection(
+    wireEntryId = 1L,
+    collectionId = 1L,
+    // 2010-01-01T00:00:00.000Z
+    addedAt = Instant.ofEpochMilli(1262304000000L)
+  )
+
   val fingerpostWireEntry = FingerpostWireEntry(
     id = 1L,
     supplier = "Supplier",
@@ -119,25 +136,16 @@ trait models {
     categoryCodes = List("code"),
     highlight = Some("highlight"),
     toolLinks = List(
-      ToolLink(
-        id = 1L,
-        wireId = 1L,
-        tool = "composer",
-        sentBy = "jane.doe",
-        // 2010-01-01T00:00:00.000Z
-        sentAt = Instant.ofEpochMilli(1262304000000L),
-        ref = Some("https://composer.example/abcdef")
-      ),
-      ToolLink(
+      toolLink,
+      toolLink.copy(
         id = 2L,
-        wireId = 1L,
         tool = "incopy",
-        sentBy = "jane.doe",
         // 2010-01-01T00:00:01.000Z
         sentAt = Instant.ofEpochMilli(1262304001000L),
         ref = None
       )
     ),
+    collections = List(collectionData),
     s3Key = Some("key.json"),
     precomputedCategories = List("all-sport")
   )
@@ -212,6 +220,13 @@ trait models {
       |  "s3Key" : "key.json",
       |  "precomputedCategories" : [
       |    "all-sport"
+      |  ],
+      |  "collections" : [
+      |    {
+      |      "wireEntryId" : 1,
+      |      "collectionId" : 1,
+      |      "addedAt" : "2010-01-01T00:00:00Z"
+      |    }
       |  ]
       |}""".stripMargin
 

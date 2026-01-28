@@ -5,7 +5,6 @@ import conf.{
   AND,
   ComboTerm,
   OR,
-  SearchConfig,
   SearchField,
   SearchTerm,
   SearchTerms,
@@ -32,6 +31,12 @@ import io.circe.parser._
 
 import java.time.Instant
 
+case class WireMaybeToolLinkAndCollection(
+    wireEntry: FingerpostWireEntry,
+    toolLink: Option[ToolLink],
+    collection: Option[WireEntryForCollection]
+)
+
 case class FingerpostWireEntry(
     id: Long,
     supplier: String,
@@ -44,7 +49,8 @@ case class FingerpostWireEntry(
     highlight: Option[String] = None,
     toolLinks: List[ToolLink] = Nil,
     s3Key: Option[String],
-    precomputedCategories: List[String]
+    precomputedCategories: List[String],
+    collections: List[WireEntryForCollection] = Nil
 )
 
 object FingerpostWireEntry
@@ -160,10 +166,14 @@ object FingerpostWireEntry
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
 
-    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}
+    sqls"""| SELECT $selectAllStatement, $highlightsClause, ${ToolLink.selectAllStatement}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}
            | FROM ${FingerpostWireEntry as syn}
            | LEFT JOIN ${ToolLink as ToolLink.syn}
            |   ON ${syn.id} = ${ToolLink.syn.wireId}
+           | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+           |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+           | LEFT JOIN ${Collection as Collection.syn}
+           |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
            | WHERE ${FingerpostWireEntry.syn.id} = $id
            |""".stripMargin
   }
@@ -174,10 +184,15 @@ object FingerpostWireEntry
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
-      .toMany(ToolLink.opt(ToolLink.syn.resultName))
-      .map { (wire, toolLinks) =>
+      .toManies(
+        ToolLink.opt(ToolLink.syn.resultName),
+        WireEntryForCollection.opt(
+          WireEntryForCollection.syn.resultName
+        )
+      )
+      .map { (wire, toolLinks, collections) =>
         wire.map(
-          _.copy(toolLinks = toolLinks.toList)
+          _.copy(toolLinks = toolLinks.toList, collections = collections.toList)
         )
       }
       .single()
@@ -319,12 +334,12 @@ object FingerpostWireEntry
       (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
 
     lazy val beforeTimeStampSQL =
-      (endDate: String) =>
-        sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST($endDate AS timestamptz)"
+      (endDate: String, column: TimeStampColumn) =>
+        sqls"${column.columnName} <= CAST($endDate AS timestamptz)"
 
     lazy val afterTimeStampSQL =
-      (startDate: String) =>
-        sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST($startDate AS timestamptz)"
+      (startDate: String, column: TimeStampColumn) =>
+        sqls"${column.columnName} >= CAST($startDate AS timestamptz)"
 
     lazy val dateRangeSQL =
       (start: Option[String], end: Option[String]) => {
@@ -335,11 +350,11 @@ object FingerpostWireEntry
             )
           case (Some(startDate), None) =>
             Some(
-              afterTimeStampSQL(startDate)
+              afterTimeStampSQL(startDate, IngestedAtTime)
             )
           case (None, Some(endDate)) =>
             Some(
-              beforeTimeStampSQL(endDate)
+              beforeTimeStampSQL(endDate, IngestedAtTime)
             )
           case _ => None
         }
@@ -357,6 +372,9 @@ object FingerpostWireEntry
           preComputedCategoriesConditions(pce, preComputedCategories)
         )
       }
+
+    lazy val collectionIdSQL = (collectionId: Int) =>
+      sqls"${Collection.syn.id} = ${collectionId}"
   }
 
   private def andAll(clauses: List[SQLSyntax]): Option[SQLSyntax] =
@@ -427,6 +445,11 @@ object FingerpostWireEntry
           Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
       }
 
+    val collectionIdQuery = filters.collectionId match {
+      case Some(collectionId) => Some(Filters.collectionIdSQL(collectionId))
+      case None               => None
+    }
+
     val clauses = List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -437,7 +460,8 @@ object FingerpostWireEntry
       categoryCodesExclQuery,
       hasDataFormattingQuery,
       preComputedCategoriesQuery,
-      preComputedCategoriesExclQuery
+      preComputedCategoriesExclQuery,
+      collectionIdQuery
     ).flatten
     andAll(clauses)
   }
@@ -450,13 +474,16 @@ object FingerpostWireEntry
   }
 
   private[db] def queryCursorQuery(
-      queryCursor: QueryCursor
+      queryCursor: QueryCursor,
+      timeStampColumn: TimeStampColumn
   ): Option[SQLSyntax] = {
     andAll(
       List(
-        queryCursor.maybeBeforeTimeStamp.map(Filters.beforeTimeStampSQL(_)),
+        queryCursor.maybeBeforeTimeStamp.map(
+          Filters.beforeTimeStampSQL(_, timeStampColumn)
+        ),
         queryCursor.maybeAfterTimeStamp.map(u =>
-          Filters.afterTimeStampSQL(u.sinceTimeStamp)
+          Filters.afterTimeStampSQL(u.sinceTimeStamp, timeStampColumn)
         ),
         queryCursor.maybeBeforeId.map(Filters.beforeIdSQL(_)),
         queryCursor.maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
@@ -466,19 +493,20 @@ object FingerpostWireEntry
   private[db] def buildWhereClause(
       searchParams: SearchParams,
       queryCursor: QueryCursor,
-      savedSearchParamList: List[FilterParams] = Nil,
-      negatedSearchParamList: List[FilterParams] = Nil
+      queryOrdering: TimeStampColumn,
+      searchPresets: List[FilterParams] = Nil,
+      negatedSearchPresets: List[FilterParams] = Nil
   ): SQLSyntax = {
 
-    val dataOnlyWhereClauses = queryCursorQuery(queryCursor)
+    val dataOnlyWhereClauses = queryCursorQuery(queryCursor, queryOrdering)
     val dateRangeQuery = Filters.dateRangeSQL(
       searchParams.dateRange.start,
       searchParams.dateRange.end
     )
     val customSearchClauses = filtersBuilder(searchParams.filters)
-    val presetSearchClauses = presetsBuilder(savedSearchParamList)
+    val presetSearchClauses = presetsBuilder(searchPresets)
     val negatedPresetSearchClauses =
-      presetsBuilder(negatedSearchParamList).map(clause => sqls"NOT $clause")
+      presetsBuilder(negatedSearchPresets).map(clause => sqls"NOT $clause")
 
     val allClauses = List(
       dateRangeQuery,
@@ -505,11 +533,35 @@ object FingerpostWireEntry
     }
   }
 
+  private[db] def marshallJoinedRowsToWireEntries(
+      rows: List[
+        (
+            Option[FingerpostWireEntry],
+            Option[ToolLink],
+            Option[WireEntryForCollection]
+        )
+      ]
+  ): List[FingerpostWireEntry] = {
+    rows
+      .collect({ case (Some(wire), toolLinkOpt, collectionOpt) =>
+        WireMaybeToolLinkAndCollection(wire, toolLinkOpt, collectionOpt)
+      })
+      .groupBy(t => t.wireEntry)
+      .map({ case (wire, wireRelations) =>
+        wire.copy(
+          toolLinks = wireRelations.flatMap(_.toolLink).distinct,
+          collections = wireRelations.flatMap(_.collection).distinct
+        )
+      })
+      .toList
+  }
+
   private[db] def buildSearchQuery(
       queryParams: QueryParams,
-      whereClause: SQLSyntax
+      whereClause: SQLSyntax,
+      pageSize: Int = 30
   ): SQL[Nothing, NoExtractor] = {
-    val effectivePageSize = clamp(0, queryParams.pageSize, 250)
+    val effectivePageSize = clamp(0, pageSize, 250)
 
     val maybeAfterTimeStamp = queryParams.queryCursor.maybeAfterTimeStamp
     val maybeSinceId = queryParams.queryCursor.maybeSinceId
@@ -517,16 +569,20 @@ object FingerpostWireEntry
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause =
-      sqls"ORDER BY ${FingerpostWireEntry.syn.ingestedAt} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
+      sqls"ORDER BY ${queryParams.timeStampColumn.columnName} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
 
-    sql"""| SELECT $selectAllStatement, ${ToolLink.syn.result.*}, $highlightsClause
-           | FROM ${FingerpostWireEntry as syn}
-           | LEFT JOIN ${ToolLink as ToolLink.syn}
-           | ON ${syn.id} = ${ToolLink.syn.wireId}
-           | WHERE $whereClause
-           | $orderByClause
-           | LIMIT $effectivePageSize
-           | """.stripMargin
+    sql"""| SELECT ${FingerpostWireEntry.selectAllStatement}, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}, $highlightsClause
+          | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+          | LEFT JOIN ${ToolLink as ToolLink.syn}
+          |  ON ${syn.id} = ${ToolLink.syn.wireId}
+          | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+          |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+          | LEFT JOIN ${Collection as Collection.syn}
+          |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
+          | WHERE $whereClause
+          | $orderByClause
+          | LIMIT $effectivePageSize
+          | """.stripMargin
   }
 
   def query(
@@ -535,33 +591,45 @@ object FingerpostWireEntry
     val whereClause = buildWhereClause(
       queryParams.searchParams,
       queryParams.queryCursor,
-      queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
-      queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil)
+      queryOrdering = queryParams.timeStampColumn,
+      searchPresets =
+        queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
+      negatedSearchPresets =
+        queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil)
     )
 
     val start = System.currentTimeMillis()
-    val query = buildSearchQuery(queryParams, whereClause)
+
+    val query = buildSearchQuery(
+      queryParams = queryParams,
+      whereClause = whereClause,
+      pageSize = queryParams.pageSize
+    )
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
-    val results: List[FingerpostWireEntry] = query
+    val rows = query
       .map(rs => {
         val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
         val toolLinkOpt = ToolLink.opt(ToolLink.syn.resultName)(rs)
-        (wireEntry, toolLinkOpt)
+        val collectionOpt = WireEntryForCollection.opt(
+          WireEntryForCollection.syn.resultName
+        )(rs)
+        (wireEntry, toolLinkOpt, collectionOpt)
       })
       .list()
-      .collect({ case (Some(wire), toolLinkOpt) =>
-        WireMaybeToolLink(wire, toolLinkOpt)
-      })
-      .groupBy(t => t.wireEntry)
-      .map({ case (wire, wireToolLinks) =>
-        wire.copy(toolLinks = wireToolLinks.flatMap(_.toolLink))
-      })
-      .toList
+
+    val results: List[FingerpostWireEntry] =
+      marshallJoinedRowsToWireEntries(rows)
 
     val countQuery =
       sql"""| SELECT COUNT(*)
-            | FROM ${FingerpostWireEntry as syn}
+            | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+            | LEFT JOIN ${ToolLink as ToolLink.syn}
+            |  ON ${syn.id} = ${ToolLink.syn.wireId}
+            | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+            |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+            | LEFT JOIN ${Collection as Collection.syn}
+            |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
             | WHERE $whereClause
             | """.stripMargin
 

@@ -115,12 +115,22 @@ class AppComponents(context: Context)
     featureSwitchProvider = featureSwitchProvider
   )
 
+  private val collectionsController = new CollectionsController(
+    controllerComponents = controllerComponents,
+    configuration = configuration,
+    wsClient = wsClient,
+    permissionsProvider = permissionsProvider,
+    panDomainSettings = panDomainSettings,
+    featureSwitchProvider = featureSwitchProvider
+  )
+
   override lazy val httpErrorHandler = new JsonHttpErrorHandler(environment)
 
   def router: Router = new Routes(
     errorHandler = httpErrorHandler,
     viteController,
     queryController,
+    collectionsController,
     authController,
     managementController
   )

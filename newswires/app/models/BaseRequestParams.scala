@@ -10,6 +10,7 @@ case class BaseRequestParams(
     suppliers: List[String] = Nil,
     categoryCode: List[String] = Nil,
     categoryCodeExcl: List[String] = Nil,
+    maybeCollectionId: Option[Int] = None,
     maybeStart: Option[String] = None,
     maybeEnd: Option[String] = None,
     maybeBeforeTimeStamp: Option[String] = None,

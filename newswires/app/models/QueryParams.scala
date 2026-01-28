@@ -2,6 +2,7 @@ package models
 
 import conf.SearchPreset
 import conf.SearchTerm.English
+import db.TimeStampColumn
 
 sealed trait UpdateType {
   val sinceTimeStamp: String
@@ -22,5 +23,6 @@ case class QueryParams(
     searchPreset: Option[SearchPreset],
     maybeSearchTerm: Option[English],
     queryCursor: QueryCursor,
-    pageSize: Int = 250
+    pageSize: Int = 250,
+    timeStampColumn: TimeStampColumn
 )

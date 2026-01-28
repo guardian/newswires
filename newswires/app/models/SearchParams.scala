@@ -13,7 +13,8 @@ case class FilterParams(
     categoryCodesExcl: List[String] = Nil,
     hasDataFormatting: Option[Boolean] = None,
     preComputedCategories: List[String] = Nil,
-    preComputedCategoriesExcl: List[String] = Nil
+    preComputedCategoriesExcl: List[String] = Nil,
+    collectionId: Option[Int] = None
 )
 
 case class DateRange(
@@ -44,7 +45,8 @@ object SearchParams {
         ),
         categoryCodesIncl = baseParams.categoryCode,
         categoryCodesExcl = baseParams.categoryCodeExcl,
-        hasDataFormatting = baseParams.hasDataFormatting
+        hasDataFormatting = baseParams.hasDataFormatting,
+        collectionId = baseParams.maybeCollectionId
       ),
       DateRange(
         start = baseParams.maybeStart,
