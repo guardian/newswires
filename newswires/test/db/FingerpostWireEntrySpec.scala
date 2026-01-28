@@ -453,7 +453,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       categoryCodesExcl = List("c2"),
       hasDataFormatting = Some(true),
       preComputedCategories = List("p1"),
-      preComputedCategoriesExcl = List("p2")
+      preComputedCategoriesExcl = List("p2"),
+      collectionId = Some(1)
     )
 
     val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
@@ -472,6 +473,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     rendered should include("fm.precomputed_categories &&")
     rendered should include(
       "preComputedCategoriesExcl.precomputed_categories &&"
+    )
+    rendered should include(
+      "c.id ="
     )
   }
 
@@ -746,6 +750,15 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     hasDataFormattingSQL should matchSqlSnippet(
       expectedClause = "(fm.content->'dataformat') IS NULL",
       expectedParams = List()
+    )
+  }
+
+  behavior of "collectionIdSQL SQL Helpers"
+  it should "create the correct sql snippet for the collectionId" in {
+    val collectionIdSql = FingerpostWireEntry.Filters.collectionIdSQL(1)
+    collectionIdSql should matchSqlSnippet(
+      expectedClause = "c.id = ?",
+      expectedParams = List(1)
     )
   }
 
