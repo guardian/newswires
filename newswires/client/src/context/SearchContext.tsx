@@ -1,4 +1,5 @@
 import { getErrorMessage } from '@guardian/libs';
+import { isEqual as deepIsEqual } from 'lodash';
 import type { Context, PropsWithChildren } from 'react';
 import {
 	createContext,
@@ -180,20 +181,26 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				saveToLocalStorage<string[]>('viewedItemIds', updatedViewedItemIds);
 			}
 			setConfig(config);
+			if (!deepIsEqual(config.query, currentConfig.query)) {
+				dispatch({ type: 'ENTER_QUERY' });
+			}
 		},
-		[setConfig, viewedItemIds, setViewedItemIds],
+		[viewedItemIds, currentConfig.query],
 	);
 
 	const popConfigStateCallback = useCallback(
 		(e: PopStateEvent) => {
 			const configParseResult = ConfigSchema.safeParse(e.state);
+			let config = defaultConfig;
 			if (configParseResult.success) {
-				setConfig(configParseResult.data);
-			} else {
-				setConfig(defaultConfig);
+				config = configParseResult.data;
+			}
+			setConfig(config);
+			if (!deepIsEqual(config.query, currentConfig.query)) {
+				dispatch({ type: 'ENTER_QUERY' });
 			}
 		},
-		[setConfig],
+		[currentConfig.query],
 	);
 
 	useEffect(() => {
@@ -289,10 +296,6 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 					]),
 				),
 			);
-			dispatch({
-				type: 'ENTER_QUERY',
-			});
-
 			pushConfigState({
 				...currentConfig,
 				query,
