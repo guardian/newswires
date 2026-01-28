@@ -193,6 +193,13 @@ export const SearchReducer = (state: State, action: Action): State => {
 			return {
 				...state,
 				status: 'loading',
+				sortBy:
+					action.query.collectionId !== undefined
+						? {
+								sortByKey: 'addedToCollectionAt',
+								collectionId: action.query.collectionId,
+							}
+						: { sortByKey: 'ingestedAt' },
 			};
 		case 'LOADING_MORE':
 			return {

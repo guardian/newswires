@@ -173,6 +173,19 @@ export const QuerySchema = z.union([
 
 export type Query = z.infer<typeof QuerySchema>;
 
+const _FlattenedQueryForSerialisationSchema = BaseQuerySchema.omit({
+	dateRange: true,
+}).extend({
+	start: z.string().optional(),
+	end: z.string().optional(),
+	preset: z.string().optional(),
+	collectionId: z.number().optional(),
+});
+
+export type FlattenedQueryForSerialisation = z.infer<
+	typeof _FlattenedQueryForSerialisationSchema
+>;
+
 export const ConfigSchema = z.discriminatedUnion('view', [
 	z.object({
 		view: z.literal('feed'),
