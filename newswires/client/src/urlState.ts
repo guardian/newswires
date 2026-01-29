@@ -4,7 +4,13 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
-import type { Config, Query } from './sharedTypes';
+import { topLevelPresetId } from './presets.ts';
+import type {
+	Config,
+	DateRange,
+	FlattenedQueryForSerialisation,
+	Query,
+} from './sharedTypes';
 
 export const defaultQuery: Query = {
 	q: '',
@@ -142,39 +148,46 @@ export const configToUrl = (config: Config): string => {
 	}
 };
 
-const processDateRange = (query: Query, useAbsoluteDateTimeValues: boolean) => {
+const processDateRange = (
+	dateRange: DateRange | undefined,
+	useAbsoluteDateTimeValues: boolean,
+): Partial<DateRange> | undefined => {
 	if (useAbsoluteDateTimeValues) {
 		// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
-		if (query.dateRange) {
+		if (dateRange) {
 			const [maybeStartMoment, maybeEndMoment] =
 				relativeDateRangeToAbsoluteDateRange({
-					start: query.dateRange.start,
-					end: query.dateRange.end,
+					start: dateRange.start,
+					end: dateRange.end,
 				});
 
 			return {
-				...query,
 				start: maybeStartMoment?.toISOString(),
 				end: maybeEndMoment?.toISOString(),
 			};
 		} else {
-			return { ...query, start: START_OF_TODAY.toISOString() };
+			return { start: START_OF_TODAY.toISOString() };
 		}
 	} else {
-		return {
-			...query,
-			start:
-				query.dateRange?.start &&
-				query.dateRange.start !== DEFAULT_DATE_RANGE.start
-					? query.dateRange.start
-					: undefined,
-			end:
-				query.dateRange?.end && query.dateRange.end !== DEFAULT_DATE_RANGE.end
-					? query.dateRange.end
-					: undefined,
-		};
+		return dateRange;
 	}
 };
+
+function removeDefaultValuesFromQuery(
+	query: FlattenedQueryForSerialisation,
+): FlattenedQueryForSerialisation {
+	const cleanedQuery: FlattenedQueryForSerialisation = { ...query };
+	if (cleanedQuery.start === DEFAULT_DATE_RANGE.start) {
+		delete cleanedQuery.start;
+	}
+	if (cleanedQuery.end === DEFAULT_DATE_RANGE.end) {
+		delete cleanedQuery.end;
+	}
+	if (cleanedQuery.preset === topLevelPresetId) {
+		delete cleanedQuery.preset;
+	}
+	return cleanedQuery;
+}
 
 export const paramsToQuerystring = ({
 	query,
@@ -187,9 +200,14 @@ export const paramsToQuerystring = ({
 	beforeTimeStamp?: string;
 	useAbsoluteDateTimeValues: boolean;
 }): string => {
-	const flattenedQuery = processDateRange(query, useAbsoluteDateTimeValues);
+	const { dateRange, ...rest } = query;
+	const flattenedQuery = {
+		...rest,
+		...processDateRange(dateRange, useAbsoluteDateTimeValues),
+	};
+	const cleanedQuery = removeDefaultValuesFromQuery(flattenedQuery);
 
-	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(
+	const params = Object.entries(cleanedQuery).reduce<Array<[string, string]>>(
 		(acc, [k, v]) => {
 			if (typeof v === 'string' && v.trim().length > 0) {
 				return [...acc, [k, v.trim()]];
