@@ -10,8 +10,8 @@ export const countryNameVariants: Partial<Record<Alpha2Code, string[]>> = {
 	US: ['USA', 'the US', 'U.S', 'U.S.'],
 	CZ: ['Czech Rep', 'Czech Republic'],
 	AE: ['UAE', 'U.A.E.'],
-	KR: ['Korea', 'Republic of Korea'],
-	KP: ['North Korea', "Democratic People's Republic of Korea"],
+	KR: ['Korea', 'Republic of Korea', 'South Korea'],
+	KP: ['North Korea', "Democratic People's Republic of Korea", 'DPRK'],
 	CI: ['Ivory Coast'],
 	CD: [
 		'Congo, The Democratic Republic',
@@ -55,8 +55,8 @@ export const countryNameVariants: Partial<Record<Alpha2Code, string[]>> = {
 		'FYROM',
 		'Macedonia, Yugoslav Republic of',
 	],
-	RS: ['Kosovo', 'Former Yugoslavia', 'Former Serbia and Montenegro'],
 	// Kosovo currently mapped to Serbia for technical reasons because Kosovo is not currently its own 2 letter code in Debian or Pycountry (the dependencies of this library)
+	RS: ['Kosovo', 'Former Yugoslavia', 'Former Serbia and Montenegro'],
 	SZ: ['Swaziland', 'eswatini', 'eSwatini'],
 	LY: ['Libyan Arab Jamahiriya'],
 	PS: [
@@ -67,4 +67,7 @@ export const countryNameVariants: Partial<Record<Alpha2Code, string[]>> = {
 	],
 	CN: ['Macau'],
 	VE: ['Venezuela'],
+	BO: ['Bolivia'],
+	MD: ['Moldova'],
+	TZ: ['Tanzania'],
 } as const;
