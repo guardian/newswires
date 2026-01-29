@@ -21,6 +21,7 @@ export const supplierData: SupplierInfo[] = [
 	{ name: 'AAP', label: 'AAP (£)', shortLabel: 'AAP', colour: AAPBrand },
 	{ name: 'AFP', label: 'AFP', shortLabel: 'AFP', colour: AFPBrand },
 	{ name: 'PA', label: 'PA', shortLabel: 'PA', colour: PABrand },
+	{ name: 'PAAPI', label: 'PA API', shortLabel: 'PA API', colour: PABrand },
 	{ name: 'GUAP', label: 'AP (Gu)', shortLabel: 'AP (Gu)', colour: APBrand },
 	{
 		name: 'GUREUTERS',

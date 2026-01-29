@@ -27,7 +27,7 @@ const showGuSuppliers = configLookup.switches.ShowGuSuppliers;
  */
 export const SUPPLIERS_TO_EXCLUDE = showGuSuppliers
 	? ['UNAUTHED_EMAIL_FEED']
-	: ['UNAUTHED_EMAIL_FEED', 'GUAP', 'GUREUTERS'];
+	: ['UNAUTHED_EMAIL_FEED', 'GUAP', 'GUREUTERS', 'PAAPI'];
 
 export const STAGE = configLookup.stage;
 
