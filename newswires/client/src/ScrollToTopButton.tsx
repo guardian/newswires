@@ -173,8 +173,8 @@ export const ScrollToTopButton = ({
 							display: 'flex',
 							justifyContent: 'center',
 							padding: euiTheme.size.xxs,
-							color: '#046e6b',
-							background: '#C9F3F0',
+							color: euiTheme.colors.textAccentSecondary,
+							background: euiTheme.colors.backgroundBaseAccentSecondary,
 						}}
 					>
 						<EuiButtonEmpty
