@@ -66,7 +66,7 @@ export const ScrollToTopButton = ({
 			const contRect = cont.getBoundingClientRect();
 			setBannerStyle({
 				position: 'fixed',
-				top: -contRect.top,
+				top: contRect.top,
 				width: '100%',
 				zIndex: 1000,
 			});
