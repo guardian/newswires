@@ -68,14 +68,14 @@ export const ScrollToTopButton = ({
 				position: 'fixed',
 				top: contRect.top,
 				width: '100%',
-				zIndex: 1000,
+				zIndex: 2,
 			});
 		} else {
 			setBannerStyle({
 				position: 'fixed',
 				top: 0,
 				width: '100%',
-				zIndex: 1000,
+				zIndex: 2,
 			});
 		}
 	}, [containerRef, euiTheme.size.s]);
