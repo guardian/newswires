@@ -89,8 +89,10 @@ graph TB
             %% Web Application
             ASG[EC2 Auto Scaling Group]
             ALB[Application Load Balancer]
+            CF[AWS Cloudfront]
 
             %% Read path flows
+            CF  --> ALB
             ALB --> ASG
         end
 
