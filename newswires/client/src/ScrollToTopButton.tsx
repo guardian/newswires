@@ -67,7 +67,9 @@ export const ScrollToTopButton = ({
 			setBannerStyle({
 				position: 'fixed',
 				top: contRect.top,
-				width: '100%',
+				left: contRect.left,
+				width: contRect.width,
+				height: contRect.height,
 				zIndex: 2,
 			});
 		} else {
@@ -167,14 +169,13 @@ export const ScrollToTopButton = ({
 				</EuiButton>
 			</div>
 			<div ref={bannerRef} style={bannerStyle}>
-				{incomingStories > 0 && (
+				{incomingStories >= 0 && (
 					<div
 						style={{
-							display: 'flex',
-							justifyContent: 'center',
 							padding: euiTheme.size.xxs,
 							color: euiTheme.colors.textAccentSecondary,
 							background: euiTheme.colors.backgroundBaseAccentSecondary,
+							border: '2px solid red',
 						}}
 					>
 						<EuiButtonEmpty
@@ -182,8 +183,16 @@ export const ScrollToTopButton = ({
 							iconType="dot"
 							color="accentSecondary"
 							onClick={handleClick}
+							css={{
+								width: '100%',
+								border: '2px solid red',
+							}}
 						>
-							{incomingStories} new items
+							<span
+								css={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+							>
+								{incomingStories} new items
+							</span>
 						</EuiButtonEmpty>
 					</div>
 				)}
