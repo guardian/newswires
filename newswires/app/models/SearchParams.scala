@@ -55,7 +55,8 @@ object SearchParams {
       Option.when(!dotCopyIsSelected)("UNAUTHED_EMAIL_FEED").toList
     val guSuppliersExclusion =
       if (showGuSuppliers) Nil
-      else List("GuReuters", "GuAP").filterNot(s => suppliers.contains(s))
+      else
+        List("GuReuters", "GuAP", "PAAPI").filterNot(s => suppliers.contains(s))
     val exclusionFromParams =
       query.get("supplierExcl").map(_.toList).getOrElse(Nil)
 
