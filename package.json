@@ -34,36 +34,36 @@
 		"url": "github.com/guardian/newswires"
 	},
 	"devDependencies": {
-		"@guardian/eslint-config": "12.0.0",
-		"@guardian/prettier": "8.0.1",
-		"@guardian/tsconfig": "1.0.0",
+		"@guardian/eslint-config": "13.0.0",
+		"@guardian/prettier": "9.0.0",
+		"@guardian/tsconfig": "1.0.1",
 		"@types/jest": "30.0.0",
 		"@types/node": "22.15.35",
-		"@typescript-eslint/parser": "^8.49.0",
-		"esbuild": "^0.25.8",
-		"eslint": "9.31.0",
-		"eslint-plugin-prettier": "5.5.3",
+		"@typescript-eslint/parser": "^8.53.1",
+		"esbuild": "^0.27.2",
+		"eslint": "9.39.2",
+		"eslint-plugin-prettier": "5.5.5",
 		"husky": "^9.1.7",
-		"jest": "30.0.4",
-		"lage": "^2.14.15",
-		"lint-staged": "16.1.2",
-		"prettier": "3.6.2",
-		"ts-jest": "29.4.0",
-		"tsx": "^4.20.3",
+		"jest": "30.2.0",
+		"lage": "^2.14.17",
+		"lint-staged": "16.2.7",
+		"prettier": "3.8.1",
+		"ts-jest": "29.4.6",
+		"tsx": "^4.21.0",
 		"typescript": "5.9.3",
-		"vite": "^7.0.5"
+		"vite": "^7.3.1"
 	},
 	"prettier": "@guardian/prettier",
 	"lint-staged": {
 		"*.{js,jsx,ts,tsx}": "jest --findRelatedTests --passWithNoTests"
 	},
 	"dependencies": {
-		"@aws-sdk/client-s3": "3.848.0",
-		"@guardian/libs": "^27.0.0",
-		"@sentry/react": "^10.27.0",
-		"@types/aws-lambda": "8.10.152",
+		"@aws-sdk/client-s3": "3.975.0",
+		"@guardian/libs": "^27.1.0",
+		"@sentry/react": "^10.36.0",
+		"@types/aws-lambda": "8.10.160",
 		"mailauth": "^4.12.0",
-		"node-html-parser": "7.0.1",
-		"zod": "4.0.5"
+		"node-html-parser": "7.0.2",
+		"zod": "4.3.6"
 	}
 }
