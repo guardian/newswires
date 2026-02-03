@@ -178,11 +178,7 @@ export const ScrollToTopButton = ({
 								width: '100%',
 							}}
 						>
-							<span
-								css={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
-							>
-								{incomingStories} new items
-							</span>
+							<span>{incomingStories} new items</span>
 						</EuiButtonEmpty>
 					</div>
 				)}
