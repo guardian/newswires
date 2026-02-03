@@ -71,13 +71,6 @@ export const ScrollToTopButton = ({
 				width: contRect.width,
 				zIndex: 2,
 			});
-		} else {
-			setBannerStyle({
-				position: 'fixed',
-				top: 0,
-				width: '100%',
-				zIndex: 2,
-			});
 		}
 	}, [containerRef, euiTheme.size.s]);
 
