@@ -95,6 +95,7 @@ const supplierLookupMap: Record<string, string[]> = {
 		'PA TRUSSEL',
 		'PA ACCESS NEWSWIRE',
 	],
+	PAAPI: ['PA_API'],
 	MINOR_AGENCIES: ['COMET', 'WIREFAST'],
 	HEARTBEAT: ['FIP'],
 };

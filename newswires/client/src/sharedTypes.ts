@@ -90,6 +90,7 @@ export const suppliers = [
 	'AAP',
 	'AFP',
 	'PA',
+	'PAAPI',
 	'GUAP',
 	'GUREUTERS',
 	'MINOR_AGENCIES',
