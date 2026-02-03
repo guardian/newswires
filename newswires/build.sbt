@@ -11,7 +11,7 @@ version := "1.0-SNAPSHOT"
 scalaVersion := "2.13.18"
 
 libraryDependencies += ws
-libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "8.0.1"
+libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "8.2.1"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "15.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "6.0.2"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
@@ -56,7 +56,7 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor",
   "com.fasterxml.jackson.module" % "jackson-module-parameter-names",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion) ++ Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion,
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
