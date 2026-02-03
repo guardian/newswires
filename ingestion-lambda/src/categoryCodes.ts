@@ -155,10 +155,10 @@ export function processFingerpostPACategoryCodes(original: string[]) {
 
 export function processFingerpostPAAPICategoryCodes(
 	original: string[],
-	mediaCatCode?: string,
+	mediaCatCodes?: string,
 ) {
-	if (mediaCatCode) {
-		return [...original, `paCat:${mediaCatCode}`];
+	if (mediaCatCodes) {
+		return [...original, `paCat:${mediaCatCodes}`];
 	}
 	return [...original];
 }

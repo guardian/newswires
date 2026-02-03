@@ -68,6 +68,7 @@ export const processCategoryCodes = (
 	destinationCodes: string[],
 	bodyText?: string,
 	priority?: string,
+	mediaCatCodes?: string,
 ) => {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
@@ -108,7 +109,7 @@ export const processCategoryCodes = (
 		case 'PAAPI':
 			return [
 				...catCodes,
-				...processFingerpostPAAPICategoryCodes(subjectCodes),
+				...processFingerpostPAAPICategoryCodes(subjectCodes, mediaCatCodes),
 			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
@@ -226,6 +227,7 @@ export function processFingerpostJsonContent(
 				content.destinations?.code ?? [],
 				`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
 				content.priority,
+				content.mediaCatCodes,
 			),
 		);
 		return {
