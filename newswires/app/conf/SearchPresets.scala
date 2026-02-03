@@ -172,6 +172,7 @@ object SearchPresets {
 
   private val AllUk = List(
     SearchPreset(PA, categoryCodes = CategoryCodes.UK.PA),
+    SearchPreset(PA_API, categoryCodes = CategoryCodes.UK.PA),
     SearchPreset(MINOR_AGENCIES, categoryCodes = CategoryCodes.UK.MINOR_AGENCIES)
   )
 
@@ -186,6 +187,7 @@ object SearchPresets {
 
   private val AllBusiness = List(
     SearchPreset(PA, categoryCodes = CategoryCodes.Business.PA),
+    SearchPreset(PA_API, categoryCodes = CategoryCodes.Business.PA),
     SearchPreset(
       REUTERS,
       preComputedCategories = List("business-related-topic-codes"),
@@ -205,6 +207,7 @@ object SearchPresets {
 
   private val AllSport = List(
     SearchPreset(PA, categoryCodesExcl = CategoryCodes.UK.PA ::: CategoryCodes.Business.PA),
+    SearchPreset(PA_API, categoryCodesExcl = CategoryCodes.UK.PA ::: CategoryCodes.Business.PA),
     SearchPreset(REUTERS, preComputedCategories = List("all-sports")),
     SearchPreset(AP, preComputedCategories = List("all-sports")),
     SearchPreset(AAP, preComputedCategories = List("all-sports")),
@@ -227,6 +230,44 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
+      searchTerms = Some(
+        ComboTerm(
+          List(
+            Simple(
+              "-\"TABULATED RESULTS\" -\"Divisional Summaries\" -GOALSCORERS " +
+                "-Goalflash -Summaries -Teams -AMENDMENTS -\"Pools Grid \" -Statistics -CORRECTN -\"Top Goal Scorer\" " +
+                "-BOOKINGS -\"Sending Off\" -\"SENT OFF\" -\"FULL-TIME\" -\"HALF-TIME\" -\"POOLS DIVIDEND\" -\"RACING GOING\" " +
+                "-Postponed -\"SOCCER TEAMS\" -\"MATCH STATS\" -Collated -Advisory " +
+                "-Formwatch -Pieces -Straps -\"wind surgery\" -Traveller -blinkers",
+              Slug
+            ),
+            Simple("-fixtures", Headline)
+          ),
+          AND
+        )
+      ),
+      categoryCodesExcl =
+        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.CricketScores.PA ::: CategoryCodes.SoccerScores.PA
+          ::: CategoryCodes.SoccerTables.PA ::: CategoryCodes.RugbyScores.PA ::: List(
+            "paCat:RSR",
+            "paCat:SRD",
+            "paCat:SRN",
+            "paCat:RRR",
+            "paCat:RDR",
+            "paCat:SFF",
+            "paCat:SSF",
+            "paCat:SSD",
+            "paCat:SRZ",
+            "paCat:RMS",
+            "paCat:SFU",
+            "paCat:NMS",
+            "paCat:SSP",
+            "paCat:MDS"
+          ),
+      hasDataFormatting = Some(false)
+    ),
+    SearchPreset(
+      PA_API,
       searchTerms = Some(
         ComboTerm(
           List(
@@ -297,6 +338,12 @@ object SearchPresets {
       hasDataFormatting = Some(false)
     ),
     SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("-RUGBYU -RUGBY", Slug))),
+      categoryCodes = CategoryCodes.Soccer.PA,
+      hasDataFormatting = Some(false)
+    ),
+    SearchPreset(
       AFP,
       searchTerms = Some(
         ComboTerm(
@@ -324,6 +371,7 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("(OPTA)", BodyText))),
       CategoryCodes.Soccer.REUTERS
     ),
+    // TODO - refactor this
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(Simple("SOCCER", Slug))),
@@ -335,6 +383,20 @@ object SearchPresets {
       CategoryCodes.SoccerScores.PA
     ),
     SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("\"SOCCER TABULATED RESULTS\" OR `\"DATA FORMAT\"", Slug)))),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("SOCCER", Slug))),
+      CategoryCodes.SoccerScores.PA
+    ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("\"Divisional Summaries\"", Slug))),
+      CategoryCodes.SoccerScores.PA
+    ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("\"SOCCER TABULATED RESULTS\" OR `\"DATA FORMAT\"", Slug)))
+    ),
     SearchPreset(
       AFP,
       searchTerms = Some(ComboTerm(List(Simple("fbl", Slug), Simple("result OR results OR scorers", Headline)), AND)),
@@ -357,6 +419,11 @@ object SearchPresets {
       PA,
       searchTerms = Some(SingleTerm(Simple("SOCCER Tables", Slug))),
       CategoryCodes.SoccerTables.PA
+    ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("SOCCER Tables", Slug))),
+      CategoryCodes.SoccerTables.PA
     )
   )
   // SoccerTablesDataFormats
@@ -368,6 +435,12 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
+      searchTerms = Some(SingleTerm(Simple("-SOCCER", Slug))),
+      preComputedCategories = List("no-soccer"),
+      categoryCodesExcl = CategoryCodes.Soccer.PA
+    ),
+    SearchPreset(
+      PA_API,
       searchTerms = Some(SingleTerm(Simple("-SOCCER", Slug))),
       preComputedCategories = List("no-soccer"),
       categoryCodesExcl = CategoryCodes.Soccer.PA
@@ -397,6 +470,10 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
+      searchTerms = Some(SingleTerm(Simple("GRIDIRON", Slug)))
+    ),
+    SearchPreset(
+      PA_API,
       searchTerms = Some(SingleTerm(Simple("GRIDIRON", Slug)))
     ),
     SearchPreset(
@@ -466,6 +543,11 @@ object SearchPresets {
       CategoryCodes.Sport.PA ::: List("paCat:RSR")
     ),
     SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("BASKETBALL", Slug))),
+      CategoryCodes.Sport.PA ::: List("paCat:RSR")
+    ),
+    SearchPreset(
       AAP,
       categoryCodes = List("subj:15008000", "subj:15008001")
     ),
@@ -518,6 +600,19 @@ object SearchPresets {
       CategoryCodes.Cricket.PA
     ),
     SearchPreset(
+      PA_API,
+      searchTerms = Some(
+        ComboTerm(
+          List(
+            Simple("-fixtures -fixture", Headline),
+            Simple("-Summaries", Slug)
+          ),
+          AND
+        )
+      ),
+      CategoryCodes.Cricket.PA
+    ),
+    SearchPreset(
       AFP,
       searchTerms = Some(SingleTerm(Simple("cricket", Slug))),
       categoryCodes = CategoryCodes.Sport.AFP
@@ -547,6 +642,17 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("Summaries", Slug))),
       categoryCodes = List("paCat:SCR")
     ),
+    SearchPreset(PA_API, categoryCodes = CategoryCodes.CricketScores.PA),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("fixtures OR fixture", Headline))),
+      categoryCodes = List("paCat:SCR")
+    ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("Summaries", Slug))),
+      categoryCodes = List("paCat:SCR")
+    ),
     SearchPreset(
       AP,
       searchTerms = Some(SingleTerm(Simple("\"AP-CRI\" Glance OR Figures OR Runs", Slug))),
@@ -562,6 +668,11 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
+      searchTerms = Some(SingleTerm(Simple("RUGBYL -Summaries -Scorer", Slug))),
+      CategoryCodes.Sport.PA
+    ),
+    SearchPreset(
+      PA_API,
       searchTerms = Some(SingleTerm(Simple("RUGBYL -Summaries -Scorer", Slug))),
       CategoryCodes.Sport.PA
     ),
@@ -587,6 +698,11 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
+      searchTerms = Some(SingleTerm(Simple("\"RUGBY UNION\" OR RUGBYU -Summaries -Scorer", Slug))),
+      CategoryCodes.Sport.PA ::: List("paCat:SFF")
+    ),
+    SearchPreset(
+      PA_API,
       searchTerms = Some(SingleTerm(Simple("\"RUGBY UNION\" OR RUGBYU -Summaries -Scorer", Slug))),
       CategoryCodes.Sport.PA ::: List("paCat:SFF")
     ),
@@ -623,6 +739,23 @@ object SearchPresets {
       CategoryCodes.Sport.PA
     ),
     SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("-SOCCER", Slug))),
+      CategoryCodes.RugbyScores.PA
+    ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("RUGBY TABULATED", Slug))),
+      categoryCodes = List("paCat:RFC")
+    ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(
+        SingleTerm(Simple("RUGBYU Summaries OR RUGBYL Summaries OR RUGBYU Scorer OR RUGBYL Scorer", Slug))
+      ),
+      CategoryCodes.Sport.PA
+    ),
+    SearchPreset(
       AFP,
       searchTerms = Some(
         ComboTerm(
@@ -649,6 +782,7 @@ object SearchPresets {
       CategoryCodes.Tennis.REUTERS
     ),
     SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("TENNIS", Slug))), CategoryCodes.Sport.PA),
+    SearchPreset(PA_API, searchTerms = Some(SingleTerm(Simple("TENNIS", Slug))), CategoryCodes.Sport.PA),
     SearchPreset(
       AFP,
       searchTerms = Some(ComboTerm(List(Simple("Tennis", Slug), Simple("-result -results", Headline)), AND)),
@@ -675,6 +809,11 @@ object SearchPresets {
       categoryCodes = List("paCat:RSR")
     ),
     SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("TENNIS", Slug))),
+      categoryCodes = List("paCat:RSR")
+    ),
+    SearchPreset(
       AFP,
       searchTerms = Some(ComboTerm(List(Simple("Tennis", Slug), Simple("result OR results", Headline)), AND)),
       CategoryCodes.Sport.AFP
@@ -689,6 +828,7 @@ object SearchPresets {
   private val Cycling = List(
     SearchPreset(REUTERS, categoryCodes = CategoryCodes.Cycling.REUTERS),
     SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("CYCLING", Slug))), CategoryCodes.Sport.PA),
+    SearchPreset(PA_API, searchTerms = Some(SingleTerm(Simple("CYCLING", Slug))), CategoryCodes.Sport.PA),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("cycling", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Cycling.AAP),
     SearchPreset(
@@ -706,6 +846,11 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("auto OR MOTO", Slug))),
       categoryCodes = CategoryCodes.Sport.PA ::: List("paCat:RSR")
     ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("auto OR MOTO", Slug))),
+      categoryCodes = CategoryCodes.Sport.PA ::: List("paCat:RSR")
+    ),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("auto OR moto", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.MotorSport.AAP),
     SearchPreset(AP, searchTerms = Some(SingleTerm(Simple("CAR", Slug))), categoryCodes = CategoryCodes.Sport.AP),
@@ -720,6 +865,11 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
+      searchTerms = Some(SingleTerm(Simple("GOLF", Slug))),
+      categoryCodesExcl = List("paCat:RSR")
+    ),
+    SearchPreset(
+      PA_API,
       searchTerms = Some(SingleTerm(Simple("GOLF", Slug))),
       categoryCodesExcl = List("paCat:RSR")
     ),
@@ -745,6 +895,11 @@ object SearchPresets {
       categoryCodes = List("paCat:RSR")
     ),
     SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("GOLF", Slug))),
+      categoryCodes = List("paCat:RSR")
+    ),
+    SearchPreset(
       AP,
       searchTerms = Some(
         SingleTerm(
@@ -766,6 +921,11 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("BOXING", Slug))),
       categoryCodes = List("paCat:SRS", "paCat:SSS")
     ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("BOXING", Slug))),
+      categoryCodes = List("paCat:SRS", "paCat:SSS")
+    ),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("Box", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Boxing.AAP),
     SearchPreset(
@@ -778,6 +938,7 @@ object SearchPresets {
   private val HorseRacing = List(
     SearchPreset(REUTERS, categoryCodes = CategoryCodes.HorseRacing.REUTERS),
     SearchPreset(PA, categoryCodes = CategoryCodes.HorseRacing.PA),
+    SearchPreset(PA_API, categoryCodes = CategoryCodes.HorseRacing.PA),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("racing", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.HorseRacing.AAP),
     SearchPreset(AP, categoryCodes = CategoryCodes.Sport.AP, keyword = Some("Horse racing"))
@@ -790,6 +951,11 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
+      searchTerms = Some(SingleTerm(Simple("ICEHOCKEY", Slug))),
+      CategoryCodes.Sport.PA ::: List("paCat:RSR")
+    ),
+    SearchPreset(
+      PA_API,
       searchTerms = Some(SingleTerm(Simple("ICEHOCKEY", Slug))),
       CategoryCodes.Sport.PA ::: List("paCat:RSR")
     ),
@@ -817,6 +983,11 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(Simple("ATHLETICS", Slug))),
       CategoryCodes.Sport.PA
     ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(SingleTerm(Simple("ATHLETICS", Slug))),
+      CategoryCodes.Sport.PA
+    ),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("ATHLETICS", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Athletics.AAP),
     SearchPreset(
@@ -839,6 +1010,16 @@ object SearchPresets {
       ),
       CategoryCodes.Sport.PA
     ),
+    SearchPreset(
+      PA_API,
+      searchTerms = Some(
+        ComboTerm(
+          List(Simple("Olympics OR IOC", Slug), Simple("Olympics OR IOC", Headline)),
+          OR
+        )
+      ),
+      CategoryCodes.Sport.PA
+    ),
     SearchPreset(AFP, searchTerms = Some(SingleTerm(Simple("Oly", Slug))), CategoryCodes.Sport.AFP),
     SearchPreset(AAP, categoryCodes = CategoryCodes.Olympics.AAP),
     SearchPreset(
@@ -850,7 +1031,8 @@ object SearchPresets {
   )
 
   private val AllDataFormats = List(
-    SearchPreset(PA, hasDataFormatting = Some(true))
+    SearchPreset(PA, hasDataFormatting = Some(true)),
+    SearchPreset(PA_API, hasDataFormatting = Some(true))
   )
 
   private val DotCopy = List(SearchPreset("UNAUTHED_EMAIL_FEED"))
