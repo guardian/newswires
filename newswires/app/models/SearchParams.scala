@@ -3,20 +3,27 @@ package models
 import conf.SearchTerms
 import service.FeatureSwitchProvider
 
+case class FilterParams(
+    searchTerms: Option[SearchTerms],
+    keywordIncl: List[String],
+    keywordExcl: List[String],
+    suppliersIncl: List[String],
+    suppliersExcl: List[String],
+    categoryCodesIncl: List[String],
+    categoryCodesExcl: List[String],
+    hasDataFormatting: Option[Boolean],
+    preComputedCategories: List[String],
+    preComputedCategoriesExcl: List[String],
+    collectionId: Option[Int]
+)
+
+case class DateRange(
+    start: Option[String],
+    end: Option[String]
+)
 case class SearchParams(
-    searchTerms: Option[SearchTerms] = None,
-    start: Option[String] = None,
-    end: Option[String] = None,
-    keywordIncl: List[String] = Nil,
-    keywordExcl: List[String] = Nil,
-    suppliersIncl: List[String] = Nil,
-    suppliersExcl: List[String] = Nil,
-    categoryCodesIncl: List[String] = Nil,
-    categoryCodesExcl: List[String] = Nil,
-    hasDataFormatting: Option[Boolean] = None,
-    preComputedCategories: List[String] = Nil,
-    preComputedCategoriesExcl: List[String] = Nil,
-    collectionId: Option[Int] = None
+    filters: FilterParams,
+    dateRange: DateRange
 )
 
 object SearchParams {
@@ -26,21 +33,27 @@ object SearchParams {
       featureSwitch: FeatureSwitchProvider
   ) = {
     SearchParams(
-      searchTerms = baseParams.textSearchTerms,
-      start = baseParams.maybeStart,
-      end = baseParams.maybeEnd,
-      keywordIncl = baseParams.keywords,
-      keywordExcl = query.get("keywordExcl").map(_.toList).getOrElse(Nil),
-      suppliersIncl = baseParams.suppliers,
-      suppliersExcl = computeSupplierExcl(
-        query,
-        featureSwitch.ShowGuSuppliers.isOn(),
-        baseParams.suppliers
+      FilterParams(
+        searchTerms = baseParams.textSearchTerms,
+        keywordIncl = baseParams.keywords,
+        keywordExcl = query.get("keywordExcl").map(_.toList).getOrElse(Nil),
+        suppliersIncl = baseParams.suppliers,
+        suppliersExcl = computeSupplierExcl(
+          query,
+          featureSwitch.ShowGuSuppliers.isOn(),
+          baseParams.suppliers
+        ),
+        categoryCodesIncl = baseParams.categoryCode,
+        categoryCodesExcl = baseParams.categoryCodeExcl,
+        hasDataFormatting = baseParams.hasDataFormatting,
+        preComputedCategories = Nil,
+        preComputedCategoriesExcl = Nil,
+        collectionId = baseParams.maybeCollectionId
       ),
-      categoryCodesIncl = baseParams.categoryCode,
-      categoryCodesExcl = baseParams.categoryCodeExcl,
-      hasDataFormatting = baseParams.hasDataFormatting,
-      collectionId = baseParams.maybeCollectionId
+      DateRange(
+        start = baseParams.maybeStart,
+        end = baseParams.maybeEnd
+      )
     )
   }
 

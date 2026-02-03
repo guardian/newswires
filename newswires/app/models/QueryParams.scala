@@ -1,5 +1,6 @@
 package models
 
+import conf.SearchPreset
 import conf.SearchTerm.English
 import db.TimeStampColumn
 
@@ -19,13 +20,9 @@ case class MostRecentId(sinceId: Int) extends UpdateTypeId
 
 case class QueryParams(
     searchParams: SearchParams,
-    savedSearchParamList: List[SearchParams],
+    searchPreset: Option[SearchPreset],
     maybeSearchTerm: Option[English],
-    maybeBeforeTimeStamp: Option[String],
-    maybeAfterTimeStamp: Option[UpdateType],
-    maybeBeforeId: Option[Int],
-    maybeSinceId: Option[UpdateTypeId],
+    queryCursor: QueryCursor,
     pageSize: Int = 250,
-    timeStampColumn: TimeStampColumn,
-    negatedSearchParamList: List[SearchParams] = Nil
+    timeStampColumn: TimeStampColumn
 )

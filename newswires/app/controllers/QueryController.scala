@@ -10,6 +10,7 @@ import models.{
   BaseRequestParams,
   NextPage,
   NextPageId,
+  QueryCursor,
   QueryParams,
   QueryResponse,
   SearchParams
@@ -73,33 +74,31 @@ class QueryController(
     val searchParams =
       SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
 
+    val searchPreset = request
+      .getQueryString("preset")
+      .flatMap(SearchPresets.get)
+
     val timeStampColumn = maybeCollectionId match {
       case Some(id) => AddedToCollectionAtTime(id)
       case None     => IngestedAtTime
     }
-
-    val (savedSearchParams, negatedSearchParams) = request
-      .getQueryString("preset")
-      .flatMap(SearchPresets.get)
-      .getOrElse((Nil, Nil))
-
     val queryParams = QueryParams(
       searchParams = searchParams,
-      savedSearchParamList = savedSearchParams,
+      searchPreset = searchPreset,
       maybeSearchTerm = baseParams.textForHighlighting,
-      maybeBeforeTimeStamp = maybeBeforeTimeStamp,
-      maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
-      maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId.map(NextPageId(_)),
+      queryCursor = QueryCursor(
+        maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+        maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
+        maybeBeforeId = maybeBeforeId,
+        maybeSinceId = maybeSinceId.map(NextPageId(_))
+      ),
       pageSize = 30,
-      timeStampColumn = timeStampColumn,
-      negatedSearchParamList = negatedSearchParams
+      timeStampColumn = timeStampColumn
     )
 
-    val queryResponse = FingerpostWireEntry
-      .query(
-        queryParams
-      )
+    val queryResponse = FingerpostWireEntry.query(
+      queryParams
+    )
 
     Ok(
       QueryResponse
