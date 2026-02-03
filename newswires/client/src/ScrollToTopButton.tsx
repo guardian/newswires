@@ -169,13 +169,12 @@ export const ScrollToTopButton = ({
 				</EuiButton>
 			</div>
 			<div ref={bannerRef} style={bannerStyle}>
-				{incomingStories >= 0 && (
+				{incomingStories > 0 && (
 					<div
 						style={{
 							padding: euiTheme.size.xxs,
 							color: euiTheme.colors.textAccentSecondary,
 							background: euiTheme.colors.backgroundBaseAccentSecondary,
-							border: '2px solid red',
 						}}
 					>
 						<EuiButtonEmpty
@@ -185,7 +184,6 @@ export const ScrollToTopButton = ({
 							onClick={handleClick}
 							css={{
 								width: '100%',
-								border: '2px solid red',
 							}}
 						>
 							<span
