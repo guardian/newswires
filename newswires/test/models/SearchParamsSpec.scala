@@ -94,7 +94,8 @@ class SearchParamsSpec extends AnyFlatSpec {
     result.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
-      "GuAP"
+      "GuAP",
+      "PAAPI"
     )
   }
 
@@ -114,7 +115,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       showGuSuppliers = false,
       Nil
     )
-    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuReuters", "GuAP")
+    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuReuters", "GuAP", "PAAPI")
   }
   it should "return add any exclusions from the parameters" in {
     val result = SearchParams.computeSupplierExcl(
@@ -126,6 +127,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
       "GuAP",
+      "PAAPI",
       "supplier1"
     )
   }
@@ -135,7 +137,7 @@ class SearchParamsSpec extends AnyFlatSpec {
       showGuSuppliers = false,
       List("GuReuters")
     )
-    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuAP")
+    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuAP", "PAAPI")
   }
   it should "not include dotcopy exclusion when the dotcopy preset is set" in new models {
     val result = SearchParams.computeSupplierExcl(

@@ -3,11 +3,11 @@
 //> using jvm "corretto:17"
 
 //> using dep com.lihaoyi::ujson:4.4.2
-//> using dep org.flywaydb:flyway-core:11.19.1
-//> using dep org.flywaydb:flyway-database-postgresql:11.19.1
+//> using dep org.flywaydb:flyway-core:11.20.2
+//> using dep org.flywaydb:flyway-database-postgresql:11.20.2
 //> using dep org.postgresql:postgresql:42.7.5
 //> using dep software.amazon.awssdk:rds:2.31.78
-//> using dep software.amazon.awssdk:secretsmanager:2.39.6
+//> using dep software.amazon.awssdk:secretsmanager:2.41.14
 //> using dep software.amazon.awssdk:ssm:2.31.78
 
 import java.nio.file.Path
