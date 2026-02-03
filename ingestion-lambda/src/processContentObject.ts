@@ -12,6 +12,7 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
+	processFingerpostPAAPICategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processReutersTopicCodes,
@@ -104,6 +105,11 @@ export const processCategoryCodes = (
 			];
 		case 'PA':
 			return [...catCodes, ...processFingerpostPACategoryCodes(subjectCodes)];
+		case 'PAAPI':
+			return [
+				...catCodes,
+				...processFingerpostPAAPICategoryCodes(subjectCodes),
+			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
 				...subjectCodes,
