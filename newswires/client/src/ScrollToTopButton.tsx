@@ -69,7 +69,6 @@ export const ScrollToTopButton = ({
 				top: contRect.top,
 				left: contRect.left,
 				width: contRect.width,
-				height: contRect.height,
 				zIndex: 2,
 			});
 		} else {
