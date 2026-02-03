@@ -172,13 +172,19 @@ export function App() {
 						</EuiModal>
 					)}
 					{status === 'offline' && (
-						<EuiCallOut
-							title="The application is no longer retrieving updates. Data
+						<div
+							style={{
+								zIndex: 5,
+							}}
+						>
+							<EuiCallOut
+								title="The application is no longer retrieving updates. Data
 							synchronization will resume once connectivity is restored."
-							color="warning"
-							iconType="warning"
-							size="s"
-						/>
+								color="warning"
+								iconType="warning"
+								size="s"
+							/>
+						</div>
 					)}
 					{isRestricted(config.query.dateRange?.end) &&
 						status !== 'offline' &&

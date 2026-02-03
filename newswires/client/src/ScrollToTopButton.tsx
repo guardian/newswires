@@ -1,4 +1,9 @@
-import { EuiButton, EuiPortal, useEuiTheme } from '@elastic/eui';
+import {
+	EuiButton,
+	EuiButtonEmpty,
+	EuiPortal,
+	useEuiTheme,
+} from '@elastic/eui';
 import type { RefObject } from 'react';
 import type React from 'react';
 import {
@@ -9,7 +14,6 @@ import {
 	useState,
 } from 'react';
 import { useSearch } from './context/SearchContext';
-
 /**
  * Floating Scroll-to-Top Button bounded to a scroll container
  */
@@ -25,6 +29,7 @@ export const ScrollToTopButton = ({
 	direction?: string;
 }) => {
 	const buttonRef = useRef<HTMLDivElement>(null);
+	const bannerRef = useRef<HTMLDivElement>(null);
 	const { euiTheme } = useEuiTheme();
 	const { state } = useSearch();
 	const { queryData } = state;
@@ -32,10 +37,12 @@ export const ScrollToTopButton = ({
 	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const [btnStyle, setBtnStyle] = useState<React.CSSProperties>({});
+	const [bannerStyle, setBannerStyle] = useState<React.CSSProperties>({});
 
 	const updatePosition = useCallback(() => {
 		const cont = containerRef?.current;
 		const btn = buttonRef.current;
+		const banner = bannerRef.current;
 
 		const offset = 16;
 		if (cont && btn) {
@@ -53,6 +60,16 @@ export const ScrollToTopButton = ({
 				bottom: offset,
 				right: euiTheme.size.s,
 				zIndex: 1000,
+			});
+		}
+		if (cont && banner) {
+			const contRect = cont.getBoundingClientRect();
+			setBannerStyle({
+				position: 'fixed',
+				top: contRect.top,
+				left: contRect.left,
+				width: contRect.width,
+				zIndex: 2,
 			});
 		}
 	}, [containerRef, euiTheme.size.s]);
@@ -140,10 +157,31 @@ export const ScrollToTopButton = ({
 					size="m"
 					color="primary"
 				>
-					{incomingStories > 0
-						? `${incomingStories} new stories`
-						: (label ?? 'Back to Top')}
+					{label ?? 'Back to Top'}
 				</EuiButton>
+			</div>
+			<div ref={bannerRef} style={bannerStyle}>
+				{incomingStories > 0 && (
+					<div
+						style={{
+							padding: euiTheme.size.xxs,
+							color: euiTheme.colors.textAccentSecondary,
+							background: euiTheme.colors.backgroundBaseAccentSecondary,
+						}}
+					>
+						<EuiButtonEmpty
+							size="xs"
+							iconType="dot"
+							color="accentSecondary"
+							onClick={handleClick}
+							css={{
+								width: '100%',
+							}}
+						>
+							<span>{incomingStories} new items</span>
+						</EuiButtonEmpty>
+					</div>
+				)}
 			</div>
 		</EuiPortal>
 	);
