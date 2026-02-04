@@ -51,6 +51,7 @@ case class FingerpostWireEntry(
     s3Key: Option[String],
     precomputedCategories: List[String],
     collections: List[WireEntryForCollection] = Nil,
+    imageUrls: List[String] = Nil
 )
 
 object FingerpostWireEntry

@@ -62,6 +62,7 @@ export const WireDataFromAPISchema = z.object({
 	isFromRefresh: z.boolean().default(false),
 	toolLinks: z.array(ToolLinkSchema).optional(),
 	s3Key: z.string().optional(),
+	imageUrls: z.array(z.string()).optional(),
 });
 
 export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;

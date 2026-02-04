@@ -33,6 +33,7 @@ object QueryResponse {
         )
       )
       .copy(content = wire.content.copy(imageIds = wire.content.imageIds.map(transformImageId)))
+      .copy(imageUrls = wire.content.imageIds.map(i => "https://fastly.picsum.photos/id/63/200/300.jpg?hmac=Zhw62KKdLbsw5yRcx9gVDEQq4kzPwjZUrJAJUIryu6k"))
     updatedWire
   }
 
