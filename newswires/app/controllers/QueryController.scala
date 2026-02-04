@@ -22,6 +22,8 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 import java.time.Instant
 
@@ -55,7 +57,7 @@ class QueryController(
       maybeBeforeId: Option[Int],
       maybeSinceId: Option[Int],
       hasDataFormatting: Option[Boolean]
-  ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
+  ): Action[AnyContent] = apiAuthAction.async { request: UserRequest[AnyContent] =>
     val baseParams = BaseRequestParams(
       maybeFreeTextQuery = maybeFreeTextQuery,
       keywords = keywords,
@@ -99,13 +101,11 @@ class QueryController(
     val queryResponse = FingerpostWireEntry.query(
       queryParams
     )
+    for {
+      qrDisplay <-  QueryResponse
+        .display(queryResponse, request.user.username, timeStampColumn, wsClient)
+    } yield Ok(qrDisplay.asJson.spaces2)
 
-    Ok(
-      QueryResponse
-        .display(queryResponse, request.user.username, timeStampColumn)
-        .asJson
-        .spaces2
-    )
   }
 
   def keywords(
@@ -118,17 +118,21 @@ class QueryController(
 
 
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
-    apiAuthAction { request: UserRequest[AnyContent] =>
+    apiAuthAction.async { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
         id,
         maybeFreeTextQuery.map(SearchTerm.English(_))
       ) match {
         case Some(entry) =>
-          Ok(QueryResponse.displayWire(entry, request.user.username)
+          for {
+            images <- QueryResponse.getImagesFromGrid(wsClient, entry.content.imageIds)
+          } yield {
+            Ok(QueryResponse.displayWire(entry, request.user.username, images)
               .asJson
               .spaces2
-          )
-        case None => NotFound
+            )
+          }
+        case None => Future.successful(NotFound)
       }
     }
 

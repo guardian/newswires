@@ -3,6 +3,10 @@ package models
 import db.{FingerpostWireEntry, TimeStampColumn, ToolLink}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import play.api.libs.ws.WSClient
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 case class QueryResponse(
     results: List[FingerpostWireEntry],
@@ -24,28 +28,40 @@ object QueryResponse {
 
   }
 
-  def displayWire(wire: FingerpostWireEntry, requestingUser: String): FingerpostWireEntry = {
-    val updatedWire = wire
-      .copy(toolLinks =
-        ToolLink.display(
-          wire.toolLinks,
-          requestingUser = requestingUser
+  def displayWire(wire: FingerpostWireEntry, requestingUser: String, images: List[String]): FingerpostWireEntry = {
+     val updatedWire = wire
+        .copy(toolLinks =
+          ToolLink.display(
+            wire.toolLinks,
+            requestingUser = requestingUser
+          )
         )
-      )
-      .copy(content = wire.content.copy(imageIds = wire.content.imageIds.map(transformImageId)))
-      .copy(imageUrls = wire.content.imageIds.map(i => "https://fastly.picsum.photos/id/63/200/300.jpg?hmac=Zhw62KKdLbsw5yRcx9gVDEQq4kzPwjZUrJAJUIryu6k"))
-    updatedWire
+        .copy(content = wire.content.copy(imageIds = wire.content.imageIds.map(transformImageId)))
+        .copy(imageUrls = images)
+     updatedWire
   }
 
+  def getImagesFromGrid(wsClient: WSClient, imageIds: List[String]): Future[List[String]] = {
+    Future.sequence(imageIds.map(i => wsClient.url("https://www.google.com/?zx=1770224532797&no_sw_cr=1").get().map(_ => "hello")))
+  }
   def display(
       queryResponse: QueryResponse,
       requestingUser: String,
-      timeStampColumn: TimeStampColumn
-  ): QueryResponse = {
-    queryResponse.copy(
+      timeStampColumn: TimeStampColumn,
+      wsClient: WSClient
+  ): Future[QueryResponse] = {
+     val imagesFt = Future.sequence(queryResponse.results.map(wire => for {
+      imagesFromGrid <- getImagesFromGrid(wsClient, wire.content.imageIds)
+      id = wire.id
+    } yield id -> imagesFromGrid)).map(_.toMap)
+    for {
+      imagesMap <- imagesFt
+      qr =  queryResponse.copy(
       results = queryResponse.results
-        .map(wire => displayWire(wire, requestingUser))
-        .sortWith(timeStampColumn.sortDesc)
-    )
+      .map(wire => displayWire(wire, requestingUser, imagesMap.getOrElse(wire.id, Nil)))
+      .sortWith(timeStampColumn.sortDesc)
+      )
+    } yield qr
+
   }
 }
