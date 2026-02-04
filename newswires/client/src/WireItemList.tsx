@@ -196,6 +196,7 @@ const WirePreviewCard = ({
 	isFromRefresh: boolean;
 	view: string;
 	previousItemId: string | undefined;
+	imageIds?: string[];
 }) => {
 	const { viewedItemIds, config } = useSearch();
 	const { showSecondaryFeedContent } = useUserSettings();
@@ -306,6 +307,8 @@ const WirePreviewCard = ({
 							: theme.euiTheme.font.weight.semiBold};
 						${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
 						font-size: 1.15rem;
+						// display: flex;
+						// align-items: baseline;
 					`}
 				>
 					{mainHeadingContent}
@@ -351,6 +354,9 @@ const WirePreviewCard = ({
 						grid-area: supplier;
 						justify-self: end;
 						margin-top: ${showSecondaryFeedContent ? '0.5rem' : '0'};
+						display: flex;
+						flex-direction: column;
+						gap: 4px;
 					`}
 				>
 					<SupplierBadge
@@ -358,6 +364,16 @@ const WirePreviewCard = ({
 						isPrimary={!hasBeenViewed}
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
+					{content.imageIds && content.imageIds.length > 0 && (
+						<EuiIcon
+							type={'image'}
+							size="m"
+							title="Contains media content"
+							css={css`
+								align-self: flex-end;
+							`}
+						/>
+					)}
 				</div>
 				{toolLinks && toolLinks.length > 0 && (
 					<ul
