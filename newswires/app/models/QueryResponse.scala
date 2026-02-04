@@ -17,6 +17,25 @@ object QueryResponse {
   implicit val jsonDecoder: Decoder[QueryResponse] =
     deriveDecoder[QueryResponse]
 
+  private def transformImageId(id: String) = {
+    id.toCharArray.toList.zip(id.toCharArray.toList.indices).map({case (c, i) => {
+      if(i == 7 || i == 11 || i == 15 || i == 19) s"${c}-" else s"${c}"
+    }}).mkString
+
+  }
+
+  def displayWire(wire: FingerpostWireEntry, requestingUser: String): FingerpostWireEntry = {
+    val updatedWire = wire
+      .copy(toolLinks =
+        ToolLink.display(
+          wire.toolLinks,
+          requestingUser = requestingUser
+        )
+      )
+      .copy(content = wire.content.copy(imageIds = wire.content.imageIds.map(transformImageId)))
+    updatedWire
+  }
+
   def display(
       queryResponse: QueryResponse,
       requestingUser: String,
@@ -24,10 +43,7 @@ object QueryResponse {
   ): QueryResponse = {
     queryResponse.copy(
       results = queryResponse.results
-        .map(wire => {
-          wire
-            .copy(toolLinks = ToolLink.display(wire.toolLinks, requestingUser))
-        })
+        .map(wire => displayWire(wire, requestingUser))
         .sortWith(timeStampColumn.sortDesc)
     )
   }

@@ -116,6 +116,7 @@ class QueryController(
     Ok(results.asJson.spaces2)
   }
 
+
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
     apiAuthAction { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
@@ -123,14 +124,7 @@ class QueryController(
         maybeFreeTextQuery.map(SearchTerm.English(_))
       ) match {
         case Some(entry) =>
-          Ok(
-            entry
-              .copy(toolLinks =
-                ToolLink.display(
-                  entry.toolLinks,
-                  requestingUser = request.user.username
-                )
-              )
+          Ok(QueryResponse.displayWire(entry, request.user.username)
               .asJson
               .spaces2
           )
