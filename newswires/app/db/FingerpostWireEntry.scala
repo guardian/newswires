@@ -50,7 +50,7 @@ case class FingerpostWireEntry(
     toolLinks: List[ToolLink] = Nil,
     s3Key: Option[String],
     precomputedCategories: List[String],
-    collections: List[WireEntryForCollection] = Nil
+    collections: List[WireEntryForCollection] = Nil,
 )
 
 object FingerpostWireEntry
