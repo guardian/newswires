@@ -59,6 +59,7 @@ export const WireDataFromAPISchema = z.object({
 	composerSentBy: z.string().optional(), //deprecated
 	highlight: z.string().optional(),
 	isFromRefresh: z.boolean().default(false),
+	imageIds: z.string().optional(),
 	toolLinks: z.array(ToolLinkSchema).optional(),
 	s3Key: z.string().optional(),
 });
