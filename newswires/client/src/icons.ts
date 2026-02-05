@@ -24,6 +24,7 @@ import { icon as filter } from '@elastic/eui/es/components/icon/assets/filter';
 import { icon as flask } from '@elastic/eui/es/components/icon/assets/flask';
 import { icon as gear } from '@elastic/eui/es/components/icon/assets/gear';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
+import { icon as image } from '@elastic/eui/es/components/icon/assets/image';
 import { icon as info } from '@elastic/eui/es/components/icon/assets/info';
 import { icon as kqlFunction } from '@elastic/eui/es/components/icon/assets/kql_function';
 import { icon as launch } from '@elastic/eui/es/components/icon/assets/launch';
@@ -90,6 +91,7 @@ const icons = {
 	starEmpty,
 	starFilled,
 	clockCounter,
+	image,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

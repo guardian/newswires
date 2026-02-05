@@ -35,6 +35,7 @@ const FingerpostContentSchema = z
 			code: z.array(z.string()),
 		}),
 		composerCompatible: z.boolean().optional(), // the only value we receive from the API is 'false'. If it's not present, we should assume true.
+		imageIds: z.array(z.string()),
 	})
 	.partial();
 
@@ -47,6 +48,11 @@ export const ToolLinkSchema = z.object({
 	ref: z.string().optional(),
 });
 export type ToolLink = z.infer<typeof ToolLinkSchema>;
+
+const ImageDataSchema = z.object({
+	gridId: z.string(),
+	thumbnailUrl: z.string(),
+});
 
 export const WireDataFromAPISchema = z.object({
 	id: z.number(),
@@ -61,6 +67,7 @@ export const WireDataFromAPISchema = z.object({
 	isFromRefresh: z.boolean().default(false),
 	toolLinks: z.array(ToolLinkSchema).optional(),
 	s3Key: z.string().optional(),
+	imageUrls: z.array(ImageDataSchema).optional(),
 });
 
 export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;

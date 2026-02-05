@@ -517,6 +517,59 @@ export const WireDetail = ({
 
 	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
 
+	// const images: Array<{ thumbnailUrl: string; gridUrl: string }> = [
+	// 	{
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/2/2/a/b/1/0/22ab10b1476cb381507a83adc79182b618173a3d?Expires=1770218400&Signature=iofeCiFDHFBWi407W0yNySZ-aJGITx9Dz4yQnXSPG2F6J2VGbwBq~ZWA83oMeR3r8a2fySuDqphrWKj89uF5zfnm9Dcc6kZ81By86kdZp3SRHb37NSJ7OqNyzrffHYYe8Ffb71daQiJg6JeBOdQsmtswi~f~BIl~iSYu6DYgeiAYxwhWOx8Zq-dSRgHzAy-~AeXbygs1O9KrsW006n7lY0qIipR9907iVcj-Jka2uze60xSFOj-VyJFUGMStjxQdoLb7sVUa~YZtHeNFGs9sW~Po~UirmdfMsH7aS4cpF~CQWY~55ATSYq2cQgCuuO30kxKzyP~2gO8MMxeNhJMjDw__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/22ab10b1476cb381507a83adc79182b618173a3d',
+	// 	},
+	// 	{
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/3c17d0369884c2feaa2a0206160e08d41749d9b2',
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/3/c/1/7/d/0/3c17d0369884c2feaa2a0206160e08d41749d9b2?Expires=1770218400&Signature=eqLEy6RvkaYYYW46amOLa2B0vLMgWgigF1KyEzXGTo8NiO8c9Abf50wbxlFbBePlUDALzKs9vkj2o8GhcvSc40KqW~iSN52RxlTOz5BlKmhDliLSmglDcLPuWgqGA7TIk2ZK0LJhwaRXmvQ5m8l6EFFsg3xWXkOJnbNi-pbDAfzn6VF8UdtYV0nch958jUJRY69DJvhUMJy146TFI0WTwA~mOjI4xcnfNLdHl88NxjLebXFiWn68th59tD9BCAsvt5vBgVVZB4i0nLIrKl~m57ntuo0H2h49Y9TqwiCbmIFuSNlVgngM1YgrOWtiA-gz4cPY392W1UoEkGz0cDteSw__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 	},
+	// 	{
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/3/c/6/7/4/9/3c67491983c1ffe5f532d2f92b78c5c178ec708c?Expires=1770220200&Signature=GAxG5R2IsmpqjMnaJku-L9Ue2gzOe0MupMGv1S7CBt0d1cT6-tVVoOBnEjn1GjtSqjW9I~SJMk6xmdJGf0qHUoaiSY3ePW1uya-4Rz-GVOAkOn2uzv9WLwWdt-hwE8xHWoneCKca4htBRkjy72rS1VAjzIFHjPWmxg8nYgDAvhzzxIt3H1-BOpOHIVhe51RaSt-epyqLe8SpKaLkVi8V1dwnqC0oO8NVtKt2xdtuhOYmZoO~DzMZrb6OXH0lCx0nr8ymE8GqVhcdn8mtdMzlMhq~F3BiFmBBDjtFkQlDCTXrAX3rbMmjwhv8bPNlLeYlWhde7p4t1CfF1XSFyx~c4w__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/3c67491983c1ffe5f532d2f92b78c5c178ec708c',
+	// 	},
+	// 	{
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/d2f713a20c2ac33301d735cf904d5a08060304cf',
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/d/2/f/7/1/3/d2f713a20c2ac33301d735cf904d5a08060304cf?Expires=1770220200&Signature=io5FajRjnvv4piYsX5GKjSHsk1yLIJdF2nEnthBW0CT~VGNpZ~6U8PQObFSw9bTLFjEImOVZ~jSXvQsZ1kWLi9gJZDaD7FM50KbsLP~PkUBOnujRz5kac9-h7eAzCEXLVinxc-dI24ffjICMPucQJRsnbz1QzjUUxY21ZjT6oJcN5zyXeT9yHdiaO~7Yxu~iCIOIJsQV15heo2poAFDVqdedIPJEhOe3VT0QwKqYehT0t0FTdRev8k2W-rfKojlp3oyiim~kPvVyje5Au-KTY6lgnBLuBOziT~9c6dfJIe0GdCMDG247aJn-wFw-My2svcN8OXbBZ967zNGsLQZaHw__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 	},
+	// 	{
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/3c17d0369884c2feaa2a0206160e08d41749d9b2',
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/3/c/1/7/d/0/3c17d0369884c2feaa2a0206160e08d41749d9b2?Expires=1770218400&Signature=eqLEy6RvkaYYYW46amOLa2B0vLMgWgigF1KyEzXGTo8NiO8c9Abf50wbxlFbBePlUDALzKs9vkj2o8GhcvSc40KqW~iSN52RxlTOz5BlKmhDliLSmglDcLPuWgqGA7TIk2ZK0LJhwaRXmvQ5m8l6EFFsg3xWXkOJnbNi-pbDAfzn6VF8UdtYV0nch958jUJRY69DJvhUMJy146TFI0WTwA~mOjI4xcnfNLdHl88NxjLebXFiWn68th59tD9BCAsvt5vBgVVZB4i0nLIrKl~m57ntuo0H2h49Y9TqwiCbmIFuSNlVgngM1YgrOWtiA-gz4cPY392W1UoEkGz0cDteSw__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 	},
+	// 	{
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/3/c/6/7/4/9/3c67491983c1ffe5f532d2f92b78c5c178ec708c?Expires=1770220200&Signature=GAxG5R2IsmpqjMnaJku-L9Ue2gzOe0MupMGv1S7CBt0d1cT6-tVVoOBnEjn1GjtSqjW9I~SJMk6xmdJGf0qHUoaiSY3ePW1uya-4Rz-GVOAkOn2uzv9WLwWdt-hwE8xHWoneCKca4htBRkjy72rS1VAjzIFHjPWmxg8nYgDAvhzzxIt3H1-BOpOHIVhe51RaSt-epyqLe8SpKaLkVi8V1dwnqC0oO8NVtKt2xdtuhOYmZoO~DzMZrb6OXH0lCx0nr8ymE8GqVhcdn8mtdMzlMhq~F3BiFmBBDjtFkQlDCTXrAX3rbMmjwhv8bPNlLeYlWhde7p4t1CfF1XSFyx~c4w__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/3c67491983c1ffe5f532d2f92b78c5c178ec708c',
+	// 	},
+	// 	{
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/d2f713a20c2ac33301d735cf904d5a08060304cf',
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/d/2/f/7/1/3/d2f713a20c2ac33301d735cf904d5a08060304cf?Expires=1770220200&Signature=io5FajRjnvv4piYsX5GKjSHsk1yLIJdF2nEnthBW0CT~VGNpZ~6U8PQObFSw9bTLFjEImOVZ~jSXvQsZ1kWLi9gJZDaD7FM50KbsLP~PkUBOnujRz5kac9-h7eAzCEXLVinxc-dI24ffjICMPucQJRsnbz1QzjUUxY21ZjT6oJcN5zyXeT9yHdiaO~7Yxu~iCIOIJsQV15heo2poAFDVqdedIPJEhOe3VT0QwKqYehT0t0FTdRev8k2W-rfKojlp3oyiim~kPvVyje5Au-KTY6lgnBLuBOziT~9c6dfJIe0GdCMDG247aJn-wFw-My2svcN8OXbBZ967zNGsLQZaHw__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 	},
+	// 	{
+	// 		thumbnailUrl:
+	// 			'https://d1qpjh3m4a30cs.cloudfront.net/2/2/a/b/1/0/22ab10b1476cb381507a83adc79182b618173a3d?Expires=1770218400&Signature=iofeCiFDHFBWi407W0yNySZ-aJGITx9Dz4yQnXSPG2F6J2VGbwBq~ZWA83oMeR3r8a2fySuDqphrWKj89uF5zfnm9Dcc6kZ81By86kdZp3SRHb37NSJ7OqNyzrffHYYe8Ffb71daQiJg6JeBOdQsmtswi~f~BIl~iSYu6DYgeiAYxwhWOx8Zq-dSRgHzAy-~AeXbygs1O9KrsW006n7lY0qIipR9907iVcj-Jka2uze60xSFOj-VyJFUGMStjxQdoLb7sVUa~YZtHeNFGs9sW~Po~UirmdfMsH7aS4cpF~CQWY~55ATSYq2cQgCuuO30kxKzyP~2gO8MMxeNhJMjDw__&Key-Pair-Id=APKAJPTTPZNNPHQSSUAQ',
+	// 		gridUrl:
+	// 			'https://media.gutools.co.uk/images/22ab10b1476cb381507a83adc79182b618173a3d',
+	// 	},
+	// ];
+
+	const images = wire.imageUrls ?? [];
+
 	return (
 		<div
 			css={css`
@@ -620,6 +673,7 @@ export const WireDetail = ({
 							position: relative;
 							border: 3px solid ${theme.euiTheme.colors.highlight};
 						}
+						container-type: inline-size;
 					`}
 				>
 					<EuiSpacer size="xs" />
@@ -704,6 +758,64 @@ export const WireDetail = ({
 								data-pinboard-selection-target
 							/>
 							<EuiSpacer size="m" />
+						</>
+					)}
+					{images.length > 0 && (
+						<>
+							<EuiDescriptionListTitle>
+								Associated agency images
+							</EuiDescriptionListTitle>
+							<EuiDescriptionListDescription>
+								<a
+									href={`https://media.gutools.co.uk/search?ids=${images.map((image) => image.gridId).join(',')}&nonFree=true`}
+								>
+									{' '}
+									View all on Grid
+								</a>
+								<ul
+									aria-labelledby="associated-images-heading"
+									css={css`
+										padding: ${theme.euiTheme.size.m};
+										list-style-type: none;
+										display: grid;
+										gap: ${theme.euiTheme.size.s};
+										grid-template-rows: auto;
+										@container (width >= 400px) {
+											grid-template-columns: repeat(2, 1fr);
+										}
+										@container (width >= 800px) {
+											grid-template-columns: repeat(3, 1fr);
+										}
+
+										& img {
+											width: 100%;
+											display: block;
+										}
+										& a {
+											line-height: 0; /* Remove extra space below images */
+										}
+									`}
+								>
+									{images.map((image) => (
+										<li
+											key={image.thumbnailUrl}
+											css={css`
+												display: flex;
+												align-items: center;
+												justify-content: center;
+											`}
+										>
+											<a
+												href={`https://media.gutools.co.uk/images/${image.gridId}`}
+												target="_blank"
+												rel="noreferrer"
+											>
+												<img src={image.thumbnailUrl} alt="thumbnail" />
+											</a>
+										</li>
+									))}
+								</ul>
+							</EuiDescriptionListDescription>
 						</>
 					)}
 					<EuiDescriptionList

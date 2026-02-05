@@ -16,6 +16,7 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
   FilterParams,
   FingerpostWire,
+  Grid,
   NextPage,
   NextPageId,
   QueryCursor,
@@ -50,7 +51,8 @@ case class FingerpostWireEntry(
     toolLinks: List[ToolLink] = Nil,
     s3Key: Option[String],
     precomputedCategories: List[String],
-    collections: List[WireEntryForCollection] = Nil
+    collections: List[WireEntryForCollection] = Nil,
+    imageUrls: List[Grid] = Nil
 )
 
 object FingerpostWireEntry

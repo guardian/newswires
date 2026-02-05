@@ -25,7 +25,8 @@ case class FingerpostWire(
     `abstract`: Option[String],
     bodyText: Option[String],
     composerCompatible: Option[Boolean],
-    dataformat: Option[Dataformat]
+    dataformat: Option[Dataformat],
+    imageIds: List[String]
 )
 object FingerpostWire {
   implicit val jsonDecoder: Decoder[FingerpostWire] =

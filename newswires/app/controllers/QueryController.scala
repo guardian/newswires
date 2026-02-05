@@ -22,6 +22,8 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 import java.time.Instant
 
@@ -99,13 +101,13 @@ class QueryController(
     val queryResponse = FingerpostWireEntry.query(
       queryParams
     )
-
     Ok(
       QueryResponse
         .display(queryResponse, request.user.username, timeStampColumn)
         .asJson
         .spaces2
     )
+
   }
 
   def keywords(
@@ -117,24 +119,27 @@ class QueryController(
   }
 
   def item(id: Int, maybeFreeTextQuery: Option[String]): Action[AnyContent] =
-    apiAuthAction { request: UserRequest[AnyContent] =>
+    apiAuthAction.async { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
         id,
         maybeFreeTextQuery.map(SearchTerm.English(_))
       ) match {
         case Some(entry) =>
-          Ok(
-            entry
-              .copy(toolLinks =
-                ToolLink.display(
-                  entry.toolLinks,
-                  requestingUser = request.user.username
-                )
-              )
-              .asJson
-              .spaces2
-          )
-        case None => NotFound
+          for {
+            imagesMap <- QueryResponse.getImagesFromGrid(
+              wsClient,
+              entry.content.imageIds
+            )
+            images = imagesMap.values.flatten.toList
+          } yield {
+            Ok(
+              QueryResponse
+                .displayWire(entry, request.user.username, images)
+                .asJson
+                .spaces2
+            )
+          }
+        case None => Future.successful(NotFound)
       }
     }
 
