@@ -35,6 +35,7 @@ const FingerpostContentSchema = z
 			code: z.array(z.string()),
 		}),
 		composerCompatible: z.boolean().optional(), // the only value we receive from the API is 'false'. If it's not present, we should assume true.
+		imageIds: z.array(z.string()),
 	})
 	.partial();
 
@@ -61,6 +62,7 @@ export const WireDataFromAPISchema = z.object({
 	isFromRefresh: z.boolean().default(false),
 	toolLinks: z.array(ToolLinkSchema).optional(),
 	s3Key: z.string().optional(),
+	imageUrls: z.array(z.string()).optional(),
 });
 
 export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;
