@@ -16,7 +16,7 @@ case class QueryResponse(
     //      keywordCounts: Map[String, Int]
 )
 
-case class Grid(gridUrl: String, thumbnailUrl: String)
+case class Grid(gridId: String, thumbnailUrl: String)
 case object Grid {
   implicit val jsonEncoder: Encoder[Grid] =
     deriveEncoder[Grid].mapJson(_.dropNullValues)
@@ -80,8 +80,8 @@ object QueryResponse {
             val data = (response.json \ "data").as[List[JsValue]]
             data.map(jsValue => {
               Grid(
-                (jsValue \ "data" \ "thumbnail" \ "file").as[String],
-                (jsValue \ "uri").as[String]
+                (jsValue \ "data" \ "id").as[String],
+                (jsValue \ "data" \ "thumbnail" \ "secureUrl").as[String]
               )
             })
           })
