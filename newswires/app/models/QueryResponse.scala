@@ -2,7 +2,9 @@ package models
 
 import db.{FingerpostWireEntry, TimeStampColumn, ToolLink}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.{Decoder, Encoder}
+import io.circe.{Decoder, Encoder, Json}
+import play.api.libs.json.Format.GenericFormat
+import play.api.libs.json.JsValue
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,6 +16,13 @@ case class QueryResponse(
     //      keywordCounts: Map[String, Int]
 )
 
+case class Grid(gridUrl: String, thumbnailUrl: String)
+case object Grid {
+  implicit val jsonEncoder: Encoder[Grid] =
+    deriveEncoder[Grid].mapJson(_.dropNullValues)
+  implicit val jsonDecoder: Decoder[Grid] = deriveDecoder[Grid]
+}
+
 object QueryResponse {
   implicit val jsonEncoder: Encoder[QueryResponse] =
     deriveEncoder[QueryResponse].mapJson(_.dropNullValues)
@@ -22,46 +31,72 @@ object QueryResponse {
     deriveDecoder[QueryResponse]
 
   private def transformImageId(id: String) = {
-    id.toCharArray.toList.zip(id.toCharArray.toList.indices).map({case (c, i) => {
-      if(i == 7 || i == 11 || i == 15 || i == 19) s"${c}-" else s"${c}"
-    }}).mkString
+    id.toCharArray.toList
+      .zip(id.toCharArray.toList.indices)
+      .map({
+        case (c, i) => {
+          if (i == 7 || i == 11 || i == 15 || i == 19) s"${c}-" else s"${c}"
+        }
+      })
+      .mkString
 
   }
 
-  def displayWire(wire: FingerpostWireEntry, requestingUser: String, images: List[String]): FingerpostWireEntry = {
-     val updatedWire = wire
-        .copy(toolLinks =
-          ToolLink.display(
-            wire.toolLinks,
-            requestingUser = requestingUser
-          )
+  def displayWire(
+      wire: FingerpostWireEntry,
+      requestingUser: String,
+      images: List[Grid]
+  ): FingerpostWireEntry = {
+    val updatedWire = wire
+      .copy(toolLinks =
+        ToolLink.display(
+          wire.toolLinks,
+          requestingUser = requestingUser
         )
-        .copy(content = wire.content.copy(imageIds = wire.content.imageIds.map(transformImageId)))
-        .copy(imageUrls = images)
-     updatedWire
+      )
+      .copy(content =
+        wire.content
+          .copy(imageIds = wire.content.imageIds.map(transformImageId))
+      )
+      .copy(imageUrls = images)
+    updatedWire
   }
 
-  def getImagesFromGrid(wsClient: WSClient, imageIds: List[String]): Future[List[String]] = {
-    Future.sequence(imageIds.map(i => wsClient.url("https://www.google.com/?zx=1770224532797&no_sw_cr=1").get().map(_ => "hello")))
+  def getImagesFromGrid(
+      wsClient: WSClient,
+      imageIds: List[String]
+  ): Future[List[Grid]] = {
+    Future
+      .sequence(imageIds.map(i => {
+        val url =
+          s"https://api.media.gutools.co.uk/images?query=suppliersReference%3A0${transformImageId(i)}&length=1&orderBy=-uploadTime&countAll=true"
+        wsClient
+          .url(url)
+          .addHttpHeaders(
+            "X-Gu-Media-Key" -> "berger-hackday-2026-2U1iI1iPy3TpnaS3yOB82D68fve5MnLCKR5U1pY0rBr55oux"
+          )
+          .get()
+          .map(response => {
+            val data = (response.json \ "data").as[List[JsValue]]
+            data.map(jsValue => {
+              Grid(
+                (jsValue \ "data" \ "thumbnail" \ "file").as[String],
+                (jsValue \ "uri").as[String]
+              )
+            })
+          })
+      }))
+      .map(_.flatten)
   }
   def display(
       queryResponse: QueryResponse,
       requestingUser: String,
-      timeStampColumn: TimeStampColumn,
-      wsClient: WSClient
-  ): Future[QueryResponse] = {
-     val imagesFt = Future.sequence(queryResponse.results.map(wire => for {
-      imagesFromGrid <- getImagesFromGrid(wsClient, wire.content.imageIds)
-      id = wire.id
-    } yield id -> imagesFromGrid)).map(_.toMap)
-    for {
-      imagesMap <- imagesFt
-      qr =  queryResponse.copy(
+      timeStampColumn: TimeStampColumn
+  ): QueryResponse = {
+    queryResponse.copy(
       results = queryResponse.results
-      .map(wire => displayWire(wire, requestingUser, imagesMap.getOrElse(wire.id, Nil)))
-      .sortWith(timeStampColumn.sortDesc)
-      )
-    } yield qr
-
+        .map(wire => displayWire(wire, requestingUser, Nil))
+        .sortWith(timeStampColumn.sortDesc)
+    )
   }
 }
