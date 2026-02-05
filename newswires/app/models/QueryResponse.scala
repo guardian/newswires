@@ -65,7 +65,7 @@ object QueryResponse {
   def getImagesFromGrid(
       wsClient: WSClient,
       imageIds: List[String]
-  ): Future[List[Grid]] = {
+  ) = {
     Future
       .sequence(imageIds.map(i => {
         val url =
@@ -78,15 +78,16 @@ object QueryResponse {
           .get()
           .map(response => {
             val data = (response.json \ "data").as[List[JsValue]]
-            data.map(jsValue => {
+            val grids = data.map(jsValue => {
               Grid(
                 (jsValue \ "data" \ "id").as[String],
                 (jsValue \ "data" \ "thumbnail" \ "secureUrl").as[String]
               )
             })
+            i -> grids
           })
       }))
-      .map(_.flatten)
+      .map(_.toMap)
   }
   def display(
       queryResponse: QueryResponse,

@@ -126,10 +126,11 @@ class QueryController(
       ) match {
         case Some(entry) =>
           for {
-            images <- QueryResponse.getImagesFromGrid(
+            imagesMap <- QueryResponse.getImagesFromGrid(
               wsClient,
               entry.content.imageIds
             )
+            images = imagesMap.values.flatten.toList
           } yield {
             Ok(
               QueryResponse
