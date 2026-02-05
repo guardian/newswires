@@ -367,6 +367,7 @@ const WirePreviewCard = ({
 					{content.imageIds && content.imageIds.length > 0 && (
 						<EuiIcon
 							type={'image'}
+							// type={CameraIcon}
 							size="m"
 							title="Contains media content"
 							css={css`

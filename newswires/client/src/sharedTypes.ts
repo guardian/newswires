@@ -49,6 +49,11 @@ export const ToolLinkSchema = z.object({
 });
 export type ToolLink = z.infer<typeof ToolLinkSchema>;
 
+const ImageDataSchema = z.object({
+	gridId: z.string(),
+	thumbnailUrl: z.string(),
+});
+
 export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
@@ -62,7 +67,7 @@ export const WireDataFromAPISchema = z.object({
 	isFromRefresh: z.boolean().default(false),
 	toolLinks: z.array(ToolLinkSchema).optional(),
 	s3Key: z.string().optional(),
-	imageUrls: z.array(z.string()).optional(),
+	imageUrls: z.array(ImageDataSchema).optional(),
 });
 
 export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;
