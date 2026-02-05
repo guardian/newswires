@@ -16,7 +16,7 @@ case class QueryResponse(
     //      keywordCounts: Map[String, Int]
 )
 
-case class Grid(gridId: String, thumbnailUrl: String)
+case class Grid(imageId: String, url: String, gridId: String, thumbnailUrl: String)
 case object Grid {
   implicit val jsonEncoder: Encoder[Grid] =
     deriveEncoder[Grid].mapJson(_.dropNullValues)
@@ -68,8 +68,8 @@ object QueryResponse {
   ) = {
     Future
       .sequence(imageIds.map(i => {
-        val url =
-          s"https://api.media.gutools.co.uk/images?query=suppliersReference%3A0${transformImageId(i)}&length=1&orderBy=-uploadTime&countAll=true"
+
+        val url = s"https://api.media.gutools.co.uk/images?q=suppliersReference%3A${transformImageId(i)}&length=1&orderBy=-uploadTime&free=true&countAll=true"
         wsClient
           .url(url)
           .addHttpHeaders(
@@ -77,9 +77,11 @@ object QueryResponse {
           )
           .get()
           .map(response => {
-            val data = (response.json \ "data").as[List[JsValue]]
+            val data = (response.json \ "data").as[List[JsValue]].headOption
             val grids = data.map(jsValue => {
               Grid(
+                transformImageId(i),
+                url,
                 (jsValue \ "data" \ "id").as[String],
                 (jsValue \ "data" \ "thumbnail" \ "secureUrl").as[String]
               )
