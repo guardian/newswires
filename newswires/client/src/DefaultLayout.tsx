@@ -24,6 +24,7 @@ import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
 import { SideNav } from './SideNav/SideNav.tsx';
+import { StageDisplayBanner } from './StageDisplayBanner.tsx';
 import { Tooltip } from './Tooltip.tsx';
 
 export function DefaultLayout() {
@@ -48,6 +49,7 @@ export function DefaultLayout() {
 
 	return (
 		<>
+			<StageDisplayBanner />
 			<EuiHeader position="fixed">
 				<EuiHeaderSection side={'left'}>
 					<EuiHeaderSectionItem>
