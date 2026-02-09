@@ -152,8 +152,13 @@ export function DefaultLayout() {
 				<>
 					<EuiShowFor sizes={['xs', 's']}>
 						{view === 'item' && <ItemData id={selectedItemId} />}
-
-						{view !== 'item' && <Feed setSideNavIsOpen={setSideNavIsOpen} />}
+						{view !== 'item' && (
+							<div className="eui-fullHeight">
+								<div className="eui-yScroll">
+									<Feed setSideNavIsOpen={setSideNavIsOpen} />
+								</div>
+							</div>
+						)}
 					</EuiShowFor>
 					<EuiShowFor sizes={['m', 'l', 'xl']}>
 						<ResizableContainer

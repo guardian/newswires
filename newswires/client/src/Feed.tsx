@@ -29,11 +29,7 @@ const columnStyles = css`
 	flex-direction: column;
 `;
 
-export const Feed = ({
-	containerRef,
-	direction,
-	setSideNavIsOpen,
-}: FeedProps) => {
+export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 	const { state, config } = useSearch();
 	const { status, queryData } = state;
 
@@ -147,11 +143,7 @@ export const Feed = ({
 								)}
 							</EuiFlexGroup>
 						</div>
-						<ScrollToTopButton
-							threshold={300}
-							containerRef={containerRef}
-							direction={direction}
-						/>
+						<ScrollToTopButton threshold={300} containerRef={containerRef} />
 						<WireItemList wires={wires} totalCount={queryData.totalCount} />
 					</>
 				)}

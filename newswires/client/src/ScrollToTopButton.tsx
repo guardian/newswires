@@ -1,12 +1,6 @@
 import { EuiButton, EuiButtonEmpty, useEuiTheme } from '@elastic/eui';
 import type { RefObject } from 'react';
-import {
-	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearch } from './context/SearchContext';
 /**
  * Floating Scroll-to-Top Button bounded to a scroll container
@@ -15,7 +9,6 @@ export const ScrollToTopButton = ({
 	threshold = 200,
 	label,
 	containerRef,
-	direction,
 }: {
 	threshold?: number;
 	label?: string;
@@ -31,10 +24,6 @@ export const ScrollToTopButton = ({
 	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const offset = 16;
-
-	const updatePosition = useCallback(() => {
-		console.log('update');
-	}, []);
 
 	// Accumulate counts of newly loaded stories
 	useEffect(() => {
@@ -64,39 +53,6 @@ export const ScrollToTopButton = ({
 		scrollEl.addEventListener('scroll', onScroll, { passive: true });
 		return () => scrollEl.removeEventListener('scroll', onScroll);
 	}, [threshold, containerRef]);
-
-	// Recalculate position on show, scroll, or resize
-	useEffect(() => {
-		if (!visible) {
-			return;
-		}
-
-		window.addEventListener('resize', updatePosition);
-
-		const scrollEl = containerRef?.current ?? window;
-		scrollEl.addEventListener('scroll', updatePosition, { passive: true });
-
-		// Observe container size changes
-		let resizeObs: ResizeObserver | null = null;
-		if (containerRef?.current) {
-			resizeObs = new ResizeObserver(updatePosition);
-			resizeObs.observe(containerRef.current);
-		}
-
-		updatePosition();
-
-		return () => {
-			window.removeEventListener('resize', updatePosition);
-			scrollEl.removeEventListener('scroll', updatePosition);
-			if (resizeObs) {
-				resizeObs.disconnect();
-			}
-		};
-	}, [visible, containerRef, euiTheme.size.s, updatePosition]);
-
-	useLayoutEffect(() => {
-		updatePosition();
-	}, [direction, updatePosition]);
 
 	const handleClick = () => {
 		if (containerRef?.current) {
