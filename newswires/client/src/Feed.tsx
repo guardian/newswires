@@ -143,7 +143,7 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 								)}
 							</EuiFlexGroup>
 						</div>
-						<ScrollToTopButton threshold={300} containerRef={containerRef} />
+						<ScrollToTopButton containerRef={containerRef} />
 						<WireItemList wires={wires} totalCount={queryData.totalCount} />
 					</>
 				)}
