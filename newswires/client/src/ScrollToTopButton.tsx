@@ -1,11 +1,5 @@
-import {
-	EuiButton,
-	EuiButtonEmpty,
-	EuiPortal,
-	useEuiTheme,
-} from '@elastic/eui';
+import { EuiButton, EuiButtonEmpty, useEuiTheme } from '@elastic/eui';
 import type { RefObject } from 'react';
-import type React from 'react';
 import {
 	useCallback,
 	useEffect,
@@ -36,43 +30,11 @@ export const ScrollToTopButton = ({
 
 	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
-	const [btnStyle, setBtnStyle] = useState<React.CSSProperties>({});
-	const [bannerStyle, setBannerStyle] = useState<React.CSSProperties>({});
+	const offset = 16;
 
 	const updatePosition = useCallback(() => {
-		const cont = containerRef?.current;
-		const btn = buttonRef.current;
-		const banner = bannerRef.current;
-
-		const offset = 16;
-		if (cont && btn) {
-			const contRect = cont.getBoundingClientRect();
-			const btnRect = btn.getBoundingClientRect();
-			setBtnStyle({
-				position: 'fixed',
-				top: contRect.top + contRect.height - btnRect.height - offset,
-				left: contRect.left + contRect.width - btnRect.width - offset,
-				zIndex: 1000,
-			});
-		} else {
-			setBtnStyle({
-				position: 'fixed',
-				bottom: offset,
-				right: euiTheme.size.s,
-				zIndex: 1000,
-			});
-		}
-		if (cont && banner) {
-			const contRect = cont.getBoundingClientRect();
-			setBannerStyle({
-				position: 'fixed',
-				top: contRect.top,
-				left: contRect.left,
-				width: contRect.width,
-				zIndex: 2,
-			});
-		}
-	}, [containerRef, euiTheme.size.s]);
+		console.log('update');
+	}, []);
 
 	// Accumulate counts of newly loaded stories
 	useEffect(() => {
@@ -149,8 +111,16 @@ export const ScrollToTopButton = ({
 	}
 
 	return (
-		<EuiPortal>
-			<div ref={buttonRef} style={btnStyle}>
+		<>
+			<div
+				ref={buttonRef}
+				style={{
+					position: 'fixed',
+					bottom: offset,
+					right: euiTheme.size.s,
+					zIndex: 1000,
+				}}
+			>
 				<EuiButton
 					iconType="arrowUp"
 					onClick={handleClick}
@@ -160,7 +130,13 @@ export const ScrollToTopButton = ({
 					{label ?? 'Back to Top'}
 				</EuiButton>
 			</div>
-			<div ref={bannerRef} style={bannerStyle}>
+			<div
+				ref={bannerRef}
+				style={{
+					position: 'sticky',
+					top: 0,
+				}}
+			>
 				{incomingStories > 0 && (
 					<div
 						style={{
@@ -183,6 +159,6 @@ export const ScrollToTopButton = ({
 					</div>
 				)}
 			</div>
-		</EuiPortal>
+		</>
 	);
 };

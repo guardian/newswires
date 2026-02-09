@@ -147,14 +147,12 @@ export const Feed = ({
 								)}
 							</EuiFlexGroup>
 						</div>
-
-						<WireItemList wires={wires} totalCount={queryData.totalCount} />
-
 						<ScrollToTopButton
 							threshold={300}
 							containerRef={containerRef}
 							direction={direction}
 						/>
+						<WireItemList wires={wires} totalCount={queryData.totalCount} />
 					</>
 				)}
 		</EuiPageTemplate.Section>
