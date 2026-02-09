@@ -7,6 +7,7 @@ import { Feed } from './Feed';
 import { ItemData } from './ItemData.tsx';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SideNav } from './SideNav/SideNav.tsx';
+import { StageDisplayBanner } from './StageDisplayBanner.tsx';
 
 export const TickerLayout = () => {
 	const { config, state } = useSearch();
@@ -18,6 +19,7 @@ export const TickerLayout = () => {
 
 	return (
 		<>
+			<StageDisplayBanner />
 			<SideNav
 				navIsDocked={false}
 				sideNavIsOpen={sideNavIsOpen}
