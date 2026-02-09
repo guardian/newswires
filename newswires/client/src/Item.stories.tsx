@@ -89,6 +89,35 @@ export const LoadedItem: Story = {
 	},
 };
 
+export const WithLongTitleSlugAndSubheading: Story = {
+	args: {
+		itemData: {
+			...sampleItemData,
+			content: {
+				...sampleItemData.content,
+				slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE-AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
+				headline:
+					'This is a sample headline that is intentionally made extra long to test how the Item component handles long headlines in the UI. It should wrap correctly and not overflow the container.',
+				subhead:
+					'Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI. It should wrap correctly and not overflow the container. Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI. It should wrap correctly and not overflow the container.',
+				keywords: [
+					'news',
+					'sample',
+					'test',
+					'long keyword 1',
+					'long keyword 2',
+					'long keyword 3',
+				],
+			},
+		},
+		error: undefined,
+		handleDeselectItem: () => console.log('deselect clicked'),
+		handlePreviousItem: () => console.log('previous item clicked'),
+		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
+		addToolLink: () => console.log('add tool link'),
+	},
+};
+
 export const WithToolLinks: Story = {
 	args: {
 		itemData: {
