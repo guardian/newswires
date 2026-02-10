@@ -1,4 +1,5 @@
 import {
+	EuiButton,
 	EuiEmptyPrompt,
 	EuiFlexGroup,
 	EuiFlexItem,
@@ -149,12 +150,22 @@ export const Feed = ({
 						</div>
 
 						<WireItemList wires={wires} totalCount={queryData.totalCount} />
-
+						<EuiButton
+							css={css`
+								position: sticky;
+								bottom: 100px;
+								left: 1000px;
+								z-index: 100;
+							`}
+						>
+							Hello
+						</EuiButton>
 						<ScrollToTopButton
 							threshold={300}
 							containerRef={containerRef}
 							direction={direction}
 						/>
+						<div style={{ height: '200px' }}></div>
 					</>
 				)}
 		</EuiPageTemplate.Section>

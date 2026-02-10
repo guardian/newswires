@@ -1,11 +1,6 @@
-import {
-	EuiButton,
-	EuiButtonEmpty,
-	EuiPortal,
-	useEuiTheme,
-} from '@elastic/eui';
-import type { RefObject } from 'react';
+import { EuiButtonEmpty, EuiPortal, useEuiTheme } from '@elastic/eui';
 import type React from 'react';
+import type { RefObject } from 'react';
 import {
 	useCallback,
 	useEffect,
@@ -150,7 +145,7 @@ export const ScrollToTopButton = ({
 
 	return (
 		<EuiPortal>
-			<div ref={buttonRef} style={btnStyle}>
+			{/* <div ref={buttonRef} style={btnStyle}>
 				<EuiButton
 					iconType="arrowUp"
 					onClick={handleClick}
@@ -159,7 +154,7 @@ export const ScrollToTopButton = ({
 				>
 					{label ?? 'Back to Top'}
 				</EuiButton>
-			</div>
+			</div> */}
 			<div ref={bannerRef} style={bannerStyle}>
 				{incomingStories > 0 && (
 					<div
