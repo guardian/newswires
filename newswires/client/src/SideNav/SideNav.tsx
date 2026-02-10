@@ -6,7 +6,9 @@ import {
 	EuiCollapsibleNavGroup,
 	EuiHeaderSectionItemButton,
 	EuiIcon,
+	EuiLink,
 	EuiListGroup,
+	EuiSpacer,
 	EuiSwitch,
 	EuiText,
 	EuiTitle,
@@ -246,6 +248,22 @@ export const SideNav = ({
 						onChange={toggleAutoUpdate}
 					/>
 				</div>
+				<div>
+					<EuiCallOut
+						size="s"
+						title={
+							<EuiLink
+								href="https://sites.google.com/a/guardian.co.uk/esd/web-tools/the-wires/using-the-new-wires"
+								target="_blank"
+								rel="noreferrer"
+							>
+								Read the usage guide
+							</EuiLink>
+						}
+						iconType="documentation"
+					/>
+				</div>
+				<EuiSpacer size="xs" />
 				<div>
 					<EuiCallOut
 						title="Newswires Feedback"

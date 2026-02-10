@@ -112,16 +112,18 @@ export function App() {
 							</EuiModalHeader>
 							<EuiModalBody>
 								<EuiText size="m">
-									As a new user of newswires, you may want to customise some
-									features of the application. If you want to revise any of
-									these later, you&apos;ll find them in the settings control:{' '}
-									<EuiButtonIcon
-										aria-label="Settings"
-										display="base"
-										size="s"
-										iconType={'gear'}
-									/>{' '}
-									on the top right.
+									<p>
+										As a new user of newswires, you may want to customise some
+										features of the application. If you want to revise any of
+										these later, you&apos;ll find them in the settings control:{' '}
+										<EuiButtonIcon
+											aria-label="Settings"
+											display="base"
+											size="s"
+											iconType={'gear'}
+										/>{' '}
+										on the top right.
+									</p>
 									<div
 										css={css`
 											margin: 8px 0;
@@ -148,16 +150,29 @@ export function App() {
 											)}
 										</EuiForm>
 									</div>
-									Join the{' '}
-									<a
-										href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
-										target="_blank"
-										rel="noreferrer"
-									>
-										chat group
-									</a>{' '}
-									to stay updated with new features or share feedback with the
-									development team.
+									<p>
+										Join the{' '}
+										<a
+											href="https://chat.google.com/room/AAQASNVMF_A?cls=7"
+											target="_blank"
+											rel="noreferrer"
+										>
+											chat group
+										</a>{' '}
+										to stay updated with new features or share feedback with the
+										development team.
+									</p>
+									<p>
+										Read the{' '}
+										<a
+											href="https://sites.google.com/a/guardian.co.uk/esd/web-tools/the-wires/using-the-new-wires"
+											target="_blank"
+											rel="noreferrer"
+										>
+											usage guide produced by ESD
+										</a>{' '}
+										to see the features available for use.
+									</p>
 								</EuiText>
 							</EuiModalBody>
 
