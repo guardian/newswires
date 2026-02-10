@@ -139,7 +139,11 @@ function MaybeSecondaryCardContent({
 		);
 	}
 	if (subhead && subhead !== headline) {
-		return <p>{subhead}</p>;
+		return (
+			<EuiTextBlockTruncate lines={3}>
+				<p>{subhead}</p>
+			</EuiTextBlockTruncate>
+		);
 	}
 	const maybeBodyTextPreview = bodyText
 		? sanitizeHtml(bodyText.replace(/(<br \/>|<\/p>|<\/td>)/g, ' '), {
