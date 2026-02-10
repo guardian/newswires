@@ -82,6 +82,13 @@ export const ScrollToTopButton = ({
 					onClick={handleClick}
 					size="m"
 					color="primary"
+					css={{
+						position: 'sticky',
+						bottom: '10px',
+						marginRight: '5px',
+						marginLeft: 'auto',
+						display: 'block',
+					}}
 				>
 					{label ?? 'Back to Top'}
 				</EuiButton>
