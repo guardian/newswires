@@ -91,6 +91,7 @@ export const ScrollToTopButton = ({
 				style={{
 					position: 'sticky',
 					top: 0,
+					zIndex: 2,
 				}}
 			>
 				{incomingStories > 0 && (
