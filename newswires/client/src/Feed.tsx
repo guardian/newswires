@@ -143,9 +143,9 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 								)}
 							</EuiFlexGroup>
 						</div>
-
-						<WireItemList wires={wires} totalCount={queryData.totalCount} />
-						<ScrollToTopButton containerRef={containerRef} />
+						<ScrollToTopButton containerRef={containerRef}>
+							<WireItemList wires={wires} totalCount={queryData.totalCount} />
+						</ScrollToTopButton>
 					</>
 				)}
 		</EuiPageTemplate.Section>

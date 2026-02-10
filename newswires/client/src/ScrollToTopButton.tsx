@@ -1,5 +1,5 @@
 import { EuiButton, EuiButtonEmpty, useEuiTheme } from '@elastic/eui';
-import type { RefObject } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useSearch } from './context/SearchContext';
 /**
@@ -9,11 +9,13 @@ export const ScrollToTopButton = ({
 	threshold = 200,
 	label,
 	containerRef,
+	children,
 }: {
 	threshold?: number;
 	label?: string;
 	containerRef?: RefObject<HTMLElement>;
 	direction?: string;
+	children: ReactNode | ReactNode[];
 }) => {
 	const buttonRef = useRef<HTMLDivElement>(null);
 	const bannerRef = useRef<HTMLDivElement>(null);
@@ -63,36 +65,11 @@ export const ScrollToTopButton = ({
 	};
 
 	if (!visible) {
-		return null;
+		return <div>{children}</div>;
 	}
 
 	return (
 		<>
-			<div
-				ref={buttonRef}
-				style={{
-					position: 'fixed',
-					bottom: offset,
-					right: euiTheme.size.s,
-					zIndex: 1000,
-				}}
-			>
-				<EuiButton
-					iconType="arrowUp"
-					onClick={handleClick}
-					size="m"
-					color="primary"
-					css={{
-						position: 'sticky',
-						bottom: '10px',
-						marginRight: '5px',
-						marginLeft: 'auto',
-						display: 'block',
-					}}
-				>
-					{label ?? 'Back to Top'}
-				</EuiButton>
-			</div>
 			<div
 				ref={bannerRef}
 				style={{
@@ -122,6 +99,32 @@ export const ScrollToTopButton = ({
 						</EuiButtonEmpty>
 					</div>
 				)}
+			</div>
+			{children}
+			<div
+				ref={buttonRef}
+				style={{
+					position: 'fixed',
+					bottom: offset,
+					right: euiTheme.size.s,
+					zIndex: 1000,
+				}}
+			>
+				<EuiButton
+					iconType="arrowUp"
+					onClick={handleClick}
+					size="m"
+					color="primary"
+					css={{
+						position: 'sticky',
+						bottom: '10px',
+						marginRight: '5px',
+						marginLeft: 'auto',
+						display: 'block',
+					}}
+				>
+					{label ?? 'Back to Top'}
+				</EuiButton>
 			</div>
 		</>
 	);
