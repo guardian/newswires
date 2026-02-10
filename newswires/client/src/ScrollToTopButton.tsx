@@ -1,6 +1,6 @@
 import { EuiButton, EuiButtonEmpty, useEuiTheme } from '@elastic/eui';
 import type { ReactNode, RefObject } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext';
 /**
  * Floating Scroll-to-Top Button bounded to a scroll container
@@ -17,8 +17,6 @@ export const ScrollToTopButton = ({
 	direction?: string;
 	children: ReactNode | ReactNode[];
 }) => {
-	const buttonRef = useRef<HTMLDivElement>(null);
-	const bannerRef = useRef<HTMLDivElement>(null);
 	const { euiTheme } = useEuiTheme();
 	const { state } = useSearch();
 	const { queryData } = state;
@@ -71,7 +69,6 @@ export const ScrollToTopButton = ({
 	return (
 		<>
 			<div
-				ref={bannerRef}
 				style={{
 					position: 'sticky',
 					top: 0,
@@ -102,7 +99,6 @@ export const ScrollToTopButton = ({
 			</div>
 			{children}
 			<div
-				ref={buttonRef}
 				style={{
 					position: 'fixed',
 					bottom: offset,
