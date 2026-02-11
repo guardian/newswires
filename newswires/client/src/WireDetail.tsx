@@ -56,6 +56,9 @@ function TitleContentForItem({
 	const headlineText =
 		headline && headline.length > 0 ? headline : (slug ?? 'No title');
 
+	const showSubhead =
+		subhead && subhead.trim().length > 0 && subhead !== headline;
+
 	return (
 		<div
 			css={css`
@@ -64,15 +67,18 @@ function TitleContentForItem({
 				justify-content: start;
 			`}
 		>
-			{subhead && subhead.length > 1 && (
+			<div></div>
+			<EuiSpacer size="xs" />
+			{showSubhead && (
 				<h3
 					css={css`
-						font-weight: ${theme.euiTheme.font.weight.bold};
+						font-weight: ${theme.euiTheme.font.weight.semiBold};
 					`}
 				>
 					{subhead}
 				</h3>
 			)}
+			<EuiSpacer size="xs" />
 			<div
 				css={css`
 					display: flex;
@@ -86,10 +92,11 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
-				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
+				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
+				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
 				<Tooltip tooltipContent={localIngestedAt.format()}>
-					{localIngestedAt.fromNow()}
+					<span>({localIngestedAt.fromNow()})</span>
 				</Tooltip>
 			</h3>
 		</div>
