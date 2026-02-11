@@ -92,7 +92,8 @@ function decideMainHeadingContent(
 		 * their slugs added to their headlines when we get them, so we don't need to add them again.
 		 */
 		const shouldShowPrefix =
-			(supplier === 'AAP' || supplier === 'PA') && !hasDataFormatting;
+			(supplier === 'AAP' || supplier === 'PA' || supplier === 'PAAPI') &&
+			!hasDataFormatting;
 		const prefix = shouldShowPrefix && hasNonEmptySlug ? `${slug} - ` : '';
 
 		return `${prefix}${headline}`;
@@ -138,7 +139,11 @@ function MaybeSecondaryCardContent({
 		);
 	}
 	if (subhead && subhead !== headline) {
-		return <p>{subhead}</p>;
+		return (
+			<EuiTextBlockTruncate lines={3}>
+				<p>{subhead}</p>
+			</EuiTextBlockTruncate>
+		);
 	}
 	const maybeBodyTextPreview = bodyText
 		? sanitizeHtml(bodyText.replace(/(<br \/>|<\/p>|<\/td>)/g, ' '), {
