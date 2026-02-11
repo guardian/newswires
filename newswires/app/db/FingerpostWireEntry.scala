@@ -14,9 +14,11 @@ import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import models.{
+  FilterParams,
   FingerpostWire,
   NextPage,
   NextPageId,
+  QueryCursor,
   QueryParams,
   QueryResponse,
   SearchParams,
@@ -375,68 +377,80 @@ object FingerpostWireEntry
       sqls"${Collection.syn.id} = ${collectionId}"
   }
 
-  def processSearchParams(
-      search: SearchParams
-  ): List[SQLSyntax] = {
-    val sourceFeedsQuery: Option[SQLSyntax] = search.suppliersIncl match {
+  private def andAll(clauses: List[SQLSyntax]): Option[SQLSyntax] =
+    clauses match {
+      case Nil => None
+      case xs  => Some(sqls.joinWithAnd(xs: _*))
+    }
+
+  private def orAll(clauses: List[SQLSyntax]): Option[SQLSyntax] =
+    clauses match {
+      case Nil => None
+      case xs  => Some(sqls"(${sqls.joinWithOr(xs: _*)})")
+    }
+
+  private[db] def filtersBuilder(
+      filters: FilterParams
+  ): Option[SQLSyntax] = {
+    val sourceFeedsQuery: Option[SQLSyntax] = filters.suppliersIncl match {
       case Nil         => None
       case sourceFeeds => Some(Filters.supplierSQL(sourceFeeds))
     }
 
-    val sourceFeedsExclQuery: Option[SQLSyntax] = search.suppliersExcl match {
+    val sourceFeedsExclQuery: Option[SQLSyntax] = filters.suppliersExcl match {
       case Nil             => None
       case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
     }
 
     val searchQuery: Option[SQLSyntax] =
-      search.searchTerms.map(Filters.searchQuerySqlCombined)
+      filters.searchTerms.map(Filters.searchQuerySqlCombined)
 
-    val keywordsQuery = search.keywordIncl match {
+    val keywordsQuery = filters.keywordIncl match {
       case Nil      => None
       case keywords => Some(Filters.keywordsSQL(keywords))
     }
 
-    val keywordsExclQuery = search.keywordExcl match {
+    val keywordsExclQuery = filters.keywordExcl match {
       case Nil      => None
       case keywords => Some(Filters.keywordsExclSQL(keywords))
     }
 
-    val categoryCodesInclQuery = search.categoryCodesIncl match {
+    val categoryCodesInclQuery = filters.categoryCodesIncl match {
       case Nil           => None
       case categoryCodes => Some(Filters.categoryCodeInclSQL(categoryCodes))
     }
 
-    val categoryCodesExclQuery = search.categoryCodesExcl match {
+    val categoryCodesExclQuery = filters.categoryCodesExcl match {
       case Nil               => None
       case categoryCodesExcl =>
         Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
     }
 
-    val hasDataFormattingQuery = search.hasDataFormatting match {
+    val hasDataFormattingQuery = filters.hasDataFormatting match {
       case Some(dataFormatting) =>
         Some(Filters.dataFormattingSQL(dataFormatting))
       case None => None
     }
 
-    val preComputedCategoriesQuery = search.preComputedCategories match {
+    val preComputedCategoriesQuery = filters.preComputedCategories match {
       case Nil              => None
       case presetCategories =>
         Some(Filters.preComputedCategoriesSQL(presetCategories))
     }
 
     val preComputedCategoriesExclQuery =
-      search.preComputedCategoriesExcl match {
+      filters.preComputedCategoriesExcl match {
         case Nil                  => None
         case presetCategoriesExcl =>
           Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
       }
 
-    val collectionIdQuery = search.collectionId match {
+    val collectionIdQuery = filters.collectionId match {
       case Some(collectionId) => Some(Filters.collectionIdSQL(collectionId))
       case None               => None
     }
 
-    List(
+    val clauses = List(
       keywordsQuery,
       categoryCodesInclQuery,
       keywordsExclQuery,
@@ -449,59 +463,58 @@ object FingerpostWireEntry
       preComputedCategoriesExclQuery,
       collectionIdQuery
     ).flatten
+    andAll(clauses)
   }
 
-  def searchClauses(searchParams: List[SearchParams]) = searchParams.map(
-    params => sqls.joinWithAnd(processSearchParams(params): _*)
-  ) match {
-    case Nil      => None
-    case nonEmpty => Some(sqls"(${sqls.joinWithOr(nonEmpty: _*)})")
+  private[db] def presetsBuilder(
+      presets: List[FilterParams]
+  ): Option[SQLSyntax] = {
+    val andClauses = presets.flatMap(filtersBuilder)
+    orAll(andClauses)
   }
 
-  def searchClause(searchParams: SearchParams) = processSearchParams(
-    searchParams
-  ) match {
-    case Nil     => None
-    case clauses => Some(sqls.joinWithAnd(clauses: _*))
+  private[db] def queryCursorQuery(
+      queryCursor: QueryCursor,
+      timeStampColumn: TimeStampColumn
+  ): Option[SQLSyntax] = {
+    andAll(
+      List(
+        queryCursor.maybeBeforeTimeStamp.map(
+          Filters.beforeTimeStampSQL(_, timeStampColumn)
+        ),
+        queryCursor.maybeAfterTimeStamp.map(u =>
+          Filters.afterTimeStampSQL(u.sinceTimeStamp, timeStampColumn)
+        ),
+        queryCursor.maybeBeforeId.map(Filters.beforeIdSQL(_)),
+        queryCursor.maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
+      ).flatten
+    )
   }
-
   private[db] def buildWhereClause(
       searchParams: SearchParams,
-      savedSearchParamList: List[SearchParams],
-      maybeBeforeTimeStamp: Option[String],
-      maybeAfterTimeStamp: Option[UpdateType],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[UpdateTypeId],
-      timeStampColumn: TimeStampColumn,
-      negatedSearchParamList: List[SearchParams] = List()
+      queryCursor: QueryCursor,
+      queryOrdering: TimeStampColumn,
+      searchPresets: List[FilterParams] = Nil,
+      negatedSearchPresets: List[FilterParams] = Nil
   ): SQLSyntax = {
 
-    val dataOnlyWhereClauses = List(
-      maybeBeforeTimeStamp.map(
-        Filters.beforeTimeStampSQL(_, timeStampColumn)
-      ),
-      maybeAfterTimeStamp.map(u =>
-        Filters.afterTimeStampSQL(u.sinceTimeStamp, timeStampColumn)
-      ),
-      maybeBeforeId.map(Filters.beforeIdSQL(_)),
-      maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
+    val dataOnlyWhereClauses = queryCursorQuery(queryCursor, queryOrdering)
+    val dateRangeQuery = Filters.dateRangeSQL(
+      searchParams.dateRange.start,
+      searchParams.dateRange.end
     )
-
-    val dateRangeQuery =
-      Filters.dateRangeSQL(searchParams.start, searchParams.end)
-
-    val customSearchClauses = searchClause(searchParams)
-    val presetSearchClauses = searchClauses(savedSearchParamList)
+    val customSearchClauses = filtersBuilder(searchParams.filters)
+    val presetSearchClauses = presetsBuilder(searchPresets)
     val negatedPresetSearchClauses =
-      searchClauses(negatedSearchParamList).map(clause => sqls"NOT $clause")
+      presetsBuilder(negatedSearchPresets).map(clause => sqls"NOT $clause")
 
-    val allClauses =
-      (List(
-        dateRangeQuery,
-        customSearchClauses,
-        presetSearchClauses,
-        negatedPresetSearchClauses
-      ) ++ dataOnlyWhereClauses).flatten
+    val allClauses = List(
+      dateRangeQuery,
+      customSearchClauses,
+      presetSearchClauses,
+      negatedPresetSearchClauses,
+      dataOnlyWhereClauses
+    ).flatten
 
     allClauses match {
       case Nil     => sqls"true"
@@ -550,8 +563,8 @@ object FingerpostWireEntry
   ): SQL[Nothing, NoExtractor] = {
     val effectivePageSize = clamp(0, pageSize, 250)
 
-    val maybeAfterTimeStamp = queryParams.maybeAfterTimeStamp
-    val maybeSinceId = queryParams.maybeSinceId
+    val maybeAfterTimeStamp = queryParams.queryCursor.maybeAfterTimeStamp
+    val maybeSinceId = queryParams.queryCursor.maybeSinceId
 
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
@@ -576,14 +589,13 @@ object FingerpostWireEntry
       queryParams: QueryParams
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
-      searchParams = queryParams.searchParams,
-      savedSearchParamList = queryParams.savedSearchParamList,
-      maybeBeforeTimeStamp = queryParams.maybeBeforeTimeStamp,
-      maybeAfterTimeStamp = queryParams.maybeAfterTimeStamp,
-      maybeBeforeId = queryParams.maybeBeforeId,
-      maybeSinceId = queryParams.maybeSinceId,
-      timeStampColumn = queryParams.timeStampColumn,
-      negatedSearchParamList = queryParams.negatedSearchParamList
+      queryParams.searchParams,
+      queryParams.queryCursor,
+      queryOrdering = queryParams.timeStampColumn,
+      searchPresets =
+        queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
+      negatedSearchPresets =
+        queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil)
     )
 
     val start = System.currentTimeMillis()

@@ -1,5 +1,6 @@
 import { EuiLink } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { STAGE } from './app-configuration';
 
 export const AppTitle = () => (
 	<EuiLink
@@ -10,6 +11,6 @@ export const AppTitle = () => (
 			font-weight: inherit;
 		`}
 	>
-		Newswires
+		Newswires {STAGE}
 	</EuiLink>
 );

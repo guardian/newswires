@@ -8,13 +8,17 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.circe.syntax.EncoderOps
 import _root_.models.{
+  DateRange,
+  FilterParams,
   MostRecent,
   NextPage,
   NextPageId,
+  QueryCursor,
   QueryParams,
   SearchParams
 }
 import conf.SearchTerm.{English, Simple}
+import db.FingerpostWireEntry.{Filters, decideSortDirection}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
 class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
@@ -76,28 +80,110 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
+  behavior of "FingerpostWireEntry.queryCursorQuery"
+  it should "apply beforeTimeStamp" in {
+
+    val clauseBeforeId =
+      FingerpostWireEntry.queryCursorQuery(
+        emptyQueryCursor.copy(maybeBeforeTimeStamp =
+          Some("2025-01-01T00:00:00Z")
+        ),
+        defaultOrdering
+      )
+
+    clauseBeforeId.get should matchSqlSnippet(
+      expectedClause = "fm.ingested_at <= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
+    )
+  }
+
+  it should "apply afterTimeStamp" in {
+    val clauseSinceId =
+      FingerpostWireEntry.queryCursorQuery(
+        emptyQueryCursor.copy(maybeAfterTimeStamp =
+          Some(NextPage("2025-01-01T00:00:00Z"))
+        ),
+        defaultOrdering
+      )
+
+    clauseSinceId.get should matchSqlSnippet(
+      expectedClause = "fm.ingested_at >= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
+    )
+  }
+
+  it should "apply beforeId" in {
+
+    val clauseBeforeId =
+      FingerpostWireEntry.queryCursorQuery(
+        emptyQueryCursor.copy(maybeBeforeId = Some(100)),
+        defaultOrdering
+      )
+
+    clauseBeforeId.get should matchSqlSnippet(
+      expectedClause = "fm.id < ?",
+      expectedParams = List(100)
+    )
+  }
+
+  it should "apply afterId" in {
+    val clauseSinceId =
+      FingerpostWireEntry.queryCursorQuery(
+        emptyQueryCursor.copy(maybeSinceId = Some(NextPageId(200))),
+        defaultOrdering
+      )
+
+    clauseSinceId.get should matchSqlSnippet(
+      expectedClause = "fm.id > ?",
+      expectedParams = List(200)
+    )
+  }
+
+  behavior of "FingerpostWireEntry.presetsBuilder"
+  it should "should join complex search presets using 'or'" in {
+    val presetFilterParams1 = emptyFilterParams.copy(
+      searchTerms = Some(
+        SingleTerm(SearchTerm.Simple("News Summary", SearchField.Headline))
+      ),
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List("N2:GB")
+    )
+
+    val presetFilterParams2 = emptyFilterParams.copy(
+      searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
+      suppliersIncl = List("AFP"),
+      categoryCodesIncl = List("afpCat:SPO")
+    )
+
+    val preset1Clause =
+      FingerpostWireEntry.filtersBuilder(presetFilterParams1).get
+    val preset2Clause =
+      FingerpostWireEntry.filtersBuilder(presetFilterParams2).get
+    val presetsClause = FingerpostWireEntry
+      .presetsBuilder(List(presetFilterParams1, presetFilterParams2))
+      .get
+
+    presetsClause should matchSqlSnippet(
+      sqls"(($preset1Clause) or ($preset2Clause))",
+      List(
+        List("N2:GB"),
+        "News Summary",
+        "REUTERS",
+        List("afpCat:SPO"),
+        "soccer",
+        "AFP"
+      )
+    )
+  }
+
   behavior of "FingerpostWireEntry.buildWhereClause"
 
   it should "generate an empty where clause for a empty set of search params" in {
-    val searchParams = SearchParams(
-      searchTerms = None,
-      start = None,
-      end = None,
-      keywordIncl = Nil,
-      keywordExcl = Nil,
-      suppliersIncl = Nil,
-      suppliersExcl = Nil
-    )
-
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
+        emptySearchParams,
+        emptyQueryCursor,
+        queryOrdering = IngestedAtTime
       )
 
     whereClause should matchSqlSnippet(
@@ -106,111 +192,18 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  it should "apply beforeTimeStamp or afterTimeStamp even if no other custom search params are set" in {
-
-    val searchParams = SearchParams(
-      searchTerms = None,
-      start = None,
-      end = None,
-      keywordIncl = Nil,
-      keywordExcl = Nil,
-      suppliersIncl = Nil,
-      suppliersExcl = Nil
-    )
-
-    val whereClauseBeforeId =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClauseBeforeId should matchSqlSnippet(
-      expectedClause = "fm.ingested_at <= CAST(? AS timestamptz)",
-      expectedParams = List("2025-01-01T00:00:00Z")
-    )
-
-    val whereClauseSinceId =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z")),
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClauseSinceId should matchSqlSnippet(
-      expectedClause = "fm.ingested_at >= CAST(? AS timestamptz)",
-      expectedParams = List("2025-01-01T00:00:00Z")
-    )
-  }
-
-  it should "apply beforeId or afterId even if no other custom search params are set" in {
-
-    val searchParams = SearchParams(
-      searchTerms = None,
-      start = None,
-      end = None,
-      keywordIncl = Nil,
-      keywordExcl = Nil,
-      suppliersIncl = Nil,
-      suppliersExcl = Nil
-    )
-
-    val whereClauseBeforeId =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = Some(100),
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClauseBeforeId should matchSqlSnippet(
-      expectedClause = "fm.id < ?",
-      expectedParams = List(100)
-    )
-
-    val whereClauseSinceId =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = Some(NextPageId(200)),
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClauseSinceId should matchSqlSnippet(
-      expectedClause = "fm.id > ?",
-      expectedParams = List(200)
-    )
-  }
-
   it should "generate a where clause for a single field" in {
-    val searchParams =
-      SearchParams(
-        searchTerms = Some(SingleTerm(SearchTerm.English("text1")))
+    val filterParams =
+      emptyFilterParams.copy(searchTerms =
+        Some(SingleTerm(SearchTerm.English("text1")))
       )
+    val searchParams = emptySearchParams.copy(filters = filterParams)
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
+        searchParams,
+        emptyQueryCursor,
+        queryOrdering = defaultOrdering
       )
 
     whereClause should matchSqlSnippet(
@@ -219,417 +212,87 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  it should "concatenate keywords and category codes with 'and'" in {
-    val searchParams =
-      SearchParams(
-        searchTerms = None,
-        keywordIncl = List("keyword1", "keyword2"),
-        categoryCodesIncl = List("category1", "category2")
-      )
+  it should "apply date ranges using 'AND' at the top level of the query" in {
 
-    val whereClause =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClause should matchSqlSnippet(
-      "((fm.content -> 'keywords') ??| ? and fm.category_codes && ?)",
-      List(
-        List("keyword1", "keyword2"),
-        List("category1", "category2")
-      )
+    val dateRange = DateRange(
+      start = Some("2025-03-10T00:00:00.000Z"),
+      end = Some("2025-03-10T23:59:59.999Z")
     )
-  }
+    val filters = emptyFilterParams.copy(searchTerms =
+      Some(SingleTerm(SearchTerm.English("text1")))
+    )
 
-  it should "join other clauses using 'and'" in {
-    val searchParams =
-      SearchParams(
-        searchTerms = Some(SingleTerm(SearchTerm.English("text1"))),
-        start = Some("2025-03-10T00:00:00.000Z"),
-        end = Some("2025-03-10T23:59:59.999Z"),
-        suppliersExcl = List("supplier1", "supplier2"),
-        keywordExcl = List("keyword1"),
-        categoryCodesExcl = List("category1", "category2")
-      )
-
-    val whereClause =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams,
-        List(),
-        maybeBeforeTimeStamp = Some("2025-01-01T00:00:00Z"),
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val textSearchWhereClause = FingerpostWireEntry
-      .buildWhereClause(
-        SearchParams(searchTerms =
-          Some(SingleTerm(SearchTerm.English("text1")))
-        ),
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val dateRangeWhereClause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = SearchParams(
-          searchTerms = None,
-          start = Some("2025-03-10T00:00:00.000Z"),
-          end = Some("2025-03-10T23:59:59.999Z")
-        ),
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val keywordsExclWhereClause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = SearchParams(
-          searchTerms = None,
-          keywordExcl = List("keyword1")
-        ),
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val suppliersExclWhereClause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = SearchParams(
-          searchTerms = None,
-          suppliersExcl = List("supplier1", "supplier2")
-        ),
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val categoryCodesExclWhereClause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = SearchParams(
-          searchTerms = None,
-          categoryCodesExcl = List("category1", "category2")
-        ),
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
+    val textSearchWhereClause = FingerpostWireEntry.filtersBuilder(filters).get
+    val dateRangeWhereClause =
+      Filters.dateRangeSQL(dateRange.start, dateRange.end).get
+    val customParams = SearchParams(filters = filters, dateRange = dateRange)
+    val whereClause = FingerpostWireEntry.buildWhereClause(
+      customParams,
+      emptyQueryCursor,
+      defaultOrdering
+    )
 
     whereClause should matchSqlSnippet(
-      sqls"""$dateRangeWhereClause
-         | and $keywordsExclWhereClause
-         | and $textSearchWhereClause
-         | and $suppliersExclWhereClause
-         | and $categoryCodesExclWhereClause
-         | and fm.ingested_at <= CAST(? AS timestamptz)""".stripMargin,
+      sqls"(${dateRangeWhereClause}) and ${textSearchWhereClause}",
       List(
         "2025-03-10T00:00:00.000Z",
         "2025-03-10T23:59:59.999Z",
-        List("keyword1"),
-        "text1",
-        "supplier1",
-        "supplier2",
-        List("category1", "category2"),
-        "2025-01-01T00:00:00Z"
-      )
-    )
-  }
-
-  it should "Should cast a lower bound date only" in {
-    val searchParams = SearchParams(
-      searchTerms = None,
-      start = Some("2025-03-10T00:00:00.000Z")
-    )
-
-    val whereClause =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClause should matchSqlSnippet(
-      "fm.ingested_at >= CAST(? AS timestamptz)",
-      List("2025-03-10T00:00:00.000Z")
-    )
-  }
-
-  it should "Should cast an upper bound date only" in {
-    val searchParams = SearchParams(
-      searchTerms = None,
-      end = Some("2025-03-10T23:59:59.999Z")
-    )
-
-    val whereClause =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = searchParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClause should matchSqlSnippet(
-      "fm.ingested_at <= CAST(? AS timestamptz)",
-      List("2025-03-10T23:59:59.999Z")
-    )
-  }
-
-  it should "should join complex search presets using 'or'" in {
-
-    val customParams = SearchParams(
-      searchTerms = None,
-      suppliersExcl = List("supplier1")
-    )
-
-    val presetSearchParams1 =
-      SearchParams(
-        searchTerms = Some(
-          SingleTerm(
-            SearchTerm.Simple("News Summary", SearchField.Headline)
-          )
-        ),
-        suppliersIncl = List("REUTERS"),
-        categoryCodesIncl = List(
-          "N2:GB"
-        )
-      )
-    val presetSearchParams2 =
-      SearchParams(
-        searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
-        suppliersIncl = List("AFP"),
-        categoryCodesIncl = List("afpCat:SPO")
-      )
-
-    val customParamsClause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = customParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val preset1Clause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = presetSearchParams1,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val preset2Clause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = presetSearchParams2,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val whereClause =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = customParams,
-        savedSearchParamList = List(presetSearchParams1, presetSearchParams2),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClause should matchSqlSnippet(
-      sqls"$customParamsClause and (($preset1Clause or $preset2Clause))",
-      List(
-        "supplier1",
-        List("N2:GB"),
-        "News Summary",
-        "REUTERS",
-        List("afpCat:SPO"),
-        "soccer",
-        "AFP"
-      )
-    )
-  }
-
-  it should "join negation presets using 'or'" in {
-
-    val presetSearchParams1 =
-      SearchParams(
-        searchTerms = Some(
-          SingleTerm(
-            SearchTerm.Simple("News Summary", SearchField.Headline)
-          )
-        ),
-        suppliersIncl = List("REUTERS"),
-        categoryCodesIncl = List(
-          "N2:GB"
-        )
-      )
-    val presetSearchParams2 =
-      SearchParams(
-        searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
-        suppliersIncl = List("AFP"),
-        categoryCodesIncl = List("afpCat:SPO")
-      )
-
-    val preset1Clause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = presetSearchParams1,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime,
-        negatedSearchParamList = Nil
-      )
-
-    val preset2Clause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = presetSearchParams2,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val whereClause =
-      FingerpostWireEntry.buildWhereClause(
-        SearchParams(),
-        Nil,
-        None,
-        None,
-        None,
-        None,
-        IngestedAtTime,
-        List(presetSearchParams1, presetSearchParams2)
-      )
-
-    whereClause should matchSqlSnippet(
-      sqls"(NOT ($preset1Clause or $preset2Clause))",
-      List(
-        List("N2:GB"),
-        "News Summary",
-        "REUTERS",
-        List("afpCat:SPO"),
-        "soccer",
-        "AFP"
+        "text1"
       )
     )
   }
 
   it should "join complex search negation presets using 'and not'" in {
 
-    val customParams = SearchParams(
-      searchTerms = None,
-      suppliersExcl = List("supplier1")
-    )
+    val filters = emptyFilterParams.copy(suppliersIncl = List("supplier1"))
+    val searchParams =
+      emptySearchParams.copy(filters = filters)
 
-    val presetSearchParams1 =
-      SearchParams(
-        searchTerms = Some(
-          SingleTerm(
-            SearchTerm.Simple("News Summary", SearchField.Headline)
-          )
-        ),
-        suppliersIncl = List("REUTERS"),
-        categoryCodesIncl = List(
-          "N2:GB"
+    val presetSearchParams1 = emptyFilterParams.copy(
+      searchTerms = Some(
+        SingleTerm(
+          SearchTerm.Simple("News Summary", SearchField.Headline)
         )
+      ),
+      suppliersIncl = List("REUTERS"),
+      categoryCodesIncl = List(
+        "N2:GB"
       )
-    val presetSearchParams2 =
-      SearchParams(
-        searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
-        suppliersIncl = List("AFP"),
-        categoryCodesIncl = List("afpCat:SPO")
-      )
+    )
+    val presetSearchParams2 = emptyFilterParams.copy(
+      searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
+      suppliersIncl = List("AFP"),
+      categoryCodesIncl = List("afpCat:SPO")
+    )
 
     val customParamsClause = FingerpostWireEntry
       .buildWhereClause(
-        searchParams = customParams,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime,
-        negatedSearchParamList = Nil
+        searchParams,
+        emptyQueryCursor,
+        defaultOrdering
       )
 
     val preset1Clause = FingerpostWireEntry
       .buildWhereClause(
-        searchParams = presetSearchParams1,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime,
-        negatedSearchParamList = Nil
+        emptySearchParams.copy(filters = presetSearchParams1),
+        emptyQueryCursor,
+        defaultOrdering
       )
 
     val preset2Clause = FingerpostWireEntry
       .buildWhereClause(
-        searchParams = presetSearchParams2,
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime,
-        negatedSearchParamList = Nil
+        emptySearchParams.copy(filters = presetSearchParams2),
+        emptyQueryCursor,
+        defaultOrdering
       )
 
     val whereClause =
       FingerpostWireEntry.buildWhereClause(
-        searchParams = customParams,
-        savedSearchParamList = List(presetSearchParams1),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime,
-        negatedSearchParamList = List(presetSearchParams2)
+        searchParams,
+        emptyQueryCursor,
+        defaultOrdering,
+        List(presetSearchParams1),
+        List(presetSearchParams2)
       )
 
     whereClause should matchSqlSnippet(
@@ -646,86 +309,30 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  it should "apply date ranges using 'AND' at the top level of the query" in {
-
-    val customParams = SearchParams(
-      searchTerms = Some(SingleTerm(SearchTerm.English("text1"))),
-      start = Some("2025-03-10T00:00:00.000Z"),
-      end = Some("2025-03-10T23:59:59.999Z")
-    )
-
-    val textSearchWhereClause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = customParams.copy(start = None, end = None),
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val dateRangeWhereClause = FingerpostWireEntry
-      .buildWhereClause(
-        searchParams = customParams.copy(searchTerms = None),
-        savedSearchParamList = List(),
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    val whereClause =
-      FingerpostWireEntry.buildWhereClause(
-        searchParams = customParams,
-        savedSearchParamList = List.empty,
-        maybeBeforeTimeStamp = None,
-        maybeAfterTimeStamp = None,
-        maybeBeforeId = None,
-        maybeSinceId = None,
-        timeStampColumn = IngestedAtTime
-      )
-
-    whereClause should matchSqlSnippet(
-      sqls"$dateRangeWhereClause and $textSearchWhereClause",
-      List(
-        "2025-03-10T00:00:00.000Z",
-        "2025-03-10T23:59:59.999Z",
-        "text1"
-      )
-    )
-  }
-
   behavior of "FingerpostWireEntry.buildSearchQuery"
 
+  val emptyQueryParams = QueryParams(
+    searchParams = emptySearchParams,
+    searchPreset = None,
+    maybeSearchTerm = None,
+    queryCursor = emptyQueryCursor,
+    timeStampColumn = defaultOrdering
+  )
+
   it should "order results by descending ingestion_at by default" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = None,
-      maybeBeforeId = None,
-      maybeSinceId = None,
-      timeStampColumn = IngestedAtTime
-    )
+
     val whereClause = sqls""
-    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
+    val query =
+      FingerpostWireEntry.buildSearchQuery(emptyQueryParams, whereClause)
 
     query.statement should include("ORDER BY fm.ingested_at DESC")
   }
 
   it should "order results by descending ingestion_at when using MostRecent update type with maybeafterTimeStamp" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = Some(MostRecent("2025-01-01T00:00:00Z")),
-      maybeBeforeId = None,
-      maybeSinceId = None,
-      timeStampColumn = IngestedAtTime
+    val queryParams = emptyQueryParams.copy(queryCursor =
+      emptyQueryCursor.copy(maybeAfterTimeStamp =
+        Some(MostRecent("2025-01-01T00:00:00Z"))
+      )
     )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
@@ -734,15 +341,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "order results by *ascending* ingestion_at when using NextPage update type with maybeafterTimeStamp" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(None),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = Some(NextPage("2025-01-01T00:00:00Z")),
-      maybeBeforeId = None,
-      maybeSinceId = None,
-      timeStampColumn = IngestedAtTime
+    val queryParams = emptyQueryParams.copy(queryCursor =
+      emptyQueryCursor.copy(maybeAfterTimeStamp =
+        Some(NextPage("2025-01-01T00:00:00Z"))
+      )
     )
     val whereClause = sqls""
     val query =
@@ -752,65 +354,63 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "order results by *ascending* ingestion_at when using NextPageId update type with maybeSinceId" in {
-    val queryParams = QueryParams(
-      searchParams = SearchParams(None),
-      savedSearchParamList = Nil,
-      maybeSearchTerm = None,
-      maybeBeforeTimeStamp = None,
-      maybeAfterTimeStamp = None,
-      maybeBeforeId = None,
-      maybeSinceId = Some(NextPageId(100)),
-      timeStampColumn = IngestedAtTime
-    )
+    val queryParams =
+      emptyQueryParams.copy(queryCursor =
+        emptyQueryCursor.copy(maybeSinceId = Some(NextPageId(100)))
+      )
     val whereClause = sqls""
     val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
 
     query.statement should include("ORDER BY fm.ingested_at ASC")
   }
 
-  behavior of "FingerpostWireEntry.processSearchParams"
+  behavior of "FingerpostWireEntry.filtersBuilder"
 
-  val emptySearchParams = SearchParams(
-    searchTerms = None,
-    start = None,
-    end = None,
-    keywordIncl = Nil,
-    keywordExcl = Nil,
-    suppliersIncl = Nil,
-    suppliersExcl = Nil,
-    categoryCodesIncl = Nil,
-    categoryCodesExcl = Nil,
-    hasDataFormatting = None
-  )
   it should "return an empty list when no filters are set" in {
-    val snippets = FingerpostWireEntry.processSearchParams(emptySearchParams)
-    snippets shouldEqual Nil
+    val snippets = FingerpostWireEntry.filtersBuilder(emptyFilterParams)
+    snippets shouldEqual None
   }
 
   it should "create the correct sql snippet with one parameter defined" in {
     val supplierClause = " upper(fm.supplier) in (upper(?))"
-    val suppliersInc = emptySearchParams.copy(suppliersIncl = List("supplier"))
-    val snippets = FingerpostWireEntry.processSearchParams(suppliersInc)
-    sqls"${sqls.joinWithAnd(snippets: _*)}" should matchSqlSnippet(
+    val suppliersInc = emptyFilterParams.copy(suppliersIncl = List("supplier"))
+    val snippets = FingerpostWireEntry.filtersBuilder(suppliersInc)
+    snippets.get should matchSqlSnippet(
       expectedClause = supplierClause,
       expectedParams = List("supplier")
     )
   }
 
   it should "create the correct sql snippet with multiple parameters defined" in {
-    val categoryCodesIncl =
-      emptySearchParams
+    val multiClauses =
+      emptyFilterParams
         .copy(suppliersIncl = List("supplier"))
         .copy(categoryCodesIncl = List("code"))
-    val snippets = FingerpostWireEntry.processSearchParams(categoryCodesIncl)
+    val snippets = FingerpostWireEntry.filtersBuilder(multiClauses)
 
-    val rendered = sqls"${sqls.joinWithAnd(snippets: _*)}".value
+    val rendered = sqls"${snippets.get}".value
     rendered should include("fm.category_codes && ?")
     rendered should include("upper(fm.supplier)")
   }
 
-  it should "combine all SQL clauses when all filters are set" in {
-    val fullParams = SearchParams(
+  it should "combine filters with an 'and'" in {
+    val multiClauses =
+      emptyFilterParams
+        .copy(suppliersIncl = List("supplier"))
+        .copy(categoryCodesIncl = List("code"))
+
+    val supplierClause = Filters.supplierSQL(List("supplier"))
+    val codeClause = Filters.categoryCodeInclSQL(List("code"))
+
+    val snippets = FingerpostWireEntry.filtersBuilder(multiClauses)
+
+    snippets.get should matchSqlSnippet(
+      expectedClause = sqls"${codeClause} and ${supplierClause}",
+      expectedParams = List(List("code"), "supplier")
+    )
+  }
+  it should "produce all SQL clauses when all filters are set" in {
+    val fullParams = FilterParams(
       searchTerms = Some(
         ComboTerm(
           List(
@@ -828,32 +428,63 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       categoryCodesExcl = List("c2"),
       hasDataFormatting = Some(true),
       preComputedCategories = List("p1"),
-      preComputedCategoriesExcl = List("p2")
+      preComputedCategoriesExcl = List("p2"),
+      collectionId = Some(1)
     )
 
-    val snippets = FingerpostWireEntry.processSearchParams(fullParams)
-    val rendered = sqls"${sqls.joinWithAnd(snippets: _*)}".value
-
-    rendered should include("(fm.content -> 'keywords')")
-    rendered should include("fm.category_codes &&")
-    rendered should include("(keywordsExcl.content -> 'keywords')")
-    rendered should include(
-      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple)"
+    val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
+    val keywordsClause = FingerpostWireEntry.Filters.keywordsSQL(List("kw1"))
+    val categoryCodesClause =
+      FingerpostWireEntry.Filters.categoryCodeInclSQL(List("c1"))
+    val keywordsExclClause =
+      FingerpostWireEntry.Filters.keywordsExclSQL(List("kw2"))
+    val textSearchClause = FingerpostWireEntry.Filters.searchQuerySqlCombined(
+      ComboTerm(
+        List(
+          SearchTerm.English("query"),
+          SearchTerm.Simple("simple text", SearchField.BodyText)
+        ),
+        AND
+      )
     )
-    rendered should include("upper(fm.supplier) in")
-    rendered should include("upper(sourceFeedsExcl.supplier) in")
-    rendered should include("categoryCodesExcl.category_codes &&")
-    rendered should include("(fm.content->'dataformat') IS NOT NULL")
-    rendered should include("fm.precomputed_categories &&")
-    rendered should include(
-      "preComputedCategoriesExcl.precomputed_categories &&"
+    val supplierClause = FingerpostWireEntry.Filters.supplierSQL(List("s1"))
+    val supplierExclClause =
+      FingerpostWireEntry.Filters.supplierExclSQL(List("s2"))
+    val categoryCodesExclClause =
+      FingerpostWireEntry.Filters.categoryCodeExclSQL(List("c2"))
+    val dataFormatClause = FingerpostWireEntry.Filters.dataFormattingSQL(true)
+    val preCompClause =
+      FingerpostWireEntry.Filters.preComputedCategoriesSQL(List("p1"))
+    val preCompExclClause =
+      FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(List("p2"))
+    val collectionClause = FingerpostWireEntry.Filters.collectionIdSQL(1)
+
+    snippets.get should matchSqlSnippet(
+      expectedClause = sqls"""${keywordsClause} and ${categoryCodesClause}
+              and ${keywordsExclClause} and (${textSearchClause})
+              and ${supplierClause} and ${supplierExclClause}
+              and ${categoryCodesExclClause} and ${dataFormatClause}
+              and ${preCompClause} and ${preCompExclClause} and ${collectionClause}""",
+      expectedParams = List(
+        List("kw1"),
+        List("c1"),
+        List("kw2"),
+        "query",
+        "simple text",
+        "s1",
+        "s2",
+        List("c2"),
+        List("p1"),
+        List("p2"),
+        1
+      )
     )
   }
 
   behavior of "Filters"
 
   behavior of "time stamp filters"
-  it should "create the correct sql for beforeTimeStamp" in {
+  it should "create the correct sql for beforeTimeStamp sorted by ingestedtime" in {
     val beforeIdSQL =
       FingerpostWireEntry.Filters.beforeTimeStampSQL(
         "2025-01-01T00:00:00Z",
@@ -866,7 +497,33 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  it should "create the correct sql for sinceTimeStamp" in {
+  it should "create the correct sql for beforeTimeStamp sorted by collection time" in {
+    val beforeIdSQL =
+      FingerpostWireEntry.Filters.beforeTimeStampSQL(
+        "2025-01-01T00:00:00Z",
+        AddedToCollectionAtTime(1)
+      )
+    beforeIdSQL should matchSqlSnippet(
+      expectedClause =
+        sqls"${WireEntryForCollection.syn.addedAt} <= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
+    )
+  }
+
+  it should "create the correct sql for sinceTimeStamp sorted by ingestedtime" in {
+    val maybeafterTimeStamp =
+      FingerpostWireEntry.Filters.afterTimeStampSQL(
+        "2025-01-01T00:00:00Z",
+        IngestedAtTime
+      )
+    maybeafterTimeStamp should matchSqlSnippet(
+      expectedClause =
+        sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST(? AS timestamptz)",
+      expectedParams = List("2025-01-01T00:00:00Z")
+    )
+  }
+
+  it should "create the correct sql for sinceTimeStamp sorted by collection time" in {
     val maybeafterTimeStamp =
       FingerpostWireEntry.Filters.afterTimeStampSQL(
         "2025-01-01T00:00:00Z",
@@ -1121,6 +778,15 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     hasDataFormattingSQL should matchSqlSnippet(
       expectedClause = "(fm.content->'dataformat') IS NULL",
       expectedParams = List()
+    )
+  }
+
+  behavior of "collectionIdSQL SQL Helpers"
+  it should "create the correct sql snippet for the collectionId" in {
+    val collectionIdSql = FingerpostWireEntry.Filters.collectionIdSQL(1)
+    collectionIdSql should matchSqlSnippet(
+      expectedClause = "c.id = ?",
+      expectedParams = List(1)
     )
   }
 
