@@ -1,5 +1,8 @@
+import paApiFixture from '../test/fixtures/PA_API.json';
+import { cleanBodyTextMarkup } from './cleanMarkup';
 import {
 	extractFieldFromString,
+	processFingerpostJsonContent,
 	processKeywords,
 	safeBodyParse,
 } from './processContentObject';
@@ -136,5 +139,30 @@ describe('extractFieldFromString', () => {
 			"slug": "test-slug",`;
 
 		expect(extractFieldFromString(body, 'slug')).toEqual('test-slug');
+	});
+});
+
+describe('processFingerpostJsonContent', () => {
+	it('should process the PA API fixture correctly', () => {
+		const result = processFingerpostJsonContent(JSON.stringify(paApiFixture));
+		expect(result).toEqual({
+			content: {
+				...paApiFixture,
+				body_text: cleanBodyTextMarkup(
+					safeBodyParse(JSON.stringify(paApiFixture)).body_text!,
+				),
+				imageIds: [],
+				keywords: [],
+			},
+			supplier: 'PAAPI',
+			status: 'success',
+			categoryCodes: [
+				'news',
+				'news:uk',
+				'politics',
+				'news:scotland',
+				'paCat:SCN',
+			],
+		});
 	});
 });

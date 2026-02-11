@@ -12,6 +12,7 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
+	processFingerpostPAAPICategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processReutersTopicCodes,
@@ -67,6 +68,7 @@ export const processCategoryCodes = (
 	destinationCodes: string[],
 	bodyText?: string,
 	priority?: string,
+	mediaCatCodes?: string,
 ) => {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
@@ -104,6 +106,11 @@ export const processCategoryCodes = (
 			];
 		case 'PA':
 			return [...catCodes, ...processFingerpostPACategoryCodes(subjectCodes)];
+		case 'PAAPI':
+			return [
+				...catCodes,
+				...processFingerpostPAAPICategoryCodes(subjectCodes, mediaCatCodes),
+			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
 				...subjectCodes,
@@ -220,6 +227,7 @@ export function processFingerpostJsonContent(
 				content.destinations?.code ?? [],
 				`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
 				content.priority,
+				content.mediaCatCodes,
 			),
 		);
 		return {

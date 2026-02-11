@@ -4,6 +4,7 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
+	processFingerpostPAAPICategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
@@ -246,6 +247,23 @@ describe('processFingerpostPACategoryCodes', () => {
 				]),
 			).toEqual(['paCat:a', 'paCat:c']);
 		});
+	});
+});
+
+describe('processFingerpostPAAPICategoryCodes', () => {
+	it('should return an empty array if provided with an empty array', () => {
+		expect(processFingerpostPAAPICategoryCodes([])).toEqual([]);
+	});
+	it('should append paCat if mediaCatCode is defined', () => {
+		expect(processFingerpostPAAPICategoryCodes([], 'exampleCategory')).toEqual([
+			'paCat:exampleCategory',
+		]);
+	});
+	it('should return the array unchanged if original category codes are supplied', () => {
+		expect(processFingerpostPAAPICategoryCodes(['hello', 'world'])).toEqual([
+			'hello',
+			'world',
+		]);
 	});
 });
 
