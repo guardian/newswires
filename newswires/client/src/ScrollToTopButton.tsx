@@ -97,31 +97,25 @@ export const ScrollToTopButton = ({
 					</div>
 				)}
 			</div>
+
 			{children}
-			<div
-				style={{
-					position: 'fixed',
+
+			<EuiButton
+				iconType="arrowUp"
+				onClick={handleClick}
+				size="m"
+				color="primary"
+				css={{
+					position: 'sticky',
 					bottom: offset,
-					right: euiTheme.size.s,
+					marginRight: euiTheme.size.s,
+					marginLeft: 'auto',
+					display: 'block',
 					zIndex: 1000,
 				}}
 			>
-				<EuiButton
-					iconType="arrowUp"
-					onClick={handleClick}
-					size="m"
-					color="primary"
-					css={{
-						position: 'sticky',
-						bottom: '10px',
-						marginRight: '5px',
-						marginLeft: 'auto',
-						display: 'block',
-					}}
-				>
-					{label ?? 'Back to Top'}
-				</EuiButton>
-			</div>
+				{label ?? 'Back to Top'}
+			</EuiButton>
 		</>
 	);
 };
