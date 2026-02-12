@@ -163,15 +163,14 @@ export function App() {
 										development team.
 									</p>
 									<p>
-										Read the{' '}
 										<a
 											href="https://sites.google.com/a/guardian.co.uk/esd/web-tools/the-wires/using-the-new-wires"
 											target="_blank"
 											rel="noreferrer"
 										>
-											usage guide produced by ESD
+											Read the usage guide produced by ESD
 										</a>{' '}
-										to see the features available for use.
+										to see how to use this tool.
 									</p>
 								</EuiText>
 							</EuiModalBody>

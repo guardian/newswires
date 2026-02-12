@@ -256,8 +256,9 @@ export const SideNav = ({
 								href="https://sites.google.com/a/guardian.co.uk/esd/web-tools/the-wires/using-the-new-wires"
 								target="_blank"
 								rel="noreferrer"
+								external={false}
 							>
-								Read the usage guide
+								Usage guide
 							</EuiLink>
 						}
 						iconType="documentation"
