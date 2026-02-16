@@ -131,6 +131,25 @@ bla."
 			versionCreated: '2025-03-13T15:45:04.000Z',
 		});
 	});
+
+	it('should handle keywords in an array', () => {
+		const body = `
+			{
+				"version": "1",
+				"firstVersion": "2025-03-13T15:45:04.000Z",
+				"versionCreated": "2025-03-13T15:45:04.000Z",
+				"keywords": ["keyword1", "keyword2"],
+				"body_text": "body"
+			}`;
+		expect(safeBodyParse(body)).toEqual({
+			firstVersion: '2025-03-13T15:45:04.000Z',
+			imageIds: [],
+			keywords: ['keyword1', 'keyword2'],
+			body_text: 'body',
+			version: '1',
+			versionCreated: '2025-03-13T15:45:04.000Z',
+		});
+	});
 });
 
 describe('extractFieldFromString', () => {
