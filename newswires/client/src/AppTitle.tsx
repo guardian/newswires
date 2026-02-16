@@ -11,6 +11,6 @@ export const AppTitle = () => (
 			font-weight: inherit;
 		`}
 	>
-		Newswires {STAGE}
+		Newswires {STAGE !== 'PROD' ? STAGE : ''}
 	</EuiLink>
 );
