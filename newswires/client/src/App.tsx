@@ -168,9 +168,8 @@ export function App() {
 											target="_blank"
 											rel="noreferrer"
 										>
-											Read the usage guide produced by ESD
-										</a>{' '}
-										to see how to use this tool.
+											Read the ESD guide for using this tool.
+										</a>
 									</p>
 								</EuiText>
 							</EuiModalBody>

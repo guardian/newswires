@@ -258,7 +258,7 @@ export const SideNav = ({
 								rel="noreferrer"
 								external={false}
 							>
-								Usage guide
+								How to use this tool
 							</EuiLink>
 						}
 						iconType="documentation"
