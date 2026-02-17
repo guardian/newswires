@@ -180,6 +180,8 @@ describe('processFingerpostJsonContent', () => {
 				'news:uk',
 				'politics',
 				'news:scotland',
+				'medtop:11000000',
+				'medtop:04000000',
 				'paCat:SCN',
 			],
 		});
