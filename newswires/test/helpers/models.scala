@@ -56,7 +56,8 @@ trait models {
         notFipTopusCategory = Some("general-news"),
         indesignTags = Some("<p><b>BREAKING:</b></p>")
       )
-    )
+    ),
+    embargo = None
   )
   val emptyWire = FingerpostWire(
     uri = None,
@@ -80,7 +81,8 @@ trait models {
     `abstract` = None,
     bodyText = None,
     composerCompatible = None,
-    dataformat = None
+    dataformat = None,
+    embargo = None
   )
   val exampleWireJson = """{
                           |  "uri" : "https://example.com/news/12345",

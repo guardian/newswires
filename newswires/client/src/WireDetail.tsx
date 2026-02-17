@@ -462,6 +462,21 @@ function decideEdNote({
 	return undefined;
 }
 
+function decideEmbargoNote({
+	status,
+	embargo,
+}: {
+	status: string | undefined;
+	embargo: string | undefined;
+}): string | undefined {
+	if (status === 'withheld' && embargo) {
+		const embargoDate = new Date(embargo);
+		return `Embargoed until ${embargoDate.toLocaleString(undefined, { timeZoneName: 'short' })}`;
+	} else {
+		return undefined;
+	}
+}
+
 export const WireDetail = ({
 	wire,
 	isShowingJson,
@@ -523,6 +538,10 @@ export const WireDetail = ({
 	}, [wire]);
 
 	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
+	const embargoNote = decideEmbargoNote({
+		status: wire.content.status,
+		embargo: wire.content.embargo,
+	});
 
 	return (
 		<div
@@ -661,14 +680,21 @@ export const WireDetail = ({
 					) : (
 						<></>
 					)}
+					{embargoNote && (
+						<>
+							<EuiCallOut size="s" title={embargoNote} color="success" />
+							<EuiSpacer size="s" />
+						</>
+					)}
 					{ednoteToRender && (
 						<>
 							<EuiCallOut size="s" title={ednoteToRender} color="success" />
-							<EuiSpacer size="m" />
+							<EuiSpacer size="s" />
 						</>
 					)}
 					{byline && (
 						<>
+							<EuiSpacer size="s" />
 							<p
 								css={css`
 									font-style: italic;
