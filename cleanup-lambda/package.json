@@ -11,7 +11,7 @@
 	"dependencies": {
 		"@aws-sdk/rds-signer": "3.986.0",
 		"newswires-shared": "*",
-		"postgres": "3.4.7"
+		"postgres": "3.4.8"
 	},
 	"devDependencies": {}
 }
