@@ -129,10 +129,12 @@ export const WiresQueryDataSchema = z.object({
 
 export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
 
-const DateRange = z.object({
+const DateRangeSchema = z.object({
 	start: z.string(),
 	end: z.string(),
 });
+
+export type DateRange = z.infer<typeof DateRangeSchema>;
 
 export const QuerySchema = z.object({
 	q: z.string(),
@@ -143,7 +145,7 @@ export const QuerySchema = z.object({
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
 	preset: z.string().optional(),
-	dateRange: DateRange.optional(),
+	dateRange: DateRangeSchema.optional(),
 	hasDataFormatting: z.boolean().optional(),
 });
 
