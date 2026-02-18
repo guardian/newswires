@@ -130,11 +130,13 @@ export const WiresQueryDataSchema = z.object({
 
 export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
 
-const DateRangeSchema = z.object({
-	start: z.string(),
-	end: z.string(),
-});
+export const EuiDateStringSchema = z.string().brand<'EuiDateString'>();
+export type EuiDateString = z.infer<typeof EuiDateStringSchema>;
 
+export const DateRangeSchema = z.object({
+	start: EuiDateStringSchema,
+	end: EuiDateStringSchema,
+});
 export type DateRange = z.infer<typeof DateRangeSchema>;
 
 export const QuerySchema = z.object({

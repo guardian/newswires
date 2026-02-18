@@ -3,7 +3,6 @@
 import type { EuiQuickSelect } from '@elastic/eui';
 import { EuiSuperDatePicker } from '@elastic/eui';
 import type { EuiCommonlyUsedTimeRanges } from '@elastic/eui/src/components/date_picker/super_date_picker/quick_select_popover/commonly_used_time_ranges';
-import moment from 'moment';
 import type { ReactElement } from 'react';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext.tsx';
 import { useSearch } from './context/SearchContext.tsx';
@@ -12,22 +11,19 @@ import {
 	END_OF_TODAY,
 	TWO_WEEKS_AGO,
 } from './dateConstants.ts';
-import type { TimeRange } from './dateHelpers.ts';
 import { timeRangeOption } from './dateHelpers.ts';
+import { EuiDateStringSchema } from './sharedTypes.ts';
 
 export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 	const { config, handleEnterQuery } = useSearch();
 
-	/*
-	 * The Super Date Picker automatically converts absolute dates to UTC.
-	 * To display the dates correctly in local time, we adjust the UTC values back to the local timezone.
-	 */
-	const onTimeChange = ({ start, end }: TimeRange) => {
+	const onTimeChange = ({ start, end }: { start: string; end: string }) => {
+		console.log('DatePicker onTimeChange', { start, end });
 		handleEnterQuery({
 			...config.query,
 			dateRange: {
-				start: moment(start).isValid() ? moment(start).format() : start,
-				end: moment(end).isValid() ? moment(end).format() : end,
+				start: EuiDateStringSchema.parse(start),
+				end: EuiDateStringSchema.parse(end),
 			},
 		});
 	};
@@ -65,7 +61,6 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 					minDate={TWO_WEEKS_AGO}
 					maxDate={END_OF_TODAY}
 					onTimeChange={onTimeChange}
-					utcOffset={moment().utcOffset()}
 					updateButtonProps={{ showTooltip: true, iconOnly: true }}
 					customQuickSelectRender={customQuickSelectRender}
 					dateFormat={'MMM D • HH:mm'}
@@ -79,6 +74,7 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 						timeRangeOption('1d'),
 						timeRangeOption('2d'),
 					]}
+					timeZoneDisplayProps={{ timeZone: 'Browser' }}
 				/>
 			</div>
 		</StopShortcutPropagationWrapper>

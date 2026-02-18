@@ -1,6 +1,7 @@
 import dateMath from '@elastic/datemath';
 import moment from 'moment/moment';
 import { register } from 'timezone-mock';
+import { EuiDateStringSchema } from '../sharedTypes.ts';
 import { sampleWireData } from '../tests/fixtures/wireData.ts';
 import type { Action, State } from './SearchContext.tsx';
 import { SearchReducer } from './SearchReducer';
@@ -170,7 +171,13 @@ describe('SearchReducer', () => {
 				],
 				totalCount: 2,
 			},
-			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
+			query: {
+				q: 'test',
+				dateRange: {
+					start: EuiDateStringSchema.parse('now-30'),
+					end: EuiDateStringSchema.parse('now'),
+				},
+			},
 		};
 
 		expect(state.queryData.results.map((_) => _.id)).toEqual([1, 2]);
@@ -214,7 +221,13 @@ describe('SearchReducer', () => {
 				results: [itemOne, itemTwo],
 				totalCount: 2,
 			},
-			query: { q: 'test', dateRange: { start: 'now-30', end: 'now' } },
+			query: {
+				q: 'test',
+				dateRange: {
+					start: EuiDateStringSchema.parse('now-30'),
+					end: EuiDateStringSchema.parse('now'),
+				},
+			},
 		};
 
 		expect(state.queryData.results).toContainEqual(itemOne);

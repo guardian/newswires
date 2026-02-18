@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
-import type { DateRange } from './sharedTypes';
+import type { DateRange, EuiDateString } from './sharedTypes';
+import { EuiDateStringSchema } from './sharedTypes.ts';
 import { processDateRange } from './urlState';
 
 beforeEach(() => {
@@ -16,8 +17,8 @@ describe('processDateRange', () => {
 					.mockReturnValue(new Date('2024-02-24T16:17:36.295Z').getTime());
 
 				const dateRange: DateRange = {
-					start: 'now-3d/d',
-					end: 'now-1d/d',
+					start: EuiDateStringSchema.parse('now-3d/d'),
+					end: EuiDateStringSchema.parse('now-1d/d'),
 				};
 
 				const result = processDateRange(dateRange, true);
@@ -34,8 +35,8 @@ describe('processDateRange', () => {
 
 			it('should handle "now/d" as end date (returns undefined end because isRelativeDateNow)', () => {
 				const dateRange: DateRange = {
-					start: 'now-1M/d',
-					end: 'now/d',
+					start: EuiDateStringSchema.parse('now-1M/d'),
+					end: EuiDateStringSchema.parse('now/d'),
 				};
 
 				const result = processDateRange(dateRange, true);
@@ -48,8 +49,8 @@ describe('processDateRange', () => {
 
 			it('should handle "now" as end date (returns undefined end)', () => {
 				const dateRange: DateRange = {
-					start: 'now-1h',
-					end: 'now',
+					start: EuiDateStringSchema.parse('now-1h'),
+					end: EuiDateStringSchema.parse('now'),
 				};
 
 				const result = processDateRange(dateRange, true);
@@ -62,8 +63,8 @@ describe('processDateRange', () => {
 
 			it('should handle same start and end dates by extending end to end of day', () => {
 				const dateRange: DateRange = {
-					start: 'now-1d/d',
-					end: 'now-1d/d',
+					start: EuiDateStringSchema.parse('now-1d/d'),
+					end: EuiDateStringSchema.parse('now-1d/d'),
 				};
 
 				const result = processDateRange(dateRange, true);
@@ -83,8 +84,8 @@ describe('processDateRange', () => {
 
 			it('should handle absolute timestamp dates', () => {
 				const dateRange: DateRange = {
-					start: '2024-01-01T00:00:00Z',
-					end: '2024-01-31T23:59:59Z',
+					start: EuiDateStringSchema.parse('2024-01-01T00:00:00Z'),
+					end: EuiDateStringSchema.parse('2024-01-31T23:59:59Z'),
 				};
 
 				const result = processDateRange(dateRange, true);
@@ -119,8 +120,8 @@ describe('processDateRange', () => {
 		describe('when dateRange is provided', () => {
 			it('should return start and end when both differ from default', () => {
 				const dateRange: DateRange = {
-					start: 'now-1M/d',
-					end: 'now-1d/d',
+					start: EuiDateStringSchema.parse('now-1M/d'),
+					end: EuiDateStringSchema.parse('now-1d/d'),
 				};
 
 				const result = processDateRange(dateRange, false);
@@ -134,7 +135,7 @@ describe('processDateRange', () => {
 			it('should return undefined for start when it matches DEFAULT_DATE_RANGE.start', () => {
 				const dateRange: DateRange = {
 					start: DEFAULT_DATE_RANGE.start,
-					end: 'now-1d/d',
+					end: EuiDateStringSchema.parse('now-1d/d'),
 				};
 
 				const result = processDateRange(dateRange, false);
@@ -148,7 +149,7 @@ describe('processDateRange', () => {
 
 			it('should return undefined for end when it matches DEFAULT_DATE_RANGE.end', () => {
 				const dateRange: DateRange = {
-					start: 'now-1M/d',
+					start: EuiDateStringSchema.parse('now-1M/d'),
 					end: DEFAULT_DATE_RANGE.end,
 				};
 
@@ -194,8 +195,8 @@ describe('processDateRange', () => {
 			it('should handle when dateRange.start is an empty string (if type system allows)', () => {
 				// Note: This may not be possible with proper typing, but demonstrates actual runtime behavior
 				const dateRange = {
-					start: '',
-					end: 'now',
+					start: EuiDateStringSchema.parse(''),
+					end: EuiDateStringSchema.parse('now'),
 				} as DateRange;
 
 				const result = processDateRange(dateRange, false);
@@ -230,8 +231,8 @@ describe('processDateRange', () => {
 				// The condition uses && which short-circuits on falsy values,
 				// so even a non-default empty string would be filtered out
 				const emptyStringDateRange = {
-					start: '',
-					end: 'now',
+					start: '' as unknown as EuiDateString,
+					end: EuiDateStringSchema.parse('now'),
 				};
 
 				const result = processDateRange(emptyStringDateRange, false);
@@ -245,8 +246,8 @@ describe('processDateRange', () => {
 
 			it('demonstrates the same behavior for end with empty string', () => {
 				const emptyStringDateRange = {
-					start: 'now-1d',
-					end: '',
+					start: EuiDateStringSchema.parse('now-1d'),
+					end: '' as unknown as EuiDateString,
 				};
 
 				const result = processDateRange(emptyStringDateRange, false);
@@ -278,8 +279,8 @@ describe('processDateRange', () => {
 
 		it('shows how "now" end dates are handled differently', () => {
 			const dateRange: DateRange = {
-				start: 'now-1h',
-				end: 'now',
+				start: EuiDateStringSchema.parse('now-1h'),
+				end: EuiDateStringSchema.parse('now'),
 			};
 
 			const resultTrue = processDateRange(dateRange, true);

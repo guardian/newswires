@@ -4,6 +4,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { EuiDateStringSchema } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 
 beforeEach(() => {
@@ -30,8 +31,8 @@ describe('isValidDateValue', () => {
 describe('relativeDateRangeToAbsoluteDateRange', () => {
 	it('should convert a relative date range to an absolute date range', () => {
 		const [start, end] = relativeDateRangeToAbsoluteDateRange({
-			start: 'now-1d/d',
-			end: 'now-1d/d',
+			start: EuiDateStringSchema.parse('now-1d/d'),
+			end: EuiDateStringSchema.parse('now-1d/d'),
 		});
 
 		expect(start?.toISOString()).toBe(
@@ -44,8 +45,8 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 
 	it('should convert a relative date range to a partial absolute date range when the relative end date is "now"', () => {
 		const [start, end] = relativeDateRangeToAbsoluteDateRange({
-			start: 'now-1d/d',
-			end: 'now/d',
+			start: EuiDateStringSchema.parse('now-1d/d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		});
 
 		expect(start?.toISOString()).toBe(
@@ -56,8 +57,8 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 
 	it('should convert a relative date range to a partial absolute date range when the relative end date is "now/d"', () => {
 		const [start, end] = relativeDateRangeToAbsoluteDateRange({
-			start: 'now-1d/d',
-			end: 'now/d',
+			start: EuiDateStringSchema.parse('now-1d/d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		});
 
 		expect(start?.toISOString()).toBe(
