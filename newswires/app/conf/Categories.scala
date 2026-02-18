@@ -25,7 +25,8 @@ private[conf] object CategoryCodes {
         "paCat:QFF",
         "paCat:PPP",
         "paCat:XDA",
-        "paCat:XTA"
+        "paCat:XTA",
+        "paCat:CCC"
       )
     val MINOR_AGENCIES: List[String] = List("N2:GB")
   }
