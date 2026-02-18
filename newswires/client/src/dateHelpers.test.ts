@@ -5,6 +5,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { EuiDateStringSchema } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 
 jest.mock('@elastic/datemath', () => ({
@@ -46,8 +47,8 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 		);
 
 		const [start, end] = relativeDateRangeToAbsoluteDateRange({
-			start: 'now-1d/d',
-			end: 'now-1d/d',
+			start: EuiDateStringSchema.parse('now-1d/d'),
+			end: EuiDateStringSchema.parse('now-1d/d'),
 		});
 
 		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
@@ -60,8 +61,8 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 		);
 
 		const [start, end] = relativeDateRangeToAbsoluteDateRange({
-			start: 'now-1d/d',
-			end: 'now/d',
+			start: EuiDateStringSchema.parse('now-1d/d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		});
 
 		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
@@ -74,8 +75,8 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 		);
 
 		const [start, end] = relativeDateRangeToAbsoluteDateRange({
-			start: 'now-1d/d',
-			end: 'now/d',
+			start: EuiDateStringSchema.parse('now-1d/d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		});
 
 		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());

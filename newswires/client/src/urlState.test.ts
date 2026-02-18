@@ -4,6 +4,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { EuiDateStringSchema } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 import {
 	defaultQuery,
@@ -327,8 +328,8 @@ describe('configToUrl', () => {
 				supplier: ['REUTERS' as const],
 				subject: [],
 				dateRange: {
-					start: 'now-1d/d',
-					end: 'now-1d/d',
+					start: EuiDateStringSchema.parse('now-1d/d'),
+					end: EuiDateStringSchema.parse('now-1d/d'),
 				},
 			},
 			ticker: false,
@@ -458,8 +459,8 @@ describe('paramsToQuerystring', () => {
 		const query = {
 			q: 'abc',
 			dateRange: {
-				start: 'now-3d',
-				end: 'now/d',
+				start: EuiDateStringSchema.parse('now-3d'),
+				end: EuiDateStringSchema.parse('now/d'),
 			},
 		};
 
@@ -479,8 +480,8 @@ describe('paramsToQuerystring', () => {
 		const query = {
 			q: 'abc',
 			dateRange: {
-				start: 'now/d',
-				end: 'now/d',
+				start: EuiDateStringSchema.parse('now/d'),
+				end: EuiDateStringSchema.parse('now/d'),
 			},
 		};
 
@@ -498,8 +499,8 @@ describe('paramsToQuerystring', () => {
 		const query = {
 			q: 'abc',
 			dateRange: {
-				start: 'now/d',
-				end: 'now/d',
+				start: EuiDateStringSchema.parse('now/d'),
+				end: EuiDateStringSchema.parse('now/d'),
 			},
 		};
 
