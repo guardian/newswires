@@ -4,6 +4,7 @@ import {
 	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { topLevelPresetId } from './presets.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 import {
 	defaultQuery,
@@ -505,5 +506,18 @@ describe('paramsToQuerystring', () => {
 
 		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
 		expect(url).toBe('?q=abc&start=2025-02-21T00%3A00%3A00.000Z');
+	});
+
+	it('omits default preset from querystring', () => {
+		const query = {
+			q: 'abc',
+			preset: topLevelPresetId,
+		};
+
+		const url = paramsToQuerystring({
+			query,
+			useAbsoluteDateTimeValues: false,
+		});
+		expect(url).toBe('?q=abc');
 	});
 });
