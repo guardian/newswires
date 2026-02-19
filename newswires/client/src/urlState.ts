@@ -1,6 +1,8 @@
+import dateMath from '@elastic/datemath';
 import { getErrorMessage } from '@guardian/libs';
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
-import { relativeDateRangeToAbsoluteDateRange } from './dateHelpers.ts';
+import { isRelativeDateNow } from './dateHelpers.ts';
+import type { EuiDateString } from './sharedTypes';
 import { type Config, EuiDateStringSchema, type Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
@@ -12,10 +14,8 @@ export const defaultQuery: Query = {
 	preset: undefined,
 	categoryCode: [],
 	categoryCodeExcl: [],
-	dateRange: {
-		start: DEFAULT_DATE_RANGE.start,
-		end: DEFAULT_DATE_RANGE.end,
-	},
+	start: DEFAULT_DATE_RANGE.start,
+	end: DEFAULT_DATE_RANGE.end,
 	hasDataFormatting: undefined,
 };
 
@@ -79,7 +79,8 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		categoryCode,
 		categoryCodeExcl,
 		preset,
-		dateRange: { start, end },
+		start,
+		end,
 		hasDataFormatting,
 	};
 }
@@ -140,35 +141,28 @@ export const configToUrl = (config: Config): string => {
 };
 
 export const processDateRange = (
-	dateRange: Query['dateRange'],
+	start: EuiDateString | undefined,
+	end: EuiDateString | undefined,
 	useAbsoluteDateTimeValues: boolean,
 ) => {
 	if (useAbsoluteDateTimeValues) {
 		// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
-		if (dateRange) {
-			const [maybeStartMoment, maybeEndMoment] =
-				relativeDateRangeToAbsoluteDateRange({
-					start: dateRange.start,
-					end: dateRange.end,
-				});
-
-			return {
-				start: maybeStartMoment?.toISOString(),
-				end: maybeEndMoment?.toISOString(),
-			};
-		} else {
-			return { start: START_OF_TODAY.toISOString() };
-		}
+		const startString =
+			start !== undefined
+				? dateMath.parse(start)?.toISOString()
+				: START_OF_TODAY.toISOString();
+		const maybeEndString =
+			end === undefined || isRelativeDateNow(end)
+				? undefined
+				: dateMath.parse(end)?.toISOString();
+		return {
+			start: startString,
+			end: maybeEndString,
+		};
 	} else {
 		return {
-			start:
-				dateRange?.start && dateRange.start !== DEFAULT_DATE_RANGE.start
-					? dateRange.start
-					: undefined,
-			end:
-				dateRange?.end && dateRange.end !== DEFAULT_DATE_RANGE.end
-					? dateRange.end
-					: undefined,
+			start: start && start !== DEFAULT_DATE_RANGE.start ? start : undefined,
+			end: end && end !== DEFAULT_DATE_RANGE.end ? end : undefined,
 		};
 	}
 };
@@ -184,9 +178,10 @@ export const paramsToQuerystring = ({
 	beforeTimeStamp?: string;
 	useAbsoluteDateTimeValues: boolean;
 }): string => {
+	const { start, end, ...rest } = query;
 	const flattenedQuery = {
-		...query,
-		...processDateRange(query.dateRange, useAbsoluteDateTimeValues),
+		...rest,
+		...processDateRange(start, end, useAbsoluteDateTimeValues),
 	};
 
 	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(

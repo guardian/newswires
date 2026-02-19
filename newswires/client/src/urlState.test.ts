@@ -1,8 +1,3 @@
-import moment from 'moment';
-import {
-	isRelativeDateNow,
-	relativeDateRangeToAbsoluteDateRange,
-} from './dateHelpers.ts';
 import { EuiDateStringSchema } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 import {
@@ -18,11 +13,9 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 	return { pathname: urlObject.pathname, search: urlObject.search };
 }
 
-jest.mock('./dateHelpers', () => ({
-	relativeDateRangeToAbsoluteDateRange: jest.fn(),
-	isRelativeDateNow: jest.fn().mockReturnValue(false),
-	convertToUtcDate: jest.fn().mockReturnValue(false),
-}));
+// mock Date.now to return a fixed timestamp so that tests involving relative dates are deterministic
+const FIXED_TIMESTAMP = new Date('2025-02-21T12:00:00Z').getTime();
+jest.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
 
 describe('urlToConfig', () => {
 	beforeEach(() => {
@@ -196,10 +189,8 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				dateRange: {
-					start: 'now/d',
-					end: 'now/d',
-				},
+				start: 'now/d',
+				end: 'now/d',
 			},
 			ticker: false,
 		});
@@ -215,10 +206,8 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				dateRange: {
-					end: '2024-02-24T16:17:36.295Z',
-					start: '2024-02-23T16:17:31.296Z',
-				},
+				end: '2024-02-24T16:17:36.295Z',
+				start: '2024-02-23T16:17:31.296Z',
 			},
 			ticker: false,
 		});
@@ -232,10 +221,8 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				dateRange: {
-					start: 'now/d',
-					end: 'now',
-				},
+				start: 'now/d',
+				end: 'now',
 			},
 			ticker: false,
 		});
@@ -278,8 +265,6 @@ describe('configToUrl', () => {
 	});
 
 	it('handle default query config', () => {
-		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(true);
-
 		const url = configToUrl({
 			view: 'feed',
 			query: defaultQuery,
@@ -312,8 +297,6 @@ describe('configToUrl', () => {
 	});
 
 	it('converts relative date range to querystring', () => {
-		(isRelativeDateNow as unknown as jest.Mock).mockReturnValue(false);
-
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
@@ -321,10 +304,8 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
-				dateRange: {
-					start: EuiDateStringSchema.parse('now-1d/d'),
-					end: EuiDateStringSchema.parse('now-1d/d'),
-				},
+				start: EuiDateStringSchema.parse('now-1d/d'),
+				end: EuiDateStringSchema.parse('now-1d/d'),
 			},
 			ticker: false,
 		};
@@ -445,17 +426,10 @@ describe('paramsToQuerystring', () => {
 	});
 
 	it('keep relative date range', () => {
-		(relativeDateRangeToAbsoluteDateRange as jest.Mock).mockReturnValue([
-			moment('2025-02-21T00:00:00.000Z'),
-			moment('2025-02-21T23:59:59.000Z'),
-		]);
-
 		const query = {
 			q: 'abc',
-			dateRange: {
-				start: EuiDateStringSchema.parse('now-3d'),
-				end: EuiDateStringSchema.parse('now/d'),
-			},
+			start: EuiDateStringSchema.parse('now-3d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		};
 
 		const url = paramsToQuerystring({
@@ -466,36 +440,23 @@ describe('paramsToQuerystring', () => {
 	});
 
 	it('converts relative date range to an absolute date range', () => {
-		(relativeDateRangeToAbsoluteDateRange as jest.Mock).mockReturnValue([
-			moment('2025-02-21T00:00:00.000Z'),
-			moment('2025-02-21T23:59:59.000Z'),
-		]);
-
 		const query = {
 			q: 'abc',
-			dateRange: {
-				start: EuiDateStringSchema.parse('now/d'),
-				end: EuiDateStringSchema.parse('now/d'),
-			},
+			start: EuiDateStringSchema.parse('now/d'),
+			end: EuiDateStringSchema.parse('now+15m'),
 		};
 
 		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
 		expect(url).toBe(
-			'?q=abc&start=2025-02-21T00%3A00%3A00.000Z&end=2025-02-21T23%3A59%3A59.000Z',
+			'?q=abc&start=2025-02-21T00%3A00%3A00.000Z&end=2025-02-21T12%3A15%3A00.000Z',
 		);
 	});
 
 	it('converts relative date range to a partial absolute date range', () => {
-		(relativeDateRangeToAbsoluteDateRange as jest.Mock).mockReturnValue([
-			moment('2025-02-21T00:00:00.000Z'),
-		]);
-
 		const query = {
 			q: 'abc',
-			dateRange: {
-				start: EuiDateStringSchema.parse('now/d'),
-				end: EuiDateStringSchema.parse('now/d'),
-			},
+			start: EuiDateStringSchema.parse('now/d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		};
 
 		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
