@@ -130,7 +130,13 @@ export const WiresQueryDataSchema = z.object({
 
 export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
 
-export const EuiDateStringSchema = z.string().brand<'EuiDateString'>();
+export const isValidDateValue = (value: string): value is EuiDateString =>
+	/^now(?:[+-]\d+[smhdwMy])*(?:\/\w+)?$/.test(value) || moment(value).isValid();
+
+export const EuiDateStringSchema = z
+	.string()
+	.brand<'EuiDateString'>()
+	.refine((val) => isValidDateValue(val));
 export type EuiDateString = z.infer<typeof EuiDateStringSchema>;
 
 export const DateRangeSchema = z.object({

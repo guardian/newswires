@@ -195,7 +195,7 @@ describe('processDateRange', () => {
 			it('should handle when dateRange.start is an empty string (if type system allows)', () => {
 				// Note: This may not be possible with proper typing, but demonstrates actual runtime behavior
 				const dateRange = {
-					start: EuiDateStringSchema.parse(''),
+					start: '' as unknown as EuiDateString,
 					end: EuiDateStringSchema.parse('now'),
 				} as DateRange;
 
