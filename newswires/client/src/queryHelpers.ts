@@ -1,9 +1,24 @@
 import { presetIsInSports, topLevelSportId } from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 
+export type QueryKeyValuePair = {
+	key: keyof Query;
+	value: string;
+};
+
+type DateRangeKeyValuePair = {
+	key: 'dateRange';
+	value: undefined;
+};
+
+export type DeselectableQueryKeyValue =
+	| QueryKeyValuePair
+	| DateRangeKeyValuePair;
+
+export type DeselectableQueryKey = DeselectableQueryKeyValue['key'];
+
 export const keyValueAfterDeselection = (
-	key: keyof Query,
-	value: string,
+	{ key, value }: DeselectableQueryKeyValue,
 	query: Query,
 ): Partial<Query> => {
 	if (key === 'q') {
@@ -14,7 +29,13 @@ export const keyValueAfterDeselection = (
 			[key]: presetIsInSports(value) ? topLevelSportId : undefined,
 		};
 	}
-	if (['dateRange', 'hasDataFormatting'].includes(key)) {
+	if (key === 'dateRange') {
+		return {
+			start: undefined,
+			end: undefined,
+		};
+	}
+	if (['hasDataFormatting', 'start', 'end'].includes(key)) {
 		return { [key]: undefined };
 	}
 	if (

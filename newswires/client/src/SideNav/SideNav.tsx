@@ -15,12 +15,13 @@ import {
 	useEuiMinBreakpoint,
 	useEuiTheme,
 	useIsWithinBreakpoints,
+	usePrettyDuration,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useMemo } from 'react';
 import { AppTitle } from '../AppTitle.tsx';
 import { useSearch } from '../context/SearchContext.tsx';
-import { deriveDateMathRangeLabel } from '../dateHelpers.ts';
+import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
 import { FeedbackContent } from '../FeedbackContent.tsx';
 import { presets, sportPresets } from '../presets.ts';
 import type { Query } from '../sharedTypes';
@@ -28,15 +29,15 @@ import { recognisedSuppliers } from '../suppliers.ts';
 import { PresetsContextMenu } from './PresetsContextMenu.tsx';
 import { SideNavListItem } from './SideNavListItem.tsx';
 
-function decideLabelForQueryBadge(query: Query): string {
-	const { supplier, q, preset, categoryCode, dateRange } = query;
+function decideLabelForQueryBadge(
+	query: Query,
+	dateRangeLabel: string,
+): string {
+	const { supplier, q, preset, categoryCode } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
 	const categoryCodesLabel = categoryCode?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const presetLabel = preset ? `[${presetName(preset)}]` : '';
-	const dateRangeLabel = dateRange
-		? deriveDateMathRangeLabel(dateRange.start, dateRange.end)
-		: '';
 
 	const labels = [
 		presetLabel,
@@ -82,16 +83,6 @@ export const SideNav = ({
 	const isPoppedOut = config.ticker;
 
 	const searchHistory = state.successfulQueryHistory;
-
-	const searchHistoryItems = useMemo(
-		() =>
-			searchHistory.slice(1).map(({ query, resultsCount }) => ({
-				label: decideLabelForQueryBadge(query),
-				query,
-				resultsCount,
-			})),
-		[searchHistory],
-	);
 
 	const suppliers = useMemo(
 		() => [
@@ -215,27 +206,20 @@ export const SideNav = ({
 						</EuiListGroup>
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Search history'}>
-						{searchHistoryItems.length === 0 ? (
+						{searchHistory.length === 0 ? (
 							<EuiText size="s">{'No history yet'}</EuiText>
 						) : (
 							<EuiBadgeGroup color="subdued" gutterSize="s">
-								{searchHistoryItems.map(({ label, query, resultsCount }) => {
-									return (
-										<EuiBadge
-											key={label}
-											color="secondary"
-											onClick={() => {
-												handleEnterQuery(query);
-											}}
-											onClickAriaLabel="Apply filters"
-										>
-											{label}{' '}
-											<EuiBadge color="hollow">
-												{resultsCount === 30 ? '30+' : resultsCount}
-											</EuiBadge>
-										</EuiBadge>
-									);
-								})}
+								{searchHistory.slice(1).map(({ query, resultsCount }) => (
+									<SearchHistoryBadge
+										key={decideLabelForQueryBadge(
+											query,
+											`${query.start}-${query.end}`,
+										)}
+										query={query}
+										resultsCount={resultsCount}
+									/>
+								))}
 							</EuiBadgeGroup>
 						)}
 					</EuiCollapsibleNavGroup>
@@ -278,3 +262,36 @@ export const SideNav = ({
 		</>
 	);
 };
+
+function SearchHistoryBadge({
+	query,
+	resultsCount,
+}: {
+	query: Query;
+	resultsCount: number;
+}) {
+	const dateRangeLabel = usePrettyDuration({
+		timeFrom: (query.start ?? DEFAULT_DATE_RANGE.start) as string,
+		timeTo: (query.end ?? DEFAULT_DATE_RANGE.end) as string,
+		dateFormat: 'MMM D • HH:mm',
+	});
+
+	const { handleEnterQuery } = useSearch();
+
+	const label = decideLabelForQueryBadge(query, dateRangeLabel);
+
+	return (
+		<EuiBadge
+			color="secondary"
+			onClick={() => {
+				handleEnterQuery(query);
+			}}
+			onClickAriaLabel="Apply filters"
+		>
+			{label}{' '}
+			<EuiBadge color="hollow">
+				{resultsCount === 30 ? '30+' : resultsCount}
+			</EuiBadge>
+		</EuiBadge>
+	);
+}
