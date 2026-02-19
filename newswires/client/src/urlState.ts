@@ -1,5 +1,5 @@
 import { getErrorMessage } from '@guardian/libs';
-import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
+import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
 import { relativeDateRangeToAbsoluteDateRange } from './dateHelpers.ts';
 import type { EuiDateString } from './sharedTypes';
 import { type Config, EuiDateStringSchema, type Query } from './sharedTypes';
@@ -145,21 +145,15 @@ export const processDateRange = (
 	useAbsoluteDateTimeValues: boolean,
 ) => {
 	if (useAbsoluteDateTimeValues) {
-		if (start !== undefined) {
-			// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
-			const [maybeStartMoment, maybeEndMoment] =
-				relativeDateRangeToAbsoluteDateRange({
-					start,
-					end,
-				});
-
-			return {
-				start: maybeStartMoment?.toISOString(),
-				end: maybeEndMoment?.toISOString(),
-			};
-		} else {
-			return { start: START_OF_TODAY.toISOString() };
-		}
+		// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
+		const maybeAbsoluteValues = relativeDateRangeToAbsoluteDateRange({
+			start: start ?? DEFAULT_DATE_RANGE.start,
+			end: end !== DEFAULT_DATE_RANGE.end ? end : undefined,
+		});
+		return {
+			start: maybeAbsoluteValues.start,
+			end: maybeAbsoluteValues.end,
+		};
 	} else {
 		return {
 			start: start && start !== DEFAULT_DATE_RANGE.start ? start : undefined,

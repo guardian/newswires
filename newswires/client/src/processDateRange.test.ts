@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
 import type { EuiDateString } from './sharedTypes';
 import { EuiDateStringSchema } from './sharedTypes.ts';
@@ -30,21 +29,7 @@ describe('processDateRange', () => {
 				expect(typeof result.end).toBe('string');
 				// ISO format check
 				expect(result.start).toMatch('2024-02-21T00:00:00.000Z');
-				expect(result.end).toMatch('2024-02-23T00:00:00.000Z');
-			});
-
-			it('should handle "now/d" as end date (returns undefined end because isRelativeDateNow)', () => {
-				const dateRange = {
-					start: EuiDateStringSchema.parse('now-1M/d'),
-					end: EuiDateStringSchema.parse('now/d'),
-				};
-
-				const result = processDateRange(dateRange.start, dateRange.end, true);
-
-				// Actual behavior: "now/d" is filtered by isRelativeDateNow in relativeDateRangeToAbsoluteDateRange
-				expect(result.start).toBeDefined();
-				expect(typeof result.start).toBe('string');
-				expect(result.end).toBeUndefined();
+				expect(result.end).toMatch('2024-02-23T23:59:59.999Z');
 			});
 
 			it('should handle "now" as end date (returns undefined end)', () => {
@@ -59,27 +44,6 @@ describe('processDateRange', () => {
 				expect(result.start).toBeDefined();
 				expect(typeof result.start).toBe('string');
 				expect(result.end).toBeUndefined();
-			});
-
-			it('should handle same start and end dates by extending end to end of day', () => {
-				const dateRange = {
-					start: EuiDateStringSchema.parse('now-1d/d'),
-					end: EuiDateStringSchema.parse('now-1d/d'),
-				};
-
-				const result = processDateRange(dateRange.start, dateRange.end, true);
-
-				// When start and end are the same, end should be extended to end of day
-				expect(result.start).toBeDefined();
-				expect(result.end).toBeDefined();
-
-				const startMoment = moment(result.start);
-				const endMoment = moment(result.end);
-
-				// Start should be at beginning of day (00:00:00)
-				expect(startMoment.format('HH:mm:ss')).toBe('00:00:00');
-				// End should be at end of day (23:59:59)
-				expect(endMoment.format('HH:mm:ss')).toBe('23:59:59');
 			});
 
 			it('should handle absolute timestamp dates', () => {
@@ -97,21 +61,13 @@ describe('processDateRange', () => {
 			});
 		});
 
-		describe('when dateRange is undefined', () => {
-			it('should return start as START_OF_TODAY ISO string', () => {
+		describe('when params are undefined', () => {
+			it('should return "start" as START_OF_TODAY ISO string and keep "end" as undefined', () => {
 				const result = processDateRange(undefined, undefined, true);
-
-				// Actual behavior: returns only 'start' property, no 'end' property
 				expect(result).toEqual({
 					start: START_OF_TODAY.toISOString(),
+					end: undefined,
 				});
-			});
-
-			it('should not include end property when dateRange is undefined', () => {
-				const result = processDateRange(undefined, undefined, true);
-
-				// This demonstrates the actual asymmetric behavior - only 'start' is returned
-				expect(result).not.toHaveProperty('end');
 			});
 		});
 	});
@@ -273,8 +229,8 @@ describe('processDateRange', () => {
 
 			// When true: returns { start: ISO_STRING } (no end property)
 			expect(resultTrue).toHaveProperty('start');
-			expect(resultTrue).not.toHaveProperty('end');
 			expect(typeof resultTrue.start).toBe('string');
+			expect(resultTrue.end).toBeUndefined();
 
 			// When false: returns { start: undefined, end: undefined } (both properties present)
 			expect(resultFalse).toHaveProperty('start');
