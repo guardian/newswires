@@ -1,10 +1,7 @@
 import { getErrorMessage } from '@guardian/libs';
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
-import {
-	isValidDateValue,
-	relativeDateRangeToAbsoluteDateRange,
-} from './dateHelpers.ts';
-import type { Config, Query } from './sharedTypes';
+import { relativeDateRangeToAbsoluteDateRange } from './dateHelpers.ts';
+import { type Config, EuiDateStringSchema, type Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
 	q: '',
@@ -48,16 +45,16 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const queryString = params.get('q');
 
 	const startParam = params.get('start');
-	const start =
-		!!startParam && isValidDateValue(startParam)
-			? startParam
-			: DEFAULT_DATE_RANGE.start;
+	const parsedStartParam = EuiDateStringSchema.safeParse(startParam);
+	const start = parsedStartParam.success
+		? parsedStartParam.data
+		: DEFAULT_DATE_RANGE.start;
 
 	const endParam = params.get('end');
-	const end =
-		!!endParam && isValidDateValue(endParam)
-			? endParam
-			: DEFAULT_DATE_RANGE.end;
+	const parsedEndParam = EuiDateStringSchema.safeParse(endParam);
+	const end = parsedEndParam.success
+		? parsedEndParam.data
+		: DEFAULT_DATE_RANGE.end;
 
 	const supplier = params.getAll('supplier');
 	const supplierExcl = params.getAll('supplierExcl');

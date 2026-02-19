@@ -2,10 +2,9 @@ import dateMath from '@elastic/datemath';
 import moment from 'moment';
 import {
 	deriveDateMathRangeLabel,
-	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
-import { EuiDateStringSchema } from './sharedTypes.ts';
+import { EuiDateStringSchema, isValidDateValue } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 
 jest.mock('@elastic/datemath', () => ({

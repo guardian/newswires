@@ -174,7 +174,7 @@ describe('SearchReducer', () => {
 			query: {
 				q: 'test',
 				dateRange: {
-					start: EuiDateStringSchema.parse('now-30'),
+					start: EuiDateStringSchema.parse('now-30m'),
 					end: EuiDateStringSchema.parse('now'),
 				},
 			},
@@ -224,7 +224,7 @@ describe('SearchReducer', () => {
 			query: {
 				q: 'test',
 				dateRange: {
-					start: EuiDateStringSchema.parse('now-30'),
+					start: EuiDateStringSchema.parse('now-30m'),
 					end: EuiDateStringSchema.parse('now'),
 				},
 			},

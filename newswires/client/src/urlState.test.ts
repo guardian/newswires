@@ -1,7 +1,6 @@
 import moment from 'moment';
 import {
 	isRelativeDateNow,
-	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
 import { EuiDateStringSchema } from './sharedTypes.ts';
@@ -21,7 +20,6 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 
 jest.mock('./dateHelpers', () => ({
 	relativeDateRangeToAbsoluteDateRange: jest.fn(),
-	isValidDateValue: jest.fn().mockReturnValue(true),
 	isRelativeDateNow: jest.fn().mockReturnValue(false),
 	convertToUtcDate: jest.fn().mockReturnValue(false),
 }));
@@ -227,10 +225,6 @@ describe('urlToConfig', () => {
 	});
 
 	it('replaces invalid dates on date math range with default value', () => {
-		(isValidDateValue as unknown as jest.Mock)
-			.mockReturnValueOnce(true)
-			.mockReturnValueOnce(false);
-
 		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=invalid');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
