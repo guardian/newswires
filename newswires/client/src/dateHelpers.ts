@@ -1,6 +1,5 @@
 import dateMath from '@elastic/datemath';
 import moment from 'moment-timezone';
-import type { EuiDateString } from './sharedTypes';
 
 export const convertToLocalDate = (timestamp: string) => {
 	const localTime = moment.utc(timestamp).local();
@@ -21,23 +20,6 @@ export const isRelativeDateNow = (relativeDate: string) =>
 
 export const isRestricted = (end: string | undefined): boolean =>
 	!!(end && !isRelativeDateNow(end) && dateMath.parse(end)?.isBefore(moment()));
-
-export const relativeDateRangeToAbsoluteDateRange = ({
-	start,
-	end,
-}: {
-	start: EuiDateString | undefined;
-	end: EuiDateString | undefined;
-}) => {
-	const startDate = start ? dateMath.parse(start)?.local() : undefined;
-	const endDate =
-		end && !isRelativeDateNow(end) ? dateMath.parse(end)?.local() : undefined;
-
-	return [
-		startDate,
-		endDate && startDate?.isSame(endDate) ? endDate.endOf('day') : endDate,
-	];
-};
 
 export const timeRangeOption = (start: string) => {
 	switch (start) {

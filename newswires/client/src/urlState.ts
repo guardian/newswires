@@ -1,6 +1,7 @@
+import dateMath from '@elastic/datemath';
 import { getErrorMessage } from '@guardian/libs';
 import { DEFAULT_DATE_RANGE, START_OF_TODAY } from './dateConstants.ts';
-import { relativeDateRangeToAbsoluteDateRange } from './dateHelpers.ts';
+import { isRelativeDateNow } from './dateHelpers.ts';
 import type { EuiDateString } from './sharedTypes';
 import { type Config, EuiDateStringSchema, type Query } from './sharedTypes';
 
@@ -145,24 +146,19 @@ export const processDateRange = (
 	useAbsoluteDateTimeValues: boolean,
 ) => {
 	if (useAbsoluteDateTimeValues) {
-		if (start !== undefined) {
-			// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
-			const [maybeStartMoment, maybeEndMoment] =
-				relativeDateRangeToAbsoluteDateRange({
-					start,
-					end,
-				});
-
-			return {
-				start: maybeStartMoment?.toISOString() ?? DEFAULT_DATE_RANGE.start,
-				end:
-					maybeEndMoment?.toISOString() !== DEFAULT_DATE_RANGE.end
-						? maybeEndMoment?.toISOString()
-						: undefined,
-			};
-		} else {
-			return { start: START_OF_TODAY.toISOString() };
-		}
+		// Convert relative dates to ISO-formatted absolute UTC dates, as required by the backend API.
+		const startString =
+			start !== undefined
+				? dateMath.parse(start)?.toISOString()
+				: START_OF_TODAY.toISOString();
+		const maybeEndString =
+			end === undefined || isRelativeDateNow(end)
+				? undefined
+				: dateMath.parse(end)?.toISOString();
+		return {
+			start: startString,
+			end: maybeEndString,
+		};
 	} else {
 		return {
 			start: start && start !== DEFAULT_DATE_RANGE.start ? start : undefined,
