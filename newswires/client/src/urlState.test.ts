@@ -196,10 +196,8 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				dateRange: {
-					start: 'now/d',
-					end: 'now/d',
-				},
+				start: 'now/d',
+				end: 'now/d',
 			},
 			ticker: false,
 		});
@@ -215,10 +213,8 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				dateRange: {
-					end: '2024-02-24T16:17:36.295Z',
-					start: '2024-02-23T16:17:31.296Z',
-				},
+				end: '2024-02-24T16:17:36.295Z',
+				start: '2024-02-23T16:17:31.296Z',
 			},
 			ticker: false,
 		});
@@ -232,10 +228,8 @@ describe('urlToConfig', () => {
 			query: {
 				...defaultQuery,
 				q: 'abc',
-				dateRange: {
-					start: 'now/d',
-					end: 'now',
-				},
+				start: 'now/d',
+				end: 'now',
 			},
 			ticker: false,
 		});
@@ -321,10 +315,8 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
-				dateRange: {
-					start: EuiDateStringSchema.parse('now-1d/d'),
-					end: EuiDateStringSchema.parse('now-1d/d'),
-				},
+				start: EuiDateStringSchema.parse('now-1d/d'),
+				end: EuiDateStringSchema.parse('now-1d/d'),
 			},
 			ticker: false,
 		};
@@ -452,10 +444,8 @@ describe('paramsToQuerystring', () => {
 
 		const query = {
 			q: 'abc',
-			dateRange: {
-				start: EuiDateStringSchema.parse('now-3d'),
-				end: EuiDateStringSchema.parse('now/d'),
-			},
+			start: EuiDateStringSchema.parse('now-3d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		};
 
 		const url = paramsToQuerystring({
@@ -473,10 +463,8 @@ describe('paramsToQuerystring', () => {
 
 		const query = {
 			q: 'abc',
-			dateRange: {
-				start: EuiDateStringSchema.parse('now/d'),
-				end: EuiDateStringSchema.parse('now/d'),
-			},
+			start: EuiDateStringSchema.parse('now/d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		};
 
 		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
@@ -492,10 +480,8 @@ describe('paramsToQuerystring', () => {
 
 		const query = {
 			q: 'abc',
-			dateRange: {
-				start: EuiDateStringSchema.parse('now/d'),
-				end: EuiDateStringSchema.parse('now/d'),
-			},
+			start: EuiDateStringSchema.parse('now/d'),
+			end: EuiDateStringSchema.parse('now/d'),
 		};
 
 		const url = paramsToQuerystring({ query, useAbsoluteDateTimeValues: true });
