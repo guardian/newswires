@@ -32,7 +32,7 @@ private[conf] object CategoryCodes {
 
   object Business {
     val AP: List[String] = List("apCat:f")
-    val PA: List[String] = List("paCat:FFF", "paCat:GXX")
+    val PA: List[String] = List("paCat:FFF", "paCat:GXX", "paCat:CCC")
     val AAP: List[String] = Categories.businessRelatedNewsCodes
     val REUTERS: List[String] = Categories.businessRelatedTopicCodes
   }
