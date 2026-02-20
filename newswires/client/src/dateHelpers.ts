@@ -1,11 +1,7 @@
 import dateMath from '@elastic/datemath';
 import moment from 'moment-timezone';
 import { DEFAULT_DATE_RANGE } from './dateConstants';
-
-export interface TimeRange {
-	start: string;
-	end: string;
-}
+import type { DateRange } from './sharedTypes';
 
 export const convertToLocalDate = (timestamp: string) => {
 	const localTime = moment.utc(timestamp).local();
@@ -20,9 +16,6 @@ export const convertToLocalDate = (timestamp: string) => {
 export const convertToLocalDateString = (timestamp: string): string => {
 	return convertToLocalDate(timestamp).format();
 };
-
-export const isValidDateValue = (value: string) =>
-	/^now(?:[+-]\d+[smhdwMy])*(?:\/\w+)?$/.test(value) || moment(value).isValid();
 
 export const isRelativeDateNow = (relativeDate: string) =>
 	relativeDate === 'now' || relativeDate === 'now/d';
@@ -93,7 +86,7 @@ export const deriveDateMathRangeLabel = (
 export const relativeDateRangeToAbsoluteDateRange = ({
 	start,
 	end,
-}: TimeRange) => {
+}: DateRange) => {
 	const startDate = start ? dateMath.parse(start)?.local() : undefined;
 	const endDate =
 		end && !isRelativeDateNow(end) ? dateMath.parse(end)?.local() : undefined;

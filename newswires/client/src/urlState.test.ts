@@ -1,9 +1,9 @@
 import moment from 'moment';
 import {
 	isRelativeDateNow,
-	isValidDateValue,
 	relativeDateRangeToAbsoluteDateRange,
 } from './dateHelpers.ts';
+import { EuiDateStringSchema } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 import {
 	defaultQuery,
@@ -20,7 +20,6 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 
 jest.mock('./dateHelpers', () => ({
 	relativeDateRangeToAbsoluteDateRange: jest.fn(),
-	isValidDateValue: jest.fn().mockReturnValue(true),
 	isRelativeDateNow: jest.fn().mockReturnValue(false),
 	convertToUtcDate: jest.fn().mockReturnValue(false),
 }));
@@ -226,10 +225,6 @@ describe('urlToConfig', () => {
 	});
 
 	it('replaces invalid dates on date math range with default value', () => {
-		(isValidDateValue as unknown as jest.Mock)
-			.mockReturnValueOnce(true)
-			.mockReturnValueOnce(false);
-
 		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=invalid');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
@@ -327,8 +322,8 @@ describe('configToUrl', () => {
 				supplier: ['REUTERS' as const],
 				subject: [],
 				dateRange: {
-					start: 'now-1d/d',
-					end: 'now-1d/d',
+					start: EuiDateStringSchema.parse('now-1d/d'),
+					end: EuiDateStringSchema.parse('now-1d/d'),
 				},
 			},
 			ticker: false,
@@ -458,8 +453,8 @@ describe('paramsToQuerystring', () => {
 		const query = {
 			q: 'abc',
 			dateRange: {
-				start: 'now-3d',
-				end: 'now/d',
+				start: EuiDateStringSchema.parse('now-3d'),
+				end: EuiDateStringSchema.parse('now/d'),
 			},
 		};
 
@@ -479,8 +474,8 @@ describe('paramsToQuerystring', () => {
 		const query = {
 			q: 'abc',
 			dateRange: {
-				start: 'now/d',
-				end: 'now/d',
+				start: EuiDateStringSchema.parse('now/d'),
+				end: EuiDateStringSchema.parse('now/d'),
 			},
 		};
 
@@ -498,8 +493,8 @@ describe('paramsToQuerystring', () => {
 		const query = {
 			q: 'abc',
 			dateRange: {
-				start: 'now/d',
-				end: 'now/d',
+				start: EuiDateStringSchema.parse('now/d'),
+				end: EuiDateStringSchema.parse('now/d'),
 			},
 		};
 
