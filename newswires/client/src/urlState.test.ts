@@ -1,3 +1,4 @@
+import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
 import { EuiDateStringSchema } from './sharedTypes.ts';
 import { disableLogs } from './tests/testHelpers.ts';
 import {
@@ -241,6 +242,7 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
+				start: DEFAULT_DATE_RANGE.start,
 			},
 			ticker: false,
 			itemId: undefined,
@@ -256,6 +258,7 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['REUTERS' as const],
 				subject: [],
+				start: DEFAULT_DATE_RANGE.start,
 			},
 			ticker: true,
 			itemId: undefined,
@@ -278,7 +281,12 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			query: {
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+				start: DEFAULT_DATE_RANGE.start,
+			},
 			ticker: false,
 		};
 		const url = configToUrl(config);
@@ -289,7 +297,12 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: ['REUTERS' as const], subject: [] },
+			query: {
+				q: 'abc',
+				supplier: ['REUTERS' as const],
+				subject: [],
+				start: DEFAULT_DATE_RANGE.start,
+			},
 			ticker: true,
 		};
 		const url = configToUrl(config);
@@ -319,7 +332,12 @@ describe('configToUrl', () => {
 		const config = {
 			view: 'item' as const,
 			itemId: '123',
-			query: { q: 'abc', supplier: [], subject: [] },
+			query: {
+				q: 'abc',
+				supplier: [],
+				subject: [],
+				start: DEFAULT_DATE_RANGE.start,
+			},
 			ticker: false,
 		};
 		const url = configToUrl(config);
@@ -334,6 +352,7 @@ describe('configToUrl', () => {
 				q: 'abc',
 				supplier: ['AP' as const, 'PA' as const, 'REUTERS' as const],
 				subject: [],
+				start: DEFAULT_DATE_RANGE.start,
 			},
 			ticker: false,
 		};
@@ -346,7 +365,11 @@ describe('configToUrl', () => {
 	it('converts config with many excluded suppliers to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', supplierExcl: ['AP', 'PA', 'REUTERS'] },
+			query: {
+				q: 'abc',
+				supplierExcl: ['AP', 'PA', 'REUTERS'],
+				start: DEFAULT_DATE_RANGE.start,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -359,7 +382,11 @@ describe('configToUrl', () => {
 	it('converts config with many keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keyword: ['Sports', 'Politics'] },
+			query: {
+				q: 'abc',
+				keyword: ['Sports', 'Politics'],
+				start: DEFAULT_DATE_RANGE.start,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -370,7 +397,11 @@ describe('configToUrl', () => {
 	it('converts config with many excluded keywords to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', keywordExcl: ['Sports', 'Politics'] },
+			query: {
+				q: 'abc',
+				keywordExcl: ['Sports', 'Politics'],
+				start: DEFAULT_DATE_RANGE.start,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -381,7 +412,11 @@ describe('configToUrl', () => {
 	it('converts config with many categoryCode to querystring', () => {
 		const config = {
 			view: 'feed' as const,
-			query: { q: 'abc', categoryCode: ['medtop:08000000', 'medtop:20001340'] },
+			query: {
+				q: 'abc',
+				categoryCode: ['medtop:08000000', 'medtop:20001340'],
+				start: DEFAULT_DATE_RANGE.start,
+			},
 			ticker: false,
 			itemId: undefined,
 		};
@@ -397,6 +432,7 @@ describe('configToUrl', () => {
 			query: {
 				q: 'abc',
 				categoryCodeExcl: ['medtop:08000000', 'medtop:20001340'],
+				start: DEFAULT_DATE_RANGE.start,
 			},
 			ticker: false,
 			itemId: undefined,
@@ -416,6 +452,7 @@ describe('paramsToQuerystring', () => {
 	it('converts text search param to querystring', () => {
 		const query = {
 			q: 'abc',
+			start: DEFAULT_DATE_RANGE.start,
 		};
 
 		const url = paramsToQuerystring({

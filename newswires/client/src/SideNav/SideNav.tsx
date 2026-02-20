@@ -271,7 +271,7 @@ function SearchHistoryBadge({
 	resultsCount: number;
 }) {
 	const dateRangeLabel = usePrettyDuration({
-		timeFrom: (query.start ?? DEFAULT_DATE_RANGE.start) as string,
+		timeFrom: query.start as string,
 		timeTo: (query.end ?? DEFAULT_DATE_RANGE.end) as string,
 		dateFormat: 'MMM D • HH:mm',
 	});

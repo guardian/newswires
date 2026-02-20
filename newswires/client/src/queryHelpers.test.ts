@@ -1,10 +1,14 @@
+import { DEFAULT_DATE_RANGE } from './dateConstants';
 import { topLevelSportId } from './presets';
 import { keyValueAfterDeselection } from './queryHelpers';
 
 describe('keyValueAfterDeselection', () => {
 	it('should return an empty query string when q is the key', () => {
 		expect(
-			keyValueAfterDeselection({ key: 'q', value: 'hello' }, { q: 'hello' }),
+			keyValueAfterDeselection(
+				{ key: 'q', value: 'hello' },
+				{ q: 'hello', start: DEFAULT_DATE_RANGE.start },
+			),
 		).toStrictEqual({
 			q: '',
 		});
@@ -13,7 +17,7 @@ describe('keyValueAfterDeselection', () => {
 		expect(
 			keyValueAfterDeselection(
 				{ key: 'start', value: 'hello' },
-				{ q: 'hello' },
+				{ q: 'hello', start: DEFAULT_DATE_RANGE.start },
 			),
 		).toStrictEqual({
 			start: undefined,
@@ -21,7 +25,10 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should return end : undefined when end is the key', () => {
 		expect(
-			keyValueAfterDeselection({ key: 'end', value: 'hello' }, { q: 'hello' }),
+			keyValueAfterDeselection(
+				{ key: 'end', value: 'hello' },
+				{ q: 'hello', start: DEFAULT_DATE_RANGE.start },
+			),
 		).toStrictEqual({
 			end: undefined,
 		});
@@ -30,7 +37,7 @@ describe('keyValueAfterDeselection', () => {
 		expect(
 			keyValueAfterDeselection(
 				{ key: 'categoryCode', value: 'hello' },
-				{ q: 'hello' },
+				{ q: 'hello', start: DEFAULT_DATE_RANGE.start },
 			),
 		).toStrictEqual({
 			categoryCode: [],
@@ -42,6 +49,7 @@ describe('keyValueAfterDeselection', () => {
 				{ key: 'categoryCode', value: 'code' },
 				{
 					q: 'hello',
+					start: DEFAULT_DATE_RANGE.start,
 					categoryCode: ['code'],
 				},
 			),
@@ -53,6 +61,7 @@ describe('keyValueAfterDeselection', () => {
 				{ key: 'categoryCode', value: 'code' },
 				{
 					q: 'hello',
+					start: DEFAULT_DATE_RANGE.start,
 					categoryCode: ['code', 'sheep'],
 				},
 			),
@@ -64,6 +73,7 @@ describe('keyValueAfterDeselection', () => {
 				{ key: 'keywordExcl', value: 'bar' },
 				{
 					q: '',
+					start: DEFAULT_DATE_RANGE.start,
 					keywordExcl: ['foo', 'bar'],
 				},
 			),
@@ -73,7 +83,7 @@ describe('keyValueAfterDeselection', () => {
 		expect(
 			keyValueAfterDeselection(
 				{ key: 'preset', value: 'all-world' },
-				{ q: '' },
+				{ q: '', start: DEFAULT_DATE_RANGE.start },
 			),
 		).toStrictEqual({
 			preset: undefined,
@@ -83,7 +93,7 @@ describe('keyValueAfterDeselection', () => {
 		expect(
 			keyValueAfterDeselection(
 				{ key: 'preset', value: 'no-soccer' },
-				{ q: '' },
+				{ q: '', start: DEFAULT_DATE_RANGE.start },
 			),
 		).toStrictEqual({
 			preset: topLevelSportId,

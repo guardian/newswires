@@ -174,29 +174,28 @@ export const paramsToQuerystring = ({
 	useAbsoluteDateTimeValues: boolean;
 }): string => {
 	const { start, end, ...rest } = query;
-	const flattenedQuery = {
+	const queryForSerialisation = {
 		...rest,
 		...processDateRange(start, end, useAbsoluteDateTimeValues),
 	};
 
-	const params = Object.entries(flattenedQuery).reduce<Array<[string, string]>>(
-		(acc, [k, v]) => {
-			if (typeof v === 'string' && v.trim().length > 0) {
-				return [...acc, [k, v.trim()]];
-			} else if (Array.isArray(v)) {
-				const items: Array<[string, string]> = v
-					.filter((i) => typeof i === 'string' && i.trim().length > 0)
-					.map((i) => [k, i.trim()]);
-				if (items.length > 0) {
-					return [...acc, ...items];
-				}
-			} else if (typeof v === 'boolean') {
-				return [...acc, [k, v.toString()]];
+	const params = Object.entries(queryForSerialisation).reduce<
+		Array<[string, string]>
+	>((acc, [k, v]) => {
+		if (typeof v === 'string' && v.trim().length > 0) {
+			return [...acc, [k, v.trim()]];
+		} else if (Array.isArray(v)) {
+			const items: Array<[string, string]> = v
+				.filter((i) => typeof i === 'string' && i.trim().length > 0)
+				.map((i) => [k, i.trim()]);
+			if (items.length > 0) {
+				return [...acc, ...items];
 			}
-			return acc;
-		},
-		[],
-	);
+		} else if (typeof v === 'boolean') {
+			return [...acc, [k, v.toString()]];
+		}
+		return acc;
+	}, []);
 
 	if (afterTimeStamp !== undefined) {
 		params.push(['afterTimeStamp', afterTimeStamp]);

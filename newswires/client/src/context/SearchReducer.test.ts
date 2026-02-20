@@ -1,19 +1,14 @@
-import dateMath from '@elastic/datemath';
-import moment from 'moment/moment';
-import { register } from 'timezone-mock';
+import { default as dateMath } from '@elastic/datemath';
+import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
+import type { EuiDateString } from '../sharedTypes.ts';
 import { EuiDateStringSchema } from '../sharedTypes.ts';
 import { sampleWireData } from '../tests/fixtures/wireData.ts';
 import type { Action, State } from './SearchContext.tsx';
 import { SearchReducer } from './SearchReducer';
 
-register('Etc/GMT');
-
-jest.mock('@elastic/datemath', () => ({
-	__esModule: true,
-	default: {
-		parse: jest.fn(),
-	},
-}));
+// mock Date.now to return a fixed timestamp for consistent testing of relative date handling
+const FIXED_TIMESTAMP = new Date('2025-01-01T02:04:00Z').getTime();
+jest.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
 
 describe('SearchReducer', () => {
 	const initialState: State = {
@@ -60,7 +55,7 @@ describe('SearchReducer', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
 			data: { results: [sampleWireData], totalCount: 1 },
-			query: { q: 'test' },
+			query: { q: 'test', start: DEFAULT_DATE_RANGE.start },
 		};
 
 		const newState = SearchReducer(initialState, action);
@@ -118,7 +113,13 @@ describe('SearchReducer', () => {
 					],
 					totalCount: 1,
 				},
-				query: { q: 'test' },
+				query: {
+					q: 'test',
+					start: dateMath
+						.parse(sampleWireData.ingestedAt)!
+						.subtract(5, 'minutes')
+						.toISOString() as EuiDateString,
+				},
 			};
 
 			const newState = SearchReducer(state, action);
@@ -149,10 +150,6 @@ describe('SearchReducer', () => {
 				totalCount: 2,
 			},
 		};
-
-		(dateMath.parse as jest.Mock).mockImplementation(() =>
-			moment('2025-01-01T02:04:00Z'),
-		);
 
 		const action: Action = {
 			type: 'UPDATE_RESULTS',
@@ -208,10 +205,6 @@ describe('SearchReducer', () => {
 				totalCount: 1,
 			},
 		};
-
-		(dateMath.parse as jest.Mock).mockImplementation(() =>
-			moment('2025-01-01T02:04:00Z'),
-		);
 
 		const action: Action = {
 			type: 'UPDATE_RESULTS',

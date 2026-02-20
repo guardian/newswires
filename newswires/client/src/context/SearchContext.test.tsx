@@ -1,4 +1,5 @@
 import { act, render } from '@testing-library/react';
+import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
 import type { Query } from '../sharedTypes.ts';
 import { disableLogs, flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
@@ -78,6 +79,7 @@ describe('SearchContext', () => {
 		const q: Query = {
 			q: 'text search term',
 			supplier: ['A', 'B'],
+			start: DEFAULT_DATE_RANGE.start,
 		};
 
 		act(() => {
@@ -107,6 +109,7 @@ describe('SearchContext', () => {
 		const q: Query = {
 			q: 'text search term',
 			supplier: ['A', 'B'],
+			start: DEFAULT_DATE_RANGE.start,
 		};
 
 		act(() => {

@@ -148,7 +148,7 @@ export const QuerySchema = z.object({
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
 	preset: z.string().optional(),
-	start: EuiDateStringSchema.optional(),
+	start: EuiDateStringSchema,
 	end: EuiDateStringSchema.optional(),
 	hasDataFormatting: z.boolean().optional(),
 });

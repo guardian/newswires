@@ -60,15 +60,25 @@ describe('processDateRange', () => {
 				expect(typeof result.end).toBe('string');
 			});
 		});
+	});
 
-		describe('when params are undefined', () => {
-			it('should return "start" as START_OF_TODAY ISO string and keep "end" as undefined', () => {
-				const result = processDateRange(undefined, undefined, true);
-				expect(result).toEqual({
-					start: START_OF_TODAY.toISOString(),
-					end: undefined,
-				});
+	describe('when params are undefined', () => {
+		it('should return "start" as START_OF_TODAY ISO string and keep "end" as undefined', () => {
+			const result = processDateRange(undefined, undefined, true);
+			expect(result).toEqual({
+				start: START_OF_TODAY.toISOString(),
+				end: undefined,
 			});
+		});
+		it('should not include end property when end date is undefined', () => {
+			const result = processDateRange(
+				START_OF_TODAY.toISOString() as EuiDateString,
+				undefined,
+				true,
+			);
+
+			// This demonstrates the actual asymmetric behavior - only 'start' is returned
+			expect(result.end).toBeUndefined();
 		});
 	});
 
@@ -134,17 +144,15 @@ describe('processDateRange', () => {
 			});
 		});
 
-		describe('when dateRange is undefined', () => {
-			it('should return both start and end as undefined', () => {
-				const result = processDateRange(undefined, undefined, false);
+		it('should not include end property when end date is undefined', () => {
+			const result = processDateRange(
+				START_OF_TODAY.toISOString() as EuiDateString,
+				undefined,
+				false,
+			);
 
-				// Actual behavior: accessing properties on undefined gives undefined
-				// dateRange?.start is undefined, dateRange?.end is undefined
-				expect(result).toEqual({
-					start: undefined,
-					end: undefined,
-				});
-			});
+			// This demonstrates the actual asymmetric behavior - only 'start' is returned
+			expect(result.end).toBeUndefined();
 		});
 
 		describe('edge cases with falsy start/end values', () => {
@@ -219,48 +227,6 @@ describe('processDateRange', () => {
 				// Same unintended filtering happens for end
 				expect(result.end).toBeUndefined();
 			});
-		});
-	});
-
-	describe('comparison of behaviors between true and false useAbsoluteDateTimeValues', () => {
-		it('shows different return shapes when dateRange is undefined', () => {
-			const resultTrue = processDateRange(undefined, undefined, true);
-			const resultFalse = processDateRange(undefined, undefined, false);
-
-			// When true: returns { start: ISO_STRING } (no end property)
-			expect(resultTrue).toHaveProperty('start');
-			expect(typeof resultTrue.start).toBe('string');
-			expect(resultTrue.end).toBeUndefined();
-
-			// When false: returns { start: undefined, end: undefined } (both properties present)
-			expect(resultFalse).toHaveProperty('start');
-			expect(resultFalse).toHaveProperty('end');
-			expect(resultFalse.start).toBeUndefined();
-			expect(resultFalse.end).toBeUndefined();
-
-			// This asymmetry may be unintended behavior
-		});
-
-		it('shows how "now" end dates are handled differently', () => {
-			const dateRange = {
-				start: EuiDateStringSchema.parse('now-1h'),
-				end: EuiDateStringSchema.parse('now'),
-			};
-
-			const resultTrue = processDateRange(dateRange.start, dateRange.end, true);
-			const resultFalse = processDateRange(
-				dateRange.start,
-				dateRange.end,
-				false,
-			);
-
-			// When true: "now" as end returns undefined (filtered by isRelativeDateNow)
-			expect(resultTrue.start).toBeDefined();
-			expect(resultTrue.end).toBeUndefined();
-
-			// When false: "now" as end returns undefined (filtered because it matches DEFAULT_DATE_RANGE.end)
-			expect(resultFalse.start).toBe('now-1h');
-			expect(resultFalse.end).toBeUndefined();
 		});
 	});
 });

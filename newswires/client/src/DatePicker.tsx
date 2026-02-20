@@ -45,7 +45,7 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 				<EuiSuperDatePicker
 					width={width}
 					compressed={true}
-					start={config.query.start ?? DEFAULT_DATE_RANGE.start}
+					start={config.query.start}
 					end={config.query.end ?? DEFAULT_DATE_RANGE.end}
 					minDate={TWO_WEEKS_AGO}
 					maxDate={END_OF_TODAY}

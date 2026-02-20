@@ -1,3 +1,4 @@
+import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
 import { pandaFetch } from '../panda-session';
 import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
 import { paramsToQuerystring } from '../urlState';
@@ -19,13 +20,14 @@ jest.mock('../panda-session', () => ({
 	),
 }));
 
+const mockQuery = { q: 'value', start: DEFAULT_DATE_RANGE.start };
+
 describe('fetchResults', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
 
 	it('should call pandaFetch with correct URL and headers', async () => {
-		const mockQuery = { q: 'value' };
 		await fetchResults({ query: mockQuery, view: 'feed' });
 
 		expect(paramsToQuerystring).toHaveBeenCalledWith({
@@ -46,7 +48,7 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+			fetchResults({ query: mockQuery, view: 'feed' }),
 		).rejects.toThrow('Error occurred');
 	});
 
@@ -57,7 +59,7 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+			fetchResults({ query: mockQuery, view: 'feed' }),
 		).rejects.toThrow('Received invalid data from server');
 	});
 
@@ -72,12 +74,11 @@ describe('fetchResults', () => {
 			ok: true,
 		});
 
-		const result = await fetchResults({ query: { q: 'value' }, view: 'feed' });
+		const result = await fetchResults({ query: mockQuery, view: 'feed' });
 		expect(result).toEqual(mockResponseData);
 	});
 
 	it('should append sinceId to the query if provided', async () => {
-		const mockQuery = { q: 'value' };
 		await fetchResults({
 			query: mockQuery,
 			view: 'feed',
@@ -92,7 +93,6 @@ describe('fetchResults', () => {
 	});
 
 	it('should append beforeId to the query if provided', async () => {
-		const mockQuery = { q: 'value' };
 		await fetchResults({
 			query: mockQuery,
 			view: 'feed',
@@ -107,7 +107,6 @@ describe('fetchResults', () => {
 	});
 
 	it('should transform the results using transformWireItemQueryResult', async () => {
-		const mockQuery = { q: 'value' };
 		const results = await fetchResults({ query: mockQuery, view: 'feed' });
 		expect(results.results).toHaveLength(1);
 		expect(results.results[0]).toEqual(

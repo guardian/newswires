@@ -114,11 +114,11 @@ const Summary = ({
 		hasDataFormatting !== undefined;
 
 	const isDefaultDateRange =
-		(start === DEFAULT_DATE_RANGE.start || start === undefined) &&
+		start === DEFAULT_DATE_RANGE.start &&
 		(end === DEFAULT_DATE_RANGE.end || end === undefined);
 
 	const durationLabel = usePrettyDuration({
-		timeFrom: (start ?? DEFAULT_DATE_RANGE.start) as string,
+		timeFrom: start as string,
 		timeTo: (end ?? DEFAULT_DATE_RANGE.end) as string,
 		dateFormat: 'MMM D • HH:mm',
 	});

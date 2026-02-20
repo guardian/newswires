@@ -30,14 +30,11 @@ function mergeQueryData(
 	if (existing) {
 		const existingIds = new Set(existing.results.map((item) => item.id));
 
-		const filteredExistingResults =
-			start !== undefined
-				? existing.results.filter((existingItem) => {
-						return moment(existingItem.ingestedAt).isSameOrAfter(
-							dateMath.parse(start),
-						);
-					})
-				: existing.results;
+		const filteredExistingResults = existing.results.filter((existingItem) => {
+			return moment(existingItem.ingestedAt).isSameOrAfter(
+				dateMath.parse(start),
+			);
+		});
 
 		const filteredOutCount =
 			existing.results.length - filteredExistingResults.length;
