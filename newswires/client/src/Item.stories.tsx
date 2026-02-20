@@ -7,6 +7,7 @@ import { convertToLocalDate } from './dateHelpers';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
 import type { WireData } from './sharedTypes';
+import { reutersBrand } from './suppliers';
 
 const sampleItemData: WireData = {
 	id: 12345,
@@ -33,7 +34,7 @@ const sampleItemData: WireData = {
 		name: 'REUTERS',
 		label: 'Reuters',
 		shortLabel: 'Reu',
-		colour: '#000000',
+		colour: reutersBrand,
 	},
 	externalId: 'RTRS.2021.01.01.12345',
 	ingestedAt: '2025-02-26T09:58:22.000Z',
@@ -138,6 +139,25 @@ export const WithToolLinks: Story = {
 					sentAt: '2025-02-26T10:05:00.000Z',
 				},
 			],
+		},
+		error: undefined,
+		handleDeselectItem: () => console.log('deselect clicked'),
+		handlePreviousItem: () => console.log('previous item clicked'),
+		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
+		addToolLink: () => console.log('add tool link'),
+	},
+};
+
+export const WithEmbargoAndEdNote: Story = {
+	args: {
+		itemData: {
+			...sampleItemData,
+			content: {
+				...sampleItemData.content,
+				status: 'withheld',
+				embargo: '2025-03-01T12:00:00.000Z',
+				ednote: 'This is an editorial note from the "ednote" field.',
+			},
 		},
 		error: undefined,
 		handleDeselectItem: () => console.log('deselect clicked'),
