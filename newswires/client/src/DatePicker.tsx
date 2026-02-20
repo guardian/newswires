@@ -74,7 +74,6 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 						timeRangeOption('1d'),
 						timeRangeOption('2d'),
 					]}
-					timeZoneDisplayProps={{ timeZone: 'Browser' }}
 				/>
 			</div>
 		</StopShortcutPropagationWrapper>
