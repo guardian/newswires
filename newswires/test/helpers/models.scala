@@ -56,7 +56,8 @@ trait models {
         notFipTopusCategory = Some("general-news"),
         indesignTags = Some("<p><b>BREAKING:</b></p>")
       )
-    )
+    ),
+    embargo = Some("2026-02-18T00:01:00Z")
   )
   val emptyWire = FingerpostWire(
     uri = None,
@@ -80,7 +81,8 @@ trait models {
     `abstract` = None,
     bodyText = None,
     composerCompatible = None,
-    dataformat = None
+    dataformat = None,
+    embargo = None
   )
   val exampleWireJson = """{
                           |  "uri" : "https://example.com/news/12345",
@@ -118,7 +120,8 @@ trait models {
                           |    "noOfColumns" : "3",
                           |    "notFipTopusCategory" : "general-news",
                           |    "indesignTags" : "<p><b>BREAKING:</b></p>"
-                          |  }
+                          |  },
+                          |  "embargo" : "2026-02-18T00:01:00Z"
                           |}""".stripMargin
 
   val toolLink = ToolLink(
@@ -205,7 +208,8 @@ trait models {
       |      "noOfColumns" : "3",
       |      "notFipTopusCategory" : "general-news",
       |      "indesignTags" : "<p><b>BREAKING:</b></p>"
-      |    }
+      |    },
+      |    "embargo" : "2026-02-18T00:01:00Z"
       |  },
       |  "composerId" : "composerId",
       |  "composerSentBy" : "composerSentBy",
