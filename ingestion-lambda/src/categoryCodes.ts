@@ -1,4 +1,5 @@
 import nlp from 'compromise';
+import type { AgencyMetadata } from 'newswires-shared/types';
 import { worldTopicCodes } from '../topicCodes';
 import {
 	alpha2CountriesMap,
@@ -156,12 +157,19 @@ export function processFingerpostPACategoryCodes(original: string[]) {
 export function processFingerpostPAAPICategoryCodes(
 	original: string[],
 	mediaCatCodes?: string,
+	agencyMetadata?: AgencyMetadata,
 ) {
+	const mediaTopicCodes = (agencyMetadata?.subject ?? [])
+		.filter((_) => _.code.startsWith('medtop:'))
+		.map((_) => _.code);
+	const originalWithMediaTopics = [...original, ...mediaTopicCodes];
+
 	if (mediaCatCodes) {
-		return [...original, `paCat:${mediaCatCodes}`];
+		return [...originalWithMediaTopics, `paCat:${mediaCatCodes}`];
 	}
-	return [...original];
+	return [...originalWithMediaTopics];
 }
+
 export function processUnknownFingerpostCategoryCodes(
 	original: string[],
 	supplier: string,

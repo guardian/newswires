@@ -13,6 +13,22 @@ const OptionalStringOrArrayAsArrayOfStrings = z
 		return [val];
 	});
 
+const AgencyMetadataItemSchema = z.object({
+	code: z.string(),
+	profile: z.string(),
+	name: z.string(),
+	scheme: z.string(),
+	rel: z.string(),
+});
+
+const AgencyMetadataSchema = z.object({
+	subject: z.array(AgencyMetadataItemSchema).optional(),
+	event: z.array(AgencyMetadataItemSchema).optional(),
+	place: z.array(AgencyMetadataItemSchema).optional(),
+});
+
+export type AgencyMetadata = z.infer<typeof AgencyMetadataSchema>;
+
 /**
  * looseObject because we want to preserve additional properties that are not defined in the schema
  * Useful to be able to test new fields
@@ -61,6 +77,7 @@ const FingerpostFeedPayloadSchema = z.looseObject({
 	body_text: z.string().optional(),
 	copyrightHolder: z.string().optional(),
 	copyrightNotice: z.string().optional(),
+	agencyMetadata: AgencyMetadataSchema.optional(), // only expecting this for PA API via Fingerpost currently
 });
 
 export const IngestorInputBodySchema = FingerpostFeedPayloadSchema.extend({

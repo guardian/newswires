@@ -30,5 +30,118 @@
 	"usage": "",
 	"location": "",
 	"abstract": "POL",
-	"body_text": "Anas Sarwar has said..."
+	"body_text": "Anas Sarwar has said...",
+	"agencyMetadata": {
+		"subject": [
+			{
+				"code": "paservice:news",
+				"name": "News",
+				"profile": "paservice",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "partOf"
+			},
+			{
+				"code": "paservice:news:uk",
+				"name": "UK",
+				"profile": "paservice",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "partOf"
+			},
+			{
+				"code": "paservice:politics",
+				"name": "Politics",
+				"profile": "paservice",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "partOf"
+			},
+			{
+				"code": "paservice:esg",
+				"name": "ESG",
+				"profile": "paservice",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "partOf"
+			},
+			{
+				"code": "paservice:esg:social",
+				"name": "Social",
+				"profile": "paservice",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "partOf"
+			},
+			{
+				"code": "patopic:commons",
+				"name": "Commons",
+				"profile": "patopic",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "about"
+			},
+			{
+				"code": "pakeyword:lgbt",
+				"name": "LGBT",
+				"profile": "pakeyword",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "about"
+			},
+			{
+				"code": "paterritory:uk",
+				"name": "UK",
+				"profile": "paterritory",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "intendedFor"
+			},
+			{
+				"code": "legislature:westminster",
+				"name": "Westminster",
+				"profile": "legislature",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "about"
+			},
+			{
+				"code": "legislature:westminster:commons",
+				"name": "Commons",
+				"profile": "legislature",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "about"
+			},
+			{
+				"code": "contributor:pa",
+				"name": "PA",
+				"profile": "contributor",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "contributedBy"
+			},
+			{
+				"code": "medtop:11000000",
+				"name": "politics",
+				"profile": "medtop",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "about"
+			},
+			{
+				"code": "medtop:04000000",
+				"name": "economy, business and finance",
+				"profile": "medtop",
+				"scheme": "https://content.api.pressassociation.io/v1/subject",
+				"rel": "about"
+			}
+		],
+		"event": [
+			{
+				"code": "paevent:3ff7f1381d0288aebb74f792ea1dfb145d4ca8fb9e5042513d60118a9c4a64d9",
+				"name": "Commons LGBT 12/02/2026",
+				"profile": "paevent",
+				"scheme": "https://content.api.pressassociation.io/v1/event",
+				"rel": "partOf"
+			}
+		],
+		"place": [
+			{
+				"code": "iso:code:3166:GB",
+				"name": "United Kingdom",
+				"profile": "isocountry",
+				"scheme": "https://www.iso.org",
+				"rel": "about"
+			}
+		]
+	}
 }

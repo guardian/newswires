@@ -1,5 +1,6 @@
 import { getErrorMessage } from '@guardian/libs';
 import type {
+	AgencyMetadata,
 	IngestorInputBody,
 	OperationResult,
 	ProcessedObject,
@@ -62,14 +63,23 @@ export const processKeywords = (
 	return cleanAndDedupeKeywords(keywords.split('+'));
 };
 
-export const processCategoryCodes = (
-	supplier: string,
-	subjectCodes: string[],
-	destinationCodes: string[],
-	bodyText?: string,
-	priority?: string,
-	mediaCatCodes?: string,
-) => {
+export function processCategoryCodes({
+	supplier,
+	subjectCodes,
+	destinationCodes,
+	bodyText,
+	priority,
+	mediaCatCodes,
+	agencyMetadata,
+}: {
+	supplier: string;
+	subjectCodes: string[];
+	destinationCodes: string[];
+	bodyText?: string;
+	priority?: string;
+	mediaCatCodes?: string;
+	agencyMetadata?: AgencyMetadata;
+}) {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
 
@@ -109,7 +119,11 @@ export const processCategoryCodes = (
 		case 'PAAPI':
 			return [
 				...catCodes,
-				...processFingerpostPAAPICategoryCodes(subjectCodes, mediaCatCodes),
+				...processFingerpostPAAPICategoryCodes(
+					subjectCodes,
+					mediaCatCodes,
+					agencyMetadata,
+				),
 			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
@@ -127,7 +141,7 @@ export const processCategoryCodes = (
 				...regionCodes,
 			];
 	}
-};
+}
 
 export const decodeBodyTextContent = (
 	text: string | undefined,
@@ -221,14 +235,15 @@ export function processFingerpostJsonContent(
 		const supplier = lookupSupplier(content['source-feed']) ?? 'Unknown';
 
 		const categoryCodes = dedupeStrings(
-			processCategoryCodes(
+			processCategoryCodes({
 				supplier,
-				content.subjects?.code ?? [],
-				content.destinations?.code ?? [],
-				`${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
-				content.priority,
-				content.mediaCatCodes,
-			),
+				subjectCodes: content.subjects?.code ?? [],
+				destinationCodes: content.destinations?.code ?? [],
+				bodyText: `${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
+				priority: content.priority,
+				mediaCatCodes: content.mediaCatCodes,
+				agencyMetadata: content.agencyMetadata,
+			}),
 		);
 		return {
 			status: 'success' as const,
