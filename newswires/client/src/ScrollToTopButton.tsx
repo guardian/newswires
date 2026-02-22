@@ -62,20 +62,16 @@ export const ScrollToTopButton = ({
 		}
 	};
 
-	if (!visible) {
-		return <div>{children}</div>;
-	}
-
 	return (
 		<>
-			<div
-				style={{
-					position: 'sticky',
-					top: 0,
-					zIndex: 2,
-				}}
-			>
-				{incomingStories > 0 && (
+			{visible && incomingStories > 0 && (
+				<div
+					style={{
+						position: 'sticky',
+						top: 0,
+						zIndex: 2,
+					}}
+				>
 					<div
 						style={{
 							padding: euiTheme.size.xxs,
@@ -95,27 +91,29 @@ export const ScrollToTopButton = ({
 							<span>{incomingStories} new items</span>
 						</EuiButtonEmpty>
 					</div>
-				)}
-			</div>
+				</div>
+			)}
 
 			{children}
 
-			<EuiButton
-				iconType="arrowUp"
-				onClick={handleClick}
-				size="m"
-				color="primary"
-				css={{
-					position: 'sticky',
-					bottom: offset,
-					marginRight: euiTheme.size.s,
-					marginLeft: 'auto',
-					display: 'block',
-					zIndex: 1000,
-				}}
-			>
-				{label ?? 'Back to Top'}
-			</EuiButton>
+			{visible && (
+				<EuiButton
+					iconType="arrowUp"
+					onClick={handleClick}
+					size="m"
+					color="primary"
+					css={{
+						position: 'sticky',
+						bottom: offset,
+						marginRight: euiTheme.size.s,
+						marginLeft: 'auto',
+						display: 'block',
+						zIndex: 1000,
+					}}
+				>
+					{label ?? 'Back to Top'}
+				</EuiButton>
+			)}
 		</>
 	);
 };
