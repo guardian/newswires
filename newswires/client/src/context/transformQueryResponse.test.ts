@@ -14,6 +14,7 @@ describe('transformWireItemQueryResult', () => {
 			categoryCodes: ['category1', 'category2'],
 			content: sampleFingerpostContent,
 			isFromRefresh: false,
+			collections: [],
 		};
 		const expectedOutput: WireData = {
 			...input,
@@ -34,6 +35,7 @@ describe('transformWireItemQueryResult', () => {
 			categoryCodes: ['category3'],
 			content: sampleFingerpostContent,
 			isFromRefresh: false,
+			collections: [],
 		};
 		const expectedOutput: WireData = {
 			...input,
@@ -53,6 +55,7 @@ describe('transformWireItemQueryResult', () => {
 			categoryCodes: ['category4'],
 			content: { ...sampleFingerpostContent, composerCompatible: false },
 			isFromRefresh: false,
+			collections: [],
 		};
 		const expectedOutput: WireData = {
 			...input,
@@ -72,6 +75,7 @@ describe('transformWireItemQueryResult', () => {
 			categoryCodes: ['category5'],
 			content: { ...sampleFingerpostContent, composerCompatible: true },
 			isFromRefresh: false,
+			collections: [],
 		};
 		const expectedOutputWithTrue: WireData = {
 			...inputWithTrue,
@@ -91,6 +95,7 @@ describe('transformWireItemQueryResult', () => {
 			categoryCodes: ['category6'],
 			content: { ...sampleFingerpostContent }, // composerCompatible is missing
 			isFromRefresh: false,
+			collections: [],
 		};
 		const expectedOutputWithoutComposerCompatible: WireData = {
 			...inputWithoutComposerCompatible,

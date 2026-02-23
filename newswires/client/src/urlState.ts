@@ -20,6 +20,7 @@ export const defaultQuery: Query = {
 		end: DEFAULT_DATE_RANGE.end,
 	},
 	hasDataFormatting: undefined,
+	collectionId: undefined,
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -84,6 +85,7 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		preset,
 		dateRange: { start, end },
 		hasDataFormatting,
+		collectionId: undefined,
 	};
 }
 
