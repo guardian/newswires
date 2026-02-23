@@ -1,3 +1,4 @@
+import { disableLogs } from './tests/testHelpers';
 import { decideEmbargoNote } from './WireDetail';
 
 describe('decideEmbargoNote', () => {
@@ -11,6 +12,8 @@ describe('decideEmbargoNote', () => {
 	});
 
 	it('should handle invalid embargo date formats gracefully', () => {
+		disableLogs();
+
 		const invalidEmbargoDate = 'invalid-date-format';
 		const note = decideEmbargoNote({
 			status: 'withheld',
