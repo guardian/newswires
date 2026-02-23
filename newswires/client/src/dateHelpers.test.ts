@@ -34,8 +34,12 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 			end: 'now-1d/d',
 		});
 
-		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
-		expect(end?.toISOString()).toBe(moment().endOf('day').toISOString());
+		expect(start?.toISOString()).toBe(
+			moment().subtract(1, 'days').startOf('day').toISOString(),
+		);
+		expect(end?.toISOString()).toBe(
+			moment().subtract(1, 'days').endOf('day').toISOString(),
+		);
 	});
 
 	it('should convert a relative date range to a partial absolute date range when the relative end date is "now"', () => {
@@ -44,7 +48,9 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 			end: 'now/d',
 		});
 
-		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
+		expect(start?.toISOString()).toBe(
+			moment().subtract(1, 'days').startOf('day').toISOString(),
+		);
 		expect(end?.toISOString()).toBe(undefined);
 	});
 
@@ -54,7 +60,9 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 			end: 'now/d',
 		});
 
-		expect(start?.toISOString()).toBe(moment().startOf('day').toISOString());
+		expect(start?.toISOString()).toBe(
+			moment().subtract(1, 'days').startOf('day').toISOString(),
+		);
 		expect(end?.toISOString()).toBe(undefined);
 	});
 });
