@@ -352,9 +352,14 @@ describe('processCategoryCodes', () => {
 	it('should filter out empty category codes', () => {
 		const content =
 			'US and EU leaders meet in Paris to discuss international trade agreements.';
-		expect(processCategoryCodes('MINOR_AGENCIES', [''], [], content)).toEqual(
-			[],
-		);
+		expect(
+			processCategoryCodes({
+				supplier: 'MINOR_AGENCIES',
+				subjectCodes: [''],
+				destinationCodes: [],
+				bodyText: content,
+			}),
+		).toEqual([]);
 	});
 });
 
