@@ -1,18 +1,6 @@
-import {
-	EuiButton,
-	EuiButtonEmpty,
-	EuiPortal,
-	useEuiTheme,
-} from '@elastic/eui';
-import type { RefObject } from 'react';
-import type React from 'react';
-import {
-	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from 'react';
+import { EuiButton, EuiButtonEmpty, useEuiTheme } from '@elastic/eui';
+import type { ReactNode, RefObject } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext';
 /**
  * Floating Scroll-to-Top Button bounded to a scroll container
@@ -21,58 +9,21 @@ export const ScrollToTopButton = ({
 	threshold = 200,
 	label,
 	containerRef,
-	direction,
+	children,
 }: {
 	threshold?: number;
 	label?: string;
 	containerRef?: RefObject<HTMLElement>;
 	direction?: string;
+	children: ReactNode | ReactNode[];
 }) => {
-	const buttonRef = useRef<HTMLDivElement>(null);
-	const bannerRef = useRef<HTMLDivElement>(null);
 	const { euiTheme } = useEuiTheme();
 	const { state } = useSearch();
 	const { queryData } = state;
 
 	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
-	const [btnStyle, setBtnStyle] = useState<React.CSSProperties>({});
-	const [bannerStyle, setBannerStyle] = useState<React.CSSProperties>({});
-
-	const updatePosition = useCallback(() => {
-		const cont = containerRef?.current;
-		const btn = buttonRef.current;
-		const banner = bannerRef.current;
-
-		const offset = 16;
-		if (cont && btn) {
-			const contRect = cont.getBoundingClientRect();
-			const btnRect = btn.getBoundingClientRect();
-			setBtnStyle({
-				position: 'fixed',
-				top: contRect.top + contRect.height - btnRect.height - offset,
-				left: contRect.left + contRect.width - btnRect.width - offset,
-				zIndex: 1000,
-			});
-		} else {
-			setBtnStyle({
-				position: 'fixed',
-				bottom: offset,
-				right: euiTheme.size.s,
-				zIndex: 1000,
-			});
-		}
-		if (cont && banner) {
-			const contRect = cont.getBoundingClientRect();
-			setBannerStyle({
-				position: 'fixed',
-				top: contRect.top,
-				left: contRect.left,
-				width: contRect.width,
-				zIndex: 2,
-			});
-		}
-	}, [containerRef, euiTheme.size.s]);
+	const offset = 16;
 
 	// Accumulate counts of newly loaded stories
 	useEffect(() => {
@@ -103,39 +54,6 @@ export const ScrollToTopButton = ({
 		return () => scrollEl.removeEventListener('scroll', onScroll);
 	}, [threshold, containerRef]);
 
-	// Recalculate position on show, scroll, or resize
-	useEffect(() => {
-		if (!visible) {
-			return;
-		}
-
-		window.addEventListener('resize', updatePosition);
-
-		const scrollEl = containerRef?.current ?? window;
-		scrollEl.addEventListener('scroll', updatePosition, { passive: true });
-
-		// Observe container size changes
-		let resizeObs: ResizeObserver | null = null;
-		if (containerRef?.current) {
-			resizeObs = new ResizeObserver(updatePosition);
-			resizeObs.observe(containerRef.current);
-		}
-
-		updatePosition();
-
-		return () => {
-			window.removeEventListener('resize', updatePosition);
-			scrollEl.removeEventListener('scroll', updatePosition);
-			if (resizeObs) {
-				resizeObs.disconnect();
-			}
-		};
-	}, [visible, containerRef, euiTheme.size.s, updatePosition]);
-
-	useLayoutEffect(() => {
-		updatePosition();
-	}, [direction, updatePosition]);
-
 	const handleClick = () => {
 		if (containerRef?.current) {
 			containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -145,22 +63,18 @@ export const ScrollToTopButton = ({
 	};
 
 	if (!visible) {
-		return null;
+		return <div>{children}</div>;
 	}
 
 	return (
-		<EuiPortal>
-			<div ref={buttonRef} style={btnStyle}>
-				<EuiButton
-					iconType="arrowUp"
-					onClick={handleClick}
-					size="m"
-					color="primary"
-				>
-					{label ?? 'Back to Top'}
-				</EuiButton>
-			</div>
-			<div ref={bannerRef} style={bannerStyle}>
+		<>
+			<div
+				style={{
+					position: 'sticky',
+					top: 0,
+					zIndex: 2,
+				}}
+			>
 				{incomingStories > 0 && (
 					<div
 						style={{
@@ -183,6 +97,25 @@ export const ScrollToTopButton = ({
 					</div>
 				)}
 			</div>
-		</EuiPortal>
+
+			{children}
+
+			<EuiButton
+				iconType="arrowUp"
+				onClick={handleClick}
+				size="m"
+				color="primary"
+				css={{
+					position: 'sticky',
+					bottom: offset,
+					marginRight: euiTheme.size.s,
+					marginLeft: 'auto',
+					display: 'block',
+					zIndex: 1000,
+				}}
+			>
+				{label ?? 'Back to Top'}
+			</EuiButton>
+		</>
 	);
 };
