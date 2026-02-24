@@ -206,7 +206,7 @@ export const SideNav = ({
 						</EuiListGroup>
 					</EuiCollapsibleNavGroup>
 					<EuiCollapsibleNavGroup title={'Search history'}>
-						{searchHistory.length === 0 ? (
+						{searchHistory.length <= 1 ? (
 							<EuiText size="s">{'No history yet'}</EuiText>
 						) : (
 							<EuiBadgeGroup color="subdued" gutterSize="s">
