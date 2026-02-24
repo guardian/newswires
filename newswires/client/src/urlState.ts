@@ -154,11 +154,8 @@ export const processDateRange = (
 				});
 
 			return {
-				start: maybeStartMoment?.toISOString() ?? DEFAULT_DATE_RANGE.start,
-				end:
-					maybeEndMoment?.toISOString() !== DEFAULT_DATE_RANGE.end
-						? maybeEndMoment?.toISOString()
-						: undefined,
+				start: maybeStartMoment?.toISOString(),
+				end: maybeEndMoment?.toISOString(),
 			};
 		} else {
 			return { start: START_OF_TODAY.toISOString() };
