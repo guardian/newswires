@@ -65,7 +65,7 @@ const SummaryBadge = ({
 	return (
 		<EuiBadge
 			key={keyValuePair.value}
-			title={`Filtered by ${label}: ${keyValuePair.value}`}
+			title={`Filtered by ${label}: ${valueLabel ?? keyValuePair.value}`}
 			iconType="cross"
 			iconSide="right"
 			iconOnClickAriaLabel={`Remove ${label} filter from results`}
