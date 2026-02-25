@@ -18,13 +18,10 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 	const { config, handleEnterQuery } = useSearch();
 
 	const onTimeChange = ({ start, end }: { start: string; end: string }) => {
-		console.log('DatePicker onTimeChange', { start, end });
 		handleEnterQuery({
 			...config.query,
-			dateRange: {
-				start: EuiDateStringSchema.parse(start),
-				end: EuiDateStringSchema.parse(end),
-			},
+			start: EuiDateStringSchema.parse(start),
+			end: EuiDateStringSchema.parse(end),
 		});
 	};
 
@@ -48,16 +45,8 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 				<EuiSuperDatePicker
 					width={width}
 					compressed={true}
-					start={
-						config.query.dateRange
-							? config.query.dateRange.start
-							: DEFAULT_DATE_RANGE.start
-					}
-					end={
-						config.query.dateRange
-							? config.query.dateRange.end
-							: DEFAULT_DATE_RANGE.end
-					}
+					start={config.query.start ?? DEFAULT_DATE_RANGE.start}
+					end={config.query.end ?? DEFAULT_DATE_RANGE.end}
 					minDate={TWO_WEEKS_AGO}
 					maxDate={END_OF_TODAY}
 					onTimeChange={onTimeChange}

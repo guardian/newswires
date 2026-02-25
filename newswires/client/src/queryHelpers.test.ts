@@ -4,59 +4,87 @@ import { keyValueAfterDeselection } from './queryHelpers';
 describe('keyValueAfterDeselection', () => {
 	it('should return an empty query string when q is the key', () => {
 		expect(
-			keyValueAfterDeselection('q', 'hello', { q: 'hello' }),
+			keyValueAfterDeselection({ key: 'q', value: 'hello' }, { q: 'hello' }),
 		).toStrictEqual({
 			q: '',
 		});
 	});
-	it('should return dateRange : undefined when dateRange is the key', () => {
+	it('should return start : undefined when start is the key', () => {
 		expect(
-			keyValueAfterDeselection('dateRange', 'hello', { q: 'hello' }),
+			keyValueAfterDeselection(
+				{ key: 'start', value: 'hello' },
+				{ q: 'hello' },
+			),
 		).toStrictEqual({
-			dateRange: undefined,
+			start: undefined,
+		});
+	});
+	it('should return end : undefined when end is the key', () => {
+		expect(
+			keyValueAfterDeselection({ key: 'end', value: 'hello' }, { q: 'hello' }),
+		).toStrictEqual({
+			end: undefined,
 		});
 	});
 	it('should return categoryCode : [] when categoryCode is key and existing categoryCode is empty', () => {
 		expect(
-			keyValueAfterDeselection('categoryCode', 'hello', { q: 'hello' }),
+			keyValueAfterDeselection(
+				{ key: 'categoryCode', value: 'hello' },
+				{ q: 'hello' },
+			),
 		).toStrictEqual({
 			categoryCode: [],
 		});
 	});
 	it('should return categoryCode : [] when categoryCode is key and existing categoryCode has no other code', () => {
 		expect(
-			keyValueAfterDeselection('categoryCode', 'code', {
-				q: 'hello',
-				categoryCode: ['code'],
-			}),
+			keyValueAfterDeselection(
+				{ key: 'categoryCode', value: 'code' },
+				{
+					q: 'hello',
+					categoryCode: ['code'],
+				},
+			),
 		).toStrictEqual({ categoryCode: [] });
 	});
 	it('should only remove input categoryCode when categoryCode is key and there are existing categoryCode', () => {
 		expect(
-			keyValueAfterDeselection('categoryCode', 'code', {
-				q: 'hello',
-				categoryCode: ['code', 'sheep'],
-			}),
+			keyValueAfterDeselection(
+				{ key: 'categoryCode', value: 'code' },
+				{
+					q: 'hello',
+					categoryCode: ['code', 'sheep'],
+				},
+			),
 		).toStrictEqual({ categoryCode: ['sheep'] });
 	});
 	it('should remove keywordExcl value correctly', () => {
 		expect(
-			keyValueAfterDeselection('keywordExcl', 'bar', {
-				q: '',
-				keywordExcl: ['foo', 'bar'],
-			}),
+			keyValueAfterDeselection(
+				{ key: 'keywordExcl', value: 'bar' },
+				{
+					q: '',
+					keywordExcl: ['foo', 'bar'],
+				},
+			),
 		).toStrictEqual({ keywordExcl: ['foo'] });
 	});
 	it('should return preset : undefined for a top level preset', () => {
 		expect(
-			keyValueAfterDeselection('preset', 'all-world', { q: '' }),
+			keyValueAfterDeselection(
+				{ key: 'preset', value: 'all-world' },
+				{ q: '' },
+			),
 		).toStrictEqual({
 			preset: undefined,
 		});
 	});
 	it('should return preset : all-sports for a secondary level preset', () => {
 		expect(
-			keyValueAfterDeselection('preset', 'no-soccer', { q: '' }),
+			keyValueAfterDeselection(
+				{ key: 'preset', value: 'no-soccer' },
+				{ q: '' },
+			),
 		).toStrictEqual({
 			preset: topLevelSportId,
 		});

@@ -139,12 +139,6 @@ export const EuiDateStringSchema = z
 	.refine((val) => isValidDateValue(val));
 export type EuiDateString = z.infer<typeof EuiDateStringSchema>;
 
-export const DateRangeSchema = z.object({
-	start: EuiDateStringSchema,
-	end: EuiDateStringSchema,
-});
-export type DateRange = z.infer<typeof DateRangeSchema>;
-
 export const QuerySchema = z.object({
 	q: z.string(),
 	supplier: z.array(z.string()).optional(),
@@ -154,7 +148,8 @@ export const QuerySchema = z.object({
 	categoryCode: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
 	preset: z.string().optional(),
-	dateRange: DateRangeSchema.optional(),
+	start: EuiDateStringSchema.optional(),
+	end: EuiDateStringSchema.optional(),
 	hasDataFormatting: z.boolean().optional(),
 });
 

@@ -25,16 +25,16 @@ export const safeReducer = (
 function mergeQueryData(
 	existing: WiresQueryData | undefined,
 	newData: WiresQueryData,
-	{ dateRange }: Query,
+	{ start }: Query,
 ): WiresQueryData {
 	if (existing) {
 		const existingIds = new Set(existing.results.map((item) => item.id));
 
 		const filteredExistingResults =
-			dateRange !== undefined
+			start !== undefined
 				? existing.results.filter((existingItem) => {
 						return moment(existingItem.ingestedAt).isSameOrAfter(
-							dateMath.parse(dateRange.start),
+							dateMath.parse(start),
 						);
 					})
 				: existing.results;
