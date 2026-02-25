@@ -8,6 +8,7 @@ export const AFPBrand = darkShadeOf('#325aff', 0.9);
 export const PABrand = '#6352ba';
 export const AAPBrand = '#013a81';
 
+export const ALERT = '#ed6723';
 export const AP: SupplierName = 'AP';
 
 export const supplierData: SupplierInfo[] = [

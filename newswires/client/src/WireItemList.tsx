@@ -1,4 +1,5 @@
 import {
+	EuiBadge,
 	EuiButton,
 	EuiIcon,
 	EuiScreenReaderOnly,
@@ -13,12 +14,14 @@ import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { lightShadeOf } from './colour-utils.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
+import { ALERT } from './suppliers.ts';
 import { ToolSendReport } from './ToolsConnection.tsx';
 
 export const WireItemList = ({
@@ -208,6 +211,7 @@ const WirePreviewCard = ({
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const isPoppedOut = config.ticker;
+	const isAlert = content.type === 'text' && content.profile === 'alert';
 
 	useEffect(() => {
 		if (selected && ref.current) {
@@ -349,6 +353,25 @@ const WirePreviewCard = ({
 				>
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
+					)}
+				</div>
+				<div
+					css={css`
+						grid-area: badges;
+						justify-self: end;
+						margin-right: 4px;
+					`}
+				>
+					{isAlert && (
+						<EuiBadge
+							title={`alert`}
+							color={!hasBeenViewed ? ALERT : lightShadeOf(ALERT)}
+							css={css`
+								color: ${!hasBeenViewed ? 'white' : 'black'};
+							`}
+						>
+							Alert
+						</EuiBadge>
 					)}
 				</div>
 				<div
