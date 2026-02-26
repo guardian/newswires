@@ -23,6 +23,7 @@ import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ALERT } from './suppliers.ts';
 import { ToolSendReport } from './ToolsConnection.tsx';
+import { isAlert } from './utils/contentHelpers.ts';
 
 export const WireItemList = ({
 	wires,
@@ -211,7 +212,6 @@ const WirePreviewCard = ({
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const isPoppedOut = config.ticker;
-	const isAlert = content.type === 'text' && content.profile === 'alert';
 
 	useEffect(() => {
 		if (selected && ref.current) {
@@ -362,7 +362,7 @@ const WirePreviewCard = ({
 						margin-right: 4px;
 					`}
 				>
-					{isAlert && (
+					{isAlert(content) && (
 						<EuiBadge
 							title={`alert`}
 							color={!hasBeenViewed ? ALERT : lightShadeOf(ALERT)}
