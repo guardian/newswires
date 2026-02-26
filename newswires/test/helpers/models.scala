@@ -126,8 +126,8 @@ trait models {
                           |    "indesignTags" : "<p><b>BREAKING:</b></p>"
                           |  },
                           |  "embargo" : "2026-02-18T00:01:00Z",
-                          |  "profile": "alert",
-                          |  "type": "text"
+                          |  "profile" : "alert",
+                          |  "type" : "text"
                           |}""".stripMargin
 
   val toolLink = ToolLink(
