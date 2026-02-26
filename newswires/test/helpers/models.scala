@@ -57,7 +57,9 @@ trait models {
         indesignTags = Some("<p><b>BREAKING:</b></p>")
       )
     ),
-    embargo = Some("2026-02-18T00:01:00Z")
+    embargo = Some("2026-02-18T00:01:00Z"),
+    profile = Some("alert"),
+    `type` = Some("text")
   )
   val emptyWire = FingerpostWire(
     uri = None,
@@ -82,7 +84,9 @@ trait models {
     bodyText = None,
     composerCompatible = None,
     dataformat = None,
-    embargo = None
+    embargo = None,
+    profile = None,
+    `type` = None
   )
   val exampleWireJson = """{
                           |  "uri" : "https://example.com/news/12345",
@@ -121,7 +125,9 @@ trait models {
                           |    "notFipTopusCategory" : "general-news",
                           |    "indesignTags" : "<p><b>BREAKING:</b></p>"
                           |  },
-                          |  "embargo" : "2026-02-18T00:01:00Z"
+                          |  "embargo" : "2026-02-18T00:01:00Z",
+                          |  "profile": "alert",
+                          |  "type": "text"
                           |}""".stripMargin
 
   val toolLink = ToolLink(
@@ -209,7 +215,9 @@ trait models {
       |      "notFipTopusCategory" : "general-news",
       |      "indesignTags" : "<p><b>BREAKING:</b></p>"
       |    },
-      |    "embargo" : "2026-02-18T00:01:00Z"
+      |    "embargo" : "2026-02-18T00:01:00Z",
+      |    "profile" : "alert",
+      |    "type" : "text"
       |  },
       |  "composerId" : "composerId",
       |  "composerSentBy" : "composerSentBy",
