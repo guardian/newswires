@@ -1,4 +1,5 @@
 import type { EuiBasicTableColumn } from '@elastic/eui';
+import { EuiButtonEmpty } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBasicTable,
@@ -96,15 +97,17 @@ function TitleContentForItem({
 			</div>
 			<h3>
 				{isAlert && (
-					<EuiBadge
+					<EuiButtonEmpty
 						title={`alert`}
-						color={ALERT}
 						css={css`
 							color: white;
+							background-color: ${ALERT};
+							margin-right: 4px;
 						`}
+						size={'xs'}
 					>
 						Alert
-					</EuiBadge>
+					</EuiButtonEmpty>
 				)}
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
