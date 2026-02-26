@@ -41,7 +41,8 @@ class TimeStampColumnSpec extends AnyFlatSpec with Matchers {
         notFipTopusCategory = Some("a"),
         indesignTags = Some("test")
       )
-    )
+    ),
+    embargo = None
   )
 
   def makeWireEntry(

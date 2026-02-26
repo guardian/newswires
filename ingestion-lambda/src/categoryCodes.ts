@@ -153,6 +153,15 @@ export function processFingerpostPACategoryCodes(original: string[]) {
 	return deduped;
 }
 
+export function processFingerpostPAAPICategoryCodes(
+	original: string[],
+	mediaCatCodes?: string,
+) {
+	if (mediaCatCodes) {
+		return [...original, `paCat:${mediaCatCodes}`];
+	}
+	return [...original];
+}
 export function processUnknownFingerpostCategoryCodes(
 	original: string[],
 	supplier: string,

@@ -1,5 +1,6 @@
 import {
 	EuiButton,
+	EuiButtonEmpty,
 	EuiIcon,
 	EuiScreenReaderOnly,
 	EuiText,
@@ -13,13 +14,16 @@ import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { lightShadeOf } from './colour-utils.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
+import { ALERT } from './suppliers.ts';
 import { ToolSendReport } from './ToolsConnection.tsx';
+import { isAlert } from './utils/contentHelpers.ts';
 
 export const WireItemList = ({
 	wires,
@@ -248,8 +252,8 @@ const WirePreviewCard = ({
 		display: grid;
 
 		align-items: baseline;
-		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier' 'content badges supplier';
-		grid-template-columns: 1fr min-content min-content;
+		grid-template-areas: 'title label time time' 'title label badges supplier' 'content label badges supplier' 'content label badges supplier';
+		grid-template-columns: 1fr min-content min-content min-content;
 		grid-template-rows: auto auto auto auto;
 	`;
 
@@ -343,6 +347,28 @@ const WirePreviewCard = ({
 				</div>
 				<div
 					css={css`
+						grid-area: label;
+						justify-self: end;
+						margin-right: 4px;
+					`}
+				>
+					{isAlert(content) && (
+						<EuiButtonEmpty
+							title={`alert`}
+							css={css`
+								color: ${!hasBeenViewed ? 'white' : 'black'};
+								background-color: ${!hasBeenViewed
+									? ALERT
+									: lightShadeOf(ALERT)};
+							`}
+							size={'xs'}
+						>
+							Alert
+						</EuiButtonEmpty>
+					)}
+				</div>
+				<div
+					css={css`
 						grid-area: badges;
 						justify-self: end;
 					`}
@@ -351,6 +377,7 @@ const WirePreviewCard = ({
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
 				</div>
+
 				<div
 					css={css`
 						grid-area: supplier;

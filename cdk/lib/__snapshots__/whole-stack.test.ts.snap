@@ -3159,7 +3159,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "AlarmDescription": "Heartbeat from Fingerpost has stopped being received. This likely means we are not receiving data in the wires tool. Please investigate urgently.",
         "AlarmName": "Heartbeat from Fingerpost not received in TEST",
-        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "ComparisonOperator": "LessThanThreshold",
         "Dimensions": [
           {
             "Name": "supplier",
@@ -3237,7 +3237,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for AAP in a while. This could indicate there is an issue with our integration with AAP. Please investigate.",
         "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AAP in TEST",
-        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "ComparisonOperator": "LessThanThreshold",
         "Dimensions": [
           {
             "Name": "supplier",
@@ -3315,7 +3315,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for AFP in a while. This could indicate there is an issue with our integration with AFP. Please investigate.",
         "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AFP in TEST",
-        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "ComparisonOperator": "LessThanThreshold",
         "Dimensions": [
           {
             "Name": "supplier",
@@ -3393,7 +3393,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for AP in a while. This could indicate there is an issue with our integration with AP. Please investigate.",
         "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: AP in TEST",
-        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "ComparisonOperator": "LessThanThreshold",
         "Dimensions": [
           {
             "Name": "supplier",
@@ -3471,7 +3471,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for PA in a while. This could indicate there is an issue with our integration with PA. Please investigate.",
         "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: PA in TEST",
-        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "ComparisonOperator": "LessThanThreshold",
         "Dimensions": [
           {
             "Name": "supplier",
@@ -3549,7 +3549,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for REUTERS in a while. This could indicate there is an issue with our integration with REUTERS. Please investigate.",
         "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: REUTERS in TEST",
-        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "ComparisonOperator": "LessThanThreshold",
         "Dimensions": [
           {
             "Name": "supplier",
@@ -3627,7 +3627,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         ],
         "AlarmDescription": "We have not seen a successful processing of a wire for UNAUTHED_EMAIL_FEED in a while. This could indicate there is an issue with our integration with UNAUTHED_EMAIL_FEED. Please investigate.",
         "AlarmName": "Missing logs: INGESTION_SUCCESS for supplier: UNAUTHED_EMAIL_FEED in TEST",
-        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "ComparisonOperator": "LessThanThreshold",
         "Dimensions": [
           {
             "Name": "supplier",

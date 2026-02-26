@@ -1,5 +1,8 @@
+import paApiFixture from '../test/fixtures/PA_API.json';
+import { cleanBodyTextMarkup } from './cleanMarkup';
 import {
 	extractFieldFromString,
+	processFingerpostJsonContent,
 	processKeywords,
 	safeBodyParse,
 } from './processContentObject';
@@ -128,6 +131,25 @@ bla."
 			versionCreated: '2025-03-13T15:45:04.000Z',
 		});
 	});
+
+	it('should handle keywords in an array', () => {
+		const body = `
+			{
+				"version": "1",
+				"firstVersion": "2025-03-13T15:45:04.000Z",
+				"versionCreated": "2025-03-13T15:45:04.000Z",
+				"keywords": ["keyword1", "keyword2"],
+				"body_text": "body"
+			}`;
+		expect(safeBodyParse(body)).toEqual({
+			firstVersion: '2025-03-13T15:45:04.000Z',
+			imageIds: [],
+			keywords: ['keyword1', 'keyword2'],
+			body_text: 'body',
+			version: '1',
+			versionCreated: '2025-03-13T15:45:04.000Z',
+		});
+	});
 });
 
 describe('extractFieldFromString', () => {
@@ -136,5 +158,30 @@ describe('extractFieldFromString', () => {
 			"slug": "test-slug",`;
 
 		expect(extractFieldFromString(body, 'slug')).toEqual('test-slug');
+	});
+});
+
+describe('processFingerpostJsonContent', () => {
+	it('should process the PA API fixture correctly', () => {
+		const result = processFingerpostJsonContent(JSON.stringify(paApiFixture));
+		expect(result).toEqual({
+			content: {
+				...paApiFixture,
+				body_text: cleanBodyTextMarkup(
+					safeBodyParse(JSON.stringify(paApiFixture)).body_text!,
+				),
+				imageIds: [],
+				keywords: [],
+			},
+			supplier: 'PAAPI',
+			status: 'success',
+			categoryCodes: [
+				'news',
+				'news:uk',
+				'politics',
+				'news:scotland',
+				'paCat:SCN',
+			],
+		});
 	});
 });

@@ -31,10 +31,11 @@ import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
-import { AP } from './suppliers.ts';
+import { ALERT, AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import { isAlert } from './utils/contentHelpers.ts';
 
 function TitleContentForItem({
 	slug,
@@ -43,6 +44,7 @@ function TitleContentForItem({
 	localIngestedAt,
 	supplier,
 	wordCount,
+	isAlert,
 }: {
 	slug?: string;
 	subhead?: string;
@@ -50,11 +52,15 @@ function TitleContentForItem({
 	localIngestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
+	isAlert: boolean;
 }) {
 	const theme = useEuiTheme();
 
 	const headlineText =
 		headline && headline.length > 0 ? headline : (slug ?? 'No title');
+
+	const showSubhead =
+		subhead && subhead.trim().length > 0 && subhead !== headline;
 
 	return (
 		<div
@@ -64,15 +70,18 @@ function TitleContentForItem({
 				justify-content: start;
 			`}
 		>
-			{subhead && subhead.length > 1 && (
+			<div></div>
+			<EuiSpacer size="xs" />
+			{showSubhead && (
 				<h3
 					css={css`
-						font-weight: ${theme.euiTheme.font.weight.bold};
+						font-weight: ${theme.euiTheme.font.weight.semiBold};
 					`}
 				>
 					{subhead}
 				</h3>
 			)}
+			<EuiSpacer size="xs" />
 			<div
 				css={css`
 					display: flex;
@@ -86,10 +95,22 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
-				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}
+				{isAlert && (
+					<EuiBadge
+						title={`alert`}
+						color={ALERT}
+						css={css`
+							color: white;
+						`}
+					>
+						Alert
+					</EuiBadge>
+				)}
+				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
+				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
 				<Tooltip tooltipContent={localIngestedAt.format()}>
-					{localIngestedAt.fromNow()}
+					<span>({localIngestedAt.fromNow()})</span>
 				</Tooltip>
 			</h3>
 		</div>
@@ -455,6 +476,26 @@ function decideEdNote({
 	return undefined;
 }
 
+export function decideEmbargoNote({
+	status,
+	embargo,
+}: {
+	status: string | undefined;
+	embargo: string | undefined;
+}): string | undefined {
+	if (status === 'withheld' && embargo) {
+		const embargoDate = new Date(embargo);
+		if (embargoDate.toString() === 'Invalid Date') {
+			console.error(`Error parsing embargo date: ${embargo}.`);
+			return `Embargoed until ${embargo}. Note: embargo date is in an unrecognized format. Please check the date string manually and flag this issue to a developer if necessary.`;
+		} else {
+			return `Embargoed until ${embargoDate.toLocaleString(undefined, { timeZoneName: 'short' })}`;
+		}
+	} else {
+		return undefined;
+	}
+}
+
 export const WireDetail = ({
 	wire,
 	isShowingJson,
@@ -516,6 +557,10 @@ export const WireDetail = ({
 	}, [wire]);
 
 	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
+	const embargoNote = decideEmbargoNote({
+		status: wire.content.status,
+		embargo: wire.content.embargo,
+	});
 
 	return (
 		<div
@@ -589,7 +634,6 @@ export const WireDetail = ({
 					flex-direction: column;
 					justify-content: space-between;
 					gap: ${theme.euiTheme.size.s};
-
 					@container (width >= 700px) {
 						flex-direction: row;
 					}
@@ -603,6 +647,7 @@ export const WireDetail = ({
 						localIngestedAt={wire.localIngestedAt}
 						supplier={wire.supplier}
 						wordCount={wordCount}
+						isAlert={isAlert(wire.content)}
 					/>
 				</div>
 			</div>
@@ -654,14 +699,21 @@ export const WireDetail = ({
 					) : (
 						<></>
 					)}
+					{embargoNote && (
+						<>
+							<EuiCallOut size="s" title={embargoNote} color="success" />
+							<EuiSpacer size="s" />
+						</>
+					)}
 					{ednoteToRender && (
 						<>
 							<EuiCallOut size="s" title={ednoteToRender} color="success" />
-							<EuiSpacer size="m" />
+							<EuiSpacer size="s" />
 						</>
 					)}
 					{byline && (
 						<>
+							<EuiSpacer size="s" />
 							<p
 								css={css`
 									font-style: italic;

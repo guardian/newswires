@@ -4,6 +4,7 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
+	processFingerpostPAAPICategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
@@ -249,6 +250,23 @@ describe('processFingerpostPACategoryCodes', () => {
 	});
 });
 
+describe('processFingerpostPAAPICategoryCodes', () => {
+	it('should return an empty array if provided with an empty array', () => {
+		expect(processFingerpostPAAPICategoryCodes([])).toEqual([]);
+	});
+	it('should append paCat if mediaCatCode is defined', () => {
+		expect(processFingerpostPAAPICategoryCodes([], 'exampleCategory')).toEqual([
+			'paCat:exampleCategory',
+		]);
+	});
+	it('should return the array unchanged if original category codes are supplied', () => {
+		expect(processFingerpostPAAPICategoryCodes(['hello', 'world'])).toEqual([
+			'hello',
+			'world',
+		]);
+	});
+});
+
 describe('processUnknownFingerpostCategoryCodes', () => {
 	it('should return an empty array if provided with an empty array', () => {
 		expect(processUnknownFingerpostCategoryCodes([], 'supplier')).toEqual([]);
@@ -334,9 +352,14 @@ describe('processCategoryCodes', () => {
 	it('should filter out empty category codes', () => {
 		const content =
 			'US and EU leaders meet in Paris to discuss international trade agreements.';
-		expect(processCategoryCodes('MINOR_AGENCIES', [''], [], content)).toEqual(
-			[],
-		);
+		expect(
+			processCategoryCodes({
+				supplier: 'MINOR_AGENCIES',
+				subjectCodes: [''],
+				destinationCodes: [],
+				bodyText: content,
+			}),
+		).toEqual([]);
 	});
 });
 

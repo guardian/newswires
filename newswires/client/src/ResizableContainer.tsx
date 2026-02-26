@@ -81,7 +81,11 @@ export const ResizableContainer = ({
 						minSize="20%"
 						initialSize={Item ? sizes[direction][firstPanelId] : 100}
 						className="eui-yScroll"
-						style={{ padding: 0 }}
+						style={{
+							padding: 0,
+							borderBottom:
+								direction === 'horizontal' ? undefined : `8px solid white`,
+						}}
 						panelRef={leftPanelRef}
 					>
 						<Feed
@@ -91,7 +95,9 @@ export const ResizableContainer = ({
 						/>
 					</EuiResizablePanel>
 					<EuiResizableButton
-						accountForScrollbars={'both'}
+						accountForScrollbars={
+							direction === 'horizontal' ? 'both' : undefined
+						}
 						css={css`
 							${Item ? '' : 'display: none;'}
 						`}
