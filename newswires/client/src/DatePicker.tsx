@@ -11,7 +11,7 @@ import {
 	END_OF_TODAY,
 	TWO_WEEKS_AGO,
 } from './dateConstants.ts';
-import { timeRangeOption } from './dateHelpers.ts';
+import { timeRangeOptions } from './dateHelpers.ts';
 import { EuiDateStringSchema } from './sharedTypes.ts';
 
 export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
@@ -53,16 +53,7 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 					updateButtonProps={{ showTooltip: true, iconOnly: true }}
 					customQuickSelectRender={customQuickSelectRender}
 					dateFormat={'MMM D • HH:mm'}
-					commonlyUsedRanges={[
-						timeRangeOption('30m'),
-						timeRangeOption('1h'),
-						timeRangeOption('24h'),
-						timeRangeOption('3d'),
-						timeRangeOption('1w'),
-						timeRangeOption('today'),
-						timeRangeOption('1d'),
-						timeRangeOption('2d'),
-					]}
+					commonlyUsedRanges={timeRangeOptions()}
 				/>
 			</div>
 		</StopShortcutPropagationWrapper>
