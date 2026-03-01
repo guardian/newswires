@@ -23,7 +23,7 @@ export type PollerConfig = PollerLambdaProps & {
 
 export type PollerId = keyof typeof POLLERS_CONFIG;
 
-export const REUTERS_POLLING_FREQUENCY_IN_SECONDS = 60;
+export const REUTERS_POLLING_FREQUENCY_IN_SECONDS = 20;
 
 export const POLLERS_CONFIG = {
 	// EXAMPLE_long_polling: {},
