@@ -42,7 +42,9 @@ class TimeStampColumnSpec extends AnyFlatSpec with Matchers {
         indesignTags = Some("test")
       )
     ),
-    embargo = None
+    embargo = None,
+    profile = None,
+    `type` = None
   )
 
   def makeWireEntry(

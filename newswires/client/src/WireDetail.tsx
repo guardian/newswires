@@ -1,4 +1,5 @@
 import type { EuiBasicTableColumn } from '@elastic/eui';
+import { EuiButtonEmpty } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBasicTable,
@@ -31,10 +32,11 @@ import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
-import { AP } from './suppliers.ts';
+import { ALERT, AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import { isAlert } from './utils/contentHelpers.ts';
 
 function TitleContentForItem({
 	slug,
@@ -43,6 +45,7 @@ function TitleContentForItem({
 	localIngestedAt,
 	supplier,
 	wordCount,
+	isAlert,
 }: {
 	slug?: string;
 	subhead?: string;
@@ -50,6 +53,7 @@ function TitleContentForItem({
 	localIngestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
+	isAlert: boolean;
 }) {
 	const theme = useEuiTheme();
 
@@ -92,6 +96,19 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
+				{isAlert && (
+					<EuiButtonEmpty
+						title={`alert`}
+						css={css`
+							color: white;
+							background-color: ${ALERT};
+							margin-right: 4px;
+						`}
+						size={'xs'}
+					>
+						Alert
+					</EuiButtonEmpty>
+				)}
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
 				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
@@ -620,7 +637,6 @@ export const WireDetail = ({
 					flex-direction: column;
 					justify-content: space-between;
 					gap: ${theme.euiTheme.size.s};
-
 					@container (width >= 700px) {
 						flex-direction: row;
 					}
@@ -634,6 +650,7 @@ export const WireDetail = ({
 						localIngestedAt={wire.localIngestedAt}
 						supplier={wire.supplier}
 						wordCount={wordCount}
+						isAlert={isAlert(wire.content)}
 					/>
 				</div>
 			</div>
