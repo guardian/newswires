@@ -1,5 +1,6 @@
 import { getErrorMessage } from '@guardian/libs';
 import type {
+	AgencyMetadata,
 	IngestorInputBody,
 	OperationResult,
 	ProcessedObject,
@@ -69,6 +70,7 @@ export function processCategoryCodes({
 	bodyText,
 	priority,
 	mediaCatCodes,
+	agencyMetadata,
 }: {
 	supplier: string;
 	subjectCodes: string[];
@@ -76,6 +78,7 @@ export function processCategoryCodes({
 	bodyText?: string;
 	priority?: string;
 	mediaCatCodes?: string;
+	agencyMetadata?: AgencyMetadata;
 }) {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
@@ -116,7 +119,11 @@ export function processCategoryCodes({
 		case 'PAAPI':
 			return [
 				...catCodes,
-				...processFingerpostPAAPICategoryCodes(subjectCodes, mediaCatCodes),
+				...processFingerpostPAAPICategoryCodes(
+					subjectCodes,
+					mediaCatCodes,
+					agencyMetadata,
+				),
 			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
@@ -235,6 +242,7 @@ export function processFingerpostJsonContent(
 				bodyText: `${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
 				priority: content.priority,
 				mediaCatCodes: content.mediaCatCodes,
+				agencyMetadata: content.agencyMetadata,
 			}),
 		);
 		return {
