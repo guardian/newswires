@@ -26,7 +26,9 @@ case class FingerpostWire(
     bodyText: Option[String],
     composerCompatible: Option[Boolean],
     dataformat: Option[Dataformat],
-    embargo: Option[String] // expected to be a UTC ISO datetime string
+    embargo: Option[String], // expected to be a UTC ISO datetime string
+    profile: Option[String],
+    `type`: Option[String]
 )
 object FingerpostWire {
   implicit val jsonDecoder: Decoder[FingerpostWire] =
