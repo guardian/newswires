@@ -21,9 +21,10 @@ import { css } from '@emotion/react';
 import { useEffect, useMemo } from 'react';
 import { AppTitle } from '../AppTitle.tsx';
 import { useSearch } from '../context/SearchContext.tsx';
+import { useUserSettings } from '../context/UserSettingsContext.tsx';
 import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
 import { FeedbackContent } from '../FeedbackContent.tsx';
-import { presets, sportPresets } from '../presets.ts';
+import { presets, sportPresets, TASTED_COLLECTION_ID } from '../presets.ts';
 import type { Query } from '../sharedTypes';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { PresetsContextMenu } from './PresetsContextMenu.tsx';
@@ -81,6 +82,8 @@ export const SideNav = ({
 		toggleSupplier,
 		openTicker,
 	} = useSearch();
+
+	const { showTastedList } = useUserSettings();
 
 	const { euiTheme } = useEuiTheme();
 
@@ -188,6 +191,36 @@ export const SideNav = ({
 					<EuiCollapsibleNavGroup title="Presets">
 						<PresetsContextMenu />
 					</EuiCollapsibleNavGroup>
+					{showTastedList && (
+						<EuiCollapsibleNavGroup title="Collections">
+							<EuiListGroup flush={true} gutterSize="none">
+								<SideNavListItem
+									label="Tasted"
+									key="tasted-collection"
+									isTopLevel={true}
+									isActive={config.query.collectionId === TASTED_COLLECTION_ID}
+									handleButtonClick={() => {
+										handleEnterQuery({
+											...config.query,
+											collectionId:
+												config.query.collectionId === TASTED_COLLECTION_ID
+													? undefined
+													: TASTED_COLLECTION_ID,
+											preset: undefined,
+										});
+									}}
+									handleSecondaryActionClick={() =>
+										openTicker({
+											...config.query,
+											collectionId: TASTED_COLLECTION_ID,
+											preset: undefined,
+										})
+									}
+									arrowSide={undefined}
+								/>
+							</EuiListGroup>
+						</EuiCollapsibleNavGroup>
+					)}
 					<EuiCollapsibleNavGroup title={'Suppliers'}>
 						<EuiListGroup flush={true} gutterSize="none">
 							{supplierItems.map((item) => (
