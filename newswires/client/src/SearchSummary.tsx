@@ -4,21 +4,23 @@ import {
 	EuiButtonEmpty,
 	EuiButtonIcon,
 	useIsWithinBreakpoints,
+	usePrettyDuration,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
-import {
-	deriveDateMathRangeLabel,
-	isDefaultDateRange,
-	isRestricted,
-} from './dateHelpers.ts';
+import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
+import { isRestricted } from './dateHelpers.ts';
 import { presetLabel } from './presets.ts';
+import type {
+	DeselectableQueryKey,
+	DeselectableQueryKeyValue,
+} from './queryHelpers.ts';
 import { keyValueAfterDeselection } from './queryHelpers.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
-const SearchTermBadgeLabelLookup: Record<keyof Query, string> = {
+const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	q: 'Search term',
 	dateRange: 'Time range',
 	preset: 'Preset',
@@ -29,45 +31,46 @@ const SearchTermBadgeLabelLookup: Record<keyof Query, string> = {
 	hasDataFormatting: 'Has data formatting',
 	keyword: 'Keyword',
 	keywordExcl: '(NOT) Keyword',
+	start: 'From',
+	end: 'To',
 } as const;
 
 const SummaryBadge = ({
-	queryParamKey,
-	value,
+	keyValuePair,
 	valueLabel,
 }: {
-	queryParamKey: keyof Query;
-	value?: string;
+	keyValuePair: DeselectableQueryKeyValue;
 	valueLabel?: string;
 }) => {
-	const label = SearchTermBadgeLabelLookup[queryParamKey];
+	const label = SearchTermBadgeLabelLookup[keyValuePair.key];
 
 	const { config, handleEnterQuery, toggleSupplier } = useSearch();
 
-	const handleRemoveBadge = (key: keyof Query, value: string) => {
-		if (['supplier', 'supplierExcl'].includes(key)) {
-			toggleSupplier(value);
+	const handleRemoveBadge = (keyValuePair: DeselectableQueryKeyValue) => {
+		if (
+			keyValuePair.key === 'supplier' ||
+			keyValuePair.key === 'supplierExcl'
+		) {
+			toggleSupplier(keyValuePair.value);
 		} else {
 			handleEnterQuery({
 				...config.query,
-				...keyValueAfterDeselection(key, value, config.query),
+				...keyValueAfterDeselection(keyValuePair, config.query),
 			});
 		}
 	};
 
-	if (!value) return null;
-
-	const valueLabelToDisplay = valueLabel ?? value;
+	const valueLabelToDisplay = valueLabel ?? keyValuePair.value;
 
 	return (
 		<EuiBadge
-			key={value}
-			title={`Filtered by ${label}: ${value}`}
+			key={keyValuePair.value}
+			title={`Filtered by ${label}: ${valueLabel ?? keyValuePair.value}`}
 			iconType="cross"
 			iconSide="right"
 			iconOnClickAriaLabel={`Remove ${label} filter from results`}
 			iconOnClick={() => {
-				handleRemoveBadge(queryParamKey, value);
+				handleRemoveBadge(keyValuePair);
 			}}
 		>
 			<strong>{label}</strong>
@@ -87,7 +90,8 @@ const Summary = ({
 		q,
 		preset,
 		supplier: suppliers,
-		dateRange,
+		start,
+		end,
 		categoryCode,
 		categoryCodeExcl,
 		hasDataFormatting,
@@ -109,6 +113,16 @@ const Summary = ({
 		displayExcludedKeywords ||
 		hasDataFormatting !== undefined;
 
+	const isDefaultDateRange =
+		(start === DEFAULT_DATE_RANGE.start || start === undefined) &&
+		(end === DEFAULT_DATE_RANGE.end || end === undefined);
+
+	const durationLabel = usePrettyDuration({
+		timeFrom: (start ?? DEFAULT_DATE_RANGE.start) as string,
+		timeTo: (end ?? DEFAULT_DATE_RANGE.end) as string,
+		dateFormat: 'MMM D • HH:mm',
+	});
+
 	return (
 		<>
 			{searchSummaryLabel && (
@@ -127,17 +141,16 @@ const Summary = ({
 					Search summary:
 				</h2>
 			)}
-			{dateRange && !isDefaultDateRange(dateRange) && (
+			{!isDefaultDateRange && (
 				<SummaryBadge
-					queryParamKey="dateRange"
-					value={deriveDateMathRangeLabel(dateRange.start, dateRange.end)}
+					keyValuePair={{ key: 'dateRange', value: undefined }}
+					valueLabel={durationLabel}
 				/>
 			)}
-			{q && <SummaryBadge queryParamKey="q" value={q} />}
+			{q && <SummaryBadge keyValuePair={{ key: 'q', value: q }} />}
 			{preset && (
 				<SummaryBadge
-					queryParamKey="preset"
-					value={preset}
+					keyValuePair={{ key: 'preset', value: preset }}
 					valueLabel={presetLabel(preset)}
 				/>
 			)}
@@ -145,38 +158,44 @@ const Summary = ({
 			{suppliers?.map((supplier) => (
 				<SummaryBadge
 					key={supplier}
-					queryParamKey="supplier"
-					value={supplier}
+					keyValuePair={{ key: 'supplier', value: supplier }}
+					valueLabel={supplier}
 				/>
 			))}
 			{displayCategoryCodes &&
 				categoryCode?.map((code) => (
-					<SummaryBadge key={code} queryParamKey="categoryCode" value={code} />
+					<SummaryBadge
+						key={code}
+						keyValuePair={{ key: 'categoryCode', value: code }}
+					/>
 				))}
 			{displayExcludedCategoryCodes &&
 				categoryCodeExcl?.map((code) => (
 					<SummaryBadge
 						key={code}
-						queryParamKey="categoryCodeExcl"
-						value={code}
+						keyValuePair={{ key: 'categoryCodeExcl', value: code }}
 					/>
 				))}
 			{displayKeywords &&
 				query.keyword?.map((keyword) => (
-					<SummaryBadge key={keyword} queryParamKey="keyword" value={keyword} />
+					<SummaryBadge
+						key={keyword}
+						keyValuePair={{ key: 'keyword', value: keyword }}
+					/>
 				))}
 			{displayExcludedKeywords &&
 				query.keywordExcl?.map((keyword) => (
 					<SummaryBadge
 						key={keyword}
-						queryParamKey="keywordExcl"
-						value={keyword}
+						keyValuePair={{ key: 'keywordExcl', value: keyword }}
 					/>
 				))}
 			{hasDataFormatting !== undefined && (
 				<SummaryBadge
-					queryParamKey="hasDataFormatting"
-					value={hasDataFormatting ? 'true' : 'false'}
+					keyValuePair={{
+						key: 'hasDataFormatting',
+						value: hasDataFormatting ? 'true' : 'false',
+					}}
 				/>
 			)}
 		</>
@@ -240,7 +259,7 @@ export const SearchSummary = ({
 			)}
 
 			{isPoppedOut &&
-				(isRestricted(config.query.dateRange?.end) ||
+				(isRestricted(config.query.end) ||
 					status === 'offline' ||
 					!lastUpdate) && (
 					<div
@@ -257,7 +276,7 @@ export const SearchSummary = ({
 				)}
 
 			{isPoppedOut &&
-				!isRestricted(config.query.dateRange?.end) &&
+				!isRestricted(config.query.end) &&
 				status !== 'offline' &&
 				lastUpdate && (
 					<Tooltip

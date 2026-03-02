@@ -11,20 +11,17 @@ import {
 	END_OF_TODAY,
 	TWO_WEEKS_AGO,
 } from './dateConstants.ts';
-import { timeRangeOption } from './dateHelpers.ts';
+import { timeRangeOptions } from './dateHelpers.ts';
 import { EuiDateStringSchema } from './sharedTypes.ts';
 
 export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 	const { config, handleEnterQuery } = useSearch();
 
 	const onTimeChange = ({ start, end }: { start: string; end: string }) => {
-		console.log('DatePicker onTimeChange', { start, end });
 		handleEnterQuery({
 			...config.query,
-			dateRange: {
-				start: EuiDateStringSchema.parse(start),
-				end: EuiDateStringSchema.parse(end),
-			},
+			start: EuiDateStringSchema.parse(start),
+			end: EuiDateStringSchema.parse(end),
 		});
 	};
 
@@ -48,32 +45,15 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 				<EuiSuperDatePicker
 					width={width}
 					compressed={true}
-					start={
-						config.query.dateRange
-							? config.query.dateRange.start
-							: DEFAULT_DATE_RANGE.start
-					}
-					end={
-						config.query.dateRange
-							? config.query.dateRange.end
-							: DEFAULT_DATE_RANGE.end
-					}
+					start={config.query.start ?? DEFAULT_DATE_RANGE.start}
+					end={config.query.end ?? DEFAULT_DATE_RANGE.end}
 					minDate={TWO_WEEKS_AGO}
 					maxDate={END_OF_TODAY}
 					onTimeChange={onTimeChange}
 					updateButtonProps={{ showTooltip: true, iconOnly: true }}
 					customQuickSelectRender={customQuickSelectRender}
 					dateFormat={'MMM D • HH:mm'}
-					commonlyUsedRanges={[
-						timeRangeOption('30m'),
-						timeRangeOption('1h'),
-						timeRangeOption('24h'),
-						timeRangeOption('3d'),
-						timeRangeOption('1w'),
-						timeRangeOption('today'),
-						timeRangeOption('1d'),
-						timeRangeOption('2d'),
-					]}
+					commonlyUsedRanges={timeRangeOptions()}
 				/>
 			</div>
 		</StopShortcutPropagationWrapper>
