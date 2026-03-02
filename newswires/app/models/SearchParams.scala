@@ -60,6 +60,7 @@ object SearchParams {
   def computeSupplierExcl(
       query: Map[String, Seq[String]],
       showGuSuppliers: Boolean,
+      showPAAPI: Boolean,
       suppliers: List[String]
   ) = {
     val dotCopyIsSelected = query.get("preset").exists(_.contains("dot-copy"))
@@ -70,9 +71,10 @@ object SearchParams {
       if (showGuSuppliers) Nil
       else
         List("GuReuters", "GuAP", "PAAPI").filterNot(s => suppliers.contains(s))
+    val paApiExclusion = if(showPAAPI) Nil else List("PAAPI").filterNot(s => suppliers.contains(s))
     val exclusionFromParams =
       query.get("supplierExcl").map(_.toList).getOrElse(Nil)
 
-    dotCopyExclusion ::: guSuppliersExclusion ::: exclusionFromParams
+    dotCopyExclusion ::: guSuppliersExclusion ::: exclusionFromParams ::: paApiExclusion
   }
 }
