@@ -100,7 +100,7 @@ export type State = z.infer<typeof _StateSchema>;
 
 // Action Schema
 const _ActionSchema = z.discriminatedUnion('type', [
-	z.object({ type: z.literal('ENTER_QUERY') }),
+	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
 	z.object({ type: z.literal('LOADING_MORE') }),
 	z.object({
 		type: z.literal('FETCH_SUCCESS'),
@@ -166,7 +166,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		status: 'loading',
 		autoUpdate: true,
 		loadingMore: false,
-		sortBy: { sortByKey: 'ingestedAt' },
+		sortBy: currentConfig.query.collectionId
+			? {
+					sortByKey: 'addedToCollectionAt',
+					collectionId: currentConfig.query.collectionId,
+				}
+			: { sortByKey: 'ingestedAt' },
 	});
 
 	function handleFetchError(error: ErrorEvent) {
@@ -189,7 +194,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			}
 			setConfig(config);
 			if (!deepIsEqual(config.query, currentConfig.query)) {
-				dispatch({ type: 'ENTER_QUERY' });
+				dispatch({ type: 'ENTER_QUERY', query: config.query });
 			}
 		},
 		[viewedItemIds, currentConfig.query],
@@ -204,7 +209,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			}
 			setConfig(config);
 			if (!deepIsEqual(config.query, currentConfig.query)) {
-				dispatch({ type: 'ENTER_QUERY' });
+				dispatch({ type: 'ENTER_QUERY', query: config.query });
 			}
 		},
 		[currentConfig.query],

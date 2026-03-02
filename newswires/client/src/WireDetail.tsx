@@ -21,14 +21,19 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
+import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
+import { CollectionsOutlineIcon } from './icons/CollectionsOutlineIcon.tsx';
+import { pandaFetch } from './panda-session.ts';
+import { TASTED_COLLECTION_ID } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
@@ -67,7 +72,6 @@ function TitleContentForItem({
 				justify-content: start;
 			`}
 		>
-			<div></div>
 			<EuiSpacer size="xs" />
 			{showSubhead && (
 				<h3
@@ -486,14 +490,17 @@ export const WireDetail = ({
 	wire,
 	isShowingJson,
 	addToolLink,
+	refreshItemData,
 }: {
 	wire: WireData;
 	isShowingJson: boolean;
 	addToolLink: (toolLink: ToolLink) => void;
+	refreshItemData: () => void;
 }) => {
 	const { state, handleDeselectItem, handlePreviousItem, handleNextItem } =
 		useSearch();
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const { showTastedList } = useUserSettings();
 
 	const isFirst = state.queryData?.results[0]?.id === wire.id;
 	const isLast =
@@ -543,10 +550,31 @@ export const WireDetail = ({
 	}, [wire]);
 
 	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
+
 	const embargoNote = decideEmbargoNote({
 		status: wire.content.status,
 		embargo: wire.content.embargo,
 	});
+
+	const maybeTastedCollectionMetadata = wire.collections.filter(
+		(collection) => collection.collectionId === TASTED_COLLECTION_ID,
+	);
+
+	const isInTastedCollection = maybeTastedCollectionMetadata.length > 0;
+
+	const toggleItemToTasted = useCallback((): void => {
+		const url = isInTastedCollection
+			? `/api/collections/${TASTED_COLLECTION_ID}/remove-item/${wire.id}`
+			: `/api/collections/${TASTED_COLLECTION_ID}/add-item/${wire.id}`;
+		pandaFetch(url, {
+			method: 'PUT',
+			headers: {
+				Accept: 'application/json',
+			},
+		})
+			.then(() => refreshItemData())
+			.catch(console.error);
+	}, [isInTastedCollection, refreshItemData, wire.id]);
 
 	return (
 		<div
@@ -554,14 +582,6 @@ export const WireDetail = ({
 				container-type: inline-size;
 			`}
 		>
-			<div
-				css={css`
-					display: flex;
-					align-items: center;
-					justify-content: flex-end;
-					gap: ${theme.euiTheme.size.s};
-				`}
-			></div>
 			<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
 				<Tooltip
 					tooltipContent="Previous story"
@@ -595,6 +615,31 @@ export const WireDetail = ({
 						gap: ${theme.euiTheme.size.s};
 					`}
 				>
+					{showTastedList && (
+						<Tooltip
+							tooltipContent={
+								isInTastedCollection
+									? "Remove from 'Tasted' list"
+									: "Add to 'Tasted' list"
+							}
+						>
+							<EuiButtonIcon
+								iconType={
+									isInTastedCollection
+										? CollectionsIcon
+										: CollectionsOutlineIcon
+								}
+								iconSize="xxl"
+								onClick={toggleItemToTasted}
+								aria-label={
+									isInTastedCollection
+										? "Remove from 'Tasted' list"
+										: "Add to 'Tasted' list"
+								}
+								size="s"
+							></EuiButtonIcon>
+						</Tooltip>
+					)}
 					<CopyButton id={wire.id} headlineText={headlineText} />
 					<ToolsConnection
 						itemData={wire}
@@ -707,7 +752,7 @@ export const WireDetail = ({
 							>
 								Byline: {byline}
 							</p>
-							<EuiSpacer size="m" />
+							<EuiSpacer size="s" />
 						</>
 					)}
 					{safeAbstract && wire.supplier.name === AP && (

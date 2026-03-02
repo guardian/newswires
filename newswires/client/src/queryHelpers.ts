@@ -21,7 +21,7 @@ export type DeselectableQueryKeyValue =
 
 export type DeselectableQueryKey = DeselectableQueryKeyValue['key'];
 
-export const keyValueAfterDeselection = (
+export const queryAfterDeselection = (
 	{ key, value }: DeselectableQueryKeyValue,
 	query: Query,
 ): Query => {
@@ -42,7 +42,7 @@ export const keyValueAfterDeselection = (
 			end: undefined,
 		};
 	}
-	if (['hasDataFormatting', 'start', 'end'].includes(key)) {
+	if (['hasDataFormatting', 'start', 'end', 'collectionId'].includes(key)) {
 		return { ...query, [key]: undefined };
 	}
 	if (

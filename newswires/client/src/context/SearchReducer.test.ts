@@ -341,6 +341,7 @@ describe('SearchReducer', () => {
 		it(`should handle ENTER_QUERY action in ${state.status} state`, () => {
 			const action: Action = {
 				type: 'ENTER_QUERY',
+				query: { q: 'new query', collectionId: undefined, preset: undefined },
 			};
 
 			const newState = SearchReducer(state, action);
