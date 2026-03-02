@@ -21,6 +21,7 @@ describe('SearchReducer', () => {
 		successfulQueryHistory: [],
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
 	};
 
 	const successState: State = {
@@ -42,6 +43,7 @@ describe('SearchReducer', () => {
 		error: 'Network error',
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
 	};
 
 	const errorState: State = {
@@ -54,13 +56,14 @@ describe('SearchReducer', () => {
 		error: 'Fetch error',
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
 	};
 
 	it('should handle FETCH_SUCCESS action in loading state', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
 			data: { results: [sampleWireData], totalCount: 1 },
-			query: { q: 'test' },
+			query: { q: 'test', collectionId: undefined, preset: undefined },
 		};
 
 		const newState = SearchReducer(initialState, action);
@@ -118,7 +121,7 @@ describe('SearchReducer', () => {
 					],
 					totalCount: 1,
 				},
-				query: { q: 'test' },
+				query: { q: 'test', collectionId: undefined, preset: undefined },
 			};
 
 			const newState = SearchReducer(state, action);
@@ -175,6 +178,8 @@ describe('SearchReducer', () => {
 				q: 'test',
 				start: EuiDateStringSchema.parse('now-30m'),
 				end: EuiDateStringSchema.parse('now'),
+				collectionId: undefined,
+				preset: undefined,
 			},
 		};
 
@@ -223,6 +228,8 @@ describe('SearchReducer', () => {
 				q: 'test',
 				start: EuiDateStringSchema.parse('now-30m'),
 				end: EuiDateStringSchema.parse('now'),
+				preset: undefined,
+				collectionId: undefined,
 			},
 		};
 

@@ -42,6 +42,7 @@ const sampleItemData: WireData = {
 	categoryCodes: ['C:US', 'C:CA'],
 	isFromRefresh: false,
 	hasDataFormatting: false,
+	collections: [],
 };
 
 const meta = {
