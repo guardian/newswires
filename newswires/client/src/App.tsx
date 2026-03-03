@@ -199,7 +199,7 @@ export function App() {
 							/>
 						</div>
 					)}
-					{isRestricted(config.query.dateRange?.end) &&
+					{isRestricted(config.query.end) &&
 						status !== 'offline' &&
 						status !== 'error' && (
 							<EuiCallOut

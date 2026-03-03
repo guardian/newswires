@@ -563,14 +563,24 @@ object SearchPresets {
       CategoryCodes.RugbyLeague.REUTERS
     ),
     SearchPreset(
+      REUTERS,
+      searchTerms = Some((ComboTerm(List(Simple("(OPTA)", BodyText), Simple("/SUMMARIES", Slug)), AND))),
+      CategoryCodes.RugbyLeague.REUTERS
+    ),
+    SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("RUGBYL -Summaries -Scorer", Slug))),
+      searchTerms = Some(SingleTerm(Simple("RUGBYL -Scorer", Slug))),
       CategoryCodes.Sport.PA
     ),
     SearchPreset(
       AFP,
       searchTerms = Some(ComboTerm(List(Simple("RugbyL", Slug), Simple("-result -results", Headline)), AND)),
       CategoryCodes.Sport.AFP
+    ),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("RUGBYL -SOCCER Summaries", Slug))),
+      CategoryCodes.RugbyScores.PA
     ),
     SearchPreset(AAP, categoryCodes = CategoryCodes.RugbyLeague.AAP),
     SearchPreset(
@@ -589,7 +599,12 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("\"RUGBY UNION\" OR RUGBYU -Summaries -Scorer", Slug))),
+      searchTerms = Some(SingleTerm(Simple("\"RUGBY UNION\" OR RUGBYU -SOCCER Summaries", Slug))),
+      CategoryCodes.RugbyScores.PA
+    ),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(Simple("\"RUGBY UNION\" OR RUGBYU -Scorer", Slug))),
       CategoryCodes.Sport.PA ::: List("paCat:SFF")
     ),
     SearchPreset(
@@ -609,7 +624,7 @@ object SearchPresets {
   private val RugbyScores = List(
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("-SOCCER", Slug))),
+      searchTerms = Some(SingleTerm(Simple("-SOCCER -Summaries", Slug))),
       CategoryCodes.RugbyScores.PA
     ),
     SearchPreset(
@@ -620,7 +635,7 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(
-        SingleTerm(Simple("RUGBYU Summaries OR RUGBYL Summaries OR RUGBYU Scorer OR RUGBYL Scorer", Slug))
+        SingleTerm(Simple("RUGBYU Scorer OR RUGBYL Scorer", Slug))
       ),
       CategoryCodes.Sport.PA
     ),
@@ -639,7 +654,7 @@ object SearchPresets {
     ),
     SearchPreset(
       REUTERS,
-      searchTerms = Some(SingleTerm(Simple("(OPTA)", BodyText))),
+      searchTerms = Some((ComboTerm(List(Simple("(OPTA)", BodyText), Simple("-/SUMMARIES", Slug)), AND))),
       CategoryCodes.RugbyLeague.REUTERS
     )
   )
