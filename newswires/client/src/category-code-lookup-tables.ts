@@ -6778,6 +6778,7 @@ export const lookupTables: Array<{
 			'paCat:FFF': 'Central Office of Information',
 			'paCat:QFF': 'Advanced News',
 			'paCat:HHH': 'Home news',
+			'paCat:NIR': 'Northern Irish News'
 			'paCat:OOO': 'Foreign news',
 			'paCat:PPP': 'Parliament news',
 			'paCat:PPS': 'Scottish Parliament news',
