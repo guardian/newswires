@@ -21,8 +21,9 @@ import {
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import type { Moment } from 'moment';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { AddToCollectionButton } from './AddToCollectionButton.tsx';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
@@ -30,9 +31,6 @@ import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
-import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
-import { CollectionsOutlineIcon } from './icons/CollectionsOutlineIcon.tsx';
-import { pandaFetch } from './panda-session.ts';
 import { TASTED_COLLECTION_ID } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
@@ -562,20 +560,6 @@ export const WireDetail = ({
 
 	const isInTastedCollection = maybeTastedCollectionMetadata.length > 0;
 
-	const toggleItemToTasted = useCallback((): void => {
-		const url = isInTastedCollection
-			? `/api/collections/${TASTED_COLLECTION_ID}/remove-item/${wire.id}`
-			: `/api/collections/${TASTED_COLLECTION_ID}/add-item/${wire.id}`;
-		pandaFetch(url, {
-			method: 'PUT',
-			headers: {
-				Accept: 'application/json',
-			},
-		})
-			.then(() => refreshItemData())
-			.catch(console.error);
-	}, [isInTastedCollection, refreshItemData, wire.id]);
-
 	return (
 		<div
 			css={css`
@@ -616,29 +600,11 @@ export const WireDetail = ({
 					`}
 				>
 					{showTastedList && (
-						<Tooltip
-							tooltipContent={
-								isInTastedCollection
-									? "Remove from 'Tasted' list"
-									: "Add to 'Tasted' list"
-							}
-						>
-							<EuiButtonIcon
-								iconType={
-									isInTastedCollection
-										? CollectionsIcon
-										: CollectionsOutlineIcon
-								}
-								iconSize="xxl"
-								onClick={toggleItemToTasted}
-								aria-label={
-									isInTastedCollection
-										? "Remove from 'Tasted' list"
-										: "Add to 'Tasted' list"
-								}
-								size="s"
-							></EuiButtonIcon>
-						</Tooltip>
+						<AddToCollectionButton
+							wireId={wire.id.toString()}
+							isInTastedCollection={isInTastedCollection}
+							refreshItemData={refreshItemData}
+						/>
 					)}
 					<CopyButton id={wire.id} headlineText={headlineText} />
 					<ToolsConnection

@@ -39,9 +39,10 @@ function decideLabelForQueryBadge(
 	const categoryCodesLabel = categoryCode?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const presetLabel = preset ? `[${presetName(preset)}]` : '';
-	const collectionId = query.collectionId
-		? `[Collection ${query.collectionId}]`
-		: '';
+	const collectionId =
+		query.collectionId !== undefined
+			? `[Collection ${query.collectionId}]`
+			: '';
 
 	const labels = [
 		presetLabel,
