@@ -1,6 +1,5 @@
 import {
 	EuiButton,
-	EuiButtonEmpty,
 	EuiIcon,
 	EuiScreenReaderOnly,
 	EuiText,
@@ -14,14 +13,13 @@ import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
-import { lightShadeOf } from './colour-utils.ts';
+import { Alert } from './Alert.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { Link } from './Link.tsx';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
-import { ALERT } from './suppliers.ts';
 import { ToolSendReport } from './ToolsConnection.tsx';
 import { isAlert } from './utils/contentHelpers.ts';
 
@@ -354,26 +352,7 @@ const WirePreviewCard = ({
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
-					{isAlert(content) && (
-						<div
-							css={`
-								border-radius: 18px;
-							`}
-						>
-							<EuiButtonEmpty
-								title={`alert`}
-								css={css`
-									color: ${!hasBeenViewed ? 'white' : 'black'};
-									background-color: ${!hasBeenViewed
-										? ALERT
-										: lightShadeOf(ALERT)};
-								`}
-								size={'xs'}
-							>
-								Alert
-							</EuiButtonEmpty>
-						</div>
-					)}
+					{isAlert(content) && <Alert />}
 				</div>
 
 				<div

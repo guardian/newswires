@@ -1,5 +1,4 @@
 import type { EuiBasicTableColumn } from '@elastic/eui';
-import { EuiButtonEmpty } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBasicTable,
@@ -24,6 +23,7 @@ import { css } from '@emotion/react';
 import type { Moment } from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { Alert } from './Alert.tsx';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
@@ -32,7 +32,7 @@ import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
-import { ALERT, AP } from './suppliers.ts';
+import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
@@ -96,19 +96,7 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
-				{isAlert && (
-					<EuiButtonEmpty
-						title={`alert`}
-						css={css`
-							color: white;
-							background-color: ${ALERT};
-							margin-right: 4px;
-						`}
-						size={'xs'}
-					>
-						Alert
-					</EuiButtonEmpty>
-				)}
+				{isAlert && <Alert />}
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
 				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
