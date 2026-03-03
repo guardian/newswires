@@ -166,12 +166,13 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		status: 'loading',
 		autoUpdate: true,
 		loadingMore: false,
-		sortBy: currentConfig.query.collectionId
-			? {
-					sortByKey: 'addedToCollectionAt',
-					collectionId: currentConfig.query.collectionId,
-				}
-			: { sortByKey: 'ingestedAt' },
+		sortBy:
+			currentConfig.query.collectionId !== undefined
+				? {
+						sortByKey: 'addedToCollectionAt',
+						collectionId: currentConfig.query.collectionId,
+					}
+				: { sortByKey: 'ingestedAt' },
 	});
 
 	function handleFetchError(error: ErrorEvent) {

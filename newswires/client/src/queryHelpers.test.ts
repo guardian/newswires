@@ -1,7 +1,7 @@
 import { topLevelPresetId, topLevelSportId } from './presets';
 import { queryAfterDeselection } from './queryHelpers';
 
-describe('keyValueAfterDeselection', () => {
+describe('queryAfterDeselection', () => {
 	it('should return an empty query string when q is the key', () => {
 		expect(
 			queryAfterDeselection(
@@ -129,6 +129,22 @@ describe('keyValueAfterDeselection', () => {
 			q: '',
 			collectionId: undefined,
 			preset: topLevelSportId,
+		});
+	});
+	it('should remove collectionId when collectionId is the key', () => {
+		expect(
+			queryAfterDeselection(
+				{ key: 'collectionId', value: '123' },
+				{
+					q: '',
+					collectionId: 123,
+					preset: undefined,
+				},
+			),
+		).toStrictEqual({
+			q: '',
+			collectionId: undefined,
+			preset: undefined,
 		});
 	});
 });

@@ -225,6 +225,10 @@ const WirePreviewCard = ({
 		(collection) => collection.collectionId === config.query.collectionId,
 	);
 
+	const hasMetadataToDisplay =
+		(showCollectionMetadata && maybeTastedCollectionMetadata.length > 0) ||
+		(toolLinks && toolLinks.length > 0);
+
 	useEffect(() => {
 		if (selected && ref.current) {
 			scrollElementIntoView(ref.current);
@@ -380,51 +384,52 @@ const WirePreviewCard = ({
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
 				</div>
-				<ul
-					css={css`
-						color: ${theme.euiTheme.colors.textAccent};
-						margin-top: 5px;
-						display: grid;
-						grid-template-columns: min-content 1fr;
-						gap: 0.2rem;
-					`}
-				>
-					{showCollectionMetadata &&
-						maybeTastedCollectionMetadata.length > 0 && (
-							<li
-								css={css`
-									display: contents;
-								`}
-							>
-								<span
+				{hasMetadataToDisplay && (
+					<ul
+						css={css`
+							color: ${theme.euiTheme.colors.textAccent};
+							margin-top: 5px;
+							display: grid;
+							grid-template-columns: min-content 1fr;
+							gap: 0.2rem;
+						`}
+					>
+						{showCollectionMetadata &&
+							maybeTastedCollectionMetadata.map((metadata) => (
+								<li
 									css={css`
-										color: ${theme.euiTheme.colors.backgroundFilledAccent};
+										display: contents;
+									`}
+									key={metadata.addedAt}
+								>
+									<span
+										css={css`
+											color: ${theme.euiTheme.colors.backgroundFilledAccent};
+										`}
+									>
+										<EuiIcon type={CollectionsIcon} size="original" />
+									</span>
+									<EuiText size="xs">
+										Added to collection
+										{' • '}
+										{convertToLocalDate(metadata.addedAt).fromNow()},
+									</EuiText>
+								</li>
+							))}
+						{toolLinks &&
+							toolLinks.length > 0 &&
+							toolLinks.map((link) => (
+								<li
+									key={link.id}
+									css={css`
+										display: contents;
 									`}
 								>
-									<EuiIcon type={CollectionsIcon} size="original" />
-								</span>
-								<EuiText size="xs">
-									Added to collection
-									{' • '}
-									{maybeTastedCollectionMetadata.map((_) =>
-										convertToLocalDate(_.addedAt).fromNow(),
-									)}
-								</EuiText>
-							</li>
-						)}
-					{toolLinks &&
-						toolLinks.length > 0 &&
-						toolLinks.map((link) => (
-							<li
-								key={link.id}
-								css={css`
-									display: contents;
-								`}
-							>
-								<ToolSendReport toolLink={link} showIcon={true} />
-							</li>
-						))}
-				</ul>
+									<ToolSendReport toolLink={link} showIcon={true} />
+								</li>
+							))}
+					</ul>
+				)}
 				{showSecondaryFeedContent && (
 					<div
 						css={css`

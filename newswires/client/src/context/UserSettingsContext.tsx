@@ -78,10 +78,11 @@ export const UserSettingsContextProvider = ({
 	);
 
 	const toggleShowTastedList = () => {
-		setShowTastedList(!showTastedList);
-		saveToLocalStorage<boolean>('showTastedList', !showTastedList);
+		const newValue = !showTastedList;
+		setShowTastedList(newValue);
+		saveToLocalStorage<boolean>('showTastedList', newValue);
 		sendTelemetryEvent('toggleShowTastedList', {
-			showTastedList: !showTastedList ? 'on' : 'off',
+			showTastedList: newValue ? 'on' : 'off',
 		});
 	};
 
