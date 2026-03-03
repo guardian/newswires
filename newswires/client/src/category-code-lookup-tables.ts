@@ -6864,6 +6864,11 @@ export const lookupTables: Array<{
 			'paCat:SSD': 'Rugby Scores (Rugby match scores)',
 			'paCat:SSG': 'Goal Flash (Soccer goal updates)',
 			'paCat:SRD': 'Sports Data (General sports statistics)',
+			// Election Data
+			'paCat:XDA': 'Elections Data',
+			'paCat:XDB': 'Elections Data',
+			'paCat:XTA': 'Elections Data',
+			'paCat:XTB': 'Elections Data',
 		},
 	},
 ];
