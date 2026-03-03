@@ -252,7 +252,7 @@ const WirePreviewCard = ({
 		display: grid;
 
 		align-items: baseline;
-		grid-template-areas: 'title label time time' 'title label badges supplier' 'content label badges supplier' 'content label badges supplier';
+		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier' 'content badges supplier';
 		grid-template-columns: 1fr min-content min-content min-content;
 		grid-template-rows: auto auto auto auto;
 	`;
@@ -347,34 +347,32 @@ const WirePreviewCard = ({
 				</div>
 				<div
 					css={css`
-						grid-area: label;
-						justify-self: end;
-						margin-right: 4px;
-					`}
-				>
-					{isAlert(content) && (
-						<EuiButtonEmpty
-							title={`alert`}
-							css={css`
-								color: ${!hasBeenViewed ? 'white' : 'black'};
-								background-color: ${!hasBeenViewed
-									? ALERT
-									: lightShadeOf(ALERT)};
-							`}
-							size={'xs'}
-						>
-							Alert
-						</EuiButtonEmpty>
-					)}
-				</div>
-				<div
-					css={css`
 						grid-area: badges;
 						justify-self: end;
 					`}
 				>
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
+					)}
+					{isAlert(content) && (
+						<div
+							css={`
+								border-radius: 18px;
+							`}
+						>
+							<EuiButtonEmpty
+								title={`alert`}
+								css={css`
+									color: ${!hasBeenViewed ? 'white' : 'black'};
+									background-color: ${!hasBeenViewed
+										? ALERT
+										: lightShadeOf(ALERT)};
+								`}
+								size={'xs'}
+							>
+								Alert
+							</EuiButtonEmpty>
+						</div>
 					)}
 				</div>
 
