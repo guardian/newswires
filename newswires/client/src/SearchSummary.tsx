@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
 import { isRestricted } from './dateHelpers.ts';
-import { presetLabel } from './presets.ts';
+import { presetLabel, TASTED_COLLECTION } from './presets.ts';
 import type {
 	DeselectableQueryKey,
 	DeselectableQueryKeyValue,
@@ -163,6 +163,11 @@ const Summary = ({
 						key: 'collectionId',
 						value: collectionId.toString(),
 					}}
+					valueLabel={
+						collectionId === TASTED_COLLECTION.id
+							? TASTED_COLLECTION.name
+							: collectionId.toString()
+					}
 				/>
 			)}
 

@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { CollectionsIcon } from './icons/CollectionsIcon';
 import { CollectionsOutlineIcon } from './icons/CollectionsOutlineIcon';
 import { pandaFetch } from './panda-session';
-import { TASTED_COLLECTION_ID } from './presets';
+import { TASTED_COLLECTION } from './presets';
 import { Tooltip } from './Tooltip';
 
 function decideLabel(
@@ -32,8 +32,8 @@ export function AddToCollectionButton({
 
 	const toggleItemToTasted = useCallback((): void => {
 		const url = isInTastedCollection
-			? `/api/collections/${TASTED_COLLECTION_ID}/remove-item/${wireId}`
-			: `/api/collections/${TASTED_COLLECTION_ID}/add-item/${wireId}`;
+			? `/api/collections/${TASTED_COLLECTION.id}/remove-item/${wireId}`
+			: `/api/collections/${TASTED_COLLECTION.id}/add-item/${wireId}`;
 		pandaFetch(url, {
 			method: 'PUT',
 			headers: {

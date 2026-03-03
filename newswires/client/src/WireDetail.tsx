@@ -31,7 +31,7 @@ import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
-import { TASTED_COLLECTION_ID } from './presets.ts';
+import { TASTED_COLLECTION } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
@@ -555,7 +555,7 @@ export const WireDetail = ({
 	});
 
 	const maybeTastedCollectionMetadata = wire.collections.filter(
-		(collection) => collection.collectionId === TASTED_COLLECTION_ID,
+		(collection) => collection.collectionId === TASTED_COLLECTION.id,
 	);
 
 	const isInTastedCollection = maybeTastedCollectionMetadata.length > 0;

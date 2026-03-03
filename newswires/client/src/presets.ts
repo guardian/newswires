@@ -143,7 +143,7 @@ export const presets: Preset[] = [
 	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },
 ];
 
-export const TASTED_COLLECTION_ID = 1;
+export const TASTED_COLLECTION = { id: 1, name: 'Tasted' };
 
 export const presetLabel = (presetId: string) => {
 	const preset = presets.find((preset) => preset.id === presetId);

@@ -24,7 +24,7 @@ import { useSearch } from '../context/SearchContext.tsx';
 import { useUserSettings } from '../context/UserSettingsContext.tsx';
 import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
 import { FeedbackContent } from '../FeedbackContent.tsx';
-import { presets, sportPresets, TASTED_COLLECTION_ID } from '../presets.ts';
+import { presets, sportPresets, TASTED_COLLECTION } from '../presets.ts';
 import type { Query } from '../sharedTypes';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { PresetsContextMenu } from './PresetsContextMenu.tsx';
@@ -34,14 +34,18 @@ function decideLabelForQueryBadge(
 	query: Query,
 	dateRangeLabel: string,
 ): string {
-	const { supplier, q, preset, categoryCode } = query;
+	const { supplier, q, preset, categoryCode, collectionId } = query;
 	const supplierLabel = supplier?.join(', ') ?? '';
 	const categoryCodesLabel = categoryCode?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const presetLabel = preset ? `[${presetName(preset)}]` : '';
-	const collectionId =
-		query.collectionId !== undefined
-			? `[Collection ${query.collectionId}]`
+	const collectionIdLabel =
+		collectionId !== undefined
+			? `[Collection: ${
+					collectionId === TASTED_COLLECTION.id
+						? TASTED_COLLECTION.name
+						: collectionId.toString()
+				}]`
 			: '';
 
 	const labels = [
@@ -49,7 +53,7 @@ function decideLabelForQueryBadge(
 		supplierLabel,
 		categoryCodesLabel,
 		qLabel,
-		collectionId,
+		collectionIdLabel,
 		dateRangeLabel,
 	];
 
@@ -196,24 +200,24 @@ export const SideNav = ({
 						<EuiCollapsibleNavGroup title="Collections">
 							<EuiListGroup flush={true} gutterSize="none">
 								<SideNavListItem
-									label="Tasted"
+									label={TASTED_COLLECTION.name}
 									key="tasted-collection"
 									isTopLevel={true}
-									isActive={config.query.collectionId === TASTED_COLLECTION_ID}
+									isActive={config.query.collectionId === TASTED_COLLECTION.id}
 									handleButtonClick={() => {
 										handleEnterQuery({
 											...config.query,
 											collectionId:
-												config.query.collectionId === TASTED_COLLECTION_ID
+												config.query.collectionId === TASTED_COLLECTION.id
 													? undefined
-													: TASTED_COLLECTION_ID,
+													: TASTED_COLLECTION.id,
 											preset: undefined,
 										});
 									}}
 									handleSecondaryActionClick={() =>
 										openTicker({
 											...config.query,
-											collectionId: TASTED_COLLECTION_ID,
+											collectionId: TASTED_COLLECTION.id,
 											preset: undefined,
 										})
 									}
