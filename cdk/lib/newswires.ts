@@ -484,6 +484,11 @@ export class Newswires extends GuStack {
 				}),
 		);
 
+		new StringParameter(this, 'BreakingUiChangeActiveFromTimeParam', {
+			parameterName: `/${this.stage}/${this.stack}/${appName}/breakingUiChangeActiveFromTime`,
+			stringValue: '',
+		});
+
 		const newswiresApp = new GuPlayApp(this, {
 			app: appName,
 			access: { scope: AccessScope.PUBLIC },

@@ -30,6 +30,7 @@ POST     /api/item/:id/incopy       controllers.QueryController.getIncopyImportU
 
 GET     /oauthCallback              controllers.AuthController.oauthCallback()
 
+GET     /api/client-refresh-message controllers.ManagementController.clientRefreshMessage()
 GET     /healthcheck                controllers.ManagementController.healthcheck()
 GET     /_prout                     controllers.ManagementController.gitHash()
 
