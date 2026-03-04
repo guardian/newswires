@@ -17,7 +17,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     SearchParams.build(
       emptyQueryString,
       emptyBaseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     ) shouldEqual emptySearchParams.copy(filters =
       emptyFilterParams.copy(suppliersExcl = List("UNAUTHED_EMAIL_FEED"))
     )
@@ -27,7 +27,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.build(
       emptyQueryString,
       baseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     )
     result.filters.searchTerms shouldEqual Some(
       ComboTerm(
@@ -41,7 +41,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.build(
       Map("keywordExcl" -> Seq("a", "b")),
       emptyBaseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     )
     result.filters.keywordExcl shouldEqual List("a", "b")
   }
@@ -65,7 +65,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.build(
       emptyQueryString,
       baseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     )
     result shouldEqual SearchParams(
       FilterParams(
@@ -93,17 +93,29 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )
   }
 
-  it should "include computed supplier exclusions" in new searchParamsMocks {
+  it should "include computed supplier exclusions when the showGuSuppliers feature switch is off " in new searchParamsMocks {
     val result =
       SearchParams.build(
         emptyQueryString,
         emptyBaseParams,
-        featureSwitchShowGuSuppliersOff
+        showGuSuppliersFeatureOff
       )
     result.filters.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
       "GuAP",
+    )
+  }
+
+  it should "include new pa api when the showPAAPIFeatureOff feature switch is off" in new searchParamsMocks {
+    val result =
+      SearchParams.build(
+        emptyQueryString,
+        emptyBaseParams,
+        showPAAPIFeatureOff
+      )
+    result.filters.suppliersExcl shouldEqual List(
+      "UNAUTHED_EMAIL_FEED",
       "PAAPI"
     )
   }
@@ -193,8 +205,9 @@ class SearchParamsSpec extends AnyFlatSpec with models {
 trait searchParamsMocks {
   val emptyBaseParams = BaseRequestParams()
   val emptyQueryString = Map[String, Seq[String]]()
-  val featureSwitchShowGuSuppliersOn = mock[FeatureSwitchProvider]
-  val featureSwitchShowGuSuppliersOff = mock[FeatureSwitchProvider]
+  val featureSwitchesOn = mock[FeatureSwitchProvider]
+  val showGuSuppliersFeatureOff = mock[FeatureSwitchProvider]
+  val showPAAPIFeatureOff = mock[FeatureSwitchProvider]
   val featureSwitch = FeatureSwitch(
     name = "",
     safeState = Off,
@@ -202,8 +215,18 @@ trait searchParamsMocks {
     exposeToClient = true,
     isOn = () => true
   )
-  when(featureSwitchShowGuSuppliersOn.ShowGuSuppliers).thenReturn(featureSwitch)
-  when(featureSwitchShowGuSuppliersOff.ShowGuSuppliers).thenReturn(
+  when(featureSwitchesOn.ShowGuSuppliers).thenReturn(featureSwitch)
+  when(featureSwitchesOn.ShowPAAPI).thenReturn(featureSwitch)
+  when(showGuSuppliersFeatureOff.ShowGuSuppliers).thenReturn(
+    featureSwitch.copy(isOn = () => false)
+  )
+  when(showGuSuppliersFeatureOff.ShowPAAPI).thenReturn(
+    featureSwitch
+  )
+  when(showPAAPIFeatureOff.ShowGuSuppliers).thenReturn(
+    featureSwitch
+  )
+  when(showPAAPIFeatureOff.ShowPAAPI).thenReturn(
     featureSwitch.copy(isOn = () => false)
   )
 }
