@@ -12,6 +12,7 @@ const configLookup: AppConfiguration = isJest
 	? {
 			switches: {
 				ShowGuSuppliers: false,
+				ShowPAAPI: false,
 			},
 			stage: 'test',
 			sendTelemetryAsDev: true,
@@ -20,14 +21,27 @@ const configLookup: AppConfiguration = isJest
 	: window.configuration;
 
 const showGuSuppliers = configLookup.switches.ShowGuSuppliers;
+const showPAAPI = configLookup.switches.ShowPAAPI;
 
 /**
  * The list of suppliers to exclude from the list of 'recognised suppliers' that
  * we use to populate the options in the sidebar
  */
-export const SUPPLIERS_TO_EXCLUDE = showGuSuppliers
-	? ['UNAUTHED_EMAIL_FEED']
-	: ['UNAUTHED_EMAIL_FEED', 'GUAP', 'GUREUTERS', 'PAAPI'];
+
+const computeSuppliersToExclude = (
+	showGuSuppliers: boolean,
+	showPAAPI: boolean,
+) => {
+	const guSuppliers = showGuSuppliers ? [] : ['GUAP', 'GUREUTERS'];
+	const newPaApi = showPAAPI ? [] : ['PAAPI'];
+	const dotCopy = ['UNAUTHED_EMAIL_FEED'];
+	return [...dotCopy, ...guSuppliers, ...newPaApi];
+};
+
+export const SUPPLIERS_TO_EXCLUDE = computeSuppliersToExclude(
+	showGuSuppliers,
+	showPAAPI,
+);
 
 export const STAGE = configLookup.stage;
 

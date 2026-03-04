@@ -29,7 +29,7 @@ class FeatureSwitchProvider(stage: String) {
       safeState = Off,
       description = "Show new PA API in the feed",
       exposeToClient = true,
-      isOn = () => true
+      isOn = () => stage.toUpperCase() != "PROD"
     )
   private val switches = List(
     ShowGuSuppliers,
