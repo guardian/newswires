@@ -1,7 +1,7 @@
 import type { WireData } from '../sharedTypes';
 import { isSortByAddedToCollectionAt, type SortBy } from '../sharedTypes';
 
-export function sortByTimeStamp(
+function sortByTimeStamp(
 	{ ascending }: { ascending: boolean } = { ascending: false },
 ) {
 	if (ascending) {
@@ -10,10 +10,13 @@ export function sortByTimeStamp(
 	return (a: string, b: string) => b.localeCompare(a);
 }
 
-export function sortAndGetFirstItem(
-	timestamps: string[],
-	ascending: boolean,
-): string | undefined {
+function sortAndGetFirstItem({
+	timestamps,
+	ascending,
+}: {
+	timestamps: string[];
+	ascending: boolean;
+}): string | undefined {
 	if (timestamps.length === 0) {
 		return undefined;
 	}
@@ -41,7 +44,7 @@ export function getLatestTimeStamp(
 ): string | undefined {
 	const timestamps = getTimeStamps(wires, sortBy);
 
-	return sortAndGetFirstItem(timestamps, false);
+	return sortAndGetFirstItem({ timestamps, ascending: false });
 }
 
 export function getEarliestTimeStamp(
@@ -50,5 +53,10 @@ export function getEarliestTimeStamp(
 ): string | undefined {
 	const timestamps = getTimeStamps(wires, sortBy);
 
-	return sortAndGetFirstItem(timestamps, true);
+	return sortAndGetFirstItem({ timestamps, ascending: true });
 }
+
+export const forTestingOnly = {
+	sortByTimeStamp,
+	sortAndGetFirstItem,
+};

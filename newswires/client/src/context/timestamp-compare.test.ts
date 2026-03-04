@@ -1,4 +1,6 @@
-import { sortAndGetFirstItem, sortByTimeStamp } from './timestamp-compare';
+import { forTestingOnly } from './timestamp-compare';
+
+const { sortAndGetFirstItem, sortByTimeStamp } = forTestingOnly;
 
 describe('sortByTimeStamp', () => {
 	const timestamps = [
@@ -70,16 +72,22 @@ describe('sortAndGetFirstItem with ascending: false', () => {
 			'2025-01-03T12:30:00Z',
 			'2025-01-02T15:45:30Z',
 		];
-		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-03T12:30:00Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: false })).toBe(
+			'2025-01-03T12:30:00Z',
+		);
 	});
 
 	it('should return the only timestamp when array has one element', () => {
 		const timestamps = ['2025-01-01T00:00:00Z'];
-		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: false })).toBe(
+			'2025-01-01T00:00:00Z',
+		);
 	});
 
 	it('should return undefined for empty array', () => {
-		expect(sortAndGetFirstItem([], false)).toBeUndefined();
+		expect(
+			sortAndGetFirstItem({ timestamps: [], ascending: false }),
+		).toBeUndefined();
 	});
 
 	it('should handle timestamps with same date but different times', () => {
@@ -88,12 +96,16 @@ describe('sortAndGetFirstItem with ascending: false', () => {
 			'2025-01-01T23:59:59Z',
 			'2025-01-01T12:00:00Z',
 		];
-		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-01T23:59:59Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: false })).toBe(
+			'2025-01-01T23:59:59Z',
+		);
 	});
 
 	it('should handle identical timestamps', () => {
 		const timestamps = ['2025-01-01T00:00:00Z', '2025-01-01T00:00:00Z'];
-		expect(sortAndGetFirstItem(timestamps, false)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: false })).toBe(
+			'2025-01-01T00:00:00Z',
+		);
 	});
 
 	it('should not modify the original array', () => {
@@ -103,7 +115,7 @@ describe('sortAndGetFirstItem with ascending: false', () => {
 			'2025-01-02T15:45:30Z',
 		];
 		const original = [...timestamps];
-		sortAndGetFirstItem(timestamps, false);
+		sortAndGetFirstItem({ timestamps, ascending: false });
 		expect(timestamps).toEqual(original);
 	});
 });
@@ -115,16 +127,22 @@ describe('sortAndGetFirstItem with ascending: true', () => {
 			'2025-01-01T00:00:00Z',
 			'2025-01-02T15:45:30Z',
 		];
-		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: true })).toBe(
+			'2025-01-01T00:00:00Z',
+		);
 	});
 
 	it('should return the only timestamp when array has one element', () => {
 		const timestamps = ['2025-01-01T00:00:00Z'];
-		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: true })).toBe(
+			'2025-01-01T00:00:00Z',
+		);
 	});
 
 	it('should return undefined for empty array', () => {
-		expect(sortAndGetFirstItem([], true)).toBeUndefined();
+		expect(
+			sortAndGetFirstItem({ timestamps: [], ascending: true }),
+		).toBeUndefined();
 	});
 
 	it('should handle timestamps with same date but different times', () => {
@@ -133,12 +151,16 @@ describe('sortAndGetFirstItem with ascending: true', () => {
 			'2025-01-01T00:00:00Z',
 			'2025-01-01T12:00:00Z',
 		];
-		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: true })).toBe(
+			'2025-01-01T00:00:00Z',
+		);
 	});
 
 	it('should handle identical timestamps', () => {
 		const timestamps = ['2025-01-01T00:00:00Z', '2025-01-01T00:00:00Z'];
-		expect(sortAndGetFirstItem(timestamps, true)).toBe('2025-01-01T00:00:00Z');
+		expect(sortAndGetFirstItem({ timestamps, ascending: true })).toBe(
+			'2025-01-01T00:00:00Z',
+		);
 	});
 
 	it('should not modify the original array', () => {
@@ -148,7 +170,7 @@ describe('sortAndGetFirstItem with ascending: true', () => {
 			'2025-01-02T15:45:30Z',
 		];
 		const original = [...timestamps];
-		sortAndGetFirstItem(timestamps, true);
+		sortAndGetFirstItem({ timestamps, ascending: true });
 		expect(timestamps).toEqual(original);
 	});
 });
