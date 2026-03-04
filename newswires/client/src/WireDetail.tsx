@@ -28,9 +28,10 @@ import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
-import { convertToLocalDateString } from './dateHelpers.ts';
+import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
+import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { TASTED_COLLECTION } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
@@ -495,8 +496,13 @@ export const WireDetail = ({
 	addToolLink: (toolLink: ToolLink) => void;
 	refreshItemData: () => void;
 }) => {
-	const { state, handleDeselectItem, handlePreviousItem, handleNextItem } =
-		useSearch();
+	const {
+		state,
+		config,
+		handleDeselectItem,
+		handlePreviousItem,
+		handleNextItem,
+	} = useSearch();
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const { showTastedList } = useUserSettings();
 
@@ -554,11 +560,18 @@ export const WireDetail = ({
 		embargo: wire.content.embargo,
 	});
 
+	const showCollectionMetadata =
+		config.query.collectionId !== undefined || showTastedList;
+
 	const maybeTastedCollectionMetadata = wire.collections.filter(
 		(collection) => collection.collectionId === TASTED_COLLECTION.id,
 	);
 
-	const isInTastedCollection = maybeTastedCollectionMetadata.length > 0;
+	const itemIsInTastedCollection = maybeTastedCollectionMetadata.length > 0;
+
+	const shouldDisplayIntegrationMetadata =
+		(showCollectionMetadata && itemIsInTastedCollection) ||
+		(wire.toolLinks && wire.toolLinks.length > 0);
 
 	return (
 		<div
@@ -602,7 +615,7 @@ export const WireDetail = ({
 					{showTastedList && (
 						<AddToCollectionButton
 							wireId={wire.id.toString()}
-							isInTastedCollection={isInTastedCollection}
+							isInTastedCollection={itemIsInTastedCollection}
 							refreshItemData={refreshItemData}
 						/>
 					)}
@@ -665,36 +678,62 @@ export const WireDetail = ({
 					`}
 				>
 					<EuiSpacer size="xs" />
-					{wire.toolLinks?.length ? (
+					{shouldDisplayIntegrationMetadata && (
 						<>
 							<EuiCallOut>
 								<ul
 									css={css`
+										padding-top: ${theme.euiTheme.size.s};
 										display: grid;
 										grid-template-columns: min-content 1fr;
 										gap: 0.5rem;
+										align-items: center;
 									`}
 								>
-									{wire.toolLinks.map((toolLink) => (
-										<li
-											key={toolLink.id}
-											css={css`
-												display: contents;
-											`}
-										>
-											<ToolSendReport
-												toolLink={toolLink}
+									{showCollectionMetadata &&
+										maybeTastedCollectionMetadata.length > 0 && (
+											<li
+												css={css`
+													display: contents;
+												`}
+											>
+												<span
+													css={css`
+														color: ${theme.euiTheme.colors
+															.backgroundFilledAccent};
+													`}
+												>
+													<EuiIcon type={CollectionsIcon} size="original" />
+												</span>
+												<EuiText size="xs">
+													Added to collection
+													{' • '}
+													{maybeTastedCollectionMetadata.map((_) =>
+														convertToLocalDate(_.addedAt).fromNow(),
+													)}
+												</EuiText>
+											</li>
+										)}
+									{wire.toolLinks &&
+										wire.toolLinks.length > 0 &&
+										wire.toolLinks.map((toolLink) => (
+											<li
 												key={toolLink.id}
-												showIcon={true}
-											/>
-										</li>
-									))}
+												css={css`
+													display: contents;
+												`}
+											>
+												<ToolSendReport
+													toolLink={toolLink}
+													key={toolLink.id}
+													showIcon={true}
+												/>
+											</li>
+										))}
 								</ul>
 							</EuiCallOut>
 							<EuiSpacer size="s" />
 						</>
-					) : (
-						<></>
 					)}
 					{embargoNote && (
 						<>
