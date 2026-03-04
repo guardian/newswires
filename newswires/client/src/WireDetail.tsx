@@ -96,7 +96,7 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
-				{isAlert && <Alert />}
+				{isAlert && <Alert isPrimary={true} />}
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
 				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>

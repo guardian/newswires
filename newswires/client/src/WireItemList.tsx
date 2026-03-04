@@ -13,7 +13,7 @@ import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
-import { Alert } from './Alert.tsx';
+import { Alert, ALERT_TEXT } from './Alert.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { formatTimestamp } from './formatTimestamp.ts';
@@ -282,6 +282,9 @@ const WirePreviewCard = ({
 						&:hover {
 							background-color: ${theme.euiTheme.colors.lightestShade};
 							border-left: 4px solid ${theme.euiTheme.colors.accent};
+							.alert {
+								border: 1px solid ${ALERT_TEXT};
+							}
 						}
 
 						border-left: 4px solid
@@ -352,7 +355,7 @@ const WirePreviewCard = ({
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
-					{isAlert(content) && <Alert />}
+					{isAlert(content) && <Alert isPrimary={!hasBeenViewed} />}
 				</div>
 
 				<div

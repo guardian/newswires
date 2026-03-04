@@ -2,9 +2,9 @@ import { EuiButtonEmpty } from '@elastic/eui';
 import { css } from '@emotion/react';
 
 const ALERT = '#FCE8E8';
-const ALERT_TEXT = '#B81F1F';
+export const ALERT_TEXT = '#B81F1F';
 
-export const Alert = () => {
+export const Alert = ({ isPrimary }: { isPrimary: boolean }) => {
 	return (
 		<EuiButtonEmpty
 			title={`Alert`}
@@ -12,13 +12,15 @@ export const Alert = () => {
 				&.alert {
 					border-radius: 18px;
 					margin: 5px;
-					padding: 10px;
+					padding: 8px;
+					border: 1px solid ${isPrimary ? 'white' : ALERT_TEXT};
 				}
 				&.alert:hover,
 				&.alert:focus {
 					background-color: ${ALERT};
 					color: ${ALERT_TEXT};
 					cursor: default;
+					border: 1px solid ${ALERT_TEXT};
 				}
 				&.alert::before {
 					display: none;
