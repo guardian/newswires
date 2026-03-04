@@ -41,6 +41,7 @@ object SearchParams {
         suppliersExcl = computeSupplierExcl(
           query,
           featureSwitch.ShowGuSuppliers.isOn(),
+          featureSwitch.ShowPAAPI.isOn(),
           baseParams.suppliers
         ),
         categoryCodesIncl = baseParams.categoryCode,
@@ -70,11 +71,11 @@ object SearchParams {
     val guSuppliersExclusion =
       if (showGuSuppliers) Nil
       else
-        List("GuReuters", "GuAP", "PAAPI").filterNot(s => suppliers.contains(s))
+        List("GuReuters", "GuAP").filterNot(s => suppliers.contains(s))
     val paApiExclusion = if(showPAAPI) Nil else List("PAAPI").filterNot(s => suppliers.contains(s))
     val exclusionFromParams =
       query.get("supplierExcl").map(_.toList).getOrElse(Nil)
 
-    dotCopyExclusion ::: guSuppliersExclusion ::: exclusionFromParams ::: paApiExclusion
+    dotCopyExclusion ::: guSuppliersExclusion ::: paApiExclusion ::: exclusionFromParams
   }
 }
