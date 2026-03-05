@@ -24,6 +24,7 @@ import type { Moment } from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { AddToCollectionButton } from './AddToCollectionButton.tsx';
+import { Alert } from './Alert.tsx';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
@@ -39,6 +40,7 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import { isAlert } from './utils/contentHelpers.ts';
 
 function TitleContentForItem({
 	slug,
@@ -47,6 +49,7 @@ function TitleContentForItem({
 	localIngestedAt,
 	supplier,
 	wordCount,
+	isAlert,
 }: {
 	slug?: string;
 	subhead?: string;
@@ -54,6 +57,7 @@ function TitleContentForItem({
 	localIngestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
+	isAlert: boolean;
 }) {
 	const theme = useEuiTheme();
 
@@ -95,6 +99,7 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
+				{isAlert && <Alert isPrimary={true} />}
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
 				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
@@ -644,7 +649,6 @@ export const WireDetail = ({
 					flex-direction: column;
 					justify-content: space-between;
 					gap: ${theme.euiTheme.size.s};
-
 					@container (width >= 700px) {
 						flex-direction: row;
 					}
@@ -658,6 +662,7 @@ export const WireDetail = ({
 						localIngestedAt={wire.localIngestedAt}
 						supplier={wire.supplier}
 						wordCount={wordCount}
+						isAlert={isAlert(wire.content)}
 					/>
 				</div>
 			</div>

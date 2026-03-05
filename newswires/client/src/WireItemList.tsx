@@ -13,6 +13,7 @@ import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { Alert, ALERT_TEXT } from './Alert.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
@@ -27,6 +28,7 @@ import type {
 } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
+import { isAlert } from './utils/contentHelpers.ts';
 
 export const WireItemList = ({
 	wires,
@@ -269,7 +271,7 @@ const WirePreviewCard = ({
 
 		align-items: baseline;
 		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier' 'content badges supplier';
-		grid-template-columns: 1fr min-content min-content;
+		grid-template-columns: 1fr min-content min-content min-content;
 		grid-template-rows: auto auto auto auto;
 	`;
 
@@ -300,6 +302,9 @@ const WirePreviewCard = ({
 						&:hover {
 							background-color: ${theme.euiTheme.colors.lightestShade};
 							border-left: 4px solid ${theme.euiTheme.colors.accent};
+							.alert {
+								border: 1px solid ${ALERT_TEXT};
+							}
 						}
 
 						border-left: 4px solid
@@ -370,7 +375,9 @@ const WirePreviewCard = ({
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
+					{isAlert(content) && <Alert isPrimary={!hasBeenViewed} />}
 				</div>
+
 				<div
 					css={css`
 						grid-area: supplier;

@@ -36,6 +36,8 @@ const FingerpostContentSchema = z
 		}),
 		composerCompatible: z.boolean().optional(), // the only value we receive from the API is 'false'. If it's not present, we should assume true.
 		embargo: z.string().optional(), // expected to be a UTC ISO date time string.
+		profile: z.string().optional(),
+		type: z.string().optional(),
 	})
 	.partial();
 
