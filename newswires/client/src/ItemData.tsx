@@ -26,7 +26,7 @@ export const ItemData = ({ id }: { id: string }) => {
 		[setItemData],
 	);
 
-	useEffect(() => {
+	const fetchItemData = useCallback(() => {
 		// fetch item data from /api/item/:id
 		const queryParams = config.query.q
 			? `?${new URLSearchParams([['q', config.query.q]]).toString()}`
@@ -59,6 +59,10 @@ export const ItemData = ({ id }: { id: string }) => {
 	}, [id, config.query.q]);
 
 	useEffect(() => {
+		fetchItemData();
+	}, [id, config.query.q, fetchItemData]);
+
+	useEffect(() => {
 		const intervalId = setInterval(() => {
 			fetchToolLink(id)
 				.then((toolLinks) => {
@@ -84,6 +88,7 @@ export const ItemData = ({ id }: { id: string }) => {
 			handleDeselectItem={handleDeselectItem}
 			handlePreviousItem={handlePreviousItem}
 			handleNextItem={handleNextItem}
+			refreshItemData={fetchItemData}
 		/>
 	);
 };

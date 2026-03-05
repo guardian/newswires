@@ -11,12 +11,12 @@ import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
 import { isRestricted } from './dateHelpers.ts';
-import { presetLabel } from './presets.ts';
+import { presetLabel, TASTED_COLLECTION } from './presets.ts';
 import type {
 	DeselectableQueryKey,
 	DeselectableQueryKeyValue,
 } from './queryHelpers.ts';
-import { keyValueAfterDeselection } from './queryHelpers.ts';
+import { queryAfterDeselection } from './queryHelpers.ts';
 import type { Query } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
@@ -56,7 +56,7 @@ const SummaryBadge = ({
 		} else {
 			handleEnterQuery({
 				...config.query,
-				...keyValueAfterDeselection(keyValuePair, config.query),
+				...queryAfterDeselection(keyValuePair, config.query),
 			});
 		}
 	};
@@ -96,6 +96,7 @@ const Summary = ({
 		categoryCode,
 		categoryCodeExcl,
 		hasDataFormatting,
+		collectionId,
 	} = query;
 
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
@@ -112,7 +113,8 @@ const Summary = ({
 		displayKeywords ||
 		displayExcludedCategoryCodes ||
 		displayExcludedKeywords ||
-		hasDataFormatting !== undefined;
+		hasDataFormatting !== undefined ||
+		collectionId !== undefined;
 
 	const isDefaultDateRange =
 		(start === DEFAULT_DATE_RANGE.start || start === undefined) &&
@@ -153,6 +155,19 @@ const Summary = ({
 				<SummaryBadge
 					keyValuePair={{ key: 'preset', value: preset }}
 					valueLabel={presetLabel(preset)}
+				/>
+			)}
+			{collectionId !== undefined && (
+				<SummaryBadge
+					keyValuePair={{
+						key: 'collectionId',
+						value: collectionId.toString(),
+					}}
+					valueLabel={
+						collectionId === TASTED_COLLECTION.id
+							? TASTED_COLLECTION.name
+							: collectionId.toString()
+					}
 				/>
 			)}
 

@@ -1,10 +1,10 @@
 import { topLevelPresetId, topLevelSportId } from './presets';
-import { keyValueAfterDeselection } from './queryHelpers';
+import { queryAfterDeselection } from './queryHelpers';
 
-describe('keyValueAfterDeselection', () => {
+describe('queryAfterDeselection', () => {
 	it('should return an empty query string when q is the key', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'q', value: 'hello' },
 				{ q: 'hello', collectionId: undefined, preset: undefined },
 			),
@@ -16,7 +16,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should return start : undefined when start is the key', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'start', value: 'hello' },
 				{ q: 'hello', collectionId: undefined, preset: undefined },
 			),
@@ -29,7 +29,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should return end : undefined when end is the key', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'end', value: 'hello' },
 				{ q: 'hello', collectionId: undefined, preset: undefined },
 			),
@@ -42,7 +42,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should return categoryCode : [] when categoryCode is key and existing categoryCode is empty', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'categoryCode', value: 'hello' },
 				{ q: 'hello', collectionId: undefined, preset: undefined },
 			),
@@ -55,7 +55,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should return categoryCode : [] when categoryCode is key and existing categoryCode has no other code', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'categoryCode', value: 'code' },
 				{
 					q: 'hello',
@@ -73,7 +73,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should only remove input categoryCode when categoryCode is key and there are existing categoryCode', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'categoryCode', value: 'code' },
 				{
 					q: 'hello',
@@ -91,7 +91,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should remove keywordExcl value correctly', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'keywordExcl', value: 'bar' },
 				{
 					q: '',
@@ -109,7 +109,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should return preset : undefined for a top level preset', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'preset', value: 'all-world' },
 				{ q: '', collectionId: undefined, preset: 'all-world' },
 			),
@@ -121,7 +121,7 @@ describe('keyValueAfterDeselection', () => {
 	});
 	it('should return preset : all-sports for a secondary level preset', () => {
 		expect(
-			keyValueAfterDeselection(
+			queryAfterDeselection(
 				{ key: 'preset', value: 'no-soccer' },
 				{ q: '', collectionId: undefined, preset: 'no-soccer' },
 			),
@@ -129,6 +129,22 @@ describe('keyValueAfterDeselection', () => {
 			q: '',
 			collectionId: undefined,
 			preset: topLevelSportId,
+		});
+	});
+	it('should remove collectionId when collectionId is the key', () => {
+		expect(
+			queryAfterDeselection(
+				{ key: 'collectionId', value: '123' },
+				{
+					q: '',
+					collectionId: 123,
+					preset: undefined,
+				},
+			),
+		).toStrictEqual({
+			q: '',
+			collectionId: undefined,
+			preset: undefined,
 		});
 	});
 });

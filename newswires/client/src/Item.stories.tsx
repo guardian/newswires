@@ -64,6 +64,8 @@ const meta = {
 							toggleResizablePanelsDirection: () => {},
 							showIncopyImport: true,
 							toggleShowIncopyImport: () => {},
+							showTastedList: false,
+							toggleShowTastedList: () => {},
 						}}
 					>
 						<SearchContextProvider>
@@ -88,6 +90,7 @@ export const LoadedItem: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 
@@ -117,6 +120,7 @@ export const WithLongTitleSlugAndSubheading: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 
@@ -146,6 +150,7 @@ export const WithToolLinks: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 
@@ -165,6 +170,7 @@ export const WithEmbargoAndEdNote: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 
@@ -176,6 +182,7 @@ export const WithError: Story = {
 		handlePreviousItem: () => console.log('previous item clicked'),
 		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
 		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
 	},
 };
 

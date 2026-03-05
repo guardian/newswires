@@ -1,6 +1,6 @@
-import { forTestingOnly } from './timestamp-compare';
+import { forTestingOnly, sortByTimeStamp } from './timestamp-compare';
 
-const { sortAndGetFirstItem, sortByTimeStamp } = forTestingOnly;
+const { sortAndGetFirstItem } = forTestingOnly;
 
 describe('sortByTimeStamp', () => {
 	const timestamps = [
