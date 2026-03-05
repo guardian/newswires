@@ -1,3 +1,4 @@
+import { computeSuppliersToExclude } from './utils/supplierExclusions.ts';
 import type { AppConfiguration } from './windowConfigType';
 
 const isNode = typeof process !== 'undefined';
@@ -27,17 +28,6 @@ const showPAAPI = configLookup.switches.ShowPAAPI;
  * The list of suppliers to exclude from the list of 'recognised suppliers' that
  * we use to populate the options in the sidebar
  */
-
-const computeSuppliersToExclude = (
-	showGuSuppliers: boolean,
-	showPAAPI: boolean,
-) => {
-	const guSuppliers = showGuSuppliers ? [] : ['GUAP', 'GUREUTERS'];
-	const newPaApi = showPAAPI ? [] : ['PAAPI'];
-	const dotCopy = ['UNAUTHED_EMAIL_FEED'];
-	return [...dotCopy, ...guSuppliers, ...newPaApi];
-};
-
 export const SUPPLIERS_TO_EXCLUDE = computeSuppliersToExclude(
 	showGuSuppliers,
 	showPAAPI,
