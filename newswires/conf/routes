@@ -32,6 +32,7 @@ GET     /oauthCallback              controllers.AuthController.oauthCallback()
 
 GET     /healthcheck                controllers.ManagementController.healthcheck()
 GET     /_prout                     controllers.ManagementController.gitHash()
+GET     /switchboard                controllers.ManagementController.switchboard()
 
 
 # Map static resources from the /public folder to the /assets URL path

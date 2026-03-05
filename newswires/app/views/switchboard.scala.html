@@ -1,0 +1,34 @@
+@(switches: Map[String, Boolean], stage: String)
+<!doctype html>
+<html>
+    <head>
+        <title>Switchboard</title>
+    </head>
+    <body>
+        <h1>Feature switches for @stage</h1>
+        <table>
+            <thead>
+                <th>
+                    Name
+                </th>
+                <th>
+                    State
+                </th>
+            </thead>
+            <tbody>
+            @for(
+                (name, state) <- switches
+            ) {
+                <tr>
+                    <td>
+                        @name
+                    </td>
+                    <td>
+                        @state
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </body>
+</html>
