@@ -17,13 +17,11 @@ import models.{
   FilterParams,
   FingerpostWire,
   NextPage,
-  NextPageId,
   QueryCursor,
   QueryParams,
   QueryResponse,
   SearchParams,
-  UpdateType,
-  UpdateTypeId
+  UpdateType
 }
 import play.api.Logging
 import scalikejdbc._
@@ -327,12 +325,6 @@ object FingerpostWireEntry
         else sqls"(${syn.content}->'dataformat') IS NULL"
       }
 
-    lazy val beforeIdSQL =
-      (beforeId: Int) => sqls"${FingerpostWireEntry.syn.id} < $beforeId"
-
-    lazy val sinceIdSQL =
-      (sinceId: Int) => sqls"${FingerpostWireEntry.syn.id} > $sinceId"
-
     lazy val beforeTimeStampSQL =
       (endDate: String, column: TimeStampColumn) =>
         sqls"${column.columnName} <= CAST($endDate AS timestamptz)"
@@ -484,9 +476,7 @@ object FingerpostWireEntry
         ),
         queryCursor.maybeAfterTimeStamp.map(u =>
           Filters.afterTimeStampSQL(u.sinceTimeStamp, timeStampColumn)
-        ),
-        queryCursor.maybeBeforeId.map(Filters.beforeIdSQL(_)),
-        queryCursor.maybeSinceId.map(u => Filters.sinceIdSQL(u.sinceId))
+        )
       ).flatten
     )
   }
@@ -523,13 +513,11 @@ object FingerpostWireEntry
   }
 
   private[db] def decideSortDirection(
-      maybeAfterTimeStamp: Option[UpdateType],
-      maybeSinceId: Option[UpdateTypeId]
+      maybeAfterTimeStamp: Option[UpdateType]
   ): SQLSyntax = {
-    (maybeAfterTimeStamp, maybeSinceId) match {
-      case (Some(NextPage(_)), _)   => sqls"ASC"
-      case (_, Some(NextPageId(_))) => sqls"ASC"
-      case _                        => sqls"DESC"
+    (maybeAfterTimeStamp) match {
+      case Some(NextPage(_)) => sqls"ASC"
+      case _                 => sqls"DESC"
     }
   }
 
@@ -564,12 +552,11 @@ object FingerpostWireEntry
     val effectivePageSize = clamp(0, pageSize, 250)
 
     val maybeAfterTimeStamp = queryParams.queryCursor.maybeAfterTimeStamp
-    val maybeSinceId = queryParams.queryCursor.maybeSinceId
 
     val highlightsClause = buildHighlightsClause(queryParams.maybeSearchTerm)
 
     val orderByClause =
-      sqls"ORDER BY ${queryParams.timeStampColumn.columnName} ${decideSortDirection(maybeAfterTimeStamp, maybeSinceId)}"
+      sqls"ORDER BY ${queryParams.timeStampColumn.columnName} ${decideSortDirection(maybeAfterTimeStamp)}"
 
     sql"""| SELECT ${FingerpostWireEntry.selectAllStatement}, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}, $highlightsClause
           | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
