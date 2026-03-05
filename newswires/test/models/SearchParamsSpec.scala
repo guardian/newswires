@@ -103,7 +103,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     result.filters.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
-      "GuAP",
+      "GuAP"
     )
   }
 

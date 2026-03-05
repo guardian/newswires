@@ -72,7 +72,9 @@ object SearchParams {
       if (showGuSuppliers) Nil
       else
         List("GuReuters", "GuAP").filterNot(s => suppliers.contains(s))
-    val paApiExclusion = if(showPAAPI) Nil else List("PAAPI").filterNot(s => suppliers.contains(s))
+    val paApiExclusion =
+      if (showPAAPI) Nil
+      else List("PAAPI").filterNot(s => suppliers.contains(s))
     val exclusionFromParams =
       query.get("supplierExcl").map(_.toList).getOrElse(Nil)
 
