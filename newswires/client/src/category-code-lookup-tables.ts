@@ -6778,6 +6778,8 @@ export const lookupTables: Array<{
 			'paCat:FFF': 'Central Office of Information',
 			'paCat:QFF': 'Advanced News',
 			'paCat:HHH': 'Home news',
+			'paCat:NIR': 'Northern Irish News',
+			'paCat:OOO': 'Foreign news',
 			'paCat:PPP': 'Parliament news',
 			'paCat:PPS': 'Scottish Parliament news',
 			'paCat:SCN': 'Scottish news',
@@ -6791,6 +6793,7 @@ export const lookupTables: Array<{
 			'paCat:SST': 'Scottish sports',
 			// Football results
 			'paCat:RFC': 'Collated Results (Full-time scores and match details)',
+			'paCat:RRA': 'Data Format Collated Soccer Half Time Scores',
 			'paCat:RSA': 'Soccer Attendance (Match attendance figures)',
 			'paCat:RSF': 'Soccer Full Time (Final match results)',
 			'paCat:RSH': 'Soccer Half Time (Half-time scores)',
@@ -6805,6 +6808,7 @@ export const lookupTables: Array<{
 			'paCat:SDB': 'Soccer Tables (various formats)',
 			'paCat:SDC': 'Soccer Tables (various formats)',
 			'paCat:SDD': 'Soccer Tables (various formats)',
+			'paCat:SDG': 'Soccer Tables (various formats)',
 			'paCat:SJB': 'Soccer Tables (various formats)',
 			'paCat:STA': 'Soccer Tables (various formats)',
 			'paCat:STB': 'Soccer Tables (various formats)',
@@ -6860,6 +6864,11 @@ export const lookupTables: Array<{
 			'paCat:SSD': 'Rugby Scores (Rugby match scores)',
 			'paCat:SSG': 'Goal Flash (Soccer goal updates)',
 			'paCat:SRD': 'Sports Data (General sports statistics)',
+			// Election Data
+			'paCat:XDA': 'Elections Data',
+			'paCat:XDB': 'Elections Data',
+			'paCat:XTA': 'Elections Data',
+			'paCat:XTB': 'Elections Data',
 		},
 	},
 ];

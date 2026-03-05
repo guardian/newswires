@@ -1,7 +1,7 @@
 import { getErrorMessage } from '@guardian/libs';
 import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
 import { relativeDateRangeToAbsoluteDateRange } from './dateHelpers.ts';
-import type { EuiDateString } from './sharedTypes';
+import type { BaseQuery, EuiDateString } from './sharedTypes';
 import { type Config, EuiDateStringSchema, type Query } from './sharedTypes';
 
 export const defaultQuery: Query = {
@@ -16,6 +16,7 @@ export const defaultQuery: Query = {
 	start: DEFAULT_DATE_RANGE.start,
 	end: DEFAULT_DATE_RANGE.end,
 	hasDataFormatting: undefined,
+	collectionId: undefined,
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -65,8 +66,22 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const hasDataFormatting = maybeStringToBooleanOrUndefined(
 		params.get('hasDataFormatting'),
 	);
+	let collectionId: number | undefined = undefined;
 
-	return {
+	try {
+		const maybeCollectionId = params.get('collectionId');
+		collectionId = maybeCollectionId ? parseInt(maybeCollectionId) : undefined;
+	} catch (e) {
+		const errorMessage = getErrorMessage(e);
+		console.error(
+			`Error parsing collectionId from URLSearchParams: ${errorMessage}. collectionId value: ${params.get(
+				'collectionId',
+			)}. Setting collectionId to undefined.`,
+		);
+		collectionId = undefined;
+	}
+
+	const baseQuery: BaseQuery = {
 		q:
 			typeof queryString === 'string' || typeof queryString === 'number'
 				? queryString.toString()
@@ -77,11 +92,31 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		keywordExcl,
 		categoryCode,
 		categoryCodeExcl,
-		preset,
 		start,
 		end,
 		hasDataFormatting,
 	};
+
+	// we're treating preset and collectionId as mutually exclusive - if both are present, preset takes precedence and collectionId is ignored
+	if (preset !== undefined) {
+		return {
+			...baseQuery,
+			preset,
+			collectionId: undefined,
+		};
+	} else if (collectionId !== undefined) {
+		return {
+			...baseQuery,
+			preset: undefined,
+			collectionId,
+		};
+	} else {
+		return {
+			...baseQuery,
+			preset: undefined,
+			collectionId: undefined,
+		};
+	}
 }
 
 export function urlToConfig(location: {
@@ -190,7 +225,7 @@ export const paramsToQuerystring = ({
 				if (items.length > 0) {
 					return [...acc, ...items];
 				}
-			} else if (typeof v === 'boolean') {
+			} else if (typeof v === 'boolean' || typeof v === 'number') {
 				return [...acc, [k, v.toString()]];
 			}
 			return acc;

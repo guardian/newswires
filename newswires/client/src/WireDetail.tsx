@@ -23,18 +23,24 @@ import { css } from '@emotion/react';
 import type { Moment } from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
+import { AddToCollectionButton } from './AddToCollectionButton.tsx';
+import { Alert } from './Alert.tsx';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
-import { convertToLocalDateString } from './dateHelpers.ts';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
+import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
+import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
+import { TASTED_COLLECTION } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import { isAlert } from './utils/contentHelpers.ts';
 
 function TitleContentForItem({
 	slug,
@@ -43,6 +49,7 @@ function TitleContentForItem({
 	localIngestedAt,
 	supplier,
 	wordCount,
+	isAlert,
 }: {
 	slug?: string;
 	subhead?: string;
@@ -50,6 +57,7 @@ function TitleContentForItem({
 	localIngestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
+	isAlert: boolean;
 }) {
 	const theme = useEuiTheme();
 
@@ -67,7 +75,6 @@ function TitleContentForItem({
 				justify-content: start;
 			`}
 		>
-			<div></div>
 			<EuiSpacer size="xs" />
 			{showSubhead && (
 				<h3
@@ -92,6 +99,7 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
+				{isAlert && <Alert isPrimary={true} />}
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
 				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
@@ -486,14 +494,22 @@ export const WireDetail = ({
 	wire,
 	isShowingJson,
 	addToolLink,
+	refreshItemData,
 }: {
 	wire: WireData;
 	isShowingJson: boolean;
 	addToolLink: (toolLink: ToolLink) => void;
+	refreshItemData: () => void;
 }) => {
-	const { state, handleDeselectItem, handlePreviousItem, handleNextItem } =
-		useSearch();
+	const {
+		state,
+		config,
+		handleDeselectItem,
+		handlePreviousItem,
+		handleNextItem,
+	} = useSearch();
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
+	const { showTastedList } = useUserSettings();
 
 	const isFirst = state.queryData?.results[0]?.id === wire.id;
 	const isLast =
@@ -543,10 +559,24 @@ export const WireDetail = ({
 	}, [wire]);
 
 	const ednoteToRender = decideEdNote({ ednote, supplier: wire.supplier });
+
 	const embargoNote = decideEmbargoNote({
 		status: wire.content.status,
 		embargo: wire.content.embargo,
 	});
+
+	const showCollectionMetadata =
+		config.query.collectionId !== undefined || showTastedList;
+
+	const maybeTastedCollectionMetadata = wire.collections.filter(
+		(collection) => collection.collectionId === TASTED_COLLECTION.id,
+	);
+
+	const itemIsInTastedCollection = maybeTastedCollectionMetadata.length > 0;
+
+	const shouldDisplayIntegrationMetadata =
+		(showCollectionMetadata && itemIsInTastedCollection) ||
+		(wire.toolLinks && wire.toolLinks.length > 0);
 
 	return (
 		<div
@@ -554,14 +584,6 @@ export const WireDetail = ({
 				container-type: inline-size;
 			`}
 		>
-			<div
-				css={css`
-					display: flex;
-					align-items: center;
-					justify-content: flex-end;
-					gap: ${theme.euiTheme.size.s};
-				`}
-			></div>
 			<EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
 				<Tooltip
 					tooltipContent="Previous story"
@@ -595,6 +617,13 @@ export const WireDetail = ({
 						gap: ${theme.euiTheme.size.s};
 					`}
 				>
+					{showTastedList && (
+						<AddToCollectionButton
+							wireId={wire.id.toString()}
+							isInTastedCollection={itemIsInTastedCollection}
+							refreshItemData={refreshItemData}
+						/>
+					)}
 					<CopyButton id={wire.id} headlineText={headlineText} />
 					<ToolsConnection
 						itemData={wire}
@@ -620,7 +649,6 @@ export const WireDetail = ({
 					flex-direction: column;
 					justify-content: space-between;
 					gap: ${theme.euiTheme.size.s};
-
 					@container (width >= 700px) {
 						flex-direction: row;
 					}
@@ -634,6 +662,7 @@ export const WireDetail = ({
 						localIngestedAt={wire.localIngestedAt}
 						supplier={wire.supplier}
 						wordCount={wordCount}
+						isAlert={isAlert(wire.content)}
 					/>
 				</div>
 			</div>
@@ -654,36 +683,62 @@ export const WireDetail = ({
 					`}
 				>
 					<EuiSpacer size="xs" />
-					{wire.toolLinks?.length ? (
+					{shouldDisplayIntegrationMetadata && (
 						<>
 							<EuiCallOut>
 								<ul
 									css={css`
+										padding-top: ${theme.euiTheme.size.s};
 										display: grid;
 										grid-template-columns: min-content 1fr;
 										gap: 0.5rem;
+										align-items: center;
 									`}
 								>
-									{wire.toolLinks.map((toolLink) => (
-										<li
-											key={toolLink.id}
-											css={css`
-												display: contents;
-											`}
-										>
-											<ToolSendReport
-												toolLink={toolLink}
+									{showCollectionMetadata &&
+										maybeTastedCollectionMetadata.length > 0 && (
+											<li
+												css={css`
+													display: contents;
+												`}
+											>
+												<span
+													css={css`
+														color: ${theme.euiTheme.colors
+															.backgroundFilledAccent};
+													`}
+												>
+													<EuiIcon type={CollectionsIcon} size="original" />
+												</span>
+												<EuiText size="xs">
+													Added to collection
+													{' • '}
+													{maybeTastedCollectionMetadata.map((_) =>
+														convertToLocalDate(_.addedAt).fromNow(),
+													)}
+												</EuiText>
+											</li>
+										)}
+									{wire.toolLinks &&
+										wire.toolLinks.length > 0 &&
+										wire.toolLinks.map((toolLink) => (
+											<li
 												key={toolLink.id}
-												showIcon={true}
-											/>
-										</li>
-									))}
+												css={css`
+													display: contents;
+												`}
+											>
+												<ToolSendReport
+													toolLink={toolLink}
+													key={toolLink.id}
+													showIcon={true}
+												/>
+											</li>
+										))}
 								</ul>
 							</EuiCallOut>
 							<EuiSpacer size="s" />
 						</>
-					) : (
-						<></>
 					)}
 					{embargoNote && (
 						<>
@@ -707,7 +762,7 @@ export const WireDetail = ({
 							>
 								Byline: {byline}
 							</p>
-							<EuiSpacer size="m" />
+							<EuiSpacer size="s" />
 						</>
 					)}
 					{safeAbstract && wire.supplier.name === AP && (
