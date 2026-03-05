@@ -2,9 +2,10 @@ import dateMath from '@elastic/datemath';
 import { getErrorMessage } from '@guardian/libs';
 import { isEqual as deepIsEqual } from 'lodash';
 import moment from 'moment-timezone';
-import type { Query, WiresQueryData } from '../sharedTypes.ts';
+import type { Query, SortBy, WiresQueryData } from '../sharedTypes.ts';
 import { defaultQuery } from '../urlState.ts';
 import type { Action, SearchHistory, State } from './SearchContext.tsx';
+import { getTimeStamp } from './timestamp-compare.ts';
 
 export const safeReducer = (
 	reducer: (state: State, action: Action) => State,
@@ -26,6 +27,7 @@ function mergeQueryData(
 	existing: WiresQueryData | undefined,
 	newData: WiresQueryData,
 	{ start }: Query,
+	sortBy: SortBy,
 ): WiresQueryData {
 	if (existing) {
 		const existingIds = new Set(existing.results.map((item) => item.id));
@@ -33,7 +35,7 @@ function mergeQueryData(
 		const filteredExistingResults =
 			start !== undefined
 				? existing.results.filter((existingItem) => {
-						return moment(existingItem.ingestedAt).isSameOrAfter(
+						return moment(getTimeStamp(existingItem, sortBy)).isSameOrAfter(
 							dateMath.parse(start),
 						);
 					})
@@ -146,6 +148,7 @@ export const SearchReducer = (state: State, action: Action): State => {
 								results: action.data.results,
 							},
 							action.query,
+							state.sortBy,
 						),
 						lastUpdate: moment().format(),
 					};

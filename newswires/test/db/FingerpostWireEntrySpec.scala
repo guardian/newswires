@@ -195,7 +195,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val textSearchWhereClause = FingerpostWireEntry.filtersBuilder(filters).get
     val dateRangeWhereClause =
-      Filters.dateRangeSQL(dateRange.start, dateRange.end).get
+      Filters.dateRangeSQL(dateRange.start, dateRange.end, IngestedAtTime).get
     val customParams = SearchParams(filters = filters, dateRange = dateRange)
     val whereClause = FingerpostWireEntry.buildWhereClause(
       customParams,
@@ -499,39 +499,92 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "date range filters"
   it should "create the correct sql filters for start date set" in {
     val startSQL = FingerpostWireEntry.Filters
-      .dateRangeSQL(Some("2025-10-16T09:25:32Z"), None)
+      .dateRangeSQL(Some("2025-10-16T09:25:32Z"), None, IngestedAtTime)
       .get
     startSQL should matchSqlSnippet(
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST(? AS timestamptz)",
       expectedParams = List("2025-10-16T09:25:32Z")
     )
+
+    val startSQLWithCollectionOrdering = FingerpostWireEntry.Filters
+      .dateRangeSQL(
+        Some("2025-10-16T09:25:32Z"),
+        None,
+        AddedToCollectionAtTime(1)
+      )
+      .get
+    startSQLWithCollectionOrdering should matchSqlSnippet(
+      expectedClause =
+        sqls"${WireEntryForCollection.syn.addedAt} >= CAST(? AS timestamptz)",
+      expectedParams = List("2025-10-16T09:25:32Z")
+    )
   }
 
   it should "create the correct sql filters for end date set" in {
     val endSQL = FingerpostWireEntry.Filters
-      .dateRangeSQL(None, Some("2025-10-16T09:25:32Z"))
+      .dateRangeSQL(None, Some("2025-10-16T09:25:32Z"), IngestedAtTime)
       .get
     endSQL should matchSqlSnippet(
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST(? AS timestamptz)",
       expectedParams = List("2025-10-16T09:25:32Z")
     )
+
+    val endSQLWithCollectionOrdering = FingerpostWireEntry.Filters
+      .dateRangeSQL(
+        None,
+        Some("2025-10-16T09:25:32Z"),
+        AddedToCollectionAtTime(1)
+      )
+      .get
+    endSQLWithCollectionOrdering should matchSqlSnippet(
+      expectedClause =
+        sqls"${WireEntryForCollection.syn.addedAt} <= CAST(? AS timestamptz)",
+      expectedParams = List("2025-10-16T09:25:32Z")
+    )
   }
 
   it should "create the correct sql filters for start and end date set" in {
     val rangeSQL = FingerpostWireEntry.Filters
-      .dateRangeSQL(Some("2025-10-15T09:25:32Z"), Some("2025-10-16T09:25:32Z"))
+      .dateRangeSQL(
+        Some("2025-10-15T09:25:32Z"),
+        Some("2025-10-16T09:25:32Z"),
+        IngestedAtTime
+      )
       .get
     rangeSQL should matchSqlSnippet(
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST(? AS timestamptz) AND CAST(? AS timestamptz)",
       expectedParams = List("2025-10-15T09:25:32Z", "2025-10-16T09:25:32Z")
     )
+
+    val rangeSQLWithCollectionOrdering = FingerpostWireEntry.Filters
+      .dateRangeSQL(
+        Some("2025-10-15T09:25:32Z"),
+        Some("2025-10-16T09:25:32Z"),
+        AddedToCollectionAtTime(1)
+      )
+      .get
+    rangeSQLWithCollectionOrdering should matchSqlSnippet(
+      expectedClause =
+        sqls"${WireEntryForCollection.syn.addedAt} BETWEEN CAST(? AS timestamptz) AND CAST(? AS timestamptz)",
+      expectedParams = List("2025-10-15T09:25:32Z", "2025-10-16T09:25:32Z")
+    )
   }
 
   it should "be none when both start and end are none" in {
-    FingerpostWireEntry.Filters.dateRangeSQL(None, None) shouldBe None
+    FingerpostWireEntry.Filters.dateRangeSQL(
+      None,
+      None,
+      IngestedAtTime
+    ) shouldBe None
+
+    FingerpostWireEntry.Filters.dateRangeSQL(
+      None,
+      None,
+      AddedToCollectionAtTime(1)
+    ) shouldBe None
   }
 
   behavior of "supplier SQL helpers"

@@ -334,19 +334,19 @@ object FingerpostWireEntry
         sqls"${column.columnName} >= CAST($startDate AS timestamptz)"
 
     lazy val dateRangeSQL =
-      (start: Option[String], end: Option[String]) => {
+      (start: Option[String], end: Option[String], column: TimeStampColumn) => {
         (start, end) match {
           case (Some(startDate), Some(endDate)) =>
             Some(
-              sqls"${FingerpostWireEntry.syn.ingestedAt} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
+              sqls"${column.columnName} BETWEEN CAST($startDate AS timestamptz) AND CAST($endDate AS timestamptz)"
             )
           case (Some(startDate), None) =>
             Some(
-              afterTimeStampSQL(startDate, IngestedAtTime)
+              afterTimeStampSQL(startDate, column)
             )
           case (None, Some(endDate)) =>
             Some(
-              beforeTimeStampSQL(endDate, IngestedAtTime)
+              beforeTimeStampSQL(endDate, column)
             )
           case _ => None
         }
@@ -491,7 +491,8 @@ object FingerpostWireEntry
     val dataOnlyWhereClauses = queryCursorQuery(queryCursor, queryOrdering)
     val dateRangeQuery = Filters.dateRangeSQL(
       searchParams.dateRange.start,
-      searchParams.dateRange.end
+      searchParams.dateRange.end,
+      queryOrdering
     )
     val customSearchClauses = filtersBuilder(searchParams.filters)
     val presetSearchClauses = presetsBuilder(searchPresets)
