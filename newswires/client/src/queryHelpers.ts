@@ -1,4 +1,8 @@
-import { presetIsInSports, topLevelSportId } from './presets.ts';
+import {
+	presetIsInSports,
+	topLevelPresetId,
+	topLevelSportId,
+} from './presets.ts';
 import type { Query } from './sharedTypes.ts';
 
 export type QueryKeyValuePair = {
@@ -20,29 +24,32 @@ export type DeselectableQueryKey = DeselectableQueryKeyValue['key'];
 export const keyValueAfterDeselection = (
 	{ key, value }: DeselectableQueryKeyValue,
 	query: Query,
-): Partial<Query> => {
+): Query => {
 	if (key === 'q') {
-		return { q: '' };
+		return { ...query, q: '' };
 	}
 	if (key === 'preset') {
 		return {
-			[key]: presetIsInSports(value) ? topLevelSportId : undefined,
+			...query,
+			preset: presetIsInSports(value) ? topLevelSportId : topLevelPresetId,
+			collectionId: undefined,
 		};
 	}
 	if (key === 'dateRange') {
 		return {
+			...query,
 			start: undefined,
 			end: undefined,
 		};
 	}
 	if (['hasDataFormatting', 'start', 'end'].includes(key)) {
-		return { [key]: undefined };
+		return { ...query, [key]: undefined };
 	}
 	if (
 		['categoryCode', 'categoryCodeExcl', 'keyword', 'keywordExcl'].includes(key)
 	) {
 		const current = query[key] as string[] | undefined;
-		return { [key]: (current ?? []).filter((s) => s !== value) };
+		return { ...query, [key]: (current ?? []).filter((s) => s !== value) };
 	}
-	return {};
+	return { ...query };
 };

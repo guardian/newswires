@@ -49,6 +49,14 @@ export const ToolLinkSchema = z.object({
 });
 export type ToolLink = z.infer<typeof ToolLinkSchema>;
 
+export const CollectionSchema = z.object({
+	wireEntryId: z.number(),
+	collectionId: z.number(),
+	addedAt: z.string(),
+});
+
+export type CollectionMetadata = z.infer<typeof CollectionSchema>;
+
 export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
@@ -61,6 +69,7 @@ export const WireDataFromAPISchema = z.object({
 	highlight: z.string().optional(),
 	isFromRefresh: z.boolean().default(false),
 	toolLinks: z.array(ToolLinkSchema).optional(),
+	collections: z.array(CollectionSchema),
 	s3Key: z.string().optional(),
 });
 
@@ -139,7 +148,7 @@ export const EuiDateStringSchema = z
 	.refine((val) => isValidDateValue(val));
 export type EuiDateString = z.infer<typeof EuiDateStringSchema>;
 
-export const QuerySchema = z.object({
+export const BaseQuerySchema = z.object({
 	q: z.string(),
 	supplier: z.array(z.string()).optional(),
 	supplierExcl: z.array(z.string()).optional(),
@@ -152,6 +161,22 @@ export const QuerySchema = z.object({
 	end: EuiDateStringSchema.optional(),
 	hasDataFormatting: z.boolean().optional(),
 });
+export type BaseQuery = z.infer<typeof BaseQuerySchema>;
+
+export const QuerySchema = z.union([
+	BaseQuerySchema.extend({
+		preset: z.undefined(),
+		collectionId: z.undefined(),
+	}),
+	BaseQuerySchema.extend({
+		preset: z.string(),
+		collectionId: z.undefined(),
+	}),
+	BaseQuerySchema.extend({
+		preset: z.undefined(),
+		collectionId: z.number(),
+	}),
+]);
 
 export type Query = z.infer<typeof QuerySchema>;
 
@@ -183,3 +208,20 @@ export const ConfigSchema = z.discriminatedUnion('view', [
 ]);
 
 export type Config = z.infer<typeof ConfigSchema>;
+
+const SortByIngestedAtSchema = z.object({ sortByKey: 'ingestedAt' });
+const SortByAddedToCollectionAtSchema = z.object({
+	sortByKey: z.literal('addedToCollectionAt'),
+	collectionId: z.number(),
+});
+
+export function isSortByAddedToCollectionAt(
+	sortBy: SortBy,
+): sortBy is z.infer<typeof SortByAddedToCollectionAtSchema> {
+	return sortBy.sortByKey === 'addedToCollectionAt';
+}
+export const SortBySchema = z
+	.union([SortByIngestedAtSchema, SortByAddedToCollectionAtSchema])
+	.default({ sortByKey: 'ingestedAt' });
+
+export type SortBy = z.infer<typeof SortBySchema>;

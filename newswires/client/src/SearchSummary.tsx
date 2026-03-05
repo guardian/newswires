@@ -33,6 +33,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	keywordExcl: '(NOT) Keyword',
 	start: 'From',
 	end: 'To',
+	collectionId: 'Collection',
 } as const;
 
 const SummaryBadge = ({

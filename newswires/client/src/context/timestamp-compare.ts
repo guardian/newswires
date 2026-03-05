@@ -1,4 +1,7 @@
-export function sortByTimeStamp(
+import type { WireData } from '../sharedTypes';
+import { isSortByAddedToCollectionAt, type SortBy } from '../sharedTypes';
+
+function sortByTimeStamp(
 	{ ascending }: { ascending: boolean } = { ascending: false },
 ) {
 	if (ascending) {
@@ -7,10 +10,13 @@ export function sortByTimeStamp(
 	return (a: string, b: string) => b.localeCompare(a);
 }
 
-function sortAndGetFirstItem(
-	timestamps: string[],
-	ascending: boolean,
-): string | undefined {
+function sortAndGetFirstItem({
+	timestamps,
+	ascending,
+}: {
+	timestamps: string[];
+	ascending: boolean;
+}): string | undefined {
 	if (timestamps.length === 0) {
 		return undefined;
 	}
@@ -18,10 +24,39 @@ function sortAndGetFirstItem(
 	return sorted[0];
 }
 
-export function getLatestTimeStamp(timestamps: string[]): string | undefined {
-	return sortAndGetFirstItem(timestamps, false);
+function getTimeStamps(wires: WireData[], sortBy: SortBy): string[] {
+	if (isSortByAddedToCollectionAt(sortBy)) {
+		return wires
+			.map(
+				(wire) =>
+					wire.collections.find((c) => c.collectionId === sortBy.collectionId)
+						?.addedAt,
+			)
+			.filter((ts): ts is string => ts !== undefined);
+	} else {
+		return wires.map((wire) => wire.ingestedAt);
+	}
 }
 
-export function getEarliestTimeStamp(timestamps: string[]): string | undefined {
-	return sortAndGetFirstItem(timestamps, true);
+export function getLatestTimeStamp(
+	wires: WireData[],
+	sortBy: SortBy,
+): string | undefined {
+	const timestamps = getTimeStamps(wires, sortBy);
+
+	return sortAndGetFirstItem({ timestamps, ascending: false });
 }
+
+export function getEarliestTimeStamp(
+	wires: WireData[],
+	sortBy: SortBy,
+): string | undefined {
+	const timestamps = getTimeStamps(wires, sortBy);
+
+	return sortAndGetFirstItem({ timestamps, ascending: true });
+}
+
+export const forTestingOnly = {
+	sortByTimeStamp,
+	sortAndGetFirstItem,
+};
