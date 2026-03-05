@@ -31,9 +31,9 @@ export function AddToCollectionButton({
 	);
 
 	const toggleItemToTasted = useCallback((): void => {
-		const url = isInTastedCollection
-			? `/api/collections/${TASTED_COLLECTION.id}/remove-item/${wireId}`
-			: `/api/collections/${TASTED_COLLECTION.id}/add-item/${wireId}`;
+		const actionPath = isInTastedCollection ? 'remove-item' : 'add-item';
+		const url = `/api/collections/${TASTED_COLLECTION.id}/${actionPath}/${wireId}`;
+
 		pandaFetch(url, {
 			method: 'PUT',
 			headers: {
