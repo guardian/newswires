@@ -19,6 +19,7 @@ export const Item = ({
 	itemData,
 	handleDeselectItem,
 	addToolLink,
+	refreshItemData,
 }: {
 	error: string | undefined;
 	itemData: WireData | undefined;
@@ -26,6 +27,7 @@ export const Item = ({
 	handlePreviousItem: () => void;
 	handleNextItem: () => Promise<void>;
 	addToolLink: (toolLink: ToolLink) => void;
+	refreshItemData: () => void;
 }) => {
 	const [isShowingJson, setIsShowingJson] = useState<boolean>(false);
 
@@ -94,6 +96,7 @@ export const Item = ({
 							wire={itemData}
 							isShowingJson={isShowingJson}
 							addToolLink={addToolLink}
+							refreshItemData={refreshItemData}
 						/>
 					</EuiSplitPanel.Inner>
 					<EuiSplitPanel.Inner>

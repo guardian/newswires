@@ -9,6 +9,8 @@ export const useSettingsSwitches = () => {
 		toggleShowSecondaryFeedContent,
 		showIncopyImport,
 		toggleShowIncopyImport,
+		showTastedList,
+		toggleShowTastedList,
 	} = useUserSettings();
 
 	const embeddedCodeSwitchId__1 = useGeneratedHtmlId({
@@ -20,6 +22,10 @@ export const useSettingsSwitches = () => {
 	const embeddedCodeSwitchId__3 = useGeneratedHtmlId({
 		prefix: 'embeddedCodeSwitchId',
 	});
+	const embeddedCodeSwitchId__4 = useGeneratedHtmlId({
+		prefix: 'embeddedCodeSwitchId',
+	});
+
 	return [
 		{
 			id: embeddedCodeSwitchId__1,
@@ -42,6 +48,14 @@ export const useSettingsSwitches = () => {
 			checked: showIncopyImport,
 			onChange: () => toggleShowIncopyImport(),
 			helpText: '',
+		},
+		{
+			id: embeddedCodeSwitchId__4,
+			label: 'Show Collections',
+			checked: showTastedList,
+			onChange: () => toggleShowTastedList(),
+			helpText:
+				"Show option to add wires to the Tasted collection (only for Australian desk while we're testing)",
 		},
 	];
 };
