@@ -16,9 +16,16 @@ import sanitizeHtml from 'sanitize-html';
 import { Alert } from './Alert.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
+import { convertToLocalDate } from './dateHelpers.ts';
 import { formatTimestamp } from './formatTimestamp.ts';
+import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
-import type { SupplierInfo, ToolLink, WireData } from './sharedTypes.ts';
+import type {
+	CollectionMetadata,
+	SupplierInfo,
+	ToolLink,
+	WireData,
+} from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
 import { isAlert } from './utils/contentHelpers.ts';
@@ -47,6 +54,7 @@ export const WireItemList = ({
 						localIngestedAt,
 						hasDataFormatting,
 						toolLinks,
+						collections,
 					}) => (
 						<li key={id}>
 							<WirePreviewCard
@@ -61,6 +69,7 @@ export const WireItemList = ({
 								selected={selectedWireId == id.toString()}
 								view={config.view}
 								previousItemId={previousItemId}
+								collectionMetadata={collections}
 							/>
 						</li>
 					),
@@ -191,6 +200,7 @@ const WirePreviewCard = ({
 	selected,
 	view,
 	previousItemId,
+	collectionMetadata,
 }: {
 	id: number;
 	supplier: SupplierInfo;
@@ -203,13 +213,23 @@ const WirePreviewCard = ({
 	isFromRefresh: boolean;
 	view: string;
 	previousItemId: string | undefined;
+	collectionMetadata: CollectionMetadata[];
 }) => {
 	const { viewedItemIds, config } = useSearch();
 	const { showSecondaryFeedContent } = useUserSettings();
+	const showCollectionMetadata = config.query.collectionId !== undefined;
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const isPoppedOut = config.ticker;
+
+	const maybeTastedCollectionMetadata = collectionMetadata.filter(
+		(collection) => collection.collectionId === config.query.collectionId,
+	);
+
+	const hasMetadataToDisplay =
+		(showCollectionMetadata && maybeTastedCollectionMetadata.length > 0) ||
+		(toolLinks && toolLinks.length > 0);
 
 	useEffect(() => {
 		if (selected && ref.current) {
@@ -368,23 +388,50 @@ const WirePreviewCard = ({
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
 				</div>
-				{toolLinks && toolLinks.length > 0 && (
+				{hasMetadataToDisplay && (
 					<ul
 						css={css`
-							color: brown;
+							color: ${theme.euiTheme.colors.textAccent};
 							margin-top: 5px;
+							display: grid;
+							grid-template-columns: min-content 1fr;
+							gap: 0.2rem;
 						`}
 					>
-						{toolLinks.map((toolLink) => (
-							<li
-								key={toolLink.id}
-								css={css`
-									display: contents;
-								`}
-							>
-								<ToolSendReport toolLink={toolLink} key={toolLink.id} />
-							</li>
-						))}
+						{showCollectionMetadata &&
+							maybeTastedCollectionMetadata.map((metadata) => (
+								<li
+									css={css`
+										display: contents;
+									`}
+									key={metadata.addedAt}
+								>
+									<span
+										css={css`
+											color: ${theme.euiTheme.colors.backgroundFilledAccent};
+										`}
+									>
+										<EuiIcon type={CollectionsIcon} size="original" />
+									</span>
+									<EuiText size="xs">
+										Added to collection
+										{' • '}
+										{convertToLocalDate(metadata.addedAt).fromNow()},
+									</EuiText>
+								</li>
+							))}
+						{toolLinks &&
+							toolLinks.length > 0 &&
+							toolLinks.map((link) => (
+								<li
+									key={link.id}
+									css={css`
+										display: contents;
+									`}
+								>
+									<ToolSendReport toolLink={link} showIcon={true} />
+								</li>
+							))}
 					</ul>
 				)}
 				{showSecondaryFeedContent && (

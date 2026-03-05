@@ -15,6 +15,7 @@ import type { Config, Query } from '../sharedTypes.ts';
 import {
 	ConfigSchema,
 	QuerySchema,
+	SortBySchema,
 	WiresQueryDataSchema,
 } from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
@@ -50,6 +51,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('loading'),
@@ -59,6 +61,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('success'),
@@ -68,6 +71,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('error'),
@@ -77,6 +81,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 	z.object({
 		status: z.literal('offline'),
@@ -86,6 +91,7 @@ const _StateSchema = z.discriminatedUnion('status', [
 		autoUpdate: z.boolean().default(true),
 		lastUpdate: z.string().optional(),
 		loadingMore: z.boolean().default(false),
+		sortBy: SortBySchema,
 	}),
 ]);
 
@@ -94,7 +100,7 @@ export type State = z.infer<typeof _StateSchema>;
 
 // Action Schema
 const _ActionSchema = z.discriminatedUnion('type', [
-	z.object({ type: z.literal('ENTER_QUERY') }),
+	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
 	z.object({ type: z.literal('LOADING_MORE') }),
 	z.object({
 		type: z.literal('FETCH_SUCCESS'),
@@ -160,6 +166,13 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		status: 'loading',
 		autoUpdate: true,
 		loadingMore: false,
+		sortBy:
+			currentConfig.query.collectionId !== undefined
+				? {
+						sortByKey: 'addedToCollectionAt',
+						collectionId: currentConfig.query.collectionId,
+					}
+				: { sortByKey: 'ingestedAt' },
 	});
 
 	function handleFetchError(error: ErrorEvent) {
@@ -182,7 +195,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			}
 			setConfig(config);
 			if (!deepIsEqual(config.query, currentConfig.query)) {
-				dispatch({ type: 'ENTER_QUERY' });
+				dispatch({ type: 'ENTER_QUERY', query: config.query });
 			}
 		},
 		[viewedItemIds, currentConfig.query],
@@ -197,7 +210,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			}
 			setConfig(config);
 			if (!deepIsEqual(config.query, currentConfig.query)) {
-				dispatch({ type: 'ENTER_QUERY' });
+				dispatch({ type: 'ENTER_QUERY', query: config.query });
 			}
 		},
 		[currentConfig.query],
@@ -248,7 +261,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			pollingInterval = setInterval(() => {
 				if (state.autoUpdate) {
 					const afterTimeStamp = getLatestTimeStamp(
-						state.queryData.results.map((_) => _.ingestedAt),
+						state.queryData.results,
+						state.sortBy,
 					);
 					fetchResults({
 						query: currentConfig.query,
@@ -283,6 +297,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		state.queryData?.results,
 		sendTelemetryEvent,
 		currentConfig.view,
+		state.sortBy,
 	]);
 
 	const handleEnterQuery = useCallback(
@@ -404,7 +419,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		selectNextItem: boolean = false,
 	): Promise<void> => {
 		const beforeTimeStamp = getEarliestTimeStamp(
-			state.queryData?.results.map((_) => _.ingestedAt) ?? [],
+			state.queryData?.results ?? [],
+			state.sortBy,
 		);
 
 		if (!beforeTimeStamp) {

@@ -1,12 +1,14 @@
 import { pandaFetch } from '../panda-session';
+import { EuiDateStringSchema } from '../sharedTypes.ts';
 import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
-import { paramsToQuerystring } from '../urlState';
+import { paramsToQuerystring } from '../urlState.ts';
 import { fetchResults } from './fetchResults.ts';
 import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
-jest.mock('../urlState', () => ({
-	paramsToQuerystring: jest.fn(() => '?queryString'),
-}));
+// mock Date.now to ensure consistent test results when processing relative date ranges
+jest
+	.spyOn(Date, 'now')
+	.mockReturnValue(new Date('2024-02-24T16:15:00.000Z').getTime());
 
 jest.mock('../panda-session', () => ({
 	pandaFetch: jest.fn(() =>
@@ -25,16 +27,20 @@ describe('fetchResults', () => {
 	});
 
 	it('should call pandaFetch with correct URL and headers', async () => {
-		const mockQuery = { q: 'value' };
+		const mockQuery = {
+			q: 'value',
+			start: EuiDateStringSchema.parse('now-15m'),
+			collectionId: undefined,
+			preset: undefined,
+		};
 		await fetchResults({ query: mockQuery, view: 'feed' });
 
-		expect(paramsToQuerystring).toHaveBeenCalledWith({
-			query: mockQuery,
-			useAbsoluteDateTimeValues: true,
-		});
-		expect(pandaFetch).toHaveBeenCalledWith('/api/search?queryString', {
-			headers: { Accept: 'application/json' },
-		});
+		expect(pandaFetch).toHaveBeenCalledWith(
+			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}`,
+			{
+				headers: { Accept: 'application/json' },
+			},
+		);
 	});
 
 	it('should throw an error if response is not ok', async () => {
@@ -46,7 +52,10 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+			fetchResults({
+				query: { q: 'value', collectionId: undefined, preset: undefined },
+				view: 'feed',
+			}),
 		).rejects.toThrow('Error occurred');
 	});
 
@@ -57,7 +66,10 @@ describe('fetchResults', () => {
 		});
 
 		await expect(
-			fetchResults({ query: { q: 'value' }, view: 'feed' }),
+			fetchResults({
+				query: { q: 'value', collectionId: undefined, preset: undefined },
+				view: 'feed',
+			}),
 		).rejects.toThrow('Received invalid data from server');
 	});
 
@@ -72,42 +84,57 @@ describe('fetchResults', () => {
 			ok: true,
 		});
 
-		const result = await fetchResults({ query: { q: 'value' }, view: 'feed' });
+		const result = await fetchResults({
+			query: { q: 'value', collectionId: undefined, preset: undefined },
+			view: 'feed',
+		});
 		expect(result).toEqual(mockResponseData);
 	});
 
-	it('should append sinceId to the query if provided', async () => {
-		const mockQuery = { q: 'value' };
+	it('should append afterTimeStamp to the query if provided', async () => {
+		const mockQuery = {
+			q: 'value',
+			collectionId: undefined,
+			preset: undefined,
+		};
 		await fetchResults({
 			query: mockQuery,
 			view: 'feed',
 			afterTimeStamp: '2026-01-07T15:37:15Z',
 		});
-
-		expect(paramsToQuerystring).toHaveBeenCalledWith({
-			query: mockQuery,
-			useAbsoluteDateTimeValues: true,
-			afterTimeStamp: '2026-01-07T15:37:15Z',
-		});
+		expect(pandaFetch).toHaveBeenCalledWith(
+			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&afterTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
+			expect.objectContaining({
+				headers: { Accept: 'application/json' },
+			}),
+		);
 	});
 
-	it('should append beforeId to the query if provided', async () => {
-		const mockQuery = { q: 'value' };
+	it('should append beforeTimeStamp to the query if provided', async () => {
+		const mockQuery = {
+			q: 'value',
+			collectionId: undefined,
+			preset: undefined,
+		};
 		await fetchResults({
 			query: mockQuery,
 			view: 'feed',
 			beforeTimeStamp: '2026-01-07T15:37:15Z',
 		});
-
-		expect(paramsToQuerystring).toHaveBeenCalledWith({
-			query: mockQuery,
-			useAbsoluteDateTimeValues: true,
-			beforeTimeStamp: '2026-01-07T15:37:15Z',
-		});
+		expect(pandaFetch).toHaveBeenCalledWith(
+			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&beforeTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
+			expect.objectContaining({
+				headers: { Accept: 'application/json' },
+			}),
+		);
 	});
 
 	it('should transform the results using transformWireItemQueryResult', async () => {
-		const mockQuery = { q: 'value' };
+		const mockQuery = {
+			q: 'value',
+			collectionId: undefined,
+			preset: undefined,
+		};
 		const results = await fetchResults({ query: mockQuery, view: 'feed' });
 		expect(results.results).toHaveLength(1);
 		expect(results.results[0]).toEqual(
