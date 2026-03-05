@@ -31,10 +31,12 @@ class FeatureSwitchProvider(stage: String) {
       exposeToClient = true,
       isOn = () => stage.toUpperCase() != "PROD"
     )
-  private val switches = List(
+  val switches = List(
     ShowGuSuppliers,
     ShowPAAPI
   )
+
   def clientSideSwitchStates: Map[String, Boolean] =
     switches.filter(_.exposeToClient).map(s => s.name -> s.isOn()).toMap
+
 }

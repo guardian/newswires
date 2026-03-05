@@ -36,7 +36,7 @@ class ManagementController(
   def switchboard() = authAction {
     Ok(
       views.html.switchboard.render(
-        featureSwitchProvider.clientSideSwitchStates,
+        featureSwitchProvider.switches,
         configuration.get[String]("stage")
       )
     )

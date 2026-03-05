@@ -1,4 +1,5 @@
-@(switches: Map[String, Boolean], stage: String)
+@import service.FeatureSwitch
+@(switches: List[FeatureSwitch], stage: String)
 <!doctype html>
 <html>
     <head>
@@ -12,19 +13,25 @@
                     Name
                 </th>
                 <th>
+                    Description
+                </th>
+                <th>
                     State
                 </th>
             </thead>
             <tbody>
             @for(
-                (name, state) <- switches
+                switch <- switches
             ) {
                 <tr>
                     <td>
-                        @name
+                        @{switch.name}
                     </td>
                     <td>
-                        @state
+                        @{switch.description}
+                    </td>
+                    <td>
+                        @{if(switch.isOn()) "On" else "Off"}
                     </td>
                 </tr>
             }
