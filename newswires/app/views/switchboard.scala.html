@@ -1,5 +1,7 @@
 @import service.FeatureSwitch
-@(switches: List[FeatureSwitch], stage: String)
+@import helper._
+
+@(switches: List[FeatureSwitch], stage: String)(implicit request: play.api.mvc.RequestHeader)
 <!doctype html>
 <html>
     <head>
@@ -7,6 +9,7 @@
     </head>
     <body>
         <h1>Feature switches for @stage</h1>
+
         <table>
             <thead>
                 <th>
@@ -31,7 +34,12 @@
                         @{switch.description}
                     </td>
                     <td>
-                        @{if(switch.isOn()) "On" else "Off"}
+
+                    @helper.form(CSRF(routes.ManagementController.toggleSwitch(switch.id))) {
+                        <input type="hidden" name="feature" value=@{!switch.isOn()}>
+                        <input type="checkbox" name="enabled" @if(switch.isOn()) { checked } >
+                        <button type="submit">Update</button>
+                    }
                     </td>
                 </tr>
             }

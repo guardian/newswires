@@ -4,8 +4,9 @@ import com.gu.permissions.PermissionsProvider
 import conf.Database
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logging}
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{AnyContent, BaseController, ControllerComponents, Request}
 import service.FeatureSwitchProvider
+import play.filters.csrf._
 
 import scala.concurrent.ExecutionContext
 
@@ -33,12 +34,17 @@ class ManagementController(
     Ok(buildinfo.BuildInfo.gitCommitId)
   }
 
-  def switchboard() = authAction {
+  def switchboard() = authAction { implicit request: Request[AnyContent]  =>
     Ok(
       views.html.switchboard.render(
         featureSwitchProvider.switches,
-        configuration.get[String]("stage")
+        configuration.get[String]("stage"),
+        request
       )
     )
+  }
+
+  def toggleSwitch(id: Int) = authAction { implicit request: Request[AnyContent] =>
+    Redirect(routes.ManagementController.switchboard())
   }
 }

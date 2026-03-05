@@ -10,7 +10,8 @@ case class FeatureSwitch(
     description: String,
     exposeToClient: Boolean = false,
     private val safeState: SwitchState,
-    isOn: () => Boolean
+    isOn: () => Boolean,
+    id: Int
 )
 class FeatureSwitchProvider(stage: String) {
 
@@ -20,7 +21,9 @@ class FeatureSwitchProvider(stage: String) {
       safeState = Off,
       description = "Show suppliers from the Guardian",
       exposeToClient = true,
-      isOn = () => stage.toUpperCase() != "PROD"
+      isOn = () => stage.toUpperCase() != "PROD",
+      id = 1
+
     )
 
   val ShowPAAPI: FeatureSwitch =
@@ -29,7 +32,8 @@ class FeatureSwitchProvider(stage: String) {
       safeState = Off,
       description = "Show new PA API in the feed",
       exposeToClient = true,
-      isOn = () => stage.toUpperCase() != "PROD"
+      isOn = () => stage.toUpperCase() != "PROD",
+      id = 2
     )
   val switches = List(
     ShowGuSuppliers,
