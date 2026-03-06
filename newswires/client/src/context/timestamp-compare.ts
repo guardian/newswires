@@ -24,18 +24,28 @@ function sortAndGetFirstItem({
 	return sorted[0];
 }
 
-function getTimeStamps(wires: WireData[], sortBy: SortBy): string[] {
+export function getTimeStamp(
+	wire: WireData,
+	sortBy: SortBy,
+): string | undefined {
 	if (isSortByAddedToCollectionAt(sortBy)) {
-		return wires
-			.map(
-				(wire) =>
-					wire.collections.find((c) => c.collectionId === sortBy.collectionId)
-						?.addedAt,
-			)
-			.filter((ts): ts is string => ts !== undefined);
+		const collection = wire.collections.find(
+			(c) => c.collectionId === sortBy.collectionId,
+		);
+		if (collection) {
+			return collection.addedAt;
+		} else {
+			return undefined;
+		}
 	} else {
-		return wires.map((wire) => wire.ingestedAt);
+		return wire.ingestedAt;
 	}
+}
+
+export function getTimeStamps(wires: WireData[], sortBy: SortBy): string[] {
+	return wires
+		.map((wire) => getTimeStamp(wire, sortBy))
+		.filter((ts): ts is string => ts !== undefined);
 }
 
 export function getLatestTimeStamp(
