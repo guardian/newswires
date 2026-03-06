@@ -256,12 +256,12 @@ object FingerpostWireEntry
     }
 
     lazy val supplierSQL: List[String] => SQLSyntax =
-      (sourceFeeds: List[String]) => supplierCondition(syn, sourceFeeds)
+      (suppliers: List[String]) => supplierCondition(syn, suppliers)
 
     lazy val supplierExclSQL =
-      (sourceFeedsExcl: List[String]) => {
-        val se = syntax("sourceFeedsExcl")
-        exclusionCondition(se)(supplierCondition(se, sourceFeedsExcl))
+      (suppliersExcl: List[String]) => {
+        val se = syntax("suppliersExcl")
+        exclusionCondition(se)(supplierCondition(se, suppliersExcl))
       }
 
     lazy val simpleSearchSQL =
@@ -384,14 +384,14 @@ object FingerpostWireEntry
   private[db] def filtersBuilder(
       filters: FilterParams
   ): Option[SQLSyntax] = {
-    val sourceFeedsQuery: Option[SQLSyntax] = filters.suppliersIncl match {
-      case Nil         => None
-      case sourceFeeds => Some(Filters.supplierSQL(sourceFeeds))
+    val suppliersQuery: Option[SQLSyntax] = filters.suppliersIncl match {
+      case Nil       => None
+      case suppliers => Some(Filters.supplierSQL(suppliers))
     }
 
-    val sourceFeedsExclQuery: Option[SQLSyntax] = filters.suppliersExcl match {
-      case Nil             => None
-      case sourceFeedsExcl => Some(Filters.supplierExclSQL(sourceFeedsExcl))
+    val suppliersExclQuery: Option[SQLSyntax] = filters.suppliersExcl match {
+      case Nil           => None
+      case suppliersExcl => Some(Filters.supplierExclSQL(suppliersExcl))
     }
 
     val searchQuery: Option[SQLSyntax] =
@@ -447,8 +447,8 @@ object FingerpostWireEntry
       categoryCodesInclQuery,
       keywordsExclQuery,
       searchQuery,
-      sourceFeedsQuery,
-      sourceFeedsExclQuery,
+      suppliersQuery,
+      suppliersExclQuery,
       categoryCodesExclQuery,
       hasDataFormattingQuery,
       preComputedCategoriesQuery,

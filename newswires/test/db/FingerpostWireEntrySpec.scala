@@ -545,9 +545,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for suppliersExcl" in {
     val supplierExclClause =
-      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry sourceFeedsExcl
-                |WHERE fm.id = sourceFeedsExcl.id
-                |AND upper(sourceFeedsExcl.supplier) in (upper(?)) )""".stripMargin
+      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry suppliersExcl
+                |WHERE fm.id = suppliersExcl.id
+                |AND upper(suppliersExcl.supplier) in (upper(?)) )""".stripMargin
     val suppliersExclSQL =
       FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"))
     suppliersExclSQL should matchSqlSnippet(
