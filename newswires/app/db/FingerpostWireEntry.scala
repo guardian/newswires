@@ -38,6 +38,7 @@ case class WireMaybeToolLinkAndCollection(
 case class FingerpostWireEntry(
     id: Long,
     supplier: String,
+    sourceFeed: String,
     externalId: String,
     ingestedAt: Instant,
     content: FingerpostWire,
@@ -68,6 +69,7 @@ object FingerpostWireEntry
       "ingested_at",
       "content",
       "supplier",
+      "source_feed",
       "composer_id",
       "composer_sent_by",
       "category_codes",
@@ -83,6 +85,7 @@ object FingerpostWireEntry
     |   ${FingerpostWireEntry.syn.result.externalId},
     |   ${FingerpostWireEntry.syn.result.ingestedAt},
     |   ${FingerpostWireEntry.syn.result.supplier},
+    |   ${FingerpostWireEntry.syn.result.sourceFeed},
     |   ${FingerpostWireEntry.syn.result.composerId},
     |   ${FingerpostWireEntry.syn.result.composerSentBy},
     |   ${FingerpostWireEntry.syn.result.categoryCodes},
@@ -115,6 +118,8 @@ object FingerpostWireEntry
       FingerpostWireEntry(
         id = rs.long(fm.id),
         supplier = rs.string(fm.supplier),
+        // TODO remove optionality once source_feed has been backfilled
+        sourceFeed = rs.stringOpt(fm.sourceFeed).getOrElse("(missing)"),
         externalId = rs.string(fm.externalId),
         ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
         content = fingerpostContent,

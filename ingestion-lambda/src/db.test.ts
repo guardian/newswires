@@ -41,6 +41,7 @@ describe('putItemToDb', () => {
 			imageIds: [],
 		},
 		supplier: 'test-supplier',
+		sourceFeed: 'test-source-feed',
 		categoryCodes: ['code1', 'code2'],
 	};
 
