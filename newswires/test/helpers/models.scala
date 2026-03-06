@@ -278,9 +278,7 @@ trait models {
 
   val emptyQueryCursor = QueryCursor(
     maybeBeforeTimeStamp = None,
-    maybeAfterTimeStamp = None,
-    maybeBeforeId = None,
-    maybeSinceId = None
+    maybeAfterTimeStamp = None
   )
 
   val defaultOrdering = IngestedAtTime

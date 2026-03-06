@@ -9,7 +9,6 @@ import db.FingerpostWireEntry._
 import models.{
   BaseRequestParams,
   NextPage,
-  NextPageId,
   QueryCursor,
   QueryParams,
   QueryResponse,
@@ -52,8 +51,6 @@ class QueryController(
       maybeEnd: Option[String],
       maybeBeforeTimeStamp: Option[String],
       maybeAfterTimeStamp: Option[String],
-      maybeBeforeId: Option[Int],
-      maybeSinceId: Option[Int],
       hasDataFormatting: Option[Boolean]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val baseParams = BaseRequestParams(
@@ -67,8 +64,6 @@ class QueryController(
       maybeEnd = maybeEnd,
       maybeBeforeTimeStamp = maybeBeforeTimeStamp,
       maybeAfterTimeStamp = maybeAfterTimeStamp,
-      maybeBeforeId = maybeBeforeId,
-      maybeSinceId = maybeSinceId,
       hasDataFormatting = hasDataFormatting
     )
     val searchParams =
@@ -88,9 +83,7 @@ class QueryController(
       maybeSearchTerm = baseParams.textForHighlighting,
       queryCursor = QueryCursor(
         maybeBeforeTimeStamp = maybeBeforeTimeStamp,
-        maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_)),
-        maybeBeforeId = maybeBeforeId,
-        maybeSinceId = maybeSinceId.map(NextPageId(_))
+        maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_))
       ),
       pageSize = 30,
       timeStampColumn = timeStampColumn

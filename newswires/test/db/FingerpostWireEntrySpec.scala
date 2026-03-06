@@ -12,8 +12,6 @@ import _root_.models.{
   FilterParams,
   MostRecent,
   NextPage,
-  NextPageId,
-  QueryCursor,
   QueryParams,
   SearchParams
 }
@@ -83,7 +81,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "FingerpostWireEntry.queryCursorQuery"
   it should "apply beforeTimeStamp" in {
 
-    val clauseBeforeId =
+    val clauseBeforeTimesStamp =
       FingerpostWireEntry.queryCursorQuery(
         emptyQueryCursor.copy(maybeBeforeTimeStamp =
           Some("2025-01-01T00:00:00Z")
@@ -91,14 +89,14 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         defaultOrdering
       )
 
-    clauseBeforeId.get should matchSqlSnippet(
+    clauseBeforeTimesStamp.get should matchSqlSnippet(
       expectedClause = "fm.ingested_at <= CAST(? AS timestamptz)",
       expectedParams = List("2025-01-01T00:00:00Z")
     )
   }
 
   it should "apply afterTimeStamp" in {
-    val clauseSinceId =
+    val clauseSinceTimeStamp =
       FingerpostWireEntry.queryCursorQuery(
         emptyQueryCursor.copy(maybeAfterTimeStamp =
           Some(NextPage("2025-01-01T00:00:00Z"))
@@ -106,36 +104,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         defaultOrdering
       )
 
-    clauseSinceId.get should matchSqlSnippet(
+    clauseSinceTimeStamp.get should matchSqlSnippet(
       expectedClause = "fm.ingested_at >= CAST(? AS timestamptz)",
       expectedParams = List("2025-01-01T00:00:00Z")
-    )
-  }
-
-  it should "apply beforeId" in {
-
-    val clauseBeforeId =
-      FingerpostWireEntry.queryCursorQuery(
-        emptyQueryCursor.copy(maybeBeforeId = Some(100)),
-        defaultOrdering
-      )
-
-    clauseBeforeId.get should matchSqlSnippet(
-      expectedClause = "fm.id < ?",
-      expectedParams = List(100)
-    )
-  }
-
-  it should "apply afterId" in {
-    val clauseSinceId =
-      FingerpostWireEntry.queryCursorQuery(
-        emptyQueryCursor.copy(maybeSinceId = Some(NextPageId(200))),
-        defaultOrdering
-      )
-
-    clauseSinceId.get should matchSqlSnippet(
-      expectedClause = "fm.id > ?",
-      expectedParams = List(200)
     )
   }
 
@@ -353,17 +324,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     query.statement should include("ORDER BY fm.ingested_at ASC")
   }
 
-  it should "order results by *ascending* ingestion_at when using NextPageId update type with maybeSinceId" in {
-    val queryParams =
-      emptyQueryParams.copy(queryCursor =
-        emptyQueryCursor.copy(maybeSinceId = Some(NextPageId(100)))
-      )
-    val whereClause = sqls""
-    val query = FingerpostWireEntry.buildSearchQuery(queryParams, whereClause)
-
-    query.statement should include("ORDER BY fm.ingested_at ASC")
-  }
-
   behavior of "FingerpostWireEntry.filtersBuilder"
 
   it should "return an empty list when no filters are set" in {
@@ -485,12 +445,12 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   behavior of "time stamp filters"
   it should "create the correct sql for beforeTimeStamp sorted by ingestedtime" in {
-    val beforeIdSQL =
+    val beforeTimeStampSQL =
       FingerpostWireEntry.Filters.beforeTimeStampSQL(
         "2025-01-01T00:00:00Z",
         IngestedAtTime
       )
-    beforeIdSQL should matchSqlSnippet(
+    beforeTimeStampSQL should matchSqlSnippet(
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} <= CAST(? AS timestamptz)",
       expectedParams = List("2025-01-01T00:00:00Z")
@@ -498,19 +458,19 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql for beforeTimeStamp sorted by collection time" in {
-    val beforeIdSQL =
+    val beforeTimeStampSQL =
       FingerpostWireEntry.Filters.beforeTimeStampSQL(
         "2025-01-01T00:00:00Z",
         AddedToCollectionAtTime(1)
       )
-    beforeIdSQL should matchSqlSnippet(
+    beforeTimeStampSQL should matchSqlSnippet(
       expectedClause =
         sqls"${WireEntryForCollection.syn.addedAt} <= CAST(? AS timestamptz)",
       expectedParams = List("2025-01-01T00:00:00Z")
     )
   }
 
-  it should "create the correct sql for sinceTimeStamp sorted by ingestedtime" in {
+  it should "create the correct sql for afterTimeStamp sorted by ingestedtime" in {
     val maybeafterTimeStamp =
       FingerpostWireEntry.Filters.afterTimeStampSQL(
         "2025-01-01T00:00:00Z",
@@ -523,7 +483,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  it should "create the correct sql for sinceTimeStamp sorted by collection time" in {
+  it should "create the correct sql for afterTimeStamp sorted by collection time" in {
     val maybeafterTimeStamp =
       FingerpostWireEntry.Filters.afterTimeStampSQL(
         "2025-01-01T00:00:00Z",
@@ -533,23 +493,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       expectedClause =
         sqls"${FingerpostWireEntry.syn.ingestedAt} >= CAST(? AS timestamptz)",
       expectedParams = List("2025-01-01T00:00:00Z")
-    )
-  }
-
-  behavior of "id filters"
-  it should "create the correct sql for beforeId" in {
-    val beforeIdSQL = FingerpostWireEntry.Filters.beforeIdSQL(1)
-    beforeIdSQL should matchSqlSnippet(
-      expectedClause = sqls"${FingerpostWireEntry.syn.id} < ?",
-      expectedParams = List(1)
-    )
-  }
-
-  it should "create the correct sql for sinceId" in {
-    val sinceIdSQL = FingerpostWireEntry.Filters.sinceIdSQL(1)
-    sinceIdSQL should matchSqlSnippet(
-      expectedClause = sqls"${FingerpostWireEntry.syn.id} > ?",
-      expectedParams = List(1)
     )
   }
 

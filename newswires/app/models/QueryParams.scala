@@ -11,13 +11,6 @@ sealed trait UpdateType {
 case class NextPage(sinceTimeStamp: String) extends UpdateType
 case class MostRecent(sinceTimeStamp: String) extends UpdateType
 
-sealed trait UpdateTypeId {
-  val sinceId: Int
-}
-
-case class NextPageId(sinceId: Int) extends UpdateTypeId
-case class MostRecentId(sinceId: Int) extends UpdateTypeId
-
 case class QueryParams(
     searchParams: SearchParams,
     searchPreset: Option[SearchPreset],
