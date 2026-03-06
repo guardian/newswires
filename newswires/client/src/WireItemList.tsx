@@ -278,7 +278,7 @@ const WirePreviewCard = ({
 	const compactCardGrid = css`
 		display: grid;
 		gap: 0.3rem;
-		grid-template-areas: 'title badges supplier time';
+		grid-template-areas: 'title badges supplier time' 'content content content content';
 		grid-template-columns: 1fr min-content min-content;
 		align-items: baseline;
 	`;
@@ -391,66 +391,71 @@ const WirePreviewCard = ({
 						isCondensed={!showSecondaryFeedContent}
 					/>{' '}
 				</div>
-				{hasMetadataToDisplay && (
-					<ul
-						css={css`
-							color: ${theme.euiTheme.colors.textAccent};
-							margin-top: 5px;
-							display: grid;
-							grid-template-columns: min-content 1fr;
-							gap: 0.2rem;
-						`}
-					>
-						{showCollectionMetadata &&
-							maybeTastedCollectionMetadata.map((metadata) => (
-								<li
-									css={css`
-										display: contents;
-									`}
-									key={metadata.addedAt}
-								>
-									<span
+				<div
+					css={css`
+						grid-area: content;
+					`}
+				>
+					{showSecondaryFeedContent && (
+						<div
+							css={css`
+								margin-top: ${theme.euiTheme.size.s};
+								${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
+								font-weight: ${hasBeenViewed
+									? theme.euiTheme.font.weight.light
+									: theme.euiTheme.font.weight.regular};
+							`}
+						>
+							<MaybeSecondaryCardContent {...content} highlight={highlight} />
+						</div>
+					)}
+					{hasMetadataToDisplay && (
+						<ul
+							css={css`
+								color: ${theme.euiTheme.colors.textAccent};
+								margin-top: ${theme.euiTheme.size.s};
+								display: grid;
+								grid-template-columns: min-content 1fr;
+								gap: 0.2rem;
+							`}
+						>
+							{showCollectionMetadata &&
+								maybeTastedCollectionMetadata.map((metadata) => (
+									<li
 										css={css`
-											color: ${theme.euiTheme.colors.backgroundFilledAccent};
+											display: contents;
+										`}
+										key={metadata.addedAt}
+									>
+										<span
+											css={css`
+												color: ${theme.euiTheme.colors.backgroundFilledAccent};
+											`}
+										>
+											<EuiIcon type={CollectionsIcon} size="original" />
+										</span>
+										<EuiText size="xs">
+											Added to collection
+											{' • '}
+											{convertToLocalDate(metadata.addedAt).fromNow()},
+										</EuiText>
+									</li>
+								))}
+							{toolLinks &&
+								toolLinks.length > 0 &&
+								toolLinks.map((link) => (
+									<li
+										key={link.id}
+										css={css`
+											display: contents;
 										`}
 									>
-										<EuiIcon type={CollectionsIcon} size="original" />
-									</span>
-									<EuiText size="xs">
-										Added to collection
-										{' • '}
-										{convertToLocalDate(metadata.addedAt).fromNow()},
-									</EuiText>
-								</li>
-							))}
-						{toolLinks &&
-							toolLinks.length > 0 &&
-							toolLinks.map((link) => (
-								<li
-									key={link.id}
-									css={css`
-										display: contents;
-									`}
-								>
-									<ToolSendReport toolLink={link} showIcon={true} />
-								</li>
-							))}
-					</ul>
-				)}
-				{showSecondaryFeedContent && (
-					<div
-						css={css`
-							margin-top: 0.5rem;
-							grid-area: content;
-							${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
-							font-weight: ${hasBeenViewed
-								? theme.euiTheme.font.weight.light
-								: theme.euiTheme.font.weight.regular};
-						`}
-					>
-						<MaybeSecondaryCardContent {...content} highlight={highlight} />
-					</div>
-				)}
+										<ToolSendReport toolLink={link} showIcon={true} />
+									</li>
+								))}
+						</ul>
+					)}
+				</div>
 			</div>
 		</Link>
 	);
