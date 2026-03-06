@@ -58,6 +58,7 @@ class TimeStampColumnSpec extends AnyFlatSpec with Matchers {
       ingestedAt = ingestedAt,
       content = content,
       supplier = "test",
+      sourceFeed = "TEST FEED",
       collections = collections,
       composerSentBy = Some("tester"),
       categoryCodes = Nil,
