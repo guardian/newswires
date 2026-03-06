@@ -28,6 +28,7 @@ export const sampleFingerpostContent = {
 export const sampleWireResponse = {
 	id: 1,
 	supplier: 'UNKNOWN',
+	sourceFeed: 'UNKNOWN FEED',
 	externalId: 'external-123',
 	ingestedAt: '2025-01-01T00:00:00Z',
 	categoryCodes: ['category1', 'category2'],
