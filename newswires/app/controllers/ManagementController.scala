@@ -56,7 +56,7 @@ class ManagementController(
             )
           )
         )
-      case Some(activeFromTime) =>
+      case Some(activeFromTime) if activeFromTime.trim().nonEmpty =>
         logger.error(
           s"Invalid breakingUiChangeActiveFromTime config value: '$activeFromTime'. Expected an ISO date-time string. Ignoring the value and returning no message."
         )
