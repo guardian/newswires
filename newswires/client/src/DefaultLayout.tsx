@@ -20,6 +20,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { ErrorPrompt } from './ErrorPrompt.tsx';
 import { Feed } from './Feed';
 import { ItemData } from './ItemData.tsx';
+import { RefreshBanner } from './RefreshBanner.tsx';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SearchBox } from './SearchBox.tsx';
 import { SettingsMenu } from './SettingsMenu.tsx';
@@ -50,6 +51,7 @@ export function DefaultLayout() {
 	return (
 		<>
 			<StageDisplayBanner />
+			<RefreshBanner />
 			<EuiHeader position="fixed">
 				<EuiHeaderSection side={'left'}>
 					<EuiHeaderSectionItem>

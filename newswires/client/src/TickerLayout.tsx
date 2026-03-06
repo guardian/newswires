@@ -5,6 +5,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { ErrorPrompt } from './ErrorPrompt.tsx';
 import { Feed } from './Feed';
 import { ItemData } from './ItemData.tsx';
+import { RefreshBanner } from './RefreshBanner.tsx';
 import { ResizableContainer } from './ResizableContainer.tsx';
 import { SideNav } from './SideNav/SideNav.tsx';
 import { StageDisplayBanner } from './StageDisplayBanner.tsx';
@@ -20,6 +21,7 @@ export const TickerLayout = () => {
 	return (
 		<>
 			<StageDisplayBanner />
+			<RefreshBanner />
 			<SideNav
 				navIsDocked={false}
 				sideNavIsOpen={sideNavIsOpen}

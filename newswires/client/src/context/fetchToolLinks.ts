@@ -1,4 +1,4 @@
-import type { ZodSafeParseResult } from 'zod';
+import type { ZodSafeParseResult } from 'zod/v4';
 import { pandaFetch } from '../panda-session';
 import type { ToolLink, WireToolLinks } from '../sharedTypes';
 import {
