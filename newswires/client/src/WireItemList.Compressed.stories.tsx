@@ -39,6 +39,7 @@ const sampleItemData: WireData = {
 		shortLabel: 'Reu',
 		colour: reutersBrand,
 	},
+	sourceFeed: 'REUTERS',
 	externalId: 'RTRS.2021.01.01.12345',
 	ingestedAt: now.toISOString(),
 	localIngestedAt: convertToLocalDate(now.toISOString()),
