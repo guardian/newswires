@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchToolLinks } from './context/fetchToolLinks.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { sortByTimeStamp } from './context/timestamp-compare.ts';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
 import { SearchSummary } from './SearchSummary.tsx';
@@ -72,6 +73,8 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 
 	const [isColumn, setIsColumn] = useState(false);
 	const [toolLinksMap, setToolLinks] = useState<Record<number, ToolLink[]>>({});
+
+	const { showSecondaryFeedContent } = useUserSettings();
 
 	useEffect(() => {
 		const el = containerRef?.current;
@@ -181,7 +184,12 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 							</EuiFlexGroup>
 						</div>
 						<ScrollToTopButton containerRef={containerRef}>
-							<WireItemList wires={wires} totalCount={queryData.totalCount} />
+							<WireItemList
+								wires={wires}
+								totalCount={queryData.totalCount}
+								showCollectionMetadata={config.query.collectionId !== undefined}
+								showSecondaryFeedContent={showSecondaryFeedContent}
+							/>
 						</ScrollToTopButton>
 					</>
 				)}

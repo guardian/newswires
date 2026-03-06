@@ -15,7 +15,6 @@ import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { Alert, ALERT_TEXT } from './Alert.tsx';
 import { useSearch } from './context/SearchContext.tsx';
-import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
@@ -33,9 +32,13 @@ import { isAlert } from './utils/contentHelpers.ts';
 export const WireItemList = ({
 	wires,
 	totalCount,
+	showCollectionMetadata,
+	showSecondaryFeedContent,
 }: {
 	wires: WireData[];
 	totalCount: number;
+	showCollectionMetadata: boolean;
+	showSecondaryFeedContent: boolean;
 }) => {
 	const { config, loadMoreResults, previousItemId, state } = useSearch();
 
@@ -70,6 +73,8 @@ export const WireItemList = ({
 								view={config.view}
 								previousItemId={previousItemId}
 								collectionMetadata={collections}
+								showCollectionMetadata={showCollectionMetadata}
+								showSecondaryFeedContent={showSecondaryFeedContent}
 							/>
 						</li>
 					),
@@ -201,6 +206,8 @@ const WirePreviewCard = ({
 	view,
 	previousItemId,
 	collectionMetadata,
+	showCollectionMetadata,
+	showSecondaryFeedContent,
 }: {
 	id: number;
 	supplier: SupplierInfo;
@@ -214,10 +221,10 @@ const WirePreviewCard = ({
 	view: string;
 	previousItemId: string | undefined;
 	collectionMetadata: CollectionMetadata[];
+	showCollectionMetadata: boolean;
+	showSecondaryFeedContent: boolean;
 }) => {
 	const { viewedItemIds, config } = useSearch();
-	const { showSecondaryFeedContent } = useUserSettings();
-	const showCollectionMetadata = config.query.collectionId !== undefined;
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
