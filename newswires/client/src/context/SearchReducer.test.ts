@@ -258,7 +258,7 @@ describe('SearchReducer', () => {
 						q: 'test',
 						start: EuiDateStringSchema.parse('now-30m'),
 						end: EuiDateStringSchema.parse('now'),
-						collectionId: undefined,
+						collectionId: 1,
 						preset: undefined,
 					},
 				};
