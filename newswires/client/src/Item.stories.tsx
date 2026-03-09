@@ -36,6 +36,7 @@ const sampleItemData: WireData = {
 		shortLabel: 'Reu',
 		colour: reutersBrand,
 	},
+	guSourceFeed: 'REUTERS',
 	externalId: 'RTRS.2021.01.01.12345',
 	ingestedAt: '2025-02-26T09:58:22.000Z',
 	localIngestedAt: convertToLocalDate('2025-02-26T09:58:22.000Z'),

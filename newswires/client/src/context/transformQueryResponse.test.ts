@@ -9,6 +9,7 @@ describe('transformWireItemQueryResult', () => {
 		const input: WireDataFromAPI = {
 			id: 1,
 			supplier: 'REUTERS',
+			guSourceFeed: 'REUTERS',
 			externalId: 'external-123',
 			ingestedAt: '2025-01-01T00:00:00Z',
 			categoryCodes: ['category1', 'category2'],
@@ -30,6 +31,7 @@ describe('transformWireItemQueryResult', () => {
 		const input: WireDataFromAPI = {
 			id: 2,
 			supplier: 'This is not a recognised supplier',
+			guSourceFeed: 'unrecognised source feed',
 			externalId: 'external-456',
 			ingestedAt: '2025-01-02T00:00:00Z',
 			categoryCodes: ['category3'],
@@ -50,6 +52,7 @@ describe('transformWireItemQueryResult', () => {
 		const input: WireDataFromAPI = {
 			id: 3,
 			supplier: 'AP',
+			guSourceFeed: 'AP',
 			externalId: 'external-789',
 			ingestedAt: '2025-01-03T00:00:00Z',
 			categoryCodes: ['category4'],
@@ -70,6 +73,7 @@ describe('transformWireItemQueryResult', () => {
 		const inputWithTrue: WireDataFromAPI = {
 			id: 4,
 			supplier: 'AAP',
+			guSourceFeed: 'AAP',
 			externalId: 'external-101',
 			ingestedAt: '2025-01-04T00:00:00Z',
 			categoryCodes: ['category5'],
@@ -90,6 +94,7 @@ describe('transformWireItemQueryResult', () => {
 		const inputWithoutComposerCompatible: WireDataFromAPI = {
 			id: 5,
 			supplier: 'AFP',
+			guSourceFeed: 'AFP',
 			externalId: 'external-102',
 			ingestedAt: '2025-01-05T00:00:00Z',
 			categoryCodes: ['category6'],

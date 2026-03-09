@@ -25,10 +25,12 @@ export async function processEmailContent(
 	try {
 		const { from, subject, text, date } = await parseEmail(rawEmail);
 
+		const emailSourceFeed = 'email';
+
 		const content: IngestorInputBody = {
 			headline: constructHeadline(from, subject),
 			body_text: text ?? '',
-			sourceFeed: 'email',
+			'source-feed': emailSourceFeed,
 			firstVersion: date ?? new Date().toUTCString(),
 			keywords: [],
 			imageIds: [],
@@ -36,6 +38,7 @@ export async function processEmailContent(
 
 		return {
 			supplier: 'UNAUTHED_EMAIL_FEED',
+			guSourceFeed: emailSourceFeed,
 			categoryCodes: [],
 			content,
 			status: 'success',

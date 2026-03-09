@@ -87,6 +87,7 @@ export type ProcessedMessageData = {
 export type ProcessedObject = {
 	content: IngestorInputBody;
 	supplier: string;
+	guSourceFeed: string;
 	categoryCodes: string[];
 };
 

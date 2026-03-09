@@ -23,14 +23,14 @@ export async function putItemToDb({
 	sql: postgres.Sql;
 	logger: Logger;
 }): Promise<OperationResult<{ didCreateNewItem: boolean }>> {
-	const { content, supplier, categoryCodes } = processedObject;
+	const { content, supplier, guSourceFeed, categoryCodes } = processedObject;
 	const computedCategories = computePresetCategories(categoryCodes);
 	const ingestedAt = (lastModified ?? new Date()).toISOString();
 	try {
 		const result = await sql`
 		INSERT INTO ${sql(DATABASE_TABLE_NAME)}
-			(external_id, supplier, content, category_codes, s3_key, ingested_at, precomputed_categories, last_updated_at)
-		VALUES (${externalId}, ${supplier}, ${content as never}, ${categoryCodes}, ${s3Key}, ${ingestedAt}, ${computedCategories}, now()) ON CONFLICT (external_id) DO NOTHING
+			(external_id, supplier, gu_source_feed, content, category_codes, s3_key, ingested_at, precomputed_categories, last_updated_at)
+		VALUES (${externalId}, ${supplier}, ${guSourceFeed}, ${content as never}, ${categoryCodes}, ${s3Key}, ${ingestedAt}, ${computedCategories}, now()) ON CONFLICT (external_id) DO NOTHING
 		RETURNING id`;
 
 		if (result.length === 0) {
