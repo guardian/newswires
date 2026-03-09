@@ -224,7 +224,7 @@ export function remapSourceFeeds({
 	dataFormat: DataFormatInfo | undefined;
 	subjectCodes: string[] | undefined;
 }): string {
-	const isPAAPI = sourceFeed === 'PA_API';
+	const isPAAPI = sourceFeed?.startsWith('PA_API');
 	const isLegacyPAFeed = sourceFeed?.startsWith('PA') && !isPAAPI;
 	if (sourceFeed === undefined) {
 		return 'Unknown';
