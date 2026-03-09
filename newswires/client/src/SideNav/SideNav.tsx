@@ -34,9 +34,11 @@ function decideLabelForQueryBadge(
 	query: Query,
 	dateRangeLabel: string,
 ): string {
-	const { supplier, q, preset, categoryCode, collectionId } = query;
+	const { supplier, q, preset, categoryCode, guSourceFeed, collectionId } =
+		query;
 	const supplierLabel = supplier?.join(', ') ?? '';
 	const categoryCodesLabel = categoryCode?.join(', ') ?? '';
+	const guSourceFeedLabel = guSourceFeed?.join(', ') ?? '';
 	const qLabel = q.length > 0 ? `"${q}"` : '';
 	const presetLabel = preset ? `[${presetName(preset)}]` : '';
 	const collectionIdLabel =
@@ -52,6 +54,7 @@ function decideLabelForQueryBadge(
 		presetLabel,
 		supplierLabel,
 		categoryCodesLabel,
+		guSourceFeedLabel,
 		qLabel,
 		collectionIdLabel,
 		dateRangeLabel,

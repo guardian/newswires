@@ -13,6 +13,8 @@ export const defaultQuery: Query = {
 	preset: undefined,
 	categoryCode: [],
 	categoryCodeExcl: [],
+	guSourceFeed: [],
+	guSourceFeedExcl: [],
 	start: DEFAULT_DATE_RANGE.start,
 	end: DEFAULT_DATE_RANGE.end,
 	hasDataFormatting: undefined,
@@ -62,6 +64,8 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const keywordExcl = params.getAll('keywordExcl');
 	const categoryCode = params.getAll('categoryCode');
 	const categoryCodeExcl = params.getAll('categoryCodeExcl');
+	const guSourceFeed = params.getAll('guSourceFeed');
+	const guSourceFeedExcl = params.getAll('guSourceFeedExcl');
 	const preset = params.get('preset') ?? undefined;
 	const hasDataFormatting = maybeStringToBooleanOrUndefined(
 		params.get('hasDataFormatting'),
@@ -92,6 +96,8 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		keywordExcl,
 		categoryCode,
 		categoryCodeExcl,
+		guSourceFeed,
+		guSourceFeedExcl,
 		start,
 		end,
 		hasDataFormatting,

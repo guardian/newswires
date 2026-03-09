@@ -268,6 +268,24 @@ object FingerpostWireEntry
         exclusionCondition(se)(supplierCondition(se, suppliersExcl))
       }
 
+    lazy val guSourceFeedSQL: List[String] => SQLSyntax =
+      (guSourceFeeds: List[String]) =>
+        sqls.in(
+          sqls"upper(${syn.guSourceFeed})",
+          guSourceFeeds.map(feed => sqls"upper($feed)")
+        )
+
+    lazy val guSourceFeedExclSQL =
+      (guSourceFeedsExcl: List[String]) => {
+        val gsfe = syntax("guSourceFeedExcl")
+        exclusionCondition(gsfe)(
+          sqls.in(
+            sqls"upper(${gsfe.guSourceFeed})",
+            guSourceFeedsExcl.map(feed => sqls"upper($feed)")
+          )
+        )
+      }
+
     lazy val simpleSearchSQL =
       (searchTerm: SearchTerm.Simple) => {
         val tsvectorColumn = searchTerm.field match {
@@ -446,6 +464,16 @@ object FingerpostWireEntry
       case None               => None
     }
 
+    val guSourceFeedQuery = filters.guSourceFeeds match {
+      case Nil         => None
+      case sourceFeeds => Some(Filters.guSourceFeedSQL(sourceFeeds))
+    }
+
+    val guSourceFeedExclQuery = filters.guSourceFeedsExcl match {
+      case Nil             => None
+      case sourceFeedsExcl => Some(Filters.guSourceFeedExclSQL(sourceFeedsExcl))
+    }
+
     val clauses = List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -457,7 +485,9 @@ object FingerpostWireEntry
       hasDataFormattingQuery,
       preComputedCategoriesQuery,
       preComputedCategoriesExclQuery,
-      collectionIdQuery
+      collectionIdQuery,
+      guSourceFeedQuery,
+      guSourceFeedExclQuery
     ).flatten
     andAll(clauses)
   }

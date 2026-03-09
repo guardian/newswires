@@ -14,7 +14,9 @@ case class FilterParams(
     hasDataFormatting: Option[Boolean],
     preComputedCategories: List[String],
     preComputedCategoriesExcl: List[String],
-    collectionId: Option[Int]
+    collectionId: Option[Int],
+    guSourceFeeds: List[String],
+    guSourceFeedsExcl: List[String]
 )
 
 case class DateRange(
@@ -49,7 +51,13 @@ object SearchParams {
         hasDataFormatting = baseParams.hasDataFormatting,
         preComputedCategories = Nil,
         preComputedCategoriesExcl = Nil,
-        collectionId = baseParams.maybeCollectionId
+        collectionId = baseParams.maybeCollectionId,
+        guSourceFeeds = baseParams.guSourceFeeds,
+        guSourceFeedsExcl = computeGuSourceFeedExcl(
+          showPAAPI = featureSwitch.ShowPAAPI.isOn(),
+          guSourceFeeds = baseParams.guSourceFeeds,
+          guSourceFeedsExcl = baseParams.guSourceFeedsExcl
+        )
       ),
       DateRange(
         start = baseParams.maybeStart,
@@ -79,5 +87,20 @@ object SearchParams {
       query.get("supplierExcl").map(_.toList).getOrElse(Nil)
 
     dotCopyExclusion ::: guSuppliersExclusion ::: paApiExclusion ::: exclusionFromParams
+  }
+
+  def computeGuSourceFeedExcl(
+      showPAAPI: Boolean,
+      guSourceFeeds: List[String],
+      guSourceFeedsExcl: List[String]
+  ) = {
+    val paApiExclusion =
+      if (showPAAPI) Nil
+      else
+        List("PA_API", "PA_API DATA FORMATTING").filterNot(s =>
+          guSourceFeeds.contains(s)
+        )
+
+    paApiExclusion ::: guSourceFeedsExcl
   }
 }

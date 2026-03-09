@@ -32,7 +32,9 @@ object SearchPreset {
       hasDataFormatting = hasDataFormatting,
       preComputedCategories = preComputedCategories,
       preComputedCategoriesExcl = preComputedCategoriesExcl,
-      collectionId = None
+      collectionId = None,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = Nil
     )
 }
 

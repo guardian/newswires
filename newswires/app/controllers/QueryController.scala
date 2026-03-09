@@ -51,7 +51,9 @@ class QueryController(
       maybeEnd: Option[String],
       maybeBeforeTimeStamp: Option[String],
       maybeAfterTimeStamp: Option[String],
-      hasDataFormatting: Option[Boolean]
+      hasDataFormatting: Option[Boolean],
+      guSourceFeeds: List[String],
+      guSourceFeedsExcl: List[String]
   ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
     val baseParams = BaseRequestParams(
       maybeFreeTextQuery = maybeFreeTextQuery,
@@ -64,7 +66,9 @@ class QueryController(
       maybeEnd = maybeEnd,
       maybeBeforeTimeStamp = maybeBeforeTimeStamp,
       maybeAfterTimeStamp = maybeAfterTimeStamp,
-      hasDataFormatting = hasDataFormatting
+      hasDataFormatting = hasDataFormatting,
+      guSourceFeeds = guSourceFeeds,
+      guSourceFeedsExcl = guSourceFeedsExcl
     )
     val searchParams =
       SearchParams.build(request.queryString, baseParams, featureSwitchProvider)

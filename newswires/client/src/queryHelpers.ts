@@ -46,7 +46,14 @@ export const queryAfterDeselection = (
 		return { ...query, [key]: undefined };
 	}
 	if (
-		['categoryCode', 'categoryCodeExcl', 'keyword', 'keywordExcl'].includes(key)
+		[
+			'categoryCode',
+			'categoryCodeExcl',
+			'keyword',
+			'keywordExcl',
+			'guSourceFeed',
+			'guSourceFeedExcl',
+		].includes(key)
 	) {
 		const current = query[key] as string[] | undefined;
 		return { ...query, [key]: (current ?? []).filter((s) => s !== value) };

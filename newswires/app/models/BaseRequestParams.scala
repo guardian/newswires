@@ -15,7 +15,9 @@ case class BaseRequestParams(
     maybeEnd: Option[String] = None,
     maybeBeforeTimeStamp: Option[String] = None,
     maybeAfterTimeStamp: Option[String] = None,
-    hasDataFormatting: Option[Boolean] = None
+    hasDataFormatting: Option[Boolean] = None,
+    guSourceFeeds: List[String] = Nil,
+    guSourceFeedsExcl: List[String] = Nil
 ) {
   // When we do a text search from the U.I we make an english query
   // which queries the `combined_textsearch` column which includes several
