@@ -174,7 +174,7 @@ describe('processFingerpostJsonContent', () => {
 				keywords: [],
 			},
 			supplier: 'PAAPI',
-			sourceFeed: 'PA_API',
+			guSourceFeed: 'PA_API',
 			status: 'success',
 			categoryCodes: [
 				'news',

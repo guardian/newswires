@@ -36,7 +36,7 @@ export async function processEmailContent(
 
 		return {
 			supplier: 'UNAUTHED_EMAIL_FEED',
-			sourceFeed: 'UNAUTHED_EMAIL_FEED',
+			guSourceFeed: 'UNAUTHED_EMAIL_FEED',
 			categoryCodes: [],
 			content,
 			status: 'success',

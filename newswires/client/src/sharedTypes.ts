@@ -62,7 +62,7 @@ export type CollectionMetadata = z.infer<typeof CollectionSchema>;
 export const WireDataFromAPISchema = z.object({
 	id: z.number(),
 	supplier: z.string(),
-	sourceFeed: z.string(),
+	guSourceFeed: z.string(),
 	externalId: z.string(),
 	ingestedAt: z.iso.datetime(),
 	categoryCodes: z.array(z.string()),

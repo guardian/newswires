@@ -241,7 +241,7 @@ export function processFingerpostJsonContent(
 			status: 'success' as const,
 			content,
 			supplier,
-			sourceFeed: content['source-feed'] ?? 'Unknown',
+			guSourceFeed: content['source-feed'] ?? 'Unknown',
 			categoryCodes,
 		};
 	} catch (error) {

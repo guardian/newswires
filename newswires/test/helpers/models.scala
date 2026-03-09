@@ -150,7 +150,7 @@ trait models {
   val fingerpostWireEntry = FingerpostWireEntry(
     id = 1L,
     supplier = "Supplier",
-    sourceFeed = "SUPPLIER FEED",
+    guSourceFeed = "SUPPLIER FEED",
     externalId = "ExternalId",
     ingestedAt = Instant.ofEpochMilli(1753370061967L),
     content = exampleWire,
@@ -177,7 +177,7 @@ trait models {
     """{
       |  "id" : 1,
       |  "supplier" : "Supplier",
-      |  "sourceFeed" : "SUPPLIER FEED",
+      |  "guSourceFeed" : "SUPPLIER FEED",
       |  "externalId" : "ExternalId",
       |  "ingestedAt" : "2025-07-24T15:14:21.967Z",
       |  "content" : {
