@@ -1,5 +1,6 @@
 import { getErrorMessage } from '@guardian/libs';
 import type {
+	DataFormatInfo,
 	IngestorInputBody,
 	OperationResult,
 	ProcessedObject,
@@ -214,9 +215,28 @@ export const safeBodyParse = (body: string): IngestorInputBody => {
 	});
 };
 
-export function remapSourceFeeds(sourceFeed: string | undefined): string {
+export function remapSourceFeeds({
+	sourceFeed,
+	dataFormat,
+	subjectCodes,
+}: {
+	sourceFeed: string | undefined;
+	dataFormat: DataFormatInfo | undefined;
+	subjectCodes: string[] | undefined;
+}): string {
+	const isPAAPI = sourceFeed === 'PA_API';
+	const isLegacyPAFeed = sourceFeed?.startsWith('PA') && !isPAAPI;
 	if (sourceFeed === undefined) {
 		return 'Unknown';
+	}
+	if (isPAAPI && dataFormat !== undefined) {
+		return 'PA_API DATA FORMATTING';
+	}
+	if (isLegacyPAFeed && dataFormat !== undefined) {
+		return 'PA DATA FORMATTING';
+	}
+	if (isLegacyPAFeed && subjectCodes?.includes('service:EXT')) {
+		return 'PA EXT';
 	}
 	return sourceFeed;
 }
@@ -248,7 +268,11 @@ export function processFingerpostJsonContent(
 			status: 'success' as const,
 			content,
 			supplier,
-			guSourceFeed: remapSourceFeeds(content['source-feed']),
+			guSourceFeed: remapSourceFeeds({
+				sourceFeed: content['source-feed'],
+				dataFormat: content.dataformat,
+				subjectCodes: content.subjects?.code,
+			}),
 			categoryCodes,
 		};
 	} catch (error) {

@@ -1,3 +1,4 @@
+import type { DataFormatInfo } from 'newswires-shared/index';
 import paApiFixture from '../test/fixtures/PA_API.json';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import {
@@ -190,10 +191,111 @@ describe('processFingerpostJsonContent', () => {
 
 describe('remapSourceFeeds', () => {
 	it('should return "Unknown" when sourceFeed is undefined', () => {
-		expect(remapSourceFeeds(undefined)).toBe('Unknown');
+		expect(
+			remapSourceFeeds({
+				sourceFeed: undefined,
+				dataFormat: undefined,
+				subjectCodes: undefined,
+			}),
+		).toBe('Unknown');
 	});
 
 	it('should return the original sourceFeed when it is defined', () => {
-		expect(remapSourceFeeds('PA_API')).toBe('PA_API');
+		expect(
+			remapSourceFeeds({
+				sourceFeed: 'PA_API',
+				dataFormat: undefined,
+				subjectCodes: undefined,
+			}),
+		).toBe('PA_API');
+	});
+
+	describe('when "dataformat" is defined', () => {
+		it('should return "PA_API DATA FORMATTING" when sourceFeed is "PA_API"', () => {
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA_API',
+					dataFormat: {} as DataFormatInfo,
+					subjectCodes: undefined,
+				}),
+			).toBe('PA_API DATA FORMATTING');
+		});
+
+		it('should return "PA DATA FORMATTING" when sourceFeed begins with "PA", unless it is "PA_API"', () => {
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA',
+					dataFormat: {} as DataFormatInfo,
+					subjectCodes: undefined,
+				}),
+			).toBe('PA DATA FORMATTING');
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA PA SPORT DATA',
+					dataFormat: {} as DataFormatInfo,
+					subjectCodes: undefined,
+				}),
+			).toBe('PA DATA FORMATTING');
+		});
+
+		it('should also take priority over service:EXT', () => {
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA',
+					dataFormat: {} as DataFormatInfo,
+					subjectCodes: ['service:EXT'],
+				}),
+			).toBe('PA DATA FORMATTING');
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA_API',
+					dataFormat: {} as DataFormatInfo,
+					subjectCodes: ['service:EXT'],
+				}),
+			).toBe('PA_API DATA FORMATTING');
+		});
+	});
+
+	describe('when subject codes include "service:EXT"', () => {
+		it('should return "PA EXT" if source feed starts with "PA"', () => {
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA',
+					dataFormat: undefined,
+					subjectCodes: ['service:EXT'],
+				}),
+			).toBe('PA EXT');
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA RACING DATA',
+					dataFormat: undefined,
+					subjectCodes: ['service:EXT'],
+				}),
+			).toBe('PA EXT');
+		});
+
+		it('unless "dataFormat" is defined, or source feed is "PA_API"', () => {
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA',
+					dataFormat: {} as DataFormatInfo,
+					subjectCodes: ['service:EXT'],
+				}),
+			).toBe('PA DATA FORMATTING');
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA_API',
+					dataFormat: {} as DataFormatInfo,
+					subjectCodes: ['service:EXT'],
+				}),
+			).toBe('PA_API DATA FORMATTING');
+			expect(
+				remapSourceFeeds({
+					sourceFeed: 'PA_API',
+					dataFormat: undefined,
+					subjectCodes: ['service:EXT'],
+				}),
+			).toBe('PA_API');
+		});
 	});
 });

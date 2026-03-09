@@ -19,6 +19,8 @@ const DataFormatInfoSchema = z.object({
 	indesignTags: z.string(),
 });
 
+export type DataFormatInfo = z.infer<typeof DataFormatInfoSchema>;
+
 /**
  * looseObject because we want to preserve additional properties that are not defined in the schema
  * Useful to be able to test new fields
