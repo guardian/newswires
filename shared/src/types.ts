@@ -13,6 +13,12 @@ const OptionalStringOrArrayAsArrayOfStrings = z
 		return [val];
 	});
 
+const DataFormatInfoSchema = z.object({
+	noOfColumns: z.string(),
+	notFipTopusCategory: z.string(),
+	indesignTags: z.string(),
+});
+
 /**
  * looseObject because we want to preserve additional properties that are not defined in the schema
  * Useful to be able to test new fields
@@ -61,6 +67,7 @@ const FingerpostFeedPayloadSchema = z.looseObject({
 	body_text: z.string().optional(),
 	copyrightHolder: z.string().optional(),
 	copyrightNotice: z.string().optional(),
+	dataformat: DataFormatInfoSchema.optional(),
 });
 
 export const IngestorInputBodySchema = FingerpostFeedPayloadSchema.extend({
