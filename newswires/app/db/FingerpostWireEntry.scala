@@ -118,8 +118,7 @@ object FingerpostWireEntry
       FingerpostWireEntry(
         id = rs.long(fm.id),
         supplier = rs.string(fm.supplier),
-        // TODO remove optionality once source_feed has been backfilled
-        guSourceFeed = rs.stringOpt(fm.guSourceFeed).getOrElse("(missing)"),
+        guSourceFeed = rs.string(fm.guSourceFeed),
         externalId = rs.string(fm.externalId),
         ingestedAt = rs.zonedDateTime(fm.ingestedAt).toInstant,
         content = fingerpostContent,
