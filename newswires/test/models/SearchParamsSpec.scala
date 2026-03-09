@@ -17,7 +17,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     SearchParams.build(
       emptyQueryString,
       emptyBaseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     ) shouldEqual emptySearchParams.copy(filters =
       emptyFilterParams.copy(suppliersExcl = List("UNAUTHED_EMAIL_FEED"))
     )
@@ -27,7 +27,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.build(
       emptyQueryString,
       baseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     )
     result.filters.searchTerms shouldEqual Some(
       ComboTerm(
@@ -41,7 +41,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.build(
       Map("keywordExcl" -> Seq("a", "b")),
       emptyBaseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     )
     result.filters.keywordExcl shouldEqual List("a", "b")
   }
@@ -63,7 +63,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.build(
       emptyQueryString,
       baseParams,
-      featureSwitchShowGuSuppliersOn
+      featureSwitchesOn
     )
     result shouldEqual SearchParams(
       FilterParams(
@@ -91,35 +91,67 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )
   }
 
-  it should "include computed supplier exclusions" in new searchParamsMocks {
+  it should "include computed supplier exclusions when the showGuSuppliers feature switch is off " in new searchParamsMocks {
     val result =
       SearchParams.build(
         emptyQueryString,
         emptyBaseParams,
-        featureSwitchShowGuSuppliersOff
+        showGuSuppliersFeatureOff
       )
     result.filters.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
-      "GuAP",
+      "GuAP"
+    )
+  }
+
+  it should "include new pa api when the showPAAPIFeatureOff feature switch is off" in new searchParamsMocks {
+    val result =
+      SearchParams.build(
+        emptyQueryString,
+        emptyBaseParams,
+        showPAAPIFeatureOff
+      )
+    result.filters.suppliersExcl shouldEqual List(
+      "UNAUTHED_EMAIL_FEED",
       "PAAPI"
     )
   }
 
   behavior of "computeSupplierExcl"
 
-  it should "return dotcopy exclusion when no additional exclusion params are set and showGuSuppliers is true" in new searchParamsMocks {
+  it should "return dotcopy exclusion when no additional exclusion params are set and showGuSuppliers is true and showPAAPI is true" in new searchParamsMocks {
     val result = SearchParams.computeSupplierExcl(
       emptyQueryString,
       showGuSuppliers = true,
+      showPAAPI = true,
       Nil
     )
     result shouldEqual List("UNAUTHED_EMAIL_FEED")
   }
-  it should "return dotcopy exclusion and gu suppliers when no additional exclusion params are set and showGuSuppliers is false" in new searchParamsMocks {
+  it should "return dotcopy exclusion and gu suppliers when no additional exclusion params are set and showGuSuppliers is false and showPAAPI is true" in new searchParamsMocks {
     val result = SearchParams.computeSupplierExcl(
       emptyQueryString,
       showGuSuppliers = false,
+      showPAAPI = true,
+      Nil
+    )
+    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuReuters", "GuAP")
+  }
+  it should "return dotcopy exclusion and new pa api when no additional exclusion params are set and showGuSuppliers is true and showPAAPI is false" in new searchParamsMocks {
+    val result = SearchParams.computeSupplierExcl(
+      emptyQueryString,
+      showGuSuppliers = true,
+      showPAAPI = false,
+      Nil
+    )
+    result shouldEqual List("UNAUTHED_EMAIL_FEED", "PAAPI")
+  }
+  it should "return dotcopy exclusion and gu suppliers nad new pa api when no additional exclusion params are set and showGuSuppliers is false and showPAAPI is false" in new searchParamsMocks {
+    val result = SearchParams.computeSupplierExcl(
+      emptyQueryString,
+      showGuSuppliers = false,
+      showPAAPI = false,
       Nil
     )
     result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuReuters", "GuAP", "PAAPI")
@@ -128,6 +160,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.computeSupplierExcl(
       Map("supplierExcl" -> Seq("supplier1")),
       showGuSuppliers = false,
+      showPAAPI = false,
       Nil
     )
     result shouldEqual List(
@@ -142,6 +175,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.computeSupplierExcl(
       emptyQueryString,
       showGuSuppliers = false,
+      showPAAPI = false,
       List("GuReuters")
     )
     result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuAP", "PAAPI")
@@ -150,6 +184,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.computeSupplierExcl(
       Map("preset" -> Seq("dot-copy")),
       showGuSuppliers = true,
+      showPAAPI = true,
       Nil
     )
     result shouldEqual Nil
@@ -158,6 +193,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.computeSupplierExcl(
       Map("preset" -> Seq("soccer")),
       showGuSuppliers = true,
+      showPAAPI = true,
       Nil
     )
     result shouldEqual List("UNAUTHED_EMAIL_FEED")
@@ -167,8 +203,9 @@ class SearchParamsSpec extends AnyFlatSpec with models {
 trait searchParamsMocks {
   val emptyBaseParams = BaseRequestParams()
   val emptyQueryString = Map[String, Seq[String]]()
-  val featureSwitchShowGuSuppliersOn = mock[FeatureSwitchProvider]
-  val featureSwitchShowGuSuppliersOff = mock[FeatureSwitchProvider]
+  val featureSwitchesOn = mock[FeatureSwitchProvider]
+  val showGuSuppliersFeatureOff = mock[FeatureSwitchProvider]
+  val showPAAPIFeatureOff = mock[FeatureSwitchProvider]
   val featureSwitch = FeatureSwitch(
     name = "",
     safeState = Off,
@@ -176,8 +213,18 @@ trait searchParamsMocks {
     exposeToClient = true,
     isOn = () => true
   )
-  when(featureSwitchShowGuSuppliersOn.ShowGuSuppliers).thenReturn(featureSwitch)
-  when(featureSwitchShowGuSuppliersOff.ShowGuSuppliers).thenReturn(
+  when(featureSwitchesOn.ShowGuSuppliers).thenReturn(featureSwitch)
+  when(featureSwitchesOn.ShowPAAPI).thenReturn(featureSwitch)
+  when(showGuSuppliersFeatureOff.ShowGuSuppliers).thenReturn(
+    featureSwitch.copy(isOn = () => false)
+  )
+  when(showGuSuppliersFeatureOff.ShowPAAPI).thenReturn(
+    featureSwitch
+  )
+  when(showPAAPIFeatureOff.ShowGuSuppliers).thenReturn(
+    featureSwitch
+  )
+  when(showPAAPIFeatureOff.ShowPAAPI).thenReturn(
     featureSwitch.copy(isOn = () => false)
   )
 }
