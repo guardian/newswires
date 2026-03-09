@@ -4,6 +4,7 @@ import {
 	extractFieldFromString,
 	processFingerpostJsonContent,
 	processKeywords,
+	remapSourceFeeds,
 	safeBodyParse,
 } from './processContentObject';
 
@@ -184,5 +185,15 @@ describe('processFingerpostJsonContent', () => {
 				'paCat:SCN',
 			],
 		});
+	});
+});
+
+describe('remapSourceFeeds', () => {
+	it('should return "Unknown" when sourceFeed is undefined', () => {
+		expect(remapSourceFeeds(undefined)).toBe('Unknown');
+	});
+
+	it('should return the original sourceFeed when it is defined', () => {
+		expect(remapSourceFeeds('PA_API')).toBe('PA_API');
 	});
 });

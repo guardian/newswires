@@ -214,6 +214,13 @@ export const safeBodyParse = (body: string): IngestorInputBody => {
 	});
 };
 
+export function remapSourceFeeds(sourceFeed: string | undefined): string {
+	if (sourceFeed === undefined) {
+		return 'Unknown';
+	}
+	return sourceFeed;
+}
+
 export function processFingerpostJsonContent(
 	body: string,
 ): OperationResult<ProcessedObject> {
@@ -241,7 +248,7 @@ export function processFingerpostJsonContent(
 			status: 'success' as const,
 			content,
 			supplier,
-			guSourceFeed: content['source-feed'] ?? 'Unknown',
+			guSourceFeed: remapSourceFeeds(content['source-feed']),
 			categoryCodes,
 		};
 	} catch (error) {
