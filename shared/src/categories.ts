@@ -1398,6 +1398,7 @@ export const AllSports = [
 	'paCat:SCR', // Cricket News
 	'paCat:SRR', // Racing News
 	'paCat:SST', // Rugby Union News
+	'sport',
 	...sportsRelatedTopicCodes,
 	...sportsRelatedNewsCodes,
 ];
