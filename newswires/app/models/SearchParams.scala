@@ -94,13 +94,11 @@ object SearchParams {
       guSourceFeeds: List[String],
       guSourceFeedsExcl: List[String]
   ) = {
-    val paApiExclusion =
-      if (showPAAPI) Nil
-      else
-        List("PA_API", "PA_API DATA FORMATTING").filterNot(s =>
-          guSourceFeeds.contains(s)
-        )
-
-    paApiExclusion ::: guSourceFeedsExcl
+    if (guSourceFeeds.nonEmpty || guSourceFeedsExcl.nonEmpty) {
+      guSourceFeedsExcl
+    } else if (showPAAPI) {
+      Nil
+    } else
+      List("PA_API", "PA_API DATA FORMATTING")
   }
 }
