@@ -65,7 +65,11 @@ export const lookupSupplier = (
 		return undefined;
 	}
 
-	if (supplier.startsWith('PA_') || supplier.startsWith('PA ')) {
+	if (
+		supplier === 'PA' ||
+		supplier.startsWith('PA_') ||
+		supplier.startsWith('PA ')
+	) {
 		return 'PA';
 	}
 
