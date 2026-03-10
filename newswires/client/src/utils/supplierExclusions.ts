@@ -3,12 +3,9 @@
  * we use to populate the options in the sidebar
  */
 
-export const computeSuppliersToExclude = (
-	showGuSuppliers: boolean,
-	showPAAPI: boolean,
-) => {
+export const computeSuppliersToExclude = (showGuSuppliers: boolean) => {
 	const guSuppliers = showGuSuppliers ? [] : ['GUAP', 'GUREUTERS'];
-	const newPaApi = showPAAPI ? [] : ['PAAPI'];
 	const dotCopy = ['UNAUTHED_EMAIL_FEED'];
-	return [...dotCopy, ...guSuppliers, ...newPaApi];
+	const paAPI = ['PAAPI'];
+	return [...dotCopy, ...paAPI, ...guSuppliers];
 };

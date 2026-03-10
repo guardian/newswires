@@ -22,16 +22,12 @@ const configLookup: AppConfiguration = isJest
 	: window.configuration;
 
 const showGuSuppliers = configLookup.switches.ShowGuSuppliers;
-const showPAAPI = configLookup.switches.ShowPAAPI;
 
 /**
  * The list of suppliers to exclude from the list of 'recognised suppliers' that
  * we use to populate the options in the sidebar
  */
-export const SUPPLIERS_TO_EXCLUDE = computeSuppliersToExclude(
-	showGuSuppliers,
-	showPAAPI,
-);
+export const SUPPLIERS_TO_EXCLUDE = computeSuppliersToExclude(showGuSuppliers);
 
 export const STAGE = configLookup.stage;
 
