@@ -13,7 +13,6 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
-	processFingerpostPAAPICategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processReutersTopicCodes,
@@ -113,11 +112,9 @@ export function processCategoryCodes({
 				...regionCodes,
 			];
 		case 'PA':
-			return [...catCodes, ...processFingerpostPACategoryCodes(subjectCodes)];
-		case 'PAAPI':
 			return [
 				...catCodes,
-				...processFingerpostPAAPICategoryCodes(subjectCodes, mediaCatCodes),
+				...processFingerpostPACategoryCodes(subjectCodes, mediaCatCodes),
 			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
@@ -254,6 +251,12 @@ export function processFingerpostJsonContent(
 
 		const supplier = lookupSupplier(content['source-feed']) ?? 'Unknown';
 
+		const guSourceFeed = remapSourceFeeds({
+			sourceFeed: content['source-feed'],
+			dataFormat: content.dataformat,
+			subjectCodes: content.subjects?.code,
+		});
+
 		const categoryCodes = dedupeStrings(
 			processCategoryCodes({
 				supplier,
@@ -268,11 +271,7 @@ export function processFingerpostJsonContent(
 			status: 'success' as const,
 			content,
 			supplier,
-			guSourceFeed: remapSourceFeeds({
-				sourceFeed: content['source-feed'],
-				dataFormat: content.dataformat,
-				subjectCodes: content.subjects?.code,
-			}),
+			guSourceFeed,
 			categoryCodes,
 		};
 	} catch (error) {

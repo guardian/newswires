@@ -1,4 +1,5 @@
 import nlp from 'compromise';
+import { partition } from '../partition';
 import { worldTopicCodes } from '../topicCodes';
 import {
 	alpha2CountriesMap,
@@ -140,28 +141,39 @@ export function processFingerpostAFPCategoryCodes(
 	return deduped;
 }
 
-export function processFingerpostPACategoryCodes(original: string[]) {
+export function processFingerpostPACategoryCodes(
+	original: string[],
+	mediaCatCodes?: string,
+): string[] {
 	const notServiceCodes = original.filter((_) => !_.includes('service:'));
-
-	const transformedCategoryCodes = notServiceCodes
+	const [iptcCatCodes, otherCodes] = partition(notServiceCodes, (_) =>
+		_.includes('iptccat:'),
+	);
+	const transformedCategoryCodes = iptcCatCodes
 		.flatMap((_) => unpackCategoryCodes(_, 'paCat'))
 		.map((_) => replacePrefixesFromLookup(_, { iptccat: 'paCat' }))
 		.map(categoryCodeToString);
 
-	const deduped = [...new Set(transformedCategoryCodes)];
+	const maybeMediaCatCodes =
+		mediaCatCodes !== undefined && mediaCatCodes.trim().length > 0
+			? [`paCat:${mediaCatCodes.trim()}`]
+			: [];
+
+	const trimmedOtherCodes = otherCodes
+		.map((code) => code.trim())
+		.filter((code) => code.length > 0);
+
+	const deduped = [
+		...new Set([
+			...transformedCategoryCodes,
+			...maybeMediaCatCodes,
+			...trimmedOtherCodes,
+		]),
+	];
 
 	return deduped;
 }
 
-export function processFingerpostPAAPICategoryCodes(
-	original: string[],
-	mediaCatCodes?: string,
-) {
-	if (mediaCatCodes) {
-		return [...original, `paCat:${mediaCatCodes}`];
-	}
-	return [...original];
-}
 export function processUnknownFingerpostCategoryCodes(
 	original: string[],
 	supplier: string,

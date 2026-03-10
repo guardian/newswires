@@ -54,48 +54,6 @@ const supplierLookupMap: Record<string, string[]> = {
 		// for feeds coming from our own poller
 		'AP-Newswires',
 	],
-	PA: [
-		'PA',
-		'PA ACCESSWIRE',
-		'PA ADVISORY',
-		'PA AGILITY PR SOLUTIONS',
-		'PA BUSINESSWIRE',
-		'PA DEMOCRACY NEWS ALLIANCE',
-		'PA EON',
-		'PA EQS NEWSWIRE',
-		'PA GLOBENEWSWIRE',
-		'PA LATEST',
-		'PA MARKETTIERS',
-		'PA NEWS AKTUELL',
-		'PA NEWSFILE',
-		'PA OVO',
-		'PA PA',
-		'PA PA ADVISORY',
-		'PA PA MEDIA ASSIGNMENTS',
-		'PA PA MEDIA PRESS CENTRES',
-		'PA PA RACING DATA',
-		'PA PA SPORT',
-		'PA PA SPORT DATA',
-		'PA PA SPORT LATEST',
-		'PA PA SPORT SNAP',
-		'PA PRESSAT',
-		'PA PR NEWSWIRE',
-		'PA RESPONSESOURCE',
-		'PA RNS',
-		'PA ROYAL ACADEMY OF ENGINEERING',
-		'PA SNAP',
-		'PA THE TRUSSELL TRUST',
-		'PA UK GOVERNMENT AND PUBLIC SECTOR',
-		'PA HSL',
-		'PA JUST GROUP',
-		'PA BROOKE ACTION FOR WORKING HORSES AND DONKEYS',
-		'PA ZEN INTERNET',
-		'PA PRESSWIRE',
-		'PA EDREAMS ODIGEO',
-		'PA TRUSSEL',
-		'PA ACCESS NEWSWIRE',
-	],
-	PAAPI: ['PA_API'],
 	MINOR_AGENCIES: ['COMET', 'WIREFAST'],
 	HEARTBEAT: ['FIP'],
 };
@@ -105,6 +63,10 @@ export const lookupSupplier = (
 ): string | undefined => {
 	if (!supplier) {
 		return undefined;
+	}
+
+	if (supplier.startsWith('PA_') || supplier.startsWith('PA ')) {
+		return 'PA';
 	}
 
 	return Object.keys(supplierLookupMap).find((key) =>
