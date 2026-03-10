@@ -16,7 +16,7 @@ import {
 	EuiText,
 } from '@elastic/eui';
 import { css, Global } from '@emotion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod/v4';
 import { STAGE } from './app-configuration.ts';
 import { useKeyboardShortcuts } from './context/KeyboardShortcutsContext.tsx';
@@ -35,6 +35,7 @@ import { TickerLayout } from './TickerLayout.tsx';
 
 export function App() {
 	const { config, state } = useSearch();
+	const timeThatPageWasLoadedRef = useRef(Date.now());
 
 	const [displayDisclaimer, setDisplayDisclaimer] = useState<boolean>(() =>
 		loadOrSetInLocalStorage<boolean>('displayDisclaimer', z.boolean(), true),
@@ -217,8 +218,16 @@ export function App() {
 							background: white;
 						`}
 					>
-						{config.ticker && <TickerLayout />}
-						{!config.ticker && <DefaultLayout />}
+						{config.ticker && (
+							<TickerLayout
+								timeThatPageWasLoaded={timeThatPageWasLoadedRef.current}
+							/>
+						)}
+						{!config.ticker && (
+							<DefaultLayout
+								timeThatPageWasLoaded={timeThatPageWasLoadedRef.current}
+							/>
+						)}
 					</div>
 				</EuiPageTemplate>
 			</EuiProvider>

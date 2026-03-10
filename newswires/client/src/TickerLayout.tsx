@@ -10,7 +10,11 @@ import { ResizableContainer } from './ResizableContainer.tsx';
 import { SideNav } from './SideNav/SideNav.tsx';
 import { StageDisplayBanner } from './StageDisplayBanner.tsx';
 
-export const TickerLayout = () => {
+export const TickerLayout = ({
+	timeThatPageWasLoaded,
+}: {
+	timeThatPageWasLoaded: number;
+}) => {
 	const { config, state } = useSearch();
 
 	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
@@ -21,7 +25,7 @@ export const TickerLayout = () => {
 	return (
 		<>
 			<StageDisplayBanner />
-			<RefreshBanner />
+			<RefreshBanner timeThatPageWasLoaded={timeThatPageWasLoaded} />
 			<SideNav
 				navIsDocked={false}
 				sideNavIsOpen={sideNavIsOpen}

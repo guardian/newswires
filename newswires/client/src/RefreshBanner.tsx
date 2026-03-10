@@ -1,7 +1,7 @@
 import { EuiHeader, useEuiTheme } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { getErrorMessage } from '@guardian/libs';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import z from 'zod/v4';
 import { pandaFetch } from './panda-session';
 
@@ -40,19 +40,20 @@ export function decideRefreshMessage({
 	return undefined;
 }
 
-export const RefreshBanner = () => {
+export const RefreshBanner = ({
+	timeThatPageWasLoaded,
+}: {
+	timeThatPageWasLoaded: number;
+}) => {
 	const [messageFromServer, setMessageFromServer] = useState<
 		RefreshMessage | undefined
 	>(undefined);
-	const [now, setNow] = useState(() => Date.now());
 	const { euiTheme } = useEuiTheme();
-	const timeThatPageWasLoaded = useRef(Date.now());
 
 	useEffect(() => {
 		const abortController = new AbortController();
 
 		const pollingInterval = setInterval(() => {
-			setNow(Date.now());
 			pandaFetch('/api/client-refresh-message', {
 				signal: abortController.signal,
 			})
@@ -94,8 +95,10 @@ export const RefreshBanner = () => {
 		};
 	}, [timeThatPageWasLoaded]);
 
+	const now = Date.now();
+
 	const maybeUserFacingMessage = decideRefreshMessage({
-		timeThatPageWasLoaded: timeThatPageWasLoaded.current,
+		timeThatPageWasLoaded: timeThatPageWasLoaded,
 		now,
 		messageFromServer,
 	});
