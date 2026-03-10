@@ -1,5 +1,3 @@
-import dateMath from '@elastic/datemath';
-import moment from 'moment/moment';
 import { register } from 'timezone-mock';
 import { EuiDateStringSchema } from '../sharedTypes.ts';
 import { sampleWireData } from '../tests/fixtures/wireData.ts';
@@ -8,12 +6,9 @@ import { SearchReducer } from './SearchReducer';
 
 register('Etc/GMT');
 
-jest.mock('@elastic/datemath', () => ({
-	__esModule: true,
-	default: {
-		parse: jest.fn(),
-	},
-}));
+// mock date.now to return a fixed timestamp for consistent test results
+const FIXED_TIMESTAMP = new Date('2025-01-01T02:04:00Z').getTime();
+jest.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
 
 describe('SearchReducer', () => {
 	const initialState: State = {
@@ -141,109 +136,189 @@ describe('SearchReducer', () => {
 		});
 	});
 
-	it(`should filter out stories which now fall outside the query's relative date window when handling UPDATE_RESULTS action in success state`, () => {
-		const state: State = {
-			...successState,
-			queryData: {
-				results: [
-					{ ...sampleWireData, id: 1, ingestedAt: '2025-01-01T00:00:00Z' },
-					{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T02:04:00Z' },
-				],
-				totalCount: 2,
-			},
-		};
-
-		(dateMath.parse as jest.Mock).mockImplementation(() =>
-			moment('2025-01-01T02:04:00Z'),
-		);
-
-		const action: Action = {
-			type: 'UPDATE_RESULTS',
-			data: {
-				results: [
-					{
-						...sampleWireData,
-						id: 4,
-						ingestedAt: '2025-01-01T02:05:00Z',
+	describe('handling of UPDATE_RESULTS action in success state', () => {
+		describe('filtering out results which have fallen outside of the query date window since they were loaded', () => {
+			it(`should remove old results based on ingested_at, by default`, () => {
+				const state: State = {
+					...successState,
+					queryData: {
+						results: [
+							{ ...sampleWireData, id: 1, ingestedAt: '2025-01-01T00:00:00Z' },
+							{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T02:04:00Z' },
+						],
+						totalCount: 2,
 					},
-					{
-						...sampleWireData,
-						id: 3,
-						ingestedAt: '2025-01-01T02:05:00Z',
+				};
+
+				const action: Action = {
+					type: 'UPDATE_RESULTS',
+					data: {
+						results: [
+							{
+								...sampleWireData,
+								id: 4,
+								ingestedAt: '2025-01-01T02:05:00Z',
+							},
+							{
+								...sampleWireData,
+								id: 3,
+								ingestedAt: '2025-01-01T02:05:00Z',
+							},
+						],
+						totalCount: 2,
 					},
-				],
-				totalCount: 2,
-			},
-			query: {
-				q: 'test',
-				start: EuiDateStringSchema.parse('now-30m'),
-				end: EuiDateStringSchema.parse('now'),
-				collectionId: undefined,
-				preset: undefined,
-			},
-		};
+					query: {
+						q: 'test',
+						start: EuiDateStringSchema.parse('now-30m'),
+						end: EuiDateStringSchema.parse('now'),
+						collectionId: undefined,
+						preset: undefined,
+					},
+				};
 
-		expect(state.queryData.results.map((_) => _.id)).toEqual([1, 2]);
+				expect(state.queryData.results.map((_) => _.id)).toEqual([1, 2]);
 
-		const newState = SearchReducer(state, action);
+				const newState = SearchReducer(state, action);
 
-		expect(newState.status).toBe('success');
-		expect(newState.queryData?.results).toHaveLength(3);
-		expect(newState.queryData?.totalCount).toBe(3);
+				expect(newState.status).toBe('success');
+				expect(newState.queryData?.results).toHaveLength(3);
+				expect(newState.queryData?.totalCount).toBe(3);
 
-		expect(newState.queryData?.results.map((_) => _.id)).toEqual([4, 3, 2]);
-	});
+				expect(newState.queryData?.results.map((_) => _.id)).toEqual([4, 3, 2]);
+			});
 
-	it('should deduplicate items based on id when adding new results as part of the UPDATE_RESULTS action', () => {
-		const itemOne = {
-			...sampleWireData,
-			id: 1,
-			ingestedAt: '2025-01-01T02:04:00Z',
-		};
-		const itemTwo = {
-			...sampleWireData,
-			id: 2,
-			ingestedAt: '2025-01-01T02:04:00Z',
-		};
+			it(`should remove old results based on 'added to collection at' time if an collectionId filter is active`, () => {
+				const state: State = {
+					...successState,
+					sortBy: { sortByKey: 'addedToCollectionAt', collectionId: 1 },
+					queryData: {
+						results: [
+							{
+								...sampleWireData,
+								id: 1,
+								collections: [
+									{
+										collectionId: 1,
+										wireEntryId: 1,
+										addedAt: '2025-01-01T00:00:00Z',
+									},
+									{
+										collectionId: 2,
+										wireEntryId: 1,
+										addedAt: '2025-01-01T02:04:00Z', // added to another collection later, but should still be filtered out as the collectionId filter is for collection 1
+									},
+								],
+							},
+							{
+								...sampleWireData,
+								id: 2,
+								collections: [
+									{
+										collectionId: 1,
+										wireEntryId: 2,
+										addedAt: '2025-01-01T02:04:00Z',
+									},
+								],
+							},
+						],
+						totalCount: 2,
+					},
+				};
 
-		const state: State = {
-			...successState,
-			queryData: {
-				results: [itemOne],
-				totalCount: 1,
-			},
-		};
+				const action: Action = {
+					type: 'UPDATE_RESULTS',
+					data: {
+						results: [
+							{
+								...sampleWireData,
+								id: 4,
+								collections: [
+									{
+										collectionId: 1,
+										wireEntryId: 4,
+										addedAt: '2025-01-01T02:05:00Z',
+									},
+								],
+							},
+							{
+								...sampleWireData,
+								id: 3,
+								collections: [
+									{
+										collectionId: 1,
+										wireEntryId: 3,
+										addedAt: '2025-01-01T02:05:00Z',
+									},
+								],
+							},
+						],
+						totalCount: 2,
+					},
+					query: {
+						q: 'test',
+						start: EuiDateStringSchema.parse('now-30m'),
+						end: EuiDateStringSchema.parse('now'),
+						collectionId: 1,
+						preset: undefined,
+					},
+				};
 
-		(dateMath.parse as jest.Mock).mockImplementation(() =>
-			moment('2025-01-01T02:04:00Z'),
-		);
+				expect(state.queryData.results.map((_) => _.id)).toEqual([1, 2]);
 
-		const action: Action = {
-			type: 'UPDATE_RESULTS',
-			data: {
-				results: [itemOne, itemTwo],
-				totalCount: 2,
-			},
-			query: {
-				q: 'test',
-				start: EuiDateStringSchema.parse('now-30m'),
-				end: EuiDateStringSchema.parse('now'),
-				preset: undefined,
-				collectionId: undefined,
-			},
-		};
+				const newState = SearchReducer(state, action);
 
-		expect(state.queryData.results).toContainEqual(itemOne);
+				expect(newState.status).toBe('success');
+				expect(newState.queryData?.results.map((_) => _.id)).toEqual([4, 3, 2]);
+			});
+		});
 
-		const newState = SearchReducer(state, action);
+		it('should deduplicate items based on id when adding new results as part of the UPDATE_RESULTS action', () => {
+			const itemOne = {
+				...sampleWireData,
+				id: 1,
+				ingestedAt: '2025-01-01T02:04:00Z',
+			};
+			const itemTwo = {
+				...sampleWireData,
+				id: 2,
+				ingestedAt: '2025-01-01T02:04:00Z',
+			};
 
-		expect(newState.status).toBe('success');
-		expect(newState.queryData?.results).toHaveLength(2);
-		expect(newState.queryData?.totalCount).toBe(2);
+			const state: State = {
+				...successState,
+				queryData: {
+					results: [itemOne],
+					totalCount: 1,
+				},
+			};
 
-		expect(newState.queryData?.results).toContainEqual(itemOne);
+			const action: Action = {
+				type: 'UPDATE_RESULTS',
+				data: {
+					results: [itemOne, itemTwo],
+					totalCount: 2,
+				},
+				query: {
+					q: 'test',
+					start: EuiDateStringSchema.parse('now-30m'),
+					end: EuiDateStringSchema.parse('now'),
+					preset: undefined,
+					collectionId: undefined,
+				},
+			};
 
-		expect(newState.queryData?.results).not.toContainEqual(itemTwo);
+			expect(state.queryData.results).toContainEqual(itemOne);
+
+			const newState = SearchReducer(state, action);
+
+			expect(newState.status).toBe('success');
+			expect(newState.queryData?.results).toHaveLength(2);
+			expect(newState.queryData?.totalCount).toBe(2);
+
+			expect(newState.queryData?.results).toContainEqual(itemOne);
+
+			expect(newState.queryData?.results).not.toContainEqual(itemTwo);
+		});
 	});
 
 	it(`should handle APPEND_RESULTS action in success state`, () => {
