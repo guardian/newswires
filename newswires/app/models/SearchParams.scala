@@ -1,6 +1,7 @@
 package models
 
 import conf.SearchTerms
+import play.api.mvc.Request
 import service.FeatureSwitchProvider
 
 case class FilterParams(
@@ -33,7 +34,7 @@ object SearchParams {
       query: Map[String, Seq[String]],
       baseParams: BaseRequestParams,
       featureSwitch: FeatureSwitchProvider
-  ) = {
+  )(implicit req: Request[_]) = {
     SearchParams(
       FilterParams(
         searchTerms = baseParams.textSearchTerms,
@@ -42,7 +43,7 @@ object SearchParams {
         suppliersIncl = baseParams.suppliers,
         suppliersExcl = computeSupplierExcl(
           query,
-          featureSwitch.ShowGuSuppliers.isOn(),
+          featureSwitch.ShowGuSuppliers.isOn(req),
           baseParams.suppliers
         ),
         categoryCodesIncl = baseParams.categoryCode,
@@ -53,7 +54,7 @@ object SearchParams {
         collectionId = baseParams.maybeCollectionId,
         guSourceFeeds = baseParams.guSourceFeeds,
         guSourceFeedsExcl = computeGuSourceFeedExcl(
-          showPAAPI = featureSwitch.ShowPAAPI.isOn(),
+          showPAAPI = featureSwitch.ShowPAAPI.isOn(req),
           guSourceFeeds = baseParams.guSourceFeeds,
           guSourceFeedsExcl = baseParams.guSourceFeedsExcl
         )

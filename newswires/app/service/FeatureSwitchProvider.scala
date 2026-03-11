@@ -1,6 +1,6 @@
 package service
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.Request
 
 sealed trait SwitchState
 case object On extends SwitchState
@@ -10,7 +10,7 @@ case class FeatureSwitch(
     description: String,
     exposeToClient: Boolean = false,
     private val safeState: SwitchState,
-    isOn: () => Boolean
+    isOn: Request[_] => Boolean
 )
 class FeatureSwitchProvider(stage: String) {
 
@@ -20,7 +20,7 @@ class FeatureSwitchProvider(stage: String) {
       safeState = Off,
       description = "Show suppliers from the Guardian",
       exposeToClient = true,
-      isOn = () => stage.toUpperCase() != "PROD"
+      isOn = _ => stage.toUpperCase() != "PROD"
     )
 
   val ShowPAAPI: FeatureSwitch =
@@ -29,12 +29,14 @@ class FeatureSwitchProvider(stage: String) {
       safeState = Off,
       description = "Show new PA API in the feed",
       exposeToClient = true,
-      isOn = () => stage.toUpperCase() != "PROD"
+      isOn = _.getQueryString("previewPaApi")
+        .flatMap(_.toBooleanOption)
+        .getOrElse(false)
     )
   private val switches = List(
     ShowGuSuppliers,
     ShowPAAPI
   )
-  def clientSideSwitchStates: Map[String, Boolean] =
-    switches.filter(_.exposeToClient).map(s => s.name -> s.isOn()).toMap
+  def clientSideSwitchStates(request: Request[_]): Map[String, Boolean] =
+    switches.filter(_.exposeToClient).map(s => s.name -> s.isOn(request)).toMap
 }

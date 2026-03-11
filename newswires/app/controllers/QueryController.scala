@@ -54,55 +54,60 @@ class QueryController(
       hasDataFormatting: Option[Boolean],
       guSourceFeeds: List[String],
       guSourceFeedsExcl: List[String]
-  ): Action[AnyContent] = apiAuthAction { request: UserRequest[AnyContent] =>
-    val baseParams = BaseRequestParams(
-      maybeFreeTextQuery = maybeFreeTextQuery,
-      keywords = keywords,
-      suppliers = suppliers,
-      categoryCode = categoryCode,
-      categoryCodeExcl = categoryCodeExcl,
-      maybeCollectionId = maybeCollectionId,
-      maybeStart = maybeStart,
-      maybeEnd = maybeEnd,
-      maybeBeforeTimeStamp = maybeBeforeTimeStamp,
-      maybeAfterTimeStamp = maybeAfterTimeStamp,
-      hasDataFormatting = hasDataFormatting,
-      guSourceFeeds = guSourceFeeds,
-      guSourceFeedsExcl = guSourceFeedsExcl
-    )
-    val searchParams =
-      SearchParams.build(request.queryString, baseParams, featureSwitchProvider)
-
-    val searchPreset = request
-      .getQueryString("preset")
-      .flatMap(SearchPresets.get)
-
-    val timeStampColumn = maybeCollectionId match {
-      case Some(id) => AddedToCollectionAtTime(id)
-      case None     => IngestedAtTime
-    }
-    val queryParams = QueryParams(
-      searchParams = searchParams,
-      searchPreset = searchPreset,
-      maybeSearchTerm = baseParams.textForHighlighting,
-      queryCursor = QueryCursor(
+  ): Action[AnyContent] = apiAuthAction {
+    implicit request: UserRequest[AnyContent] =>
+      val baseParams = BaseRequestParams(
+        maybeFreeTextQuery = maybeFreeTextQuery,
+        keywords = keywords,
+        suppliers = suppliers,
+        categoryCode = categoryCode,
+        categoryCodeExcl = categoryCodeExcl,
+        maybeCollectionId = maybeCollectionId,
+        maybeStart = maybeStart,
+        maybeEnd = maybeEnd,
         maybeBeforeTimeStamp = maybeBeforeTimeStamp,
-        maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_))
-      ),
-      pageSize = 30,
-      timeStampColumn = timeStampColumn
-    )
+        maybeAfterTimeStamp = maybeAfterTimeStamp,
+        hasDataFormatting = hasDataFormatting,
+        guSourceFeeds = guSourceFeeds,
+        guSourceFeedsExcl = guSourceFeedsExcl
+      )
+      val searchParams =
+        SearchParams.build(
+          request.queryString,
+          baseParams,
+          featureSwitchProvider
+        )
 
-    val queryResponse = FingerpostWireEntry.query(
-      queryParams
-    )
+      val searchPreset = request
+        .getQueryString("preset")
+        .flatMap(SearchPresets.get)
 
-    Ok(
-      QueryResponse
-        .display(queryResponse, request.user.username, timeStampColumn)
-        .asJson
-        .spaces2
-    )
+      val timeStampColumn = maybeCollectionId match {
+        case Some(id) => AddedToCollectionAtTime(id)
+        case None     => IngestedAtTime
+      }
+      val queryParams = QueryParams(
+        searchParams = searchParams,
+        searchPreset = searchPreset,
+        maybeSearchTerm = baseParams.textForHighlighting,
+        queryCursor = QueryCursor(
+          maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+          maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_))
+        ),
+        pageSize = 30,
+        timeStampColumn = timeStampColumn
+      )
+
+      val queryResponse = FingerpostWireEntry.query(
+        queryParams
+      )
+
+      Ok(
+        QueryResponse
+          .display(queryResponse, request.user.username, timeStampColumn)
+          .asJson
+          .spaces2
+      )
   }
 
   def keywords(

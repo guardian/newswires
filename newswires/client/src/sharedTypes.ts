@@ -165,6 +165,7 @@ export const BaseQuerySchema = z.object({
 	start: EuiDateStringSchema.optional(),
 	end: EuiDateStringSchema.optional(),
 	hasDataFormatting: z.boolean().optional(),
+	previewPaApi: z.boolean().optional(),
 });
 export type BaseQuery = z.infer<typeof BaseQuerySchema>;
 
