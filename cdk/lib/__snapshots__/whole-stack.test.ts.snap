@@ -1275,7 +1275,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
           "gu:repo": "guardian/newswires",
         },
         "Type": "String",
-        "Value": "",
+        "Value": "2026-01-01T00:00:00.000Z",
       },
       "Type": "AWS::SSM::Parameter",
     },

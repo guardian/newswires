@@ -486,7 +486,7 @@ export class Newswires extends GuStack {
 
 		new StringParameter(this, 'BreakingUiChangeActiveFromTimeParam', {
 			parameterName: `/${this.stage}/${this.stack}/${appName}/breakingUiChangeActiveFromTime`,
-			stringValue: '',
+			stringValue: '2026-01-01T00:00:00.000Z',
 		});
 
 		const newswiresApp = new GuPlayApp(this, {

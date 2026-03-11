@@ -262,7 +262,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
           "gu:repo": "guardian/newswires",
         },
         "Type": "String",
-        "Value": "",
+        "Value": "2026-01-01T00:00:00.000Z",
       },
       "Type": "AWS::SSM::Parameter",
     },
