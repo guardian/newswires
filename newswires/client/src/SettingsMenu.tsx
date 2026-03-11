@@ -7,6 +7,7 @@ import {
 	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { useState } from 'react';
+import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
 import { useSettingsSwitches } from './SetttingsSwitches';
 
@@ -49,7 +50,32 @@ export const SettingsMenu = () => {
 			title: 'Site settings',
 			items: [
 				...switches,
+				{
+					isSeparator: true as const,
+					key: 'separator-1',
+				},
+				{
+					panel: 1,
+					name: 'Developer information',
+					icon: 'bug',
+				},
+				{
+					isSeparator: true as const,
+					key: 'separator-2',
+				},
 				{ name: 'Close', icon: 'cross', onClick: closePopover },
+			],
+		},
+		{
+			id: 1,
+			title: 'Developer information',
+			items: [
+				{
+					name: `Show Gu suppliers: ${SHOW_GU_SUPPLIERS ? 'On' : 'Off'}`,
+				},
+				{
+					name: `Show PAAPI: ${SHOW_PAAPI ? 'On' : 'Off'}`,
+				},
 			],
 		},
 	];

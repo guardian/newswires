@@ -9,6 +9,7 @@ import { icon as arrowEnd } from '@elastic/eui/es/components/icon/assets/arrowEn
 import { icon as arrowStart } from '@elastic/eui/es/components/icon/assets/arrowStart';
 import { icon as boxesHorizontal } from '@elastic/eui/es/components/icon/assets/boxes_horizontal';
 import { icon as boxesVertical } from '@elastic/eui/es/components/icon/assets/boxes_vertical';
+import { icon as bug } from '@elastic/eui/es/components/icon/assets/bug';
 import { icon as calendar } from '@elastic/eui/es/components/icon/assets/calendar';
 import { icon as check } from '@elastic/eui/es/components/icon/assets/check';
 import { icon as clock } from '@elastic/eui/es/components/icon/assets/clock';
@@ -92,6 +93,7 @@ const icons = {
 	starEmpty,
 	starFilled,
 	clockCounter,
+	bug,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent
