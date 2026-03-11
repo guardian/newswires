@@ -14,7 +14,9 @@ case class FilterParams(
     hasDataFormatting: Option[Boolean],
     preComputedCategories: List[String],
     preComputedCategoriesExcl: List[String],
-    collectionId: Option[Int]
+    collectionId: Option[Int],
+    guSourceFeeds: List[String],
+    guSourceFeedsExcl: List[String]
 )
 
 case class DateRange(
@@ -41,7 +43,6 @@ object SearchParams {
         suppliersExcl = computeSupplierExcl(
           query,
           featureSwitch.ShowGuSuppliers.isOn(),
-          featureSwitch.ShowPAAPI.isOn(),
           baseParams.suppliers
         ),
         categoryCodesIncl = baseParams.categoryCode,
@@ -49,7 +50,13 @@ object SearchParams {
         hasDataFormatting = baseParams.hasDataFormatting,
         preComputedCategories = Nil,
         preComputedCategoriesExcl = Nil,
-        collectionId = baseParams.maybeCollectionId
+        collectionId = baseParams.maybeCollectionId,
+        guSourceFeeds = baseParams.guSourceFeeds,
+        guSourceFeedsExcl = computeGuSourceFeedExcl(
+          showPAAPI = featureSwitch.ShowPAAPI.isOn(),
+          guSourceFeeds = baseParams.guSourceFeeds,
+          guSourceFeedsExcl = baseParams.guSourceFeedsExcl
+        )
       ),
       DateRange(
         start = baseParams.maybeStart,
@@ -61,7 +68,6 @@ object SearchParams {
   def computeSupplierExcl(
       query: Map[String, Seq[String]],
       showGuSuppliers: Boolean,
-      showPAAPI: Boolean,
       suppliers: List[String]
   ) = {
     val dotCopyIsSelected = query.get("preset").exists(_.contains("dot-copy"))
@@ -72,12 +78,22 @@ object SearchParams {
       if (showGuSuppliers) Nil
       else
         List("GuReuters", "GuAP").filterNot(s => suppliers.contains(s))
-    val paApiExclusion =
-      if (showPAAPI) Nil
-      else List("PAAPI").filterNot(s => suppliers.contains(s))
     val exclusionFromParams =
       query.get("supplierExcl").map(_.toList).getOrElse(Nil)
 
-    dotCopyExclusion ::: guSuppliersExclusion ::: paApiExclusion ::: exclusionFromParams
+    dotCopyExclusion ::: guSuppliersExclusion ::: exclusionFromParams
+  }
+
+  def computeGuSourceFeedExcl(
+      showPAAPI: Boolean,
+      guSourceFeeds: List[String],
+      guSourceFeedsExcl: List[String]
+  ) = {
+    if (guSourceFeeds.nonEmpty || guSourceFeedsExcl.nonEmpty) {
+      guSourceFeedsExcl
+    } else if (showPAAPI) {
+      Nil
+    } else
+      List("PA_API", "PA_API DATA FORMATTING")
   }
 }

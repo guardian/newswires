@@ -31,6 +31,8 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	hasDataFormatting: 'Has data formatting',
 	keyword: 'Keyword',
 	keywordExcl: '(NOT) Keyword',
+	guSourceFeed: 'Source feed',
+	guSourceFeedExcl: '(NOT) Source feed',
 	start: 'From',
 	end: 'To',
 	collectionId: 'Collection',
@@ -104,6 +106,9 @@ const Summary = ({
 	const displaySuppliers = (suppliers ?? []).length > 0;
 	const displayKeywords = (query.keyword ?? []).length > 0;
 	const displayExcludedKeywords = (query.keywordExcl ?? []).length > 0;
+	const displayGuSourceFeeds = (query.guSourceFeed ?? []).length > 0;
+	const displayExcludedGuSourceFeeds =
+		(query.guSourceFeedExcl ?? []).length > 0;
 
 	const displayFilters: boolean =
 		!!q ||
@@ -113,6 +118,8 @@ const Summary = ({
 		displayKeywords ||
 		displayExcludedCategoryCodes ||
 		displayExcludedKeywords ||
+		displayGuSourceFeeds ||
+		displayExcludedGuSourceFeeds ||
 		hasDataFormatting !== undefined ||
 		collectionId !== undefined;
 
@@ -204,6 +211,20 @@ const Summary = ({
 					<SummaryBadge
 						key={keyword}
 						keyValuePair={{ key: 'keywordExcl', value: keyword }}
+					/>
+				))}
+			{displayGuSourceFeeds &&
+				query.guSourceFeed?.map((feed) => (
+					<SummaryBadge
+						key={feed}
+						keyValuePair={{ key: 'guSourceFeed', value: feed }}
+					/>
+				))}
+			{displayExcludedGuSourceFeeds &&
+				query.guSourceFeedExcl?.map((feed) => (
+					<SummaryBadge
+						key={feed}
+						keyValuePair={{ key: 'guSourceFeedExcl', value: feed }}
 					/>
 				))}
 			{hasDataFormatting !== undefined && (

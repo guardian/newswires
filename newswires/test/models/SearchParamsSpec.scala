@@ -82,7 +82,9 @@ class SearchParamsSpec extends AnyFlatSpec with models {
         hasDataFormatting = Some(true),
         collectionId = Some(1),
         preComputedCategories = Nil,
-        preComputedCategoriesExcl = Nil
+        preComputedCategoriesExcl = Nil,
+        guSourceFeeds = Nil,
+        guSourceFeedsExcl = Nil
       ),
       DateRange(
         start = Some("start"),
@@ -105,69 +107,34 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )
   }
 
-  it should "include new pa api when the showPAAPIFeatureOff feature switch is off" in new searchParamsMocks {
-    val result =
-      SearchParams.build(
-        emptyQueryString,
-        emptyBaseParams,
-        showPAAPIFeatureOff
-      )
-    result.filters.suppliersExcl shouldEqual List(
-      "UNAUTHED_EMAIL_FEED",
-      "PAAPI"
-    )
-  }
-
   behavior of "computeSupplierExcl"
 
-  it should "return dotcopy exclusion when no additional exclusion params are set and showGuSuppliers is true and showPAAPI is true" in new searchParamsMocks {
+  it should "return dotcopy exclusion when no additional exclusion params are set and showGuSuppliers is true" in new searchParamsMocks {
     val result = SearchParams.computeSupplierExcl(
       emptyQueryString,
       showGuSuppliers = true,
-      showPAAPI = true,
       Nil
     )
     result shouldEqual List("UNAUTHED_EMAIL_FEED")
   }
-  it should "return dotcopy exclusion and gu suppliers when no additional exclusion params are set and showGuSuppliers is false and showPAAPI is true" in new searchParamsMocks {
+  it should "return dotcopy exclusion and gu suppliers when no additional exclusion params are set and showGuSuppliers is false" in new searchParamsMocks {
     val result = SearchParams.computeSupplierExcl(
       emptyQueryString,
       showGuSuppliers = false,
-      showPAAPI = true,
       Nil
     )
     result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuReuters", "GuAP")
-  }
-  it should "return dotcopy exclusion and new pa api when no additional exclusion params are set and showGuSuppliers is true and showPAAPI is false" in new searchParamsMocks {
-    val result = SearchParams.computeSupplierExcl(
-      emptyQueryString,
-      showGuSuppliers = true,
-      showPAAPI = false,
-      Nil
-    )
-    result shouldEqual List("UNAUTHED_EMAIL_FEED", "PAAPI")
-  }
-  it should "return dotcopy exclusion and gu suppliers nad new pa api when no additional exclusion params are set and showGuSuppliers is false and showPAAPI is false" in new searchParamsMocks {
-    val result = SearchParams.computeSupplierExcl(
-      emptyQueryString,
-      showGuSuppliers = false,
-      showPAAPI = false,
-      Nil
-    )
-    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuReuters", "GuAP", "PAAPI")
   }
   it should "return add any exclusions from the parameters" in {
     val result = SearchParams.computeSupplierExcl(
       Map("supplierExcl" -> Seq("supplier1")),
       showGuSuppliers = false,
-      showPAAPI = false,
       Nil
     )
     result shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
       "GuAP",
-      "PAAPI",
       "supplier1"
     )
   }
@@ -175,16 +142,14 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.computeSupplierExcl(
       emptyQueryString,
       showGuSuppliers = false,
-      showPAAPI = false,
       List("GuReuters")
     )
-    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuAP", "PAAPI")
+    result shouldEqual List("UNAUTHED_EMAIL_FEED", "GuAP")
   }
   it should "not include dotcopy exclusion when the dotcopy preset is set" in new searchParamsMocks {
     val result = SearchParams.computeSupplierExcl(
       Map("preset" -> Seq("dot-copy")),
       showGuSuppliers = true,
-      showPAAPI = true,
       Nil
     )
     result shouldEqual Nil
@@ -193,10 +158,44 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     val result = SearchParams.computeSupplierExcl(
       Map("preset" -> Seq("soccer")),
       showGuSuppliers = true,
-      showPAAPI = true,
       Nil
     )
     result shouldEqual List("UNAUTHED_EMAIL_FEED")
+  }
+
+  behavior of "computeGuSourceFeedExcl"
+
+  it should "return PA_API exclusions when showPAAPI is false and no guSourceFeed is explicitly set in the query" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      showPAAPI = false,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = Nil
+    )
+    result shouldEqual List("PA_API", "PA_API DATA FORMATTING")
+  }
+  it should "remove default exclusions when showPAAPI is false and some guSourceFeed is explicitly set in the query" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      showPAAPI = false,
+      guSourceFeeds = List("TEST FEED"),
+      guSourceFeedsExcl = Nil
+    )
+    result shouldEqual Nil
+  }
+  it should "not return PA_API exclusions when showPAAPI is true" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      showPAAPI = true,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = Nil
+    )
+    result shouldEqual Nil
+  }
+  it should "be possible to override PA_API exclusions with guSourceFeedExcl param" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      showPAAPI = true,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = List("PA_API DATA FORMATTING")
+    )
+    result shouldEqual List("PA_API DATA FORMATTING")
   }
 }
 

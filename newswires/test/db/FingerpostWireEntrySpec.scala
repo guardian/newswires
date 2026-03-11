@@ -390,7 +390,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       hasDataFormatting = Some(true),
       preComputedCategories = List("p1"),
       preComputedCategoriesExcl = List("p2"),
-      collectionId = Some(1)
+      collectionId = Some(1),
+      guSourceFeeds = List("feed1"),
+      guSourceFeedsExcl = List("feed2", "feed3")
     )
 
     val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
@@ -419,13 +421,18 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val preCompExclClause =
       FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(List("p2"))
     val collectionClause = FingerpostWireEntry.Filters.collectionIdSQL(1)
+    val guSourceFeedClause =
+      FingerpostWireEntry.Filters.guSourceFeedSQL(List("feed1"))
+    val guSourceFeedExclClause =
+      FingerpostWireEntry.Filters.guSourceFeedExclSQL(List("feed2", "feed3"))
 
     snippets.get should matchSqlSnippet(
       expectedClause = sqls"""${keywordsClause} and ${categoryCodesClause}
               and ${keywordsExclClause} and (${textSearchClause})
               and ${supplierClause} and ${supplierExclClause}
               and ${categoryCodesExclClause} and ${dataFormatClause}
-              and ${preCompClause} and ${preCompExclClause} and ${collectionClause}""",
+              and ${preCompClause} and ${preCompExclClause} and ${collectionClause}
+              and ${guSourceFeedClause} and ${guSourceFeedExclClause}""",
       expectedParams = List(
         List("kw1"),
         List("c1"),
@@ -437,7 +444,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         List("c2"),
         List("p1"),
         List("p2"),
-        1
+        1,
+        "feed1",
+        "feed2",
+        "feed3"
       )
     )
   }

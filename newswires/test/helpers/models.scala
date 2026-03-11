@@ -268,7 +268,9 @@ trait models {
     hasDataFormatting = None,
     preComputedCategories = Nil,
     preComputedCategoriesExcl = Nil,
-    collectionId = None
+    collectionId = None,
+    guSourceFeeds = Nil,
+    guSourceFeedsExcl = Nil
   )
 
   val emptyDateParams = DateRange(
