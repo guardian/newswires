@@ -68,14 +68,14 @@ export function processCategoryCodes({
 	destinationCodes,
 	bodyText,
 	priority,
-	mediaCatCodes,
+	maybeMediaCatCode,
 }: {
 	supplier: string;
 	subjectCodes: string[];
 	destinationCodes: string[];
 	bodyText?: string;
 	priority?: string;
-	mediaCatCodes?: string;
+	maybeMediaCatCode?: string;
 }) {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
@@ -114,7 +114,7 @@ export function processCategoryCodes({
 		case 'PA':
 			return [
 				...catCodes,
-				...processFingerpostPACategoryCodes(subjectCodes, mediaCatCodes),
+				...processFingerpostPACategoryCodes(subjectCodes, maybeMediaCatCode),
 			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
@@ -264,7 +264,7 @@ export function processFingerpostJsonContent(
 				destinationCodes: content.destinations?.code ?? [],
 				bodyText: `${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
 				priority: content.priority,
-				mediaCatCodes: content.mediaCatCodes,
+				maybeMediaCatCode: content.mediaCatCodes, // the name in the original JSON is plural, but the value is always a single string, rather than an array, if it exists
 			}),
 		);
 		return {

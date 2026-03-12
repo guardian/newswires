@@ -143,7 +143,7 @@ export function processFingerpostAFPCategoryCodes(
 
 export function processFingerpostPACategoryCodes(
 	original: string[],
-	mediaCatCodes?: string,
+	maybeMediaCatCode?: string,
 ): string[] {
 	const notServiceCodes = original.filter((_) => !_.includes('service:'));
 	const [iptcCatCodes, otherCodes] = partition(notServiceCodes, (_) =>
@@ -155,8 +155,8 @@ export function processFingerpostPACategoryCodes(
 		.map(categoryCodeToString);
 
 	const maybeMediaCatCodes =
-		mediaCatCodes !== undefined && mediaCatCodes.trim().length > 0
-			? [`paCat:${mediaCatCodes.trim()}`]
+		maybeMediaCatCode !== undefined && maybeMediaCatCode.trim().length > 0
+			? [`paCat:${maybeMediaCatCode.trim()}`]
 			: [];
 
 	const trimmedOtherCodes = otherCodes
