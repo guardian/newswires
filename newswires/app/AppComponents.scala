@@ -103,7 +103,11 @@ class AppComponents(context: Context)
   )
 
   private val managementController = new ManagementController(
-    controllerComponents
+    controllerComponents = controllerComponents,
+    configuration = configuration,
+    wsClient = wsClient,
+    permissionsProvider = permissionsProvider,
+    panDomainSettings = panDomainSettings
   )
 
   private val queryController = new QueryController(
