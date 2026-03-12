@@ -14,13 +14,16 @@ class SearchParamsSpec extends AnyFlatSpec with models {
 
   behavior of "build"
 
-  it should "return empty search params when none are set with default supplier exclusion set" in new searchParamsMocks {
+  it should "return empty search params when none are set with default supplier and source feed exclusions set" in new searchParamsMocks {
     SearchParams.build(
       emptyQueryString,
       emptyBaseParams,
       featureSwitchesOn
     )(FakeRequest()) shouldEqual emptySearchParams.copy(filters =
-      emptyFilterParams.copy(suppliersExcl = List("UNAUTHED_EMAIL_FEED"))
+      emptyFilterParams.copy(
+        suppliersExcl = List("UNAUTHED_EMAIL_FEED"),
+        guSourceFeedsExcl = SearchParams.legacyPaSourceFeeds
+      )
     )
   }
   it should "set an english search term when maybeFreeTextQuery is set" in new searchParamsMocks {
@@ -59,7 +62,9 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       maybeEnd = Some("end"),
       maybeBeforeTimeStamp = Some("2023-01-01T00:00:00Z"),
       maybeAfterTimeStamp = Some("2023-01-02T00:00:00Z"),
-      hasDataFormatting = Some(true)
+      hasDataFormatting = Some(true),
+      guSourceFeeds = List("A"),
+      guSourceFeedsExcl = List("B")
     )
     val result = SearchParams.build(
       emptyQueryString,
@@ -84,8 +89,8 @@ class SearchParamsSpec extends AnyFlatSpec with models {
         collectionId = Some(1),
         preComputedCategories = Nil,
         preComputedCategoriesExcl = Nil,
-        guSourceFeeds = Nil,
-        guSourceFeedsExcl = Nil
+        guSourceFeeds = List("A"),
+        guSourceFeedsExcl = List("B")
       ),
       DateRange(
         start = Some("start"),
@@ -106,6 +111,16 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       "GuReuters",
       "GuAP"
     )
+  }
+
+  it should "include new PA API feed exclusions when the showPAAPI feature switch is off " in new searchParamsMocks {
+    val result =
+      SearchParams.build(
+        emptyQueryString,
+        emptyBaseParams,
+        showPAAPIFeatureOff
+      )(FakeRequest())
+    result.filters.guSourceFeedsExcl shouldEqual SearchParams.newPaSourceFeeds
   }
 
   behavior of "computeSupplierExcl"
@@ -188,7 +203,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       guSourceFeeds = Nil,
       guSourceFeedsExcl = Nil
     )
-    result shouldEqual Nil
+    result shouldEqual SearchParams.legacyPaSourceFeeds
   }
   it should "be possible to override PA_API exclusions with guSourceFeedExcl param" in new searchParamsMocks {
     val result = SearchParams.computeGuSourceFeedExcl(
