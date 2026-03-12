@@ -13,7 +13,6 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
-	processFingerpostPAAPICategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processReutersTopicCodes,
@@ -69,14 +68,14 @@ export function processCategoryCodes({
 	destinationCodes,
 	bodyText,
 	priority,
-	mediaCatCodes,
+	maybeMediaCatCode,
 }: {
 	supplier: string;
 	subjectCodes: string[];
 	destinationCodes: string[];
 	bodyText?: string;
 	priority?: string;
-	mediaCatCodes?: string;
+	maybeMediaCatCode?: string;
 }) {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
@@ -113,11 +112,9 @@ export function processCategoryCodes({
 				...regionCodes,
 			];
 		case 'PA':
-			return [...catCodes, ...processFingerpostPACategoryCodes(subjectCodes)];
-		case 'PAAPI':
 			return [
 				...catCodes,
-				...processFingerpostPAAPICategoryCodes(subjectCodes, mediaCatCodes),
+				...processFingerpostPACategoryCodes(subjectCodes, maybeMediaCatCode),
 			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
@@ -254,6 +251,12 @@ export function processFingerpostJsonContent(
 
 		const supplier = lookupSupplier(content['source-feed']) ?? 'Unknown';
 
+		const guSourceFeed = remapSourceFeeds({
+			sourceFeed: content['source-feed'],
+			dataFormat: content.dataformat,
+			subjectCodes: content.subjects?.code,
+		});
+
 		const categoryCodes = dedupeStrings(
 			processCategoryCodes({
 				supplier,
@@ -261,18 +264,14 @@ export function processFingerpostJsonContent(
 				destinationCodes: content.destinations?.code ?? [],
 				bodyText: `${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
 				priority: content.priority,
-				mediaCatCodes: content.mediaCatCodes,
+				maybeMediaCatCode: content.mediaCatCodes, // the name in the original JSON is plural, but the value is always a single string, rather than an array, if it exists
 			}),
 		);
 		return {
 			status: 'success' as const,
 			content,
 			supplier,
-			guSourceFeed: remapSourceFeeds({
-				sourceFeed: content['source-feed'],
-				dataFormat: content.dataformat,
-				subjectCodes: content.subjects?.code,
-			}),
+			guSourceFeed,
 			categoryCodes,
 		};
 	} catch (error) {

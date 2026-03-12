@@ -4,7 +4,6 @@ import {
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
-	processFingerpostPAAPICategoryCodes,
 	processFingerpostPACategoryCodes,
 	processReutersDestinationCodes,
 	processUnknownFingerpostCategoryCodes,
@@ -193,77 +192,92 @@ describe('processFingerpostAFPCategoryCodes', () => {
 
 describe('processFingerpostPACategoryCodes', () => {
 	describe('processFingerpostPACategoryCodes', () => {
-		it('should return an empty array if provided with an empty array', () => {
-			expect(processFingerpostPACategoryCodes([])).toEqual([]);
-		});
+		describe('when mediaCatCodes is not provided', () => {
+			it('should return an empty array if provided with an empty array', () => {
+				expect(processFingerpostPACategoryCodes([])).toEqual([]);
+			});
 
-		it('should strip out service codes', () => {
-			expect(processFingerpostPACategoryCodes(['service:news'])).toEqual([]);
-		});
+			it('should strip out service codes', () => {
+				expect(processFingerpostPACategoryCodes(['service:news'])).toEqual([]);
+			});
 
-		it('should strip out empty iptccat entries', () => {
+			it('should strip out empty iptccat entries', () => {
+				expect(
+					processFingerpostPACategoryCodes(['iptccat:', 'iptccat:a']),
+				).toEqual(['paCat:a']);
+			});
+
+			it('should return simple codes labelled "iptccat" as simple "paCat" codes', () => {
+				expect(
+					processFingerpostPACategoryCodes(['iptccat:a', 'iptccat:b']),
+				).toEqual(['paCat:a', 'paCat:b']);
+			});
+
+			it('should expand category codes with multiple subcodes', () => {
+				expect(processFingerpostPACategoryCodes(['iptccat:c+d'])).toEqual([
+					'paCat:c',
+					'paCat:d',
+				]);
+			});
+
+			it('should remove empty strings', () => {
+				expect(
+					processFingerpostPACategoryCodes(['iptccat:a', '', 'iptccat:c']),
+				).toEqual(['paCat:a', 'paCat:c']);
+			});
+
+			it('should remove trailing and leading whitespace', () => {
+				expect(
+					processFingerpostPACategoryCodes([
+						'iptccat:a ',
+						' iptccat:c',
+						' service:news ',
+						'qCode:value ',
+						'iptccat: ',
+					]),
+				).toEqual(['paCat:a', 'paCat:c', 'qCode:value']);
+			});
+
+			it('should deduplicate category codes after stripping whitespace', () => {
+				expect(
+					processFingerpostPACategoryCodes([
+						'iptccat:a ',
+						' iptccat:a',
+						'iptccat:c',
+					]),
+				).toEqual(['paCat:a', 'paCat:c']);
+			});
+
+			it('should return original codes unchanged if they are not prefixed with "iptccat" or "service"', () => {
+				expect(
+					processFingerpostPACategoryCodes([
+						'sport',
+						'sport:uk',
+						'paCat:sport:uk',
+					]),
+				).toEqual(['sport', 'sport:uk', 'paCat:sport:uk']);
+			});
+		});
+	});
+
+	describe('when mediaCatCodes is provided', () => {
+		it('should append the mediaCatCode to the processed category codes', () => {
 			expect(
-				processFingerpostPACategoryCodes(['iptccat:', 'iptccat:a']),
-			).toEqual(['paCat:a']);
+				processFingerpostPACategoryCodes(['iptccat:a'], 'exampleCategory'),
+			).toEqual(['paCat:a', 'paCat:exampleCategory']);
 		});
 
-		it('should return simple codes labelled "iptccat" as simple "paCat" codes', () => {
-			expect(
-				processFingerpostPACategoryCodes(['iptccat:a', 'iptccat:b']),
-			).toEqual(['paCat:a', 'paCat:b']);
-		});
-
-		it('should expand category codes with multiple subcodes', () => {
-			expect(processFingerpostPACategoryCodes(['iptccat:c+d'])).toEqual([
-				'paCat:c',
-				'paCat:d',
+		it('should return only the mediaCatCode if no other category codes are provided', () => {
+			expect(processFingerpostPACategoryCodes([], 'exampleCategory')).toEqual([
+				'paCat:exampleCategory',
 			]);
 		});
 
-		it('should remove empty strings', () => {
-			expect(
-				processFingerpostPACategoryCodes(['iptccat:a', '', 'iptccat:c']),
-			).toEqual(['paCat:a', 'paCat:c']);
+		it('should return an empty array if no category codes or mediaCatCode are provided', () => {
+			expect(processFingerpostPACategoryCodes([], undefined)).toEqual([]);
+			expect(processFingerpostPACategoryCodes([], '')).toEqual([]);
+			expect(processFingerpostPACategoryCodes([], ' ')).toEqual([]);
 		});
-
-		it('should remove trailing and leading whitespace', () => {
-			expect(
-				processFingerpostPACategoryCodes([
-					'iptccat:a ',
-					' iptccat:c',
-					' service:news ',
-					'qCode:value ',
-					'iptccat: ',
-				]),
-			).toEqual(['paCat:a', 'paCat:c', 'qCode:value']);
-		});
-
-		it('should deduplicate category codes after stripping whitespace', () => {
-			expect(
-				processFingerpostPACategoryCodes([
-					'iptccat:a ',
-					' iptccat:a',
-					'iptccat:c',
-				]),
-			).toEqual(['paCat:a', 'paCat:c']);
-		});
-	});
-});
-
-describe('processFingerpostPAAPICategoryCodes', () => {
-	it('should return an empty array if provided with an empty array', () => {
-		expect(processFingerpostPAAPICategoryCodes([])).toEqual([]);
-	});
-	it('should append paCat if mediaCatCode is defined', () => {
-		expect(processFingerpostPAAPICategoryCodes([], 'exampleCategory')).toEqual([
-			'paCat:exampleCategory',
-		]);
-	});
-	it('should return the array unchanged if original category codes are supplied', () => {
-		expect(processFingerpostPAAPICategoryCodes(['hello', 'world'])).toEqual([
-			'hello',
-			'world',
-		]);
 	});
 });
 

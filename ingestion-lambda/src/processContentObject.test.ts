@@ -1,4 +1,5 @@
 import type { DataFormatInfo } from 'newswires-shared/index';
+import paApiDataFormattingFixture from '../test/fixtures/PA_API-Data-Formatting.json';
 import paApiFixture from '../test/fixtures/PA_API.json';
 import { cleanBodyTextMarkup } from './cleanMarkup';
 import {
@@ -175,16 +176,36 @@ describe('processFingerpostJsonContent', () => {
 				imageIds: [],
 				keywords: [],
 			},
-			supplier: 'PAAPI',
+			supplier: 'PA',
 			guSourceFeed: 'PA_API',
 			status: 'success',
 			categoryCodes: [
+				'paCat:SCN',
 				'news',
 				'news:uk',
 				'politics',
 				'news:scotland',
-				'paCat:SCN',
 			],
+		});
+	});
+
+	it('should process a PA API fixture with Data Formatting correctly', () => {
+		const paApiWithDataFormatting = processFingerpostJsonContent(
+			JSON.stringify(paApiDataFormattingFixture),
+		);
+		expect(paApiWithDataFormatting).toEqual({
+			content: {
+				...paApiDataFormattingFixture,
+				body_text: cleanBodyTextMarkup(
+					safeBodyParse(JSON.stringify(paApiDataFormattingFixture)).body_text!,
+				),
+				imageIds: [],
+				keywords: [],
+			},
+			supplier: 'PA',
+			guSourceFeed: 'PA_API DATA FORMATTING',
+			status: 'success',
+			categoryCodes: ['paCat:SFU', 'paCat:SCN'],
 		});
 	});
 });
