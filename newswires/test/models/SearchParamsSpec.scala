@@ -189,15 +189,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )
     result shouldEqual List("PA_API", "PA_API DATA FORMATTING")
   }
-  it should "remove default exclusions when showPAAPI is false and some guSourceFeed is explicitly set in the query" in new searchParamsMocks {
-    val result = SearchParams.computeGuSourceFeedExcl(
-      showPAAPI = false,
-      guSourceFeeds = List("TEST FEED"),
-      guSourceFeedsExcl = Nil
-    )
-    result shouldEqual Nil
-  }
-  it should "not return PA_API exclusions when showPAAPI is true" in new searchParamsMocks {
+  it should "not return PA_API exclusions when showPAAPI is true and guSourceFeeds and guSourceFeedsExcl are not set" in new searchParamsMocks {
     val result = SearchParams.computeGuSourceFeedExcl(
       showPAAPI = true,
       guSourceFeeds = Nil,
@@ -205,13 +197,35 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )
     result shouldEqual SearchParams.legacyPaSourceFeeds
   }
-  it should "be possible to override PA_API exclusions with guSourceFeedExcl param" in new searchParamsMocks {
-    val result = SearchParams.computeGuSourceFeedExcl(
+  it should "return whatever is set in guSourceFeedsExcl when guSourceFeeds is set, regardless of the showPAAPI switch" in new searchParamsMocks {
+    val showPAAPI_OFF = SearchParams.computeGuSourceFeedExcl(
+      showPAAPI = false,
+      guSourceFeeds = List("FEED TO INCLUDE"),
+      guSourceFeedsExcl = Nil
+    )
+    showPAAPI_OFF shouldEqual Nil
+
+    val showPAAPI_ON = SearchParams.computeGuSourceFeedExcl(
+      showPAAPI = true,
+      guSourceFeeds = List("FEED TO INCLUDE"),
+      guSourceFeedsExcl = Nil
+    )
+    showPAAPI_ON shouldEqual Nil
+  }
+  it should "return whatever is set in guSourceFeedsExcl when guSourceFeedsExcl is set, regardless of the showPAAPI switch" in new searchParamsMocks {
+    val showPAAPI_OFF = SearchParams.computeGuSourceFeedExcl(
+      showPAAPI = false,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = List("FEED TO EXCLUDE")
+    )
+    showPAAPI_OFF shouldEqual List("FEED TO EXCLUDE")
+
+    val showPAAPI_ON = SearchParams.computeGuSourceFeedExcl(
       showPAAPI = true,
       guSourceFeeds = Nil,
-      guSourceFeedsExcl = List("PA_API DATA FORMATTING")
+      guSourceFeedsExcl = List("FEED TO EXCLUDE")
     )
-    result shouldEqual List("PA_API DATA FORMATTING")
+    showPAAPI_ON shouldEqual List("FEED TO EXCLUDE")
   }
 }
 
