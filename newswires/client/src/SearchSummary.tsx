@@ -29,6 +29,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	categoryCode: 'Category',
 	categoryCodeExcl: '(NOT) Category',
 	hasDataFormatting: 'Has data formatting',
+	previewPaApi: 'Previewing PA API switchover',
 	keyword: 'Keyword',
 	keywordExcl: '(NOT) Keyword',
 	guSourceFeed: 'Source feed',
@@ -98,6 +99,7 @@ const Summary = ({
 		categoryCode,
 		categoryCodeExcl,
 		hasDataFormatting,
+		previewPaApi,
 		collectionId,
 	} = query;
 
@@ -121,6 +123,7 @@ const Summary = ({
 		displayGuSourceFeeds ||
 		displayExcludedGuSourceFeeds ||
 		hasDataFormatting !== undefined ||
+		previewPaApi !== undefined ||
 		collectionId !== undefined;
 
 	const isDefaultDateRange =
@@ -232,6 +235,14 @@ const Summary = ({
 					keyValuePair={{
 						key: 'hasDataFormatting',
 						value: hasDataFormatting ? 'true' : 'false',
+					}}
+				/>
+			)}
+			{previewPaApi !== undefined && (
+				<SummaryBadge
+					keyValuePair={{
+						key: 'previewPaApi',
+						value: previewPaApi ? 'true' : 'false',
 					}}
 				/>
 			)}

@@ -75,7 +75,7 @@ class ViteController(
       val config =
         views.html.fragments.clientConfig(
           ClientConfig(
-            featureSwitchProvider.clientSideSwitchStates,
+            featureSwitchProvider.clientSideSwitchStates(request),
             stage = configuration.get[String]("stage"),
             sendTelemetryAsDev =
               devEmails.exists(request.user.email.startsWith),

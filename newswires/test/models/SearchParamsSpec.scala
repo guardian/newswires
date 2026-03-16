@@ -7,6 +7,7 @@ import org.mockito.Mockito.when
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.test.FakeRequest
 import service.{FeatureSwitch, FeatureSwitchProvider, Off}
 
 class SearchParamsSpec extends AnyFlatSpec with models {
@@ -18,7 +19,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       emptyQueryString,
       emptyBaseParams,
       featureSwitchesOn
-    ) shouldEqual emptySearchParams.copy(filters =
+    )(FakeRequest()) shouldEqual emptySearchParams.copy(filters =
       emptyFilterParams.copy(suppliersExcl = List("UNAUTHED_EMAIL_FEED"))
     )
   }
@@ -28,7 +29,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       emptyQueryString,
       baseParams,
       featureSwitchesOn
-    )
+    )(FakeRequest())
     result.filters.searchTerms shouldEqual Some(
       ComboTerm(
         List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug)),
@@ -42,7 +43,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       Map("keywordExcl" -> Seq("a", "b")),
       emptyBaseParams,
       featureSwitchesOn
-    )
+    )(FakeRequest())
     result.filters.keywordExcl shouldEqual List("a", "b")
   }
 
@@ -64,7 +65,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       emptyQueryString,
       baseParams,
       featureSwitchesOn
-    )
+    )(FakeRequest())
     result shouldEqual SearchParams(
       FilterParams(
         searchTerms = Some(
@@ -99,7 +100,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
         emptyQueryString,
         emptyBaseParams,
         showGuSuppliersFeatureOff
-      )
+      )(FakeRequest())
     result.filters.suppliersExcl shouldEqual List(
       "UNAUTHED_EMAIL_FEED",
       "GuReuters",
@@ -210,12 +211,12 @@ trait searchParamsMocks {
     safeState = Off,
     description = "",
     exposeToClient = true,
-    isOn = () => true
+    isOn = _ => true
   )
   when(featureSwitchesOn.ShowGuSuppliers).thenReturn(featureSwitch)
   when(featureSwitchesOn.ShowPAAPI).thenReturn(featureSwitch)
   when(showGuSuppliersFeatureOff.ShowGuSuppliers).thenReturn(
-    featureSwitch.copy(isOn = () => false)
+    featureSwitch.copy(isOn = _ => false)
   )
   when(showGuSuppliersFeatureOff.ShowPAAPI).thenReturn(
     featureSwitch
@@ -224,6 +225,6 @@ trait searchParamsMocks {
     featureSwitch
   )
   when(showPAAPIFeatureOff.ShowPAAPI).thenReturn(
-    featureSwitch.copy(isOn = () => false)
+    featureSwitch.copy(isOn = _ => false)
   )
 }

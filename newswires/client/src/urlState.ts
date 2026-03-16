@@ -18,6 +18,7 @@ export const defaultQuery: Query = {
 	start: DEFAULT_DATE_RANGE.start,
 	end: DEFAULT_DATE_RANGE.end,
 	hasDataFormatting: undefined,
+	previewPaApi: undefined,
 	collectionId: undefined,
 };
 
@@ -70,6 +71,9 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const hasDataFormatting = maybeStringToBooleanOrUndefined(
 		params.get('hasDataFormatting'),
 	);
+	const previewPaApi = maybeStringToBooleanOrUndefined(
+		params.get('previewPaApi'),
+	);
 	let collectionId: number | undefined = undefined;
 
 	try {
@@ -101,6 +105,7 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		start,
 		end,
 		hasDataFormatting,
+		previewPaApi,
 	};
 
 	// we're treating preset and collectionId as mutually exclusive - if both are present, preset takes precedence and collectionId is ignored
