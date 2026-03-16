@@ -189,7 +189,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )
     result shouldEqual List("PA_API", "PA_API DATA FORMATTING")
   }
-  it should "not return PA_API exclusions when showPAAPI is true and guSourceFeeds and guSourceFeedsExcl are not set" in new searchParamsMocks {
+  it should "legacy PA exclusions when showPAAPI is true and guSourceFeeds and guSourceFeedsExcl are not set" in new searchParamsMocks {
     val result = SearchParams.computeGuSourceFeedExcl(
       showPAAPI = true,
       guSourceFeeds = Nil,
