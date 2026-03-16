@@ -85,6 +85,40 @@ object SearchParams {
     dotCopyExclusion ::: guSuppliersExclusion ::: exclusionFromParams
   }
 
+  val legacyPaSourceFeeds = List(
+    "PA PR NEWSWIRE",
+    "PA PA MEDIA PRESS CENTRES",
+    "PA PA MEDIA ASSIGNMENTS",
+    "PA BUSINESSWIRE",
+    "PA THE ACADEMY OF MEDICAL SCIENCES",
+    "PA PA SPORT LATEST",
+    "PA PRESSWIRE",
+    "PA PA",
+    "PA GLOBENEWSWIRE",
+    "PA EQS NEWSWIRE",
+    "PA LATEST",
+    "PA RESPONSESOURCE",
+    "PA ACCESS NEWSWIRE",
+    "PA UK GOVERNMENT AND PUBLIC SECTOR",
+    "PA PA SPORT",
+    "PA PA ADVISORY",
+    "PA AGILITY PR SOLUTIONS",
+    "PA NEWS AKTUELL",
+    "PA ADVISORY",
+    "PA MARKETTIERS",
+    "PA RNS",
+    "PA",
+    "PA PA SPORT SNAP",
+    "PA NEWSFILE",
+    "PA PRESSAT",
+    "PA SNAP"
+  )
+
+  val newPaSourceFeeds = List(
+    "PA_API",
+    "PA_API DATA FORMATTING"
+  )
+
   def computeGuSourceFeedExcl(
       showPAAPI: Boolean,
       guSourceFeeds: List[String],
@@ -93,8 +127,8 @@ object SearchParams {
     if (guSourceFeeds.nonEmpty || guSourceFeedsExcl.nonEmpty) {
       guSourceFeedsExcl
     } else if (showPAAPI) {
-      Nil
+      legacyPaSourceFeeds
     } else
-      List("PA_API", "PA_API DATA FORMATTING")
+      newPaSourceFeeds
   }
 }
