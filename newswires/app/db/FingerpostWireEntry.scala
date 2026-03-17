@@ -156,7 +156,7 @@ object FingerpostWireEntry
           if (highlightAll)
             "HighlightAll=true, StartSel=<mark>, StopSel=</mark>"
           else "StartSel=<mark>, StopSel=</mark>"
-        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
+        sqls"ts_headline('english_unaccent', ${syn.content}->>'body_text', websearch_to_tsquery('english_unaccent', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
       case _ => sqls"'' AS ${syn.resultName.highlight}"
     }
   }
