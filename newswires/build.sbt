@@ -18,7 +18,9 @@ libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
   "org.scala-lang.modules",
   "scala-parser-combinators_2.13"
 )
-libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "9.0"
+// be careful upgrading logstash-logback-encoder: 9.0 upgrades to jackson 3.x, but
+// rest of app still uses jackson 2.x... hold off for now if possible
+libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.10"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "3.0.0"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
@@ -46,7 +48,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.20.2"
+val jacksonVersion = "2.21.1"
 val jacksonAnnotationVersion = "2.21"
 
 dependencyOverrides ++= Seq(
