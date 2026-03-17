@@ -296,12 +296,7 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
       }
 
-    lazy val englishSearchSQL =
-      (searchTerm: SearchTerm.English) => {
-        sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-      }
-
-    lazy val englishSearchSQL2 = (searchTerm: SearchTerm.English) => {
+    lazy val englishSearchSQL = (searchTerm: SearchTerm.English) => {
       sqls"""to_tsvector('english_unaccent',
         coalesce(content->>'headline', '') || ' ' ||
         coalesce(content->>'subhead', '') || ' ' ||
@@ -310,14 +305,14 @@ object FingerpostWireEntry
         coalesce(content->>'byline', '') || ' ' ||
         coalesce(content->>'abstract', '') || ' ' ||
         coalesce(content->>'slug', '')
-      ) @@ to_tsquery('english_unaccent', ${searchTerm.query}) """
+      ) @@ websearch_to_tsquery ('english_unaccent', ${searchTerm.query}) """
     }
     lazy val searchTermSql = (searchTerm: SearchTerm) =>
       searchTerm match {
         case SearchTerm.Simple(query, field) =>
           simpleSearchSQL(SearchTerm.Simple(query, field))
         case SearchTerm.English(query) =>
-          englishSearchSQL2(SearchTerm.English(query))
+          englishSearchSQL(SearchTerm.English(query))
       }
 
     lazy val searchTermsSql = (searchTerms: List[SearchTerm]) =>
