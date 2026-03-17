@@ -68,7 +68,8 @@ private[conf] object CategoryCodes {
       "paCat:SOS",
       "paCat:SSD",
       "paCat:RRD",
-      "paCat:RMS"
+      "paCat:RMS",
+      "paCat:RRA"
     )
   }
 
@@ -84,7 +85,8 @@ private[conf] object CategoryCodes {
       "paCat:STB",
       "paCat:STC",
       "paCat:STD",
-      "paCat:RSD"
+      "paCat:RSD",
+      "paCat:SDG"
     )
   }
 
