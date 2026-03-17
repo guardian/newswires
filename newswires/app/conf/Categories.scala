@@ -6,12 +6,7 @@ private[conf] object CategoryCodes {
     val AFP: List[String] = List("afpCat:SPO")
     val AP: List[String] = List("apCat:i", "apCat:a", "apCat:w")
     val PA: List[String] = List(
-      "paCat:SRS", // General Sport News
-      "paCat:SSS", // General Sport News
-      "paCat:SSO", // Soccer News
-      "paCat:SCR", // Cricket News
-      "paCat:SRR", // Racing News
-      "paCat:SST" // Scottish sports
+      "paCat:OOO" // 'Foreign news' (PA is UK-based)
     )
     val AAP: List[String] = Categories.sportsRelatedNewsCodes
   }
@@ -25,7 +20,9 @@ private[conf] object CategoryCodes {
         "paCat:QFF",
         "paCat:PPP",
         "paCat:XDA",
-        "paCat:XTA"
+        "paCat:XTA",
+        "paCat:OOO", // 'Foreign news' (PA is UK-based)
+        "paCat:NIR" // Northern Ireland news
       )
     val MINOR_AGENCIES: List[String] = List("N2:GB")
   }
