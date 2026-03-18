@@ -11,6 +11,8 @@ export const useSettingsSwitches = () => {
 		toggleShowIncopyImport,
 		showTastedList,
 		toggleShowTastedList,
+		enableAutoScroll,
+		toggleEnableAutoScroll,
 	} = useUserSettings();
 
 	const embeddedCodeSwitchId__1 = useGeneratedHtmlId({
@@ -23,6 +25,9 @@ export const useSettingsSwitches = () => {
 		prefix: 'embeddedCodeSwitchId',
 	});
 	const embeddedCodeSwitchId__4 = useGeneratedHtmlId({
+		prefix: 'embeddedCodeSwitchId',
+	});
+	const embeddedCodeSwitchId__5 = useGeneratedHtmlId({
 		prefix: 'embeddedCodeSwitchId',
 	});
 
@@ -56,6 +61,14 @@ export const useSettingsSwitches = () => {
 			onChange: () => toggleShowTastedList(),
 			helpText:
 				"Show option to add wires to the Tasted collection (only for Australian desk while we're testing)",
+		},
+		{
+			id: embeddedCodeSwitchId__5,
+			label: 'Enable Auto Scroll',
+			checked: enableAutoScroll,
+			onChange: () => toggleEnableAutoScroll(),
+			helpText:
+				'Automatically scroll to the top when new items are loaded (only works on tickers)',
 		},
 	];
 };

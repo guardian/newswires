@@ -1,7 +1,9 @@
 import { EuiButton, EuiButtonEmpty, useEuiTheme } from '@elastic/eui';
 import type { ReactNode, RefObject } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearch } from './context/SearchContext';
+import { useUserSettings } from './context/UserSettingsContext';
+import { debounce } from './debounce';
 /**
  * Floating Scroll-to-Top Button bounded to a scroll container
  */
@@ -18,12 +20,26 @@ export const ScrollToTopButton = ({
 	children: ReactNode | ReactNode[];
 }) => {
 	const { euiTheme } = useEuiTheme();
-	const { state } = useSearch();
+	const { state, config } = useSearch();
 	const { queryData } = state;
+	const { enableAutoScroll } = useUserSettings();
 
 	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
+
 	const offset = 16;
+
+	const [allowProgrammaticScroll, setAllowProgrammaticScroll] = useState(true);
+
+	const disallowProgrammaticScrollTemporarily = () =>
+		setAllowProgrammaticScroll(false);
+
+	const reallowDebounced = useMemo(
+		() => debounce(() => setAllowProgrammaticScroll(true), 5000),
+		[],
+	);
+
+	const isTicker = config.ticker;
 
 	// Accumulate counts of newly loaded stories
 	useEffect(() => {
@@ -32,12 +48,35 @@ export const ScrollToTopButton = ({
 		}
 		const newCount = queryData.results.filter((r) => r.isFromRefresh).length;
 		setIncomingStories((currentCount) => currentCount + newCount);
-	}, [queryData, queryData?.results]);
+		if (
+			enableAutoScroll &&
+			isTicker &&
+			newCount > 0 &&
+			allowProgrammaticScroll
+		) {
+			if (containerRef?.current) {
+				containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+			} else {
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+		}
+	}, [
+		containerRef,
+		queryData,
+		queryData?.results,
+		allowProgrammaticScroll,
+		enableAutoScroll,
+		isTicker,
+	]);
 
 	// Show/hide based on scroll offset
 	useEffect(() => {
 		const scrollEl = containerRef?.current ?? window;
 		const onScroll = () => {
+			if (enableAutoScroll && isTicker) {
+				disallowProgrammaticScrollTemporarily();
+				reallowDebounced();
+			}
 			const scrollTop =
 				scrollEl === window
 					? window.scrollY
@@ -52,7 +91,7 @@ export const ScrollToTopButton = ({
 
 		scrollEl.addEventListener('scroll', onScroll, { passive: true });
 		return () => scrollEl.removeEventListener('scroll', onScroll);
-	}, [threshold, containerRef]);
+	}, [threshold, containerRef, reallowDebounced, enableAutoScroll, isTicker]);
 
 	const handleClick = () => {
 		if (containerRef?.current) {
