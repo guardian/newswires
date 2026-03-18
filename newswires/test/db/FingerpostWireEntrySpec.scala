@@ -707,7 +707,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.Filters.englishSearchSQL(English("query"))
     searchSQL should matchSqlSnippet(
       expectedClause =
-        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
+        "to_tsvector('english_unaccent', coalesce(content->>'headline', '') || ' ' || coalesce(content->>'subhead', '') || ' ' || coalesce(content->>'keywords', '') || ' ' || coalesce(content->>'body_text', '') || ' ' || coalesce(content->>'byline', '') || ' ' || coalesce(content->>'abstract', '') || ' ' || coalesce(content->>'slug', '') ) @@ websearch_to_tsquery ('english_unaccent', ?) ",
       expectedParams = List("query")
     )
   }
