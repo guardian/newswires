@@ -1,4 +1,4 @@
-CREATE INDEX combined_textsearch_accent_idx
+CREATE INDEX CONCURRENTLY combined_textsearch_accent_idx
 ON fingerpost_wire_entry
 USING GIN (
   to_tsvector(
