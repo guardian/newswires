@@ -11,7 +11,7 @@ version := "1.0-SNAPSHOT"
 scalaVersion := "2.13.18"
 
 libraryDependencies += ws
-libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "8.2.1"
+libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "9.1.0"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "15.0.0"
 libraryDependencies += "com.gu" %% "editorial-permissions-client" % "6.0.2"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
