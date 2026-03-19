@@ -34,11 +34,14 @@ export const WireItemList = ({
 	totalCount,
 	showCollectionMetadata,
 	showSecondaryFeedContent,
+	scrollContainerRef,
 }: {
 	wires: WireData[];
 	totalCount: number;
 	showCollectionMetadata: boolean;
 	showSecondaryFeedContent: boolean;
+	scrollContainerRef?: React.RefObject<HTMLDivElement>;
+	hasBeenVisibleCallback?: (id: number) => void;
 }) => {
 	const { config, loadMoreResults, previousItemId, state } = useSearch();
 
@@ -75,6 +78,7 @@ export const WireItemList = ({
 								collectionMetadata={collections}
 								showCollectionMetadata={showCollectionMetadata}
 								showSecondaryFeedContent={showSecondaryFeedContent}
+								scrollContainerRef={scrollContainerRef}
 							/>
 						</li>
 					),
@@ -208,6 +212,7 @@ const WirePreviewCard = ({
 	collectionMetadata,
 	showCollectionMetadata,
 	showSecondaryFeedContent,
+	scrollContainerRef,
 }: {
 	id: number;
 	supplier: SupplierInfo;
@@ -223,8 +228,9 @@ const WirePreviewCard = ({
 	collectionMetadata: CollectionMetadata[];
 	showCollectionMetadata: boolean;
 	showSecondaryFeedContent: boolean;
+	scrollContainerRef?: React.RefObject<HTMLDivElement>;
 }) => {
-	const { viewedItemIds, config } = useSearch();
+	const { viewedItemIds, config, hasBeenVisibleCallback } = useSearch();
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
@@ -259,6 +265,29 @@ const WirePreviewCard = ({
 			scrollElementIntoView(ref.current, { scrollPosition: 'center' });
 		}
 	}, [view, id, previousItemId, isSmallScreen, isPoppedOut]);
+
+	// Mark item as viewed once it's been visible in the viewport
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						hasBeenVisibleCallback(id);
+					}
+				}
+			},
+			{
+				root: scrollContainerRef?.current ?? null, // Use the scroll container if provided, otherwise default to viewport
+				threshold: 0.7, // Consider it viewed when 70% of the item is visible
+			},
+		);
+
+		observer.observe(el);
+		return () => observer.unobserve(el);
+	}, [scrollContainerRef, hasBeenVisibleCallback, id]);
 
 	const theme = useEuiTheme();
 	const accentBgColor = useEuiBackgroundColor('subdued', {

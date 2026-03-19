@@ -18,21 +18,10 @@ export const ScrollToTopButton = ({
 	children: ReactNode | ReactNode[];
 }) => {
 	const { euiTheme } = useEuiTheme();
-	const { state } = useSearch();
-	const { queryData } = state;
+	const { unseenWiresFromTopOfList } = useSearch();
 
-	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const offset = 16;
-
-	// Accumulate counts of newly loaded stories
-	useEffect(() => {
-		if (!queryData) {
-			return;
-		}
-		const newCount = queryData.results.filter((r) => r.isFromRefresh).length;
-		setIncomingStories((currentCount) => currentCount + newCount);
-	}, [queryData, queryData?.results]);
 
 	// Show/hide based on scroll offset
 	useEffect(() => {
@@ -46,7 +35,6 @@ export const ScrollToTopButton = ({
 				setVisible(true);
 			} else {
 				setVisible(false);
-				setIncomingStories(0);
 			}
 		};
 
@@ -64,7 +52,7 @@ export const ScrollToTopButton = ({
 
 	return (
 		<>
-			{visible && incomingStories > 0 && (
+			{visible && unseenWiresFromTopOfList.length > 0 && (
 				<div
 					style={{
 						position: 'sticky',
@@ -88,7 +76,7 @@ export const ScrollToTopButton = ({
 								width: '100%',
 							}}
 						>
-							<span>{incomingStories} new items</span>
+							<span>{unseenWiresFromTopOfList.length} new items</span>
 						</EuiButtonEmpty>
 					</div>
 				</div>
