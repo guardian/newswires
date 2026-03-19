@@ -6,12 +6,10 @@ import { useSearch } from './context/SearchContext';
  * Floating Scroll-to-Top Button bounded to a scroll container
  */
 export const ScrollToTopButton = ({
-	threshold = 200,
 	label,
 	containerRef,
 	children,
 }: {
-	threshold?: number;
 	label?: string;
 	containerRef?: RefObject<HTMLElement>;
 	direction?: string;
@@ -22,6 +20,7 @@ export const ScrollToTopButton = ({
 
 	const [visible, setVisible] = useState(false);
 	const offset = 16;
+	const scrollThreshold = 100;
 
 	// Show/hide based on scroll offset
 	useEffect(() => {
@@ -31,7 +30,7 @@ export const ScrollToTopButton = ({
 				scrollEl === window
 					? window.scrollY
 					: (scrollEl as HTMLElement).scrollTop;
-			if (scrollTop > threshold) {
+			if (scrollTop > scrollThreshold) {
 				setVisible(true);
 			} else {
 				setVisible(false);
@@ -40,7 +39,7 @@ export const ScrollToTopButton = ({
 
 		scrollEl.addEventListener('scroll', onScroll, { passive: true });
 		return () => scrollEl.removeEventListener('scroll', onScroll);
-	}, [threshold, containerRef]);
+	}, [containerRef]);
 
 	const handleClick = () => {
 		if (containerRef?.current) {
