@@ -143,7 +143,7 @@ export type SearchContextShape = {
 	activeSuppliers: string[];
 	toggleSupplier: (supplier: string) => void;
 	hasBeenVisibleCallback: (id: number) => void;
-	unseenWiresFromTopOfList: string[];
+	unseenWiresFromTopOfList: number;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -162,19 +162,18 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		loadOrSetInLocalStorage<string[]>('viewedItemIds', z.array(z.string()), []),
 	);
 
-	const [hasBeenVisibleItemIds, setHasBeenVisibleItemIds] = useState<string[]>(
+	const [hasBeenVisibleItemIds, setHasBeenVisibleItemIds] = useState<number[]>(
 		[],
 	);
 
-	const hasBeenVisibleCallback = (id: number) => {
+	const hasBeenVisibleCallback = useCallback((id: number) => {
 		setHasBeenVisibleItemIds((prev) => {
-			const idStr = id.toString();
-			if (prev.includes(idStr)) {
+			if (prev.includes(id)) {
 				return prev;
 			}
-			return [...prev, idStr];
+			return [...prev, id];
 		});
-	};
+	}, []);
 
 	const [state, dispatch] = useReducer(safeReducer(SearchReducer), {
 		error: undefined,
@@ -192,10 +191,13 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				: { sortByKey: 'ingestedAt' },
 	});
 
-	const unseenWiresFromTopOfList: string[] = takeWhile(
-		(wire) => !hasBeenVisibleItemIds.includes(wire.id.toString()),
-		state.queryData?.results ?? [],
-	).map((wire) => wire.id.toString());
+	const unseenWiresFromTopOfList: number = useMemo(() => {
+		const unseenIds = new Set(hasBeenVisibleItemIds);
+		return takeWhile(
+			(wire) => !unseenIds.has(wire.id),
+			state.queryData?.results ?? [],
+		).length;
+	}, [state.queryData, hasBeenVisibleItemIds]);
 
 	function handleFetchError(error: ErrorEvent) {
 		if (error instanceof Error && error.name === 'AbortError') {

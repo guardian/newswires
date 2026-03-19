@@ -52,7 +52,7 @@ export const ScrollToTopButton = ({
 
 	return (
 		<>
-			{visible && unseenWiresFromTopOfList.length > 0 && (
+			{visible && unseenWiresFromTopOfList > 0 && (
 				<div
 					style={{
 						position: 'sticky',
@@ -76,7 +76,7 @@ export const ScrollToTopButton = ({
 								width: '100%',
 							}}
 						>
-							<span>{unseenWiresFromTopOfList.length} new items</span>
+							<span>{unseenWiresFromTopOfList} new items</span>
 						</EuiButtonEmpty>
 					</div>
 				</div>
