@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequ
 import software.amazon.awssdk.services.rds.RdsClient
 
 import org.flywaydb.core.Flyway
+import org.flywaydb.database.postgresql.PostgreSQLConfigurationExtension
 import scala.io.StdIn.readLine
 import scala.jdk.CollectionConverters._
 import scala.util.Try
@@ -166,16 +167,21 @@ def localFlyway(password: String, port: Int): Flyway =
 
 val location = Path.of(scriptPath).getParent().resolve("migrations").toString()
 
-def buildFlyway(password: String, port: Int) =
-  Flyway
+def buildFlyway(password: String, port: Int) = {
+  val flyway = Flyway
     .configure()
+  val pgExtension = flyway.getConfigurationExtension(classOf[PostgreSQLConfigurationExtension])
+  pgExtension.setTransactionalLock(false)
+  flyway
     .dataSource(
-      s"jdbc:postgresql://localhost:$port/newswires",
-      "postgres",
-      password
-    )
-    .locations(s"filesystem:$location")
-    .load()
+    s"jdbc:postgresql://localhost:$port/newswires",
+    "postgres",
+    password
+  )
+  .locations(s"filesystem:$location")
+  .executeInTransaction(false)
+  .load()
+}
 
 def remoteFlyway(stage: String): Flyway = {
 
