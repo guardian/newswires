@@ -192,9 +192,9 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	});
 
 	const unseenWiresFromTopOfList: number = useMemo(() => {
-		const unseenIds = new Set(hasBeenVisibleItemIds);
+		const seenIds = new Set(hasBeenVisibleItemIds);
 		return takeWhile(
-			(wire) => !unseenIds.has(wire.id),
+			(wire) => !seenIds.has(wire.id),
 			state.queryData?.results ?? [],
 		).length;
 	}, [state.queryData, hasBeenVisibleItemIds]);
