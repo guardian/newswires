@@ -189,6 +189,7 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 								totalCount={queryData.totalCount}
 								showCollectionMetadata={config.query.collectionId !== undefined}
 								showSecondaryFeedContent={showSecondaryFeedContent}
+								scrollContainerRef={containerRef}
 							/>
 						</ScrollToTopButton>
 					</>
