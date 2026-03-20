@@ -58,7 +58,7 @@
 		"*.{js,jsx,ts,tsx}": "jest --findRelatedTests --passWithNoTests"
 	},
 	"overrides": {
-		"fast-xml-parser": "5.3.6",
+		"fast-xml-parser": "5.5.8",
 		"undici": "7.24.4"
 	},
 	"dependencies": {
