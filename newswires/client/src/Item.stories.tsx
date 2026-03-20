@@ -67,6 +67,8 @@ const meta = {
 							toggleShowIncopyImport: () => {},
 							showTastedList: false,
 							toggleShowTastedList: () => {},
+							enableAutoScroll: false,
+							toggleEnableAutoScroll: () => {},
 						}}
 					>
 						<SearchContextProvider>
