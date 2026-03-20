@@ -41,7 +41,6 @@ export const WireItemList = ({
 	showCollectionMetadata: boolean;
 	showSecondaryFeedContent: boolean;
 	scrollContainerRef?: React.RefObject<HTMLDivElement>;
-	hasBeenVisibleCallback?: (id: number) => void;
 }) => {
 	const { config, loadMoreResults, previousItemId, state } = useSearch();
 
