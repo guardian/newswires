@@ -321,9 +321,9 @@ object FingerpostWireEntry
     val searchQuerySqlCombined = (searchTerms: SearchTerms) => {
       searchTerms match {
         case ComboTerm(terms, AND) =>
-          sqls.joinWithAnd(Filters.searchTermsSql(terms): _*)
+          sqls"(${sqls.joinWithAnd(Filters.searchTermsSql(terms): _*)})"
         case ComboTerm(terms, OR) =>
-          sqls.joinWithOr(Filters.searchTermsSql(terms): _*)
+          sqls"(${sqls.joinWithOr(Filters.searchTermsSql(terms): _*)})"
         case SingleTerm(term) => Filters.searchTermSql(term)
       }
     }

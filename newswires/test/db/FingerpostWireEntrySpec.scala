@@ -429,7 +429,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     snippets.get should matchSqlSnippet(
       expectedClause = sqls"""${keywordsClause} and ${categoryCodesClause}
-              and ${keywordsExclClause} and (${textSearchClause})
+              and ${keywordsExclClause} and ${textSearchClause}
               and ${supplierClause} and ${supplierExclClause}
               and ${categoryCodesExclClause} and ${dataFormatClause}
               and ${preCompClause} and ${preCompExclClause} and ${collectionClause}
@@ -729,7 +729,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
 
     searchSQL should matchSqlSnippet(
-      expectedClause = s"$slugSimple or $bodyTextSimple",
+      expectedClause = s"($slugSimple or $bodyTextSimple)",
       expectedParams = List("slug", "body")
     )
   }
@@ -739,7 +739,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
 
     searchSQL should matchSqlSnippet(
-      expectedClause = s"$slugSimple and $bodyTextSimple",
+      expectedClause = s"($slugSimple and $bodyTextSimple)",
       expectedParams = List("slug", "body")
     )
   }
