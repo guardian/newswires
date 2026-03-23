@@ -289,7 +289,8 @@ trait models {
 
   val bodyTextSimple =
     "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple"
-  val slugSimple = "websearch_to_tsquery('simple', lower(?)) @@ slug_tsv_simple"
+  val slugSimple =
+    "websearch_to_tsquery('simple', lower(?)) @@ slug_text_tsv_simple"
   val english =
     """to_tsvector('english_unaccent',
       |coalesce(content->>'headline', '') || ' ' ||
