@@ -179,7 +179,6 @@ def buildFlyway(password: String, port: Int) = {
     password
   )
   .locations(s"filesystem:$location")
-  .executeInTransaction(false)
   .load()
 }
 
