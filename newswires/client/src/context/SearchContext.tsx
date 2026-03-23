@@ -20,6 +20,7 @@ import {
 } from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
+import { takeWhile } from '../utils/takeWhile.ts';
 import { fetchResults } from './fetchResults.ts';
 import {
 	loadOrSetInLocalStorage,
@@ -141,6 +142,8 @@ export type SearchContextShape = {
 	loadMoreResults: () => Promise<void>;
 	activeSuppliers: string[];
 	toggleSupplier: (supplier: string) => void;
+	hasBeenVisibleCallback: (id: number) => void;
+	unseenWiresFromTopOfList: number;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
@@ -159,6 +162,19 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		loadOrSetInLocalStorage<string[]>('viewedItemIds', z.array(z.string()), []),
 	);
 
+	const [hasBeenVisibleItemIds, setHasBeenVisibleItemIds] = useState<number[]>(
+		[],
+	);
+
+	const hasBeenVisibleCallback = useCallback((id: number) => {
+		setHasBeenVisibleItemIds((prev) => {
+			if (prev.includes(id)) {
+				return prev;
+			}
+			return [...prev, id];
+		});
+	}, []);
+
 	const [state, dispatch] = useReducer(safeReducer(SearchReducer), {
 		error: undefined,
 		queryData: undefined,
@@ -174,6 +190,14 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 					}
 				: { sortByKey: 'ingestedAt' },
 	});
+
+	const unseenWiresFromTopOfList: number = useMemo(() => {
+		const seenIds = new Set(hasBeenVisibleItemIds);
+		return takeWhile(
+			(wire) => !seenIds.has(wire.id),
+			state.queryData?.results ?? [],
+		).length;
+	}, [state.queryData, hasBeenVisibleItemIds]);
 
 	function handleFetchError(error: ErrorEvent) {
 		if (error instanceof Error && error.name === 'AbortError') {
@@ -252,6 +276,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						resultsIds: data.results.map((wire) => wire.id).join(','),
 						totalCount: data.totalCount,
 					});
+					setHasBeenVisibleItemIds([]);
 					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });
 				})
 				.catch(handleFetchError);
@@ -522,6 +547,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				activeSuppliers,
 				toggleSupplier,
 				openTicker,
+				hasBeenVisibleCallback,
+				unseenWiresFromTopOfList,
 			}}
 		>
 			{children}
