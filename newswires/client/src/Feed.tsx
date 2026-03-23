@@ -24,7 +24,7 @@ import {
 import { WireItemList } from './WireItemList.tsx';
 
 export interface FeedProps {
-	containerRef?: React.RefObject<HTMLDivElement>;
+	containerRef: React.RefObject<HTMLDivElement>;
 	direction?: string;
 	setSideNavIsOpen: (isOpen: boolean) => void;
 }
@@ -77,7 +77,7 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 	const { showSecondaryFeedContent } = useUserSettings();
 
 	useEffect(() => {
-		const el = containerRef?.current;
+		const el = containerRef.current;
 		if (!el) return;
 
 		const observer = new ResizeObserver((entries) => {

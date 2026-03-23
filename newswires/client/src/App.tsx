@@ -97,6 +97,12 @@ export function App() {
 					css={css`
 						height: 100vh;
 					`}
+					mainProps={{
+						// required for the main element to be constrained to the right height
+						css: css`
+							height: 100%;
+						`,
+					}}
 				>
 					{displayDisclaimer && (
 						<EuiModal
