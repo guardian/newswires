@@ -170,8 +170,6 @@ val location = Path.of(scriptPath).getParent().resolve("migrations").toString()
 def buildFlyway(password: String, port: Int) = {
   val flyway = Flyway
     .configure()
-  # val pgExtension = flyway.getConfigurationExtension(classOf[PostgreSQLConfigurationExtension])
-  # pgExtension.setTransactionalLock(false)
   flyway
     .dataSource(
     s"jdbc:postgresql://localhost:$port/newswires",
