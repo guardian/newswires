@@ -15,6 +15,7 @@ import _root_.models.{
   QueryParams,
   SearchParams
 }
+import conf.SearchField.{BodyText, Slug}
 import conf.SearchTerm.{English, Simple}
 import db.FingerpostWireEntry.{Filters, decideSortDirection}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
@@ -167,7 +168,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "generate a where clause for a single field" in {
     val filterParams =
       emptyFilterParams.copy(searchTerms =
-        Some(SingleTerm(SearchTerm.English("text1")))
+        Some(SingleTerm(SearchTerm.Simple("text1")))
       )
     val searchParams = emptySearchParams.copy(filters = filterParams)
 
@@ -179,7 +180,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
+      bodyTextSimple,
       expectedParams = List("text1")
     )
   }
@@ -706,45 +707,40 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val searchSQL =
       FingerpostWireEntry.Filters.englishSearchSQL(English("query"))
     searchSQL should matchSqlSnippet(
-      expectedClause =
-        "to_tsvector('english_unaccent', coalesce(content->>'headline', '') || ' ' || coalesce(content->>'subhead', '') || ' ' || coalesce(content->>'keywords', '') || ' ' || coalesce(content->>'body_text', '') || ' ' || coalesce(content->>'byline', '') || ' ' || coalesce(content->>'abstract', '') || ' ' || coalesce(content->>'slug', '') ) @@ websearch_to_tsquery ('english_unaccent', ?) ",
+      expectedClause = english,
       expectedParams = List("query")
     )
   }
 
   behavior of "search terms combined SQL helpers"
+
   it should "create the correct SQL for a singular search term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      SingleTerm(English("query"))
+      SingleTerm(Simple("simple", BodyText))
     )
     searchSQL should matchSqlSnippet(
-      expectedClause =
-        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch",
-      expectedParams = List("query")
+      expectedClause = bodyTextSimple,
+      expectedParams = List("simple")
     )
   }
   it should "create the correct SQL for a combo or term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      ComboTerm(List(English("english"), Simple("simple")), OR)
+      ComboTerm(List(Simple("slug", Slug), Simple("body", BodyText)), OR)
     )
 
     searchSQL should matchSqlSnippet(
-      expectedClause =
-        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch or " +
-          "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple",
-      expectedParams = List("english", "simple")
+      expectedClause = s"$slugSimple or $bodyTextSimple",
+      expectedParams = List("slug", "body")
     )
   }
   it should "create the correct SQL for a combo and term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      ComboTerm(List(English("english"), Simple("simple")), AND)
+      ComboTerm(List(Simple("slug", Slug), Simple("body", BodyText)), AND)
     )
 
     searchSQL should matchSqlSnippet(
-      expectedClause =
-        "websearch_to_tsquery('english', ?) @@ fm.combined_textsearch and " +
-          "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple",
-      expectedParams = List("english", "simple")
+      expectedClause = s"$slugSimple and $bodyTextSimple",
+      expectedParams = List("slug", "body")
     )
   }
   behavior of "keywords SQL helpers"
