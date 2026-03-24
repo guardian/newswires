@@ -3,6 +3,29 @@ package models
 import io.circe._
 import io.circe.generic.semiauto._
 
+case class PaEvent(
+    rel: String,
+    code: String,
+    name: String,
+    scheme: String,
+    profile: String
+)
+
+object PaEvent {
+  implicit val jsonDecoder: Decoder[PaEvent] = deriveDecoder[PaEvent]
+  implicit val jsonEncoder: Encoder[PaEvent] =
+    deriveEncoder[PaEvent].mapJson(_.dropNullValues)
+}
+
+case class AgencyMetadata(event: List[PaEvent])
+
+object AgencyMetadata {
+  implicit val jsonDecoder: Decoder[AgencyMetadata] =
+    deriveDecoder[AgencyMetadata]
+  implicit val jsonEncoder: Encoder[AgencyMetadata] =
+    deriveEncoder[AgencyMetadata].mapJson(_.dropNullValues)
+}
+
 case class FingerpostWire(
     uri: Option[String],
     sourceFeed: Option[String],
@@ -28,7 +51,8 @@ case class FingerpostWire(
     dataformat: Option[Dataformat],
     embargo: Option[String], // expected to be a UTC ISO datetime string
     profile: Option[String],
-    `type`: Option[String]
+    `type`: Option[String],
+    agencyMetadata: Option[AgencyMetadata]
 )
 object FingerpostWire {
   implicit val jsonDecoder: Decoder[FingerpostWire] =
