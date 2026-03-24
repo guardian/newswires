@@ -156,7 +156,7 @@ object FingerpostWireEntry
           if (highlightAll)
             "HighlightAll=true, StartSel=<mark>, StopSel=</mark>"
           else "StartSel=<mark>, StopSel=</mark>"
-        sqls"ts_headline('english', ${syn.content}->>'body_text', websearch_to_tsquery('english', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
+        sqls"ts_headline('english_unaccent', ${syn.content}->>'body_text', websearch_to_tsquery('english_unaccent', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
       case _ => sqls"'' AS ${syn.resultName.highlight}"
     }
   }
@@ -296,11 +296,17 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
       }
 
-    lazy val englishSearchSQL =
-      (searchTerm: SearchTerm.English) => {
-        sqls"websearch_to_tsquery('english', ${searchTerm.query}) @@ ${FingerpostWireEntry.syn.column("combined_textsearch")}"
-      }
-
+    lazy val englishSearchSQL = (searchTerm: SearchTerm.English) => {
+      sqls"""to_tsvector('english_unaccent',
+        coalesce(content->>'headline', '') || ' ' ||
+        coalesce(content->>'subhead', '') || ' ' ||
+        coalesce(content->>'keywords', '') || ' ' ||
+        coalesce(content->>'body_text', '') || ' ' ||
+        coalesce(content->>'byline', '') || ' ' ||
+        coalesce(content->>'abstract', '') || ' ' ||
+        coalesce(content->>'slug', '')
+      ) @@ websearch_to_tsquery ('english_unaccent', ${searchTerm.query}) """
+    }
     lazy val searchTermSql = (searchTerm: SearchTerm) =>
       searchTerm match {
         case SearchTerm.Simple(query, field) =>
@@ -315,9 +321,9 @@ object FingerpostWireEntry
     val searchQuerySqlCombined = (searchTerms: SearchTerms) => {
       searchTerms match {
         case ComboTerm(terms, AND) =>
-          sqls.joinWithAnd(Filters.searchTermsSql(terms): _*)
+          sqls"(${sqls.joinWithAnd(Filters.searchTermsSql(terms): _*)})"
         case ComboTerm(terms, OR) =>
-          sqls.joinWithOr(Filters.searchTermsSql(terms): _*)
+          sqls"(${sqls.joinWithOr(Filters.searchTermsSql(terms): _*)})"
         case SingleTerm(term) => Filters.searchTermSql(term)
       }
     }

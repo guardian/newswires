@@ -287,4 +287,19 @@ trait models {
 
   val defaultOrdering = IngestedAtTime
 
+  val bodyTextSimple =
+    "websearch_to_tsquery('simple', lower(?)) @@ body_text_tsv_simple"
+  val slugSimple =
+    "websearch_to_tsquery('simple', lower(?)) @@ slug_text_tsv_simple"
+  val english =
+    """to_tsvector('english_unaccent',
+      |coalesce(content->>'headline', '') || ' ' ||
+      |coalesce(content->>'subhead', '') || ' ' ||
+      |coalesce(content->>'keywords', '') || ' ' ||
+      |coalesce(content->>'body_text', '') || ' ' ||
+      |coalesce(content->>'byline', '') || ' ' ||
+      |coalesce(content->>'abstract', '') || ' ' ||
+      |coalesce(content->>'slug', '') )
+      |@@ websearch_to_tsquery ('english_unaccent', ?) """.stripMargin
+
 }
