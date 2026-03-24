@@ -93,6 +93,8 @@ const meta = {
 				activeSuppliers: [],
 				toggleSupplier: () => {},
 				openTicker: () => {},
+				unseenWiresFromTopOfList: 0,
+				hasBeenVisibleCallback: () => {},
 			};
 
 			return (

@@ -167,15 +167,22 @@ object SearchPresets {
     SearchPreset(MINOR_AGENCIES, categoryCodesExcl = CategoryCodes.UK.MINOR_AGENCIES)
   )
 
+  private val PaWorld = List(
+    SearchPreset(PA, categoryCodes = CategoryCodes.World.PA)
+  )
+
   private val AllWorld =
-    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld
+    ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld ::: PaWorld
 
   /*
    * UK
    */
 
   private val AllUk = List(
-    SearchPreset(PA, categoryCodes = CategoryCodes.UK.PA),
+    SearchPreset(
+      PA,
+      categoryCodes = CategoryCodes.UK.PA
+    ), // We aren't excluding CategoryCodes.World.PA because PA's still fairly UK-focused, and UK eds are used to seeing all non-sport, non-business PA content in the UK feed
     SearchPreset(MINOR_AGENCIES, categoryCodes = CategoryCodes.UK.MINOR_AGENCIES)
   )
 
@@ -208,7 +215,7 @@ object SearchPresets {
    */
 
   private val AllSport = List(
-    SearchPreset(PA, categoryCodesExcl = CategoryCodes.UK.PA ::: CategoryCodes.Business.PA),
+    SearchPreset(PA, categoryCodesExcl = CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.World.PA),
     SearchPreset(REUTERS, preComputedCategories = List("all-sports")),
     SearchPreset(AP, preComputedCategories = List("all-sports")),
     SearchPreset(AAP, preComputedCategories = List("all-sports")),
@@ -330,15 +337,10 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("SOCCER", Slug))),
+      searchTerms = Some(SingleTerm(Simple("-RUGBY -RUGBYU -RUGBYL", Slug))),
       CategoryCodes.SoccerScores.PA
     ),
-    SearchPreset(
-      PA,
-      searchTerms = Some(SingleTerm(Simple("\"Divisional Summaries\"", Slug))),
-      CategoryCodes.SoccerScores.PA
-    ),
-    SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("\"SOCCER TABULATED RESULTS\" OR `\"DATA FORMAT\"", Slug)))),
+    SearchPreset(PA, searchTerms = Some(SingleTerm(Simple("\"SOCCER TABULATED RESULTS\"", Slug)))),
     SearchPreset(
       AFP,
       searchTerms = Some(ComboTerm(List(Simple("fbl", Slug), Simple("result OR results OR scorers", Headline)), AND)),
@@ -359,7 +361,7 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("SOCCER Tables", Slug))),
+      searchTerms = None,
       CategoryCodes.SoccerTables.PA
     )
   )
@@ -631,7 +633,7 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(Simple("RUGBY TABULATED", Slug))),
+      searchTerms = Some(SingleTerm(Simple("RUGBY", Slug))),
       categoryCodes = List("paCat:RFC")
     ),
     SearchPreset(

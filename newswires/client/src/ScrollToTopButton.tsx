@@ -6,33 +6,21 @@ import { useSearch } from './context/SearchContext';
  * Floating Scroll-to-Top Button bounded to a scroll container
  */
 export const ScrollToTopButton = ({
-	threshold = 200,
 	label,
 	containerRef,
 	children,
 }: {
-	threshold?: number;
 	label?: string;
 	containerRef?: RefObject<HTMLElement>;
 	direction?: string;
 	children: ReactNode | ReactNode[];
 }) => {
 	const { euiTheme } = useEuiTheme();
-	const { state } = useSearch();
-	const { queryData } = state;
+	const { unseenWiresFromTopOfList } = useSearch();
 
-	const [incomingStories, setIncomingStories] = useState(0);
 	const [visible, setVisible] = useState(false);
 	const offset = 16;
-
-	// Accumulate counts of newly loaded stories
-	useEffect(() => {
-		if (!queryData) {
-			return;
-		}
-		const newCount = queryData.results.filter((r) => r.isFromRefresh).length;
-		setIncomingStories((currentCount) => currentCount + newCount);
-	}, [queryData, queryData?.results]);
+	const scrollThreshold = 100;
 
 	// Show/hide based on scroll offset
 	useEffect(() => {
@@ -42,17 +30,16 @@ export const ScrollToTopButton = ({
 				scrollEl === window
 					? window.scrollY
 					: (scrollEl as HTMLElement).scrollTop;
-			if (scrollTop > threshold) {
+			if (scrollTop > scrollThreshold) {
 				setVisible(true);
 			} else {
 				setVisible(false);
-				setIncomingStories(0);
 			}
 		};
 
 		scrollEl.addEventListener('scroll', onScroll, { passive: true });
 		return () => scrollEl.removeEventListener('scroll', onScroll);
-	}, [threshold, containerRef]);
+	}, [containerRef]);
 
 	const handleClick = () => {
 		if (containerRef?.current) {
@@ -64,7 +51,7 @@ export const ScrollToTopButton = ({
 
 	return (
 		<>
-			{visible && incomingStories > 0 && (
+			{visible && unseenWiresFromTopOfList > 0 && (
 				<div
 					style={{
 						position: 'sticky',
@@ -88,7 +75,7 @@ export const ScrollToTopButton = ({
 								width: '100%',
 							}}
 						>
-							<span>{incomingStories} new items</span>
+							<span>{unseenWiresFromTopOfList} new items</span>
 						</EuiButtonEmpty>
 					</div>
 				</div>
