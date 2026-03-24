@@ -11,7 +11,7 @@ export const ScrollToTopButton = ({
 	children,
 }: {
 	label?: string;
-	containerRef?: RefObject<HTMLElement>;
+	containerRef: RefObject<HTMLElement>;
 	direction?: string;
 	children: ReactNode | ReactNode[];
 }) => {
@@ -24,25 +24,22 @@ export const ScrollToTopButton = ({
 
 	// Show/hide based on scroll offset
 	useEffect(() => {
-		const scrollEl = containerRef?.current ?? window;
+		const scrollEl = containerRef.current;
 		const onScroll = () => {
-			const scrollTop =
-				scrollEl === window
-					? window.scrollY
-					: (scrollEl as HTMLElement).scrollTop;
-			if (scrollTop > scrollThreshold) {
+			const scrollTop = scrollEl?.scrollTop;
+			if (scrollTop !== undefined && scrollTop > scrollThreshold) {
 				setVisible(true);
 			} else {
 				setVisible(false);
 			}
 		};
 
-		scrollEl.addEventListener('scroll', onScroll, { passive: true });
-		return () => scrollEl.removeEventListener('scroll', onScroll);
+		scrollEl?.addEventListener('scroll', onScroll, { passive: true });
+		return () => scrollEl?.removeEventListener('scroll', onScroll);
 	}, [containerRef]);
 
 	const handleClick = () => {
-		if (containerRef?.current) {
+		if (containerRef.current) {
 			containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
 		} else {
 			window.scrollTo({ top: 0, behavior: 'smooth' });

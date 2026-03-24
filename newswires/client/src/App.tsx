@@ -97,6 +97,19 @@ export function App() {
 					css={css`
 						height: 100vh;
 					`}
+					mainProps={{
+						// EuiPageTemplate renders as two elements - a <main> inside a <div>. The <div> has
+						// height: 100vh, and adds some padding, into which it moves the fixed headers (CODE
+						// environment warning etc.). At narrow breakpoints it flexes in the column direction,
+						// and when it does so, its child <main> is the same height, not accounting for the
+						// padding, meaning it has a small amount of scrollable overflow, independent from the
+						// main scrollable area in the wire list. Explicitly setting the <main>'s height to
+						// `100%` means it sets itself to the right height and avoids this double-scrollable
+						// problem. We do that by passing it down in `mainProps`.
+						css: css`
+							height: 100%;
+						`,
+					}}
 				>
 					{displayDisclaimer && (
 						<EuiModal

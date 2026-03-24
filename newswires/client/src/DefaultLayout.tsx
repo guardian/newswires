@@ -161,7 +161,15 @@ export function DefaultLayout({
 					<EuiShowFor sizes={['xs', 's']}>
 						{view === 'item' && <ItemData id={selectedItemId} />}
 
-						{view !== 'item' && <Feed setSideNavIsOpen={setSideNavIsOpen} />}
+						{view !== 'item' && (
+							// Items will not be shown, so will not use the resizing functionality.
+							// However this also resets the scroll context, which is important
+							// so that the "new items" sticky button sticks to the right element.
+							<ResizableContainer
+								Feed={Feed}
+								setSideNavIsOpen={setSideNavIsOpen}
+							/>
+						)}
 					</EuiShowFor>
 					<EuiShowFor sizes={['m', 'l', 'xl']}>
 						<ResizableContainer
