@@ -53,7 +53,8 @@ class QueryController(
       maybeAfterTimeStamp: Option[String],
       hasDataFormatting: Option[Boolean],
       guSourceFeeds: List[String],
-      guSourceFeedsExcl: List[String]
+      guSourceFeedsExcl: List[String],
+      eventNames: List[String]
   ): Action[AnyContent] = apiAuthAction {
     implicit request: UserRequest[AnyContent] =>
       val baseParams = BaseRequestParams(
@@ -69,7 +70,8 @@ class QueryController(
         maybeAfterTimeStamp = maybeAfterTimeStamp,
         hasDataFormatting = hasDataFormatting,
         guSourceFeeds = guSourceFeeds,
-        guSourceFeedsExcl = guSourceFeedsExcl
+        guSourceFeedsExcl = guSourceFeedsExcl,
+        eventNames = eventNames
       )
       val searchParams =
         SearchParams.build(
