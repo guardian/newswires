@@ -395,6 +395,9 @@ object FingerpostWireEntry
 
     lazy val collectionIdSQL = (collectionId: Int) =>
       sqls"${Collection.syn.id} = ${collectionId}"
+
+    lazy val eventNameSQL = (eventName: String) =>
+      sqls"(${syn.content} -> 'agencyMetadata' -> 'event' -> 0 ->> 'name') = ${eventName}"
   }
 
   private def andAll(clauses: List[SQLSyntax]): Option[SQLSyntax] =
@@ -480,6 +483,11 @@ object FingerpostWireEntry
       case sourceFeedsExcl => Some(Filters.guSourceFeedExclSQL(sourceFeedsExcl))
     }
 
+    val eventNameQuery = filters.eventName match {
+      case None =>  None
+      case Some(event) => Some(Filters.eventNameSQL(event))
+    }
+
     val clauses = List(
       keywordsQuery,
       categoryCodesInclQuery,
@@ -493,7 +501,8 @@ object FingerpostWireEntry
       preComputedCategoriesExclQuery,
       collectionIdQuery,
       guSourceFeedQuery,
-      guSourceFeedExclQuery
+      guSourceFeedExclQuery,
+      eventNameQuery
     ).flatten
     andAll(clauses)
   }
