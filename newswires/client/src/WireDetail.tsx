@@ -507,6 +507,7 @@ export const WireDetail = ({
 		handleDeselectItem,
 		handlePreviousItem,
 		handleNextItem,
+		handleEnterQuery,
 	} = useSearch();
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const { showTastedList } = useUserSettings();
@@ -578,6 +579,15 @@ export const WireDetail = ({
 		(showCollectionMetadata && itemIsInTastedCollection) ||
 		(wire.toolLinks && wire.toolLinks.length > 0);
 
+	const handleEventNameClick = (eventName: string | undefined) => {
+		if (eventName !== undefined) {
+			handleEnterQuery({
+				...config.query,
+				eventName,
+			});
+		}
+	};
+
 	return (
 		<div
 			css={css`
@@ -631,6 +641,14 @@ export const WireDetail = ({
 						addToolLink={addToolLink}
 						headline={headline}
 					/>
+					<Tooltip tooltipContent={'Search for wires with the same event'}>
+						<EuiButtonIcon
+							aria-label="Search for wires with the same event"
+							size="s"
+							iconType={'heart'}
+							onClick={() => handleEventNameClick('Health Doctors 25/03/2026')}
+						/>
+					</Tooltip>
 				</div>
 				<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
 					<Tooltip tooltipContent="Close story" position="left">

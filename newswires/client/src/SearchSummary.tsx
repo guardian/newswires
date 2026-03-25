@@ -37,6 +37,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	start: 'From',
 	end: 'To',
 	collectionId: 'Collection',
+	eventName: 'Event name',
 } as const;
 
 const SummaryBadge = ({
