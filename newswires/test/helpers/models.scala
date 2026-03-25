@@ -7,11 +7,13 @@ import db.{
   WireEntryForCollection
 }
 import models.{
+  AgencyMetadata,
   Dataformat,
   DateRange,
   FilterParams,
   FingerpostWire,
   FingerpostWireSubjects,
+  PaEvent,
   QueryCursor,
   SearchParams
 }
@@ -59,7 +61,20 @@ trait models {
     ),
     embargo = Some("2026-02-18T00:01:00Z"),
     profile = Some("alert"),
-    `type` = Some("text")
+    `type` = Some("text"),
+    agencyMetadata = Some(
+      AgencyMetadata(
+        List(
+          PaEvent(
+            "rel",
+            "code",
+            "name",
+            "scheme",
+            "profile"
+          )
+        )
+      )
+    )
   )
   val emptyWire = FingerpostWire(
     uri = None,
@@ -86,7 +101,8 @@ trait models {
     dataformat = None,
     embargo = None,
     profile = None,
-    `type` = None
+    `type` = None,
+    agencyMetadata = None
   )
   val exampleWireJson = """{
                           |  "uri" : "https://example.com/news/12345",
@@ -127,7 +143,18 @@ trait models {
                           |  },
                           |  "embargo" : "2026-02-18T00:01:00Z",
                           |  "profile" : "alert",
-                          |  "type" : "text"
+                          |  "type" : "text",
+                          |  "agencyMetadata" : {
+                          |    "event" : [
+                          |      {
+                          |        "rel" : "rel",
+                          |        "code" : "code",
+                          |        "name" : "name",
+                          |        "scheme" : "scheme",
+                          |        "profile" : "profile"
+                          |      }
+                          |    ]
+                          |  }
                           |}""".stripMargin
 
   val toolLink = ToolLink(
@@ -219,7 +246,18 @@ trait models {
       |    },
       |    "embargo" : "2026-02-18T00:01:00Z",
       |    "profile" : "alert",
-      |    "type" : "text"
+      |    "type" : "text",
+      |    "agencyMetadata" : {
+      |      "event" : [
+      |        {
+      |          "rel" : "rel",
+      |          "code" : "code",
+      |          "name" : "name",
+      |          "scheme" : "scheme",
+      |          "profile" : "profile"
+      |        }
+      |      ]
+      |    }
       |  },
       |  "composerId" : "composerId",
       |  "composerSentBy" : "composerSentBy",
@@ -270,7 +308,8 @@ trait models {
     preComputedCategoriesExcl = Nil,
     collectionId = None,
     guSourceFeeds = Nil,
-    guSourceFeedsExcl = Nil
+    guSourceFeedsExcl = Nil,
+    eventNames = Nil
   )
 
   val emptyDateParams = DateRange(

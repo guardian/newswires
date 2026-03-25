@@ -34,7 +34,8 @@ object SearchPreset {
       preComputedCategoriesExcl = preComputedCategoriesExcl,
       collectionId = None,
       guSourceFeeds = Nil,
-      guSourceFeedsExcl = Nil
+      guSourceFeedsExcl = Nil,
+      eventNames = Nil
     )
 }
 

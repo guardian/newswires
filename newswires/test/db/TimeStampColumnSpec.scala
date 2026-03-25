@@ -44,7 +44,8 @@ class TimeStampColumnSpec extends AnyFlatSpec with Matchers {
     ),
     embargo = None,
     profile = None,
-    `type` = None
+    `type` = None,
+    agencyMetadata = None
   )
 
   def makeWireEntry(

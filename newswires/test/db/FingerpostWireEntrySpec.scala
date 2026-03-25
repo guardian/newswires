@@ -393,7 +393,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       preComputedCategoriesExcl = List("p2"),
       collectionId = Some(1),
       guSourceFeeds = List("feed1"),
-      guSourceFeedsExcl = List("feed2", "feed3")
+      guSourceFeedsExcl = List("feed2", "feed3"),
+      eventNames = List("event name")
     )
 
     val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
