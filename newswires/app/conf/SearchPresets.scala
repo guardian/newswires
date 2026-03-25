@@ -35,7 +35,7 @@ object SearchPreset {
       collectionId = None,
       guSourceFeeds = Nil,
       guSourceFeedsExcl = Nil,
-      eventNames = Nil
+      eventName = None
     )
 }
 

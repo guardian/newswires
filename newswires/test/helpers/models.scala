@@ -309,7 +309,7 @@ trait models {
     collectionId = None,
     guSourceFeeds = Nil,
     guSourceFeedsExcl = Nil,
-    eventNames = Nil
+    eventName = None
   )
 
   val emptyDateParams = DateRange(

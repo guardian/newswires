@@ -65,7 +65,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       hasDataFormatting = Some(true),
       guSourceFeeds = List("A"),
       guSourceFeedsExcl = List("B"),
-      eventNames = List("event")
+      eventName = Some("event")
     )
     val result = SearchParams.build(
       emptyQueryString,
@@ -92,7 +92,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
         preComputedCategoriesExcl = Nil,
         guSourceFeeds = List("A"),
         guSourceFeedsExcl = List("B"),
-        eventNames = List("event")
+        eventName = Some("event")
       ),
       DateRange(
         start = Some("start"),

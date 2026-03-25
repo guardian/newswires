@@ -18,7 +18,7 @@ case class FilterParams(
     collectionId: Option[Int],
     guSourceFeeds: List[String],
     guSourceFeedsExcl: List[String],
-    eventNames: List[String]
+    eventName: Option[String]
 )
 
 case class DateRange(
@@ -59,7 +59,7 @@ object SearchParams {
           guSourceFeeds = baseParams.guSourceFeeds,
           guSourceFeedsExcl = baseParams.guSourceFeedsExcl
         ),
-        eventNames = baseParams.eventNames
+        eventName = baseParams.eventName
       ),
       DateRange(
         start = baseParams.maybeStart,
