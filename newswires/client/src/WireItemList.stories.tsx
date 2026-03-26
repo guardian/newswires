@@ -102,7 +102,7 @@ const userSettings = (showSecondaryFeedContent: boolean) => ({
 });
 
 const meta = {
-	title: 'Components/WireItemList/Compressed',
+	title: 'Components/WireItemList',
 	component: WireItemList,
 	parameters: {
 		layout: 'padded',
@@ -157,7 +157,7 @@ const meta = {
 										margin: '10px',
 									}}
 								>
-									With subheadings
+									Not compressed (showing secondary feed content)
 								</h3>
 								<UserSettingsContext.Provider value={userSettings(true)}>
 									<SearchContext.Provider value={mockSearchContext}>
