@@ -110,6 +110,8 @@ const meta = {
 								toggleShowIncopyImport: () => {},
 								showTastedList: true,
 								toggleShowTastedList: () => {},
+								enableAutoScroll: false,
+								toggleEnableAutoScroll: () => {},
 							}}
 						>
 							<SearchContext.Provider value={mockSearchContext}>

@@ -12,6 +12,8 @@ interface UserSettingsContextShape {
 	toggleShowIncopyImport: () => void;
 	showTastedList: boolean;
 	toggleShowTastedList: () => void;
+	enableAutoScroll: boolean;
+	toggleEnableAutoScroll: () => void;
 }
 
 export const UserSettingsContext =
@@ -86,6 +88,19 @@ export const UserSettingsContextProvider = ({
 		});
 	};
 
+	const [enableAutoScroll, setEnableAutoScroll] = useState<boolean>(
+		loadOrSetInLocalStorage<boolean>('enableAutoScroll', z.boolean(), false),
+	);
+
+	const toggleEnableAutoScroll = () => {
+		const newValue = !enableAutoScroll;
+		setEnableAutoScroll(newValue);
+		saveToLocalStorage<boolean>('enableAutoScroll', newValue);
+		sendTelemetryEvent('toggleEnableAutoScroll', {
+			enableAutoScroll: newValue ? 'on' : 'off',
+		});
+	};
+
 	return (
 		<UserSettingsContext.Provider
 			value={{
@@ -97,6 +112,8 @@ export const UserSettingsContextProvider = ({
 				toggleShowIncopyImport,
 				showTastedList,
 				toggleShowTastedList,
+				enableAutoScroll,
+				toggleEnableAutoScroll,
 			}}
 		>
 			{children}
