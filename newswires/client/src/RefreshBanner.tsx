@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 import { getErrorMessage } from '@guardian/libs';
 import { useEffect, useState } from 'react';
 import z from 'zod/v4';
+import { usePageLoadTime } from './context/PageLoadTimeContext.tsx';
 import { pandaFetch } from './panda-session';
 
 const RefreshMessageSchema = z.union([
@@ -40,11 +41,8 @@ export function decideRefreshMessage({
 	return undefined;
 }
 
-export const RefreshBanner = ({
-	timeThatPageWasLoaded,
-}: {
-	timeThatPageWasLoaded: number;
-}) => {
+export const RefreshBanner = () => {
+	const timeThatPageWasLoaded = usePageLoadTime();
 	const [messageFromServer, setMessageFromServer] = useState<
 		RefreshMessage | undefined
 	>(undefined);

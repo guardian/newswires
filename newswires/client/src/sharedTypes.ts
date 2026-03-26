@@ -142,7 +142,7 @@ export const WiresQueryDataSchema = z.object({
 
 export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
 
-export const isValidDateValue = (value: string): value is EuiDateString =>
+export const isValidDateValue = (value: string): boolean =>
 	/^now(?:[+-]\d+[smhdwMy])*(?:\/\w+)?$/.test(value) || moment(value).isValid();
 
 export const EuiDateStringSchema = z

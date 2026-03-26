@@ -1,6 +1,7 @@
 import { EuiShowFor } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useState } from 'react';
+import { usePageLoadTime } from './context/PageLoadTimeContext.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { ErrorPrompt } from './ErrorPrompt.tsx';
 import { Feed } from './Feed';
@@ -10,11 +11,8 @@ import { ResizableContainer } from './ResizableContainer.tsx';
 import { SideNav } from './SideNav/SideNav.tsx';
 import { StageDisplayBanner } from './StageDisplayBanner.tsx';
 
-export const TickerLayout = ({
-	timeThatPageWasLoaded,
-}: {
-	timeThatPageWasLoaded: number;
-}) => {
+export const TickerLayout = () => {
+	const timeThatPageWasLoaded = usePageLoadTime();
 	const { config, state } = useSearch();
 
 	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
@@ -25,7 +23,7 @@ export const TickerLayout = ({
 	return (
 		<>
 			<StageDisplayBanner />
-			<RefreshBanner timeThatPageWasLoaded={timeThatPageWasLoaded} />
+			<RefreshBanner />
 			<SideNav
 				navIsDocked={false}
 				sideNavIsOpen={sideNavIsOpen}
