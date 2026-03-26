@@ -588,6 +588,10 @@ export const WireDetail = ({
 		}
 	};
 
+	const eventName =
+		wire.content.agencyMetadata && wire.content.agencyMetadata.event.length > 0
+			? wire.content.agencyMetadata.event[0].name
+			: undefined;
 	return (
 		<div
 			css={css`
@@ -641,14 +645,16 @@ export const WireDetail = ({
 						addToolLink={addToolLink}
 						headline={headline}
 					/>
-					<Tooltip tooltipContent={'Search for wires with the same event'}>
-						<EuiButtonIcon
-							aria-label="Search for wires with the same event"
-							size="s"
-							iconType={'heart'}
-							onClick={() => handleEventNameClick('Health Doctors 25/03/2026')}
-						/>
-					</Tooltip>
+					{eventName && (
+						<Tooltip tooltipContent={'Search for wires with the same event'}>
+							<EuiButtonIcon
+								aria-label="Search for wires with the same event"
+								size="s"
+								iconType={'heart'}
+								onClick={() => handleEventNameClick(eventName)}
+							/>
+						</Tooltip>
+					)}
 				</div>
 				<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
 					<Tooltip tooltipContent="Close story" position="left">

@@ -28,6 +28,7 @@ const AgencyMetadata = z.object({
 			profile: z.string(),
 			scheme: z.string(),
 			rel: z.string(),
+			name: z.string(),
 		}),
 	),
 });
