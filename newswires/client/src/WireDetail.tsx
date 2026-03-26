@@ -650,7 +650,7 @@ export const WireDetail = ({
 							<EuiButtonIcon
 								aria-label="Search for wires with the same event"
 								size="s"
-								iconType={'heart'}
+								iconType={'search'}
 								onClick={() => handleEventNameClick(eventName)}
 							/>
 						</Tooltip>
