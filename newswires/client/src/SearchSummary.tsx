@@ -102,6 +102,7 @@ const Summary = ({
 		hasDataFormatting,
 		previewPaApi,
 		collectionId,
+		eventName,
 	} = query;
 
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
@@ -125,7 +126,8 @@ const Summary = ({
 		displayExcludedGuSourceFeeds ||
 		hasDataFormatting !== undefined ||
 		previewPaApi !== undefined ||
-		collectionId !== undefined;
+		collectionId !== undefined ||
+		eventName !== undefined;
 
 	const isDefaultDateRange =
 		(start === DEFAULT_DATE_RANGE.start || start === undefined) &&
@@ -244,6 +246,14 @@ const Summary = ({
 					keyValuePair={{
 						key: 'previewPaApi',
 						value: previewPaApi ? 'true' : 'false',
+					}}
+				/>
+			)}
+			{eventName !== undefined && (
+				<SummaryBadge
+					keyValuePair={{
+						key: 'eventName',
+						value: eventName,
 					}}
 				/>
 			)}

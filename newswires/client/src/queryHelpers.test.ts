@@ -147,4 +147,22 @@ describe('queryAfterDeselection', () => {
 			preset: undefined,
 		});
 	});
+	it('should remove eventName when eventName is the key', () => {
+		expect(
+			queryAfterDeselection(
+				{ key: 'eventName', value: 'value' },
+				{
+					q: '',
+					eventName: 'eventName',
+					collectionId: undefined,
+					preset: undefined,
+				},
+			),
+		).toStrictEqual({
+			q: '',
+			eventName: undefined,
+			collectionId: undefined,
+			preset: undefined,
+		});
+	});
 });
