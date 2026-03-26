@@ -31,7 +31,7 @@ class FeatureSwitchProvider(stage: String) {
       exposeToClient = true,
       isOn = _.getQueryString("previewPaApi")
         .flatMap(_.toBooleanOption)
-        .getOrElse(false)
+        .getOrElse(true)
     )
   private val switches = List(
     ShowGuSuppliers,
