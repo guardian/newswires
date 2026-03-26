@@ -1,0 +1,12 @@
+{
+	"checkpoints": {
+		"PROD": {
+			"url": "https://newswires.gutools.co.uk/_prout",
+			"overdue": "15M"
+		},
+		"CODE": {
+			"url": "https://newswires.code.dev-gutools.co.uk/_prout",
+			"overdue": "15M"
+		}
+	}
+}
