@@ -25,7 +25,6 @@ import type { Moment } from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { AddToCollectionButton } from './AddToCollectionButton.tsx';
-import { Alert } from './Alert.tsx';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
@@ -41,7 +40,8 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
-import { isAlert } from './utils/contentHelpers.ts';
+import { isAlert, isLead } from './utils/contentHelpers.ts';
+import { AlertLabel, LeadLabel } from './WireItemLabel.tsx';
 
 function TitleContentForItem({
 	slug,
@@ -51,6 +51,7 @@ function TitleContentForItem({
 	supplier,
 	wordCount,
 	isAlert,
+	isLead,
 }: {
 	slug?: string;
 	subhead?: string;
@@ -59,6 +60,7 @@ function TitleContentForItem({
 	supplier: SupplierInfo;
 	wordCount: number;
 	isAlert: boolean;
+	isLead: boolean;
 }) {
 	const theme = useEuiTheme();
 	const MAX_SUBHEAD_LENGTH = 250;
@@ -86,13 +88,13 @@ function TitleContentForItem({
 			<EuiSpacer size="xs" />
 			{showSubhead && (
 				<div>
-					<h3
+					<h4
 						css={css`
 							font-weight: ${theme.euiTheme.font.weight.semiBold};
 						`}
 					>
 						{displayedSubhead}
-					</h3>
+					</h4>
 					{canTruncateSubhead && (
 						<EuiButtonEmpty
 							size="xs"
@@ -117,7 +119,24 @@ function TitleContentForItem({
 				</EuiTitle>
 			</div>
 			<h3>
-				{isAlert && <Alert isPrimary={true} />}
+				{isAlert && (
+					<span
+						css={css`
+							margin-right: ${theme.euiTheme.size.xs};
+						`}
+					>
+						<AlertLabel outlined={true} />
+					</span>
+				)}
+				{isLead && (
+					<span
+						css={css`
+							margin-right: ${theme.euiTheme.size.xs};
+						`}
+					>
+						<LeadLabel outlined={true} />
+					</span>
+				)}
 				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
 				<span>{wordCount} words &#183; </span>
 				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
@@ -705,6 +724,7 @@ export const WireDetail = ({
 						supplier={wire.supplier}
 						wordCount={wordCount}
 						isAlert={isAlert(wire.content)}
+						isLead={isLead(wire.content)}
 					/>
 				</div>
 			</div>
