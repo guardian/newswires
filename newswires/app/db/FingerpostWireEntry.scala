@@ -1,6 +1,6 @@
 package db
 
-import conf.SearchTerm.English
+import conf.SearchTerm.CombinedFields
 import conf.{
   AND,
   ComboTerm,
@@ -147,11 +147,11 @@ object FingerpostWireEntry
     math.min(math.max(x, low), high)
 
   private[db] def buildHighlightsClause(
-      maybeFreeTextQuery: Option[English],
-      highlightAll: Boolean = false
+                                         maybeFreeTextQuery: Option[CombinedFields],
+                                         highlightAll: Boolean = false
   ): SQLSyntax = {
     maybeFreeTextQuery match {
-      case Some(SearchTerm.English(queryString)) =>
+      case Some(SearchTerm.CombinedFields(queryString, _)) =>
         val highlightSettings =
           if (highlightAll)
             "HighlightAll=true, StartSel=<mark>, StopSel=</mark>"
@@ -163,7 +163,7 @@ object FingerpostWireEntry
 
   private[db] def buildSingleGetQuery(
       id: Int,
-      maybeFreeTextQuery: Option[English]
+      maybeFreeTextQuery: Option[CombinedFields]
   ): SQLSyntax = {
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
@@ -182,7 +182,7 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[English]
+      maybeFreeTextQuery: Option[CombinedFields]
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
@@ -296,7 +296,7 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
       }
 
-    lazy val englishSearchSQL = (searchTerm: SearchTerm.English) => {
+    lazy val englishSearchSQL = (searchTerm: SearchTerm.CombinedFields) => {
       sqls"""to_tsvector('english_unaccent',
         coalesce(content->>'headline', '') || ' ' ||
         coalesce(content->>'subhead', '') || ' ' ||
@@ -311,8 +311,8 @@ object FingerpostWireEntry
       searchTerm match {
         case SearchTerm.Simple(query, field) =>
           simpleSearchSQL(SearchTerm.Simple(query, field))
-        case SearchTerm.English(query) =>
-          englishSearchSQL(SearchTerm.English(query))
+        case SearchTerm.CombinedFields(query, _) =>
+          englishSearchSQL(SearchTerm.CombinedFields(query))
       }
 
     lazy val searchTermsSql = (searchTerms: List[SearchTerm]) =>

@@ -16,7 +16,7 @@ import _root_.models.{
   SearchParams
 }
 import conf.SearchField.{BodyText, Slug}
-import conf.SearchTerm.{English, Simple}
+import conf.SearchTerm.{CombinedFields, Simple}
 import db.FingerpostWireEntry.{Filters, decideSortDirection}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
@@ -192,7 +192,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       end = Some("2025-03-10T23:59:59.999Z")
     )
     val filters = emptyFilterParams.copy(searchTerms =
-      Some(SingleTerm(SearchTerm.English("text1")))
+      Some(SingleTerm(SearchTerm.CombinedFields("text1")))
     )
 
     val textSearchWhereClause = FingerpostWireEntry.filtersBuilder(filters).get
@@ -376,7 +376,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       searchTerms = Some(
         ComboTerm(
           List(
-            SearchTerm.English("query"),
+            SearchTerm.CombinedFields("query"),
             SearchTerm.Simple("simple text", SearchField.BodyText)
           ),
           AND
@@ -405,7 +405,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val textSearchClause = FingerpostWireEntry.Filters.searchQuerySqlCombined(
       ComboTerm(
         List(
-          SearchTerm.English("query"),
+          SearchTerm.CombinedFields("query"),
           SearchTerm.Simple("simple text", SearchField.BodyText)
         ),
         AND
@@ -705,7 +705,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for english term query" in {
     val searchSQL =
-      FingerpostWireEntry.Filters.englishSearchSQL(English("query"))
+      FingerpostWireEntry.Filters.englishSearchSQL(CombinedFields("query"))
     searchSQL should matchSqlSnippet(
       expectedClause = english,
       expectedParams = List("query")
