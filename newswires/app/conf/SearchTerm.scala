@@ -39,9 +39,11 @@ object SearchField {
 }
 
 object SearchTerm {
-  case class English(query: String) extends SearchTerm {
-    val searchConfig: SearchConfig = SearchConfig.English
-  }
+
+  case class CombinedFields(
+      query: String,
+      searchConfig: SearchConfig = SearchConfig.English
+  ) extends SearchTerm
 
   case class Simple(query: String, field: SearchField = SearchField.BodyText)
       extends SearchTerm {
