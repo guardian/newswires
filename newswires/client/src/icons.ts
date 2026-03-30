@@ -16,6 +16,7 @@ import { icon as clock } from '@elastic/eui/es/components/icon/assets/clock';
 import { icon as clockCounter } from '@elastic/eui/es/components/icon/assets/clockCounter';
 import { icon as copyClipboard } from '@elastic/eui/es/components/icon/assets/copy_clipboard';
 import { icon as cross } from '@elastic/eui/es/components/icon/assets/cross';
+import { icon as crossProjectSearch } from '@elastic/eui/es/components/icon/assets/cross_project_search';
 import { icon as documentation } from '@elastic/eui/es/components/icon/assets/documentation';
 import { icon as dot } from '@elastic/eui/es/components/icon/assets/dot';
 import { icon as doubleArrowLeft } from '@elastic/eui/es/components/icon/assets/doubleArrowLeft';
@@ -94,6 +95,7 @@ const icons = {
 	starFilled,
 	clockCounter,
 	bug,
+	crossProjectSearch,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent
