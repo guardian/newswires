@@ -49,7 +49,7 @@ tunnelToAwsDb() {
     if [[ -n $EXISTING_TUNNELS ]]; then
       echo "RE-USING EXISTING TUNNEL TO CODE POSTGRES (on port ${POSTGRES_PORT})"
     else
-      ssm ssh -t ${APP_NAME},CODE -p ${AWS_PROFILE} -x --newest --rds-tunnel 5432:${APP_NAME},CODE
+      ssm ssh -t ${APP_NAME},CODE -p ${AWS_PROFILE} -x --newest --rds-tunnel ${POSTGRES_PORT}:${APP_NAME},CODE
       echo "TUNNEL ESTABLISHED TO CODE POSTGRES (on port ${POSTGRES_PORT})"
     fi
 }
@@ -73,6 +73,21 @@ startIngestionLambda() {
   popd
 }
 
+establishDBConnection() {
+  if [ "$USE_CODE" == "true" ]; then
+    echo "Using CODE DB. Starting tunnel to AWS DB."
+    tunnelToAwsDb
+  else
+    echo "Using the local stack. Starting Docker."
+    startDockerContainers
+  fi
+
+  if ! lsof -i :${POSTGRES_PORT}; then
+      echo -e "${red}No database connection available on port ${POSTGRES_PORT} - something's gone wrong! ${plain}"
+      exit 1
+  fi
+}
+
 startPlayApp() {
   # pushd to find build.sbt and allow this script to be executed from any location (but ideally from the project root)
   echo "========================================================="
@@ -90,12 +105,13 @@ startPlayApp() {
 main() {
     hasCredentials
     source "$ROOT_DIR/scripts/check-requirements"
+    establishDBConnection
+
     if [ "$USE_CODE" == "true" ]; then
-        echo "Using CODE. Starting play app with tunnel to AWS DB."
-        tunnelToAwsDb && USE_CODE_DB=true startPlayApp
+      echo "Using CODE. Starting Play App."
+      USE_CODE_DB=true startPlayApp
     else
-      echo "Using the local stack. Starting Docker, Ingestion Lambda and Play App."
-      startDockerContainers
+      echo "Using the local stack. Starting Ingestion Lambda and Play App."
       # run all three, and terminate together when the user presses `ctrl+c`: https://stackoverflow.com/a/52033580
       (trap 'kill 0' SIGINT; startIngestionLambda & startPlayApp & wait)
     fi
