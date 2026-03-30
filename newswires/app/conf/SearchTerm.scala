@@ -1,5 +1,8 @@
 package conf
 
+import scalikejdbc.interpolation.SQLSyntax
+import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
+
 sealed trait SearchConfig
 
 /** PostgreSQL text search configuration name.
@@ -20,14 +23,9 @@ case class ComboTerm(
 ) extends SearchTerms
 
 case class SingleTerm(searchTerm: SearchTerm) extends SearchTerms
-object SearchConfig {
-  case object English extends SearchConfig
-  case object Simple extends SearchConfig
-}
 
 sealed trait SearchTerm {
   def query: String
-  def searchConfig: SearchConfig
 }
 
 sealed trait SearchField
@@ -41,14 +39,13 @@ object SearchField {
 object SearchTerm {
 
   case class CombinedFields(
-      query: String,
-      searchConfig: SearchConfig = SearchConfig.English
-  ) extends SearchTerm
+      query: String
+  ) extends SearchTerm {
+    val textSearchConfiguration: SQLSyntax = sqls"english_unaccent"
+  }
 
   case class Simple(query: String, field: SearchField = SearchField.BodyText)
-      extends SearchTerm {
-    val searchConfig: SearchConfig = SearchConfig.Simple
-  }
+      extends SearchTerm
 }
 
 /*

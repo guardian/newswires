@@ -147,16 +147,16 @@ object FingerpostWireEntry
     math.min(math.max(x, low), high)
 
   private[db] def buildHighlightsClause(
-                                         maybeFreeTextQuery: Option[CombinedFields],
-                                         highlightAll: Boolean = false
+      maybeFreeTextQuery: Option[CombinedFields],
+      highlightAll: Boolean = false
   ): SQLSyntax = {
     maybeFreeTextQuery match {
-      case Some(SearchTerm.CombinedFields(queryString, _)) =>
+      case Some(cf @ SearchTerm.CombinedFields(queryString)) =>
         val highlightSettings =
           if (highlightAll)
             "HighlightAll=true, StartSel=<mark>, StopSel=</mark>"
           else "StartSel=<mark>, StopSel=</mark>"
-        sqls"ts_headline('english_unaccent', ${syn.content}->>'body_text', websearch_to_tsquery('english_unaccent', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
+        sqls"ts_headline('${cf.textSearchConfiguration}', ${syn.content}->>'body_text', websearch_to_tsquery('${cf.textSearchConfiguration}', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
       case _ => sqls"'' AS ${syn.resultName.highlight}"
     }
   }
@@ -296,8 +296,10 @@ object FingerpostWireEntry
         sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
       }
 
-    lazy val englishSearchSQL = (searchTerm: SearchTerm.CombinedFields) => {
-      sqls"""to_tsvector('english_unaccent',
+    lazy val combinedFieldsSearchSql =
+      (searchTerm: SearchTerm.CombinedFields) => {
+        val config: SQLSyntax = searchTerm.textSearchConfiguration
+        sqls"""to_tsvector('$config',
         coalesce(content->>'headline', '') || ' ' ||
         coalesce(content->>'subhead', '') || ' ' ||
         coalesce(content->>'keywords', '') || ' ' ||
@@ -305,14 +307,14 @@ object FingerpostWireEntry
         coalesce(content->>'byline', '') || ' ' ||
         coalesce(content->>'abstract', '') || ' ' ||
         coalesce(content->>'slug', '')
-      ) @@ websearch_to_tsquery ('english_unaccent', ${searchTerm.query}) """
-    }
+      ) @@ websearch_to_tsquery ('$config', ${searchTerm.query}) """
+      }
     lazy val searchTermSql = (searchTerm: SearchTerm) =>
       searchTerm match {
         case SearchTerm.Simple(query, field) =>
           simpleSearchSQL(SearchTerm.Simple(query, field))
-        case SearchTerm.CombinedFields(query, _) =>
-          englishSearchSQL(SearchTerm.CombinedFields(query))
+        case SearchTerm.CombinedFields(query) =>
+          combinedFieldsSearchSql(SearchTerm.CombinedFields(query))
       }
 
     lazy val searchTermsSql = (searchTerms: List[SearchTerm]) =>

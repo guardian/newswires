@@ -12,10 +12,10 @@ case class NextPage(sinceTimeStamp: String) extends UpdateType
 case class MostRecent(sinceTimeStamp: String) extends UpdateType
 
 case class QueryParams(
-                        searchParams: SearchParams,
-                        searchPreset: Option[SearchPreset],
-                        maybeSearchTerm: Option[CombinedFields],
-                        queryCursor: QueryCursor,
-                        pageSize: Int = 250,
-                        timeStampColumn: TimeStampColumn
+    searchParams: SearchParams,
+    searchPreset: Option[SearchPreset],
+    maybeSearchTerm: Option[CombinedFields],
+    queryCursor: QueryCursor,
+    pageSize: Int = 250,
+    timeStampColumn: TimeStampColumn
 )
