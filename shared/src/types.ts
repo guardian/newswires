@@ -21,7 +21,7 @@ const DataFormatInfoSchema = z.object({
 
 export type DataFormatInfo = z.infer<typeof DataFormatInfoSchema>;
 
-const AgencyMetadata = z.object({
+export const AgencyMetadata = z.object({
 	event: z.array(
 		z.object({
 			code: z.string(),

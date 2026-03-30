@@ -1,18 +1,8 @@
 import type { Moment } from 'moment';
 import moment from 'moment';
+import { AgencyMetadata } from 'newswires-shared/types';
 import { z } from 'zod/v4';
 
-const AgencyMetadata = z.object({
-	event: z.array(
-		z.object({
-			code: z.string(),
-			profile: z.string(),
-			scheme: z.string(),
-			rel: z.string(),
-			name: z.string(),
-		}),
-	),
-});
 /**
  * looseObject because we want to preserve additional properties that are not defined in the schema
  * Useful to be able to test new fields
