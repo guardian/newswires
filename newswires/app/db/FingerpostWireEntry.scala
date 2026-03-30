@@ -484,7 +484,7 @@ object FingerpostWireEntry
     }
 
     val eventNameQuery = filters.eventName match {
-      case None =>  None
+      case None        => None
       case Some(event) => Some(Filters.eventNameSQL(event))
     }
 

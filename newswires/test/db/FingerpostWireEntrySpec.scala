@@ -800,7 +800,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "create the correct sql snippet event name" in {
     val eventNameSql = FingerpostWireEntry.Filters.eventNameSQL("event name")
     eventNameSql should matchSqlSnippet(
-      expectedClause = "(fm.content -> 'agencyMetadata' -> 'event' -> 0 ->> 'name') = ?",
+      expectedClause =
+        "(fm.content -> 'agencyMetadata' -> 'event' -> 0 ->> 'name') = ?",
       expectedParams = List("event name")
     )
   }
