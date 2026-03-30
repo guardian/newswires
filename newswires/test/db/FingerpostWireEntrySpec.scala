@@ -705,7 +705,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for english term query" in {
     val searchSQL =
-      FingerpostWireEntry.Filters.englishSearchSQL(CombinedFields("query"))
+      FingerpostWireEntry.Filters.combinedFieldsSearchSql(
+        CombinedFields("query")
+      )
     searchSQL should matchSqlSnippet(
       expectedClause = english,
       expectedParams = List("query")
