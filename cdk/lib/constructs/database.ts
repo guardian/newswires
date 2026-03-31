@@ -19,7 +19,8 @@ import {
 } from 'aws-cdk-lib/aws-ssm';
 
 interface GuDatabaseProps
-	extends AppIdentity,
+	extends
+		AppIdentity,
 		Omit<
 			DatabaseInstanceProps,
 			// The following are required props on `DatabaseInstanceProps`.
