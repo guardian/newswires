@@ -82,7 +82,7 @@ establishDBConnection() {
     startDockerContainers
   fi
 
-  if ! lsof -i :${POSTGRES_PORT}; then
+  if ! lsof -i :${POSTGRES_PORT} >/dev/null; then
       echo -e "${red}No database connection available on port ${POSTGRES_PORT} - something's gone wrong! ${plain}"
       exit 1
   fi
