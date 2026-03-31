@@ -671,7 +671,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   behavior of "search term SQL helpers"
   it should "create the correct sql snippet for search term query when field is headline" in {
-    val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
+    val searchSQL = FingerpostWireEntry.Filters.singleFieldSearchSQL(
       SearchTerm.SingleField("query", SearchField.Headline)
     )
     searchSQL should matchSqlSnippet(
@@ -682,7 +682,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql snippet for search term query when field is body" in {
-    val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
+    val searchSQL = FingerpostWireEntry.Filters.singleFieldSearchSQL(
       SearchTerm.SingleField("query", SearchField.BodyText)
     )
     searchSQL should matchSqlSnippet(
@@ -693,7 +693,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
 
   it should "create the correct sql snippet for search term query when field is slug" in {
-    val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
+    val searchSQL = FingerpostWireEntry.Filters.singleFieldSearchSQL(
       SearchTerm.SingleField("query", SearchField.Slug)
     )
     searchSQL should matchSqlSnippet(

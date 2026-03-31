@@ -286,7 +286,7 @@ object FingerpostWireEntry
         )
       }
 
-    lazy val simpleSearchSQL =
+    lazy val singleFieldSearchSQL =
       (searchTerm: SearchTerm.SingleField) =>
         // This is searching specific columns that maintain simple tokenizers
         // https://github.com/guardian/newswires/blob/main/db/migrations/V14__tsvector_simple_indices.sql
@@ -314,7 +314,7 @@ object FingerpostWireEntry
     lazy val searchTermSql = (searchTerm: SearchTerm) =>
       searchTerm match {
         case SearchTerm.SingleField(query, field) =>
-          simpleSearchSQL(SearchTerm.SingleField(query, field))
+          singleFieldSearchSQL(SearchTerm.SingleField(query, field))
         case SearchTerm.CombinedFields(query) =>
           combinedFieldsSearchSql(SearchTerm.CombinedFields(query))
       }
