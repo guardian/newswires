@@ -20,7 +20,7 @@ export const defaultQuery: Query = {
 	hasDataFormatting: undefined,
 	previewPaApi: undefined,
 	collectionId: undefined,
-	eventName: undefined,
+	eventCode: undefined,
 };
 
 export const defaultConfig: Config = Object.freeze({
@@ -75,7 +75,7 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const previewPaApi = maybeStringToBooleanOrUndefined(
 		params.get('previewPaApi'),
 	);
-	const eventName = params.get('eventName') ?? undefined;
+	const eventCode = params.get('eventCode') ?? undefined;
 	let collectionId: number | undefined = undefined;
 
 	try {
@@ -108,7 +108,7 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		end,
 		hasDataFormatting,
 		previewPaApi,
-		eventName,
+		eventCode,
 	};
 
 	// we're treating preset and collectionId as mutually exclusive - if both are present, preset takes precedence and collectionId is ignored

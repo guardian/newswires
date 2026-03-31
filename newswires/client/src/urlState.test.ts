@@ -248,12 +248,12 @@ describe('urlToConfig', () => {
 		});
 	});
 
-	it('can handle eventName', () => {
-		const url = makeFakeLocation('/feed?q=abc&eventName=event');
+	it('can handle eventCode', () => {
+		const url = makeFakeLocation('/feed?q=abc&eventCode=event');
 		const config = urlToConfig(url);
 		expect(config).toEqual({
 			view: 'feed',
-			query: { ...defaultQuery, q: 'abc', eventName: 'event' },
+			query: { ...defaultQuery, q: 'abc', eventCode: 'event' },
 			ticker: false,
 		});
 	});

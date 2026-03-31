@@ -54,7 +54,7 @@ class QueryController(
       hasDataFormatting: Option[Boolean],
       guSourceFeeds: List[String],
       guSourceFeedsExcl: List[String],
-      eventName: Option[String]
+      eventCode: Option[String]
   ): Action[AnyContent] = apiAuthAction {
     implicit request: UserRequest[AnyContent] =>
       val baseParams = BaseRequestParams(
@@ -71,7 +71,7 @@ class QueryController(
         hasDataFormatting = hasDataFormatting,
         guSourceFeeds = guSourceFeeds,
         guSourceFeedsExcl = guSourceFeedsExcl,
-        eventName = eventName
+        eventCode = eventCode
       )
       val searchParams =
         SearchParams.build(

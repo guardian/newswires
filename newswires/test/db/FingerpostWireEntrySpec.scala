@@ -394,7 +394,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       collectionId = Some(1),
       guSourceFeeds = List("feed1"),
       guSourceFeedsExcl = List("feed2", "feed3"),
-      eventName = Some("event name")
+      eventCode = Some("event name")
     )
 
     val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
@@ -427,7 +427,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       FingerpostWireEntry.Filters.guSourceFeedSQL(List("feed1"))
     val guSourceFeedExclClause =
       FingerpostWireEntry.Filters.guSourceFeedExclSQL(List("feed2", "feed3"))
-    val eventNameClause = FingerpostWireEntry.Filters.eventNameSQL("event name")
+    val eventNameClause = FingerpostWireEntry.Filters.eventCodeSQL("event name")
 
     snippets.get should matchSqlSnippet(
       expectedClause = sqls"""${keywordsClause} and ${categoryCodesClause}
@@ -798,13 +798,13 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  behavior of "eventNameSql"
+  behavior of "eventCodeSql"
   it should "create the correct sql snippet event name" in {
-    val eventNameSql = FingerpostWireEntry.Filters.eventNameSQL("event name")
-    eventNameSql should matchSqlSnippet(
+    val eventCodeSql = FingerpostWireEntry.Filters.eventCodeSQL("event code")
+    eventCodeSql should matchSqlSnippet(
       expectedClause =
-        "(fm.content -> 'agencyMetadata' -> 'event' -> 0 ->> 'name') = ?",
-      expectedParams = List("event name")
+        "(fm.content -> 'agencyMetadata' -> 'event' -> 0 ->> 'code') = ?",
+      expectedParams = List("event code")
     )
   }
 

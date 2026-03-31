@@ -178,7 +178,7 @@ export const BaseQuerySchema = z.object({
 	end: EuiDateStringSchema.optional(),
 	hasDataFormatting: z.boolean().optional(),
 	previewPaApi: z.boolean().optional(),
-	eventName: z.string().optional(),
+	eventCode: z.string().optional(),
 });
 export type BaseQuery = z.infer<typeof BaseQuerySchema>;
 

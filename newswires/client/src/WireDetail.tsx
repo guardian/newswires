@@ -579,18 +579,18 @@ export const WireDetail = ({
 		(showCollectionMetadata && itemIsInTastedCollection) ||
 		(wire.toolLinks && wire.toolLinks.length > 0);
 
-	const handleEventNameClick = (eventName: string | undefined) => {
-		if (eventName !== undefined) {
+	const handleEventNameClick = (eventCode: string | undefined) => {
+		if (eventCode !== undefined) {
 			handleEnterQuery({
 				...config.query,
-				eventName,
+				eventCode,
 			});
 		}
 	};
 
-	const eventName =
+	const eventCode =
 		wire.content.agencyMetadata && wire.content.agencyMetadata.event.length > 0
-			? wire.content.agencyMetadata.event[0].name
+			? wire.content.agencyMetadata.event[0].code
 			: undefined;
 	return (
 		<div
@@ -645,13 +645,13 @@ export const WireDetail = ({
 						addToolLink={addToolLink}
 						headline={headline}
 					/>
-					{eventName && (
+					{eventCode && (
 						<Tooltip tooltipContent={'Search for wires with the same event'}>
 							<EuiButtonIcon
 								aria-label="Search for wires with the same event"
 								size="s"
 								iconType={'crossProjectSearch'}
-								onClick={() => handleEventNameClick(eventName)}
+								onClick={() => handleEventNameClick(eventCode)}
 							/>
 						</Tooltip>
 					)}

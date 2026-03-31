@@ -147,20 +147,20 @@ describe('queryAfterDeselection', () => {
 			preset: undefined,
 		});
 	});
-	it('should remove eventName when eventName is the key', () => {
+	it('should remove eventCode when eventCode is the key', () => {
 		expect(
 			queryAfterDeselection(
-				{ key: 'eventName', value: 'value' },
+				{ key: 'eventCode', value: 'value' },
 				{
 					q: '',
-					eventName: 'eventName',
+					eventCode: 'eventCode',
 					collectionId: undefined,
 					preset: undefined,
 				},
 			),
 		).toStrictEqual({
 			q: '',
-			eventName: undefined,
+			eventCode: undefined,
 			collectionId: undefined,
 			preset: undefined,
 		});

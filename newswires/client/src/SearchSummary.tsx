@@ -37,7 +37,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	start: 'From',
 	end: 'To',
 	collectionId: 'Collection',
-	eventName: 'Event name',
+	eventCode: 'Event code',
 } as const;
 
 const SummaryBadge = ({
@@ -102,7 +102,7 @@ const Summary = ({
 		hasDataFormatting,
 		previewPaApi,
 		collectionId,
-		eventName,
+		eventCode: eventCode,
 	} = query;
 
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
@@ -127,7 +127,7 @@ const Summary = ({
 		hasDataFormatting !== undefined ||
 		previewPaApi !== undefined ||
 		collectionId !== undefined ||
-		eventName !== undefined;
+		eventCode !== undefined;
 
 	const isDefaultDateRange =
 		(start === DEFAULT_DATE_RANGE.start || start === undefined) &&
@@ -249,11 +249,11 @@ const Summary = ({
 					}}
 				/>
 			)}
-			{eventName !== undefined && (
+			{eventCode !== undefined && (
 				<SummaryBadge
 					keyValuePair={{
-						key: 'eventName',
-						value: eventName,
+						key: 'eventCode',
+						value: eventCode,
 					}}
 				/>
 			)}
