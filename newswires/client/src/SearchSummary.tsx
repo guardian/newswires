@@ -37,7 +37,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	start: 'From',
 	end: 'To',
 	collectionId: 'Collection',
-	eventCode: 'Event code',
+	eventCode: 'Event name',
 } as const;
 
 const SummaryBadge = ({
@@ -105,6 +105,15 @@ const Summary = ({
 		eventCode: eventCode,
 	} = query;
 
+	const { state } = useSearch();
+
+	const eventCodeToName = Object.fromEntries(
+		(state.queryData?.results ?? []).flatMap((wire) => {
+			return (
+				wire.content.agencyMetadata?.event.map((e) => [e.code, e.name]) ?? []
+			);
+		}),
+	);
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
 	const displayExcludedCategoryCodes = (categoryCodeExcl ?? []).length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;
@@ -253,7 +262,7 @@ const Summary = ({
 				<SummaryBadge
 					keyValuePair={{
 						key: 'eventCode',
-						value: eventCode,
+						value: eventCodeToName[eventCode] ?? eventCode,
 					}}
 				/>
 			)}
