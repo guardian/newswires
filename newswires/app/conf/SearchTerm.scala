@@ -41,7 +41,8 @@ object SearchTerm {
   case class CombinedFields(
       query: String
   ) extends SearchTerm {
-    val textSearchConfiguration: SQLSyntax = sqls"english_unaccent"
+    val textSearchConfiguration: SQLSyntax =
+      if (query.contains('"')) sqls"simple_unaccent" else sqls"english_unaccent"
   }
 
   case class Simple(query: String, field: SearchField = SearchField.BodyText)

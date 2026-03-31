@@ -298,8 +298,7 @@ object FingerpostWireEntry
 
     lazy val combinedFieldsSearchSql =
       (searchTerm: SearchTerm.CombinedFields) => {
-        val config: SQLSyntax = searchTerm.textSearchConfiguration
-        sqls"""to_tsvector('$config',
+        sqls"""to_tsvector('${searchTerm.textSearchConfiguration}',
         coalesce(content->>'headline', '') || ' ' ||
         coalesce(content->>'subhead', '') || ' ' ||
         coalesce(content->>'keywords', '') || ' ' ||
@@ -307,7 +306,7 @@ object FingerpostWireEntry
         coalesce(content->>'byline', '') || ' ' ||
         coalesce(content->>'abstract', '') || ' ' ||
         coalesce(content->>'slug', '')
-      ) @@ websearch_to_tsquery ('$config', ${searchTerm.query}) """
+      ) @@ websearch_to_tsquery ('${searchTerm.textSearchConfiguration}', ${searchTerm.query}) """
       }
     lazy val searchTermSql = (searchTerm: SearchTerm) =>
       searchTerm match {
