@@ -16,7 +16,7 @@ import _root_.models.{
   SearchParams
 }
 import conf.SearchField.{BodyText, Slug}
-import conf.SearchTerm.{CombinedFields, Simple}
+import conf.SearchTerm.{CombinedFields, SingleField}
 import db.FingerpostWireEntry.{Filters, decideSortDirection}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
@@ -116,14 +116,14 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "should join complex search presets using 'or'" in {
     val presetFilterParams1 = emptyFilterParams.copy(
       searchTerms = Some(
-        SingleTerm(SearchTerm.Simple("News Summary", SearchField.Headline))
+        SingleTerm(SearchTerm.SingleField("News Summary", SearchField.Headline))
       ),
       suppliersIncl = List("REUTERS"),
       categoryCodesIncl = List("N2:GB")
     )
 
     val presetFilterParams2 = emptyFilterParams.copy(
-      searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
+      searchTerms = Some(SingleTerm(SearchTerm.SingleField("soccer"))),
       suppliersIncl = List("AFP"),
       categoryCodesIncl = List("afpCat:SPO")
     )
@@ -168,7 +168,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   it should "generate a where clause for a single field" in {
     val filterParams =
       emptyFilterParams.copy(searchTerms =
-        Some(SingleTerm(SearchTerm.Simple("text1")))
+        Some(SingleTerm(SearchTerm.SingleField("text1")))
       )
     val searchParams = emptySearchParams.copy(filters = filterParams)
 
@@ -224,7 +224,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val presetSearchParams1 = emptyFilterParams.copy(
       searchTerms = Some(
         SingleTerm(
-          SearchTerm.Simple("News Summary", SearchField.Headline)
+          SearchTerm.SingleField("News Summary", SearchField.Headline)
         )
       ),
       suppliersIncl = List("REUTERS"),
@@ -233,7 +233,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
     )
     val presetSearchParams2 = emptyFilterParams.copy(
-      searchTerms = Some(SingleTerm(SearchTerm.Simple("soccer"))),
+      searchTerms = Some(SingleTerm(SearchTerm.SingleField("soccer"))),
       suppliersIncl = List("AFP"),
       categoryCodesIncl = List("afpCat:SPO")
     )
@@ -377,7 +377,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         ComboTerm(
           List(
             SearchTerm.CombinedFields("query"),
-            SearchTerm.Simple("simple text", SearchField.BodyText)
+            SearchTerm.SingleField("simple text", SearchField.BodyText)
           ),
           AND
         )
@@ -406,7 +406,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       ComboTerm(
         List(
           SearchTerm.CombinedFields("query"),
-          SearchTerm.Simple("simple text", SearchField.BodyText)
+          SearchTerm.SingleField("simple text", SearchField.BodyText)
         ),
         AND
       )
@@ -672,7 +672,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "search term SQL helpers"
   it should "create the correct sql snippet for search term query when field is headline" in {
     val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
-      SearchTerm.Simple("query", SearchField.Headline)
+      SearchTerm.SingleField("query", SearchField.Headline)
     )
     searchSQL should matchSqlSnippet(
       expectedClause =
@@ -683,7 +683,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for search term query when field is body" in {
     val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
-      SearchTerm.Simple("query", SearchField.BodyText)
+      SearchTerm.SingleField("query", SearchField.BodyText)
     )
     searchSQL should matchSqlSnippet(
       expectedClause =
@@ -694,7 +694,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for search term query when field is slug" in {
     val searchSQL = FingerpostWireEntry.Filters.simpleSearchSQL(
-      SearchTerm.Simple("query", SearchField.Slug)
+      SearchTerm.SingleField("query", SearchField.Slug)
     )
     searchSQL should matchSqlSnippet(
       expectedClause =
@@ -718,7 +718,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct SQL for a singular search term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      SingleTerm(Simple("simple", BodyText))
+      SingleTerm(SingleField("simple", BodyText))
     )
     searchSQL should matchSqlSnippet(
       expectedClause = bodyTextSimple,
@@ -727,7 +727,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct SQL for a combo or term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      ComboTerm(List(Simple("slug", Slug), Simple("body", BodyText)), OR)
+      ComboTerm(
+        List(SingleField("slug", Slug), SingleField("body", BodyText)),
+        OR
+      )
     )
 
     searchSQL should matchSqlSnippet(
@@ -737,7 +740,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct SQL for a combo and term" in {
     val searchSQL = FingerpostWireEntry.Filters.searchQuerySqlCombined(
-      ComboTerm(List(Simple("slug", Slug), Simple("body", BodyText)), AND)
+      ComboTerm(
+        List(SingleField("slug", Slug), SingleField("body", BodyText)),
+        AND
+      )
     )
 
     searchSQL should matchSqlSnippet(
