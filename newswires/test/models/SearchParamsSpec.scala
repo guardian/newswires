@@ -35,10 +35,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )(FakeRequest())
     result.filters.searchTerms shouldEqual Some(
       ComboTerm(
-        List(
-          SearchTerm.CombinedFields("query"),
-          SearchTerm.SingleField("query", Slug)
-        ),
+        List(SearchTerm.English("query"), SearchTerm.Simple("query", Slug)),
         OR
       )
     )
@@ -79,10 +76,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       FilterParams(
         searchTerms = Some(
           ComboTerm(
-            List(
-              SearchTerm.CombinedFields("hello"),
-              SearchTerm.SingleField("hello", Slug)
-            ),
+            List(SearchTerm.English("hello"), SearchTerm.Simple("hello", Slug)),
             OR
           )
         ),

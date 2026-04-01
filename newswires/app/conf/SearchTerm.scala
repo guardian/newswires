@@ -1,7 +1,6 @@
 package conf
 
-import scalikejdbc.interpolation.SQLSyntax
-import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
+sealed trait SearchConfig
 
 /** PostgreSQL text search configuration name.
   *
@@ -21,39 +20,33 @@ case class ComboTerm(
 ) extends SearchTerms
 
 case class SingleTerm(searchTerm: SearchTerm) extends SearchTerms
+object SearchConfig {
+  case object English extends SearchConfig
+  case object Simple extends SearchConfig
+}
 
 sealed trait SearchTerm {
   def query: String
+  def searchConfig: SearchConfig
 }
 
-sealed trait SearchField {
-  val columnName: SQLSyntax
-}
+sealed trait SearchField
 
 object SearchField {
-  case object Headline extends SearchField {
-    override val columnName: SQLSyntax = sqls"headline_tsv_simple"
-  }
-  case object BodyText extends SearchField {
-    override val columnName: SQLSyntax = sqls"body_text_tsv_simple"
-  }
-  case object Slug extends SearchField {
-    override val columnName: SQLSyntax = sqls"slug_text_tsv_simple"
-  }
+  case object Headline extends SearchField
+  case object BodyText extends SearchField
+  case object Slug extends SearchField
 }
 
 object SearchTerm {
-  case class CombinedFields(
-      query: String
-  ) extends SearchTerm {
-    val textSearchConfiguration: SQLSyntax =
-      if (query.contains('"')) sqls"simple_unaccent" else sqls"english_unaccent"
+  case class English(query: String) extends SearchTerm {
+    val searchConfig: SearchConfig = SearchConfig.English
   }
 
-  case class SingleField(
-      query: String,
-      field: SearchField = SearchField.BodyText
-  ) extends SearchTerm
+  case class Simple(query: String, field: SearchField = SearchField.BodyText)
+      extends SearchTerm {
+    val searchConfig: SearchConfig = SearchConfig.Simple
+  }
 }
 
 /*

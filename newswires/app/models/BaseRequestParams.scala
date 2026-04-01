@@ -1,7 +1,7 @@
 package models
 
 import conf.SearchField.Slug
-import conf.SearchTerm.CombinedFields
+import conf.SearchTerm.English
 import conf.{OR, SearchTerm, ComboTerm, SingleTerm, SearchTerms}
 
 case class BaseRequestParams(
@@ -26,15 +26,12 @@ case class BaseRequestParams(
   val textSearchTerms: Option[SearchTerms] =
     maybeFreeTextQuery.map(query =>
       ComboTerm(
-        List(
-          SearchTerm.CombinedFields(query),
-          SearchTerm.SingleField(query, Slug)
-        ),
+        List(SearchTerm.English(query), SearchTerm.Simple(query, Slug)),
         OR
       )
     )
 
   // This is used to highlight the text matches in the body of the document
-  val textForHighlighting: Option[CombinedFields] =
-    maybeFreeTextQuery.map(query => SearchTerm.CombinedFields(query))
+  val textForHighlighting: Option[English] =
+    maybeFreeTextQuery.map(query => SearchTerm.English(query))
 }
