@@ -42,7 +42,11 @@ export const queryAfterDeselection = (
 			end: undefined,
 		};
 	}
-	if (['hasDataFormatting', 'start', 'end', 'collectionId'].includes(key)) {
+	if (
+		['hasDataFormatting', 'start', 'end', 'collectionId', 'eventCode'].includes(
+			key,
+		)
+	) {
 		return { ...query, [key]: undefined };
 	}
 	if (

@@ -147,4 +147,22 @@ describe('queryAfterDeselection', () => {
 			preset: undefined,
 		});
 	});
+	it('should remove eventCode when eventCode is the key', () => {
+		expect(
+			queryAfterDeselection(
+				{ key: 'eventCode', value: 'value' },
+				{
+					q: '',
+					eventCode: 'eventCode',
+					collectionId: undefined,
+					preset: undefined,
+				},
+			),
+		).toStrictEqual({
+			q: '',
+			eventCode: undefined,
+			collectionId: undefined,
+			preset: undefined,
+		});
+	});
 });

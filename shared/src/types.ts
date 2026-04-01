@@ -21,6 +21,18 @@ const DataFormatInfoSchema = z.object({
 
 export type DataFormatInfo = z.infer<typeof DataFormatInfoSchema>;
 
+const AgencyMetadata = z.object({
+	event: z.array(
+		z.object({
+			code: z.string(),
+			profile: z.string(),
+			scheme: z.string(),
+			rel: z.string(),
+			name: z.string(),
+		}),
+	),
+});
+
 /**
  * looseObject because we want to preserve additional properties that are not defined in the schema
  * Useful to be able to test new fields
@@ -70,6 +82,7 @@ const FingerpostFeedPayloadSchema = z.looseObject({
 	copyrightHolder: z.string().optional(),
 	copyrightNotice: z.string().optional(),
 	dataformat: DataFormatInfoSchema.optional(),
+	agencyMetadata: AgencyMetadata.optional(),
 });
 
 export const IngestorInputBodySchema = FingerpostFeedPayloadSchema.extend({

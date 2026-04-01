@@ -525,6 +525,7 @@ export const WireDetail = ({
 		handleDeselectItem,
 		handlePreviousItem,
 		handleNextItem,
+		handleEnterQuery,
 	} = useSearch();
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const { showTastedList } = useUserSettings();
@@ -596,6 +597,19 @@ export const WireDetail = ({
 		(showCollectionMetadata && itemIsInTastedCollection) ||
 		(wire.toolLinks && wire.toolLinks.length > 0);
 
+	const handleEventClick = (eventCode: string | undefined) => {
+		if (eventCode !== undefined) {
+			handleEnterQuery({
+				...config.query,
+				eventCode,
+			});
+		}
+	};
+
+	const eventCode =
+		wire.content.agencyMetadata && wire.content.agencyMetadata.event.length > 0
+			? wire.content.agencyMetadata.event[0].code
+			: undefined;
 	return (
 		<div
 			css={css`
@@ -649,6 +663,16 @@ export const WireDetail = ({
 						addToolLink={addToolLink}
 						headline={headline}
 					/>
+					{eventCode && (
+						<Tooltip tooltipContent={'Search for wires with the same event'}>
+							<EuiButtonIcon
+								aria-label="Search for wires with the same event"
+								size="s"
+								iconType={'crossProjectSearch'}
+								onClick={() => handleEventClick(eventCode)}
+							/>
+						</Tooltip>
+					)}
 				</div>
 				<EuiFlexGroup justifyContent="flexEnd" alignItems="center">
 					<Tooltip tooltipContent="Close story" position="left">

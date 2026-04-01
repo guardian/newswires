@@ -248,6 +248,16 @@ describe('urlToConfig', () => {
 		});
 	});
 
+	it('can handle eventCode', () => {
+		const url = makeFakeLocation('/feed?q=abc&eventCode=event');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: { ...defaultQuery, q: 'abc', eventCode: 'event' },
+			ticker: false,
+		});
+	});
+
 	it('should prefer preset over collectionId when both are present', () => {
 		const url = makeFakeLocation('/feed?q=abc&collectionId=123&preset=456');
 		const config = urlToConfig(url);

@@ -17,7 +17,8 @@ case class FilterParams(
     preComputedCategoriesExcl: List[String],
     collectionId: Option[Int],
     guSourceFeeds: List[String],
-    guSourceFeedsExcl: List[String]
+    guSourceFeedsExcl: List[String],
+    eventCode: Option[String]
 )
 
 case class DateRange(
@@ -57,7 +58,8 @@ object SearchParams {
           showPAAPI = featureSwitch.ShowPAAPI.isOn(req),
           guSourceFeeds = baseParams.guSourceFeeds,
           guSourceFeedsExcl = baseParams.guSourceFeedsExcl
-        )
+        ),
+        eventCode = baseParams.eventCode
       ),
       DateRange(
         start = baseParams.maybeStart,

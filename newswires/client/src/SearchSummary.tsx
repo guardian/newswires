@@ -37,6 +37,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	start: 'From',
 	end: 'To',
 	collectionId: 'Collection',
+	eventCode: 'Event name',
 } as const;
 
 const SummaryBadge = ({
@@ -101,8 +102,18 @@ const Summary = ({
 		hasDataFormatting,
 		previewPaApi,
 		collectionId,
+		eventCode: eventCode,
 	} = query;
 
+	const { state } = useSearch();
+
+	const eventCodeToName = Object.fromEntries(
+		(state.queryData?.results ?? []).flatMap((wire) => {
+			return (
+				wire.content.agencyMetadata?.event.map((e) => [e.code, e.name]) ?? []
+			);
+		}),
+	);
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
 	const displayExcludedCategoryCodes = (categoryCodeExcl ?? []).length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;
@@ -124,7 +135,8 @@ const Summary = ({
 		displayExcludedGuSourceFeeds ||
 		hasDataFormatting !== undefined ||
 		previewPaApi !== undefined ||
-		collectionId !== undefined;
+		collectionId !== undefined ||
+		eventCode !== undefined;
 
 	const isDefaultDateRange =
 		(start === DEFAULT_DATE_RANGE.start || start === undefined) &&
@@ -243,6 +255,14 @@ const Summary = ({
 					keyValuePair={{
 						key: 'previewPaApi',
 						value: previewPaApi ? 'true' : 'false',
+					}}
+				/>
+			)}
+			{eventCode !== undefined && (
+				<SummaryBadge
+					keyValuePair={{
+						key: 'eventCode',
+						value: eventCodeToName[eventCode] ?? eventCode,
 					}}
 				/>
 			)}
