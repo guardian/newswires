@@ -1,4 +1,5 @@
 import { EuiProvider } from '@elastic/eui';
+import { css } from '@emotion/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { SearchContextShape } from './context/SearchContext';
 import { SearchContext } from './context/SearchContext';
@@ -49,8 +50,59 @@ const sampleItemData: WireData = {
 	collections: [],
 };
 
+const mockSearchContext: SearchContextShape = {
+	config: {
+		...defaultConfig,
+		query: {
+			...defaultConfig.query,
+			collectionId: 1,
+			preset: undefined,
+		},
+	},
+	state: {
+		status: 'success',
+		queryData: {
+			results: [],
+			totalCount: 0,
+		},
+		successfulQueryHistory: [],
+		autoUpdate: false,
+		loadingMore: false,
+		sortBy: { sortByKey: 'ingestedAt' },
+		error: undefined,
+	},
+	handleEnterQuery: () => {},
+	handleRetry: () => {},
+	handleSelectItem: () => {},
+	handleDeselectItem: () => {},
+	handleNextItem: async () => {},
+	handlePreviousItem: () => {},
+	toggleAutoUpdate: () => {},
+	loadMoreResults: async () => {},
+	viewedItemIds: [],
+	previousItemId: undefined,
+	activeSuppliers: [],
+	toggleSupplier: () => {},
+	openTicker: () => {},
+	unseenWiresFromTopOfList: 0,
+	hasBeenVisibleCallback: () => {},
+};
+
+const userSettings = (showSecondaryFeedContent: boolean) => ({
+	showSecondaryFeedContent,
+	toggleShowSecondaryFeedContent: () => {},
+	resizablePanelsDirection: 'horizontal' as const,
+	toggleResizablePanelsDirection: () => {},
+	showIncopyImport: true,
+	toggleShowIncopyImport: () => {},
+	showTastedList: true,
+	toggleShowTastedList: () => {},
+	enableAutoScroll: false,
+	toggleEnableAutoScroll: () => {},
+});
+
 const meta = {
-	title: 'Components/WireItemList/With Subheadings',
+	title: 'Components/WireItemList',
 	component: WireItemList,
 	parameters: {
 		layout: 'padded',
@@ -58,68 +110,67 @@ const meta = {
 	tags: ['autodocs'],
 
 	decorators: [
-		(Story) => {
-			const mockSearchContext: SearchContextShape = {
-				config: {
-					...defaultConfig,
-					query: {
-						...defaultConfig.query,
-						collectionId: 1,
-						preset: undefined,
-					},
-				},
-				state: {
-					status: 'success',
-					queryData: {
-						results: [],
-						totalCount: 0,
-					},
-					successfulQueryHistory: [],
-					autoUpdate: false,
-					loadingMore: false,
-					sortBy: { sortByKey: 'ingestedAt' },
-					error: undefined,
-				},
-				handleEnterQuery: () => {},
-				handleRetry: () => {},
-				handleSelectItem: () => {},
-				handleDeselectItem: () => {},
-				handleNextItem: async () => {},
-				handlePreviousItem: () => {},
-				toggleAutoUpdate: () => {},
-				loadMoreResults: async () => {},
-				viewedItemIds: [],
-				previousItemId: undefined,
-				activeSuppliers: [],
-				toggleSupplier: () => {},
-				openTicker: () => {},
-				unseenWiresFromTopOfList: 0,
-				hasBeenVisibleCallback: () => {},
-			};
+		(_Story, context) => {
+			const args = context.args as Record<string, unknown>;
+			const wires = args.wires as WireData[];
+			const totalCount = args.totalCount as number;
+			const showCollectionMetadata = args.showCollectionMetadata as boolean;
 
 			return (
 				<EuiProvider colorMode="light">
 					<TelemetryContextProvider sendTelemetryEvent={console.log}>
-						<UserSettingsContext.Provider
-							value={{
-								showSecondaryFeedContent: true,
-								toggleShowSecondaryFeedContent: () => {},
-								resizablePanelsDirection: 'horizontal',
-								toggleResizablePanelsDirection: () => {},
-								showIncopyImport: true,
-								toggleShowIncopyImport: () => {},
-								showTastedList: true,
-								toggleShowTastedList: () => {},
-								enableAutoScroll: false,
-								toggleEnableAutoScroll: () => {},
-							}}
+						<div
+							css={css`
+								display: flex;
+								flex-direction: column;
+								gap: 16px;
+								max-width: 800px;
+								margin: 0 auto;
+							`}
 						>
-							<SearchContext.Provider value={mockSearchContext}>
-								<div style={{ maxWidth: '800px', margin: '0 auto' }}>
-									<Story />
-								</div>
-							</SearchContext.Provider>
-						</UserSettingsContext.Provider>
+							<div>
+								<h3
+									style={{
+										fontSize: '1.25rem',
+										lineHeight: '1.5rem',
+										margin: '10px',
+									}}
+								>
+									Compressed
+								</h3>
+								<UserSettingsContext.Provider value={userSettings(false)}>
+									<SearchContext.Provider value={mockSearchContext}>
+										<WireItemList
+											wires={wires}
+											totalCount={totalCount}
+											showCollectionMetadata={showCollectionMetadata}
+											showSecondaryFeedContent={false}
+										/>
+									</SearchContext.Provider>
+								</UserSettingsContext.Provider>
+							</div>
+							<div>
+								<h3
+									style={{
+										fontSize: '1.25rem',
+										lineHeight: '1.5rem',
+										margin: '10px',
+									}}
+								>
+									Not compressed (showing secondary feed content)
+								</h3>
+								<UserSettingsContext.Provider value={userSettings(true)}>
+									<SearchContext.Provider value={mockSearchContext}>
+										<WireItemList
+											wires={wires}
+											totalCount={totalCount}
+											showCollectionMetadata={showCollectionMetadata}
+											showSecondaryFeedContent={true}
+										/>
+									</SearchContext.Provider>
+								</UserSettingsContext.Provider>
+							</div>
+						</div>
 					</TelemetryContextProvider>
 				</EuiProvider>
 			);
@@ -134,7 +185,7 @@ export const LoadedItem: Story = {
 		wires: [sampleItemData],
 		totalCount: 1,
 		showCollectionMetadata: false,
-		showSecondaryFeedContent: true,
+		showSecondaryFeedContent: false,
 	},
 };
 
@@ -151,22 +202,39 @@ export const WithDateOlderThan24Hours: Story = {
 		],
 		totalCount: 1,
 		showCollectionMetadata: false,
-		showSecondaryFeedContent: true,
+		showSecondaryFeedContent: false,
 	},
 };
 
-export const WithHighlight: Story = {
+export const WithAlert: Story = {
 	args: {
 		wires: [
 			{
 				...sampleItemData,
-				highlight:
-					'<p>This is a sample news wire story. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI.</p><p>It contains multiple paragraphs, <a href="#">a link</a>, and some <mark>highlighted</mark> text.</p>',
+				content: {
+					...sampleItemData.content,
+					type: 'text',
+					profile: 'alert',
+				},
 			},
 		],
 		totalCount: 1,
 		showCollectionMetadata: false,
-		showSecondaryFeedContent: true,
+		showSecondaryFeedContent: false,
+	},
+};
+
+export const WithDataFormatting: Story = {
+	args: {
+		wires: [
+			{
+				...sampleItemData,
+				hasDataFormatting: true,
+			},
+		],
+		totalCount: 1,
+		showCollectionMetadata: false,
+		showSecondaryFeedContent: false,
 	},
 };
 
@@ -179,9 +247,9 @@ export const WithLongTitleSlugAndSubheading: Story = {
 					...sampleItemData.content,
 					slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE-AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
 					headline:
-						'This is a sample headline that is intentionally made extra long to test how the WireItemList component handles long headlines in the UI. It should wrap correctly and not overflow the container.',
+						'This is a sample headline that is intentionally made extra long to test how the Item component handles long headlines in the UI. It should wrap correctly and not overflow the container.',
 					subhead:
-						'Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the WireItemList component handles long subheads in the UI. It should wrap correctly and not overflow the container. Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI. It should wrap correctly and not overflow the container.',
+						'Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI. It should wrap correctly and not overflow the container. Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI. It should wrap correctly and not overflow the container.',
 					keywords: [
 						'news',
 						'sample',
@@ -195,7 +263,7 @@ export const WithLongTitleSlugAndSubheading: Story = {
 		],
 		totalCount: 1,
 		showCollectionMetadata: false,
-		showSecondaryFeedContent: true,
+		showSecondaryFeedContent: false,
 	},
 };
 
@@ -224,7 +292,7 @@ export const WithToolLinks: Story = {
 		],
 		totalCount: 1,
 		showCollectionMetadata: false,
-		showSecondaryFeedContent: true,
+		showSecondaryFeedContent: false,
 	},
 };
 
@@ -260,7 +328,7 @@ export const WithToolLinksAndCollectionMetadata: Story = {
 		],
 		totalCount: 1,
 		showCollectionMetadata: true,
-		showSecondaryFeedContent: true,
+		showSecondaryFeedContent: false,
 	},
 };
 
@@ -280,7 +348,7 @@ export const WithCollectionMetaDataOnly: Story = {
 		],
 		totalCount: 1,
 		showCollectionMetadata: true,
-		showSecondaryFeedContent: true,
+		showSecondaryFeedContent: false,
 	},
 };
 

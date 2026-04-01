@@ -324,7 +324,7 @@ const WirePreviewCard = ({
 						padding: 0.5rem;
 						box-sizing: content-box;
 						color: ${theme.euiTheme.colors.text};
-						background-color: ${hasBeenViewed ? accentBgColor : 'inherit'};
+						background-color: ${hasBeenViewed ? accentBgColor : 'white'};
 						hyphens: auto;
 						hyphenate-limit-chars: 5 3 3;
 
