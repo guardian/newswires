@@ -1,20 +1,11 @@
 package db
 
-import conf.SearchTerm.CombinedFields
-import conf.{AND, ComboTerm, OR, SearchTerm, SearchTerms, SingleTerm}
+import conf.SearchTerm.English
+import conf.{AND, ComboTerm, OR, SearchField, SearchTerm, SearchTerms, SingleTerm}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{
-  FilterParams,
-  FingerpostWire,
-  NextPage,
-  QueryCursor,
-  QueryParams,
-  QueryResponse,
-  SearchParams,
-  UpdateType
-}
+import models.{FilterParams, FingerpostWire, NextPage, QueryCursor, QueryParams, QueryResponse, SearchParams, UpdateType}
 import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
