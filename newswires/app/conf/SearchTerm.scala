@@ -3,8 +3,6 @@ package conf
 import scalikejdbc.interpolation.SQLSyntax
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
-sealed trait SearchConfig
-
 /** PostgreSQL text search configuration name.
   *
   *   - "english": uses stemming and stop-word removal via dictionaries; not
