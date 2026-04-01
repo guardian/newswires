@@ -69,29 +69,38 @@ export const WireItemLabel = ({
 }) => {
 	const { euiTheme } = useEuiTheme();
 
+	const hoverParentStyles =
+		hoverParentClassName && hoverParentClassName.length > 0
+			? css`
+					.${hoverParentClassName}:hover & {
+						border-color: ${borderColour};
+					}
+				`
+			: null;
+
 	return (
 		<div
-			css={css`
-				.${hoverParentClassName}:hover & {
-					border-color: ${borderColour};
-				}
-				border-radius: 18px;
-				padding: 0 ${euiTheme.size.s};
-				// border colour might be overridden by the parent, via the 'className' that's been passed in.
-				border: 1px solid ${outlined ? borderColour : 'transparent'};
-				color: ${textColour};
-				background-color: ${backgroundColour};
-				line-height: 18px;
-				font-size: ${euiTheme.font.scale.s}rem;
-				display: inline-flex;
-				align-items: center;
-				gap: ${euiTheme.size.xs};
+			css={[
+				hoverParentStyles,
+				css`
+					border-radius: 18px;
+					padding: 0 ${euiTheme.size.s};
+					// border colour might be overridden by the parent, via the 'className' that's been passed in.
+					border: 1px solid ${outlined ? borderColour : 'transparent'};
+					color: ${textColour};
+					background-color: ${backgroundColour};
+					line-height: 18px;
+					font-size: ${euiTheme.font.scale.s}rem;
+					display: inline-flex;
+					align-items: center;
+					gap: ${euiTheme.size.xs};
 
-				&:hover,
-				&:focus {
-					cursor: default;
-				}
-			`}
+					&:hover,
+					&:focus {
+						cursor: default;
+					}
+				`,
+			]}
 		>
 			{iconType && <EuiIcon size="s" type={iconType} />}
 			{label}

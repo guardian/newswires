@@ -20,7 +20,6 @@ import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
-import { isAlert, isLead } from './utils/contentHelpers.ts';
 import { AlertLabel, LeadLabel } from './WireItemLabel.tsx';
 
 export const WireItemList = ({
@@ -199,6 +198,8 @@ const WirePreviewCard = ({
 		collections,
 		toolLinks,
 		hasDataFormatting,
+		isAlert,
+		isLead,
 	} = wire;
 
 	const ref = useRef<HTMLDivElement>(null);
@@ -277,8 +278,8 @@ const WirePreviewCard = ({
 		grid-row-gap: 0.5rem;
 		align-items: baseline;
 		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier';
-		grid-template-columns: 1fr min-content min-content min-content;
-		grid-template-rows: auto auto auto auto;
+		grid-template-columns: 1fr min-content min-content;
+		grid-template-rows: auto auto auto;
 	`;
 
 	const compactCardGrid = css`
@@ -385,13 +386,13 @@ const WirePreviewCard = ({
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
-					{isAlert(content) && (
+					{isAlert && (
 						<AlertLabel
 							outlined={hasBeenViewed}
 							hoverParentClassName={classNameForStylingLabelsOnCardHover}
 						/>
 					)}
-					{isLead(content) && (
+					{isLead && (
 						<LeadLabel
 							outlined={hasBeenViewed}
 							hoverParentClassName={classNameForStylingLabelsOnCardHover}

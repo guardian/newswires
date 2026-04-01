@@ -28,8 +28,9 @@ const sampleItemData: WireData = {
 		versionCreated: '2025-02-26T09:57:22.000Z',
 		version: '2',
 	},
-	highlight:
-		'<p>This is a sample news wire story.</p><p>It contains multiple paragraphs, <a href="#">a link</a>, and some <mark>highlighted</mark> text.</p>',
+	highlight: `
+		<p>This is a sample news wire story.</p><p>It contains multiple paragraphs, <a href="#">a link</a>, and some <mark>highlighted</mark> text.</p>
+		<p>This paragraph has <mark>a slightly larger block of highlighted text, that might even wrap onto another line and some</mark> non-highlighted text.</p>`,
 	supplier: {
 		name: 'REUTERS',
 		label: 'Reuters',
@@ -45,6 +46,8 @@ const sampleItemData: WireData = {
 	isFromRefresh: false,
 	hasDataFormatting: false,
 	collections: [],
+	isAlert: false,
+	isLead: false,
 };
 
 const meta = {
@@ -104,7 +107,7 @@ export const WithLongTitleSlugAndSubheading: Story = {
 			...sampleItemData,
 			content: {
 				...sampleItemData.content,
-				slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE-AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
+				slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
 				headline:
 					'This is a sample headline that is intentionally made extra long to test how the Item component handles long headlines in the UI. It should wrap correctly and not overflow the container.',
 				subhead:
@@ -117,6 +120,25 @@ export const WithLongTitleSlugAndSubheading: Story = {
 					'long keyword 2',
 					'long keyword 3',
 				],
+			},
+		},
+		error: undefined,
+		handleDeselectItem: () => console.log('deselect clicked'),
+		handlePreviousItem: () => console.log('previous item clicked'),
+		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
+		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
+	},
+};
+
+export const WithAlertLabel: Story = {
+	args: {
+		itemData: {
+			...sampleItemData,
+			isAlert: true,
+			content: {
+				...sampleItemData.content,
+				slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
 			},
 		},
 		error: undefined,

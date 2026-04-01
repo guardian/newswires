@@ -49,6 +49,8 @@ const sampleItemData: WireData = {
 	isFromRefresh: false,
 	hasDataFormatting: false,
 	collections: [],
+	isAlert: false,
+	isLead: false,
 };
 
 const mockSearchContext: SearchContextShape = {
@@ -222,17 +224,15 @@ export const WithAlert: Story = {
 				...sampleItemData,
 				content: {
 					...sampleItemData.content,
-					type: 'text',
-					profile: 'alert',
 				},
+				isAlert: true,
 			},
 			{
 				...sampleItemData,
 				content: {
 					...sampleItemData.content,
-					type: 'text',
-					profile: 'alert',
 				},
+				isAlert: true,
 				id: 67890,
 			},
 		],
@@ -252,15 +252,15 @@ export const WithLead: Story = {
 					type: 'composite',
 					profile: 'story',
 				},
+				isLead: true,
 			},
 			{
 				...sampleItemData,
 				content: {
 					...sampleItemData.content,
-					type: 'composite',
-					profile: 'story',
 				},
 				id: 67890,
+				isLead: true,
 			},
 		],
 		totalCount: 1,

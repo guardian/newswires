@@ -141,8 +141,10 @@ const MomentSchema = z.custom<Moment>((val) => moment.isMoment(val));
 
 export const WireDataSchema = WireDataFromAPISchema.extend({
 	supplier: SupplierInfoSchema,
-	hasDataFormatting: z.boolean(),
 	localIngestedAt: MomentSchema,
+	hasDataFormatting: z.boolean(),
+	isAlert: z.boolean(),
+	isLead: z.boolean(),
 });
 
 export type WireData = z.infer<typeof WireDataSchema>;
