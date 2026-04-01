@@ -2,6 +2,7 @@ import type { EuiBasicTableColumn } from '@elastic/eui';
 import {
 	EuiBadge,
 	EuiBasicTable,
+	EuiButtonEmpty,
 	EuiButtonIcon,
 	EuiCallOut,
 	EuiCodeBlock,
@@ -60,12 +61,19 @@ function TitleContentForItem({
 	isAlert: boolean;
 }) {
 	const theme = useEuiTheme();
+	const MAX_SUBHEAD_LENGTH = 250;
+	const [isShowingFullSubhead, setIsShowingFullSubhead] = useState(false);
 
 	const headlineText =
 		headline && headline.length > 0 ? headline : (slug ?? 'No title');
 
 	const showSubhead =
 		subhead && subhead.trim().length > 0 && subhead !== headline;
+	const canTruncateSubhead = !!subhead && subhead.length > MAX_SUBHEAD_LENGTH;
+	const displayedSubhead =
+		showSubhead && canTruncateSubhead && !isShowingFullSubhead
+			? `${subhead.slice(0, MAX_SUBHEAD_LENGTH)}…`
+			: subhead;
 
 	return (
 		<div
@@ -77,13 +85,23 @@ function TitleContentForItem({
 		>
 			<EuiSpacer size="xs" />
 			{showSubhead && (
-				<h3
-					css={css`
-						font-weight: ${theme.euiTheme.font.weight.semiBold};
-					`}
-				>
-					{subhead}
-				</h3>
+				<div>
+					<h3
+						css={css`
+							font-weight: ${theme.euiTheme.font.weight.semiBold};
+						`}
+					>
+						{displayedSubhead}
+					</h3>
+					{canTruncateSubhead && (
+						<EuiButtonEmpty
+							size="xs"
+							onClick={() => setIsShowingFullSubhead((current) => !current)}
+						>
+							Show {isShowingFullSubhead ? 'less' : 'full'} subhead
+						</EuiButtonEmpty>
+					)}
+				</div>
 			)}
 			<EuiSpacer size="xs" />
 			<div

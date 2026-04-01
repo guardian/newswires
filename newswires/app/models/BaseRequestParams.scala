@@ -26,7 +26,10 @@ case class BaseRequestParams(
   val textSearchTerms: Option[SearchTerms] =
     maybeFreeTextQuery.map(query =>
       ComboTerm(
-        List(SearchTerm.CombinedFields(query), SearchTerm.Simple(query, Slug)),
+        List(
+          SearchTerm.CombinedFields(query),
+          SearchTerm.SingleField(query, Slug)
+        ),
         OR
       )
     )

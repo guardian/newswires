@@ -3,8 +3,6 @@ package conf
 import scalikejdbc.interpolation.SQLSyntax
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
-sealed trait SearchConfig
-
 /** PostgreSQL text search configuration name.
   *
   *   - "english": uses stemming and stop-word removal via dictionaries; not
@@ -28,24 +26,34 @@ sealed trait SearchTerm {
   def query: String
 }
 
-sealed trait SearchField
+sealed trait SearchField {
+  val columnName: SQLSyntax
+}
 
 object SearchField {
-  case object Headline extends SearchField
-  case object BodyText extends SearchField
-  case object Slug extends SearchField
+  case object Headline extends SearchField {
+    override val columnName: SQLSyntax = sqls"headline_tsv_simple"
+  }
+  case object BodyText extends SearchField {
+    override val columnName: SQLSyntax = sqls"body_text_tsv_simple"
+  }
+  case object Slug extends SearchField {
+    override val columnName: SQLSyntax = sqls"slug_text_tsv_simple"
+  }
 }
 
 object SearchTerm {
-
   case class CombinedFields(
       query: String
   ) extends SearchTerm {
-    val textSearchConfiguration: SQLSyntax = sqls"english_unaccent"
+    val textSearchConfiguration: SQLSyntax =
+      if (query.contains('"')) sqls"simple_unaccent" else sqls"english_unaccent"
   }
 
-  case class Simple(query: String, field: SearchField = SearchField.BodyText)
-      extends SearchTerm
+  case class SingleField(
+      query: String,
+      field: SearchField = SearchField.BodyText
+  ) extends SearchTerm
 }
 
 /*

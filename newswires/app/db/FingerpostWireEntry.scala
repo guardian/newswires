@@ -5,7 +5,6 @@ import conf.{
   AND,
   ComboTerm,
   OR,
-  SearchField,
   SearchTerm,
   SearchTerms,
   SingleTerm
@@ -286,20 +285,21 @@ object FingerpostWireEntry
         )
       }
 
-    lazy val simpleSearchSQL =
-      (searchTerm: SearchTerm.Simple) => {
-        val tsvectorColumn = searchTerm.field match {
-          case SearchField.Headline => "headline_tsv_simple"
-          case SearchField.BodyText => "body_text_tsv_simple"
-          case SearchField.Slug     => "slug_text_tsv_simple"
-        }
-        sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
-      }
+    lazy val singleFieldSearchSQL =
+      (searchTerm: SearchTerm.SingleField) =>
+        // This is searching specific columns that maintain simple tokenizers
+        // https://github.com/guardian/newswires/blob/main/db/migrations/V14__tsvector_simple_indices.sql
+        // https://github.com/guardian/newswires/blob/main/db/migrations/V15__body_text_tsvector_simple_indices.sql
+        // https://github.com/guardian/newswires/blob/main/db/migrations/V19__slug_text_tsvector_simple_indices.sql
+        sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${searchTerm.field.columnName}"
 
-    lazy val combinedFieldsSearchSql =
-      (searchTerm: SearchTerm.CombinedFields) => {
-        val config: SQLSyntax = searchTerm.textSearchConfiguration
-        sqls"""to_tsvector('$config',
+    lazy val combinedFieldsSearchSql = {
+      // This needs to match one of the two indices we have defined on these coalesce fields
+      // https://github.com/guardian/newswires/blob/main/db/migrations/V29__unaccent_tsvector_indices.sql
+      // https://github.com/guardian/newswires/blob/main/db/migrations/V31__unaccent_simple_index.sql
+      (searchTerm: SearchTerm.CombinedFields) =>
+        {
+          sqls"""to_tsvector('${searchTerm.textSearchConfiguration}',
         coalesce(content->>'headline', '') || ' ' ||
         coalesce(content->>'subhead', '') || ' ' ||
         coalesce(content->>'keywords', '') || ' ' ||
@@ -307,12 +307,13 @@ object FingerpostWireEntry
         coalesce(content->>'byline', '') || ' ' ||
         coalesce(content->>'abstract', '') || ' ' ||
         coalesce(content->>'slug', '')
-      ) @@ websearch_to_tsquery ('$config', ${searchTerm.query}) """
-      }
+      ) @@ websearch_to_tsquery ('${searchTerm.textSearchConfiguration}', ${searchTerm.query}) """
+        }
+    }
     lazy val searchTermSql = (searchTerm: SearchTerm) =>
       searchTerm match {
-        case SearchTerm.Simple(query, field) =>
-          simpleSearchSQL(SearchTerm.Simple(query, field))
+        case SearchTerm.SingleField(query, field) =>
+          singleFieldSearchSQL(SearchTerm.SingleField(query, field))
         case SearchTerm.CombinedFields(query) =>
           combinedFieldsSearchSql(SearchTerm.CombinedFields(query))
       }

@@ -37,7 +37,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       ComboTerm(
         List(
           SearchTerm.CombinedFields("query"),
-          SearchTerm.Simple("query", Slug)
+          SearchTerm.SingleField("query", Slug)
         ),
         OR
       )
@@ -81,7 +81,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
           ComboTerm(
             List(
               SearchTerm.CombinedFields("hello"),
-              SearchTerm.Simple("hello", Slug)
+              SearchTerm.SingleField("hello", Slug)
             ),
             OR
           )
