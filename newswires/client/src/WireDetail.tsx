@@ -597,7 +597,7 @@ export const WireDetail = ({
 		(showCollectionMetadata && itemIsInTastedCollection) ||
 		(wire.toolLinks && wire.toolLinks.length > 0);
 
-	const handleEventNameClick = (eventCode: string | undefined) => {
+	const handleEventClick = (eventCode: string | undefined) => {
 		if (eventCode !== undefined) {
 			handleEnterQuery({
 				...config.query,
@@ -669,7 +669,7 @@ export const WireDetail = ({
 								aria-label="Search for wires with the same event"
 								size="s"
 								iconType={'crossProjectSearch'}
-								onClick={() => handleEventNameClick(eventCode)}
+								onClick={() => handleEventClick(eventCode)}
 							/>
 						</Tooltip>
 					)}
