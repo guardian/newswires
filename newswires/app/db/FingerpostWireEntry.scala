@@ -399,8 +399,8 @@ object FingerpostWireEntry
     lazy val collectionIdSQL = (collectionId: Int) =>
       sqls"${Collection.syn.id} = ${collectionId}"
 
-    lazy val eventCodeSQL = (eventName: String) =>
-      sqls"(${syn.content} -> 'agencyMetadata' -> 'event' -> 0 ->> 'code') = ${eventName}"
+    lazy val eventCodeSQL = (eventCode: String) =>
+      sqls"(${syn.content} -> 'agencyMetadata' -> 'event' -> 0 ->> 'code') = ${eventCode}"
   }
 
   private def andAll(clauses: List[SQLSyntax]): Option[SQLSyntax] =
