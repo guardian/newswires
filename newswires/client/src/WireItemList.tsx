@@ -9,7 +9,6 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
-import type { Moment } from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
@@ -19,12 +18,7 @@ import { convertToLocalDate } from './dateHelpers.ts';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
-import type {
-	CollectionMetadata,
-	SupplierInfo,
-	ToolLink,
-	WireData,
-} from './sharedTypes.ts';
+import type { WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
 import { isAlert } from './utils/contentHelpers.ts';
@@ -49,39 +43,19 @@ export const WireItemList = ({
 	return (
 		<>
 			<ul>
-				{wires.map(
-					({
-						id,
-						content,
-						supplier,
-						highlight,
-						isFromRefresh,
-						localIngestedAt,
-						hasDataFormatting,
-						toolLinks,
-						collections,
-					}) => (
-						<li key={id}>
-							<WirePreviewCard
-								id={id}
-								localIngestedAt={localIngestedAt}
-								supplier={supplier}
-								content={content}
-								hasDataFormatting={hasDataFormatting}
-								toolLinks={toolLinks}
-								isFromRefresh={isFromRefresh}
-								highlight={highlight}
-								selected={selectedWireId == id.toString()}
-								view={config.view}
-								previousItemId={previousItemId}
-								collectionMetadata={collections}
-								showCollectionMetadata={showCollectionMetadata}
-								showSecondaryFeedContent={showSecondaryFeedContent}
-								scrollContainerRef={scrollContainerRef}
-							/>
-						</li>
-					),
-				)}
+				{wires.map((wire) => (
+					<li key={wire.id}>
+						<WirePreviewCard
+							wire={wire}
+							selected={selectedWireId == wire.id.toString()}
+							view={config.view}
+							previousItemId={previousItemId}
+							showCollectionMetadata={showCollectionMetadata}
+							showSecondaryFeedContent={showSecondaryFeedContent}
+							scrollContainerRef={scrollContainerRef}
+						/>
+					</li>
+				))}
 			</ul>
 			{wires.length < totalCount && (
 				<EuiButton
@@ -198,44 +172,40 @@ function scrollElementIntoView(
 }
 
 const WirePreviewCard = ({
-	id,
-	supplier,
-	localIngestedAt,
-	content,
-	hasDataFormatting,
-	toolLinks,
-	highlight,
+	wire,
 	selected,
 	view,
 	previousItemId,
-	collectionMetadata,
 	showCollectionMetadata,
 	showSecondaryFeedContent,
 	scrollContainerRef,
 }: {
-	id: number;
-	supplier: SupplierInfo;
-	localIngestedAt: Moment;
-	content: WireData['content'];
-	hasDataFormatting: boolean;
-	toolLinks?: ToolLink[];
-	highlight: string | undefined;
+	wire: WireData;
 	selected: boolean;
-	isFromRefresh: boolean;
 	view: string;
 	previousItemId: string | undefined;
-	collectionMetadata: CollectionMetadata[];
 	showCollectionMetadata: boolean;
 	showSecondaryFeedContent: boolean;
 	scrollContainerRef?: React.RefObject<HTMLDivElement>;
 }) => {
 	const { viewedItemIds, config, hasBeenVisibleCallback } = useSearch();
 
+	const {
+		id,
+		content,
+		supplier,
+		localIngestedAt,
+		highlight,
+		collections,
+		toolLinks,
+		hasDataFormatting,
+	} = wire;
+
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const isPoppedOut = config.ticker;
 
-	const maybeTastedCollectionMetadata = collectionMetadata.filter(
+	const maybeTastedCollectionMetadata = collections.filter(
 		(collection) => collection.collectionId === config.query.collectionId,
 	);
 
