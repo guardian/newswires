@@ -1,14 +1,7 @@
 package db
 
 import conf.SearchTerm.CombinedFields
-import conf.{
-  AND,
-  ComboTerm,
-  OR,
-  SearchTerm,
-  SearchTerms,
-  SingleTerm
-}
+import conf.{AND, ComboTerm, OR, SearchTerm, SearchTerms, SingleTerm}
 import db.CustomMappers.textArray
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
