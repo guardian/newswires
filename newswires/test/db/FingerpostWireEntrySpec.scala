@@ -16,11 +16,7 @@ import _root_.models.{
   SearchParams
 }
 import conf.SearchField.{BodyText, Slug}
-<<<<<<< HEAD
-import conf.SearchTerm.{CombinedFields, Simple}
-=======
 import conf.SearchTerm.{CombinedFields, SingleField}
->>>>>>> main
 import db.FingerpostWireEntry.{Filters, decideSortDirection}
 import scalikejdbc.{scalikejdbcSQLInterpolationImplicitDef, sqls}
 
@@ -381,11 +377,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         ComboTerm(
           List(
             SearchTerm.CombinedFields("query"),
-<<<<<<< HEAD
-            SearchTerm.Simple("simple text", SearchField.BodyText)
-=======
             SearchTerm.SingleField("simple text", SearchField.BodyText)
->>>>>>> main
           ),
           AND
         )
@@ -415,11 +407,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       ComboTerm(
         List(
           SearchTerm.CombinedFields("query"),
-<<<<<<< HEAD
-          SearchTerm.Simple("simple text", SearchField.BodyText)
-=======
           SearchTerm.SingleField("simple text", SearchField.BodyText)
->>>>>>> main
         ),
         AND
       )
