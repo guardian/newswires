@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
 import { usePrevious } from '../hooks/usePrevious';
 import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
@@ -59,12 +59,11 @@ export const PresetsContextMenu = () => {
 	const openDrawer = () => startAnimation('sportPresets');
 	const closeDrawer = () => startAnimation('presets');
 
-	useEffect(() => {
-		const nextPanel = getPresetPanel(activePreset);
-		if (nextPanel !== activePanelId && previousPreset !== activePreset) {
-			startAnimation(nextPanel);
-		}
-	}, [activePreset, previousPreset, activePanelId, startAnimation]);
+	const nextPanel = getPresetPanel(activePreset);
+
+	if (nextPanel !== activePanelId && previousPreset !== activePreset) {
+		startAnimation(nextPanel);
+	}
 
 	const togglePreset = useCallback(
 		(presetId: string) => {
