@@ -85,7 +85,6 @@ export const WireItemLabel = ({
 				css`
 					border-radius: 18px;
 					padding: 0 ${euiTheme.size.s};
-					// border colour might be overridden by the parent, via the 'className' that's been passed in.
 					border: 1px solid ${outlined ? borderColour : 'transparent'};
 					color: ${textColour};
 					background-color: ${backgroundColour};
