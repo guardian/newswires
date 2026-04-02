@@ -28,11 +28,7 @@ import { SideNav } from './SideNav/SideNav.tsx';
 import { StageDisplayBanner } from './StageDisplayBanner.tsx';
 import { Tooltip } from './Tooltip.tsx';
 
-export function DefaultLayout({
-	timeThatPageWasLoaded,
-}: {
-	timeThatPageWasLoaded: number;
-}) {
+export function DefaultLayout() {
 	const { config, state, handleEnterQuery, openTicker } = useSearch();
 
 	const [sideNavIsOpen, setSideNavIsOpen] = useState<boolean>(false);
@@ -55,7 +51,7 @@ export function DefaultLayout({
 	return (
 		<>
 			<StageDisplayBanner />
-			<RefreshBanner timeThatPageWasLoaded={timeThatPageWasLoaded} />
+			<RefreshBanner />
 			<EuiHeader position="fixed">
 				<EuiHeaderSection side={'left'}>
 					<EuiHeaderSectionItem>
