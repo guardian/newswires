@@ -104,7 +104,7 @@ function TitleContentForItem({
 					)}
 				</div>
 			)}
-			<EuiTitle size="s">
+			<EuiTitle size="xs">
 				<h2>{headlineText}</h2>
 			</EuiTitle>
 			<EuiSpacer size="s" />
