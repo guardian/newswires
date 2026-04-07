@@ -199,7 +199,13 @@ object SearchPresets {
     ),
     SearchPreset(
       REUTERS,
-      categoryCodes = CategoryCodes.US.REUTERS
+      categoryCodes = CategoryCodes.US.REUTERS,
+      preComputedCategoriesExcl = List(
+        "sports-related-topic-codes",
+        "sports-related-news-codes",
+        "business-related-topic-codes",
+        "business-related-news-codes"
+      )
     )
   )
 
