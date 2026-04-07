@@ -45,6 +45,7 @@ const sampleItemData: WireData = {
 	ingestedAt: now.toISOString(),
 	localIngestedAt: convertToLocalDate(now.toISOString()),
 	categoryCodes: ['C:US', 'C:CA'],
+	precomputedCategories: [],
 	isFromRefresh: false,
 	hasDataFormatting: false,
 	collections: [],

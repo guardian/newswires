@@ -78,6 +78,7 @@ export const WireDataFromAPISchema = z.object({
 	externalId: z.string(),
 	ingestedAt: z.iso.datetime(),
 	categoryCodes: z.array(z.string()),
+	precomputedCategories: z.array(z.string()),
 	content: FingerpostContentSchema,
 	composerId: z.string().optional(), //deprecated
 	composerSentBy: z.string().optional(), //deprecated
