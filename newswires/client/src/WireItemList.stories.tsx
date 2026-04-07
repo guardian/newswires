@@ -45,9 +45,12 @@ const sampleItemData: WireData = {
 	ingestedAt: now.toISOString(),
 	localIngestedAt: convertToLocalDate(now.toISOString()),
 	categoryCodes: ['C:US', 'C:CA'],
+	precomputedCategories: [],
 	isFromRefresh: false,
 	hasDataFormatting: false,
 	collections: [],
+	isAlert: false,
+	isLead: false,
 };
 
 const mockSearchContext: SearchContextShape = {
@@ -79,7 +82,7 @@ const mockSearchContext: SearchContextShape = {
 	handlePreviousItem: () => {},
 	toggleAutoUpdate: () => {},
 	loadMoreResults: async () => {},
-	viewedItemIds: [],
+	viewedItemIds: ['67890'],
 	previousItemId: undefined,
 	activeSuppliers: [],
 	toggleSupplier: () => {},
@@ -199,6 +202,14 @@ export const WithDateOlderThan24Hours: Story = {
 					new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
 				),
 			},
+			{
+				...sampleItemData,
+				ingestedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 48 hours ago
+				localIngestedAt: convertToLocalDate(
+					new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+				),
+				id: 67890,
+			},
 		],
 		totalCount: 1,
 		showCollectionMetadata: false,
@@ -213,9 +224,43 @@ export const WithAlert: Story = {
 				...sampleItemData,
 				content: {
 					...sampleItemData.content,
-					type: 'text',
-					profile: 'alert',
 				},
+				isAlert: true,
+			},
+			{
+				...sampleItemData,
+				content: {
+					...sampleItemData.content,
+				},
+				isAlert: true,
+				id: 67890,
+			},
+		],
+		totalCount: 1,
+		showCollectionMetadata: false,
+		showSecondaryFeedContent: false,
+	},
+};
+
+export const WithLead: Story = {
+	args: {
+		wires: [
+			{
+				...sampleItemData,
+				content: {
+					...sampleItemData.content,
+					type: 'composite',
+					profile: 'story',
+				},
+				isLead: true,
+			},
+			{
+				...sampleItemData,
+				content: {
+					...sampleItemData.content,
+				},
+				id: 67890,
+				isLead: true,
 			},
 		],
 		totalCount: 1,
@@ -230,6 +275,11 @@ export const WithDataFormatting: Story = {
 			{
 				...sampleItemData,
 				hasDataFormatting: true,
+			},
+			{
+				...sampleItemData,
+				hasDataFormatting: true,
+				id: 67890,
 			},
 		],
 		totalCount: 1,
@@ -260,6 +310,75 @@ export const WithLongTitleSlugAndSubheading: Story = {
 					],
 				},
 			},
+			{
+				...sampleItemData,
+				content: {
+					...sampleItemData.content,
+					slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE-AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
+					headline:
+						'This is a sample headline that is intentionally made extra long to test how the Item component handles long headlines in the UI. It should wrap correctly and not overflow the container.',
+					subhead:
+						'Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI. It should wrap correctly and not overflow the container. Stories sometimes have quite long subheadings. This is a sample subhead that is intentionally made extra long to test how the Item component handles long subheads in the UI. It should wrap correctly and not overflow the container.',
+					keywords: [
+						'news',
+						'sample',
+						'test',
+						'long keyword 1',
+						'long keyword 2',
+						'long keyword 3',
+					],
+				},
+				id: 67890,
+			},
+		],
+		totalCount: 1,
+		showCollectionMetadata: false,
+		showSecondaryFeedContent: false,
+	},
+};
+
+export const WithLongTitleOnly: Story = {
+	args: {
+		wires: [
+			{
+				...sampleItemData,
+				content: {
+					...sampleItemData.content,
+					slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE-AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
+					headline:
+						'This is a sample headline that is intentionally made extra long to test how the Item component handles long headlines in the UI. It should wrap correctly and not overflow the container.',
+					subhead:
+						'Stories sometimes have quite long subheadings, but not this one.',
+					keywords: [
+						'news',
+						'sample',
+						'test',
+						'long keyword 1',
+						'long keyword 2',
+						'long keyword 3',
+					],
+				},
+			},
+			{
+				...sampleItemData,
+				content: {
+					...sampleItemData.content,
+					slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE-AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
+					headline:
+						'This is a sample headline that is intentionally made extra long to test how the Item component handles long headlines in the UI. It should wrap correctly and not overflow the container.',
+					subhead:
+						'Stories sometimes have quite long subheadings, but not this one.',
+					keywords: [
+						'news',
+						'sample',
+						'test',
+						'long keyword 1',
+						'long keyword 2',
+						'long keyword 3',
+					],
+				},
+				id: 67890,
+			},
 		],
 		totalCount: 1,
 		showCollectionMetadata: false,
@@ -288,6 +407,26 @@ export const WithToolLinks: Story = {
 						sentAt: '2025-02-26T10:05:00.000Z',
 					},
 				],
+			},
+			{
+				...sampleItemData,
+				toolLinks: [
+					{
+						id: 1,
+						wireId: sampleItemData.id,
+						tool: 'incopy',
+						sentBy: 'Curlew',
+						sentAt: '2025-02-26T10:00:00.000Z',
+					},
+					{
+						id: 2,
+						wireId: sampleItemData.id,
+						tool: 'composer',
+						sentBy: 'Chaffinch',
+						sentAt: '2025-02-26T10:05:00.000Z',
+					},
+				],
+				id: 67890,
 			},
 		],
 		totalCount: 1,
@@ -325,6 +464,33 @@ export const WithToolLinksAndCollectionMetadata: Story = {
 					},
 				],
 			},
+			{
+				...sampleItemData,
+				toolLinks: [
+					{
+						id: 1,
+						wireId: sampleItemData.id,
+						tool: 'incopy',
+						sentBy: 'Curlew',
+						sentAt: '2025-02-26T10:00:00.000Z',
+					},
+					{
+						id: 2,
+						wireId: sampleItemData.id,
+						tool: 'composer',
+						sentBy: 'Chaffinch',
+						sentAt: '2025-02-26T10:05:00.000Z',
+					},
+				],
+				collections: [
+					{
+						collectionId: 1,
+						wireEntryId: 1,
+						addedAt: '2025-02-26T11:00:00.000Z',
+					},
+				],
+				id: 67890,
+			},
 		],
 		totalCount: 1,
 		showCollectionMetadata: true,
@@ -344,6 +510,17 @@ export const WithCollectionMetaDataOnly: Story = {
 						addedAt: '2025-02-26T11:00:00.000Z',
 					},
 				],
+			},
+			{
+				...sampleItemData,
+				collections: [
+					{
+						collectionId: 1,
+						wireEntryId: 1,
+						addedAt: '2025-02-26T11:00:00.000Z',
+					},
+				],
+				id: 67890,
 			},
 		],
 		totalCount: 1,

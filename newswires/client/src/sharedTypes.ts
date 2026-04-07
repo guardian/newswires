@@ -78,6 +78,7 @@ export const WireDataFromAPISchema = z.object({
 	externalId: z.string(),
 	ingestedAt: z.iso.datetime(),
 	categoryCodes: z.array(z.string()),
+	precomputedCategories: z.array(z.string()),
 	content: FingerpostContentSchema,
 	composerId: z.string().optional(), //deprecated
 	composerSentBy: z.string().optional(), //deprecated
@@ -140,8 +141,10 @@ const MomentSchema = z.custom<Moment>((val) => moment.isMoment(val));
 
 export const WireDataSchema = WireDataFromAPISchema.extend({
 	supplier: SupplierInfoSchema,
-	hasDataFormatting: z.boolean(),
 	localIngestedAt: MomentSchema,
+	hasDataFormatting: z.boolean(),
+	isAlert: z.boolean(),
+	isLead: z.boolean(),
 });
 
 export type WireData = z.infer<typeof WireDataSchema>;
