@@ -124,7 +124,7 @@ class QueryController(
     apiAuthAction { request: UserRequest[AnyContent] =>
       FingerpostWireEntry.get(
         id,
-        maybeFreeTextQuery.map(SearchTerm.English(_))
+        maybeFreeTextQuery.map(SearchTerm.CombinedFields(_))
       ) match {
         case Some(entry) =>
           Ok(
