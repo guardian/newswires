@@ -1,6 +1,6 @@
 package db
 
-import conf.SearchTerm.English
+import conf.SearchTerm.CombinedFields
 import conf.{
   AND,
   ComboTerm,
@@ -147,23 +147,23 @@ object FingerpostWireEntry
     math.min(math.max(x, low), high)
 
   private[db] def buildHighlightsClause(
-      maybeFreeTextQuery: Option[English],
+      maybeFreeTextQuery: Option[CombinedFields],
       highlightAll: Boolean = false
   ): SQLSyntax = {
     maybeFreeTextQuery match {
-      case Some(SearchTerm.English(queryString)) =>
+      case Some(cf @ SearchTerm.CombinedFields(queryString)) =>
         val highlightSettings =
           if (highlightAll)
             "HighlightAll=true, StartSel=<mark>, StopSel=</mark>"
           else "StartSel=<mark>, StopSel=</mark>"
-        sqls"ts_headline('english_unaccent', ${syn.content}->>'body_text', websearch_to_tsquery('english_unaccent', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
+        sqls"ts_headline('${cf.textSearchConfiguration}', ${syn.content}->>'body_text', websearch_to_tsquery('${cf.textSearchConfiguration}', $queryString), $highlightSettings) AS ${syn.resultName.highlight}"
       case _ => sqls"'' AS ${syn.resultName.highlight}"
     }
   }
 
   private[db] def buildSingleGetQuery(
       id: Int,
-      maybeFreeTextQuery: Option[English]
+      maybeFreeTextQuery: Option[CombinedFields]
   ): SQLSyntax = {
     val highlightsClause =
       buildHighlightsClause(maybeFreeTextQuery, highlightAll = true)
@@ -182,7 +182,7 @@ object FingerpostWireEntry
 
   def get(
       id: Int,
-      maybeFreeTextQuery: Option[English]
+      maybeFreeTextQuery: Option[CombinedFields]
   ): Option[FingerpostWireEntry] = DB readOnly { implicit session =>
     sql"${buildSingleGetQuery(id, maybeFreeTextQuery)}"
       .one(FingerpostWireEntry.fromDb(syn.resultName))
@@ -286,18 +286,21 @@ object FingerpostWireEntry
         )
       }
 
-    lazy val simpleSearchSQL =
-      (searchTerm: SearchTerm.Simple) => {
-        val tsvectorColumn = searchTerm.field match {
-          case SearchField.Headline => "headline_tsv_simple"
-          case SearchField.BodyText => "body_text_tsv_simple"
-          case SearchField.Slug     => "slug_text_tsv_simple"
-        }
-        sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${SQLSyntax.createUnsafely(tsvectorColumn)}" // This is so we use headline_tsv_simple instead of 'headline_tsv_simple' in the query
-      }
+    lazy val singleFieldSearchSQL =
+      (searchTerm: SearchTerm.SingleField) =>
+        // This is searching specific columns that maintain simple tokenizers
+        // https://github.com/guardian/newswires/blob/main/db/migrations/V14__tsvector_simple_indices.sql
+        // https://github.com/guardian/newswires/blob/main/db/migrations/V15__body_text_tsvector_simple_indices.sql
+        // https://github.com/guardian/newswires/blob/main/db/migrations/V19__slug_text_tsvector_simple_indices.sql
+        sqls"websearch_to_tsquery('simple', lower(${searchTerm.query})) @@ ${searchTerm.field.columnName}"
 
-    lazy val englishSearchSQL = (searchTerm: SearchTerm.English) => {
-      sqls"""to_tsvector('english_unaccent',
+    lazy val combinedFieldsSearchSql = {
+      // This needs to match one of the two indices we have defined on these coalesce fields
+      // https://github.com/guardian/newswires/blob/main/db/migrations/V29__unaccent_tsvector_indices.sql
+      // https://github.com/guardian/newswires/blob/main/db/migrations/V31__unaccent_simple_index.sql
+      (searchTerm: SearchTerm.CombinedFields) =>
+        {
+          sqls"""to_tsvector('${searchTerm.textSearchConfiguration}',
         coalesce(content->>'headline', '') || ' ' ||
         coalesce(content->>'subhead', '') || ' ' ||
         coalesce(content->>'keywords', '') || ' ' ||
@@ -305,14 +308,15 @@ object FingerpostWireEntry
         coalesce(content->>'byline', '') || ' ' ||
         coalesce(content->>'abstract', '') || ' ' ||
         coalesce(content->>'slug', '')
-      ) @@ websearch_to_tsquery ('english_unaccent', ${searchTerm.query}) """
+      ) @@ websearch_to_tsquery ('${searchTerm.textSearchConfiguration}', ${searchTerm.query}) """
+        }
     }
     lazy val searchTermSql = (searchTerm: SearchTerm) =>
       searchTerm match {
-        case SearchTerm.Simple(query, field) =>
-          simpleSearchSQL(SearchTerm.Simple(query, field))
-        case SearchTerm.English(query) =>
-          englishSearchSQL(SearchTerm.English(query))
+        case SearchTerm.SingleField(query, field) =>
+          singleFieldSearchSQL(SearchTerm.SingleField(query, field))
+        case SearchTerm.CombinedFields(query) =>
+          combinedFieldsSearchSql(SearchTerm.CombinedFields(query))
       }
 
     lazy val searchTermsSql = (searchTerms: List[SearchTerm]) =>
