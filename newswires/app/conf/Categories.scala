@@ -11,6 +11,20 @@ private[conf] object CategoryCodes {
     val AAP: List[String] = Categories.sportsRelatedNewsCodes
   }
 
+  object US {
+    val AP: List[String] =
+      List(
+        "apCat:a",
+        "apCat:k",
+        "apCat:n",
+        "apCat:p",
+        "apCat:v",
+        "apCat:w"
+      )
+
+    val REUTERS = List("N2:CA", "N2:US")
+  }
+
   object UK {
     val PA: List[String] =
       List(
