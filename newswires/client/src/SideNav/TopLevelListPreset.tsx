@@ -1,6 +1,5 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
-import { shouldTogglePreset } from '../presetHelpers';
 import {
 	sportPresets,
 	topLevelPresetId,
@@ -12,7 +11,6 @@ import { SideNavListItem } from './SideNavListItem';
 
 export const TopLevelListPresetPanel = ({
 	activePreset,
-	openDrawer,
 	togglePreset,
 }: PanelProps) => {
 	const { config, openTicker } = useSearch();
@@ -44,16 +42,7 @@ export const TopLevelListPresetPanel = ({
 						})
 					}
 					arrowSide={item.child ? 'right' : undefined}
-					handleArrowClick={
-						item.child
-							? () => {
-									if (shouldTogglePreset(activePreset, item.id)) {
-										togglePreset(item.id);
-									}
-									openDrawer();
-								}
-							: undefined
-					}
+					handleArrowClick={() => togglePreset(item.id)}
 				/>
 			))}
 			{maybeActiveSportPreset && (
