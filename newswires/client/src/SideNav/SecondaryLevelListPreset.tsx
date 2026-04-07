@@ -6,7 +6,6 @@ import { SideNavListItem } from './SideNavListItem';
 
 export const SecondaryLevelListPresetPanel = ({
 	activePreset,
-	closeDrawer,
 	togglePreset,
 }: PanelProps) => {
 	const { config, openTicker } = useSearch();
@@ -19,7 +18,10 @@ export const SecondaryLevelListPresetPanel = ({
 				isActive={activePreset === topLevelSportId}
 				handleButtonClick={() => togglePreset(topLevelSportId)}
 				arrowSide="left"
-				handleArrowClick={() => closeDrawer()}
+				handleArrowClick={(e) => {
+					e.stopPropagation();
+					togglePreset(topLevelPresetId);
+				}}
 				handleSecondaryActionClick={() =>
 					openTicker({
 						...config.query,
