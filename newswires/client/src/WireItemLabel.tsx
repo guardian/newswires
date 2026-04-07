@@ -93,11 +93,6 @@ export const WireItemLabel = ({
 					display: inline-flex;
 					align-items: center;
 					gap: ${euiTheme.size.xs};
-
-					&:hover,
-					&:focus {
-						cursor: default;
-					}
 				`,
 			]}
 		>
