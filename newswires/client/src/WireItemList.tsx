@@ -12,7 +12,6 @@ import { css, keyframes } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
-import { Alert, ALERT_TEXT } from './Alert.tsx';
 import { useSearch } from './context/SearchContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
 import { formatTimestamp } from './formatTimestamp.ts';
@@ -21,7 +20,7 @@ import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
-import { isAlert } from './utils/contentHelpers.ts';
+import { AlertLabel, LeadLabel } from './WireItemLabel.tsx';
 
 export const WireItemList = ({
 	wires,
@@ -199,6 +198,8 @@ const WirePreviewCard = ({
 		collections,
 		toolLinks,
 		hasDataFormatting,
+		isAlert,
+		isLead,
 	} = wire;
 
 	const ref = useRef<HTMLDivElement>(null);
@@ -273,16 +274,17 @@ const WirePreviewCard = ({
 
 	const cardGrid = css`
 		display: grid;
-
+		grid-column-gap: 0.3rem;
+		grid-row-gap: 0.5rem;
 		align-items: baseline;
-		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier' 'content badges supplier';
-		grid-template-columns: 1fr min-content min-content min-content;
-		grid-template-rows: auto auto auto auto;
+		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier';
+		grid-template-columns: 1fr min-content min-content;
+		grid-template-rows: auto auto auto;
 	`;
 
 	const compactCardGrid = css`
 		display: grid;
-		gap: 0.3rem;
+		grid-column-gap: 0.3rem;
 		grid-template-areas: 'title badges supplier time' 'content content content content';
 		grid-template-columns: 1fr min-content min-content;
 		align-items: baseline;
@@ -297,6 +299,8 @@ const WirePreviewCard = ({
 		}
 	`;
 
+	const classNameForStylingLabelsOnCardHover = 'wire-item-card';
+
 	return (
 		<Link to={id.toString()}>
 			<div
@@ -304,12 +308,12 @@ const WirePreviewCard = ({
 				css={[
 					showSecondaryFeedContent ? cardGrid : compactCardGrid,
 					css`
+						transition:
+							background-color 0.3s,
+							border-color 0.3s;
 						&:hover {
 							background-color: ${theme.euiTheme.colors.lightestShade};
 							border-left: 4px solid ${theme.euiTheme.colors.accent};
-							.alert {
-								border: 1px solid ${ALERT_TEXT};
-							}
 						}
 
 						border-left: 4px solid
@@ -333,6 +337,7 @@ const WirePreviewCard = ({
 						}
 					`,
 				]}
+				className={classNameForStylingLabelsOnCardHover}
 			>
 				<h3
 					css={css`
@@ -375,19 +380,31 @@ const WirePreviewCard = ({
 					css={css`
 						grid-area: badges;
 						justify-self: end;
+						align-self: flex-start;
 					`}
 				>
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
-					{isAlert(content) && <Alert isPrimary={!hasBeenViewed} />}
+					{isAlert && (
+						<AlertLabel
+							outlined={hasBeenViewed}
+							hoverParentClassName={classNameForStylingLabelsOnCardHover}
+						/>
+					)}
+					{isLead && (
+						<LeadLabel
+							outlined={hasBeenViewed}
+							hoverParentClassName={classNameForStylingLabelsOnCardHover}
+						/>
+					)}
 				</div>
 
 				<div
 					css={css`
 						grid-area: supplier;
 						justify-self: end;
-						margin-top: ${showSecondaryFeedContent ? '0.5rem' : '0'};
+						align-self: flex-start;
 					`}
 				>
 					<SupplierBadge
@@ -399,12 +416,12 @@ const WirePreviewCard = ({
 				<div
 					css={css`
 						grid-area: content;
+						align-self: start;
 					`}
 				>
 					{showSecondaryFeedContent && (
 						<div
 							css={css`
-								margin-top: ${theme.euiTheme.size.s};
 								${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
 								font-weight: ${hasBeenViewed
 									? theme.euiTheme.font.weight.light

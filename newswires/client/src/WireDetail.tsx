@@ -25,7 +25,6 @@ import type { Moment } from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { AddToCollectionButton } from './AddToCollectionButton.tsx';
-import { Alert } from './Alert.tsx';
 import { lookupCatCodesWideSearch } from './catcodes-lookup';
 import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
@@ -41,7 +40,7 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
-import { isAlert } from './utils/contentHelpers.ts';
+import { AlertLabel, LeadLabel } from './WireItemLabel.tsx';
 
 function TitleContentForItem({
 	slug,
@@ -51,6 +50,7 @@ function TitleContentForItem({
 	supplier,
 	wordCount,
 	isAlert,
+	isLead,
 }: {
 	slug?: string;
 	subhead?: string;
@@ -59,6 +59,7 @@ function TitleContentForItem({
 	supplier: SupplierInfo;
 	wordCount: number;
 	isAlert: boolean;
+	isLead: boolean;
 }) {
 	const theme = useEuiTheme();
 	const MAX_SUBHEAD_LENGTH = 250;
@@ -86,13 +87,13 @@ function TitleContentForItem({
 			<EuiSpacer size="xs" />
 			{showSubhead && (
 				<div>
-					<h3
+					<h4
 						css={css`
 							font-weight: ${theme.euiTheme.font.weight.semiBold};
 						`}
 					>
 						{displayedSubhead}
-					</h3>
+					</h4>
 					{canTruncateSubhead && (
 						<EuiButtonEmpty
 							size="xs"
@@ -103,28 +104,55 @@ function TitleContentForItem({
 					)}
 				</div>
 			)}
-			<EuiSpacer size="xs" />
+			<EuiTitle size="xs">
+				<h2>{headlineText}</h2>
+			</EuiTitle>
+			<EuiSpacer size="s" />
 			<div
 				css={css`
-					display: flex;
-					align-items: center;
-					margin-top: ${theme.euiTheme.size.xs};
-					gap: ${theme.euiTheme.size.s};
+					width: 100%;
+					display: grid;
+					grid-template-areas: 'date badges' 'slug badges';
+					grid-template-columns: 1fr max-content;
+					align-items: start;
+					gap: ${theme.euiTheme.size.xs};
 				`}
 			>
-				<EuiTitle size="xs">
-					<h2>{headlineText}</h2>
-				</EuiTitle>
+				{slug && (
+					<h3
+						css={css`
+							grid-area: slug;
+						`}
+					>
+						{slug}
+					</h3>
+				)}
+				<span
+					css={css`
+						grid-area: date;
+					`}
+				>
+					{wordCount} words &#183;{' '}
+					{new Date(localIngestedAt.format()).toLocaleString()} &#183;{' '}
+					<Tooltip tooltipContent={localIngestedAt.format()}>
+						<span>({localIngestedAt.fromNow()})</span>
+					</Tooltip>
+				</span>
+				<div
+					css={css`
+						grid-area: badges;
+						display: flex;
+						flex-direction: column;
+						align-items: flex-end;
+						justify-content: flex-end;
+						gap: ${theme.euiTheme.size.s};
+					`}
+				>
+					<SupplierBadge supplier={supplier} />
+					{isAlert && <AlertLabel outlined={true} />}
+					{isLead && <LeadLabel outlined={true} />}
+				</div>
 			</div>
-			<h3>
-				{isAlert && <Alert isPrimary={true} />}
-				<SupplierBadge supplier={supplier} /> {slug && <>{slug} &#183; </>}{' '}
-				<span>{wordCount} words &#183; </span>
-				<span>{new Date(localIngestedAt.format()).toLocaleString()} </span>
-				<Tooltip tooltipContent={localIngestedAt.format()}>
-					<span>({localIngestedAt.fromNow()})</span>
-				</Tooltip>
-			</h3>
 		</div>
 	);
 }
@@ -685,29 +713,17 @@ export const WireDetail = ({
 				</EuiFlexGroup>
 			</EuiFlexGroup>
 			<EuiHorizontalRule margin="xs" />
-			<div
-				css={css`
-					display: flex;
-					flex-direction: column;
-					justify-content: space-between;
-					gap: ${theme.euiTheme.size.s};
-					@container (width >= 700px) {
-						flex-direction: row;
-					}
-				`}
-			>
-				<div>
-					<TitleContentForItem
-						headline={headline}
-						subhead={wire.content.subhead}
-						slug={slug}
-						localIngestedAt={wire.localIngestedAt}
-						supplier={wire.supplier}
-						wordCount={wordCount}
-						isAlert={isAlert(wire.content)}
-					/>
-				</div>
-			</div>
+
+			<TitleContentForItem
+				headline={headline}
+				subhead={wire.content.subhead}
+				slug={slug}
+				localIngestedAt={wire.localIngestedAt}
+				supplier={wire.supplier}
+				wordCount={wordCount}
+				isAlert={wire.isAlert}
+				isLead={wire.isLead}
+			/>
 			<EuiSpacer size="s" />
 			{isShowingJson ? (
 				<EuiCodeBlock language="json">
@@ -720,7 +736,8 @@ export const WireDetail = ({
 							background-color: ${theme.euiTheme.colors.highlight};
 							font-weight: bold;
 							position: relative;
-							border: 3px solid ${theme.euiTheme.colors.highlight};
+							border-left: 1px solid ${theme.euiTheme.colors.highlight};
+							border-right: 1px solid ${theme.euiTheme.colors.highlight};
 						}
 					`}
 				>
