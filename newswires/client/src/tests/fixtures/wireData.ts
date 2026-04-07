@@ -32,6 +32,7 @@ export const sampleWireResponse = {
 	externalId: 'external-123',
 	ingestedAt: '2025-01-01T00:00:00Z',
 	categoryCodes: ['category1', 'category2'],
+	precomputedCategories: [],
 	content: sampleFingerpostContent,
 	highlight: 'Sample Highlight',
 	isFromRefresh: false,
