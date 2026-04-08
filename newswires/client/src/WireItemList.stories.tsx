@@ -7,6 +7,7 @@ import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
 import { convertToLocalDate } from './dateHelpers';
 import { setUpIcons } from './icons';
+import type { TimezoneId } from './officeTimezones';
 import type { WireData } from './sharedTypes';
 import { reutersBrand } from './suppliers';
 import { defaultConfig } from './urlState';
@@ -102,6 +103,8 @@ const userSettings = (showSecondaryFeedContent: boolean) => ({
 	toggleShowTastedList: () => {},
 	enableAutoScroll: false,
 	toggleEnableAutoScroll: () => {},
+	selectedTimezone: 'Europe/London' as TimezoneId,
+	changeTimezoneSelection: () => {},
 });
 
 const meta = {

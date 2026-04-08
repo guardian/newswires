@@ -1,4 +1,4 @@
-type TimezoneId =
+export type TimezoneId =
 	| 'America/San_Francisco'
 	| 'America/New_York'
 	| 'Europe/London'
@@ -10,3 +10,7 @@ export const officeNameByTimezone: Record<TimezoneId, string> = {
 	'Europe/London': 'London',
 	'Australia/Sydney': 'Sydney',
 };
+
+export const timezoneIds: TimezoneId[] = Object.keys(
+	officeNameByTimezone,
+) as TimezoneId[];

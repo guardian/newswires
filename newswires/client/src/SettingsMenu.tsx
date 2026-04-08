@@ -10,6 +10,8 @@ import {
 import { useState } from 'react';
 import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
+import { useUserSettings } from './context/UserSettingsContext';
+import type { TimezoneId } from './officeTimezones.ts';
 import { officeNameByTimezone } from './officeTimezones.ts';
 import { useSettingsSwitches } from './SetttingsSwitches';
 
@@ -27,6 +29,7 @@ export const SettingsMenu = () => {
 	const closePopover = () => {
 		setPopover(false);
 	};
+	const { selectedTimezone, changeTimezoneSelection } = useUserSettings();
 	const switches = useSettingsSwitches().map(
 		({ id, label, checked, onChange, helpText }) => {
 			return {
@@ -70,6 +73,10 @@ export const SettingsMenu = () => {
 					icon: 'bug',
 				},
 				{
+					isSeparator: true as const,
+					key: 'separator-1',
+				},
+				{
 					panel: 2,
 					name: 'Office timezone',
 					icon: 'clock',
@@ -99,12 +106,14 @@ export const SettingsMenu = () => {
 			items: [
 				{
 					renderItem: () => (
-						<EuiRadioGroup
-							options={timezoneOptions}
-							idSelected="Europe/London"
-							onChange={(id) => console.log(id)}
-							name="timezone radio group"
-						/>
+						<div style={{ padding: 16 }}>
+							<EuiRadioGroup
+								options={timezoneOptions}
+								idSelected={selectedTimezone}
+								onChange={(id) => changeTimezoneSelection(id as TimezoneId)}
+								name="timezone radio group"
+							/>
+						</div>
 					),
 				},
 			],
