@@ -21,8 +21,8 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import type { Moment } from 'moment';
-import moment from 'moment';
+import type { Moment } from 'moment-timezone';
+import moment from 'moment-timezone';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { AddToCollectionButton } from './AddToCollectionButton.tsx';
@@ -76,6 +76,8 @@ function TitleContentForItem({
 		showSubhead && canTruncateSubhead && !isShowingFullSubhead
 			? `${subhead.slice(0, MAX_SUBHEAD_LENGTH)}…`
 			: subhead;
+
+	const { selectedTimezone } = useUserSettings();
 
 	return (
 		<div
@@ -134,9 +136,13 @@ function TitleContentForItem({
 					`}
 				>
 					{wordCount} words &#183;{' '}
-					{new Date(utcIngestedAt.format()).toLocaleString()} &#183;{' '}
-					<Tooltip tooltipContent={utcIngestedAt.format()}>
-						<span>({utcIngestedAt.fromNow()})</span>
+					{utcIngestedAt.clone().tz(selectedTimezone).format('LLL')} &#183;{' '}
+					<Tooltip
+						tooltipContent={utcIngestedAt.clone().tz(selectedTimezone).format()}
+					>
+						<span>
+							({utcIngestedAt.clone().tz(selectedTimezone).fromNow()})
+						</span>
 					</Tooltip>
 				</span>
 				<div

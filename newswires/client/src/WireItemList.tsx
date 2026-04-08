@@ -14,8 +14,8 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
-import { formatTimestamp } from './formatTimestamp.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
@@ -206,6 +206,7 @@ const WirePreviewCard = ({
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const isPoppedOut = config.ticker;
+	const { selectedTimezone } = useUserSettings();
 
 	const maybeTastedCollectionMetadata = collections.filter(
 		(collection) => collection.collectionId === config.query.collectionId,
@@ -369,7 +370,10 @@ const WirePreviewCard = ({
 						line-break: strict;
 					`}
 				>
-					{formatTimestamp(moment(ingestedAt).format())
+					{moment(ingestedAt)
+						.clone()
+						.tz(selectedTimezone)
+						.format('LT')
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>
