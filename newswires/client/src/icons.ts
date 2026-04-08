@@ -97,7 +97,7 @@ const icons = {
 	clockCounter,
 	bug,
 	crossProjectSearch,
-	globe
+	globe,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

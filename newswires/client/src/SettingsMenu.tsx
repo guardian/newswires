@@ -74,7 +74,7 @@ export const SettingsMenu = () => {
 				},
 				{
 					isSeparator: true as const,
-					key: 'separator-1',
+					key: 'separator-2',
 				},
 				{
 					panel: 2,
