@@ -7,6 +7,7 @@ import {
 	EuiSwitch,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
+import moment from 'moment-timezone';
 import { useState } from 'react';
 import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
@@ -53,7 +54,7 @@ export const SettingsMenu = () => {
 	const timezoneOptions = Object.entries(officeNameByTimezone).map(
 		([id, label]) => ({
 			id,
-			label,
+			label: `${label} (${moment().tz(id).format('HH:mm')})`,
 		}),
 	);
 
@@ -62,10 +63,19 @@ export const SettingsMenu = () => {
 			id: 0,
 			title: 'Site settings',
 			items: [
-				...switches,
+				{
+					panel: 2,
+					name: 'Office timezone',
+					icon: 'clock',
+				},
 				{
 					isSeparator: true as const,
 					key: 'separator-1',
+				},
+				...switches,
+				{
+					isSeparator: true as const,
+					key: 'separator-2',
 				},
 				{
 					panel: 1,
@@ -74,16 +84,7 @@ export const SettingsMenu = () => {
 				},
 				{
 					isSeparator: true as const,
-					key: 'separator-2',
-				},
-				{
-					panel: 2,
-					name: 'Office timezone',
-					icon: 'clock',
-				},
-				{
-					isSeparator: true as const,
-					key: 'separator-2',
+					key: 'separator-3',
 				},
 				{ name: 'Close', icon: 'cross', onClick: closePopover },
 			],
