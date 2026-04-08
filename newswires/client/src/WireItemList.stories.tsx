@@ -5,7 +5,6 @@ import type { SearchContextShape } from './context/SearchContext';
 import { SearchContext } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
-import { convertToLocalDate } from './dateHelpers';
 import { setUpIcons } from './icons';
 import type { TimezoneId } from './officeTimezones';
 import type { WireData } from './sharedTypes';
@@ -44,7 +43,6 @@ const sampleItemData: WireData = {
 	guSourceFeed: 'REUTERS',
 	externalId: 'RTRS.2021.01.01.12345',
 	ingestedAt: now.toISOString(),
-	localIngestedAt: convertToLocalDate(now.toISOString()),
 	categoryCodes: ['C:US', 'C:CA'],
 	precomputedCategories: [],
 	isFromRefresh: false,
@@ -201,16 +199,10 @@ export const WithDateOlderThan24Hours: Story = {
 			{
 				...sampleItemData,
 				ingestedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 48 hours ago
-				localIngestedAt: convertToLocalDate(
-					new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-				),
 			},
 			{
 				...sampleItemData,
 				ingestedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 48 hours ago
-				localIngestedAt: convertToLocalDate(
-					new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-				),
 				id: 67890,
 			},
 		],

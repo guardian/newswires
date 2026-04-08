@@ -9,6 +9,7 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
+import moment from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
@@ -193,7 +194,7 @@ const WirePreviewCard = ({
 		id,
 		content,
 		supplier,
-		localIngestedAt,
+		ingestedAt,
 		highlight,
 		collections,
 		toolLinks,
@@ -368,7 +369,7 @@ const WirePreviewCard = ({
 						line-break: strict;
 					`}
 				>
-					{formatTimestamp(localIngestedAt.format())
+					{formatTimestamp(moment(ingestedAt).format())
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>

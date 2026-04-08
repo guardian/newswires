@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
-import { convertToLocalDate } from './dateHelpers';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
 import type { WireData } from './sharedTypes';
@@ -40,7 +39,6 @@ const sampleItemData: WireData = {
 	guSourceFeed: 'REUTERS',
 	externalId: 'RTRS.2021.01.01.12345',
 	ingestedAt: '2025-02-26T09:58:22.000Z',
-	localIngestedAt: convertToLocalDate('2025-02-26T09:58:22.000Z'),
 	categoryCodes: ['C:US', 'C:CA'],
 	precomputedCategories: [],
 	isFromRefresh: false,

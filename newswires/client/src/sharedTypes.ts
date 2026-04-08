@@ -1,4 +1,3 @@
-import type { Moment } from 'moment';
 import moment from 'moment';
 import { z } from 'zod/v4';
 
@@ -137,11 +136,8 @@ const SupplierInfoSchema = z.object({
 
 export type SupplierInfo = z.infer<typeof SupplierInfoSchema>;
 
-const MomentSchema = z.custom<Moment>((val) => moment.isMoment(val));
-
 export const WireDataSchema = WireDataFromAPISchema.extend({
 	supplier: SupplierInfoSchema,
-	localIngestedAt: MomentSchema,
 	hasDataFormatting: z.boolean(),
 	isAlert: z.boolean(),
 	isLead: z.boolean(),
