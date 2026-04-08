@@ -22,7 +22,7 @@ private[conf] object CategoryCodes {
         "apCat:w"
       )
 
-    val REUTERS = List("N2:CA", "N2:US")
+    val REUTERS: List[String] = List("N2:CA", "N2:US")
   }
 
   object UK {
