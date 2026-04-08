@@ -1,7 +1,7 @@
 import { useEuiTheme } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
-import { type CSSProperties, useEffect, useRef } from 'react';
 import type React from 'react';
+import { type CSSProperties, useEffect, useRef } from 'react';
 import type { PresetGroupName } from '../presets';
 
 type SlidingPanelsProps = {

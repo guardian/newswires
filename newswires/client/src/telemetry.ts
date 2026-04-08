@@ -25,6 +25,19 @@ export const createTelemetryEventSender = ({
 	sendTelemetryAsDev: boolean;
 	gitCommitId: string;
 }) => {
+	if (stage.toUpperCase() === 'DEV') {
+		const logTelemetryEvent = (
+			type: string,
+			tags?: IUserTelemetryEvent['tags'],
+			value?: boolean | number,
+		) => {
+			console.log('Telemetry event:', { type, tags, value });
+		};
+		return {
+			sendTelemetryEvent: logTelemetryEvent,
+		};
+	}
+
 	const telemetryUrl = getTelemetryUrl(stage);
 	const telemetryEventService = new UserTelemetryEventSender(telemetryUrl, 100);
 

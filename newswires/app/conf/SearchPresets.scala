@@ -49,6 +49,7 @@ object SearchPresets {
     case "afp-world"            => Some(SearchPreset(AfpWorld, Nil))
     case "minor-agencies-world" => Some(SearchPreset(MinorAgenciesWorld, Nil))
     case "all-uk"               => Some(SearchPreset(AllUk, Nil))
+    case "all-us"               => Some(SearchPreset(AllUs, Nil))
     case "world-plus-uk"        => Some(SearchPreset(WorldPlusUK, Nil))
     case "all-business"         => Some(SearchPreset(AllBusiness, Nil))
     case "all-sport"            => Some(SearchPreset(AllSport, Nil))
@@ -176,7 +177,7 @@ object SearchPresets {
     ApWorld ::: ReutersWorld ::: ReutersSchedule ::: AapWorld ::: AfpWorld ::: MinorAgenciesWorld ::: PaWorld
 
   /*
-   * UK
+   * UK domestic
    */
 
   private val AllUk = List(
@@ -185,6 +186,27 @@ object SearchPresets {
       categoryCodes = CategoryCodes.UK.PA
     ), // We aren't excluding CategoryCodes.World.PA because PA's still fairly UK-focused, and UK eds are used to seeing all non-sport, non-business PA content in the UK feed
     SearchPreset(MINOR_AGENCIES, categoryCodes = CategoryCodes.UK.MINOR_AGENCIES)
+  )
+
+  /*
+   * US domestic
+   */
+  private val AllUs = List(
+    SearchPreset(
+      AP,
+      categoryCodes = CategoryCodes.US.AP,
+      categoryCodesExcl = CategoryCodes.Sport.AP ++ CategoryCodes.Business.AP
+    ),
+    SearchPreset(
+      REUTERS,
+      categoryCodes = CategoryCodes.US.REUTERS,
+      preComputedCategoriesExcl = List(
+        "sports-related-topic-codes",
+        "sports-related-news-codes",
+        "business-related-topic-codes",
+        "business-related-news-codes"
+      )
+    )
   )
 
   /*

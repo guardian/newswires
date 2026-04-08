@@ -138,6 +138,7 @@ export const presets: Preset[] = [
 	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
+	{ id: 'all-us', name: 'US' },
 	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
 	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },

@@ -8,6 +8,7 @@ import {
 } from './app-configuration.ts';
 import { App } from './App.tsx';
 import { KeyboardShortcutsProvider } from './context/KeyboardShortcutsContext.tsx';
+import { PageLoadTimeProvider } from './context/PageLoadTimeContext.tsx';
 import { SearchContextProvider } from './context/SearchContext.tsx';
 import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
 import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
@@ -40,14 +41,16 @@ Sentry.init({
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
-			<UserSettingsContextProvider>
-				<SearchContextProvider>
-					<KeyboardShortcutsProvider>
-						<App />
-					</KeyboardShortcutsProvider>
-				</SearchContextProvider>
-			</UserSettingsContextProvider>
-		</TelemetryContextProvider>
+		<PageLoadTimeProvider>
+			<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
+				<UserSettingsContextProvider>
+					<SearchContextProvider>
+						<KeyboardShortcutsProvider>
+							<App />
+						</KeyboardShortcutsProvider>
+					</SearchContextProvider>
+				</UserSettingsContextProvider>
+			</TelemetryContextProvider>
+		</PageLoadTimeProvider>
 	</StrictMode>,
 );
