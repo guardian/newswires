@@ -19,20 +19,55 @@ interface UserSettingsContextShape {
 export const UserSettingsContext =
 	createContext<UserSettingsContextShape | null>(null);
 
+const useBooleanUserSetting = (
+	settingId: string,
+	{ defaultVal }: { defaultVal: boolean },
+): [boolean, () => void] => {
+	const { sendTelemetryEvent } = useTelemetry();
+
+	const [currentVal, setVal] = useState<boolean>(
+		loadOrSetInLocalStorage<boolean>(settingId, z.boolean(), defaultVal),
+	);
+
+	const telemetryName =
+		'toggle' + settingId.charAt(0).toUpperCase() + settingId.slice(1);
+
+	const toggle = () => {
+		setVal(!currentVal);
+		saveToLocalStorage<boolean>(settingId, !currentVal);
+		sendTelemetryEvent(telemetryName, {
+			[settingId]: !currentVal ? 'on' : 'off',
+		});
+	};
+
+	return [currentVal, toggle];
+};
+
 export const UserSettingsContextProvider = ({
 	children,
 }: {
 	children: React.ReactNode;
 }) => {
 	const { sendTelemetryEvent } = useTelemetry();
-	const [showSecondaryFeedContent, setShowSecondaryFeedContent] =
-		useState<boolean>(
-			loadOrSetInLocalStorage<boolean>(
-				'showSecondaryFeedContent',
-				z.boolean(),
-				true,
-			),
-		);
+
+	const [showSecondaryFeedContent, toggleShowSecondaryFeedContent] =
+		useBooleanUserSetting('showSecondaryFeedContent', { defaultVal: true });
+
+	const [showIncopyImport, toggleShowIncopyImport] = useBooleanUserSetting(
+		'showIncopyImport',
+		{ defaultVal: false },
+	);
+
+	const [showTastedList, toggleShowTastedList] = useBooleanUserSetting(
+		'showTastedList',
+		{ defaultVal: false },
+	);
+
+	const [enableAutoScroll, toggleEnableAutoScroll] = useBooleanUserSetting(
+		'enableAutoScroll',
+		{ defaultVal: false },
+	);
+
 	const [resizablePanelsDirection, setResizablePanelsDirection] = useState<
 		'vertical' | 'horizontal'
 	>(
@@ -42,28 +77,6 @@ export const UserSettingsContextProvider = ({
 			'horizontal',
 		),
 	);
-	const [showIncopyImport, setShowIncopyImport] = useState<boolean>(
-		loadOrSetInLocalStorage<boolean>('showIncopyImport', z.boolean(), false),
-	);
-
-	const toggleShowIncopyImport = () => {
-		setShowIncopyImport(!showIncopyImport);
-		saveToLocalStorage<boolean>('showIncopyImport', !showIncopyImport);
-		sendTelemetryEvent('showIncopyImport', {
-			showIncopyImport: !showIncopyImport ? 'on' : 'off',
-		});
-	};
-
-	const toggleShowSecondaryFeedContent = () => {
-		setShowSecondaryFeedContent(!showSecondaryFeedContent);
-		saveToLocalStorage<boolean>(
-			'showSecondaryFeedContent',
-			!showSecondaryFeedContent,
-		);
-		sendTelemetryEvent('toggleShowSecondaryFeedContent', {
-			showSecondaryFeedContent: !showSecondaryFeedContent ? 'on' : 'off',
-		});
-	};
 
 	const toggleResizablePanelsDirection = () => {
 		const newDirection =
@@ -72,32 +85,6 @@ export const UserSettingsContextProvider = ({
 		saveToLocalStorage('resizablePanelDirection', newDirection);
 		sendTelemetryEvent('toggleResizablePanelsDirection', {
 			resizablePanelsDirection: newDirection,
-		});
-	};
-
-	const [showTastedList, setShowTastedList] = useState<boolean>(
-		loadOrSetInLocalStorage<boolean>('showTastedList', z.boolean(), false),
-	);
-
-	const toggleShowTastedList = () => {
-		const newValue = !showTastedList;
-		setShowTastedList(newValue);
-		saveToLocalStorage<boolean>('showTastedList', newValue);
-		sendTelemetryEvent('toggleShowTastedList', {
-			showTastedList: newValue ? 'on' : 'off',
-		});
-	};
-
-	const [enableAutoScroll, setEnableAutoScroll] = useState<boolean>(
-		loadOrSetInLocalStorage<boolean>('enableAutoScroll', z.boolean(), false),
-	);
-
-	const toggleEnableAutoScroll = () => {
-		const newValue = !enableAutoScroll;
-		setEnableAutoScroll(newValue);
-		saveToLocalStorage<boolean>('enableAutoScroll', newValue);
-		sendTelemetryEvent('toggleEnableAutoScroll', {
-			enableAutoScroll: newValue ? 'on' : 'off',
 		});
 	};
 
