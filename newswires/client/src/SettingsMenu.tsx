@@ -3,12 +3,14 @@ import {
 	EuiContextMenu,
 	EuiFormRow,
 	EuiPopover,
+	EuiRadioGroup,
 	EuiSwitch,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
 import { useState } from 'react';
 import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
+import { officeNameByTimezone } from './officeTimezones.ts';
 import { useSettingsSwitches } from './SetttingsSwitches';
 
 export const SettingsMenu = () => {
@@ -44,6 +46,14 @@ export const SettingsMenu = () => {
 			};
 		},
 	);
+
+	const timezoneOptions = Object.entries(officeNameByTimezone).map(
+		([id, label]) => ({
+			id,
+			label,
+		}),
+	);
+
 	const panels = [
 		{
 			id: 0,
@@ -58,6 +68,11 @@ export const SettingsMenu = () => {
 					panel: 1,
 					name: 'Developer information',
 					icon: 'bug',
+				},
+				{
+					panel: 2,
+					name: 'Office timezone',
+					icon: 'clock',
 				},
 				{
 					isSeparator: true as const,
@@ -75,6 +90,22 @@ export const SettingsMenu = () => {
 				},
 				{
 					name: `Show PAAPI: ${SHOW_PAAPI ? 'On' : 'Off'}`,
+				},
+			],
+		},
+		{
+			id: 2,
+			title: 'Office timezone',
+			items: [
+				{
+					renderItem: () => (
+						<EuiRadioGroup
+							options={timezoneOptions}
+							idSelected="Europe/London"
+							onChange={(id) => console.log(id)}
+							name="timezone radio group"
+						/>
+					),
 				},
 			],
 		},
