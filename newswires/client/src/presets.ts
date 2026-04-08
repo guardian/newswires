@@ -138,16 +138,22 @@ export const presets: Preset[] = [
 	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
-	{ id: 'all-us', name: 'US' },
 	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
 	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },
 ];
 
+// temporary alternative top-level presets list, while we're previewing US domestic
+export const presetsWithUS: Preset[] = [
+	...presets.slice(0, 3),
+	{ id: 'all-us', name: 'US' },
+	...presets.slice(3),
+];
+
 export const TASTED_COLLECTION = { id: 1, name: 'Tasted' };
 
 export const presetLabel = (presetId: string) => {
-	const preset = presets.find((preset) => preset.id === presetId);
+	const preset = presetsWithUS.find((preset) => preset.id === presetId);
 
 	if (preset) {
 		return preset.name;

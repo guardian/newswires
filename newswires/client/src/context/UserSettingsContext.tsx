@@ -14,6 +14,8 @@ interface UserSettingsContextShape {
 	toggleShowTastedList: () => void;
 	enableAutoScroll: boolean;
 	toggleEnableAutoScroll: () => void;
+	previewUSDomestic: boolean;
+	togglePreviewUSDomestic: () => void;
 }
 
 export const UserSettingsContext =
@@ -68,6 +70,11 @@ export const UserSettingsContextProvider = ({
 		{ defaultVal: false },
 	);
 
+	const [previewUSDomestic, togglePreviewUSDomestic] = useBooleanUserSetting(
+		'previewUSDomestic',
+		{ defaultVal: false },
+	);
+
 	const [resizablePanelsDirection, setResizablePanelsDirection] = useState<
 		'vertical' | 'horizontal'
 	>(
@@ -101,6 +108,8 @@ export const UserSettingsContextProvider = ({
 				toggleShowTastedList,
 				enableAutoScroll,
 				toggleEnableAutoScroll,
+				previewUSDomestic,
+				togglePreviewUSDomestic,
 			}}
 		>
 			{children}
