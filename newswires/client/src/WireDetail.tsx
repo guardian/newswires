@@ -32,6 +32,7 @@ import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
+import { applyOptionalTimezone } from './formatTimestamp.ts';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { TASTED_COLLECTION } from './presets.ts';
@@ -78,6 +79,8 @@ function TitleContentForItem({
 			: subhead;
 
 	const { selectedTimezone } = useUserSettings();
+
+	const ingestionMomentWithUserTimezone = applyOptionalTimezone(utcIngestedAt, selectedTimezone);
 
 	return (
 		<div
@@ -136,12 +139,13 @@ function TitleContentForItem({
 					`}
 				>
 					{wordCount} words &#183;{' '}
-					{utcIngestedAt.clone().tz(selectedTimezone).format('LLL')} &#183;{' '}
+					{ingestionMomentWithUserTimezone.format('LLL')}{' '}
+					&#183;{' '}
 					<Tooltip
-						tooltipContent={utcIngestedAt.clone().tz(selectedTimezone).format()}
+						tooltipContent={ingestionMomentWithUserTimezone.format()}
 					>
 						<span>
-							({utcIngestedAt.clone().tz(selectedTimezone).fromNow()})
+							({ingestionMomentWithUserTimezone.fromNow()})
 						</span>
 					</Tooltip>
 				</span>

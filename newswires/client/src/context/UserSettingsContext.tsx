@@ -76,7 +76,7 @@ export const UserSettingsContextProvider = ({
 		loadOrSetInLocalStorage<TimezoneId>(
 			'selectedTimezone',
 			z.enum(timezoneIds),
-			'Europe/London',
+			'Local_Browser',
 		),
 	);
 
