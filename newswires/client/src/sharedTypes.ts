@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { z } from 'zod/v4';
+import { MomentInstant } from './context/transformQueryResponse.ts';
 
 const AgencyMetadata = z.object({
 	event: z.array(
@@ -139,11 +140,18 @@ export type SupplierInfo = z.infer<typeof SupplierInfoSchema>;
 export const WireDataSchema = WireDataFromAPISchema.extend({
 	supplier: SupplierInfoSchema,
 	hasDataFormatting: z.boolean(),
+	utcIngestedAt: MomentInstant,
 	isAlert: z.boolean(),
 	isLead: z.boolean(),
-});
+}).omit({ ingestedAt: true });
 
-export type WireData = z.infer<typeof WireDataSchema>;
+export type WireData = {
+	supplier: SupplierInfoSchema;
+	hasDataFormatting: boolean;
+	utcIngestedAt: MomentInstant;
+	isAlert: boolean;
+	isLead: boolean;
+};
 
 export const WiresQueryDataSchema = z.object({
 	results: z.array(WireDataSchema),

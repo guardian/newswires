@@ -80,7 +80,10 @@ function TitleContentForItem({
 
 	const { selectedTimezone } = useUserSettings();
 
-	const ingestionMomentWithUserTimezone = applyOptionalTimezone(utcIngestedAt, selectedTimezone);
+	const ingestionMomentWithUserTimezone = applyOptionalTimezone(
+		utcIngestedAt,
+		selectedTimezone,
+	);
 
 	return (
 		<div
@@ -139,14 +142,9 @@ function TitleContentForItem({
 					`}
 				>
 					{wordCount} words &#183;{' '}
-					{ingestionMomentWithUserTimezone.format('LLL')}{' '}
-					&#183;{' '}
-					<Tooltip
-						tooltipContent={ingestionMomentWithUserTimezone.format()}
-					>
-						<span>
-							({ingestionMomentWithUserTimezone.fromNow()})
-						</span>
+					{ingestionMomentWithUserTimezone.format('LLL')} &#183;{' '}
+					<Tooltip tooltipContent={ingestionMomentWithUserTimezone.format()}>
+						<span>({ingestionMomentWithUserTimezone.fromNow()})</span>
 					</Tooltip>
 				</span>
 				<div
