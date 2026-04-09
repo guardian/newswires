@@ -11,11 +11,10 @@ import {
 	useState,
 } from 'react';
 import { z } from 'zod/v4';
-import type { Config, Query } from '../sharedTypes.ts';
+import type { Config, Query, SortBy, WiresQueryData } from '../sharedTypes.ts';
 import {
 	ConfigSchema,
 	QuerySchema,
-	SortBySchema,
 	WiresQueryDataSchema,
 } from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
@@ -33,71 +32,51 @@ import {
 	getLatestTimeStamp,
 } from './timestamp-compare.ts';
 
-const SearchHistorySchema = z.array(
-	z.object({
-		query: QuerySchema,
-		resultsCount: z.number(),
-	}),
-);
-
-export type SearchHistory = z.infer<typeof SearchHistorySchema>;
+export type SearchHistory = {
+	query: Query;
+	resultsCount: number;
+};
 
 // State Schema
-const _StateSchema = z.discriminatedUnion('status', [
-	z.object({
-		status: z.literal('initialised'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('loading'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('success'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema,
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('error'),
-		error: z.string(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('offline'),
-		error: z.string(),
-		queryData: WiresQueryDataSchema,
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-]);
+type BaseState = {
+	error?: string;
+	successfulQueryHistory: SearchHistory[];
+	queryData?: WiresQueryData;
+	autoUpdate: boolean;
+	lastUpdate?: string;
+	loadingMore: boolean;
+	sortBy: SortBy;
+};
 
-// Infer State Type
-export type State = z.infer<typeof _StateSchema>;
+type InitialisedState = BaseState & {
+	status: 'initialised';
+};
+
+type LoadingState = BaseState & {
+	status: 'loading';
+};
+
+type SuccessState = BaseState & {
+	status: 'success';
+	queryData: WiresQueryData;
+};
+
+type ErrorState = BaseState & {
+	status: 'error';
+	error: string;
+};
+
+type OfflineState = BaseState & {
+	status: 'offline';
+	queryData: WiresQueryData;
+};
+
+export type State =
+	| InitialisedState
+	| LoadingState
+	| SuccessState
+	| ErrorState
+	| OfflineState;
 
 // Action Schema
 const _ActionSchema = z.discriminatedUnion('type', [
