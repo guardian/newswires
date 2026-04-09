@@ -1,7 +1,11 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
 import { shouldTogglePreset } from '../presetHelpers';
-import { presets, sportPresets, topLevelPresetId } from '../presets';
+import {
+	sportPresets,
+	topLevelPresetId,
+	useDisplayablePresets,
+} from '../presets';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
 import { SideNavListItem } from './SideNavListItem';
@@ -15,6 +19,8 @@ export const TopLevelListPresetPanel = ({
 	const maybeActiveSportPreset = sportPresets.find(
 		(_) => _.id === activePreset,
 	);
+
+	const presets = useDisplayablePresets();
 
 	return (
 		<EuiListGroup flush={true} gutterSize="none">

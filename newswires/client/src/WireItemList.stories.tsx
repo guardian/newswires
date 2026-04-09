@@ -102,6 +102,8 @@ const userSettings = (showSecondaryFeedContent: boolean) => ({
 	toggleShowTastedList: () => {},
 	enableAutoScroll: false,
 	toggleEnableAutoScroll: () => {},
+	previewUSDomestic: false,
+	togglePreviewUSDomestic: () => {},
 });
 
 const meta = {
