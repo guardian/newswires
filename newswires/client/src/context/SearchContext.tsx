@@ -12,11 +12,6 @@ import {
 } from 'react';
 import { z } from 'zod/v4';
 import type { Config, Query, SortBy, WiresQueryData } from '../sharedTypes.ts';
-import {
-	ConfigSchema,
-	QuerySchema,
-	WiresQueryDataSchema,
-} from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { takeWhile } from '../utils/takeWhile.ts';
@@ -79,31 +74,82 @@ export type State =
 	| OfflineState;
 
 // Action Schema
-const _ActionSchema = z.discriminatedUnion('type', [
-	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
-	z.object({ type: z.literal('LOADING_MORE') }),
-	z.object({
-		type: z.literal('FETCH_SUCCESS'),
-		query: QuerySchema,
-		data: WiresQueryDataSchema,
-	}),
-	z.object({
-		type: z.literal('APPEND_RESULTS'),
-		data: WiresQueryDataSchema,
-	}),
-	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
-	z.object({ type: z.literal('RETRY') }),
-	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
-	z.object({
-		type: z.literal('UPDATE_RESULTS'),
-		query: QuerySchema,
-		data: WiresQueryDataSchema,
-	}),
-	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
-]);
+// const _ActionSchema = z.discriminatedUnion('type', [
+// 	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
+// 	z.object({ type: z.literal('LOADING_MORE') }),
+// 	z.object({
+// 		type: z.literal('FETCH_SUCCESS'),
+// 		query: QuerySchema,
+// 		data: WiresQueryDataSchema,
+// 	}),
+// 	z.object({
+// 		type: z.literal('APPEND_RESULTS'),
+// 		data: WiresQueryDataSchema,
+// 	}),
+// 	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
+// 	z.object({ type: z.literal('RETRY') }),
+// 	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
+// 	z.object({
+// 		type: z.literal('UPDATE_RESULTS'),
+// 		query: QuerySchema,
+// 		data: WiresQueryDataSchema,
+// 	}),
+// 	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
+// ]);
 
+type Enter = {
+	type: 'ENTER_QUERY';
+	query: Query;
+};
+
+type LoadingMore = {
+	type: 'LOADING_MORE';
+};
+
+type FetchSuccess = {
+	type: 'FETCH_SUCCESS';
+	query: Query;
+	data: WiresQueryData;
+};
+
+type AppendResults = {
+	type: 'APPEND_RESULTS';
+	data: WiresQueryData;
+};
+
+type FetchError = {
+	type: 'FETCH_ERROR';
+	error: string;
+};
+
+type Retry = {
+	type: 'RETRY';
+};
+
+type SelectItem = {
+	type: 'SELECT_ITEM';
+};
+
+type UpdateResults = {
+	type: 'UPDATE_RESULTS';
+	query: Query;
+	data: WiresQueryData;
+};
+
+type ToggleAutoUpdate = {
+	type: 'TOGGLE_AUTO_UPDATE';
+};
 // Infer Action Type
-export type Action = z.infer<typeof _ActionSchema>;
+export type Action =
+	| Enter
+	| LoadingMore
+	| FetchSuccess
+	| AppendResults
+	| FetchError
+	| Retry
+	| SelectItem
+	| UpdateResults
+	| ToggleAutoUpdate;
 
 export type SearchContextShape = {
 	config: Config;
@@ -206,7 +252,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const popConfigStateCallback = useCallback(
 		(e: PopStateEvent) => {
-			const configParseResult = ConfigSchema.safeParse(e.state);
+			// TODO -> need a way to transform the state into a Config object
+			const configParseResult: Config = ConfigSchema.safeParse(e.state);
 			let config = defaultConfig;
 			if (configParseResult.success) {
 				config = configParseResult.data;

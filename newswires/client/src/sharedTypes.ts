@@ -110,52 +110,38 @@ export type WireToolLinks = z.infer<typeof WiresToolLinksResponseSchema>;
 
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
 
-export const suppliers = [
-	'REUTERS',
-	'AP',
-	'AAP',
-	'AFP',
-	'PA',
-	'PAAPI',
-	'GUAP',
-	'GUREUTERS',
-	'MINOR_AGENCIES',
-	'UNAUTHED_EMAIL_FEED',
-	'UNKNOWN',
-] as const;
+export type SupplierName =
+	| 'REUTERS'
+	| 'AP'
+	| 'AAP'
+	| 'AFP'
+	| 'PA'
+	| 'PAAPI'
+	| 'GUAP'
+	| 'GUREUTERS'
+	| 'MINOR_AGENCIES'
+	| 'UNAUTHED_EMAIL_FEED'
+	| 'UNKNOWN';
 
-const SupplierNameSchema = z.enum(suppliers);
+export type SupplierInfo = {
+	name: SupplierName;
+	label: string;
+	shortLabel: string;
+	colour: string;
+};
 
-export type SupplierName = z.infer<typeof SupplierNameSchema>;
+export type WireData = WireDataFromAPI & {
+	supplier: SupplierInfo;
+	localIngestedAt: Moment;
+	hasDataFormatting: boolean;
+	isAlert: boolean;
+	isLead: boolean;
+};
 
-const SupplierInfoSchema = z.object({
-	name: SupplierNameSchema,
-	label: z.string(),
-	shortLabel: z.string(),
-	colour: z.string(),
-});
-
-export type SupplierInfo = z.infer<typeof SupplierInfoSchema>;
-
-const MomentSchema = z.custom<Moment>((val) => moment.isMoment(val));
-
-export const WireDataSchema = WireDataFromAPISchema.extend({
-	supplier: SupplierInfoSchema,
-	localIngestedAt: MomentSchema,
-	hasDataFormatting: z.boolean(),
-	isAlert: z.boolean(),
-	isLead: z.boolean(),
-});
-
-export type WireData = z.infer<typeof WireDataSchema>;
-
-export const WiresQueryDataSchema = z.object({
-	results: z.array(WireDataSchema),
-	totalCount: z.number(),
-	// keywordCounts: z.record(z.string(), z.number()),
-});
-
-export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
+export type WiresQueryData = {
+	results: WireData[];
+	totalCount: number;
+};
 
 export const isValidDateValue = (value: string): value is EuiDateString =>
 	/^now(?:[+-]\d+[smhdwMy])*(?:\/\w+)?$/.test(value) || moment(value).isValid();
@@ -166,70 +152,54 @@ export const EuiDateStringSchema = z
 	.refine((val) => isValidDateValue(val));
 export type EuiDateString = z.infer<typeof EuiDateStringSchema>;
 
-export const BaseQuerySchema = z.object({
-	q: z.string(),
-	supplier: z.array(z.string()).optional(),
-	supplierExcl: z.array(z.string()).optional(),
-	keyword: z.array(z.string()).optional(),
-	keywordExcl: z.array(z.string()).optional(),
-	categoryCode: z.array(z.string()).optional(),
-	categoryCodeExcl: z.array(z.string()).optional(),
-	guSourceFeed: z.array(z.string()).optional(),
-	guSourceFeedExcl: z.array(z.string()).optional(),
-	preset: z.string().optional(),
-	start: EuiDateStringSchema.optional(),
-	end: EuiDateStringSchema.optional(),
-	hasDataFormatting: z.boolean().optional(),
-	previewPaApi: z.boolean().optional(),
-	eventCode: z.string().optional(),
-});
-export type BaseQuery = z.infer<typeof BaseQuerySchema>;
+// TODO - enforce mutual exclusive typing
+export type Query = {
+	q: string;
+	supplier?: string[];
+	supplierExcl?: string[];
+	keyword?: string[];
+	keywordExcl?: string[];
+	categoryCode?: string[];
+	categoryCodeExcl?: string[];
+	guSourceFeed?: string[];
+	guSourceFeedExcl?: string[];
+	preset?: string;
+	start?: string;
+	end?: string;
+	hasDataFormatting?: boolean;
+	previewPaApi?: boolean;
+	eventCode?: string;
+	collectionId?: number;
+};
 
-export const QuerySchema = z.union([
-	BaseQuerySchema.extend({
-		preset: z.undefined(),
-		collectionId: z.undefined(),
-	}),
-	BaseQuerySchema.extend({
-		preset: z.string(),
-		collectionId: z.undefined(),
-	}),
-	BaseQuerySchema.extend({
-		preset: z.undefined(),
-		collectionId: z.number(),
-	}),
-]);
+type FeedView = {
+	view: 'feed';
+	query: Query;
+	itemId: undefined;
+	ticker: boolean;
+};
 
-export type Query = z.infer<typeof QuerySchema>;
+type ItemView = {
+	view: 'item';
+	query: Query;
+	itemId: string;
+	ticker: boolean;
+};
 
-export const ConfigSchema = z.discriminatedUnion('view', [
-	z.object({
-		view: z.literal('feed'),
-		query: QuerySchema,
-		itemId: z.undefined(),
-		ticker: z.boolean(),
-	}),
-	z.object({
-		view: z.literal('item'),
-		query: QuerySchema,
-		itemId: z.string(),
-		ticker: z.boolean(),
-	}),
-	z.object({
-		view: z.literal('dotcopy'),
-		query: QuerySchema,
-		itemId: z.undefined(),
-		ticker: z.boolean(),
-	}),
-	z.object({
-		view: z.literal('dotcopy/item'),
-		query: QuerySchema,
-		itemId: z.string(),
-		ticker: z.boolean(),
-	}),
-]);
+type DotCopyView = {
+	view: 'dotcopy';
+	query: Query;
+	itemId: string;
+	ticker: boolean;
+};
 
-export type Config = z.infer<typeof ConfigSchema>;
+type DotCopyItemView = {
+	view: 'dotcopy/item';
+	query: Query;
+	itemId: string;
+	ticker: boolean;
+};
+export type Config = FeedView | ItemView | DotCopyView | DotCopyItemView;
 
 const SortByIngestedAtSchema = z.object({ sortByKey: 'ingestedAt' });
 const SortByAddedToCollectionAtSchema = z.object({
