@@ -18,6 +18,8 @@ interface UserSettingsContextShape {
 	toggleEnableAutoScroll: () => void;
 	selectedTimezone: TimezoneId;
 	changeTimezoneSelection: (tz: TimezoneId) => void;
+	previewUSDomestic: boolean;
+	togglePreviewUSDomestic: () => void;
 }
 
 export const UserSettingsContext =
@@ -85,6 +87,11 @@ export const UserSettingsContextProvider = ({
 		saveToLocalStorage<TimezoneId>('selectedTimezone', tz);
 	};
 
+	const [previewUSDomestic, togglePreviewUSDomestic] = useBooleanUserSetting(
+		'previewUSDomestic',
+		{ defaultVal: false },
+	);
+
 	const [resizablePanelsDirection, setResizablePanelsDirection] = useState<
 		'vertical' | 'horizontal'
 	>(
@@ -120,6 +127,8 @@ export const UserSettingsContextProvider = ({
 				toggleEnableAutoScroll,
 				selectedTimezone,
 				changeTimezoneSelection,
+				previewUSDomestic,
+				togglePreviewUSDomestic,
 			}}
 		>
 			{children}

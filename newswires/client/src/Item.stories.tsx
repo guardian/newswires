@@ -73,6 +73,8 @@ const meta = {
 							toggleEnableAutoScroll: () => {},
 							selectedTimezone: 'Europe/London',
 							changeTimezoneSelection: () => {},
+							previewUSDomestic: false,
+							togglePreviewUSDomestic: () => {},
 						}}
 					>
 						<SearchContextProvider>

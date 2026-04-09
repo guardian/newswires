@@ -1,4 +1,5 @@
 import z from 'zod/v4';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 
 export const PresetGroupNameSchema = z.union([
 	z.literal('presets'),
@@ -134,19 +135,32 @@ export const sportPresets: Preset[] = [
 
 export const topLevelSportId = 'all-sport';
 export const topLevelPresetId = 'all-presets';
-export const presets: Preset[] = [
+export const allPresets: Preset[] = [
 	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
+	{ id: 'all-us', name: 'US' },
 	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
 	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },
 ];
 
+// Filter out any presets which shouldn't be presented to users.
+// For now, just the all-US preset, depending on the state of the switch
+export const useDisplayablePresets = () => {
+	const { previewUSDomestic } = useUserSettings();
+
+	const presetsToHide = new Set<string>();
+
+	if (!previewUSDomestic) presetsToHide.add('all-us');
+
+	return allPresets.filter((p) => !presetsToHide.has(p.id));
+};
+
 export const TASTED_COLLECTION = { id: 1, name: 'Tasted' };
 
 export const presetLabel = (presetId: string) => {
-	const preset = presets.find((preset) => preset.id === presetId);
+	const preset = allPresets.find((preset) => preset.id === presetId);
 
 	if (preset) {
 		return preset.name;

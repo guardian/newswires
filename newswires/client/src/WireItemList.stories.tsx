@@ -103,6 +103,8 @@ const userSettings = (showSecondaryFeedContent: boolean) => ({
 	toggleEnableAutoScroll: () => {},
 	selectedTimezone: 'Europe/London' as TimezoneId,
 	changeTimezoneSelection: () => {},
+	previewUSDomestic: false,
+	togglePreviewUSDomestic: () => {},
 });
 
 const meta = {
