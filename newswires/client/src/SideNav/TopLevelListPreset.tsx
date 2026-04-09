@@ -1,12 +1,10 @@
 import { EuiListGroup } from '@elastic/eui';
 import { useSearch } from '../context/SearchContext';
-import { useUserSettings } from '../context/UserSettingsContext.tsx';
 import { shouldTogglePreset } from '../presetHelpers';
 import {
-	presets,
-	presetsWithUS,
 	sportPresets,
 	topLevelPresetId,
+	useDisplayablePresets,
 } from '../presets';
 import { defaultConfig } from '../urlState';
 import type { PanelProps } from './PanelProps';
@@ -22,13 +20,11 @@ export const TopLevelListPresetPanel = ({
 		(_) => _.id === activePreset,
 	);
 
-	const { previewUSDomestic } = useUserSettings();
-
-	const joinedPresets = previewUSDomestic ? presetsWithUS : presets;
+	const presets = useDisplayablePresets();
 
 	return (
 		<EuiListGroup flush={true} gutterSize="none">
-			{joinedPresets.map((item) => (
+			{presets.map((item) => (
 				<SideNavListItem
 					label={item.name}
 					key={item.id}

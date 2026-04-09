@@ -24,7 +24,7 @@ import { useSearch } from '../context/SearchContext.tsx';
 import { useUserSettings } from '../context/UserSettingsContext.tsx';
 import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
 import { FeedbackContent } from '../FeedbackContent.tsx';
-import { presetsWithUS, sportPresets, TASTED_COLLECTION } from '../presets.ts';
+import { allPresets, sportPresets, TASTED_COLLECTION } from '../presets.ts';
 import type { Query } from '../sharedTypes';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { PresetsContextMenu } from './PresetsContextMenu.tsx';
@@ -64,7 +64,7 @@ function decideLabelForQueryBadge(
 }
 
 function presetName(presetId: string): string | undefined {
-	return [...presetsWithUS, ...sportPresets].find(
+	return [...allPresets, ...sportPresets].find(
 		(preset) => preset.id === presetId,
 	)?.name;
 }
