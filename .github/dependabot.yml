@@ -3,43 +3,44 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     ignore:
       # The version of AWS CDK libraries must match those from @guardian/cdk.
       # We'd never be able to update them here independently, so just ignore them.
-      - dependency-name: "aws-cdk"
-      - dependency-name: "aws-cdk-lib"
-      - dependency-name: "constructs"
-      - dependency-name: "@types/node"
+      - dependency-name: 'aws-cdk'
+      - dependency-name: 'aws-cdk-lib'
+      - dependency-name: 'constructs'
+      - dependency-name: '@types/node'
         update-types:
-          - "version-update:semver-major"
-          - "version-update:semver-minor"
+          - 'version-update:semver-major'
+          - 'version-update:semver-minor'
       # We can't upgrade to react 19 until eui does
-      - dependency-name: "react"
-      - dependency-name: "react-dom"
-      - dependency-name: "@types/react"
-      - dependency-name: "@types/react-dom"
+      - dependency-name: 'react'
+      - dependency-name: 'react-dom'
+      - dependency-name: '@types/react'
+      - dependency-name: '@types/react-dom'
     groups:
       cdk-dependencies:
         patterns:
-          - "@guardian/cdk"
+          - '@guardian/cdk'
         exclude-patterns:
-          - "typescript"
+          - 'typescript'
       non-cdk-dependencies:
         patterns:
-          - "*"
+          - '*'
         exclude-patterns:
-          - "@guardian/cdk"
-          - "typescript"
+          - '@guardian/cdk'
+          - 'typescript'
     cooldown:
-      default-days: 5
+      default-days: 7
       semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 3
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
