@@ -59,7 +59,7 @@ export const SideNavListItem = ({
 	isTopLevel: boolean;
 	handleButtonClick: () => void;
 	handleSecondaryActionClick?: () => void;
-	handleArrowClick?: () => void;
+	handleArrowClick?: React.MouseEventHandler;
 	arrowSide?: 'left' | 'right';
 	colour?: string;
 }) => {
