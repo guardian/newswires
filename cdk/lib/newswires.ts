@@ -104,7 +104,7 @@ export class Newswires extends GuStack {
 		const databaseName = 'newswires';
 
 		const instanceSize =
-			this.stage === 'PROD' ? InstanceSize.MEDIUM : InstanceSize.SMALL;
+			this.stage === 'PROD' ? InstanceSize.LARGE : InstanceSize.SMALL;
 
 		// multiAz on if this is PROD
 		const multiAz = this.stage === 'PROD';
