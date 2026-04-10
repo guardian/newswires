@@ -1,5 +1,7 @@
 import { createContext, useContext, useState } from 'react';
 import { z } from 'zod/v4';
+import type { TimezoneId } from '../officeTimezones';
+import { timezoneIds } from '../officeTimezones';
 import { loadOrSetInLocalStorage, saveToLocalStorage } from './localStorage';
 import { useTelemetry } from './TelemetryContext';
 
@@ -14,6 +16,8 @@ interface UserSettingsContextShape {
 	toggleShowTastedList: () => void;
 	enableAutoScroll: boolean;
 	toggleEnableAutoScroll: () => void;
+	selectedTimezone: TimezoneId;
+	changeTimezoneSelection: (tz: TimezoneId) => void;
 	previewUSDomestic: boolean;
 	togglePreviewUSDomestic: () => void;
 }
@@ -70,6 +74,19 @@ export const UserSettingsContextProvider = ({
 		{ defaultVal: false },
 	);
 
+	const [selectedTimezone, setSelectedTimezone] = useState<TimezoneId>(
+		loadOrSetInLocalStorage<TimezoneId>(
+			'selectedTimezone',
+			z.enum(timezoneIds),
+			'Local_Browser',
+		),
+	);
+
+	const changeTimezoneSelection = (tz: TimezoneId) => {
+		setSelectedTimezone(tz);
+		saveToLocalStorage<TimezoneId>('selectedTimezone', tz);
+	};
+
 	const [previewUSDomestic, togglePreviewUSDomestic] = useBooleanUserSetting(
 		'previewUSDomestic',
 		{ defaultVal: false },
@@ -108,6 +125,8 @@ export const UserSettingsContextProvider = ({
 				toggleShowTastedList,
 				enableAutoScroll,
 				toggleEnableAutoScroll,
+				selectedTimezone,
+				changeTimezoneSelection,
 				previewUSDomestic,
 				togglePreviewUSDomestic,
 			}}

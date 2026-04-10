@@ -21,7 +21,8 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import type { Moment } from 'moment';
+import type { Moment } from 'moment-timezone';
+import moment from 'moment-timezone';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { AddToCollectionButton } from './AddToCollectionButton.tsx';
@@ -31,6 +32,7 @@ import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
+import { applyOptionalTimezone } from './formatTimestamp.ts';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { TASTED_COLLECTION } from './presets.ts';
@@ -46,7 +48,7 @@ function TitleContentForItem({
 	slug,
 	subhead,
 	headline,
-	localIngestedAt,
+	utcIngestedAt,
 	supplier,
 	wordCount,
 	isAlert,
@@ -55,7 +57,7 @@ function TitleContentForItem({
 	slug?: string;
 	subhead?: string;
 	headline?: string;
-	localIngestedAt: Moment;
+	utcIngestedAt: Moment;
 	supplier: SupplierInfo;
 	wordCount: number;
 	isAlert: boolean;
@@ -75,6 +77,13 @@ function TitleContentForItem({
 		showSubhead && canTruncateSubhead && !isShowingFullSubhead
 			? `${subhead.slice(0, MAX_SUBHEAD_LENGTH)}…`
 			: subhead;
+
+	const { selectedTimezone } = useUserSettings();
+
+	const ingestionMomentWithUserTimezone = applyOptionalTimezone(
+		utcIngestedAt,
+		selectedTimezone,
+	);
 
 	return (
 		<div
@@ -133,9 +142,9 @@ function TitleContentForItem({
 					`}
 				>
 					{wordCount} words &#183;{' '}
-					{new Date(localIngestedAt.format()).toLocaleString()} &#183;{' '}
-					<Tooltip tooltipContent={localIngestedAt.format()}>
-						<span>({localIngestedAt.fromNow()})</span>
+					{ingestionMomentWithUserTimezone.format('LLL')} &#183;{' '}
+					<Tooltip tooltipContent={ingestionMomentWithUserTimezone.format()}>
+						<span>({ingestionMomentWithUserTimezone.fromNow()})</span>
 					</Tooltip>
 				</span>
 				<div
@@ -718,7 +727,7 @@ export const WireDetail = ({
 				headline={headline}
 				subhead={wire.content.subhead}
 				slug={slug}
-				localIngestedAt={wire.localIngestedAt}
+				utcIngestedAt={moment(wire.ingestedAt)}
 				supplier={wire.supplier}
 				wordCount={wordCount}
 				isAlert={wire.isAlert}
