@@ -11,13 +11,7 @@ import {
 	useState,
 } from 'react';
 import { z } from 'zod/v4';
-import type { Config, Query } from '../sharedTypes.ts';
-import {
-	ConfigSchema,
-	QuerySchema,
-	SortBySchema,
-	WiresQueryDataSchema,
-} from '../sharedTypes.ts';
+import type { Config, Query, SortBy, WiresQueryData } from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { takeWhile } from '../utils/takeWhile.ts';
@@ -33,98 +27,129 @@ import {
 	getLatestTimeStamp,
 } from './timestamp-compare.ts';
 
-const SearchHistorySchema = z.array(
-	z.object({
-		query: QuerySchema,
-		resultsCount: z.number(),
-	}),
-);
-
-export type SearchHistory = z.infer<typeof SearchHistorySchema>;
+export type SearchHistory = {
+	query: Query;
+	resultsCount: number;
+};
 
 // State Schema
-const _StateSchema = z.discriminatedUnion('status', [
-	z.object({
-		status: z.literal('initialised'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('loading'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('success'),
-		error: z.string().optional(),
-		queryData: WiresQueryDataSchema,
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('error'),
-		error: z.string(),
-		queryData: WiresQueryDataSchema.optional(),
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-	z.object({
-		status: z.literal('offline'),
-		error: z.string(),
-		queryData: WiresQueryDataSchema,
-		successfulQueryHistory: SearchHistorySchema,
-		autoUpdate: z.boolean().default(true),
-		lastUpdate: z.string().optional(),
-		loadingMore: z.boolean().default(false),
-		sortBy: SortBySchema,
-	}),
-]);
+type BaseState = {
+	error?: string;
+	successfulQueryHistory: SearchHistory[];
+	queryData?: WiresQueryData;
+	autoUpdate: boolean;
+	lastUpdate?: string;
+	loadingMore: boolean;
+	sortBy: SortBy;
+};
 
-// Infer State Type
-export type State = z.infer<typeof _StateSchema>;
+type InitialisedState = BaseState & {
+	status: 'initialised';
+};
+
+type LoadingState = BaseState & {
+	status: 'loading';
+};
+
+type SuccessState = BaseState & {
+	status: 'success';
+	queryData: WiresQueryData;
+};
+
+type ErrorState = BaseState & {
+	status: 'error';
+	error: string;
+};
+
+type OfflineState = BaseState & {
+	status: 'offline';
+	queryData: WiresQueryData;
+};
+
+export type State =
+	| InitialisedState
+	| LoadingState
+	| SuccessState
+	| ErrorState
+	| OfflineState;
 
 // Action Schema
-const _ActionSchema = z.discriminatedUnion('type', [
-	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
-	z.object({ type: z.literal('LOADING_MORE') }),
-	z.object({
-		type: z.literal('FETCH_SUCCESS'),
-		query: QuerySchema,
-		data: WiresQueryDataSchema,
-	}),
-	z.object({
-		type: z.literal('APPEND_RESULTS'),
-		data: WiresQueryDataSchema,
-	}),
-	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
-	z.object({ type: z.literal('RETRY') }),
-	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
-	z.object({
-		type: z.literal('UPDATE_RESULTS'),
-		query: QuerySchema,
-		data: WiresQueryDataSchema,
-	}),
-	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
-]);
+// const _ActionSchema = z.discriminatedUnion('type', [
+// 	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
+// 	z.object({ type: z.literal('LOADING_MORE') }),
+// 	z.object({
+// 		type: z.literal('FETCH_SUCCESS'),
+// 		query: QuerySchema,
+// 		data: WiresQueryDataSchema,
+// 	}),
+// 	z.object({
+// 		type: z.literal('APPEND_RESULTS'),
+// 		data: WiresQueryDataSchema,
+// 	}),
+// 	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
+// 	z.object({ type: z.literal('RETRY') }),
+// 	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
+// 	z.object({
+// 		type: z.literal('UPDATE_RESULTS'),
+// 		query: QuerySchema,
+// 		data: WiresQueryDataSchema,
+// 	}),
+// 	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
+// ]);
 
+type Enter = {
+	type: 'ENTER_QUERY';
+	query: Query;
+};
+
+type LoadingMore = {
+	type: 'LOADING_MORE';
+};
+
+type FetchSuccess = {
+	type: 'FETCH_SUCCESS';
+	query: Query;
+	data: WiresQueryData;
+};
+
+type AppendResults = {
+	type: 'APPEND_RESULTS';
+	data: WiresQueryData;
+};
+
+type FetchError = {
+	type: 'FETCH_ERROR';
+	error: string;
+};
+
+type Retry = {
+	type: 'RETRY';
+};
+
+type SelectItem = {
+	type: 'SELECT_ITEM';
+};
+
+type UpdateResults = {
+	type: 'UPDATE_RESULTS';
+	query: Query;
+	data: WiresQueryData;
+};
+
+type ToggleAutoUpdate = {
+	type: 'TOGGLE_AUTO_UPDATE';
+};
 // Infer Action Type
-export type Action = z.infer<typeof _ActionSchema>;
+export type Action =
+	| Enter
+	| LoadingMore
+	| FetchSuccess
+	| AppendResults
+	| FetchError
+	| Retry
+	| SelectItem
+	| UpdateResults
+	| ToggleAutoUpdate;
 
 export type SearchContextShape = {
 	config: Config;
@@ -227,7 +252,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const popConfigStateCallback = useCallback(
 		(e: PopStateEvent) => {
-			const configParseResult = ConfigSchema.safeParse(e.state);
+			// TODO -> need a way to transform the state into a Config object
+			const configParseResult: Config = ConfigSchema.safeParse(e.state);
 			let config = defaultConfig;
 			if (configParseResult.success) {
 				config = configParseResult.data;

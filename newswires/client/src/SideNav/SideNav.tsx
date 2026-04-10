@@ -317,8 +317,8 @@ function SearchHistoryBadge({
 	resultsCount: number;
 }) {
 	const dateRangeLabel = usePrettyDuration({
-		timeFrom: (query.start ?? DEFAULT_DATE_RANGE.start) as string,
-		timeTo: (query.end ?? DEFAULT_DATE_RANGE.end) as string,
+		timeFrom: query.start ?? DEFAULT_DATE_RANGE.start,
+		timeTo: query.end ?? DEFAULT_DATE_RANGE.end,
 		dateFormat: 'MMM D • HH:mm',
 	});
 
