@@ -216,7 +216,7 @@ export const ConfigSchema = z.discriminatedUnion('view', [
 ]);
 export type Config = z.infer<typeof ConfigSchema>;
 
-const SortByIngestedAtSchema = z.object({ sortByKey: 'ingestedAt' });
+const SortByIngestedAtSchema = z.object({ sortByKey: z.literal('ingestedAt') });
 const SortByAddedToCollectionAtSchema = z.object({
 	sortByKey: z.literal('addedToCollectionAt'),
 	collectionId: z.number(),
