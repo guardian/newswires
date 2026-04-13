@@ -79,30 +79,6 @@ export type State =
 	| ErrorState
 	| OfflineState;
 
-// Action Schema
-// const _ActionSchema = z.discriminatedUnion('type', [
-// 	z.object({ type: z.literal('ENTER_QUERY'), query: QuerySchema }),
-// 	z.object({ type: z.literal('LOADING_MORE') }),
-// 	z.object({
-// 		type: z.literal('FETCH_SUCCESS'),
-// 		query: QuerySchema,
-// 		data: WiresQueryDataSchema,
-// 	}),
-// 	z.object({
-// 		type: z.literal('APPEND_RESULTS'),
-// 		data: WiresQueryDataSchema,
-// 	}),
-// 	z.object({ type: z.literal('FETCH_ERROR'), error: z.string() }),
-// 	z.object({ type: z.literal('RETRY') }),
-// 	z.object({ type: z.literal('SELECT_ITEM'), item: z.string().optional() }),
-// 	z.object({
-// 		type: z.literal('UPDATE_RESULTS'),
-// 		query: QuerySchema,
-// 		data: WiresQueryDataSchema,
-// 	}),
-// 	z.object({ type: z.literal('TOGGLE_AUTO_UPDATE') }),
-// ]);
-
 type Enter = {
 	type: 'ENTER_QUERY';
 	query: Query;
