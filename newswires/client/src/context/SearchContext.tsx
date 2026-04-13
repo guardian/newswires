@@ -11,7 +11,13 @@ import {
 	useState,
 } from 'react';
 import { z } from 'zod/v4';
-import type { Config, Query, SortBy, WiresQueryData } from '../sharedTypes.ts';
+import {
+	type Config,
+	ConfigSchema,
+	type Query,
+	type SortBy,
+	type WiresQueryData,
+} from '../sharedTypes.ts';
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { takeWhile } from '../utils/takeWhile.ts';
@@ -252,8 +258,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 	const popConfigStateCallback = useCallback(
 		(e: PopStateEvent) => {
-			// TODO -> need a way to transform the state into a Config object
-			const configParseResult: Config = ConfigSchema.safeParse(e.state);
+			const configParseResult = ConfigSchema.safeParse(e.state);
 			let config = defaultConfig;
 			if (configParseResult.success) {
 				config = configParseResult.data;

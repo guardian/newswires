@@ -130,7 +130,7 @@ export type SupplierInfo = {
 	colour: string;
 };
 
-export type WireData = WireDataFromAPI & {
+export type WireData = Omit<WireDataFromAPI, 'supplier'> & {
 	supplier: SupplierInfo;
 	localIngestedAt: Moment;
 	hasDataFormatting: boolean;
@@ -152,54 +152,69 @@ export const EuiDateStringSchema = z
 	.refine((val) => isValidDateValue(val));
 export type EuiDateString = z.infer<typeof EuiDateStringSchema>;
 
-// TODO - enforce mutual exclusive typing
-export type Query = {
-	q: string;
-	supplier?: string[];
-	supplierExcl?: string[];
-	keyword?: string[];
-	keywordExcl?: string[];
-	categoryCode?: string[];
-	categoryCodeExcl?: string[];
-	guSourceFeed?: string[];
-	guSourceFeedExcl?: string[];
-	preset?: string;
-	start?: string;
-	end?: string;
-	hasDataFormatting?: boolean;
-	previewPaApi?: boolean;
-	eventCode?: string;
-	collectionId?: number;
-};
+export const BaseQuerySchema = z.object({
+	q: z.string(),
+	supplier: z.array(z.string()).optional(),
+	supplierExcl: z.array(z.string()).optional(),
+	keyword: z.array(z.string()).optional(),
+	keywordExcl: z.array(z.string()).optional(),
+	categoryCode: z.array(z.string()).optional(),
+	categoryCodeExcl: z.array(z.string()).optional(),
+	guSourceFeed: z.array(z.string()).optional(),
+	guSourceFeedExcl: z.array(z.string()).optional(),
+	preset: z.string().optional(),
+	start: EuiDateStringSchema.optional(),
+	end: EuiDateStringSchema.optional(),
+	hasDataFormatting: z.boolean().optional(),
+	previewPaApi: z.boolean().optional(),
+	eventCode: z.string().optional(),
+});
+export type BaseQuery = z.infer<typeof BaseQuerySchema>;
 
-type FeedView = {
-	view: 'feed';
-	query: Query;
-	itemId: undefined;
-	ticker: boolean;
-};
+export const QuerySchema = z.union([
+	BaseQuerySchema.extend({
+		preset: z.undefined(),
+		collectionId: z.undefined(),
+	}),
+	BaseQuerySchema.extend({
+		preset: z.string(),
+		collectionId: z.undefined(),
+	}),
+	BaseQuerySchema.extend({
+		preset: z.undefined(),
+		collectionId: z.number(),
+	}),
+]);
 
-type ItemView = {
-	view: 'item';
-	query: Query;
-	itemId: string;
-	ticker: boolean;
-};
+export type Query = z.infer<typeof QuerySchema>;
 
-type DotCopyView = {
-	view: 'dotcopy';
-	query: Query;
-	itemId: string;
-	ticker: boolean;
-};
-
-type DotCopyItemView = {
-	view: 'dotcopy/item';
-	query: Query;
-	itemId: string;
-	ticker: boolean;
-};
-export type Config = FeedView | ItemView | DotCopyView | DotCopyItemView;
+export const ConfigSchema = z.discriminatedUnion('view', [
+	z.object({
+		view: z.literal('feed'),
+		query: QuerySchema,
+		itemId: z.undefined(),
+		ticker: z.boolean(),
+	}),
+	z.object({
+		view: z.literal('item'),
+		query: QuerySchema,
+		itemId: z.string(),
+		ticker: z.boolean(),
+	}),
+	z.object({
+		view: z.literal('dotcopy'),
+		query: QuerySchema,
+		itemId: z.undefined(),
+		ticker: z.boolean(),
+	}),
+	z.object({
+		view: z.literal('dotcopy/item'),
+		query: QuerySchema,
+		itemId: z.string(),
+		ticker: z.boolean(),
+	}),
+]);
+export type Config = z.infer<typeof ConfigSchema>;
 
 const SortByIngestedAtSchema = z.object({ sortByKey: 'ingestedAt' });
 const SortByAddedToCollectionAtSchema = z.object({
