@@ -142,7 +142,8 @@ function TitleContentForItem({
 					`}
 				>
 					{wordCount} words &#183;{' '}
-					{ingestionMomentWithUserTimezone.format('LLL')} &#183;{' '}
+					{ingestionMomentWithUserTimezone.format('MMM Do YYYY, HH:mm:ss')}{' '}
+					&#183;{' '}
 					<Tooltip tooltipContent={ingestionMomentWithUserTimezone.format()}>
 						<span>({ingestionMomentWithUserTimezone.fromNow()})</span>
 					</Tooltip>
