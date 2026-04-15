@@ -22,6 +22,6 @@ export function formatTimestamp(timestamp: Moment, timezone: TimezoneId) {
 	const timestampIsCurrentDay =
 		onlyDateFormat(now, timezone) === onlyDateFormat(timestamp, timezone);
 	return applyOptionalTimezone(timestamp, timezone).format(
-		timestampIsCurrentDay ? 'HH:mm' : 'YYYY/MM/DD, HH:mm',
+		timestampIsCurrentDay ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss',
 	);
 }

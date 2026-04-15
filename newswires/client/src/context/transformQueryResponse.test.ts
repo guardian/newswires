@@ -17,7 +17,7 @@ const baseInput: WireDataFromAPI = {
 };
 
 describe('transformWireItemQueryResult', () => {
-	it('should enhance supplier with additional properties, and transform UTC timestamps', () => {
+	it('should enhance supplier with additional properties', () => {
 		const result = transformWireItemQueryResult(baseInput);
 		expect(result.supplier).toEqual(
 			supplierData.find((supplier) => supplier.name === 'REUTERS'),
