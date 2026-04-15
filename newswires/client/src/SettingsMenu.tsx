@@ -52,10 +52,10 @@ export const SettingsMenu = () => {
 		},
 	);
 
-	const timezoneOptions = Object.entries(officeNameByTimezone).map(
+	const timezoneOptions = Array.from(officeNameByTimezone.entries()).map(
 		([id, label]) => ({
 			id,
-			label: `${label} (${applyOptionalTimezone(moment(), id as TimezoneId).format('HH:mm')})`,
+			label: `${label} (${applyOptionalTimezone(moment(), id).format('HH:mm')})`,
 		}),
 	);
 
