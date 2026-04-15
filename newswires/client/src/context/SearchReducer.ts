@@ -91,10 +91,10 @@ function appendQueryData(
 }
 
 function getUpdatedHistory(
-	previousHistory: SearchHistory,
+	previousHistory: SearchHistory[],
 	newQuery: Query,
 	newResultsCount: number,
-): SearchHistory {
+): SearchHistory[] {
 	if (deepIsEqual(newQuery, defaultQuery)) {
 		return previousHistory;
 	}
