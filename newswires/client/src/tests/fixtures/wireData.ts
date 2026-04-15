@@ -1,3 +1,5 @@
+import moment from 'moment';
+import { TimezonedMoment } from '../../formatTimestamp.ts';
 import type { WireData } from '../../sharedTypes.ts';
 
 export const sampleFingerpostContent = {
@@ -49,4 +51,5 @@ export const sampleWireData: WireData = {
 	hasDataFormatting: false,
 	isAlert: false,
 	isLead: false,
+	localIngestedAt: new TimezonedMoment(moment(sampleWireResponse.ingestedAt)),
 };

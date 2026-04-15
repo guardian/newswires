@@ -1,3 +1,5 @@
+import moment from 'moment';
+import { TimezonedMoment } from '../formatTimestamp';
 import type { SupplierInfo, WireData, WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { isAlert, isLead } from '../utils/contentHelpers';
@@ -11,6 +13,7 @@ export function transformWireItemQueryResult(data: WireDataFromAPI): WireData {
 		isAlert: isAlert(data.content),
 		isLead: isLead(data.content),
 		...data,
+		localIngestedAt: new TimezonedMoment(moment(data.ingestedAt)),
 		supplier: enhanceSupplier(data.supplier),
 		hasDataFormatting: data.content.composerCompatible === false, // if composerCompatible is missing or true, we assume true
 	};

@@ -1,8 +1,10 @@
 import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import moment from 'moment';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
+import { TimezonedMoment } from './formatTimestamp';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
 import type { WireData } from './sharedTypes';
@@ -46,6 +48,7 @@ const sampleItemData: WireData = {
 	collections: [],
 	isAlert: false,
 	isLead: false,
+	localIngestedAt: new TimezonedMoment(moment('2025-02-26T09:58:22.000Z')),
 };
 
 const meta = {

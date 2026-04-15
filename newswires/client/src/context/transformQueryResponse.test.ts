@@ -1,3 +1,5 @@
+import moment from 'moment';
+import { TimezonedMoment } from '../formatTimestamp';
 import type { WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { sampleFingerpostContent } from '../tests/fixtures/wireData';
@@ -17,10 +19,13 @@ const baseInput: WireDataFromAPI = {
 };
 
 describe('transformWireItemQueryResult', () => {
-	it('should enhance supplier with additional properties', () => {
+	it('should enhance supplier with additional properties, and transform UTC timestamps', () => {
 		const result = transformWireItemQueryResult(baseInput);
 		expect(result.supplier).toEqual(
 			supplierData.find((supplier) => supplier.name === 'REUTERS'),
+		);
+		expect(result.localIngestedAt).toEqual(
+			new TimezonedMoment(moment(baseInput.ingestedAt)),
 		);
 	});
 
