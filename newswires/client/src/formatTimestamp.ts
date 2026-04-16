@@ -2,6 +2,8 @@ import moment from 'moment';
 import type { Moment } from 'moment-timezone';
 import type { TimezoneId } from './officeTimezones';
 
+type FormatContext = 'wireDetail' | 'relative' | 'full' | 'settings';
+
 export class ZonedMoment {
 	#utcTime: Moment;
 	#timezone: TimezoneId;
@@ -29,19 +31,23 @@ export class ZonedMoment {
 			: 'YYYY/MM/DD, HH:mm:ss';
 		return this.toMoment().format(formatString);
 	}
+	format(context: FormatContext) {
+		switch (context) {
+			case 'wireDetail':
+				return this.toMoment().format('MMM Do YYYY, HH:mm:ss');
+			case 'full':
+				return this.toMoment().format();
+			case 'relative':
+				return this.toMoment().fromNow();
+			case 'settings':
+				return this.toMoment().format('HH:mm');
+		}
+	}
 }
 export class InstantMoment {
 	#utcTime: Moment;
 	constructor(utcTime: Moment) {
 		this.#utcTime = utcTime;
-	}
-	withTimezone(timezone: TimezoneId) {
-		const copy = this.#utcTime.clone();
-		if (timezone == 'Local_Browser') {
-			return copy.local();
-		} else {
-			return copy.tz(timezone);
-		}
 	}
 	toZonedMoment(timezone: TimezoneId): ZonedMoment {
 		return new ZonedMoment(this.#utcTime, timezone);
