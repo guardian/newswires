@@ -109,49 +109,37 @@ export type WireToolLinks = z.infer<typeof WiresToolLinksResponseSchema>;
 
 export type WiresQueryResponse = z.infer<typeof WiresQueryResponseSchema>;
 
-export const suppliers = [
-	'REUTERS',
-	'AP',
-	'AAP',
-	'AFP',
-	'PA',
-	'PAAPI',
-	'GUAP',
-	'GUREUTERS',
-	'MINOR_AGENCIES',
-	'UNAUTHED_EMAIL_FEED',
-	'UNKNOWN',
-] as const;
+export type SupplierName =
+	| 'REUTERS'
+	| 'AP'
+	| 'AAP'
+	| 'AFP'
+	| 'PA'
+	| 'PAAPI'
+	| 'GUAP'
+	| 'GUREUTERS'
+	| 'MINOR_AGENCIES'
+	| 'UNAUTHED_EMAIL_FEED'
+	| 'UNKNOWN';
 
-const SupplierNameSchema = z.enum(suppliers);
+export type SupplierInfo = {
+	name: SupplierName;
+	label: string;
+	shortLabel: string;
+	colour: string;
+};
 
-export type SupplierName = z.infer<typeof SupplierNameSchema>;
+export type WireData = Omit<WireDataFromAPI, 'supplier'> & {
+	supplier: SupplierInfo;
+	hasDataFormatting: boolean;
+	isAlert: boolean;
+	isLead: boolean;
+};
 
-const SupplierInfoSchema = z.object({
-	name: SupplierNameSchema,
-	label: z.string(),
-	shortLabel: z.string(),
-	colour: z.string(),
-});
-
-export type SupplierInfo = z.infer<typeof SupplierInfoSchema>;
-
-export const WireDataSchema = WireDataFromAPISchema.extend({
-	supplier: SupplierInfoSchema,
-	hasDataFormatting: z.boolean(),
-	isAlert: z.boolean(),
-	isLead: z.boolean(),
-});
-
-export type WireData = z.infer<typeof WireDataSchema>;
-
-export const WiresQueryDataSchema = z.object({
-	results: z.array(WireDataSchema),
-	totalCount: z.number(),
-	// keywordCounts: z.record(z.string(), z.number()),
-});
-
-export type WiresQueryData = z.infer<typeof WiresQueryDataSchema>;
+export type WiresQueryData = {
+	results: WireData[];
+	totalCount: number;
+};
 
 export const isValidDateValue = (value: string): value is EuiDateString =>
 	/^now(?:[+-]\d+[smhdwMy])*(?:\/\w+)?$/.test(value) || moment(value).isValid();
@@ -224,10 +212,9 @@ export const ConfigSchema = z.discriminatedUnion('view', [
 		ticker: z.boolean(),
 	}),
 ]);
-
 export type Config = z.infer<typeof ConfigSchema>;
 
-const SortByIngestedAtSchema = z.object({ sortByKey: 'ingestedAt' });
+const SortByIngestedAtSchema = z.object({ sortByKey: z.literal('ingestedAt') });
 const SortByAddedToCollectionAtSchema = z.object({
 	sortByKey: z.literal('addedToCollectionAt'),
 	collectionId: z.number(),
