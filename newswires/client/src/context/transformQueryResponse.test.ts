@@ -1,4 +1,3 @@
-import { convertToLocalDate } from '../dateHelpers';
 import type { WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { sampleFingerpostContent } from '../tests/fixtures/wireData';
@@ -18,13 +17,10 @@ const baseInput: WireDataFromAPI = {
 };
 
 describe('transformWireItemQueryResult', () => {
-	it('should enhance supplier with additional properties, and transform UTC timestamps', () => {
+	it('should enhance supplier with additional properties', () => {
 		const result = transformWireItemQueryResult(baseInput);
 		expect(result.supplier).toEqual(
 			supplierData.find((supplier) => supplier.name === 'REUTERS'),
-		);
-		expect(result.localIngestedAt).toEqual(
-			convertToLocalDate(baseInput.ingestedAt),
 		);
 	});
 

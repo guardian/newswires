@@ -26,6 +26,7 @@ import { icon as faceSad } from '@elastic/eui/es/components/icon/assets/face_sad
 import { icon as filter } from '@elastic/eui/es/components/icon/assets/filter';
 import { icon as flask } from '@elastic/eui/es/components/icon/assets/flask';
 import { icon as gear } from '@elastic/eui/es/components/icon/assets/gear';
+import { icon as globe } from '@elastic/eui/es/components/icon/assets/globe';
 import { icon as heart } from '@elastic/eui/es/components/icon/assets/heart';
 import { icon as info } from '@elastic/eui/es/components/icon/assets/info';
 import { icon as kqlFunction } from '@elastic/eui/es/components/icon/assets/kql_function';
@@ -96,6 +97,7 @@ const icons = {
 	clockCounter,
 	bug,
 	crossProjectSearch,
+	globe,
 };
 
 // One or more icons are passed in as an object of iconKey (string): IconComponent

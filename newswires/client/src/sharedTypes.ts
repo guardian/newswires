@@ -1,4 +1,3 @@
-import type { Moment } from 'moment';
 import moment from 'moment';
 import { z } from 'zod/v4';
 
@@ -132,7 +131,6 @@ export type SupplierInfo = {
 
 export type WireData = Omit<WireDataFromAPI, 'supplier'> & {
 	supplier: SupplierInfo;
-	localIngestedAt: Moment;
 	hasDataFormatting: boolean;
 	isAlert: boolean;
 	isLead: boolean;

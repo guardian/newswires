@@ -9,10 +9,12 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
+import moment from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
+import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
 import { formatTimestamp } from './formatTimestamp.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
@@ -193,7 +195,7 @@ const WirePreviewCard = ({
 		id,
 		content,
 		supplier,
-		localIngestedAt,
+		ingestedAt,
 		highlight,
 		collections,
 		toolLinks,
@@ -205,6 +207,7 @@ const WirePreviewCard = ({
 	const ref = useRef<HTMLDivElement>(null);
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's']);
 	const isPoppedOut = config.ticker;
+	const { selectedTimezone } = useUserSettings();
 
 	const maybeTastedCollectionMetadata = collections.filter(
 		(collection) => collection.collectionId === config.query.collectionId,
@@ -368,7 +371,7 @@ const WirePreviewCard = ({
 						line-break: strict;
 					`}
 				>
-					{formatTimestamp(localIngestedAt.format())
+					{formatTimestamp(moment(ingestedAt), selectedTimezone)
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>

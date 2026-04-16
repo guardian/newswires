@@ -3,12 +3,18 @@ import {
 	EuiContextMenu,
 	EuiFormRow,
 	EuiPopover,
+	EuiRadioGroup,
 	EuiSwitch,
 	useGeneratedHtmlId,
 } from '@elastic/eui';
+import moment from 'moment-timezone';
 import { useState } from 'react';
 import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
+import { useUserSettings } from './context/UserSettingsContext';
+import { applyOptionalTimezone } from './formatTimestamp.ts';
+import type { TimezoneId } from './officeTimezones.ts';
+import { officeNameByTimezone } from './officeTimezones.ts';
 import { useSettingsSwitches } from './SetttingsSwitches';
 
 export const SettingsMenu = () => {
@@ -25,6 +31,7 @@ export const SettingsMenu = () => {
 	const closePopover = () => {
 		setPopover(false);
 	};
+	const { selectedTimezone, changeTimezoneSelection } = useUserSettings();
 	const switches = useSettingsSwitches().map(
 		({ id, label, checked, onChange, helpText }) => {
 			return {
@@ -44,15 +51,32 @@ export const SettingsMenu = () => {
 			};
 		},
 	);
+
+	const timezoneOptions = Array.from(officeNameByTimezone.entries()).map(
+		([id, label]) => ({
+			id,
+			label: `${label} (${applyOptionalTimezone(moment(), id).format('HH:mm')})`,
+		}),
+	);
+
 	const panels = [
 		{
 			id: 0,
 			title: 'Site settings',
 			items: [
-				...switches,
+				{
+					panel: 2,
+					name: 'Office timezone',
+					icon: 'clock',
+				},
 				{
 					isSeparator: true as const,
 					key: 'separator-1',
+				},
+				...switches,
+				{
+					isSeparator: true as const,
+					key: 'separator-2',
 				},
 				{
 					panel: 1,
@@ -61,7 +85,7 @@ export const SettingsMenu = () => {
 				},
 				{
 					isSeparator: true as const,
-					key: 'separator-2',
+					key: 'separator-3',
 				},
 				{ name: 'Close', icon: 'cross', onClick: closePopover },
 			],
@@ -75,6 +99,24 @@ export const SettingsMenu = () => {
 				},
 				{
 					name: `Show PAAPI: ${SHOW_PAAPI ? 'On' : 'Off'}`,
+				},
+			],
+		},
+		{
+			id: 2,
+			title: 'Office timezone',
+			items: [
+				{
+					renderItem: () => (
+						<div style={{ padding: 16 }}>
+							<EuiRadioGroup
+								options={timezoneOptions}
+								idSelected={selectedTimezone}
+								onChange={(id) => changeTimezoneSelection(id as TimezoneId)}
+								name="timezone radio group"
+							/>
+						</div>
+					),
 				},
 			],
 		},
