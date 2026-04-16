@@ -194,8 +194,7 @@ object SearchPresets {
   private val AllUs = List(
     SearchPreset(
       AP,
-      categoryCodes = CategoryCodes.US.AP,
-      categoryCodesExcl = CategoryCodes.Sport.AP ++ CategoryCodes.Business.AP
+      categoryCodes = CategoryCodes.US.AP
     ),
     SearchPreset(
       REUTERS,
