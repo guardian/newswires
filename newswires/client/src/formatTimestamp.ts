@@ -2,7 +2,35 @@ import moment from 'moment';
 import type { Moment } from 'moment-timezone';
 import type { TimezoneId } from './officeTimezones';
 
-export class TimezonedMoment {
+export class ZonedMoment {
+	#utcTime: Moment;
+	#timezone: TimezoneId;
+	constructor(utcTime: Moment, timezone: TimezoneId) {
+		this.#utcTime = utcTime;
+		this.#timezone = timezone;
+	}
+	private toMoment() {
+		return this.withTz(this.#utcTime);
+	}
+	private withTz(m: Moment) {
+		const copy = m.clone();
+		if (this.#timezone == 'Local_Browser') {
+			return copy.local();
+		} else {
+			return copy.tz(this.#timezone);
+		}
+	}
+	formatListView() {
+		const now = this.withTz(moment());
+		const timestampIsCurrentDay =
+			now.format('YYYY MMM DD') === this.toMoment().format('YYYY MMM DD');
+		const formatString = timestampIsCurrentDay
+			? 'HH:mm:ss'
+			: 'YYYY/MM/DD, HH:mm:ss';
+		return this.toMoment().format(formatString);
+	}
+}
+export class InstantMoment {
 	#utcTime: Moment;
 	constructor(utcTime: Moment) {
 		this.#utcTime = utcTime;
@@ -15,19 +43,7 @@ export class TimezonedMoment {
 			return copy.tz(timezone);
 		}
 	}
-}
-
-const onlyDateFormat = (timestamp: TimezonedMoment, timezone: TimezoneId) =>
-	timestamp.withTimezone(timezone).format('YYYY MMM DD');
-
-export function formatTimestamp(
-	timestamp: TimezonedMoment,
-	timezone: TimezoneId,
-) {
-	const now = new TimezonedMoment(moment());
-	const timestampIsCurrentDay =
-		onlyDateFormat(now, timezone) === onlyDateFormat(timestamp, timezone);
-	return timestamp
-		.withTimezone(timezone)
-		.format(timestampIsCurrentDay ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss');
+	toZonedMoment(timezone: TimezoneId): ZonedMoment {
+		return new ZonedMoment(this.#utcTime, timezone);
+	}
 }

@@ -30,7 +30,7 @@ import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
-import type { TimezonedMoment } from './formatTimestamp.ts';
+import type { InstantMoment } from './formatTimestamp.ts';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { TASTED_COLLECTION } from './presets.ts';
@@ -46,7 +46,7 @@ function TitleContentForItem({
 	slug,
 	subhead,
 	headline,
-	localIngestedAt,
+	ingestedAtMoment,
 	supplier,
 	wordCount,
 	isAlert,
@@ -55,7 +55,7 @@ function TitleContentForItem({
 	slug?: string;
 	subhead?: string;
 	headline?: string;
-	localIngestedAt: TimezonedMoment;
+	ingestedAtMoment: InstantMoment;
 	supplier: SupplierInfo;
 	wordCount: number;
 	isAlert: boolean;
@@ -79,7 +79,7 @@ function TitleContentForItem({
 	const { selectedTimezone } = useUserSettings();
 
 	const ingestionMomentWithUserTimezone =
-		localIngestedAt.withTimezone(selectedTimezone);
+		ingestedAtMoment.withTimezone(selectedTimezone);
 
 	return (
 		<div
@@ -724,7 +724,7 @@ export const WireDetail = ({
 				headline={headline}
 				subhead={wire.content.subhead}
 				slug={slug}
-				localIngestedAt={wire.localIngestedAt}
+				ingestedAtMoment={wire.ingestedAtMoment}
 				supplier={wire.supplier}
 				wordCount={wordCount}
 				isAlert={wire.isAlert}

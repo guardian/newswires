@@ -15,7 +15,6 @@ import sanitizeHtml from 'sanitize-html';
 import { useSearch } from './context/SearchContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate } from './dateHelpers.ts';
-import { formatTimestamp } from './formatTimestamp.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
@@ -194,7 +193,7 @@ const WirePreviewCard = ({
 		id,
 		content,
 		supplier,
-		localIngestedAt,
+		ingestedAtMoment,
 		highlight,
 		collections,
 		toolLinks,
@@ -303,6 +302,8 @@ const WirePreviewCard = ({
 
 	const classNameForStylingLabelsOnCardHover = 'wire-item-card';
 
+	const zonedMoment = ingestedAtMoment.toZonedMoment(selectedTimezone);
+
 	return (
 		<Link to={id.toString()}>
 			<div
@@ -370,7 +371,8 @@ const WirePreviewCard = ({
 						line-break: strict;
 					`}
 				>
-					{formatTimestamp(localIngestedAt, selectedTimezone)
+					{zonedMoment
+						.formatListView()
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>

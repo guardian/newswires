@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { z } from 'zod/v4';
-import type { TimezonedMoment } from './formatTimestamp';
+import type { InstantMoment } from './formatTimestamp';
 
 const AgencyMetadata = z.object({
 	event: z.array(
@@ -133,7 +133,7 @@ export type SupplierInfo = {
 export type WireData = Omit<WireDataFromAPI, 'supplier'> & {
 	supplier: SupplierInfo;
 	hasDataFormatting: boolean;
-	localIngestedAt: TimezonedMoment;
+	ingestedAtMoment: InstantMoment;
 	isAlert: boolean;
 	isLead: boolean;
 };

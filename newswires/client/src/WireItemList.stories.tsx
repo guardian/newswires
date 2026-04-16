@@ -6,7 +6,7 @@ import type { SearchContextShape } from './context/SearchContext';
 import { SearchContext } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
-import { TimezonedMoment } from './formatTimestamp';
+import { InstantMoment } from './formatTimestamp';
 import { setUpIcons } from './icons';
 import type { TimezoneId } from './officeTimezones';
 import type { WireData } from './sharedTypes';
@@ -52,7 +52,7 @@ const sampleItemData: WireData = {
 	collections: [],
 	isAlert: false,
 	isLead: false,
-	localIngestedAt: new TimezonedMoment(moment(now.toISOString())),
+	ingestedAtMoment: new InstantMoment(moment(now.toISOString())),
 };
 
 const mockSearchContext: SearchContextShape = {

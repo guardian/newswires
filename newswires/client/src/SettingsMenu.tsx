@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
 import { useUserSettings } from './context/UserSettingsContext';
-import { TimezonedMoment } from './formatTimestamp.ts';
+import { InstantMoment } from './formatTimestamp.ts';
 import type { TimezoneId } from './officeTimezones.ts';
 import { officeNameByTimezone } from './officeTimezones.ts';
 import { useSettingsSwitches } from './SetttingsSwitches';
@@ -55,7 +55,7 @@ export const SettingsMenu = () => {
 	const timezoneOptions = Array.from(officeNameByTimezone.entries()).map(
 		([id, label]) => ({
 			id,
-			label: `${label} (${new TimezonedMoment(moment()).withTimezone(id).format('HH:mm')})`,
+			label: `${label} (${new InstantMoment(moment()).withTimezone(id).format('HH:mm')})`,
 		}),
 	);
 

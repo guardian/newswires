@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { TimezonedMoment } from '../formatTimestamp';
+import { InstantMoment } from '../formatTimestamp';
 import type { WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { sampleFingerpostContent } from '../tests/fixtures/wireData';
@@ -24,8 +24,8 @@ describe('transformWireItemQueryResult', () => {
 		expect(result.supplier).toEqual(
 			supplierData.find((supplier) => supplier.name === 'REUTERS'),
 		);
-		expect(result.localIngestedAt).toEqual(
-			new TimezonedMoment(moment(baseInput.ingestedAt)),
+		expect(result.ingestedAtMoment).toEqual(
+			new InstantMoment(moment(baseInput.ingestedAt)),
 		);
 	});
 
