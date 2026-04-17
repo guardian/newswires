@@ -157,6 +157,7 @@ export const BaseQuerySchema = z.object({
 	keyword: z.array(z.string()).optional(),
 	keywordExcl: z.array(z.string()).optional(),
 	categoryCode: z.array(z.string()).optional(),
+	categoryCodeAnd: z.array(z.string()).optional(),
 	categoryCodeExcl: z.array(z.string()).optional(),
 	guSourceFeed: z.array(z.string()).optional(),
 	guSourceFeedExcl: z.array(z.string()).optional(),

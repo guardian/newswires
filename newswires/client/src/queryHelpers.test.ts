@@ -89,6 +89,24 @@ describe('queryAfterDeselection', () => {
 			categoryCode: ['sheep'],
 		});
 	});
+	it('should only remove input categoryCodeAnd when categoryCodeAnd is key and there are existing categoryCodeAnd', () => {
+		expect(
+			queryAfterDeselection(
+				{ key: 'categoryCodeAnd', value: 'code' },
+				{
+					q: 'hello',
+					collectionId: undefined,
+					preset: undefined,
+					categoryCodeAnd: ['code', 'sheep'],
+				},
+			),
+		).toStrictEqual({
+			q: 'hello',
+			collectionId: undefined,
+			preset: undefined,
+			categoryCodeAnd: ['sheep'],
+		});
+	});
 	it('should remove keywordExcl value correctly', () => {
 		expect(
 			queryAfterDeselection(

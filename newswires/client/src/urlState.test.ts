@@ -181,6 +181,22 @@ describe('urlToConfig', () => {
 		});
 	});
 
+	it('can pass categoryCodeAnd', () => {
+		const url = makeFakeLocation(
+			'/feed?q=abc&categoryCodeAnd=medtop%3A08000000&categoryCodeAnd=medtop%3A20001340',
+		);
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: {
+				...defaultQuery,
+				q: 'abc',
+				categoryCodeAnd: ['medtop:08000000', 'medtop:20001340'],
+			},
+			ticker: false,
+		});
+	});
+
 	it('can add a relative date range', () => {
 		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=now%2Fd');
 		const config = urlToConfig(url);
@@ -492,6 +508,24 @@ describe('configToUrl', () => {
 		const url = configToUrl(config);
 		expect(url).toBe(
 			'/feed?q=abc&categoryCodeExcl=medtop%3A08000000&categoryCodeExcl=medtop%3A20001340',
+		);
+	});
+
+	it('converts config with many categoryCodeAnd to querystring', () => {
+		const config = {
+			view: 'feed' as const,
+			query: {
+				q: 'abc',
+				categoryCodeAnd: ['medtop:08000000', 'medtop:20001340'],
+				collectionId: undefined,
+				preset: undefined,
+			},
+			ticker: false,
+			itemId: undefined,
+		};
+		const url = configToUrl(config);
+		expect(url).toBe(
+			'/feed?q=abc&categoryCodeAnd=medtop%3A08000000&categoryCodeAnd=medtop%3A20001340',
 		);
 	});
 });
