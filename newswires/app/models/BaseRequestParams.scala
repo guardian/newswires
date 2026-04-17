@@ -9,6 +9,7 @@ case class BaseRequestParams(
     keywords: List[String] = Nil,
     suppliers: List[String] = Nil,
     categoryCode: List[String] = Nil,
+    categoryCodeAnd: List[String] = Nil,
     categoryCodeExcl: List[String] = Nil,
     maybeCollectionId: Option[Int] = None,
     maybeStart: Option[String] = None,
