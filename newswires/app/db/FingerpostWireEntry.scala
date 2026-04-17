@@ -345,6 +345,10 @@ object FingerpostWireEntry
       (categoryCodes: List[String]) =>
         categoryCodeConditions(syn, categoryCodes)
 
+    lazy val categoryCodeAndInclSQL =
+      (categoryCodes: List[String]) =>
+        sqls"${syn.categoryCodes} @> ${textArray(categoryCodes)}"
+
     lazy val categoryCodeExclSQL =
       (categoryCodesExcl: List[String]) => {
         val cce = syntax("categoryCodesExcl")
@@ -442,9 +446,14 @@ object FingerpostWireEntry
       case keywords => Some(Filters.keywordsExclSQL(keywords))
     }
 
-    val categoryCodesInclQuery = filters.categoryCodesIncl match {
+    val categoryCodesInclQuery = filters.categoryCodesOrIncl match {
       case Nil           => None
       case categoryCodes => Some(Filters.categoryCodeInclSQL(categoryCodes))
+    }
+
+    val categoryCodesAndInclQuery = filters.categoryCodesAndIncl match {
+      case Nil           => None
+      case categoryCodes => Some(Filters.categoryCodeAndInclSQL(categoryCodes))
     }
 
     val categoryCodesExclQuery = filters.categoryCodesExcl match {
@@ -495,6 +504,7 @@ object FingerpostWireEntry
     val clauses = List(
       keywordsQuery,
       categoryCodesInclQuery,
+      categoryCodesAndInclQuery,
       keywordsExclQuery,
       searchQuery,
       suppliersQuery,

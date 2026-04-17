@@ -171,6 +171,7 @@ type CategoryCodeTableItem = {
 	code: string;
 	labels: string;
 	isSelected: boolean;
+	isSelectedAnd: boolean;
 };
 
 function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
@@ -207,20 +208,27 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 		return categoryCodesInSearch.includes(code);
 	};
 
+	const isCodeInAndSearch = (code: string) => {
+		const categoryCodesAndInSearch = config.query.categoryCodeAnd ?? [];
+		return categoryCodesAndInSearch.includes(code);
+	};
+
 	const categoryCodeTableItems: CategoryCodeTableItem[] = categoryCodes.map(
 		(code) => ({
 			code: code,
 			labels: lookupCatCodesWideSearch(code).join('; '),
 			isSelected: isCodeInSearch(code),
+			isSelectedAnd: isCodeInAndSearch(code),
 		}),
 	);
 
-	// Alt-click support for exclusion filter
+	// Alt-click support for exclusion filter, Shift-click for AND filter
 	const handleCategoryClick = (
 		categoryCode: string,
 		event?: React.MouseEvent,
 	) => {
 		const isAlt = event?.altKey;
+		const isShift = event?.shiftKey;
 		if (isAlt) {
 			const codesExcl = config.query.categoryCodeExcl ?? [];
 			handleEnterQuery({
@@ -228,6 +236,14 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 				categoryCodeExcl: codesExcl.includes(categoryCode)
 					? codesExcl.filter((s) => s !== categoryCode)
 					: [...codesExcl, categoryCode],
+			});
+		} else if (isShift) {
+			const codesAnd = config.query.categoryCodeAnd ?? [];
+			handleEnterQuery({
+				...config.query,
+				categoryCodeAnd: codesAnd.includes(categoryCode)
+					? codesAnd.filter((s) => s !== categoryCode)
+					: [...codesAnd, categoryCode],
 			});
 		} else {
 			const codes = config.query.categoryCode ?? [];
@@ -253,12 +269,12 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 			field: 'isSelected',
 			name: 'Filter by?',
 			align: 'right',
-			render: (isSelected, item) => (
+			render: (_, item) => (
 				<EuiButtonIcon
-					color={isSelected ? 'primary' : 'accent'}
+					color={item.isSelected || item.isSelectedAnd ? 'primary' : 'accent'}
 					onClick={(e: React.MouseEvent) => handleCategoryClick(item.code, e)}
 					iconType={
-						isSelected
+						item.isSelected || item.isSelectedAnd
 							? 'check'
 							: isAltPressed
 								? 'minusInCircle'
@@ -308,11 +324,17 @@ function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 		return categoryCodesInSearch.includes(code);
 	};
 
+	const isCodeInAndSearch = (code: string) => {
+		const categoryCodesAndInSearch = config.query.categoryCodeAnd ?? [];
+		return categoryCodesAndInSearch.includes(code);
+	};
+
 	const categoryCodeTableItems: CategoryCodeTableItem[] = categoryCodes.map(
 		(code) => ({
 			code: code,
 			labels: code.split(':')[1] ?? '',
 			isSelected: isCodeInSearch(code),
+			isSelectedAnd: isCodeInAndSearch(code),
 		}),
 	);
 
@@ -335,11 +357,13 @@ function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 			field: 'isSelected',
 			name: 'Filter by?',
 			align: 'right',
-			render: (isSelected, item) => (
+			render: (_isSelected, item) => (
 				<EuiButtonIcon
-					color={isSelected ? 'primary' : 'accent'}
+					color={item.isSelected || item.isSelectedAnd ? 'primary' : 'accent'}
 					onClick={() => handleCategoryClick(item.code)}
-					iconType={isSelected ? 'check' : 'plusInCircle'}
+					iconType={
+						item.isSelected || item.isSelectedAnd ? 'check' : 'plusInCircle'
+					}
 					aria-label="Toggle selection"
 				/>
 			),

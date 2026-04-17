@@ -52,6 +52,7 @@ export const queryAfterDeselection = (
 	if (
 		[
 			'categoryCode',
+			'categoryCodeAnd',
 			'categoryCodeExcl',
 			'keyword',
 			'keywordExcl',

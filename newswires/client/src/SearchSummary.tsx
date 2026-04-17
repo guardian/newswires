@@ -27,6 +27,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	supplier: 'Supplier',
 	supplierExcl: '(NOT) Supplier',
 	categoryCode: 'Category',
+	categoryCodeAnd: 'Category (AND)',
 	categoryCodeExcl: '(NOT) Category',
 	hasDataFormatting: 'Has data formatting',
 	previewPaApi: 'Previewing PA API switchover',
@@ -98,6 +99,7 @@ const Summary = ({
 		start,
 		end,
 		categoryCode,
+		categoryCodeAnd,
 		categoryCodeExcl,
 		hasDataFormatting,
 		previewPaApi,
@@ -115,6 +117,7 @@ const Summary = ({
 		}),
 	);
 	const displayCategoryCodes = (categoryCode ?? []).length > 0;
+	const displayCategoryCodesAnd = (categoryCodeAnd ?? []).length > 0;
 	const displayExcludedCategoryCodes = (categoryCodeExcl ?? []).length > 0;
 	const displaySuppliers = (suppliers ?? []).length > 0;
 	const displayKeywords = (query.keyword ?? []).length > 0;
@@ -127,6 +130,7 @@ const Summary = ({
 		!!q ||
 		!!preset ||
 		displayCategoryCodes ||
+		displayCategoryCodesAnd ||
 		displaySuppliers ||
 		displayKeywords ||
 		displayExcludedCategoryCodes ||
@@ -143,8 +147,8 @@ const Summary = ({
 		(end === DEFAULT_DATE_RANGE.end || end === undefined);
 
 	const durationLabel = usePrettyDuration({
-		timeFrom: start ?? DEFAULT_DATE_RANGE.start,
-		timeTo: end ?? DEFAULT_DATE_RANGE.end,
+		timeFrom: start ?? (DEFAULT_DATE_RANGE.start as string),
+		timeTo: end ?? (DEFAULT_DATE_RANGE.end as string),
 		dateFormat: 'MMM D • HH:mm',
 	});
 
@@ -205,6 +209,13 @@ const Summary = ({
 					<SummaryBadge
 						key={code}
 						keyValuePair={{ key: 'categoryCode', value: code }}
+					/>
+				))}
+			{displayCategoryCodesAnd &&
+				categoryCodeAnd?.map((code) => (
+					<SummaryBadge
+						key={code}
+						keyValuePair={{ key: 'categoryCodeAnd', value: code }}
 					/>
 				))}
 			{displayExcludedCategoryCodes &&

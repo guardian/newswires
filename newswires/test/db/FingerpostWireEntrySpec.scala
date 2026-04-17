@@ -119,13 +119,13 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         SingleTerm(SearchTerm.SingleField("News Summary", SearchField.Headline))
       ),
       suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List("N2:GB")
+      categoryCodesOrIncl = List("N2:GB")
     )
 
     val presetFilterParams2 = emptyFilterParams.copy(
       searchTerms = Some(SingleTerm(SearchTerm.SingleField("soccer"))),
       suppliersIncl = List("AFP"),
-      categoryCodesIncl = List("afpCat:SPO")
+      categoryCodesOrIncl = List("afpCat:SPO")
     )
 
     val preset1Clause =
@@ -228,14 +228,14 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         )
       ),
       suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
+      categoryCodesOrIncl = List(
         "N2:GB"
       )
     )
     val presetSearchParams2 = emptyFilterParams.copy(
       searchTerms = Some(SingleTerm(SearchTerm.SingleField("soccer"))),
       suppliersIncl = List("AFP"),
-      categoryCodesIncl = List("afpCat:SPO")
+      categoryCodesOrIncl = List("afpCat:SPO")
     )
 
     val customParamsClause = FingerpostWireEntry
@@ -347,7 +347,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val multiClauses =
       emptyFilterParams
         .copy(suppliersIncl = List("supplier"))
-        .copy(categoryCodesIncl = List("code"))
+        .copy(categoryCodesOrIncl = List("code"))
     val snippets = FingerpostWireEntry.filtersBuilder(multiClauses)
 
     val rendered = sqls"${snippets.get}".value
@@ -359,7 +359,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val multiClauses =
       emptyFilterParams
         .copy(suppliersIncl = List("supplier"))
-        .copy(categoryCodesIncl = List("code"))
+        .copy(categoryCodesOrIncl = List("code"))
 
     val supplierClause = Filters.supplierSQL(List("supplier"))
     val codeClause = Filters.categoryCodeInclSQL(List("code"))
@@ -386,7 +386,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       keywordExcl = List("kw2"),
       suppliersIncl = List("s1"),
       suppliersExcl = List("s2"),
-      categoryCodesIncl = List("c1"),
+      categoryCodesOrIncl = List("c1"),
+      categoryCodesAndIncl = List("c1.5"),
       categoryCodesExcl = List("c2"),
       hasDataFormatting = Some(true),
       preComputedCategories = List("p1"),
@@ -399,8 +400,10 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
     val keywordsClause = FingerpostWireEntry.Filters.keywordsSQL(List("kw1"))
-    val categoryCodesClause =
+    val categoryCodesOrClause =
       FingerpostWireEntry.Filters.categoryCodeInclSQL(List("c1"))
+    val categoryCodesAndClause =
+      FingerpostWireEntry.Filters.categoryCodeAndInclSQL(List("c1.5"))
     val keywordsExclClause =
       FingerpostWireEntry.Filters.keywordsExclSQL(List("kw2"))
     val textSearchClause = FingerpostWireEntry.Filters.searchQuerySqlCombined(
@@ -430,7 +433,8 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val eventCodeClause = FingerpostWireEntry.Filters.eventCodeSQL("event code")
 
     snippets.get should matchSqlSnippet(
-      expectedClause = sqls"""${keywordsClause} and ${categoryCodesClause}
+      expectedClause = sqls"""${keywordsClause} and ${categoryCodesOrClause}
+              and ${categoryCodesAndClause}
               and ${keywordsExclClause} and ${textSearchClause}
               and ${supplierClause} and ${supplierExclClause}
               and ${categoryCodesExclClause} and ${dataFormatClause}
@@ -439,6 +443,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       expectedParams = List(
         List("kw1"),
         List("c1"),
+        List("c1.5"),
         List("kw2"),
         "query",
         "simple text",

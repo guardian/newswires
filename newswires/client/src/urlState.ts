@@ -12,6 +12,7 @@ export const defaultQuery: Query = {
 	keywordExcl: [],
 	preset: undefined,
 	categoryCode: [],
+	categoryCodeAnd: [],
 	categoryCodeExcl: [],
 	guSourceFeed: [],
 	guSourceFeedExcl: [],
@@ -65,6 +66,7 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const keyword = params.getAll('keyword');
 	const keywordExcl = params.getAll('keywordExcl');
 	const categoryCode = params.getAll('categoryCode');
+	const categoryCodeAnd = params.getAll('categoryCodeAnd');
 	const categoryCodeExcl = params.getAll('categoryCodeExcl');
 	const guSourceFeed = params.getAll('guSourceFeed');
 	const guSourceFeedExcl = params.getAll('guSourceFeedExcl');
@@ -101,6 +103,7 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		keyword,
 		keywordExcl,
 		categoryCode,
+		categoryCodeAnd,
 		categoryCodeExcl,
 		guSourceFeed,
 		guSourceFeedExcl,
