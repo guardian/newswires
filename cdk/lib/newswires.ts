@@ -402,7 +402,7 @@ export class Newswires extends GuStack {
 		ingestionAlerts(
 			INGESTION_HEARTBEAT_EVENT_TYPE,
 			'HEARTBEAT',
-			Duration.minutes(15),
+			Duration.minutes(3),
 		);
 
 		const scheduledCleanupLambda = new GuScheduledLambda(

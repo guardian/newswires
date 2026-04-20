@@ -2188,7 +2188,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
             ],
           },
         ],
-        "Period": 900,
+        "Period": 180,
         "Statistic": "Sum",
         "Tags": [
           {
