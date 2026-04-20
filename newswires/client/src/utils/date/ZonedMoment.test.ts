@@ -12,7 +12,7 @@ describe('ZonedMoment', () => {
 				}),
 			).toBe('May 13th 2020, 12:33:37');
 		});
-		test('it should format isoString with a utc timestampe', () => {
+		test('it should format isoString with a local iso format', () => {
 			expect(
 				new ZonedMoment(nowUtc, 'Australia/Sydney').format({
 					type: 'isoString',
