@@ -2,10 +2,12 @@ package db
 
 import conf.SearchTerm.CombinedFields
 import conf.{
+  ALL,
   AND,
   CategoryCodesCondition,
   ComboTerm,
   OR,
+  SOME,
   SearchField,
   SearchTerm,
   SearchTerms,
@@ -354,9 +356,9 @@ object FingerpostWireEntry
     lazy val categoryCodeSQL =
       (categoryCodes: CategoryCodesCondition) =>
         categoryCodes match {
-          case CategoryCodesCondition(codes, OR) =>
+          case CategoryCodesCondition(codes, SOME) =>
             categoryCodeOrConditions(syn, codes)
-          case CategoryCodesCondition(codes, AND) =>
+          case CategoryCodesCondition(codes, ALL) =>
             categoryCodeAndConditions(syn, codes)
         }
 

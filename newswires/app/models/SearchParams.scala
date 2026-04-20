@@ -1,6 +1,6 @@
 package models
 
-import conf.{CategoryCodesCondition, OR, SearchTerms}
+import conf.{CategoryCodesCondition, OR, SOME, SearchTerms}
 import play.api.mvc.Request
 import service.FeatureSwitchProvider
 
@@ -49,7 +49,7 @@ object SearchParams {
         ),
         categoryCodes =
           if (baseParams.categoryCode.nonEmpty)
-            Some(CategoryCodesCondition(baseParams.categoryCode, OR))
+            Some(CategoryCodesCondition(baseParams.categoryCode, SOME))
           else None,
         categoryCodesExcl = baseParams.categoryCodeExcl,
         hasDataFormatting = baseParams.hasDataFormatting,
