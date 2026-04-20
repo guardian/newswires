@@ -2,11 +2,11 @@ import type { Moment } from 'moment-timezone';
 import type { TimezoneId } from './officeTimezones';
 
 type FormatContext =
-	| { type: 'wireDetail' }
+	| { type: 'humanFull' }
 	| { type: 'relative' }
-	| { type: 'full' }
-	| { type: 'settings' }
-	| { type: 'list'; nowUtc: Moment };
+	| { type: 'isoString' }
+	| { type: 'shortTime' }
+	| { type: 'contextAware'; nowUtc: Moment };
 
 export class ZonedMoment {
 	#utcTime: Moment;
@@ -29,19 +29,18 @@ export class ZonedMoment {
 	format(context: FormatContext) {
 		const m = this.zoned();
 		switch (context.type) {
-			case 'wireDetail':
+			case 'humanFull':
 				return m.format('MMM Do YYYY, HH:mm:ss');
-			case 'full':
-				return m.format();
+			case 'isoString':
+				return m.format('YYYY-MM-DDTHH:mm:ssZ');
 			case 'relative':
 				return m.fromNow();
-			case 'settings':
+			case 'shortTime':
 				return m.format('HH:mm');
-			case 'list': {
+			case 'contextAware': {
 				const nowM = this.applyTimezone(context.nowUtc);
-				return m.format(
-					m.isSame(nowM, 'day') ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss',
-				);
+				const sameDay = m.isSame(nowM, 'day');
+				return m.format(sameDay ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss');
 			}
 			default: {
 				const _exhaustive: never = context;

@@ -373,7 +373,7 @@ const WirePreviewCard = ({
 					`}
 				>
 					{zonedMoment
-						.format({ type: 'list', nowUtc: moment() })
+						.format({ type: 'contextAware', nowUtc: moment() })
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>
