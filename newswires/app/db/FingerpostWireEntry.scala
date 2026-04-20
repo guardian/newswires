@@ -244,7 +244,7 @@ object FingerpostWireEntry
       // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
       sqls"(${alias.content} -> 'keywords') ??| ${textArray(keywords)}"
 
-    private def categoryCodeOrConditions(
+    private def categoryCodeSomeConditions(
         alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
           FingerpostWireEntry
         ], FingerpostWireEntry],
@@ -253,7 +253,7 @@ object FingerpostWireEntry
       sqls"${alias.categoryCodes} && ${textArray(categoryCodes)}"
     }
 
-    private def categoryCodeAndConditions(
+    private def categoryCodeAllConditions(
         alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
           FingerpostWireEntry
         ], FingerpostWireEntry],
@@ -357,16 +357,16 @@ object FingerpostWireEntry
       (categoryCodes: CategoryCodesCondition) =>
         categoryCodes match {
           case CategoryCodesCondition(codes, SOME) =>
-            categoryCodeOrConditions(syn, codes)
+            categoryCodeSomeConditions(syn, codes)
           case CategoryCodesCondition(codes, ALL) =>
-            categoryCodeAndConditions(syn, codes)
+            categoryCodeAllConditions(syn, codes)
         }
 
     lazy val categoryCodeExclSQL =
       (categoryCodesExcl: List[String]) => {
         val cce = syntax("categoryCodesExcl")
         exclusionCondition(cce)(
-          categoryCodeOrConditions(cce, categoryCodesExcl)
+          categoryCodeSomeConditions(cce, categoryCodesExcl)
         )
       }
 
