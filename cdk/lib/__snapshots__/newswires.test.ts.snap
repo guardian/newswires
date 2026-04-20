@@ -2141,7 +2141,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONHEARTBEATHEARTBEAT9C35B78E": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2219,7 +2219,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSAAP24EF5EBF": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2297,7 +2297,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSAFPEB9F75F2": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2375,7 +2375,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSAP38E5D9DD": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2453,7 +2453,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSPA319171CD": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2531,7 +2531,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSREUTERS1DF07EDB": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [
@@ -2609,7 +2609,7 @@ exports[`The Newswires stack matches the snapshot 1`] = `
     },
     "MissingLogsINGESTIONSUCCESSUNAUTHEDEMAILFEEDAD6AC6D6": {
       "Properties": {
-        "ActionsEnabled": false,
+        "ActionsEnabled": true,
         "AlarmActions": [
           {
             "Fn::Join": [

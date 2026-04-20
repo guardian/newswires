@@ -373,7 +373,7 @@ export class Newswires extends GuStack {
 					? HEARTBEAT_MISSING_ALARM_MESSAGE
 					: SUPPLIER_MISSING_ALARM_MESSAGE(supplier);
 			new GuAlarm(this, `MissingLogs-${eventType}-${supplier}`, {
-				actionsEnabled: this.stage === 'PROD',
+				// actionsEnabled: this.stage === 'PROD',
 				okAction: true,
 				alarmName: name,
 				alarmDescription: description,
