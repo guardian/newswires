@@ -1,4 +1,3 @@
-import moment from 'moment';
 import type { Moment } from 'moment-timezone';
 import type { TimezoneId } from './officeTimezones';
 
@@ -22,14 +21,12 @@ export class ZonedMoment {
 			return copy.tz(this.#timezone);
 		}
 	}
-	formatListView() {
-		const now = this.withTz(moment());
-		const timestampIsCurrentDay =
-			now.format('YYYY MMM DD') === this.toMoment().format('YYYY MMM DD');
-		const formatString = timestampIsCurrentDay
-			? 'HH:mm:ss'
-			: 'YYYY/MM/DD, HH:mm:ss';
-		return this.toMoment().format(formatString);
+	formatListView(currentUtcTime: Moment) {
+		const m = this.toMoment();
+		const nowM = this.withTz(currentUtcTime);
+		return m.format(
+			m.isSame(nowM, 'day') ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss',
+		);
 	}
 	format(context: FormatContext) {
 		switch (context) {

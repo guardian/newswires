@@ -9,6 +9,7 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css, keyframes } from '@emotion/react';
+import moment from 'moment';
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
@@ -372,7 +373,7 @@ const WirePreviewCard = ({
 					`}
 				>
 					{zonedMoment
-						.formatListView()
+						.formatListView(moment())
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>
