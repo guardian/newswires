@@ -6,12 +6,12 @@ import type { SearchContextShape } from './context/SearchContext';
 import { SearchContext } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
-import { InstantMoment } from './formatTimestamp';
 import { setUpIcons } from './icons';
-import type { TimezoneId } from './officeTimezones';
 import type { WireData } from './sharedTypes';
 import { reutersBrand } from './suppliers';
 import { defaultConfig } from './urlState';
+import { InstantMoment } from './utils/date/InstantMoment';
+import type { TimezoneId } from './utils/date/officeTimezones';
 import { WireItemList } from './WireItemList';
 
 const now = new Date();

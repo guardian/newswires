@@ -1,8 +1,8 @@
 import moment from 'moment';
-import { InstantMoment } from '../formatTimestamp';
 import type { SupplierInfo, WireData, WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { isAlert, isLead } from '../utils/contentHelpers';
+import { InstantMoment } from '../utils/date/InstantMoment';
 
 function enhanceSupplier(supplier: string): SupplierInfo {
 	return supplierData.find((s) => s.name === supplier) ?? UNKNOWN_SUPPLIER;

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { z } from 'zod/v4';
-import type { InstantMoment } from './formatTimestamp';
+import type { InstantMoment } from './utils/date/InstantMoment';
 
 const AgencyMetadata = z.object({
 	event: z.array(

@@ -12,10 +12,10 @@ import { useState } from 'react';
 import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
 import { useUserSettings } from './context/UserSettingsContext';
-import { ZonedMoment } from './formatTimestamp.ts';
-import type { TimezoneId } from './officeTimezones.ts';
-import { officeNameByTimezone } from './officeTimezones.ts';
 import { useSettingsSwitches } from './SetttingsSwitches';
+import type { TimezoneId } from './utils/date/officeTimezones.ts';
+import { officeNameByTimezone } from './utils/date/officeTimezones.ts';
+import { ZonedMoment } from './utils/date/ZonedMoment.ts';
 
 export const SettingsMenu = () => {
 	const [isPopoverOpen, setPopover] = useState(false);

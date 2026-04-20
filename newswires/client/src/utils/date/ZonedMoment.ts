@@ -49,12 +49,3 @@ export class ZonedMoment {
 		}
 	}
 }
-export class InstantMoment {
-	#utcTime: Moment;
-	constructor(utcTime: Moment) {
-		this.#utcTime = utcTime;
-	}
-	toZonedMoment(timezone: TimezoneId): ZonedMoment {
-		return new ZonedMoment(this.#utcTime.clone(), timezone);
-	}
-}

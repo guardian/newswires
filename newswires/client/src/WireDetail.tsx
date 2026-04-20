@@ -30,7 +30,6 @@ import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
-import type { InstantMoment } from './formatTimestamp.ts';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { TASTED_COLLECTION } from './presets.ts';
@@ -40,6 +39,7 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import type { InstantMoment } from './utils/date/InstantMoment.ts';
 import { AlertLabel, LeadLabel } from './WireItemLabel.tsx';
 
 function TitleContentForItem({

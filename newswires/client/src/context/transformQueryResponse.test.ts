@@ -1,8 +1,8 @@
 import moment from 'moment';
-import { InstantMoment } from '../formatTimestamp';
 import type { WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { sampleFingerpostContent } from '../tests/fixtures/wireData';
+import { InstantMoment } from '../utils/date/InstantMoment';
 import { transformWireItemQueryResult } from './transformQueryResponse';
 
 const baseInput: WireDataFromAPI = {

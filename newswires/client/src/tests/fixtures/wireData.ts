@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { InstantMoment } from '../../formatTimestamp.ts';
 import type { WireData } from '../../sharedTypes.ts';
+import { InstantMoment } from '../../utils/date/InstantMoment.ts';
 
 export const sampleFingerpostContent = {
 	uri: 'http://example.com',

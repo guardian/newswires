@@ -4,11 +4,11 @@ import moment from 'moment';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
-import { InstantMoment } from './formatTimestamp';
 import { setUpIcons } from './icons';
 import { Item } from './Item';
 import type { WireData } from './sharedTypes';
 import { reutersBrand } from './suppliers';
+import { InstantMoment } from './utils/date/InstantMoment';
 
 const sampleItemData: WireData = {
 	id: 12345,

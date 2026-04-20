@@ -1,18 +1,18 @@
 import moment from 'moment-timezone';
-import { ZonedMoment } from './formatTimestamp';
+import { ZonedMoment } from './ZonedMoment';
 
 describe('ZonedMoment', () => {
 	describe('format', () => {
 		const nowUtc = moment('2020-05-13T02:33:37.000Z');
 		const fiveMinsAgo = moment('2020-05-13T02:28:37.000Z');
-		test('it should format wireDetail with a readable full date and time', () => {
+		test('it should format humanFull with a readable full date and time', () => {
 			expect(
 				new ZonedMoment(nowUtc, 'Australia/Sydney').format({
 					type: 'humanFull',
 				}),
 			).toBe('May 13th 2020, 12:33:37');
 		});
-		test('it should format full with a utc timestampe', () => {
+		test('it should format isoString with a utc timestampe', () => {
 			expect(
 				new ZonedMoment(nowUtc, 'Australia/Sydney').format({
 					type: 'isoString',
@@ -27,14 +27,14 @@ describe('ZonedMoment', () => {
 				}),
 			).toContain('5 minutes');
 		});
-		test('it should format settings with the hours and minutes', () => {
+		test('it should format shortTime with the hours and minutes', () => {
 			expect(
 				new ZonedMoment(nowUtc, 'Australia/Sydney').format({
 					type: 'shortTime',
 				}),
 			).toBe('12:33');
 		});
-		describe('list', () => {
+		describe('contextAware', () => {
 			test('it should provide just the time when the date is today', () => {
 				expect(
 					new ZonedMoment(fiveMinsAgo, 'Australia/Sydney').format({
