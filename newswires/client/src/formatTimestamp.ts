@@ -1,7 +1,12 @@
 import type { Moment } from 'moment-timezone';
 import type { TimezoneId } from './officeTimezones';
 
-type FormatContext = 'wireDetail' | 'relative' | 'full' | 'settings';
+type FormatContext =
+	| { type: 'wireDetail' }
+	| { type: 'relative' }
+	| { type: 'full' }
+	| { type: 'settings' }
+	| { type: 'list'; nowUtc: Moment };
 
 export class ZonedMoment {
 	#utcTime: Moment;
@@ -10,10 +15,10 @@ export class ZonedMoment {
 		this.#utcTime = utcTime;
 		this.#timezone = timezone;
 	}
-	private toMoment() {
-		return this.withTz(this.#utcTime);
+	private zoned() {
+		return this.applyTimezone(this.#utcTime);
 	}
-	private withTz(m: Moment) {
+	private applyTimezone(m: Moment) {
 		const copy = m.clone();
 		if (this.#timezone == 'Local_Browser') {
 			return copy.local();
@@ -21,23 +26,27 @@ export class ZonedMoment {
 			return copy.tz(this.#timezone);
 		}
 	}
-	formatListView(currentUtcTime: Moment) {
-		const m = this.toMoment();
-		const nowM = this.withTz(currentUtcTime);
-		return m.format(
-			m.isSame(nowM, 'day') ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss',
-		);
-	}
 	format(context: FormatContext) {
-		switch (context) {
+		const m = this.zoned();
+		switch (context.type) {
 			case 'wireDetail':
-				return this.toMoment().format('MMM Do YYYY, HH:mm:ss');
+				return m.format('MMM Do YYYY, HH:mm:ss');
 			case 'full':
-				return this.toMoment().format();
+				return m.format();
 			case 'relative':
-				return this.toMoment().fromNow();
+				return m.fromNow();
 			case 'settings':
-				return this.toMoment().format('HH:mm');
+				return m.format('HH:mm');
+			case 'list': {
+				const nowM = this.applyTimezone(context.nowUtc);
+				return m.format(
+					m.isSame(nowM, 'day') ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss',
+				);
+			}
+			default: {
+				const _exhaustive: never = context;
+				return _exhaustive;
+			}
 		}
 	}
 }
@@ -47,6 +56,6 @@ export class InstantMoment {
 		this.#utcTime = utcTime;
 	}
 	toZonedMoment(timezone: TimezoneId): ZonedMoment {
-		return new ZonedMoment(this.#utcTime, timezone);
+		return new ZonedMoment(this.#utcTime.clone(), timezone);
 	}
 }

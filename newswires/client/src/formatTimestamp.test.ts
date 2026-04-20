@@ -8,28 +8,44 @@ describe('ZonedTimestamp', () => {
 	describe('formatListView', () => {
 		test('it should provide just the time when the date is today', () => {
 			expect(
-				new ZonedMoment(nowUtc, 'Australia/Sydney').formatListView(nowUtc),
+				new ZonedMoment(nowUtc, 'Australia/Sydney').format({
+					type: 'list',
+					nowUtc,
+				}),
 			).toBe('12:33:37');
 			expect(
-				new ZonedMoment(nowUtc, 'Europe/London').formatListView(nowUtc),
+				new ZonedMoment(nowUtc, 'Europe/London').format({
+					type: 'list',
+					nowUtc,
+				}),
 			).toBe('03:33:37');
 		});
 
 		test('it should provide the full date and time when the date is not today', () => {
 			const dayBefore = moment().subtract(1, 'day');
 			expect(
-				new ZonedMoment(dayBefore, 'America/New_York').formatListView(nowUtc),
+				new ZonedMoment(dayBefore, 'America/New_York').format({
+					type: 'list',
+					nowUtc,
+				}),
 			).toBe('2020/05/11, 22:33:37');
 			expect(
-				new ZonedMoment(dayBefore, 'America/Los_Angeles').formatListView(
+				new ZonedMoment(dayBefore, 'America/Los_Angeles').format({
+					type: 'list',
 					nowUtc,
-				),
+				}),
 			).toBe('2020/05/11, 19:33:37');
 			expect(
-				new ZonedMoment(dayBefore, 'Australia/Sydney').formatListView(nowUtc),
+				new ZonedMoment(dayBefore, 'Australia/Sydney').format({
+					type: 'list',
+					nowUtc,
+				}),
 			).toBe('2020/05/12, 12:33:37');
 			expect(
-				new ZonedMoment(dayBefore, 'Europe/London').formatListView(nowUtc),
+				new ZonedMoment(dayBefore, 'Europe/London').format({
+					type: 'list',
+					nowUtc,
+				}),
 			).toBe('2020/05/12, 03:33:37');
 		});
 	});

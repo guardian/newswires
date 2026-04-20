@@ -55,7 +55,7 @@ export const SettingsMenu = () => {
 	const timezoneOptions = Array.from(officeNameByTimezone.entries()).map(
 		([id, label]) => ({
 			id,
-			label: `${label} (${new ZonedMoment(moment(), id).format('settings')})`,
+			label: `${label} (${new ZonedMoment(moment(), id).format({ type: 'settings' })})`,
 		}),
 	);
 

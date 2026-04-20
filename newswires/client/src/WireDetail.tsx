@@ -138,11 +138,16 @@ function TitleContentForItem({
 					`}
 				>
 					{wordCount} words &#183;{' '}
-					{ingestionMomentWithUserTimezone.format('wireDetail')} &#183;{' '}
+					{ingestionMomentWithUserTimezone.format({ type: 'wireDetail' })}{' '}
+					&#183;{' '}
 					<Tooltip
-						tooltipContent={ingestionMomentWithUserTimezone.format('full')}
+						tooltipContent={ingestionMomentWithUserTimezone.format({
+							type: 'full',
+						})}
 					>
-						<span>({ingestionMomentWithUserTimezone.format('relative')})</span>
+						<span>
+							({ingestionMomentWithUserTimezone.format({ type: 'relative' })})
+						</span>
 					</Tooltip>
 				</span>
 				<div
