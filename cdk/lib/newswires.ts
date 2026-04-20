@@ -380,7 +380,7 @@ export class Newswires extends GuStack {
 				evaluationPeriods: 1,
 				threshold: 1,
 				comparisonOperator: ComparisonOperator.LESS_THAN_THRESHOLD,
-				treatMissingData: TreatMissingData.NOT_BREACHING,
+				treatMissingData: TreatMissingData.BREACHING,
 				metric: noSuccessLogsBySupplier,
 				snsTopicName: props.alarmSnsTopic.topicName,
 				app: `ingestion-lambda`,
