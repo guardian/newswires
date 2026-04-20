@@ -1,6 +1,14 @@
 package db
 
-import conf.{AND, ComboTerm, OR, SearchField, SearchTerm, SingleTerm}
+import conf.{
+  AND,
+  CategoryCodesCondition,
+  ComboTerm,
+  OR,
+  SearchField,
+  SearchTerm,
+  SingleTerm
+}
 import io.circe.parser.decode
 import helpers.SqlSnippetMatcher.matchSqlSnippet
 import helpers.models
@@ -119,13 +127,13 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         SingleTerm(SearchTerm.SingleField("News Summary", SearchField.Headline))
       ),
       suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List("N2:GB")
+      categoryCodes = Some(CategoryCodesCondition(List("N2:GB"), OR))
     )
 
     val presetFilterParams2 = emptyFilterParams.copy(
       searchTerms = Some(SingleTerm(SearchTerm.SingleField("soccer"))),
       suppliersIncl = List("AFP"),
-      categoryCodesIncl = List("afpCat:SPO")
+      categoryCodes = Some(CategoryCodesCondition(List("afpCat:SPO"), OR))
     )
 
     val preset1Clause =
@@ -228,14 +236,19 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         )
       ),
       suppliersIncl = List("REUTERS"),
-      categoryCodesIncl = List(
-        "N2:GB"
+      categoryCodes = Some(
+        CategoryCodesCondition(
+          List(
+            "N2:GB"
+          ),
+          OR
+        )
       )
     )
     val presetSearchParams2 = emptyFilterParams.copy(
       searchTerms = Some(SingleTerm(SearchTerm.SingleField("soccer"))),
       suppliersIncl = List("AFP"),
-      categoryCodesIncl = List("afpCat:SPO")
+      categoryCodes = Some(CategoryCodesCondition(List("afpCat:SPO"), OR))
     )
 
     val customParamsClause = FingerpostWireEntry
@@ -347,7 +360,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val multiClauses =
       emptyFilterParams
         .copy(suppliersIncl = List("supplier"))
-        .copy(categoryCodesIncl = List("code"))
+        .copy(categoryCodes = Some(CategoryCodesCondition(List("code"), OR)))
     val snippets = FingerpostWireEntry.filtersBuilder(multiClauses)
 
     val rendered = sqls"${snippets.get}".value
@@ -359,10 +372,11 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val multiClauses =
       emptyFilterParams
         .copy(suppliersIncl = List("supplier"))
-        .copy(categoryCodesIncl = List("code"))
+        .copy(categoryCodes = Some(CategoryCodesCondition(List("code"), OR)))
 
     val supplierClause = Filters.supplierSQL(List("supplier"))
-    val codeClause = Filters.categoryCodeInclSQL(List("code"))
+    val codeClause =
+      Filters.categoryCodeSQL(CategoryCodesCondition(List("code"), OR))
 
     val snippets = FingerpostWireEntry.filtersBuilder(multiClauses)
 
@@ -386,7 +400,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       keywordExcl = List("kw2"),
       suppliersIncl = List("s1"),
       suppliersExcl = List("s2"),
-      categoryCodesIncl = List("c1"),
+      categoryCodes = Some(CategoryCodesCondition(List("c1"), OR)),
       categoryCodesExcl = List("c2"),
       hasDataFormatting = Some(true),
       preComputedCategories = List("p1"),
@@ -400,7 +414,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     val snippets = FingerpostWireEntry.filtersBuilder(fullParams)
     val keywordsClause = FingerpostWireEntry.Filters.keywordsSQL(List("kw1"))
     val categoryCodesClause =
-      FingerpostWireEntry.Filters.categoryCodeInclSQL(List("c1"))
+      FingerpostWireEntry.Filters.categoryCodeSQL(
+        CategoryCodesCondition(List("c1"), OR)
+      )
     val keywordsExclClause =
       FingerpostWireEntry.Filters.keywordsExclSQL(List("kw2"))
     val textSearchClause = FingerpostWireEntry.Filters.searchQuerySqlCombined(
@@ -627,7 +643,9 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   behavior of "category code SQL helpers"
   it should "create the correct sql snippet for categoryCodesIncl" in {
     val categoryCodesSQL =
-      FingerpostWireEntry.Filters.categoryCodeInclSQL(List("code"))
+      FingerpostWireEntry.Filters.categoryCodeSQL(
+        CategoryCodesCondition(List("code"), OR)
+      )
     categoryCodesSQL should matchSqlSnippet(
       expectedClause = "fm.category_codes && ?",
       expectedParams = List(List("code"))

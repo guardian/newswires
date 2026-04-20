@@ -301,7 +301,7 @@ trait models {
     keywordExcl = Nil,
     suppliersIncl = Nil,
     suppliersExcl = Nil,
-    categoryCodesIncl = Nil,
+    categoryCodes = None,
     categoryCodesExcl = Nil,
     hasDataFormatting = None,
     preComputedCategories = Nil,
