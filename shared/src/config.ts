@@ -24,8 +24,8 @@ const APP_MODE = (() => {
 	return stage;
 })();
 
-export const isLocal = APP_MODE === 'local';
-export const isDev = APP_MODE === 'dev';
+const isLocal = APP_MODE === 'local';
+const isDev = APP_MODE === 'dev';
 
 export function getFromEnv(key: string): string {
 	const value = process.env[key];
@@ -47,3 +47,18 @@ export const remoteAwsConfig = isRunningLocally
 			}),
 		}
 	: {};
+
+const awsConfig = {
+	region: 'eu-west-1',
+	credentials: fromNodeProviderChain({
+		profile: 'editorial-feeds',
+	}),
+};
+
+export const config = {
+	queueUrl: getOptionalFromEnv('INGESTION_LAMBDA_QUEUE_URL'),
+	appMode: APP_MODE,
+	isLocal,
+	isDev,
+	awsConfig,
+};
