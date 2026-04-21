@@ -1,6 +1,6 @@
 package models
 
-import conf.{CategoryCodesCondition, OR, SOME, SearchTerms}
+import conf.{CategoryCodesCondition, SOME, SearchTerms}
 import play.api.mvc.Request
 import service.FeatureSwitchProvider
 
