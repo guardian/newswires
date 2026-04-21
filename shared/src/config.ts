@@ -8,6 +8,25 @@ import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 export const isRunningLocally =
 	!process.env.LAMBDA_TASK_ROOT && !process.env.AWS_EXECUTION_ENV;
 
+type AppMode = 'local' | 'dev' | 'code' | 'prod';
+const allowedAppModes: readonly AppMode[] = ['local', 'dev', 'code', 'prod'];
+function isAppMode(value: string): value is AppMode {
+	return allowedAppModes.includes(value as AppMode);
+}
+const APP_MODE = (() => {
+	const stageEnv = getOptionalFromEnv('STAGE');
+	if (!stageEnv) return 'local';
+	const stage = stageEnv.toLowerCase();
+	if (!isAppMode(stage))
+		throw new Error(
+			`Invalid stage, ${stage}. Allowed values are ${allowedAppModes.join(', ')}`,
+		);
+	return stage;
+})();
+
+export const isLocal = APP_MODE === 'local';
+export const isDev = APP_MODE === 'dev';
+
 export function getFromEnv(key: string): string {
 	const value = process.env[key];
 	if (!value) {
