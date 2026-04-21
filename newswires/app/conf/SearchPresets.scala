@@ -27,7 +27,7 @@ object SearchPreset {
       suppliersExcl = Nil,
       keywordIncl = keyword.toList ::: keywords,
       keywordExcl = keywordExcl,
-      categoryCodes = categoryCodes,
+      categoryCodesIncl = categoryCodes,
       categoryCodesExcl = categoryCodesExcl,
       hasDataFormatting = hasDataFormatting,
       preComputedCategories = preComputedCategories,

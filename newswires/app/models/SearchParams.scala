@@ -10,7 +10,7 @@ case class FilterParams(
     keywordExcl: List[String],
     suppliersIncl: List[String],
     suppliersExcl: List[String],
-    categoryCodes: Option[CategoryCodesCondition],
+    categoryCodesIncl: Option[CategoryCodesCondition],
     categoryCodesExcl: List[String],
     hasDataFormatting: Option[Boolean],
     preComputedCategories: List[String],
@@ -47,7 +47,7 @@ object SearchParams {
           featureSwitch.ShowGuSuppliers.isOn(req),
           baseParams.suppliers
         ),
-        categoryCodes =
+        categoryCodesIncl =
           if (baseParams.categoryCode.nonEmpty)
             Some(CategoryCodesCondition(baseParams.categoryCode, SOME))
           else None,

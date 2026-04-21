@@ -90,7 +90,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
         keywordExcl = Nil,
         suppliersIncl = List("supplier1"),
         suppliersExcl = List("UNAUTHED_EMAIL_FEED"),
-        categoryCodes = Some(CategoryCodesCondition(List("code1"), SOME)),
+        categoryCodesIncl = Some(CategoryCodesCondition(List("code1"), SOME)),
         categoryCodesExcl = List("code2"),
         hasDataFormatting = Some(true),
         collectionId = Some(1),

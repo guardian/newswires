@@ -353,7 +353,7 @@ object FingerpostWireEntry
         exclusionCondition(ke)(keywordCondition(ke, keywords))
       }
 
-    lazy val categoryCodeSQL =
+    lazy val categoryCodeInclSQL =
       (categoryCodes: CategoryCodesCondition) =>
         categoryCodes match {
           case CategoryCodesCondition(codes, SOME) =>
@@ -461,9 +461,10 @@ object FingerpostWireEntry
       case keywords => Some(Filters.keywordsExclSQL(keywords))
     }
 
-    val categoryCodesInclQuery = filters.categoryCodes match {
+    val categoryCodesInclQuery = filters.categoryCodesIncl match {
       case None                => None
-      case Some(categoryCodes) => Some(Filters.categoryCodeSQL(categoryCodes))
+      case Some(categoryCodes) =>
+        Some(Filters.categoryCodeInclSQL(categoryCodes))
     }
 
     val categoryCodesExclQuery = filters.categoryCodesExcl match {
