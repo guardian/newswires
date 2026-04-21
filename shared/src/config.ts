@@ -57,6 +57,7 @@ const awsConfig = {
 
 export const config = {
 	queueUrl: getOptionalFromEnv('INGESTION_LAMBDA_QUEUE_URL'),
+	feedsBucket: getOptionalFromEnv('FEEDS_BUCKET_NAME'),
 	appMode: APP_MODE,
 	isLocal,
 	isDev,

@@ -1,7 +1,7 @@
 import { type SendMessageCommandInput } from '@aws-sdk/client-sqs';
 import { getErrorMessage } from '@guardian/libs';
 import { getFromEnv } from './config';
-import { putToS3 } from './s3';
+import { fileService } from './s3';
 import { queueService } from './sqs';
 
 export async function putToS3AndQueueIngestion({
@@ -14,13 +14,8 @@ export async function putToS3AndQueueIngestion({
 	body: string;
 }): Promise<{ status: 'success' } | { status: 'failure'; reason: string }> {
 	const objectKey = `${keyPrefix}/${externalId}.json`;
-
 	try {
-		const s3PutResult = await putToS3({
-			bucketName: getFromEnv('FEEDS_BUCKET_NAME'),
-			key: objectKey,
-			body,
-		});
+		const s3PutResult = await fileService.putToS3(objectKey, body);
 		if (s3PutResult.status === 'failure') {
 			throw new Error(
 				`Failed to put object to S3 with key "${objectKey}" in bucket "${getFromEnv(
