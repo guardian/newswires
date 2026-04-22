@@ -99,38 +99,38 @@ export const FEEDS_BUCKET_NAME: string = isRunningLocally
 	: getFromEnv('FEEDS_BUCKET_NAME');
 
 interface FileService {
-	bucketName: string;
 	putToS3(
+		bucketName: string,
 		key: string,
 		body: string | Buffer,
 	): Promise<OperationResult<{ response: PutObjectCommandOutput }>>;
 	getFromS3(
+		bucketName: string,
 		key: string,
 	): Promise<OperationResult<{ body: string; lastModified?: Date }>>;
 }
 
 class S3Service implements FileService {
-	bucketName: string;
 	s3Client: S3Client;
 
-	constructor(s3Client: S3Client, bucketName: string) {
-		this.bucketName = bucketName;
+	constructor(s3Client: S3Client) {
 		this.s3Client = s3Client;
 	}
 
 	async putToS3(
+		bucketName: string,
 		key: string,
 		body: string | Buffer,
 	): Promise<OperationResult<{ response: PutObjectCommandOutput }>> {
 		const command = new PutObjectCommand({
-			Bucket: this.bucketName,
+			Bucket: bucketName,
 			Key: key,
 			Body: body,
 		});
 		logger.log({
-			message: `Putting object to S3 bucket "${this.bucketName}" with key "${key}"`,
+			message: `Putting object to S3 bucket "${bucketName}" with key "${key}"`,
 			key,
-			bucketName: this.bucketName,
+			bucketName
 		});
 		try {
 			const response = await this.s3Client.send(command);
@@ -144,17 +144,18 @@ class S3Service implements FileService {
 	}
 
 	async getFromS3(
+		bucketName: string,
 		key: string,
 	): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
 		logger.log({
-			message: `Getting object from S3 bucket "${this.bucketName}" with key "${key}"`,
+			message: `Getting object from S3 bucket "${bucketName}" with key "${key}"`,
 			key,
-			bucketName: this.bucketName,
+			bucketName
 		});
 		try {
 			const response = await s3Client.send(
 				new GetObjectCommand({
-					Bucket: this.bucketName,
+					Bucket: bucketName,
 					Key: key,
 				}),
 			);
@@ -178,15 +179,14 @@ class S3Service implements FileService {
 }
 
 class InMemoryFileService implements FileService {
-	bucketName: string;
 	private store: Map<string, { body: string; lastModified: Date }>;
 
-	constructor(bucketName: string) {
-		this.bucketName = bucketName;
+	constructor() {
 		this.store = new Map();
 	}
 
 	async putToS3(
+		bucketName: string,
 		key: string,
 		body: string | Buffer,
 	): Promise<OperationResult<{ response: PutObjectCommandOutput }>> {
@@ -194,9 +194,9 @@ class InMemoryFileService implements FileService {
 		const bodyStr = typeof body === 'string' ? body : body.toString();
 		this.store.set(key, { body: bodyStr, lastModified: now });
 		logger.log({
-			message: `Putting object to InMemory bucket "${this.bucketName}" with key "${key}"`,
+			message: `Putting object to InMemory bucket "${bucketName}" with key "${key}"`,
 			key,
-			bucketName: this.bucketName,
+			bucketName,
 		});
 		const response: PutObjectCommandOutput = {
 			$metadata: { httpStatusCode: 200 },
@@ -205,12 +205,13 @@ class InMemoryFileService implements FileService {
 	}
 
 	async getFromS3(
+		bucketName: string,
 		key: string,
 	): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
 		logger.log({
-			message: `Getting object from InMemory bucket "${this.bucketName}" with key "${key}"`,
+			message: `Getting object from InMemory bucket "${bucketName}" with key "${key}"`,
 			key,
-			bucketName: this.bucketName,
+			bucketName
 		});
 		const entry = this.store.get(key);
 		if (entry) {
@@ -229,5 +230,5 @@ class InMemoryFileService implements FileService {
 }
 
 export const fileService = isLocal
-	? new InMemoryFileService('')
-	: new S3Service(new S3Client(awsConfig), feedsBucket ?? '');
+	? new InMemoryFileService()
+	: new S3Service(new S3Client(awsConfig));
