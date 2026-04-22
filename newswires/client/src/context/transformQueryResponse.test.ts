@@ -1,6 +1,8 @@
+import moment from 'moment';
 import type { WireDataFromAPI } from '../sharedTypes';
 import { supplierData, UNKNOWN_SUPPLIER } from '../suppliers';
 import { sampleFingerpostContent } from '../tests/fixtures/wireData';
+import { InstantMoment } from '../utils/date/InstantMoment';
 import { transformWireItemQueryResult } from './transformQueryResponse';
 
 const baseInput: WireDataFromAPI = {
@@ -17,10 +19,13 @@ const baseInput: WireDataFromAPI = {
 };
 
 describe('transformWireItemQueryResult', () => {
-	it('should enhance supplier with additional properties', () => {
+	it('should enhance supplier with additional properties, and transform UTC timestamps', () => {
 		const result = transformWireItemQueryResult(baseInput);
 		expect(result.supplier).toEqual(
 			supplierData.find((supplier) => supplier.name === 'REUTERS'),
+		);
+		expect(result.ingestedAtMoment).toEqual(
+			new InstantMoment(moment(baseInput.ingestedAt)),
 		);
 	});
 
