@@ -1,4 +1,7 @@
-import { type SendMessageCommandInput } from '@aws-sdk/client-sqs';
+import {
+	SendMessageCommand,
+	type SendMessageCommandInput,
+} from '@aws-sdk/client-sqs';
 import { getErrorMessage } from '@guardian/libs';
 import { config } from './config';
 import { fileService } from './s3';
@@ -35,7 +38,7 @@ export async function putToS3AndQueueIngestion({
 				},
 			},
 		};
-		await queueService.send(message).catch((error) => {
+		await queueService.send(new SendMessageCommand(message)).catch((error) => {
 			throw new Error(
 				`Failed to send message to ingestion queue for externalId "${externalId}": ${getErrorMessage(error)}`,
 				{ cause: error },
