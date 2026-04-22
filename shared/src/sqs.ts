@@ -40,13 +40,18 @@ interface QueueService {
 	queueUrl: string;
 }
 
-class InMemoryQueueService implements QueueService {
+export class InMemoryQueueService implements QueueService {
 	queueUrl: string;
+	queueData: Record<string, SendMessageCommand[]>;
 	constructor() {
 		this.queueUrl = '';
+		this.queueData = {};
 	}
 	send(message: SendMessageCommandInput): Promise<void> {
-		console.log(message);
+		const command = new SendMessageCommand(message);
+		const currentQueue: SendMessageCommand[] =
+			this.queueData[command.input.QueueUrl!] ?? [];
+		this.queueData[command.input.QueueUrl!] = [...currentQueue, command];
 		return Promise.resolve();
 	}
 }
