@@ -6,7 +6,7 @@ type FormatContext =
 	| { type: 'relative' }
 	| { type: 'isoString' }
 	| { type: 'shortTime' }
-	| { type: 'contextAware'; nowUtc: Moment };
+	| { type: 'fullTimeWithMaybeDate'; nowUtc: Moment };
 
 export class ZonedMoment {
 	#utcTime: Moment;
@@ -15,10 +15,10 @@ export class ZonedMoment {
 		this.#utcTime = utcTime;
 		this.#timezone = timezone;
 	}
-	private zoned() {
-		return this.applyTimezone(this.#utcTime);
+	#zoned() {
+		return this.#applyTimezone(this.#utcTime);
 	}
-	private applyTimezone(m: Moment) {
+	#applyTimezone(m: Moment) {
 		const copy = m.clone();
 		if (this.#timezone == 'Local_Browser') {
 			return copy.local();
@@ -27,7 +27,7 @@ export class ZonedMoment {
 		}
 	}
 	format(context: FormatContext) {
-		const m = this.zoned();
+		const m = this.#zoned();
 		switch (context.type) {
 			case 'humanFull':
 				return m.format('MMM Do YYYY, HH:mm:ss');
@@ -37,8 +37,8 @@ export class ZonedMoment {
 				return m.fromNow();
 			case 'shortTime':
 				return m.format('HH:mm');
-			case 'contextAware': {
-				const nowM = this.applyTimezone(context.nowUtc);
+			case 'fullTimeWithMaybeDate': {
+				const nowM = this.#applyTimezone(context.nowUtc);
 				const sameDay = m.isSame(nowM, 'day');
 				return m.format(sameDay ? 'HH:mm:ss' : 'YYYY/MM/DD, HH:mm:ss');
 			}

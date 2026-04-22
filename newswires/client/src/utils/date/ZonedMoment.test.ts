@@ -38,13 +38,13 @@ describe('ZonedMoment', () => {
 			test('it should provide just the time when the date is today', () => {
 				expect(
 					new ZonedMoment(fiveMinsAgo, 'Australia/Sydney').format({
-						type: 'contextAware',
+						type: 'fullTimeWithMaybeDate',
 						nowUtc,
 					}),
 				).toBe('12:28:37');
 				expect(
 					new ZonedMoment(fiveMinsAgo, 'Europe/London').format({
-						type: 'contextAware',
+						type: 'fullTimeWithMaybeDate',
 						nowUtc,
 					}),
 				).toBe('03:28:37');
@@ -54,25 +54,25 @@ describe('ZonedMoment', () => {
 				const dayBefore = moment.utc('2020-05-12T02:33:37.000Z');
 				expect(
 					new ZonedMoment(dayBefore, 'America/New_York').format({
-						type: 'contextAware',
+						type: 'fullTimeWithMaybeDate',
 						nowUtc,
 					}),
 				).toBe('2020/05/11, 22:33:37');
 				expect(
 					new ZonedMoment(dayBefore, 'America/Los_Angeles').format({
-						type: 'contextAware',
+						type: 'fullTimeWithMaybeDate',
 						nowUtc,
 					}),
 				).toBe('2020/05/11, 19:33:37');
 				expect(
 					new ZonedMoment(dayBefore, 'Australia/Sydney').format({
-						type: 'contextAware',
+						type: 'fullTimeWithMaybeDate',
 						nowUtc,
 					}),
 				).toBe('2020/05/12, 12:33:37');
 				expect(
 					new ZonedMoment(dayBefore, 'Europe/London').format({
-						type: 'contextAware',
+						type: 'fullTimeWithMaybeDate',
 						nowUtc,
 					}),
 				).toBe('2020/05/12, 03:33:37');

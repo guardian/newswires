@@ -373,7 +373,7 @@ const WirePreviewCard = ({
 					`}
 				>
 					{zonedMoment
-						.format({ type: 'contextAware', nowUtc: moment() })
+						.format({ type: 'fullTimeWithMaybeDate', nowUtc: moment() })
 						.split(', ')
 						.map((part) => (
 							<EuiText size="xs" key={part}>
