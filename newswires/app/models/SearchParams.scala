@@ -1,6 +1,6 @@
 package models
 
-import conf.SearchTerms
+import conf.{CategoryCodesCondition, SOME, SearchTerms}
 import play.api.mvc.Request
 import service.FeatureSwitchProvider
 
@@ -10,7 +10,7 @@ case class FilterParams(
     keywordExcl: List[String],
     suppliersIncl: List[String],
     suppliersExcl: List[String],
-    categoryCodesIncl: List[String],
+    categoryCodesIncl: Option[CategoryCodesCondition],
     categoryCodesExcl: List[String],
     hasDataFormatting: Option[Boolean],
     preComputedCategories: List[String],
@@ -47,7 +47,10 @@ object SearchParams {
           featureSwitch.ShowGuSuppliers.isOn(req),
           baseParams.suppliers
         ),
-        categoryCodesIncl = baseParams.categoryCode,
+        categoryCodesIncl =
+          if (baseParams.categoryCode.nonEmpty)
+            Some(CategoryCodesCondition(baseParams.categoryCode, SOME))
+          else None,
         categoryCodesExcl = baseParams.categoryCodeExcl,
         hasDataFormatting = baseParams.hasDataFormatting,
         preComputedCategories = Nil,

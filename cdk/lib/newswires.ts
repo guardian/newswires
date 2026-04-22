@@ -380,7 +380,7 @@ export class Newswires extends GuStack {
 				evaluationPeriods: 1,
 				threshold: 1,
 				comparisonOperator: ComparisonOperator.LESS_THAN_THRESHOLD,
-				treatMissingData: TreatMissingData.NOT_BREACHING,
+				treatMissingData: TreatMissingData.BREACHING,
 				metric: noSuccessLogsBySupplier,
 				snsTopicName: props.alarmSnsTopic.topicName,
 				app: `ingestion-lambda`,
@@ -402,7 +402,7 @@ export class Newswires extends GuStack {
 		ingestionAlerts(
 			INGESTION_HEARTBEAT_EVENT_TYPE,
 			'HEARTBEAT',
-			Duration.minutes(15),
+			Duration.minutes(3),
 		);
 
 		const scheduledCleanupLambda = new GuScheduledLambda(
