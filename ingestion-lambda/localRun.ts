@@ -13,7 +13,10 @@ async function run() {
 	const event = {
 		Records: [createSQSRecord({ externalId})]
 	}
-	main(event).then(console.log).catch(console.error);
+	const response = await main(event)
+	if(response && response.batchItemFailures.length > 0) {
+		console.error(`Error running locally. Make sure you have a local database running by executing: ./scripts/setup-local-db.sh`)
+	}
 }
 
 function createSQSRecord({externalId}: {externalId: string}): SQSRecord {
