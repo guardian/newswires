@@ -5,9 +5,7 @@ import { createDummyFeedEntry } from 'newswires-shared/localRun/exampleFeed';
 import { fileService } from 'newswires-shared/s3';
 
 const { body, externalId } = createDummyFeedEntry();
-
-fileService.putToS3(externalId, JSON.stringify(body))
-
+fileService.putToS3('', externalId, JSON.stringify(body))
 
 run();
 
@@ -22,7 +20,7 @@ function createSQSRecord({externalId}: {externalId: string}): SQSRecord {
 	const randomSqsMessageId = Math.random().toString(36).substring(7);
 	const recordThatShouldSucceed: SQSRecord = {
 		messageId: randomSqsMessageId,
-		body: { externalId, key: externalId},
+		body: JSON.stringify({ externalId, objectKey: externalId}),
 		messageAttributes:  {},
 	} as unknown as SQSRecord;
 	return recordThatShouldSucceed;

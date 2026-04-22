@@ -1,6 +1,6 @@
 import { type SendMessageCommandInput } from '@aws-sdk/client-sqs';
 import { getErrorMessage } from '@guardian/libs';
-import { getFromEnv, config } from './config';
+import { config } from './config';
 import { fileService } from './s3';
 import { queueService } from './sqs';
 
@@ -14,7 +14,7 @@ export async function putToS3AndQueueIngestion({
 	body: string;
 }): Promise<{ status: 'success' } | { status: 'failure'; reason: string }> {
 	const objectKey = `${keyPrefix}/${externalId}.json`;
-	const feedsBucket = config.feedsBucket ?? ''
+	const feedsBucket = config.feedsBucket ?? '';
 	try {
 		const s3PutResult = await fileService.putToS3(feedsBucket, objectKey, body);
 		if (s3PutResult.status === 'failure') {

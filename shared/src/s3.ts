@@ -9,7 +9,7 @@ import { config, getFromEnv, isRunningLocally } from './config';
 import { createLogger } from './lambda-logging';
 import type { OperationResult } from './types';
 
-const { isLocal, awsConfig, feedsBucket } = config;
+const { isLocal, awsConfig } = config;
 // We use localstack to mock AWS services if we are running locally.
 const awsOptions = isRunningLocally
 	? {
@@ -130,7 +130,7 @@ class S3Service implements FileService {
 		logger.log({
 			message: `Putting object to S3 bucket "${bucketName}" with key "${key}"`,
 			key,
-			bucketName
+			bucketName,
 		});
 		try {
 			const response = await this.s3Client.send(command);
@@ -150,7 +150,7 @@ class S3Service implements FileService {
 		logger.log({
 			message: `Getting object from S3 bucket "${bucketName}" with key "${key}"`,
 			key,
-			bucketName
+			bucketName,
 		});
 		try {
 			const response = await s3Client.send(
@@ -211,7 +211,7 @@ class InMemoryFileService implements FileService {
 		logger.log({
 			message: `Getting object from InMemory bucket "${bucketName}" with key "${key}"`,
 			key,
-			bucketName
+			bucketName,
 		});
 		const entry = this.store.get(key);
 		if (entry) {

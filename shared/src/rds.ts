@@ -1,16 +1,18 @@
 import { Signer } from '@aws-sdk/rds-signer';
 import postgres from 'postgres';
-import { getFromEnv, isRunningLocally } from './config';
+import { config, getFromEnv } from './config';
 
-export const DATABASE_NAME: string = isRunningLocally
+const connectToLocalDb = config.isLocal || config.isDev;
+
+export const DATABASE_NAME: string = connectToLocalDb
 	? 'newswires'
 	: getFromEnv('DATABASE_NAME');
 
-export const DATABASE_ENDPOINT_ADDRESS: string = isRunningLocally
+export const DATABASE_ENDPOINT_ADDRESS: string = connectToLocalDb
 	? 'localhost'
 	: getFromEnv('DATABASE_ENDPOINT_ADDRESS');
 
-export const DATABASE_PORT: number = isRunningLocally
+export const DATABASE_PORT: number = connectToLocalDb
 	? 5432
 	: parseInt(getFromEnv('DATABASE_PORT'));
 
@@ -25,8 +27,8 @@ const sharedConfig = {
 const signer = new Signer(sharedConfig);
 
 export async function initialiseDbConnection() {
-	const token = isRunningLocally ? 'postgres' : await signer.getAuthToken();
-	const ssl = isRunningLocally ? 'prefer' : 'require';
+	const token = connectToLocalDb ? 'postgres' : await signer.getAuthToken();
+	const ssl = connectToLocalDb ? 'prefer' : 'require';
 
 	const sql = postgres({
 		...sharedConfig,

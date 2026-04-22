@@ -8,7 +8,7 @@ import type {
 } from 'aws-lambda';
 import * as loggingModule from 'newswires-shared/lambda-logging';
 import * as rdsModule from 'newswires-shared/rds';
-import * as s3Module from 'newswires-shared/s3';
+import { fileService } from 'newswires-shared/s3';
 import type { OperationResult } from 'newswires-shared/types';
 import type { Row, RowList } from 'postgres';
 import type postgres from 'postgres';
@@ -19,8 +19,10 @@ type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
 // mock the s3 sdk module
 jest.mock('newswires-shared/s3', () => ({
-	getFromS3: jest.fn(),
-	putToS3: jest.fn(),
+	fileService: {
+		getFromS3: jest.fn(),
+		putToS3: jest.fn(),
+	},
 	FEEDS_BUCKET_NAME: 'test-feeds-bucket',
 	EMAIL_BUCKET_NAME: 'test-email-bucket',
 }));
@@ -41,9 +43,8 @@ jest.mock('newswires-shared/lambda-logging', () => {
 		createLogger: () => logs,
 	};
 });
-
-const mockGetFromS3 = s3Module.getFromS3 as jest.MockedFunction<
-	typeof s3Module.getFromS3
+const mockGetFromS3 = fileService.getFromS3 as jest.MockedFunction<
+	typeof fileService.getFromS3
 >;
 const mockInitialiseDbConnection =
 	rdsModule.initialiseDbConnection as jest.MockedFunction<
@@ -171,10 +172,10 @@ describe('handler.main', () => {
 
 		// Verify S3 was only called once (for the valid record)
 		expect(mockGetFromS3).toHaveBeenCalledTimes(1);
-		expect(mockGetFromS3).toHaveBeenCalledWith({
-			bucketName: 'test-feeds-bucket',
-			key: 'path/to/object.json',
-		});
+		expect(mockGetFromS3).toHaveBeenCalledWith(
+			'test-feeds-bucket',
+			'path/to/object.json',
+		);
 	});
 
 	it('should handle S3 content parsing failures', async () => {
@@ -187,10 +188,10 @@ describe('handler.main', () => {
 			closeDbConnection: jest.fn(),
 		});
 		// Mock S3 to return different responses for different keys
-		mockGetFromS3.mockImplementation((params) => {
-			if (params.key === 'path/to/valid-object.json') {
+		mockGetFromS3.mockImplementation((_, key) => {
+			if (key === 'path/to/valid-object.json') {
 				return Promise.resolve(validJsonFromSuccessfulS3);
-			} else if (params.key === 'path/to/invalid-object.json') {
+			} else if (key === 'path/to/invalid-object.json') {
 				return Promise.resolve(invalidJsonFromSuccessfulS3);
 			}
 			return Promise.resolve(failedS3Result);
@@ -235,14 +236,14 @@ describe('handler.main', () => {
 		);
 		// Verify S3 was called for both records
 		expect(mockGetFromS3).toHaveBeenCalledTimes(2);
-		expect(mockGetFromS3).toHaveBeenCalledWith({
-			bucketName: 'test-feeds-bucket',
-			key: 'path/to/valid-object.json',
-		});
-		expect(mockGetFromS3).toHaveBeenCalledWith({
-			bucketName: 'test-feeds-bucket',
-			key: 'path/to/invalid-object.json',
-		});
+		expect(mockGetFromS3).toHaveBeenCalledWith(
+			'test-feeds-bucket',
+			'path/to/valid-object.json',
+		);
+		expect(mockGetFromS3).toHaveBeenCalledWith(
+			'test-feeds-bucket',
+			'path/to/invalid-object.json',
+		);
 	});
 
 	it('should handle database writing failures', async () => {
