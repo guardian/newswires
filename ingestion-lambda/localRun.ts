@@ -1,51 +1,29 @@
-import type { Message } from '@aws-sdk/client-sqs';
-import { ReceiveMessageCommand } from '@aws-sdk/client-sqs';
-import type { SQSEvent, SQSRecord } from 'aws-lambda';
-import { getFromEnv } from 'newswires-shared/config';
-import { sqs } from 'newswires-shared/sqs';
+
+import { SQSRecord } from 'aws-lambda';
 import { main } from './src/handler';
+import { createDummyFeedEntry } from 'newswires-shared/localRun/exampleFeed';
+import { fileService } from 'newswires-shared/s3';
 
-const SQS_QUEUE_URL = getFromEnv('INGESTION_LAMBDA_QUEUE_URL');
+const { body, externalId } = createDummyFeedEntry();
 
-const receiveMessage = (queueUrl: string) =>
-	sqs.send(
-		new ReceiveMessageCommand({
-			AttributeNames: ['All'],
-			MaxNumberOfMessages: 10,
-			MessageAttributeNames: ['All'],
-			QueueUrl: queueUrl,
-			WaitTimeSeconds: 20,
-			VisibilityTimeout: 20,
-		}),
-	);
+fileService.putToS3(externalId, JSON.stringify(body))
+
 
 run();
 
 async function run() {
-	const { Messages } = await receiveMessage(SQS_QUEUE_URL);
-
-	if (!Messages) {
-		console.log(
-			'No messages received from SQS queue. You can run the `fingerpost-queuing-lambda` app to populate this',
-		);
-		return;
+	const event = {
+		Records: [createSQSRecord({ externalId})]
 	}
-	const Records = Messages.map((message) => {
-		return createSQSRecord(message);
-	});
-	const event: SQSEvent = { Records };
 	main(event).then(console.log).catch(console.error);
 }
 
-function createSQSRecord(message: Message): SQSRecord {
+function createSQSRecord({externalId}: {externalId: string}): SQSRecord {
 	const randomSqsMessageId = Math.random().toString(36).substring(7);
-
 	const recordThatShouldSucceed: SQSRecord = {
-		messageId: message.MessageId || randomSqsMessageId,
-		body: message.Body || {},
-
-		messageAttributes: message.MessageAttributes || {},
+		messageId: randomSqsMessageId,
+		body: { externalId, key: externalId},
+		messageAttributes:  {},
 	} as unknown as SQSRecord;
 	return recordThatShouldSucceed;
 }
-
