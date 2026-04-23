@@ -3,7 +3,7 @@ import {
 	type SendMessageCommandInput,
 } from '@aws-sdk/client-sqs';
 import { getErrorMessage } from '@guardian/libs';
-import { config } from './config';
+import { appConfig } from './config';
 import { fileService } from './s3';
 import { queueService } from './sqs';
 
@@ -17,7 +17,7 @@ export async function putToS3AndQueueIngestion({
 	body: string;
 }): Promise<{ status: 'success' } | { status: 'failure'; reason: string }> {
 	const objectKey = `${keyPrefix}/${externalId}.json`;
-	const feedsBucket = config.feedsBucket;
+	const feedsBucket = appConfig.feedsBucket;
 	try {
 		const s3PutResult = await fileService.putToS3({
 			bucketName: feedsBucket,

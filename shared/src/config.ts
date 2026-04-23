@@ -53,7 +53,7 @@ const awsConfig = {
 	}),
 };
 
-type Config =
+type AppConfig =
 	| {
 			queueUrl: string;
 			feedsBucket: string;
@@ -72,7 +72,7 @@ type Config =
 			};
 	  };
 
-function buildConfig(): Config {
+function buildAppConfig(): AppConfig {
 	switch (APP_MODE) {
 		case 'local': {
 			return {
@@ -97,4 +97,4 @@ function buildConfig(): Config {
 	}
 }
 
-export const config = buildConfig();
+export const appConfig = buildAppConfig();

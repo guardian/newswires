@@ -1,8 +1,8 @@
 import { Signer } from '@aws-sdk/rds-signer';
 import postgres from 'postgres';
-import { config, getFromEnv } from './config';
+import { appConfig, getFromEnv } from './config';
 
-const { appMode } = config;
+const { appMode } = appConfig;
 
 const connectToLocalDb = appMode === 'local' || appMode === 'dev';
 

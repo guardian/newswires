@@ -25,7 +25,7 @@ jest.mock('newswires-shared/s3', () => ({
 	},
 }));
 jest.mock('newswires-shared/config', () => ({
-	config: {
+	appConfig: {
 		feedsBucket: 'test-feeds-bucket',
 		emailBucket: 'test-email-bucket',
 	},

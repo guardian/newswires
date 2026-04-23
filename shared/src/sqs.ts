@@ -1,9 +1,9 @@
 import type { SendMessageCommandOutput } from '@aws-sdk/client-sqs';
 import type { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { SQSClient } from '@aws-sdk/client-sqs';
-import { config } from './config';
+import { appConfig } from './config';
 
-const { appMode, awsConfig, queueUrl } = config;
+const { appMode, awsConfig, queueUrl } = appConfig;
 
 interface QueueService {
 	send(command: SendMessageCommand): Promise<SendMessageCommandOutput | void>;

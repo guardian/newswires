@@ -5,11 +5,11 @@ import {
 	S3Client,
 } from '@aws-sdk/client-s3';
 import { getErrorMessage } from '@guardian/libs';
-import { config } from './config';
+import { appConfig } from './config';
 import { createLogger } from './lambda-logging';
 import type { OperationResult } from './types';
 
-const { appMode, awsConfig } = config;
+const { appMode, awsConfig } = appConfig;
 
 const logger = createLogger({});
 
