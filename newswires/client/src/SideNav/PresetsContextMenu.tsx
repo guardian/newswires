@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { useSearch } from '../context/SearchContext';
-import { usePrevious } from '../hooks/usePrevious';
 import { getNextActivePreset, getPresetPanel } from '../presetHelpers';
 import { type PresetGroupName } from '../presets';
 import { SecondaryLevelListPresetPanel } from './SecondaryLevelListPreset';
@@ -34,7 +33,6 @@ export const PresetsContextMenu = () => {
 
 	const { config, handleEnterQuery } = useSearch();
 	const activePreset = config.query.preset;
-	const previousPreset = usePrevious(activePreset);
 
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(() =>
 		getPresetPanel(activePreset),
@@ -49,12 +47,7 @@ export const PresetsContextMenu = () => {
 
 	const nextPanel = getPresetPanel(activePreset);
 
-	if (
-		nextPanel !== activePanelId &&
-		previousPreset !== null &&
-		previousPreset !== activePreset &&
-		!animationState.isAnimating
-	) {
+	if (nextPanel !== activePanelId && !animationState.isAnimating) {
 		setActivePanelId(nextPanel);
 		setAnimationState({
 			isAnimating: true,
