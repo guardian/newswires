@@ -1,7 +1,7 @@
 import type { SESMessage } from 'aws-lambda';
 import { authenticate } from 'mailauth';
 import { getFromEnv, isRunningLocally } from './config';
-import { getFromS3 } from './s3';
+import { fileService } from './s3';
 
 type EmailVerificationCheck = {
 	name: string;
@@ -47,7 +47,7 @@ export async function findVerificationFailures(
 		sesFailedChecks.length === 1 &&
 		sesFailedChecks[0]?.name === 'spfVerdict'
 	) {
-		const mailObject = await getFromS3({
+		const mailObject = await fileService.getFromS3({
 			bucketName: EMAIL_BUCKET_NAME,
 			key: message.mail.messageId,
 		});
