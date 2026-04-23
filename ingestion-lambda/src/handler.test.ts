@@ -23,8 +23,12 @@ jest.mock('newswires-shared/s3', () => ({
 		getFromS3: jest.fn(),
 		putToS3: jest.fn(),
 	},
-	FEEDS_BUCKET_NAME: 'test-feeds-bucket',
-	EMAIL_BUCKET_NAME: 'test-email-bucket',
+}));
+jest.mock('newswires-shared/config', () => ({
+	config: {
+		feedsBucket: 'test-feeds-bucket',
+		emailBucket: 'test-email-bucket',
+	},
 }));
 // and the postgres sql module
 jest.mock('newswires-shared/rds', () => ({

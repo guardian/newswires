@@ -2,7 +2,9 @@ import { Signer } from '@aws-sdk/rds-signer';
 import postgres from 'postgres';
 import { config, getFromEnv } from './config';
 
-const connectToLocalDb = config.isLocal || config.isDev;
+const { appMode } = config;
+
+const connectToLocalDb = appMode === 'local' || appMode === 'dev';
 
 export const DATABASE_NAME: string = connectToLocalDb
 	? 'newswires'

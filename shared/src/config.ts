@@ -1,4 +1,5 @@
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
+import type { AwsCredentialIdentityProvider } from '@smithy/types';
 
 /**
  * Is this application running locally, or in AWS?
@@ -23,9 +24,6 @@ const APP_MODE = (() => {
 		);
 	return stage;
 })();
-
-const isLocal = APP_MODE === 'local';
-const isDev = APP_MODE === 'dev';
 
 export function getFromEnv(key: string): string {
 	const value = process.env[key];
@@ -55,11 +53,48 @@ const awsConfig = {
 	}),
 };
 
-export const config = {
-	queueUrl: getOptionalFromEnv('INGESTION_LAMBDA_QUEUE_URL'),
-	feedsBucket: getOptionalFromEnv('FEEDS_BUCKET_NAME'),
-	appMode: APP_MODE,
-	isLocal,
-	isDev,
-	awsConfig,
-};
+type Config =
+	| {
+			queueUrl: string;
+			feedsBucket: string;
+			emailBucket: string;
+			appMode: 'local';
+			awsConfig: undefined;
+	  }
+	| {
+			queueUrl: string;
+			feedsBucket: string;
+			emailBucket: string;
+			appMode: 'dev' | 'code' | 'prod';
+			awsConfig: {
+				region: string;
+				credentials: AwsCredentialIdentityProvider;
+			};
+	  };
+
+function buildConfig(): Config {
+	switch (APP_MODE) {
+		case 'local': {
+			return {
+				queueUrl: getOptionalFromEnv('INGESTION_LAMBDA_QUEUE_URL') ?? '',
+				feedsBucket: getOptionalFromEnv('FEEDS_BUCKET_NAME') ?? '',
+				emailBucket: getOptionalFromEnv('EMAIL_BUCKET_NAME') ?? '',
+				appMode: 'local',
+				awsConfig: undefined,
+			};
+		}
+		case 'dev':
+		case 'code':
+		case 'prod': {
+			return {
+				queueUrl: getFromEnv('INGESTION_LAMBDA_QUEUE_URL'),
+				feedsBucket: getFromEnv('FEEDS_BUCKET_NAME'),
+				emailBucket: getFromEnv('EMAIL_BUCKET_NAME'),
+				appMode: APP_MODE,
+				awsConfig: awsConfig,
+			};
+		}
+	}
+}
+
+export const config = buildConfig();

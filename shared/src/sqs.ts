@@ -3,7 +3,7 @@ import type { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { config } from './config';
 
-const { isLocal, awsConfig, queueUrl } = config;
+const { appMode, awsConfig, queueUrl } = config;
 
 interface QueueService {
 	send(command: SendMessageCommand): Promise<SendMessageCommandOutput | void>;
@@ -28,13 +28,14 @@ export class InMemoryQueueService implements QueueService {
 class SqsQueueService implements QueueService {
 	queueUrl: string;
 	constructor(public sqsClient: SQSClient) {
-		this.queueUrl = queueUrl ?? '';
+		this.queueUrl = queueUrl;
 	}
 	send(command: SendMessageCommand): Promise<SendMessageCommandOutput> {
 		return this.sqsClient.send(command);
 	}
 }
 
-export const queueService = isLocal
-	? new InMemoryQueueService()
-	: new SqsQueueService(new SQSClient(awsConfig));
+export const queueService =
+	appMode === 'local'
+		? new InMemoryQueueService()
+		: new SqsQueueService(new SQSClient(awsConfig));
