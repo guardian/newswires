@@ -1,14 +1,14 @@
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 import type { AwsCredentialIdentityProvider } from '@smithy/types';
 
-type AppMode = 'local' | 'dev' | 'code' | 'prod';
-const allowedAppModes: readonly AppMode[] = ['local', 'dev', 'code', 'prod'];
+type AppMode = 'dev' | 'code' | 'prod';
+const allowedAppModes: readonly AppMode[] = ['dev', 'code', 'prod'];
 function isAppMode(value: string): value is AppMode {
 	return allowedAppModes.includes(value as AppMode);
 }
 const APP_MODE = (() => {
 	const stageEnv = getOptionalFromEnv('STAGE');
-	if (!stageEnv) return 'local';
+	if (!stageEnv) return 'dev';
 	const stage = stageEnv.toLowerCase();
 	if (!isAppMode(stage))
 		throw new Error(
@@ -41,14 +41,14 @@ type AppConfig =
 			queueUrl: string;
 			feedsBucket: string;
 			emailBucket: string;
-			appMode: 'local';
+			appMode: 'dev';
 			awsConfig: undefined;
 	  }
 	| {
 			queueUrl: string;
 			feedsBucket: string;
 			emailBucket: string;
-			appMode: 'dev' | 'code' | 'prod';
+			appMode: 'code' | 'prod';
 			awsConfig: {
 				region: string;
 				credentials: AwsCredentialIdentityProvider;
@@ -57,16 +57,15 @@ type AppConfig =
 
 function buildAppConfig(): AppConfig {
 	switch (APP_MODE) {
-		case 'local': {
+		case 'dev': {
 			return {
 				queueUrl: getOptionalFromEnv('INGESTION_LAMBDA_QUEUE_URL') ?? '',
 				feedsBucket: getOptionalFromEnv('FEEDS_BUCKET_NAME') ?? '',
 				emailBucket: getOptionalFromEnv('EMAIL_BUCKET_NAME') ?? '',
-				appMode: 'local',
+				appMode: 'dev',
 				awsConfig: undefined,
 			};
 		}
-		case 'dev':
 		case 'code':
 		case 'prod': {
 			return {
@@ -82,7 +81,7 @@ function buildAppConfig(): AppConfig {
 
 type DatabaseConfig =
 	| {
-			appMode: 'local' | 'dev';
+			appMode: 'dev';
 			port: number;
 			username: string;
 			hostname: string;
@@ -102,10 +101,9 @@ type DatabaseConfig =
 
 function buildDatabaseConfig(): DatabaseConfig {
 	switch (APP_MODE) {
-		case 'local':
 		case 'dev': {
 			return {
-				appMode: APP_MODE,
+				appMode: 'dev',
 				port: 5432,
 				username: 'postgres',
 				hostname: 'localhost',

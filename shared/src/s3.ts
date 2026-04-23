@@ -166,6 +166,6 @@ class InMemoryFileService implements FileService {
 }
 
 export const fileService =
-	appMode === 'local'
+	appMode === 'dev'
 		? new InMemoryFileService()
 		: new S3Service(new S3Client(awsConfig));

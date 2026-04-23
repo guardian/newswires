@@ -3,8 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"local": "STAGE=local tsx watch localRun.ts",
-		"dev": "STAGE=dev FEEDS_BUCKET_NAME=editorial-feeds-code-news-feedsbucketcodenewswires-eoth51pa5nmv INGESTION_LAMBDA_QUEUE_URL=https://sqs.eu-west-1.amazonaws.com/221471511793/editorial-feeds-CODE-wires-feeds-fingerpostqueueF09A4E0A-EoBlEtmqV7Ff tsx watch localRun.ts",
+		"local": "STAGE=dev tsx watch localRun.ts",
 		"typecheck": "tsc -noEmit",
 		"build": "esbuild src/handler.ts --bundle --minify --outfile=dist/handler.js --external:@aws-sdk --external:aws-sdk --platform=node",
 		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",

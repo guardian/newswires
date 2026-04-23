@@ -36,6 +36,6 @@ class SqsQueueService implements QueueService {
 }
 
 export const queueService =
-	appMode === 'local'
+	appMode === 'dev'
 		? new InMemoryQueueService()
 		: new SqsQueueService(new SQSClient(awsConfig));

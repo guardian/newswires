@@ -16,7 +16,6 @@ async function run() {
 			console.error(`Error running locally. Make sure you have a local database running by executing: ./scripts/setup-local-db.sh`)
 		}
 	}, 5000)
-	
 }
 const createRandomDocsAndInsertToInMemoryStore = () => {
 	return [...Array(10).fill(0)].map(_ => {
