@@ -172,10 +172,10 @@ describe('handler.main', () => {
 
 		// Verify S3 was only called once (for the valid record)
 		expect(mockGetFromS3).toHaveBeenCalledTimes(1);
-		expect(mockGetFromS3).toHaveBeenCalledWith(
-			'test-feeds-bucket',
-			'path/to/object.json',
-		);
+		expect(mockGetFromS3).toHaveBeenCalledWith({
+			bucketName: 'test-feeds-bucket',
+			key: 'path/to/object.json',
+		});
 	});
 
 	it('should handle S3 content parsing failures', async () => {
@@ -188,10 +188,10 @@ describe('handler.main', () => {
 			closeDbConnection: jest.fn(),
 		});
 		// Mock S3 to return different responses for different keys
-		mockGetFromS3.mockImplementation((_, key) => {
-			if (key === 'path/to/valid-object.json') {
+		mockGetFromS3.mockImplementation((params) => {
+			if (params.key === 'path/to/valid-object.json') {
 				return Promise.resolve(validJsonFromSuccessfulS3);
-			} else if (key === 'path/to/invalid-object.json') {
+			} else if (params.key === 'path/to/invalid-object.json') {
 				return Promise.resolve(invalidJsonFromSuccessfulS3);
 			}
 			return Promise.resolve(failedS3Result);
@@ -236,14 +236,14 @@ describe('handler.main', () => {
 		);
 		// Verify S3 was called for both records
 		expect(mockGetFromS3).toHaveBeenCalledTimes(2);
-		expect(mockGetFromS3).toHaveBeenCalledWith(
-			'test-feeds-bucket',
-			'path/to/valid-object.json',
-		);
-		expect(mockGetFromS3).toHaveBeenCalledWith(
-			'test-feeds-bucket',
-			'path/to/invalid-object.json',
-		);
+		expect(mockGetFromS3).toHaveBeenCalledWith({
+			bucketName: 'test-feeds-bucket',
+			key: 'path/to/valid-object.json',
+		});
+		expect(mockGetFromS3).toHaveBeenCalledWith({
+			bucketName: 'test-feeds-bucket',
+			key: 'path/to/invalid-object.json',
+		});
 	});
 
 	it('should handle database writing failures', async () => {

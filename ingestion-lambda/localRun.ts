@@ -5,7 +5,7 @@ import { createDummyFeedEntry } from 'newswires-shared/localRun/exampleFeed';
 import { fileService } from 'newswires-shared/s3';
 
 const { body, externalId } = createDummyFeedEntry();
-fileService.putToS3('', externalId, JSON.stringify(body))
+fileService.putToS3({bucketName: '', key: externalId, body: JSON.stringify(body)})
 
 run();
 
