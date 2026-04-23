@@ -1,14 +1,6 @@
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 import type { AwsCredentialIdentityProvider } from '@smithy/types';
 
-/**
- * Is this application running locally, or in AWS?
- * LAMBDA_TASK_ROOT & AWS_EXECUTION_ENV are set when running in AWS
- * See: https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html
- */
-export const isRunningLocally =
-	!process.env.LAMBDA_TASK_ROOT && !process.env.AWS_EXECUTION_ENV;
-
 type AppMode = 'local' | 'dev' | 'code' | 'prod';
 const allowedAppModes: readonly AppMode[] = ['local', 'dev', 'code', 'prod'];
 function isAppMode(value: string): value is AppMode {
@@ -25,7 +17,7 @@ const APP_MODE = (() => {
 	return stage;
 })();
 
-export function getFromEnv(key: string): string {
+function getFromEnv(key: string): string {
 	const value = process.env[key];
 	if (!value) {
 		throw new Error(`Missing required environment variable ${key}`);
@@ -33,18 +25,9 @@ export function getFromEnv(key: string): string {
 	return value;
 }
 
-export function getOptionalFromEnv(key: string): string | undefined {
+function getOptionalFromEnv(key: string): string | undefined {
 	return process.env[key];
 }
-
-export const remoteAwsConfig = isRunningLocally
-	? {
-			region: 'eu-west-1',
-			credentials: fromNodeProviderChain({
-				profile: 'editorial-feeds',
-			}),
-		}
-	: {};
 
 const awsConfig = {
 	region: 'eu-west-1',
@@ -97,4 +80,54 @@ function buildAppConfig(): AppConfig {
 	}
 }
 
+type DatabaseConfig =
+	| {
+			appMode: 'local' | 'dev';
+			port: number;
+			username: string;
+			hostname: string;
+			name: string;
+			ssl: 'prefer';
+			password: string;
+	  }
+	| {
+			appMode: 'code' | 'prod';
+			port: number;
+			username: string;
+			hostname: string;
+			name: string;
+			ssl: 'require';
+			password: undefined;
+	  };
+
+function buildDatabaseConfig(): DatabaseConfig {
+	switch (APP_MODE) {
+		case 'local':
+		case 'dev': {
+			return {
+				appMode: APP_MODE,
+				port: 5432,
+				username: 'postgres',
+				hostname: 'localhost',
+				name: 'newswires',
+				ssl: 'prefer',
+				password: 'postgres',
+			};
+		}
+		case 'code':
+		case 'prod': {
+			return {
+				appMode: APP_MODE,
+				port: parseInt(getFromEnv('DATABASE_PORT')),
+				username: 'postgres',
+				hostname: getFromEnv('DATABASE_ENDPOINT_ADDRESS'),
+				name: getFromEnv('DATABASE_NAME'),
+				ssl: 'require',
+				password: undefined,
+			};
+		}
+	}
+}
+
 export const appConfig = buildAppConfig();
+export const databaseConfig = buildDatabaseConfig();

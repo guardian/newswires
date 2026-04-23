@@ -1,42 +1,21 @@
 import { Signer } from '@aws-sdk/rds-signer';
 import postgres from 'postgres';
-import { appConfig, getFromEnv } from './config';
+import { databaseConfig } from './config';
 
-const { appMode } = appConfig;
+const { port, hostname, username } = databaseConfig;
 
-const connectToLocalDb = appMode === 'local' || appMode === 'dev';
-
-export const DATABASE_NAME: string = connectToLocalDb
-	? 'newswires'
-	: getFromEnv('DATABASE_NAME');
-
-export const DATABASE_ENDPOINT_ADDRESS: string = connectToLocalDb
-	? 'localhost'
-	: getFromEnv('DATABASE_ENDPOINT_ADDRESS');
-
-export const DATABASE_PORT: number = connectToLocalDb
-	? 5432
-	: parseInt(getFromEnv('DATABASE_PORT'));
-
-export const DATABASE_USERNAME = 'postgres';
-
-const sharedConfig = {
-	port: DATABASE_PORT,
-	hostname: DATABASE_ENDPOINT_ADDRESS,
-	username: DATABASE_USERNAME,
-};
-
-const signer = new Signer(sharedConfig);
+const signer = new Signer({
+	port,
+	hostname,
+	username,
+});
 
 export async function initialiseDbConnection() {
-	const token = connectToLocalDb ? 'postgres' : await signer.getAuthToken();
-	const ssl = connectToLocalDb ? 'prefer' : 'require';
+	const token = databaseConfig.password ?? (await signer.getAuthToken());
 
 	const sql = postgres({
-		...sharedConfig,
-		database: DATABASE_NAME,
+		...databaseConfig,
 		password: token,
-		ssl,
 		idle_timeout: 10,
 		max_lifetime: 60 * 15, // todo -- import from cdk max lambda timeout config?
 	});
