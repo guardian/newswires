@@ -206,6 +206,14 @@ object SearchPresets {
         "business-related-topic-codes",
         "business-related-news-codes"
       )
+    ),
+    SearchPreset(
+      REUTERS,
+      categoryCodes = Some(CategoryCodesCondition(List("N2:NAMER", "a1312cat:a"), ALL))
+    ),
+    SearchPreset(
+      REUTERS,
+      categoryCodes = Some(CategoryCodesCondition(List("N2:NAMER", "a1312cat:p"), ALL))
     )
   )
 
