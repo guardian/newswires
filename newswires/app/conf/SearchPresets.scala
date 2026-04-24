@@ -49,6 +49,7 @@ object SearchPresets {
     case "afp-world"            => Some(SearchPreset(AfpWorld, Nil))
     case "minor-agencies-world" => Some(SearchPreset(MinorAgenciesWorld, Nil))
     case "all-uk"               => Some(SearchPreset(AllUk, Nil))
+    case "uk-election"          => Some(SearchPreset(PaElection, Nil))
     case "all-us"               => Some(SearchPreset(AllUs, Nil))
     case "world-plus-uk"        => Some(SearchPreset(WorldPlusUK, Nil))
     case "all-business"         => Some(SearchPreset(AllBusiness, Nil))
