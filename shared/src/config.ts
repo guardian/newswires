@@ -36,18 +36,12 @@ const awsConfig = {
 	}),
 };
 
-type AppConfig =
+type AwsConfig =
 	| {
-			queueUrl: string;
-			feedsBucket: string;
-			emailBucket: string;
 			appMode: 'dev';
 			awsConfig: undefined;
 	  }
 	| {
-			queueUrl: string;
-			feedsBucket: string;
-			emailBucket: string;
 			appMode: 'code' | 'prod';
 			awsConfig: {
 				region: string;
@@ -55,13 +49,10 @@ type AppConfig =
 			};
 	  };
 
-function buildAppConfig(): AppConfig {
+function buildAwsConfig(): AwsConfig {
 	switch (APP_MODE) {
 		case 'dev': {
 			return {
-				queueUrl: getOptionalFromEnv('INGESTION_LAMBDA_QUEUE_URL') ?? '',
-				feedsBucket: getOptionalFromEnv('FEEDS_BUCKET_NAME') ?? '',
-				emailBucket: getOptionalFromEnv('EMAIL_BUCKET_NAME') ?? '',
 				appMode: 'dev',
 				awsConfig: undefined,
 			};
@@ -69,11 +60,27 @@ function buildAppConfig(): AppConfig {
 		case 'code':
 		case 'prod': {
 			return {
-				queueUrl: getFromEnv('INGESTION_LAMBDA_QUEUE_URL'),
-				feedsBucket: getFromEnv('FEEDS_BUCKET_NAME'),
-				emailBucket: getFromEnv('EMAIL_BUCKET_NAME'),
 				appMode: APP_MODE,
 				awsConfig: awsConfig,
+			};
+		}
+	}
+}
+type ResourceConfig = {
+	resource: string;
+};
+
+function buildResourceConfig(envVariable: string): ResourceConfig {
+	switch (APP_MODE) {
+		case 'dev': {
+			return {
+				resource: getOptionalFromEnv(envVariable) ?? '',
+			};
+		}
+		case 'code':
+		case 'prod': {
+			return {
+				resource: getFromEnv(envVariable),
 			};
 		}
 	}
@@ -127,5 +134,10 @@ function buildDatabaseConfig(): DatabaseConfig {
 	}
 }
 
-export const appConfig = buildAppConfig();
+export const appConfig = buildAwsConfig();
 export const databaseConfig = buildDatabaseConfig();
+export const ingestionQueueUrl = buildResourceConfig(
+	'INGESTION_LAMBDA_QUEUE_URL',
+).resource;
+export const feedsBucket = buildResourceConfig('FEEDS_BUCKET_NAME').resource;
+export const emailBucket = buildResourceConfig('EMAIL_BUCKET_NAME').resource;

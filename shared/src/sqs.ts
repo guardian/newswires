@@ -1,9 +1,9 @@
 import type { SendMessageCommandOutput } from '@aws-sdk/client-sqs';
 import type { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { SQSClient } from '@aws-sdk/client-sqs';
-import { appConfig } from './config';
+import { appConfig, ingestionQueueUrl } from './config';
 
-const { appMode, awsConfig, queueUrl } = appConfig;
+const { appMode, awsConfig } = appConfig;
 
 interface QueueService {
 	send(command: SendMessageCommand): Promise<SendMessageCommandOutput | void>;
@@ -14,7 +14,7 @@ export class InMemoryQueueService implements QueueService {
 	queueUrl: string;
 	queueData: Record<string, SendMessageCommand[]>;
 	constructor() {
-		this.queueUrl = '';
+		this.queueUrl = ingestionQueueUrl;
 		this.queueData = {};
 	}
 	send(command: SendMessageCommand): Promise<void> {
@@ -28,7 +28,7 @@ export class InMemoryQueueService implements QueueService {
 class SqsQueueService implements QueueService {
 	queueUrl: string;
 	constructor(public sqsClient: SQSClient) {
-		this.queueUrl = queueUrl;
+		this.queueUrl = ingestionQueueUrl;
 	}
 	send(command: SendMessageCommand): Promise<SendMessageCommandOutput> {
 		return this.sqsClient.send(command);

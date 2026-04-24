@@ -5,7 +5,7 @@ import type {
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
-import { appConfig } from 'newswires-shared/config';
+import { emailBucket, feedsBucket } from 'newswires-shared/config';
 import { INGESTION_HEARTBEAT_EVENT_TYPE } from 'newswires-shared/constants';
 import { findVerificationFailures } from 'newswires-shared/findVerificationFailures';
 import type { Logger } from 'newswires-shared/lambda-logging';
@@ -99,7 +99,6 @@ export const main = async (
 ): Promise<SQSBatchResponse | void> => {
 	const logger = createLogger({});
 
-	const { emailBucket, feedsBucket } = appConfig;
 	const records = event.Records;
 	const { sql, closeDbConnection } = await initialiseDbConnection();
 	try {

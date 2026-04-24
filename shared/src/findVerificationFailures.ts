@@ -1,6 +1,6 @@
 import type { SESMessage } from 'aws-lambda';
 import { authenticate } from 'mailauth';
-import { appConfig } from './config';
+import { emailBucket } from './config';
 import { fileService } from './s3';
 
 type EmailVerificationCheck = {
@@ -11,8 +11,6 @@ type EmailVerificationResult = {
 	pass: boolean;
 	failedChecks: EmailVerificationCheck[];
 };
-
-const { emailBucket } = appConfig;
 
 export async function findVerificationFailures(
 	message: SESMessage,
