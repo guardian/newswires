@@ -190,6 +190,16 @@ object SearchPresets {
   )
 
   /*
+   * UK Election feeds
+   */
+  private val PaElection = List(
+    SearchPreset(
+      PA,
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Elections.PA, SOME))
+    )
+  )
+
+  /*
    * US domestic
    */
   private val AllUs = List(
@@ -246,7 +256,11 @@ object SearchPresets {
    */
 
   private val AllSport = List(
-    SearchPreset(PA, categoryCodesExcl = CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.World.PA),
+    SearchPreset(
+      PA,
+      categoryCodesExcl =
+        CategoryCodes.UK.PA ::: CategoryCodes.Business.PA ::: CategoryCodes.World.PA ::: CategoryCodes.Elections.PA
+    ),
     SearchPreset(REUTERS, preComputedCategories = List("all-sports")),
     SearchPreset(AP, preComputedCategories = List("all-sports")),
     SearchPreset(AAP, preComputedCategories = List("all-sports")),
