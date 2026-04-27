@@ -94,6 +94,7 @@ export type WireDataFromAPI = z.infer<typeof WireDataFromAPISchema>;
 export const WiresQueryResponseSchema = z.object({
 	results: z.array(WireDataFromAPISchema),
 	totalCount: z.number(),
+	countQueryCap: z.number(),
 	// keywordCounts: z.record(z.string(), z.number()),
 });
 
@@ -141,6 +142,7 @@ export type WireData = Omit<WireDataFromAPI, 'supplier'> & {
 export type WiresQueryData = {
 	results: WireData[];
 	totalCount: number;
+	countQueryCap: number;
 };
 
 export const isValidDateValue = (value: string): value is EuiDateString =>

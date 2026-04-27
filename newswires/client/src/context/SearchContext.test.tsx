@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react';
-import type { Query } from '../sharedTypes.ts';
+import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
 import { disableLogs, flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
@@ -7,13 +7,15 @@ import { TelemetryContextProvider } from './TelemetryContext.tsx';
 
 jest.useFakeTimers();
 
+const mockResponseData: WiresQueryResponse = {
+	results: [],
+	totalCount: 0,
+	countQueryCap: 100,
+};
+
 global.fetch = jest.fn(() =>
 	Promise.resolve({
-		json: () =>
-			Promise.resolve({
-				results: [],
-				totalCount: 0,
-			}),
+		json: () => Promise.resolve(mockResponseData),
 		ok: () => true,
 	}),
 ) as jest.Mock;
@@ -66,6 +68,7 @@ describe('SearchContext', () => {
 		expect(contextRef.current.state.queryData).toEqual({
 			results: [],
 			totalCount: 0,
+			countQueryCap: 100,
 		});
 		expect(contextRef.current.state.successfulQueryHistory).toEqual([]);
 	});

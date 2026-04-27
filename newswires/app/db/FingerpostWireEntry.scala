@@ -30,6 +30,7 @@ import play.api.Logging
 import scalikejdbc._
 import io.circe.parser._
 
+import java.io.{File, FileWriter}
 import java.time.Instant
 
 case class WireMaybeToolLinkAndCollection(
@@ -58,6 +59,8 @@ case class FingerpostWireEntry(
 object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
+
+  val countQueryCap = 100L
 
   implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
     deriveEncoder[FingerpostWireEntry].mapJson(_.dropNullValues)
@@ -204,23 +207,33 @@ object FingerpostWireEntry
       .flatten
   }
 
+  private def formatQueryParam(param: Any): String = param match {
+    case null | None   => "NULL"
+    case Some(v)       => formatQueryParam(v)
+    case list: List[_] =>
+      "ARRAY[" + list
+        .map(e => "'" + e.toString.replace("'", "''") + "'")
+        .mkString(", ") + "]::text[]"
+    case n: Int  => n.toString
+    case n: Long => n.toString
+    case other   => "'" + other.toString.replace("'", "''") + "'"
+  }
+
+  private def _toExecutableQuery(
+      statement: String,
+      parameters: Seq[Any]
+  ): String = {
+    val sentinel = "\u0000"
+    val segments = statement.replace("??", sentinel).split("\\?", -1)
+    val formattedParams = parameters.map(formatQueryParam) :+ ""
+    segments
+      .zip(formattedParams)
+      .map { case (seg, param) => seg + param }
+      .mkString
+      .replace(sentinel, "?") // restore PostgreSQL ?| / ?& operators
+  }
+
   object Filters {
-    private def exclusionCondition(
-        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
-          FingerpostWireEntry
-        ], FingerpostWireEntry]
-    )(innerClause: SQLSyntax) = {
-      // unpleasant, but the sort of trick you need to pull
-      // because "NOT IN (...)" doesn't hit an index.
-      // https://stackoverflow.com/a/19364694
-
-      sqls"""|NOT EXISTS (
-             |  SELECT FROM ${FingerpostWireEntry as alias}
-             |  WHERE ${syn.id} = ${alias.id}
-             |    AND $innerClause
-             |)""".stripMargin
-    }
-
     private def supplierCondition(
         alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
           FingerpostWireEntry
@@ -276,8 +289,7 @@ object FingerpostWireEntry
 
     lazy val supplierExclSQL =
       (suppliersExcl: List[String]) => {
-        val se = syntax("suppliersExcl")
-        exclusionCondition(se)(supplierCondition(se, suppliersExcl))
+        sqls"NOT (${supplierCondition(syn, suppliersExcl)})"
       }
 
     lazy val guSourceFeedSQL: List[String] => SQLSyntax =
@@ -289,12 +301,9 @@ object FingerpostWireEntry
 
     lazy val guSourceFeedExclSQL =
       (guSourceFeedsExcl: List[String]) => {
-        val gsfe = syntax("guSourceFeedExcl")
-        exclusionCondition(gsfe)(
-          sqls.in(
-            sqls"upper(${gsfe.guSourceFeed})",
-            guSourceFeedsExcl.map(feed => sqls"upper($feed)")
-          )
+        sqls.notIn(
+          sqls"upper(${syn.guSourceFeed})",
+          guSourceFeedsExcl.map(feed => sqls"upper($feed)")
         )
       }
 
@@ -349,8 +358,7 @@ object FingerpostWireEntry
 
     lazy val keywordsExclSQL =
       (keywords: List[String]) => {
-        val ke = syntax("keywordsExcl")
-        exclusionCondition(ke)(keywordCondition(ke, keywords))
+        sqls"NOT (${keywordCondition(syn, keywords)})"
       }
 
     lazy val categoryCodeInclSQL =
@@ -364,10 +372,7 @@ object FingerpostWireEntry
 
     lazy val categoryCodeExclSQL =
       (categoryCodesExcl: List[String]) => {
-        val cce = syntax("categoryCodesExcl")
-        exclusionCondition(cce)(
-          categoryCodeSomeConditions(cce, categoryCodesExcl)
-        )
+        sqls"NOT ${categoryCodeSomeConditions(syn, categoryCodesExcl)}"
       }
 
     lazy val dataFormattingSQL =
@@ -410,10 +415,7 @@ object FingerpostWireEntry
 
     lazy val preComputedCategoriesExclSQL =
       (preComputedCategories: List[String]) => {
-        val pce = syntax("preComputedCategoriesExcl")
-        exclusionCondition(pce)(
-          preComputedCategoriesConditions(pce, preComputedCategories)
-        )
+        sqls"NOT ${preComputedCategoriesConditions(syn, preComputedCategories)}"
       }
 
     lazy val collectionIdSQL = (collectionId: Int) =>
@@ -647,7 +649,8 @@ object FingerpostWireEntry
   }
 
   def query(
-      queryParams: QueryParams
+      queryParams: QueryParams,
+      countQueryCap: Long
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
       queryParams.searchParams,
@@ -668,6 +671,14 @@ object FingerpostWireEntry
     )
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
+
+    val fileWriter =
+      new FileWriter(new File(s"/tmp/query-${Instant.now()}.sql"))
+    fileWriter.write(
+      _toExecutableQuery(query.statement, Seq.from(query.parameters))
+    )
+    fileWriter.close()
+
     val rows = query
       .map(rs => {
         val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
@@ -683,15 +694,18 @@ object FingerpostWireEntry
       marshallJoinedRowsToWireEntries(rows)
 
     val countQuery =
-      sql"""| SELECT COUNT(*)
-            | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
-            | LEFT JOIN ${ToolLink as ToolLink.syn}
-            |  ON ${syn.id} = ${ToolLink.syn.wireId}
-            | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
-            |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
-            | LEFT JOIN ${Collection as Collection.syn}
-            |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
-            | WHERE $whereClause
+      sql"""| SELECT COUNT(*) FROM (
+            |   SELECT 1
+            |   FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+            |   LEFT JOIN ${ToolLink as ToolLink.syn}
+            |    ON ${syn.id} = ${ToolLink.syn.wireId}
+            |   LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+            |     ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+            |   LEFT JOIN ${Collection as Collection.syn}
+            |     ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
+            |   WHERE $whereClause
+            |   LIMIT ${countQueryCap + 1}
+            | ) AS capped
             | """.stripMargin
 
     logger.info(
@@ -710,7 +724,8 @@ object FingerpostWireEntry
 
     QueryResponse(
       results,
-      totalCount /*, keywordCounts*/
+      totalCount,
+      countQueryCap
     )
   }
 

@@ -101,7 +101,8 @@ class QueryController(
       )
 
       val queryResponse = FingerpostWireEntry.query(
-        queryParams
+        queryParams,
+        FingerpostWireEntry.countQueryCap
       )
 
       Ok(

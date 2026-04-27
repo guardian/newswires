@@ -25,6 +25,7 @@ describe('SearchReducer', () => {
 		queryData: {
 			results: [{ ...sampleWireData }],
 			totalCount: 1,
+			countQueryCap: 100,
 		},
 	};
 
@@ -33,6 +34,7 @@ describe('SearchReducer', () => {
 		queryData: {
 			results: [{ ...sampleWireData }],
 			totalCount: 1,
+			countQueryCap: 100,
 		},
 		successfulQueryHistory: [],
 		error: 'Network error',
@@ -46,6 +48,7 @@ describe('SearchReducer', () => {
 		queryData: {
 			results: [{ ...sampleWireData }],
 			totalCount: 1,
+			countQueryCap: 100,
 		},
 		successfulQueryHistory: [],
 		error: 'Fetch error',
@@ -57,7 +60,7 @@ describe('SearchReducer', () => {
 	it('should handle FETCH_SUCCESS action in loading state', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
-			data: { results: [sampleWireData], totalCount: 1 },
+			data: { results: [sampleWireData], totalCount: 1, countQueryCap: 100 },
 			query: { q: 'test', collectionId: undefined, preset: undefined },
 		};
 
@@ -66,6 +69,7 @@ describe('SearchReducer', () => {
 		expect(newState.status).toBe('success');
 		expect(newState.queryData?.results).toHaveLength(1);
 		expect(newState.queryData?.totalCount).toBe(1);
+		expect(newState.queryData?.countQueryCap).toBe(100);
 		expect(newState.queryData?.results).toContainEqual({
 			...sampleWireData,
 			id: 1,
@@ -115,6 +119,7 @@ describe('SearchReducer', () => {
 						},
 					],
 					totalCount: 1,
+					countQueryCap: 100,
 				},
 				query: { q: 'test', collectionId: undefined, preset: undefined },
 			};
@@ -124,6 +129,7 @@ describe('SearchReducer', () => {
 			expect(newState.status).toBe('success');
 			expect(newState.queryData?.results).toHaveLength(2);
 			expect(newState.queryData?.totalCount).toBe(2);
+			expect(newState.queryData?.countQueryCap).toBe(100);
 			expect(newState.queryData?.results).toContainEqual({
 				...sampleWireData,
 				id: 2,
@@ -147,6 +153,7 @@ describe('SearchReducer', () => {
 							{ ...sampleWireData, id: 2, ingestedAt: '2025-01-01T02:04:00Z' },
 						],
 						totalCount: 2,
+						countQueryCap: 100,
 					},
 				};
 
@@ -166,6 +173,7 @@ describe('SearchReducer', () => {
 							},
 						],
 						totalCount: 2,
+						countQueryCap: 100,
 					},
 					query: {
 						q: 'test',
@@ -222,6 +230,7 @@ describe('SearchReducer', () => {
 							},
 						],
 						totalCount: 2,
+						countQueryCap: 100,
 					},
 				};
 
@@ -253,6 +262,7 @@ describe('SearchReducer', () => {
 							},
 						],
 						totalCount: 2,
+						countQueryCap: 100,
 					},
 					query: {
 						q: 'test',
@@ -289,6 +299,7 @@ describe('SearchReducer', () => {
 				queryData: {
 					results: [itemOne],
 					totalCount: 1,
+					countQueryCap: 100,
 				},
 			};
 
@@ -297,6 +308,7 @@ describe('SearchReducer', () => {
 				data: {
 					results: [itemOne, itemTwo],
 					totalCount: 2,
+					countQueryCap: 100,
 				},
 				query: {
 					q: 'test',
@@ -318,6 +330,7 @@ describe('SearchReducer', () => {
 			expect(newState.queryData?.results).toContainEqual(itemOne);
 
 			expect(newState.queryData?.results).not.toContainEqual(itemTwo);
+			expect(newState.queryData?.countQueryCap).toBe(100);
 		});
 	});
 
@@ -327,12 +340,17 @@ describe('SearchReducer', () => {
 			queryData: {
 				results: [{ ...sampleWireData, id: 2 }],
 				totalCount: 2,
+				countQueryCap: 100,
 			},
 		};
 
 		const action: Action = {
 			type: 'APPEND_RESULTS',
-			data: { results: [{ ...sampleWireData, id: 1 }], totalCount: 1 },
+			data: {
+				results: [{ ...sampleWireData, id: 1 }],
+				totalCount: 1,
+				countQueryCap: 100,
+			},
 		};
 
 		const newState = SearchReducer(state, action);
@@ -356,6 +374,7 @@ describe('SearchReducer', () => {
 			queryData: {
 				results: [{ ...sampleWireData, id: 2 }],
 				totalCount: 2,
+				countQueryCap: 100,
 			},
 		};
 
@@ -367,6 +386,7 @@ describe('SearchReducer', () => {
 					{ ...sampleWireData, id: 2 },
 				],
 				totalCount: 2,
+				countQueryCap: 100,
 			},
 		};
 
@@ -383,6 +403,7 @@ describe('SearchReducer', () => {
 			...sampleWireData,
 			id: 2,
 		});
+		expect(newState.queryData?.countQueryCap).toBe(100);
 	});
 
 	[

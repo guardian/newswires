@@ -157,7 +157,10 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 						<EuiEmptyPrompt
 							body={
 								<>
-									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
+									<SearchSummary
+										queryData={queryData}
+										setSideNavIsOpen={setSideNavIsOpen}
+									/>
 									<p>Try another search or reset filters.</p>
 								</>
 							}
@@ -174,7 +177,10 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 						<div>
 							<EuiFlexGroup css={[baseStyles, isColumn && columnStyles]}>
 								<EuiFlexItem style={{ flex: 1 }}>
-									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
+									<SearchSummary
+										queryData={queryData}
+										setSideNavIsOpen={setSideNavIsOpen}
+									/>
 								</EuiFlexItem>
 								{!isPoppedOut && (
 									<EuiFlexItem grow={false}>

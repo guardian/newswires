@@ -635,9 +635,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for suppliersExcl" in {
     val supplierExclClause =
-      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry suppliersExcl
-                |WHERE fm.id = suppliersExcl.id
-                |AND upper(suppliersExcl.supplier) in (upper(?)) )""".stripMargin
+      "NOT ( upper(fm.supplier) in (upper(?)))"
     val suppliersExclSQL =
       FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"))
     suppliersExclSQL should matchSqlSnippet(
@@ -671,9 +669,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for categoryCodesExcl" in {
     val categoryExclClause =
-      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry categoryCodesExcl
-                |WHERE fm.id = categoryCodesExcl.id
-                |AND categoryCodesExcl.category_codes && ? )""".stripMargin
+      "NOT fm.category_codes && ?"
 
     val categoryCodesExcl =
       FingerpostWireEntry.Filters.categoryCodeExclSQL(List("code"))
@@ -695,9 +691,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct sql snippet for precomputedCategoriesExcl" in {
     val precomputedCategoriesExclClause =
-      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry preComputedCategoriesExcl
-        |WHERE fm.id = preComputedCategoriesExcl.id
-        |AND preComputedCategoriesExcl.precomputed_categories && ? )""".stripMargin
+      "NOT fm.precomputed_categories && ?"
 
     val precomputedCategoriesExcl =
       FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(List("category"))
@@ -800,9 +794,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for keywordExcl" in {
     val keywordExclClause =
-      """NOT EXISTS ( SELECT FROM fingerpost_wire_entry keywordsExcl
-              |WHERE fm.id = keywordsExcl.id
-              |AND (keywordsExcl.content -> 'keywords') ??| ? )""".stripMargin
+      "NOT ((fm.content -> 'keywords') ??| ?)"
     val keywordExclSQL =
       FingerpostWireEntry.Filters.keywordsExclSQL(List("keyword"))
     keywordExclSQL should matchSqlSnippet(

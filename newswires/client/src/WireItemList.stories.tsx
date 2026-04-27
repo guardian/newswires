@@ -69,6 +69,7 @@ const mockSearchContext: SearchContextShape = {
 		queryData: {
 			results: [],
 			totalCount: 0,
+			countQueryCap: 100,
 		},
 		successfulQueryHistory: [],
 		autoUpdate: false,
