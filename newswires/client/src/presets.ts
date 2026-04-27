@@ -1,4 +1,5 @@
 import z from 'zod/v4';
+import { IS_DEV_USER } from './app-configuration.ts';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 
 export const PresetGroupNameSchema = z.union([
@@ -139,6 +140,7 @@ export const allPresets: Preset[] = [
 	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
+	{ id: 'uk-election', name: 'UK Election (Dev only)' },
 	{ id: 'all-us', name: 'US' },
 	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
@@ -153,6 +155,7 @@ export const useDisplayablePresets = () => {
 	const presetsToHide = new Set<string>();
 
 	if (!previewUSDomestic) presetsToHide.add('all-us');
+	if (!IS_DEV_USER) presetsToHide.add('uk-election');
 
 	return allPresets.filter((p) => !presetsToHide.has(p.id));
 };

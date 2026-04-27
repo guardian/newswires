@@ -12,10 +12,10 @@ import { useState } from 'react';
 import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
 import { useUserSettings } from './context/UserSettingsContext';
-import { applyOptionalTimezone } from './formatTimestamp.ts';
-import type { TimezoneId } from './officeTimezones.ts';
-import { officeNameByTimezone } from './officeTimezones.ts';
-import { useSettingsSwitches } from './SetttingsSwitches';
+import { useSettingsSwitches } from './SettingsSwitches.tsx';
+import type { TimezoneId } from './utils/date/officeTimezones.ts';
+import { officeNameByTimezone } from './utils/date/officeTimezones.ts';
+import { ZonedMoment } from './utils/date/ZonedMoment.ts';
 
 export const SettingsMenu = () => {
 	const [isPopoverOpen, setPopover] = useState(false);
@@ -55,7 +55,7 @@ export const SettingsMenu = () => {
 	const timezoneOptions = Array.from(officeNameByTimezone.entries()).map(
 		([id, label]) => ({
 			id,
-			label: `${label} (${applyOptionalTimezone(moment(), id).format('HH:mm')})`,
+			label: `${label} (${new ZonedMoment(moment(), id).format({ type: 'shortTime' })})`,
 		}),
 	);
 

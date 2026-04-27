@@ -1,4 +1,6 @@
+import moment from 'moment';
 import type { WireData } from '../../sharedTypes.ts';
+import { InstantMoment } from '../../utils/date/InstantMoment.ts';
 
 export const sampleFingerpostContent = {
 	uri: 'http://example.com',
@@ -49,4 +51,5 @@ export const sampleWireData: WireData = {
 	hasDataFormatting: false,
 	isAlert: false,
 	isLead: false,
+	ingestedAtMoment: new InstantMoment(moment(sampleWireResponse.ingestedAt)),
 };

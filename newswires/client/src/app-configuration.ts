@@ -33,6 +33,8 @@ export const SUPPLIERS_TO_EXCLUDE =
 
 export const STAGE = configLookup.stage;
 
-export const SEND_TELEMETRY_AS_DEV = configLookup.sendTelemetryAsDev;
+export const IS_DEV_USER = configLookup.sendTelemetryAsDev;
+
+export const SEND_TELEMETRY_AS_DEV = IS_DEV_USER;
 
 export const GIT_COMMIT_ID = configLookup.gitCommitId;

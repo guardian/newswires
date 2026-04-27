@@ -2,9 +2,12 @@ package db
 
 import conf.SearchTerm.CombinedFields
 import conf.{
+  ALL,
   AND,
+  CategoryCodesCondition,
   ComboTerm,
   OR,
+  SOME,
   SearchField,
   SearchTerm,
   SearchTerms,
@@ -241,13 +244,22 @@ object FingerpostWireEntry
       // https://jdbc.postgresql.org/documentation/query/#using-the-statement-or-preparedstatement-interface
       sqls"(${alias.content} -> 'keywords') ??| ${textArray(keywords)}"
 
-    private def categoryCodeConditions(
+    private def categoryCodeSomeConditions(
         alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
           FingerpostWireEntry
         ], FingerpostWireEntry],
         categoryCodes: List[String]
     ) = {
       sqls"${alias.categoryCodes} && ${textArray(categoryCodes)}"
+    }
+
+    private def categoryCodeAllConditions(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        categoryCodes: List[String]
+    ) = {
+      sqls"${alias.categoryCodes} @> ${textArray(categoryCodes)}"
     }
 
     private def preComputedCategoriesConditions(
@@ -342,13 +354,20 @@ object FingerpostWireEntry
       }
 
     lazy val categoryCodeInclSQL =
-      (categoryCodes: List[String]) =>
-        categoryCodeConditions(syn, categoryCodes)
+      (categoryCodes: CategoryCodesCondition) =>
+        categoryCodes match {
+          case CategoryCodesCondition(codes, SOME) =>
+            categoryCodeSomeConditions(syn, codes)
+          case CategoryCodesCondition(codes, ALL) =>
+            categoryCodeAllConditions(syn, codes)
+        }
 
     lazy val categoryCodeExclSQL =
       (categoryCodesExcl: List[String]) => {
         val cce = syntax("categoryCodesExcl")
-        exclusionCondition(cce)(categoryCodeConditions(cce, categoryCodesExcl))
+        exclusionCondition(cce)(
+          categoryCodeSomeConditions(cce, categoryCodesExcl)
+        )
       }
 
     lazy val dataFormattingSQL =
@@ -443,8 +462,9 @@ object FingerpostWireEntry
     }
 
     val categoryCodesInclQuery = filters.categoryCodesIncl match {
-      case Nil           => None
-      case categoryCodes => Some(Filters.categoryCodeInclSQL(categoryCodes))
+      case None                => None
+      case Some(categoryCodes) =>
+        Some(Filters.categoryCodeInclSQL(categoryCodes))
     }
 
     val categoryCodesExclQuery = filters.categoryCodesExcl match {
