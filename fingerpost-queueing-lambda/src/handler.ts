@@ -48,7 +48,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						objectKey,
 					});
 					const putToS3Result = await fileService.putToS3({
-						bucketName: feedsBucket,
+						bucketName: feedsBucket(),
 						key: objectKey,
 						body,
 					});
@@ -56,7 +56,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						return undefined; // We only return batchItemFailures for failed messages
 					}
 					logger.error({
-						message: `Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket}" for message with sqsMessageId ${sqsMessageId}.`,
+						message: `Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket()}" for message with sqsMessageId ${sqsMessageId}.`,
 						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_FAILURE',
 						sqsMessageId,
 						objectKey,

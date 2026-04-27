@@ -14,7 +14,7 @@ export class InMemoryQueueService implements QueueService {
 	queueUrl: string;
 	queueData: Record<string, SendMessageCommand[]>;
 	constructor() {
-		this.queueUrl = ingestionQueueUrl;
+		this.queueUrl = ingestionQueueUrl();
 		this.queueData = {};
 	}
 	send(command: SendMessageCommand): Promise<void> {
@@ -28,7 +28,7 @@ export class InMemoryQueueService implements QueueService {
 class SqsQueueService implements QueueService {
 	queueUrl: string;
 	constructor(public sqsClient: SQSClient) {
-		this.queueUrl = ingestionQueueUrl;
+		this.queueUrl = ingestionQueueUrl();
 	}
 	send(command: SendMessageCommand): Promise<SendMessageCommandOutput> {
 		return this.sqsClient.send(command);

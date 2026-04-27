@@ -19,13 +19,13 @@ export async function putToS3AndQueueIngestion({
 	const objectKey = `${keyPrefix}/${externalId}.json`;
 	try {
 		const s3PutResult = await fileService.putToS3({
-			bucketName: feedsBucket,
+			bucketName: feedsBucket(),
 			key: objectKey,
 			body,
 		});
 		if (s3PutResult.status === 'failure') {
 			throw new Error(
-				`Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket}"`,
+				`Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket()}"`,
 			);
 		}
 		const message: SendMessageCommandInput = {

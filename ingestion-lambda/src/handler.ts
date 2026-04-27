@@ -120,7 +120,7 @@ export const main = async (
 					if (processedMessage.status === 'failure') {
 						return failureWith(processedMessage.reason);
 					}
-					const bucketName = isSES ? emailBucket : feedsBucket;
+					const bucketName = isSES ? emailBucket() : feedsBucket();
 					const s3Result = await fileService.getFromS3({
 						bucketName,
 						key: processedMessage.objectKey,
