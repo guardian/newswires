@@ -2,7 +2,7 @@ import { Signer } from '@aws-sdk/rds-signer';
 import postgres from 'postgres';
 import { databaseConfig } from './config';
 
-const { port, hostname, username, ssl, name } = databaseConfig;
+const { port, hostname, username, ssl, name, password } = databaseConfig();
 
 const signer = new Signer({
 	port,
@@ -11,7 +11,7 @@ const signer = new Signer({
 });
 
 export async function initialiseDbConnection() {
-	const token = databaseConfig.password ?? (await signer.getAuthToken());
+	const token = password ?? (await signer.getAuthToken());
 
 	const sql = postgres({
 		port,

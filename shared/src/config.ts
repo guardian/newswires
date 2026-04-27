@@ -123,7 +123,7 @@ function buildDatabaseConfig(): DatabaseConfig {
 }
 
 export const appConfig = buildAwsConfig();
-export const databaseConfig = buildDatabaseConfig();
+export const databaseConfig = () => buildDatabaseConfig();
 export const ingestionQueueUrl = () =>
 	envForStage('INGESTION_LAMBDA_QUEUE_URL') ?? 'dummy-ingestion-queue';
 export const feedsBucket = () =>
