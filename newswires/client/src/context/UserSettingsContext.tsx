@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from 'react';
 import { z } from 'zod/v4';
-import type { TimezoneId } from '../officeTimezones';
-import { timezoneIds } from '../officeTimezones';
+import type { TimezoneId } from '../utils/date/officeTimezones';
+import { timezoneIds } from '../utils/date/officeTimezones';
 import { loadOrSetInLocalStorage, saveToLocalStorage } from './localStorage';
 import { useTelemetry } from './TelemetryContext';
 

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { z } from 'zod/v4';
+import type { InstantMoment } from './utils/date/InstantMoment';
 
 const AgencyMetadata = z.object({
 	event: z.array(
@@ -132,6 +133,7 @@ export type SupplierInfo = {
 export type WireData = Omit<WireDataFromAPI, 'supplier'> & {
 	supplier: SupplierInfo;
 	hasDataFormatting: boolean;
+	ingestedAtMoment: InstantMoment;
 	isAlert: boolean;
 	isLead: boolean;
 };

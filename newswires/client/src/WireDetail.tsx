@@ -21,8 +21,6 @@ import {
 	useIsWithinBreakpoints,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import type { Moment } from 'moment-timezone';
-import moment from 'moment-timezone';
 import { useEffect, useMemo, useState } from 'react';
 import sanitizeHtml from 'sanitize-html';
 import { AddToCollectionButton } from './AddToCollectionButton.tsx';
@@ -32,7 +30,6 @@ import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
 import { Disclosure } from './Disclosure.tsx';
-import { applyOptionalTimezone } from './formatTimestamp.ts';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { TASTED_COLLECTION } from './presets.ts';
@@ -42,13 +39,14 @@ import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
+import type { InstantMoment } from './utils/date/InstantMoment.ts';
 import { AlertLabel, LeadLabel } from './WireItemLabel.tsx';
 
 function TitleContentForItem({
 	slug,
 	subhead,
 	headline,
-	utcIngestedAt,
+	ingestedAtMoment,
 	supplier,
 	wordCount,
 	isAlert,
@@ -57,7 +55,7 @@ function TitleContentForItem({
 	slug?: string;
 	subhead?: string;
 	headline?: string;
-	utcIngestedAt: Moment;
+	ingestedAtMoment: InstantMoment;
 	supplier: SupplierInfo;
 	wordCount: number;
 	isAlert: boolean;
@@ -80,10 +78,8 @@ function TitleContentForItem({
 
 	const { selectedTimezone } = useUserSettings();
 
-	const ingestionMomentWithUserTimezone = applyOptionalTimezone(
-		utcIngestedAt,
-		selectedTimezone,
-	);
+	const ingestionMomentWithUserTimezone =
+		ingestedAtMoment.toZonedMoment(selectedTimezone);
 
 	return (
 		<div
@@ -142,10 +138,15 @@ function TitleContentForItem({
 					`}
 				>
 					{wordCount} words &#183;{' '}
-					{ingestionMomentWithUserTimezone.format('MMM Do YYYY, HH:mm:ss')}{' '}
-					&#183;{' '}
-					<Tooltip tooltipContent={ingestionMomentWithUserTimezone.format()}>
-						<span>({ingestionMomentWithUserTimezone.fromNow()})</span>
+					{ingestionMomentWithUserTimezone.format({ type: 'humanFull' })} &#183;{' '}
+					<Tooltip
+						tooltipContent={ingestionMomentWithUserTimezone.format({
+							type: 'isoString',
+						})}
+					>
+						<span>
+							({ingestionMomentWithUserTimezone.format({ type: 'relative' })})
+						</span>
 					</Tooltip>
 				</span>
 				<div
@@ -728,7 +729,7 @@ export const WireDetail = ({
 				headline={headline}
 				subhead={wire.content.subhead}
 				slug={slug}
-				utcIngestedAt={moment(wire.ingestedAt)}
+				ingestedAtMoment={wire.ingestedAtMoment}
 				supplier={wire.supplier}
 				wordCount={wordCount}
 				isAlert={wire.isAlert}

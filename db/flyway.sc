@@ -3,8 +3,8 @@
 //> using jvm "corretto:17"
 
 //> using dep com.lihaoyi::ujson:4.4.3
-//> using dep org.flywaydb:flyway-core:11.20.3
-//> using dep org.flywaydb:flyway-database-postgresql:11.20.3
+//> using dep org.flywaydb:flyway-core:12.3.0
+//> using dep org.flywaydb:flyway-database-postgresql:12.3.0
 //> using dep org.postgresql:postgresql:42.7.5
 //> using dep software.amazon.awssdk:rds:2.31.78
 //> using dep software.amazon.awssdk:secretsmanager:2.41.14
@@ -170,16 +170,17 @@ val location = Path.of(scriptPath).getParent().resolve("migrations").toString()
 def buildFlyway(password: String, port: Int) = {
   val flyway = Flyway
     .configure()
-  val pgExtension = flyway.getConfigurationExtension(classOf[PostgreSQLConfigurationExtension])
+  val pgExtension =
+    flyway.getConfigurationExtension(classOf[PostgreSQLConfigurationExtension])
   pgExtension.setTransactionalLock(false)
   flyway
     .dataSource(
-    s"jdbc:postgresql://localhost:$port/newswires",
-    "postgres",
-    password
-  )
-  .locations(s"filesystem:$location")
-  .load()
+      s"jdbc:postgresql://localhost:$port/newswires",
+      "postgres",
+      password
+    )
+    .locations(s"filesystem:$location")
+    .load()
 }
 
 def remoteFlyway(stage: String): Flyway = {

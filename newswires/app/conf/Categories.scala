@@ -41,9 +41,23 @@ private[conf] object CategoryCodes {
     val MINOR_AGENCIES: List[String] = List("N2:GB")
   }
 
+  object Elections {
+    val PA: List[String] = List(
+      "paCat:XTJ",
+      "paCat:XLR",
+      "paCat:XLD",
+      "paCat:XTB",
+      "paCat:XDB",
+      "paCat:XDG",
+      "paCat:XTH",
+      "paCat:XDQ",
+      "paCat:XTQ"
+    )
+  }
+
   object Business {
     val AP: List[String] = List("apCat:f")
-    val PA: List[String] = List("paCat:FFF", "paCat:GXX")
+    val PA: List[String] = List("paCat:FFF", "paCat:GXX", "data:finance")
     val AAP: List[String] = Categories.businessRelatedNewsCodes
     val REUTERS: List[String] = Categories.businessRelatedTopicCodes
   }
