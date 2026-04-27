@@ -1,6 +1,5 @@
 import z from 'zod/v4';
 import { IS_DEV_USER } from './app-configuration.ts';
-import { useUserSettings } from './context/UserSettingsContext.tsx';
 
 export const PresetGroupNameSchema = z.union([
 	z.literal('presets'),
@@ -148,13 +147,9 @@ export const allPresets: Preset[] = [
 ];
 
 // Filter out any presets which shouldn't be presented to users.
-// For now, just the all-US preset, depending on the state of the switch
 export const useDisplayablePresets = () => {
-	const { previewUSDomestic } = useUserSettings();
-
 	const presetsToHide = new Set<string>();
 
-	if (!previewUSDomestic) presetsToHide.add('all-us');
 	if (!IS_DEV_USER) presetsToHide.add('uk-election');
 
 	return allPresets.filter((p) => !presetsToHide.has(p.id));

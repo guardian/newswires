@@ -13,8 +13,6 @@ export const useSettingsSwitches = () => {
 		toggleShowTastedList,
 		enableAutoScroll,
 		toggleEnableAutoScroll,
-		previewUSDomestic,
-		togglePreviewUSDomestic,
 	} = useUserSettings();
 
 	const embeddedCodeSwitchId__1 = useGeneratedHtmlId({
@@ -30,9 +28,6 @@ export const useSettingsSwitches = () => {
 		prefix: 'embeddedCodeSwitchId',
 	});
 	const embeddedCodeSwitchId__5 = useGeneratedHtmlId({
-		prefix: 'embeddedCodeSwitchId',
-	});
-	const embeddedCodeSwitchId__6 = useGeneratedHtmlId({
 		prefix: 'embeddedCodeSwitchId',
 	});
 
@@ -74,13 +69,6 @@ export const useSettingsSwitches = () => {
 			onChange: () => toggleEnableAutoScroll(),
 			helpText:
 				'Automatically scroll to the top when new items are loaded (only works on tickers)',
-		},
-		{
-			id: embeddedCodeSwitchId__6,
-			label: 'Preview new US Domestic preset',
-			checked: previewUSDomestic,
-			onChange: () => togglePreviewUSDomestic(),
-			helpText: "Preview the new US Domestic preset while we're testing",
 		},
 	];
 };
