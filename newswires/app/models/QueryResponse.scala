@@ -6,7 +6,8 @@ import io.circe.{Decoder, Encoder}
 
 case class QueryResponse(
     results: List[FingerpostWireEntry],
-    totalCount: Long = 10
+    totalCount: Long,
+    countQueryCap: Long
     //      keywordCounts: Map[String, Int]
 )
 

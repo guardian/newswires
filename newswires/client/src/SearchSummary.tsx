@@ -16,7 +16,7 @@ import type {
 	DeselectableQueryKeyValue,
 } from './queryHelpers.ts';
 import { queryAfterDeselection } from './queryHelpers.ts';
-import type { Query } from './sharedTypes.ts';
+import type { Query, WiresQueryData } from './sharedTypes.ts';
 import { Tooltip } from './Tooltip.tsx';
 
 const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
@@ -269,13 +269,27 @@ const Summary = ({
 	);
 };
 
+function decideSearchSummaryLabel(
+	queryData: WiresQueryData | undefined,
+): string {
+	if (queryData === undefined || queryData.totalCount === 0) {
+		return 'No results found';
+	}
+	if (queryData.totalCount > queryData.countQueryCap) {
+		return `Showing ${queryData.countQueryCap}+ results`;
+	}
+	return `Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`;
+}
+
 export const SearchSummary = ({
 	setSideNavIsOpen,
+	queryData,
 }: {
 	setSideNavIsOpen: (isOpen: boolean) => void;
+	queryData: WiresQueryData | undefined;
 }) => {
 	const {
-		state: { queryData, status, lastUpdate },
+		state: { status, lastUpdate },
 		config,
 		openTicker,
 	} = useSearch();
@@ -283,10 +297,7 @@ export const SearchSummary = ({
 
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
 
-	const searchSummary =
-		queryData && queryData.totalCount > 0
-			? `Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`
-			: 'No results found';
+	const searchSummaryLabel = decideSearchSummaryLabel(queryData);
 
 	return (
 		<div
@@ -352,7 +363,7 @@ export const SearchSummary = ({
 				)}
 			<Summary
 				query={config.query}
-				searchSummaryLabel={!isPoppedOut && searchSummary}
+				searchSummaryLabel={!isPoppedOut && searchSummaryLabel}
 			/>
 
 			{isPoppedOut && (

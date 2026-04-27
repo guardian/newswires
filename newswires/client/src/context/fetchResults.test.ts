@@ -1,4 +1,5 @@
 import { pandaFetch } from '../panda-session';
+import type { WiresQueryResponse } from '../sharedTypes.ts';
 import { EuiDateStringSchema } from '../sharedTypes.ts';
 import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
 import { paramsToQuerystring } from '../urlState.ts';
@@ -10,12 +11,16 @@ jest
 	.spyOn(Date, 'now')
 	.mockReturnValue(new Date('2024-02-24T16:15:00.000Z').getTime());
 
+const mockResponseData: WiresQueryResponse = {
+	results: [sampleWireResponse],
+	totalCount: 0,
+	countQueryCap: 100,
+};
+
 jest.mock('../panda-session', () => ({
 	pandaFetch: jest.fn(() =>
 		Promise.resolve({
-			json: jest
-				.fn()
-				.mockResolvedValue({ results: [sampleWireResponse], totalCount: 0 }),
+			json: jest.fn().mockResolvedValue(mockResponseData),
 			ok: true,
 		}),
 	),
@@ -74,21 +79,14 @@ describe('fetchResults', () => {
 	});
 
 	it('should return parsed data if response is valid', async () => {
-		const mockResponseData = {
-			results: [],
-			totalCount: 0,
-		};
-
-		(pandaFetch as jest.Mock).mockResolvedValueOnce({
-			json: jest.fn().mockResolvedValue(mockResponseData),
-			ok: true,
-		});
-
 		const result = await fetchResults({
 			query: { q: 'value', collectionId: undefined, preset: undefined },
 			view: 'feed',
 		});
-		expect(result).toEqual(mockResponseData);
+		expect(result).toEqual({
+			...mockResponseData,
+			results: [...mockResponseData.results.map(transformWireItemQueryResult)],
+		});
 	});
 
 	it('should append afterTimeStamp to the query if provided', async () => {
