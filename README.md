@@ -47,7 +47,7 @@ from Fingerpost and write to an in memory file storage and queue.
 This reads from the queue that the Finger post queueing lambda writes to, performs some validation checks and writes to a postgres database
 
 ```sh
-docker compose up
+./scripts/setup-local-db.sh
 npm run dev -w ingestion-lambda
 ```
 
