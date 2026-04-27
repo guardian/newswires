@@ -29,7 +29,7 @@ import { isRestricted } from './dateHelpers.ts';
 import { DefaultLayout } from './DefaultLayout.tsx';
 import { fontStyles } from './fontStyles.ts';
 import { presetLabel } from './presets.ts';
-import { useSettingsSwitches } from './SetttingsSwitches.tsx';
+import { useSettingsSwitches } from './SettingsSwitches.tsx';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
 import { TickerLayout } from './TickerLayout.tsx';
 
