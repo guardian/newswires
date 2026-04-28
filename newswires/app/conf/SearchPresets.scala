@@ -209,6 +209,10 @@ object SearchPresets {
       categoryCodes = Some(CategoryCodesCondition(CategoryCodes.US.AP, SOME))
     ),
     SearchPreset(
+      AP,
+      categoryCodes = Some(CategoryCodesCondition(List("apCat:i", "experimentalCountryCode:CA"), ALL))
+    ),
+    SearchPreset(
       REUTERS,
       categoryCodes = Some(CategoryCodesCondition(CategoryCodes.US.REUTERS, SOME)),
       preComputedCategoriesExcl = List(
