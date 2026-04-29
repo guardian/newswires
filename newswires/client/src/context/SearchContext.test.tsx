@@ -27,6 +27,7 @@ describe('SearchContext', () => {
 		const contextRef = { current: null as SearchContextShape | null };
 
 		const TestComponent: React.FC = () => {
+			// eslint-disable-next-line react-hooks/immutability -- this isn't a 'real' component or ref, we're just using this to get access to the context value in our tests
 			contextRef.current = useSearch();
 			return null;
 		};

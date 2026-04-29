@@ -7,7 +7,6 @@ import {
 	usePrettyDuration,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useEffect, useState } from 'react';
 import { useSearch } from './context/SearchContext.tsx';
 import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
 import { isRestricted } from './dateHelpers.ts';
@@ -282,19 +281,12 @@ export const SearchSummary = ({
 	} = useSearch();
 	const isPoppedOut = config.ticker;
 
-	const [searchSummary, setSearchSummary] = useState('No results found');
-
 	const isSmallScreen = useIsWithinBreakpoints(['xs', 's', 'm']);
 
-	useEffect(() => {
-		if (queryData && queryData.totalCount > 0) {
-			setSearchSummary(
-				`Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`,
-			);
-		} else {
-			setSearchSummary('No results found');
-		}
-	}, [queryData]);
+	const searchSummary =
+		queryData && queryData.totalCount > 0
+			? `Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`
+			: 'No results found';
 
 	return (
 		<div
