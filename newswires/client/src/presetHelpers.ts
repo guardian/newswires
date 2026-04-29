@@ -12,16 +12,6 @@ export const getNextActivePreset = (
 	return presetId;
 };
 
-export const shouldTogglePreset = (
-	activePreset: string | undefined,
-	presetId: string,
-) => {
-	if (activePreset === undefined) return true;
-	if (presetIsInSports(activePreset)) return false;
-	if (activePreset === presetId) return false;
-	return true;
-};
-
 export const getPresetPanel = (
 	presetId: string | undefined,
 ): PresetGroupName => {
