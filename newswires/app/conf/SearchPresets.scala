@@ -164,8 +164,7 @@ object SearchPresets {
   private val AfpWorld = List(
     SearchPreset(
       AFP,
-      categoryCodesExcl = CategoryCodes.Sport.AFP :+ "guCat:PressRelease",
-      searchTerms = Some(SingleTerm(SearchTerm.SingleField("-\"Press Release from Business Wire:\"", Headline)))
+      categoryCodesExcl = CategoryCodes.Sport.AFP :+ "guCat:PressRelease"
     )
   )
 
