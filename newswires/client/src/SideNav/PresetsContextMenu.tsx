@@ -37,9 +37,8 @@ export const PresetsContextMenu = () => {
 	const [activePanelId, setActivePanelId] = useState<PresetGroupName>(() =>
 		getPresetPanel(activePreset),
 	);
-	const getPreviousPanelId = (panel: PresetGroupName): PresetGroupName =>
-		panel === 'presets' ? 'sportPresets' : 'presets';
-	const previousPanelId = getPreviousPanelId(activePanelId);
+	const previousPanelId =
+		activePanelId === 'presets' ? 'sportPresets' : 'presets';
 
 	const handleAnimationEnd = useCallback(() => {
 		setAnimationState({ isAnimating: false, direction: null });
