@@ -164,7 +164,10 @@ object SearchPresets {
   )
 
   private val AfpWorld = List(
-    SearchPreset(AFP, categoryCodesExcl = CategoryCodes.Sport.AFP)
+    SearchPreset(
+      AFP,
+      categoryCodesExcl = CategoryCodes.Sport.AFP :+ "guCat:PressRelease"
+    )
   )
 
   private val MinorAgenciesWorld = List(
