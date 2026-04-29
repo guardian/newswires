@@ -69,6 +69,7 @@ export function processCategoryCodes({
 	bodyText,
 	priority,
 	maybeMediaCatCode,
+	maybeHeadline,
 }: {
 	supplier: string;
 	subjectCodes: string[];
@@ -76,6 +77,7 @@ export function processCategoryCodes({
 	bodyText?: string;
 	priority?: string;
 	maybeMediaCatCode?: string;
+	maybeHeadline?: string;
 }) {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
@@ -108,7 +110,7 @@ export function processCategoryCodes({
 		case 'AFP':
 			return [
 				...catCodes,
-				...processFingerpostAFPCategoryCodes(subjectCodes),
+				...processFingerpostAFPCategoryCodes(subjectCodes, maybeHeadline),
 				...regionCodes,
 			];
 		case 'PA':
@@ -265,6 +267,7 @@ export function processFingerpostJsonContent(
 				bodyText: `${content.headline ?? ''} ${content.abstract ?? ''} ${content.body_text}`,
 				priority: content.priority,
 				maybeMediaCatCode: content.mediaCatCodes, // the name in the original JSON is plural, but the value is always a single string, rather than an array, if it exists
+				maybeHeadline: content.headline,
 			}),
 		);
 		return {

@@ -140,53 +140,69 @@ describe('processFingerpostAAPCategoryCodes', () => {
 
 describe('processFingerpostAFPCategoryCodes', () => {
 	it('should return an empty array if provided with an empty array', () => {
-		expect(processFingerpostAFPCategoryCodes([])).toEqual([]);
+		expect(processFingerpostAFPCategoryCodes([], undefined)).toEqual([]);
 	});
 	it('should strip out service codes', () => {
-		expect(processFingerpostAFPCategoryCodes(['service:news'])).toEqual([]);
+		expect(
+			processFingerpostAFPCategoryCodes(['service:news'], undefined),
+		).toEqual([]);
 	});
 	it('should strip out empty iptccat entries', () => {
 		expect(
-			processFingerpostAFPCategoryCodes(['iptccat:', 'iptccat:a']),
+			processFingerpostAFPCategoryCodes(['iptccat:', 'iptccat:a'], undefined),
 		).toEqual(['afpCat:a']);
 	});
 	it('should return simple codes labelled "iptc" as simple "afp" codes', () => {
 		expect(
-			processFingerpostAFPCategoryCodes(['iptccat:a', 'iptccat:b']),
+			processFingerpostAFPCategoryCodes(['iptccat:a', 'iptccat:b'], undefined),
 		).toEqual(['afpCat:a', 'afpCat:b']);
 	});
 	it('should expand category codes with multiple subcodes', () => {
-		expect(processFingerpostAFPCategoryCodes(['iptccat:c+d'])).toEqual([
-			'afpCat:c',
-			'afpCat:d',
-		]);
+		expect(
+			processFingerpostAFPCategoryCodes(['iptccat:c+d'], undefined),
+		).toEqual(['afpCat:c', 'afpCat:d']);
 	});
 
 	it('should remove empty strings', () => {
 		expect(
-			processFingerpostAFPCategoryCodes(['iptccat:a', '', 'iptccat:c']),
+			processFingerpostAFPCategoryCodes(
+				['iptccat:a', '', 'iptccat:c'],
+				undefined,
+			),
 		).toEqual(['afpCat:a', 'afpCat:c']);
 	});
 
 	it('should remove trailing and leading whitespace', () => {
 		expect(
-			processFingerpostAFPCategoryCodes([
-				'iptccat:a ',
-				' iptccat:c',
-				' service:news ',
-				'iptccat: ',
-				'qCode:value ',
-			]),
+			processFingerpostAFPCategoryCodes(
+				[
+					'iptccat:a ',
+					' iptccat:c',
+					' service:news ',
+					'iptccat: ',
+					'qCode:value ',
+				],
+				undefined,
+			),
 		).toEqual(['afpCat:a', 'afpCat:c', 'qCode:value']);
 	});
 
 	it('should deduplicate category codes after stripping whitespace', () => {
 		expect(
-			processFingerpostAFPCategoryCodes([
-				'iptccat:ECO+SOC+ECO+SOC+ECO ',
-				' iptccat:ECO',
-			]),
+			processFingerpostAFPCategoryCodes(
+				['iptccat:ECO+SOC+ECO+SOC+ECO ', ' iptccat:ECO'],
+				undefined,
+			),
 		).toEqual(['afpCat:ECO', 'afpCat:SOC']);
+	});
+
+	it('should add guCat:PressRelease when the headline suggests the content is a press release', () => {
+		expect(
+			processFingerpostAFPCategoryCodes(
+				['iptccat:ECON', 'iptccat:BUSI'],
+				'Press Release from Business Wire: Company XYZ announces new product',
+			),
+		).toEqual(['afpCat:ECON', 'afpCat:BUSI', 'guCat:PressRelease']);
 	});
 });
 

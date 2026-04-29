@@ -128,7 +128,7 @@ export function processFingerpostAAPCategoryCodes(
 // example input: "iptccat:HUM+SCI"
 export function processFingerpostAFPCategoryCodes(
 	original: string[],
-	maybeHeadline?: string,
+	maybeHeadline: string | undefined,
 ): string[] {
 	const notServiceCodes = original.filter((_) => !_.includes('service:'));
 
@@ -137,9 +137,9 @@ export function processFingerpostAFPCategoryCodes(
 		.map((_) => replacePrefixesFromLookup(_, { iptccat: 'afpCat' }))
 		.map(categoryCodeToString);
 
-	const maybeHeadlineCategoryCodes = maybeHeadline?.includes(
-		'Press Release from Business Wire:',
-	)
+	const maybeHeadlineCategoryCodes = maybeHeadline
+		?.toLowerCase()
+		.includes('press release from business wire')
 		? ['guCat:PressRelease']
 		: [];
 
