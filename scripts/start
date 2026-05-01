@@ -111,7 +111,7 @@ main() {
       echo "Using CODE. Starting Play App."
       USE_CODE_DB=true startPlayApp
     else
-      echo "Using the local stack. Starting Ingestion Lambda and Play App."
+      echo "Using the local environment. Starting Ingestion Lambda and Play App."
       # run all three, and terminate together when the user presses `ctrl+c`: https://stackoverflow.com/a/52033580
       (trap 'kill 0' SIGINT; startIngestionLambda & startPlayApp & wait)
     fi

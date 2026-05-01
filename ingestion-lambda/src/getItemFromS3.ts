@@ -1,5 +1,5 @@
 import { getErrorMessage } from '@guardian/libs';
-import { getFromS3 } from 'newswires-shared/s3';
+import { fileService } from 'newswires-shared/s3';
 import type { OperationResult } from 'newswires-shared/types';
 
 export async function getItemFromS3({
@@ -9,10 +9,11 @@ export async function getItemFromS3({
 	objectKey: string;
 	bucketName: string;
 }): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
-	return getFromS3({
-		bucketName,
-		key: objectKey,
-	})
+	return fileService
+		.getFromS3({
+			bucketName,
+			key: objectKey,
+		})
 		.then((resp) => {
 			if (resp.status === 'success') {
 				return {

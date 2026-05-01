@@ -1,8 +1,8 @@
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
-import { getFromEnv } from 'newswires-shared/config';
+import { feedsBucket } from 'newswires-shared/config';
 import { createLogger } from 'newswires-shared/lambda-logging';
 import { putToS3AndQueueIngestion } from 'newswires-shared/putToS3AndQueueIngestion';
-import { putToS3 } from 'newswires-shared/s3';
+import { fileService } from 'newswires-shared/s3';
 
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 	const results = await Promise.all(
@@ -47,8 +47,8 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						sqsMessageId,
 						objectKey,
 					});
-					const putToS3Result = await putToS3({
-						bucketName: getFromEnv('FEEDS_BUCKET_NAME'),
+					const putToS3Result = await fileService.putToS3({
+						bucketName: feedsBucket(),
 						key: objectKey,
 						body,
 					});
@@ -56,9 +56,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						return undefined; // We only return batchItemFailures for failed messages
 					}
 					logger.error({
-						message: `Failed to put object to S3 with key "${objectKey}" in bucket "${getFromEnv(
-							'FEEDS_BUCKET_NAME',
-						)}" for message with sqsMessageId ${sqsMessageId}.`,
+						message: `Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket()}" for message with sqsMessageId ${sqsMessageId}.`,
 						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_FAILURE',
 						sqsMessageId,
 						objectKey,

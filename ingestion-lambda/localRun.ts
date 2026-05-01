@@ -1,51 +1,35 @@
-import type { Message } from '@aws-sdk/client-sqs';
-import { ReceiveMessageCommand } from '@aws-sdk/client-sqs';
-import type { SQSEvent, SQSRecord } from 'aws-lambda';
-import { getFromEnv } from 'newswires-shared/config';
-import { sqs } from 'newswires-shared/sqs';
+
+import { SQSRecord } from 'aws-lambda';
 import { main } from './src/handler';
-
-const SQS_QUEUE_URL = getFromEnv('INGESTION_LAMBDA_QUEUE_URL');
-
-const receiveMessage = (queueUrl: string) =>
-	sqs.send(
-		new ReceiveMessageCommand({
-			AttributeNames: ['All'],
-			MaxNumberOfMessages: 10,
-			MessageAttributeNames: ['All'],
-			QueueUrl: queueUrl,
-			WaitTimeSeconds: 20,
-			VisibilityTimeout: 20,
-		}),
-	);
+import { createDummyFeedEntry } from 'newswires-shared/localRun/exampleFeed';
+import { fileService } from 'newswires-shared/s3';
 
 run();
 
 async function run() {
-	const { Messages } = await receiveMessage(SQS_QUEUE_URL);
-
-	if (!Messages) {
-		console.log(
-			'No messages received from SQS queue. You can run the `fingerpost-queuing-lambda` app to populate this',
-		);
-		return;
-	}
-	const Records = Messages.map((message) => {
-		return createSQSRecord(message);
-	});
-	const event: SQSEvent = { Records };
-	main(event).then(console.log).catch(console.error);
+	setInterval(async () => {
+		const event = {
+			Records: createRandomDocsAndInsertToInMemoryStore()
+		}
+		const response = await main(event)
+		if(response && response.batchItemFailures.length > 0) {
+			console.error(`Error running locally. Make sure you have a local database running by executing: ./scripts/setup-local-db.sh`)
+		}
+	}, 5000)
 }
-
-function createSQSRecord(message: Message): SQSRecord {
+const createRandomDocsAndInsertToInMemoryStore = () => {
+	return [...Array(10).fill(0)].map(_ => {
+		const { body, externalId } = createDummyFeedEntry();
+		fileService.putToS3({bucketName: '', key: externalId, body: JSON.stringify(body)})
+		return createSQSRecord({externalId})
+	})
+}
+const createSQSRecord = ({externalId}: {externalId: string}): SQSRecord => {
 	const randomSqsMessageId = Math.random().toString(36).substring(7);
-
 	const recordThatShouldSucceed: SQSRecord = {
-		messageId: message.MessageId || randomSqsMessageId,
-		body: message.Body || {},
-
-		messageAttributes: message.MessageAttributes || {},
+		messageId: randomSqsMessageId,
+		body: JSON.stringify({ externalId, objectKey: externalId}),
+		messageAttributes:  {},
 	} as unknown as SQSRecord;
 	return recordThatShouldSucceed;
 }
-

@@ -8,7 +8,7 @@ import type {
 } from 'aws-lambda';
 import * as loggingModule from 'newswires-shared/lambda-logging';
 import * as rdsModule from 'newswires-shared/rds';
-import * as s3Module from 'newswires-shared/s3';
+import { fileService } from 'newswires-shared/s3';
 import type { OperationResult } from 'newswires-shared/types';
 import type { Row, RowList } from 'postgres';
 import type postgres from 'postgres';
@@ -19,10 +19,14 @@ type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
 // mock the s3 sdk module
 jest.mock('newswires-shared/s3', () => ({
-	getFromS3: jest.fn(),
-	putToS3: jest.fn(),
-	FEEDS_BUCKET_NAME: 'test-feeds-bucket',
-	EMAIL_BUCKET_NAME: 'test-email-bucket',
+	fileService: {
+		getFromS3: jest.fn(),
+		putToS3: jest.fn(),
+	},
+}));
+jest.mock('newswires-shared/config', () => ({
+	feedsBucket: () => 'test-feeds-bucket',
+	emailBucket: () => 'test-email-bucket',
 }));
 // and the postgres sql module
 jest.mock('newswires-shared/rds', () => ({
@@ -41,9 +45,8 @@ jest.mock('newswires-shared/lambda-logging', () => {
 		createLogger: () => logs,
 	};
 });
-
-const mockGetFromS3 = s3Module.getFromS3 as jest.MockedFunction<
-	typeof s3Module.getFromS3
+const mockGetFromS3 = fileService.getFromS3 as jest.MockedFunction<
+	typeof fileService.getFromS3
 >;
 const mockInitialiseDbConnection =
 	rdsModule.initialiseDbConnection as jest.MockedFunction<

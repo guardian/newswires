@@ -5,16 +5,15 @@ import type {
 	SQSEvent,
 	SQSRecord,
 } from 'aws-lambda';
-import { getFromEnv, isRunningLocally } from 'newswires-shared/config';
+import { emailBucket, feedsBucket } from 'newswires-shared/config';
 import { INGESTION_HEARTBEAT_EVENT_TYPE } from 'newswires-shared/constants';
 import { findVerificationFailures } from 'newswires-shared/findVerificationFailures';
 import type { Logger } from 'newswires-shared/lambda-logging';
 import { createLogger } from 'newswires-shared/lambda-logging';
 import { initialiseDbConnection } from 'newswires-shared/rds';
-import { FEEDS_BUCKET_NAME } from 'newswires-shared/s3';
+import { fileService } from 'newswires-shared/s3';
 import type { BatchItemFailure, OperationResult } from 'newswires-shared/types';
 import { putItemToDb } from './db';
-import { getItemFromS3 } from './getItemFromS3';
 import { processFingerpostJsonContent } from './processContentObject';
 import { processEmailContent } from './processEmailContent';
 
@@ -95,10 +94,6 @@ function isSESRecord(
 	return 'ses' in record;
 }
 
-const EMAIL_BUCKET_NAME: string = isRunningLocally
-	? 'local-email-bucket'
-	: getFromEnv('EMAIL_BUCKET_NAME');
-
 export const main = async (
 	event: SQSEvent | SESEvent,
 ): Promise<SQSBatchResponse | void> => {
@@ -125,10 +120,10 @@ export const main = async (
 					if (processedMessage.status === 'failure') {
 						return failureWith(processedMessage.reason);
 					}
-
-					const s3Result = await getItemFromS3({
-						objectKey: processedMessage.objectKey,
-						bucketName: isSES ? EMAIL_BUCKET_NAME : FEEDS_BUCKET_NAME,
+					const bucketName = isSES ? emailBucket() : feedsBucket();
+					const s3Result = await fileService.getFromS3({
+						bucketName,
+						key: processedMessage.objectKey,
 					});
 					if (s3Result.status === 'failure') {
 						return failureWith(s3Result.reason, processedMessage.objectKey);

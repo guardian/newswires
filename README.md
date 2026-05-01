@@ -31,17 +31,27 @@ keys and -- when run with the `--use-CODE` flag -- tunnelling to the CODE databa
 ```
 
 ### Finger post queueing lambda
+This listens to an SNS feed from our third party service, Fingerpost and writes the raw document 
+to an s3 bucket and posts to an SQS queue.
+
+To run locally:
 ```sh
 docker compose up
 npm run dev -w fingerpost-queueing-lambda
 ```
+In the locally run version this will generate random documents using the same schema as the data
+from Fingerpost and write to an in memory file storage and queue. 
 
 ### Ingestion Lambda
 
+This reads from the queue that the Finger post queueing lambda writes to, performs some validation checks and writes to a postgres database
+
 ```sh
-docker compose up
+./scripts/setup-local-db.sh
 npm run dev -w ingestion-lambda
 ```
+
+In the locally run version this will generate random documents and write them to a local database
 
 ### Poller Lambdas
 

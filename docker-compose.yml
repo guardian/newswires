@@ -1,17 +1,6 @@
 version: '3.0'
 
 services:
-  localstack:
-    image: localstack/localstack:latest
-    environment:
-      - SERVICES=s3,sqs
-      - AWS_DEFAULT_REGION=eu-west-1
-      - EDGE_PORT=4566
-    ports:
-      - '4566:4566'
-    volumes:
-      - '/tmp/localstack:/var/lib/localstack'
-      - ./localstack:/etc/localstack/init/ready.d
   db:
     image: postgres:16.4
     container_name: newswires-db

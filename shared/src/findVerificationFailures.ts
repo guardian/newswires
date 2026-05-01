@@ -1,7 +1,7 @@
 import type { SESMessage } from 'aws-lambda';
 import { authenticate } from 'mailauth';
-import { getFromEnv, isRunningLocally } from './config';
-import { getFromS3 } from './s3';
+import { emailBucket } from './config';
+import { fileService } from './s3';
 
 type EmailVerificationCheck = {
 	name: string;
@@ -11,10 +11,6 @@ type EmailVerificationResult = {
 	pass: boolean;
 	failedChecks: EmailVerificationCheck[];
 };
-
-const EMAIL_BUCKET_NAME: string = isRunningLocally
-	? 'local-email-bucket'
-	: getFromEnv('EMAIL_BUCKET_NAME');
 
 export async function findVerificationFailures(
 	message: SESMessage,
@@ -47,8 +43,8 @@ export async function findVerificationFailures(
 		sesFailedChecks.length === 1 &&
 		sesFailedChecks[0]?.name === 'spfVerdict'
 	) {
-		const mailObject = await getFromS3({
-			bucketName: EMAIL_BUCKET_NAME,
+		const mailObject = await fileService.getFromS3({
+			bucketName: emailBucket(),
 			key: message.mail.messageId,
 		});
 		if (mailObject.status === 'failure') {

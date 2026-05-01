@@ -1,12 +1,11 @@
 import type { SendMessageCommand } from '@aws-sdk/client-sqs';
-import { SQSClient } from '@aws-sdk/client-sqs';
 import type { PollerId } from 'newswires-shared/pollers';
 import {
 	getPollerSecretName,
 	POLLER_LAMBDA_ENV_VAR_KEYS,
 	POLLERS_CONFIG,
 } from 'newswires-shared/pollers';
-import { fakeSQS } from 'newswires-shared/sqs';
+import { InMemoryQueueService, queueService } from 'newswires-shared/sqs';
 import prompts from 'prompts';
 import { handlers } from './src/index';
 import type { HandlerInputSqsPayload } from './src/types';
@@ -103,7 +102,7 @@ const fakeInvoke = async (
 };
 
 void (async () => {
-	if (fakeSQS instanceof SQSClient) {
+	if (!(queueService instanceof InMemoryQueueService)) {
 		throw Error(
 			'SQS appears to be using a real client - this file should be using a FAKE local SQS client',
 		);
@@ -141,7 +140,7 @@ void (async () => {
 	await fakeInvoke(
 		handler,
 		input,
-		fakeSQS.queueData,
+		queueService.queueData,
 		ownQueueUrl,
 		ingestionQueueUrl,
 	);
