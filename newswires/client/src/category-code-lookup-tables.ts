@@ -6867,8 +6867,15 @@ export const lookupTables: Array<{
 			// Election Data
 			'paCat:XDA': 'Elections Data',
 			'paCat:XDB': 'Elections Data',
+			'paCat:XDG': 'Elections Data',
+			'paCat:XDQ': 'Elections Data',
+			'paCat:XLD': 'Elections Data',
+			'paCat:XLR': 'Elections Data',
 			'paCat:XTA': 'Elections Data',
 			'paCat:XTB': 'Elections Data',
+			'paCat:XTH': 'Elections Data',
+			'paCat:XTQ': 'Elections Data',
+			'paCat:XTJ': 'Elections Data',
 		},
 	},
 ];
