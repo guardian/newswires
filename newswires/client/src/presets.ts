@@ -1,5 +1,4 @@
 import z from 'zod/v4';
-import { IS_DEV_USER } from './app-configuration.ts';
 
 export const PresetGroupNameSchema = z.union([
 	z.literal('presets'),
@@ -139,21 +138,12 @@ export const allPresets: Preset[] = [
 	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
-	{ id: 'uk-election', name: 'UK Election (Dev only)' },
+	{ id: 'uk-election', name: 'UK Election' },
 	{ id: 'all-us', name: 'US' },
 	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
 	{ id: topLevelSportId, name: 'Sport', child: 'sportPresets' },
 ];
-
-// Filter out any presets which shouldn't be presented to users.
-export const useDisplayablePresets = () => {
-	const presetsToHide = new Set<string>();
-
-	if (!IS_DEV_USER) presetsToHide.add('uk-election');
-
-	return allPresets.filter((p) => !presetsToHide.has(p.id));
-};
 
 export const TASTED_COLLECTION = { id: 1, name: 'Tasted' };
 
