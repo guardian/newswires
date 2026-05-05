@@ -8,6 +8,7 @@ import {
 	useEffect,
 	useMemo,
 	useReducer,
+	useRef,
 	useState,
 } from 'react';
 import { z } from 'zod/v4';
@@ -132,6 +133,8 @@ export type Action =
 	| SelectItem
 	| UpdateResults
 	| ToggleAutoUpdate;
+
+const REFRESH_INTERVAL_MS = 6000;
 
 export type SearchContextShape = {
 	config: Config;
@@ -262,6 +265,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		return () => window.removeEventListener('popstate', popConfigStateCallback);
 	}, [popConfigStateCallback]);
 
+	const refreshesSinceLastTelemetrySend = useRef(0);
+
 	useEffect(() => {
 		let pollingInterval: NodeJS.Timeout | undefined;
 
@@ -269,6 +274,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 
 		if (state.status === 'loading') {
 			const start = performance.now();
+			refreshesSinceLastTelemetrySend.current = 0;
 			fetchResults({ query: currentConfig.query, view: currentConfig.view })
 				.then((data) => {
 					sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
@@ -282,6 +288,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						resultsCount: data.results.length,
 						resultsIds: data.results.map((wire) => wire.id).join(','),
 						totalCount: data.totalCount,
+						isRefresh: false,
 					});
 					setHasBeenVisibleItemIds([]);
 					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });
@@ -296,6 +303,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						state.queryData.results,
 						state.sortBy,
 					);
+					const start = performance.now();
 					fetchResults({
 						query: currentConfig.query,
 						afterTimeStamp,
@@ -303,6 +311,27 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						view: currentConfig.view,
 					})
 						.then((data) => {
+							refreshesSinceLastTelemetrySend.current += 1;
+							// only send refresh telemetry events every 60s to avoid flooding the telemetry index
+							if (
+								refreshesSinceLastTelemetrySend.current >=
+								60_000 / REFRESH_INTERVAL_MS
+							) {
+								refreshesSinceLastTelemetrySend.current = 0;
+								sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
+									...Object.fromEntries(
+										Object.entries(currentConfig.query).map(([key, value]) => [
+											`search-query_${key}`,
+											JSON.stringify(value),
+										]),
+									),
+									duration: performance.now() - start,
+									resultsCount: data.results.length,
+									resultsIds: data.results.map((wire) => wire.id).join(','),
+									totalCount: data.totalCount,
+									isRefresh: true,
+								});
+							}
 							if (!abortController.signal.aborted) {
 								dispatch({
 									type: 'UPDATE_RESULTS',
@@ -313,7 +342,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						})
 						.catch(handleFetchError);
 				}
-			}, 6000);
+			}, REFRESH_INTERVAL_MS);
 		}
 
 		return () => {
