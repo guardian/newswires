@@ -20,8 +20,8 @@ type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 // mock the s3 sdk module
 jest.mock('newswires-shared/s3', () => ({
 	fileService: {
-		getFromS3: jest.fn(),
-		putToS3: jest.fn(),
+		getObject: jest.fn(),
+		putObject: jest.fn(),
 	},
 }));
 jest.mock('newswires-shared/config', () => ({
@@ -45,8 +45,8 @@ jest.mock('newswires-shared/lambda-logging', () => {
 		createLogger: () => logs,
 	};
 });
-const mockGetFromS3 = fileService.getFromS3 as jest.MockedFunction<
-	typeof fileService.getFromS3
+const mockGetObject = fileService.getObject as jest.MockedFunction<
+	typeof fileService.getObject
 >;
 const mockInitialiseDbConnection =
 	rdsModule.initialiseDbConnection as jest.MockedFunction<
@@ -98,7 +98,7 @@ describe('handler.main', () => {
 
 	it('should process SQS messages and return no batchItemFailures if everything succeeds', async () => {
 		// Mock S3 to return a valid JSON body
-		mockGetFromS3.mockResolvedValue(validJsonFromSuccessfulS3);
+		mockGetObject.mockResolvedValue(validJsonFromSuccessfulS3);
 
 		// Mock database to simulate successful insertion
 		mockInitialiseDbConnection.mockResolvedValue({
@@ -127,7 +127,7 @@ describe('handler.main', () => {
 
 	it('should handle mixed success and failure scenarios', async () => {
 		// Mock S3 to return a valid JSON body
-		mockGetFromS3.mockResolvedValue(validJsonFromSuccessfulS3);
+		mockGetObject.mockResolvedValue(validJsonFromSuccessfulS3);
 
 		// Mock database to simulate successful insertion
 		mockInitialiseDbConnection.mockResolvedValue({
@@ -173,8 +173,8 @@ describe('handler.main', () => {
 		).toBe('INGESTION_FAILURE');
 
 		// Verify S3 was only called once (for the valid record)
-		expect(mockGetFromS3).toHaveBeenCalledTimes(1);
-		expect(mockGetFromS3).toHaveBeenCalledWith({
+		expect(mockGetObject).toHaveBeenCalledTimes(1);
+		expect(mockGetObject).toHaveBeenCalledWith({
 			bucketName: 'test-feeds-bucket',
 			key: 'path/to/object.json',
 		});
@@ -190,7 +190,7 @@ describe('handler.main', () => {
 			closeDbConnection: jest.fn(),
 		});
 		// Mock S3 to return different responses for different keys
-		mockGetFromS3.mockImplementation((params) => {
+		mockGetObject.mockImplementation((params) => {
 			if (params.key === 'path/to/valid-object.json') {
 				return Promise.resolve(validJsonFromSuccessfulS3);
 			} else if (params.key === 'path/to/invalid-object.json') {
@@ -237,12 +237,12 @@ describe('handler.main', () => {
 			'INVALID_JSON_RECORD_ID',
 		);
 		// Verify S3 was called for both records
-		expect(mockGetFromS3).toHaveBeenCalledTimes(2);
-		expect(mockGetFromS3).toHaveBeenCalledWith({
+		expect(mockGetObject).toHaveBeenCalledTimes(2);
+		expect(mockGetObject).toHaveBeenCalledWith({
 			bucketName: 'test-feeds-bucket',
 			key: 'path/to/valid-object.json',
 		});
-		expect(mockGetFromS3).toHaveBeenCalledWith({
+		expect(mockGetObject).toHaveBeenCalledWith({
 			bucketName: 'test-feeds-bucket',
 			key: 'path/to/invalid-object.json',
 		});
@@ -250,7 +250,7 @@ describe('handler.main', () => {
 
 	it('should handle database writing failures', async () => {
 		// Mock S3 to return valid JSON for both records
-		mockGetFromS3.mockResolvedValue(validJsonFromSuccessfulS3);
+		mockGetObject.mockResolvedValue(validJsonFromSuccessfulS3);
 
 		const mockSql = jest.fn();
 		mockSql
@@ -292,7 +292,7 @@ describe('handler.main', () => {
 			'DB_FAIL_RECORD_ID',
 		);
 
-		expect(mockGetFromS3).toHaveBeenCalledTimes(2);
+		expect(mockGetObject).toHaveBeenCalledTimes(2);
 		expect(mockSql).toHaveBeenCalledTimes(4);
 	});
 
@@ -320,7 +320,7 @@ describe('handler.main', () => {
 	});
 
 	it('should be able to process an SES event', async () => {
-		mockGetFromS3.mockResolvedValue({
+		mockGetObject.mockResolvedValue({
 			status: 'success',
 			body: sampleMimeEmailData,
 		});
@@ -344,7 +344,7 @@ describe('handler.main', () => {
 	});
 
 	it('should log a failure if SES verification contains non-PASS values, but not return errors for retry', async () => {
-		mockGetFromS3.mockResolvedValue({
+		mockGetObject.mockResolvedValue({
 			status: 'success',
 			body: sampleMimeEmailData,
 		});
@@ -368,7 +368,7 @@ describe('handler.main', () => {
 	});
 
 	it('should log a debug message if message is a finger post heartbeat', async () => {
-		mockGetFromS3.mockResolvedValue(heartbeatJson);
+		mockGetObject.mockResolvedValue(heartbeatJson);
 
 		const validSQSRecord: SQSRecord = generateMockSQSRecord({
 			externalId: 'ext-123',

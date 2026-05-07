@@ -5,8 +5,8 @@ import { fileService } from './s3';
 
 jest.mock('./s3', () => ({
 	fileService: {
-		getFromS3: jest.fn(),
-		putToS3: jest.fn(),
+		getObject: jest.fn(),
+		putObject: jest.fn(),
 	},
 }));
 
@@ -24,8 +24,8 @@ describe('findVerificationFailures', () => {
 			messageId: '',
 		},
 	};
-	const mockGetFromS3 = fileService.getFromS3 as jest.MockedFunction<
-		typeof fileService.getFromS3
+	const mockGetFromS3 = fileService.getObject as jest.MockedFunction<
+		typeof fileService.getObject
 	>;
 	it('should return `pass: true` and empty failedChecks for all PASS verdicts', async () => {
 		const receipt = {

@@ -10,7 +10,7 @@ export async function getItemFromS3({
 	bucketName: string;
 }): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
 	return fileService
-		.getFromS3({
+		.getObject({
 			bucketName,
 			key: objectKey,
 		})

@@ -14,7 +14,7 @@ const { appMode, awsConfig } = appConfig;
 const logger = createLogger({});
 
 interface FileService {
-	putToS3({
+	putObject({
 		bucketName,
 		key,
 		body,
@@ -23,7 +23,7 @@ interface FileService {
 		key: string;
 		body: string | Buffer;
 	}): Promise<OperationResult<{ response: PutObjectCommandOutput }>>;
-	getFromS3({
+	getObject({
 		bucketName,
 		key,
 	}: {
@@ -39,7 +39,7 @@ class S3Service implements FileService {
 		this.s3Client = s3Client;
 	}
 
-	async putToS3({
+	async putObject({
 		bucketName,
 		key,
 		body,
@@ -69,7 +69,7 @@ class S3Service implements FileService {
 		}
 	}
 
-	async getFromS3({
+	async getObject({
 		bucketName,
 		key,
 	}: {
@@ -114,7 +114,7 @@ class InMemoryFileService implements FileService {
 		this.store = new Map();
 	}
 
-	async putToS3({
+	async putObject({
 		bucketName,
 		key,
 		body,
@@ -137,7 +137,7 @@ class InMemoryFileService implements FileService {
 		return Promise.resolve({ status: 'success', response });
 	}
 
-	async getFromS3({
+	async getObject({
 		bucketName,
 		key,
 	}: {

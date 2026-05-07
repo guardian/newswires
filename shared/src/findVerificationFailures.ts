@@ -43,7 +43,7 @@ export async function findVerificationFailures(
 		sesFailedChecks.length === 1 &&
 		sesFailedChecks[0]?.name === 'spfVerdict'
 	) {
-		const mailObject = await fileService.getFromS3({
+		const mailObject = await fileService.getObject({
 			bucketName: emailBucket(),
 			key: message.mail.messageId,
 		});

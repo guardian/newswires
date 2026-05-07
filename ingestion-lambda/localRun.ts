@@ -20,7 +20,7 @@ async function run() {
 const createRandomDocsAndInsertToInMemoryStore = () => {
 	return [...Array(10).fill(0)].map(_ => {
 		const { body, externalId } = createDummyFeedEntry();
-		fileService.putToS3({bucketName: '', key: externalId, body: JSON.stringify(body)})
+		fileService.putObject({bucketName: '', key: externalId, body: JSON.stringify(body)})
 		return createSQSRecord({externalId})
 	})
 }

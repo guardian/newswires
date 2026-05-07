@@ -18,7 +18,7 @@ export async function putToS3AndQueueIngestion({
 }): Promise<{ status: 'success' } | { status: 'failure'; reason: string }> {
 	const objectKey = `${keyPrefix}/${externalId}.json`;
 	try {
-		const s3PutResult = await fileService.putToS3({
+		const s3PutResult = await fileService.putObject({
 			bucketName: feedsBucket(),
 			key: objectKey,
 			body,

@@ -121,7 +121,7 @@ export const main = async (
 						return failureWith(processedMessage.reason);
 					}
 					const bucketName = isSES ? emailBucket() : feedsBucket();
-					const s3Result = await fileService.getFromS3({
+					const s3Result = await fileService.getObject({
 						bucketName,
 						key: processedMessage.objectKey,
 					});

@@ -47,7 +47,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						sqsMessageId,
 						objectKey,
 					});
-					const putToS3Result = await fileService.putToS3({
+					const putToS3Result = await fileService.putObject({
 						bucketName: feedsBucket(),
 						key: objectKey,
 						body,
