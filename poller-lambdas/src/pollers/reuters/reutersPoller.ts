@@ -271,6 +271,7 @@ export const reutersPoller = (async ({
 
 	const searchData = [];
 
+	// eslint-disable-next-line @typescript-eslint/await-thenable -- todo fix this linting error introduced by upgrading eslint
 	for await (const page of fetchAllPages(textItemsSearchQuery())) {
 		const { data, success } = SearchDataSchema.safeParse(page);
 		if (!success) {
