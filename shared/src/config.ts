@@ -1,14 +1,13 @@
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 import type { AwsCredentialIdentityProvider } from '@smithy/types';
 
-type AppMode = 'dev' | 'code' | 'prod';
-const allowedAppModes: readonly AppMode[] = ['dev', 'code', 'prod'];
+const allowedAppModes = ['dev', 'code', 'prod'] as const;
+type AppMode = (typeof allowedAppModes)[number];
 function isAppMode(value: string): value is AppMode {
 	return allowedAppModes.includes(value as AppMode);
 }
 const APP_MODE = (() => {
-	const stageEnv = env('STAGE').optional();
-	if (!stageEnv) return 'dev';
+	const stageEnv = env('STAGE').orElse('dev');
 	const stage = stageEnv.toLowerCase();
 	if (!isAppMode(stage))
 		throw new Error(
@@ -26,14 +25,10 @@ function env(key: string) {
 			}
 			return value;
 		},
-		optional(): string | undefined {
-			return process.env[key];
+		orElse(defaultValue: string): string {
+			return process.env[key] ?? defaultValue;
 		},
 	};
-}
-
-function envForStage(key: string) {
-	return APP_MODE === 'dev' ? env(key).optional() : env(key).required();
 }
 
 const awsConfig = {
@@ -125,8 +120,14 @@ function buildDatabaseConfig(): DatabaseConfig {
 export const appConfig = buildAwsConfig();
 export const databaseConfig = () => buildDatabaseConfig();
 export const ingestionQueueUrl = () =>
-	envForStage('INGESTION_LAMBDA_QUEUE_URL') ?? 'dummy-ingestion-queue';
+	APP_MODE === 'dev'
+		? env('INGESTION_LAMBDA_QUEUE_URL').orElse('dummy-ingestion-queue')
+		: env('INGESTION_LAMBDA_QUEUE_URL').required();
 export const feedsBucket = () =>
-	envForStage('FEEDS_BUCKET_NAME') ?? 'dummy-feeds-bucket';
+	APP_MODE === 'dev'
+		? env('FEEDS_BUCKET_NAME').orElse('dummy-feeds-bucket')
+		: env('FEEDS_BUCKET_NAME').required();
 export const emailBucket = () =>
-	envForStage('EMAIL_BUCKET_NAME') ?? 'dummy-email-bucket';
+	APP_MODE === 'dev'
+		? env('EMAIL_BUCKET_NAME').orElse('dummy-email-bucket')
+		: env('EMAIL_BUCKET_NAME').required();
