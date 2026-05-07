@@ -1,6 +1,6 @@
 import type { SQSEvent, SQSRecord } from 'aws-lambda';
-import { main } from './src/handler';
 import { createDummyFeedEntry } from 'newswires-shared/localRun/exampleFeed';
+import { main } from './src/handler';
 
 recursivelyScheduleEvent();
 
@@ -30,12 +30,5 @@ function createDummySQSEvent() {
 	const dummyEvent: SQSEvent = {
 		Records: [recordThatShouldSucceed],
 	};
-	return dummyEvent
+	return dummyEvent;
 }
-
-export function localRunFingerpostQueueingLambda() {
-	const dummyEvent = createDummySQSEvent()
-	main(dummyEvent).then(console.log).catch(console.error);
-}
-
-
