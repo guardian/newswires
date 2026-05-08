@@ -209,7 +209,7 @@ object SearchPresets {
   private val AllUs = List(
     SearchPreset(
       AP,
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.US.AP, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.US.AP ++ List("apCat:l", "apCat:o", "apCat:e"), SOME))
     ),
     SearchPreset(
       AP,
