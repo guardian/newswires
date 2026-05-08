@@ -98,7 +98,6 @@ object SearchParams {
     "PA THE ACADEMY OF MEDICAL SCIENCES",
     "PA PA SPORT LATEST",
     "PA PRESSWIRE",
-    "PA PA",
     "PA GLOBENEWSWIRE",
     "PA EQS NEWSWIRE",
     "PA LATEST",
