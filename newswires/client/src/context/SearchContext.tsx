@@ -273,29 +273,19 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		const abortController = new AbortController();
 
 		if (state.status === 'loading') {
-			const start = performance.now();
+			const startedAt = performance.now();
 			refreshesSinceLastTelemetrySend.current = 0;
 			fetchResults({ query: currentConfig.query, view: currentConfig.view })
 				.then((data) => {
-					sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
-						...Object.fromEntries(
-							Object.entries(currentConfig.query).map(([key, value]) => [
-								`search-query_${key}`,
-								JSON.stringify(value),
-							]),
-						),
-						duration: performance.now() - start,
-						resultsCount: data.results.length,
-						resultsIds: data.results.map((wire) => wire.id).join(','),
-						totalCount: data.totalCount,
-						isRefresh: false,
-						...Object.fromEntries(
-							Object.entries(currentConfig.query).map(([key, value]) => [
-								`query-variant_${key}`,
-								JSON.stringify(value),
-							]),
-						),
-					});
+					sendTelemetryEvent(
+						'NEWSWIRES_FETCHED_RESULTS',
+						createFetchedResultsTelemetryData({
+							query: currentConfig.query,
+							data,
+							startedAt,
+							isRefresh: true,
+						}),
+					);
 					setHasBeenVisibleItemIds([]);
 					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });
 				})
@@ -309,7 +299,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						state.queryData.results,
 						state.sortBy,
 					);
-					const start = performance.now();
+					const startedAt = performance.now();
 					fetchResults({
 						query: currentConfig.query,
 						afterTimeStamp,
@@ -324,19 +314,15 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 								60_000 / REFRESH_INTERVAL_MS
 							) {
 								refreshesSinceLastTelemetrySend.current = 0;
-								sendTelemetryEvent('NEWSWIRES_FETCHED_RESULTS', {
-									...Object.fromEntries(
-										Object.entries(currentConfig.query).map(([key, value]) => [
-											`search-query_${key}`,
-											JSON.stringify(value),
-										]),
-									),
-									duration: performance.now() - start,
-									resultsCount: data.results.length,
-									resultsIds: data.results.map((wire) => wire.id).join(','),
-									totalCount: data.totalCount,
-									isRefresh: true,
-								});
+								sendTelemetryEvent(
+									'NEWSWIRES_FETCHED_RESULTS',
+									createFetchedResultsTelemetryData({
+										query: currentConfig.query,
+										data,
+										startedAt,
+										isRefresh: true,
+									}),
+								);
 							}
 							if (!abortController.signal.aborted) {
 								dispatch({
@@ -605,3 +591,35 @@ export const useSearch = () => {
 	}
 	return searchContext;
 };
+
+function createFetchedResultsTelemetryData({
+	query,
+	data,
+	startedAt,
+	isRefresh,
+}: {
+	query: Query;
+	data: WiresQueryData;
+	startedAt: number;
+	isRefresh: boolean;
+}) {
+	return {
+		...Object.fromEntries(
+			Object.entries(query).map(([key, value]) => [
+				`search-query_${key}`,
+				JSON.stringify(value),
+			]),
+		),
+		duration: performance.now() - startedAt,
+		resultsCount: data.results.length,
+		resultsIds: data.results.map((wire) => wire.id).join(','),
+		totalCount: data.totalCount,
+		isRefresh,
+		...Object.fromEntries(
+			Object.entries(data.queryVariant ?? {}).map(([key, value]) => [
+				`query-variant_${key}`,
+				JSON.stringify(value),
+			]),
+		),
+	};
+}
