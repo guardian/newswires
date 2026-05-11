@@ -18,7 +18,6 @@ export const defaultQuery: Query = {
 	start: DEFAULT_DATE_RANGE.start,
 	end: DEFAULT_DATE_RANGE.end,
 	hasDataFormatting: undefined,
-	previewPaApi: undefined,
 	collectionId: undefined,
 	eventCode: undefined,
 };
@@ -72,9 +71,6 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 	const hasDataFormatting = maybeStringToBooleanOrUndefined(
 		params.get('hasDataFormatting'),
 	);
-	const previewPaApi = maybeStringToBooleanOrUndefined(
-		params.get('previewPaApi'),
-	);
 	const eventCode = params.get('eventCode') ?? undefined;
 	let collectionId: number | undefined = undefined;
 
@@ -107,7 +103,6 @@ function searchParamsToQuery(params: URLSearchParams): Query {
 		start,
 		end,
 		hasDataFormatting,
-		previewPaApi,
 		eventCode,
 	};
 

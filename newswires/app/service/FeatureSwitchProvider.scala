@@ -23,19 +23,8 @@ class FeatureSwitchProvider(stage: String) {
       isOn = _ => stage.toUpperCase() != "PROD"
     )
 
-  val ShowPAAPI: FeatureSwitch =
-    FeatureSwitch(
-      name = "ShowPAAPI",
-      safeState = Off,
-      description = "Show new PA API in the feed",
-      exposeToClient = true,
-      isOn = _.getQueryString("previewPaApi")
-        .flatMap(_.toBooleanOption)
-        .getOrElse(true)
-    )
   private val switches = List(
-    ShowGuSuppliers,
-    ShowPAAPI
+    ShowGuSuppliers
   )
   def clientSideSwitchStates(request: Request[_]): Map[String, Boolean] =
     switches.filter(_.exposeToClient).map(s => s.name -> s.isOn(request)).toMap
