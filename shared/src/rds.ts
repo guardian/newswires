@@ -1,38 +1,25 @@
 import { Signer } from '@aws-sdk/rds-signer';
 import postgres from 'postgres';
-import { getFromEnv, isRunningLocally } from './config';
+import { databaseConfig } from './config';
 
-export const DATABASE_NAME: string = isRunningLocally
-	? 'newswires'
-	: getFromEnv('DATABASE_NAME');
+const { port, hostname, username, ssl, name, password } = databaseConfig();
 
-export const DATABASE_ENDPOINT_ADDRESS: string = isRunningLocally
-	? 'localhost'
-	: getFromEnv('DATABASE_ENDPOINT_ADDRESS');
-
-export const DATABASE_PORT: number = isRunningLocally
-	? 5432
-	: parseInt(getFromEnv('DATABASE_PORT'));
-
-export const DATABASE_USERNAME = 'postgres';
-
-const sharedConfig = {
-	port: DATABASE_PORT,
-	hostname: DATABASE_ENDPOINT_ADDRESS,
-	username: DATABASE_USERNAME,
-};
-
-const signer = new Signer(sharedConfig);
+const signer = new Signer({
+	port,
+	hostname,
+	username,
+});
 
 export async function initialiseDbConnection() {
-	const token = isRunningLocally ? 'postgres' : await signer.getAuthToken();
-	const ssl = isRunningLocally ? 'prefer' : 'require';
+	const token = password ?? (await signer.getAuthToken());
 
 	const sql = postgres({
-		...sharedConfig,
-		database: DATABASE_NAME,
-		password: token,
+		port,
+		hostname,
+		username,
 		ssl,
+		database: name,
+		password: token,
 		idle_timeout: 10,
 		max_lifetime: 60 * 15, // todo -- import from cdk max lambda timeout config?
 	});

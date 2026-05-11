@@ -1,51 +1,54 @@
-import type { Message } from '@aws-sdk/client-sqs';
-import { ReceiveMessageCommand } from '@aws-sdk/client-sqs';
-import type { SQSEvent, SQSRecord } from 'aws-lambda';
-import { getFromEnv } from 'newswires-shared/config';
-import { sqs } from 'newswires-shared/sqs';
+import type { SQSRecord } from 'aws-lambda';
+import { createDummyFeedEntry } from 'newswires-shared/localRun/exampleFeed';
+import { fileService } from 'newswires-shared/s3';
 import { main } from './src/handler';
 
-const SQS_QUEUE_URL = getFromEnv('INGESTION_LAMBDA_QUEUE_URL');
+const createRandomDocsAndInsertToInMemoryStore = async () => {
+	const records = [];
+	for (const _ of Array(10).fill(0)) {
+		const { body, externalId } = createDummyFeedEntry();
+		await fileService.putObject({
+			bucketName: '',
+			key: externalId,
+			body: JSON.stringify(body),
+		});
+		records.push(createSQSRecord({ externalId }));
+	}
+	return records;
+};
 
-const receiveMessage = (queueUrl: string) =>
-	sqs.send(
-		new ReceiveMessageCommand({
-			AttributeNames: ['All'],
-			MaxNumberOfMessages: 10,
-			MessageAttributeNames: ['All'],
-			QueueUrl: queueUrl,
-			WaitTimeSeconds: 20,
-			VisibilityTimeout: 20,
-		}),
-	);
-
-run();
+void (async () => {
+	try {
+		await run();
+	} catch (err) {
+		console.log(err);
+	}
+})();
 
 async function run() {
-	const { Messages } = await receiveMessage(SQS_QUEUE_URL);
-
-	if (!Messages) {
-		console.log(
-			'No messages received from SQS queue. You can run the `fingerpost-queuing-lambda` app to populate this',
-		);
-		return;
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- intentional polling loop
+	while (true) {
+		const records = await createRandomDocsAndInsertToInMemoryStore();
+		const event = {
+			Records: records,
+		};
+		const response = await main(event);
+		if (response && response.batchItemFailures.length > 0) {
+			console.error(
+				`Error running locally. Make sure you have a local database running by executing: ./scripts/setup-local-db.sh`,
+			);
+		}
+		await delay(5000);
 	}
-	const Records = Messages.map((message) => {
-		return createSQSRecord(message);
-	});
-	const event: SQSEvent = { Records };
-	main(event).then(console.log).catch(console.error);
 }
 
-function createSQSRecord(message: Message): SQSRecord {
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const createSQSRecord = ({ externalId }: { externalId: string }): SQSRecord => {
 	const randomSqsMessageId = Math.random().toString(36).substring(7);
-
 	const recordThatShouldSucceed: SQSRecord = {
-		messageId: message.MessageId || randomSqsMessageId,
-		body: message.Body || {},
-
-		messageAttributes: message.MessageAttributes || {},
+		messageId: randomSqsMessageId,
+		body: JSON.stringify({ externalId, objectKey: externalId }),
+		messageAttributes: {},
 	} as unknown as SQSRecord;
 	return recordThatShouldSucceed;
-}
-
+};
