@@ -1,1 +1,6 @@
 java corretto-17.0.13
+node 22.15.0
+github:guardian/devenv latest
+sbt 1.12.9
+aqua:aws/aws-cli latest
+scala-cli latest
