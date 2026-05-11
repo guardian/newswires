@@ -1,36 +1,15 @@
 package db
 
 import conf.SearchTerm.CombinedFields
-import conf.{
-  ALL,
-  AND,
-  CategoryCodesCondition,
-  ComboTerm,
-  OR,
-  SOME,
-  SearchField,
-  SearchTerm,
-  SearchTerms,
-  SingleTerm
-}
+import conf._
 import db.CustomMappers.textArray
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{
-  FilterParams,
-  FingerpostWire,
-  NextPage,
-  QueryCursor,
-  QueryParams,
-  QueryResponse,
-  SearchParams,
-  UpdateType
-}
+import io.circe.parser._
+import io.circe.{Decoder, Encoder}
+import models._
 import play.api.Logging
 import scalikejdbc._
-import io.circe.parser._
 
-import java.io.{File, FileWriter}
 import java.time.Instant
 
 case class WireMaybeToolLinkAndCollection(
@@ -60,7 +39,7 @@ object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
 
-  val countQueryCap = 100L
+  val COUNT_QUERY_CAP = 100L
 
   implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
     deriveEncoder[FingerpostWireEntry].mapJson(_.dropNullValues)
@@ -207,33 +186,29 @@ object FingerpostWireEntry
       .flatten
   }
 
-  private def formatQueryParam(param: Any): String = param match {
-    case null | None   => "NULL"
-    case Some(v)       => formatQueryParam(v)
-    case list: List[_] =>
-      "ARRAY[" + list
-        .map(e => "'" + e.toString.replace("'", "''") + "'")
-        .mkString(", ") + "]::text[]"
-    case n: Int  => n.toString
-    case n: Long => n.toString
-    case other   => "'" + other.toString.replace("'", "''") + "'"
-  }
-
-  private def _toExecutableQuery(
-      statement: String,
-      parameters: Seq[Any]
-  ): String = {
-    val sentinel = "\u0000"
-    val segments = statement.replace("??", sentinel).split("\\?", -1)
-    val formattedParams = parameters.map(formatQueryParam) :+ ""
-    segments
-      .zip(formattedParams)
-      .map { case (seg, param) => seg + param }
-      .mkString
-      .replace(sentinel, "?") // restore PostgreSQL ?| / ?& operators
-  }
-
   object Filters {
+    private def exclusionCondition(
+        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry],
+        queryVariant: QueryVariant = PlainNot
+    )(innerClause: SQLSyntax) = {
+      queryVariant match {
+        case NotExists =>
+          // unpleasant, but the sort of trick you need to pull
+          // because "NOT IN (...)" doesn't hit an index.
+          // https://stackoverflow.com/a/19364694
+
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as alias}
+                 |  WHERE ${syn.id} = ${alias.id}
+                 |    AND $innerClause
+                 |)""".stripMargin
+
+        case PlainNot => sqls"NOT ($innerClause)"
+      }
+    }
+
     private def supplierCondition(
         alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
           FingerpostWireEntry
@@ -287,10 +262,14 @@ object FingerpostWireEntry
     lazy val supplierSQL: List[String] => SQLSyntax =
       (suppliers: List[String]) => supplierCondition(syn, suppliers)
 
-    lazy val supplierExclSQL =
-      (suppliersExcl: List[String]) => {
-        sqls"NOT (${supplierCondition(syn, suppliersExcl)})"
-      }
+    def supplierExclSQL(
+        suppliersExcl: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        supplierCondition(syn, suppliersExcl)
+      )
+    }
 
     lazy val guSourceFeedSQL: List[String] => SQLSyntax =
       (guSourceFeeds: List[String]) =>
@@ -299,13 +278,17 @@ object FingerpostWireEntry
           guSourceFeeds.map(feed => sqls"upper($feed)")
         )
 
-    lazy val guSourceFeedExclSQL =
-      (guSourceFeedsExcl: List[String]) => {
-        sqls.notIn(
+    def guSourceFeedExclSQL(
+        guSourceFeedsExcl: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        sqls.in(
           sqls"upper(${syn.guSourceFeed})",
           guSourceFeedsExcl.map(feed => sqls"upper($feed)")
         )
-      }
+      )
+    }
 
     lazy val singleFieldSearchSQL =
       (searchTerm: SearchTerm.SingleField) =>
@@ -356,10 +339,12 @@ object FingerpostWireEntry
     lazy val keywordsSQL =
       (keywords: List[String]) => keywordCondition(syn, keywords)
 
-    lazy val keywordsExclSQL =
-      (keywords: List[String]) => {
-        sqls"NOT (${keywordCondition(syn, keywords)})"
-      }
+    def keywordsExclSQL(
+        keywords: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ): SQLSyntax = {
+      exclusionCondition(syn, queryVariant)(keywordCondition(syn, keywords))
+    }
 
     lazy val categoryCodeInclSQL =
       (categoryCodes: CategoryCodesCondition) =>
@@ -370,10 +355,14 @@ object FingerpostWireEntry
             categoryCodeAllConditions(syn, codes)
         }
 
-    lazy val categoryCodeExclSQL =
-      (categoryCodesExcl: List[String]) => {
-        sqls"NOT ${categoryCodeSomeConditions(syn, categoryCodesExcl)}"
-      }
+    def categoryCodeExclSQL(
+        categoryCodesExcl: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        categoryCodeSomeConditions(syn, categoryCodesExcl)
+      )
+    }
 
     lazy val dataFormattingSQL =
       (hasDataFormatting: Boolean) => {
@@ -413,10 +402,14 @@ object FingerpostWireEntry
         preComputedCategoriesConditions(syn, preComputedCategories)
       }
 
-    lazy val preComputedCategoriesExclSQL =
-      (preComputedCategories: List[String]) => {
-        sqls"NOT ${preComputedCategoriesConditions(syn, preComputedCategories)}"
-      }
+    def preComputedCategoriesExclSQL(
+        preComputedCategories: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        preComputedCategoriesConditions(syn, preComputedCategories)
+      )
+    }
 
     lazy val collectionIdSQL = (collectionId: Int) =>
       sqls"${Collection.syn.id} = ${collectionId}"
@@ -438,7 +431,8 @@ object FingerpostWireEntry
     }
 
   private[db] def filtersBuilder(
-      filters: FilterParams
+      filters: FilterParams,
+      queryVariant: QueryVariant = PlainNot
   ): Option[SQLSyntax] = {
     val suppliersQuery: Option[SQLSyntax] = filters.suppliersIncl match {
       case Nil       => None
@@ -447,7 +441,8 @@ object FingerpostWireEntry
 
     val suppliersExclQuery: Option[SQLSyntax] = filters.suppliersExcl match {
       case Nil           => None
-      case suppliersExcl => Some(Filters.supplierExclSQL(suppliersExcl))
+      case suppliersExcl =>
+        Some(Filters.supplierExclSQL(suppliersExcl, queryVariant))
     }
 
     val searchQuery: Option[SQLSyntax] =
@@ -460,7 +455,7 @@ object FingerpostWireEntry
 
     val keywordsExclQuery = filters.keywordExcl match {
       case Nil      => None
-      case keywords => Some(Filters.keywordsExclSQL(keywords))
+      case keywords => Some(Filters.keywordsExclSQL(keywords, queryVariant))
     }
 
     val categoryCodesInclQuery = filters.categoryCodesIncl match {
@@ -472,7 +467,7 @@ object FingerpostWireEntry
     val categoryCodesExclQuery = filters.categoryCodesExcl match {
       case Nil               => None
       case categoryCodesExcl =>
-        Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
+        Some(Filters.categoryCodeExclSQL(categoryCodesExcl, queryVariant))
     }
 
     val hasDataFormattingQuery = filters.hasDataFormatting match {
@@ -491,7 +486,12 @@ object FingerpostWireEntry
       filters.preComputedCategoriesExcl match {
         case Nil                  => None
         case presetCategoriesExcl =>
-          Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
+          Some(
+            Filters.preComputedCategoriesExclSQL(
+              presetCategoriesExcl,
+              queryVariant
+            )
+          )
       }
 
     val collectionIdQuery = filters.collectionId match {
@@ -506,7 +506,8 @@ object FingerpostWireEntry
 
     val guSourceFeedExclQuery = filters.guSourceFeedsExcl match {
       case Nil             => None
-      case sourceFeedsExcl => Some(Filters.guSourceFeedExclSQL(sourceFeedsExcl))
+      case sourceFeedsExcl =>
+        Some(Filters.guSourceFeedExclSQL(sourceFeedsExcl, queryVariant))
     }
 
     val eventCodeQuery = filters.eventCode match {
@@ -534,9 +535,10 @@ object FingerpostWireEntry
   }
 
   private[db] def presetsBuilder(
-      presets: List[FilterParams]
+      presets: List[FilterParams],
+      queryVariant: QueryVariant = PlainNot
   ): Option[SQLSyntax] = {
-    val andClauses = presets.flatMap(filtersBuilder)
+    val andClauses = presets.flatMap(p => filtersBuilder(p, queryVariant))
     orAll(andClauses)
   }
 
@@ -560,7 +562,8 @@ object FingerpostWireEntry
       queryCursor: QueryCursor,
       queryOrdering: TimeStampColumn,
       searchPresets: List[FilterParams] = Nil,
-      negatedSearchPresets: List[FilterParams] = Nil
+      negatedSearchPresets: List[FilterParams] = Nil,
+      queryVariant: QueryVariant = PlainNot
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = queryCursorQuery(queryCursor, queryOrdering)
@@ -569,8 +572,8 @@ object FingerpostWireEntry
       searchParams.dateRange.end,
       queryOrdering
     )
-    val customSearchClauses = filtersBuilder(searchParams.filters)
-    val presetSearchClauses = presetsBuilder(searchPresets)
+    val customSearchClauses = filtersBuilder(searchParams.filters, queryVariant)
+    val presetSearchClauses = presetsBuilder(searchPresets, queryVariant)
     val negatedPresetSearchClauses =
       presetsBuilder(negatedSearchPresets).map(clause => sqls"NOT $clause")
 
@@ -650,7 +653,8 @@ object FingerpostWireEntry
 
   def query(
       queryParams: QueryParams,
-      countQueryCap: Long
+      countQueryCap: Long = COUNT_QUERY_CAP,
+      queryVariant: QueryVariant = PlainNot
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
       queryParams.searchParams,
@@ -671,14 +675,6 @@ object FingerpostWireEntry
     )
 
     logger.info(s"QUERY: ${query.statement}; PARAMS: ${query.parameters}")
-
-    val fileWriter =
-      new FileWriter(new File(s"/tmp/query-${Instant.now()}.sql"))
-    fileWriter.write(
-      _toExecutableQuery(query.statement, Seq.from(query.parameters))
-    )
-    fileWriter.close()
-
     val rows = query
       .map(rs => {
         val wireEntry = FingerpostWireEntry.fromDb(syn.resultName)(rs)
@@ -725,7 +721,8 @@ object FingerpostWireEntry
     QueryResponse(
       results,
       totalCount,
-      countQueryCap
+      countQueryCap,
+      queryVariant
     )
   }
 

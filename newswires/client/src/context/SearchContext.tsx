@@ -289,6 +289,12 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						resultsIds: data.results.map((wire) => wire.id).join(','),
 						totalCount: data.totalCount,
 						isRefresh: false,
+						...Object.fromEntries(
+							Object.entries(currentConfig.query).map(([key, value]) => [
+								`query-variant_${key}`,
+								JSON.stringify(value),
+							]),
+						),
 					});
 					setHasBeenVisibleItemIds([]);
 					dispatch({ type: 'FETCH_SUCCESS', data, query: currentConfig.query });

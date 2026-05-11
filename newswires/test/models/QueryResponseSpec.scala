@@ -1,6 +1,11 @@
 package models
 
-import db.{AddedToCollectionAtTime, FingerpostWireEntry, IngestedAtTime}
+import db.{
+  AddedToCollectionAtTime,
+  FingerpostWireEntry,
+  IngestedAtTime,
+  PlainNot
+}
 import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -15,7 +20,8 @@ class QueryResponseSpec extends AnyFlatSpec with Matchers with models {
     QueryResponse(
       results = results,
       totalCount = results.length,
-      countQueryCap = FingerpostWireEntry.countQueryCap
+      countQueryCap = FingerpostWireEntry.COUNT_QUERY_CAP,
+      queryVariant = PlainNot
     )
 
   behavior of "QueryResponse.display"
