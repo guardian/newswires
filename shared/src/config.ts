@@ -33,9 +33,7 @@ function env(key: string) {
 
 const awsConfig = {
 	region: 'eu-west-1',
-	credentials: fromNodeProviderChain({
-		profile: 'editorial-feeds',
-	}),
+	credentials: fromNodeProviderChain(),
 };
 
 type AwsConfig =
