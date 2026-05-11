@@ -9,7 +9,7 @@ import {
 } from '@elastic/eui';
 import moment from 'moment-timezone';
 import { useState } from 'react';
-import { SHOW_GU_SUPPLIERS, SHOW_PAAPI } from './app-configuration';
+import { SHOW_GU_SUPPLIERS } from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
 import { useUserSettings } from './context/UserSettingsContext';
 import { useSettingsSwitches } from './SettingsSwitches.tsx';
@@ -96,9 +96,6 @@ export const SettingsMenu = () => {
 			items: [
 				{
 					name: `Show Gu suppliers: ${SHOW_GU_SUPPLIERS ? 'On' : 'Off'}`,
-				},
-				{
-					name: `Show PAAPI: ${SHOW_PAAPI ? 'On' : 'Off'}`,
 				},
 			],
 		},

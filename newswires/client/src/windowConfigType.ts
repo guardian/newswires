@@ -1,6 +1,5 @@
 interface FeatureSwitches {
 	ShowGuSuppliers: boolean;
-	ShowPAAPI: boolean;
 }
 
 export interface AppConfiguration {

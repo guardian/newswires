@@ -13,7 +13,6 @@ const configLookup: AppConfiguration = isJest
 	? {
 			switches: {
 				ShowGuSuppliers: false,
-				ShowPAAPI: false,
 			},
 			stage: 'test',
 			sendTelemetryAsDev: true,
@@ -22,7 +21,6 @@ const configLookup: AppConfiguration = isJest
 	: window.configuration;
 
 export const SHOW_GU_SUPPLIERS = configLookup.switches.ShowGuSuppliers;
-export const SHOW_PAAPI = configLookup.switches.ShowPAAPI;
 
 /**
  * The list of suppliers to exclude from the list of 'recognised suppliers' that

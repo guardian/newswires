@@ -57,7 +57,6 @@ export const queryAfterDeselection = (
 			'keywordExcl',
 			'guSourceFeed',
 			'guSourceFeedExcl',
-			'previewPaApi',
 		].includes(key)
 	) {
 		const current = query[key] as string[] | undefined;

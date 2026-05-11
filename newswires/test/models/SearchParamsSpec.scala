@@ -21,8 +21,7 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       featureSwitchesOn
     )(FakeRequest()) shouldEqual emptySearchParams.copy(filters =
       emptyFilterParams.copy(
-        suppliersExcl = List("UNAUTHED_EMAIL_FEED"),
-        guSourceFeedsExcl = SearchParams.legacyPaSourceFeeds
+        suppliersExcl = List("UNAUTHED_EMAIL_FEED")
       )
     )
   }
@@ -121,16 +120,6 @@ class SearchParamsSpec extends AnyFlatSpec with models {
     )
   }
 
-  it should "include new PA API feed exclusions when the showPAAPI feature switch is off " in new searchParamsMocks {
-    val result =
-      SearchParams.build(
-        emptyQueryString,
-        emptyBaseParams,
-        showPAAPIFeatureOff
-      )(FakeRequest())
-    result.filters.guSourceFeedsExcl shouldEqual SearchParams.newPaSourceFeeds
-  }
-
   behavior of "computeSupplierExcl"
 
   it should "return dotcopy exclusion when no additional exclusion params are set and showGuSuppliers is true" in new searchParamsMocks {
@@ -189,52 +178,6 @@ class SearchParamsSpec extends AnyFlatSpec with models {
 
   behavior of "computeGuSourceFeedExcl"
 
-  it should "return PA_API exclusions when showPAAPI is false and no guSourceFeed is explicitly set in the query" in new searchParamsMocks {
-    val result = SearchParams.computeGuSourceFeedExcl(
-      showPAAPI = false,
-      guSourceFeeds = Nil,
-      guSourceFeedsExcl = Nil
-    )
-    result shouldEqual List("PA_API", "PA_API DATA FORMATTING")
-  }
-  it should "return legacy PA exclusions when showPAAPI is true and guSourceFeeds and guSourceFeedsExcl are not set" in new searchParamsMocks {
-    val result = SearchParams.computeGuSourceFeedExcl(
-      showPAAPI = true,
-      guSourceFeeds = Nil,
-      guSourceFeedsExcl = Nil
-    )
-    result shouldEqual SearchParams.legacyPaSourceFeeds
-  }
-  it should "return whatever is set in guSourceFeedsExcl when guSourceFeeds is set, regardless of the showPAAPI switch" in new searchParamsMocks {
-    val showPAAPI_OFF = SearchParams.computeGuSourceFeedExcl(
-      showPAAPI = false,
-      guSourceFeeds = List("FEED TO INCLUDE"),
-      guSourceFeedsExcl = Nil
-    )
-    showPAAPI_OFF shouldEqual Nil
-
-    val showPAAPI_ON = SearchParams.computeGuSourceFeedExcl(
-      showPAAPI = true,
-      guSourceFeeds = List("FEED TO INCLUDE"),
-      guSourceFeedsExcl = Nil
-    )
-    showPAAPI_ON shouldEqual Nil
-  }
-  it should "return whatever is set in guSourceFeedsExcl when guSourceFeedsExcl is set, regardless of the showPAAPI switch" in new searchParamsMocks {
-    val showPAAPI_OFF = SearchParams.computeGuSourceFeedExcl(
-      showPAAPI = false,
-      guSourceFeeds = Nil,
-      guSourceFeedsExcl = List("FEED TO EXCLUDE")
-    )
-    showPAAPI_OFF shouldEqual List("FEED TO EXCLUDE")
-
-    val showPAAPI_ON = SearchParams.computeGuSourceFeedExcl(
-      showPAAPI = true,
-      guSourceFeeds = Nil,
-      guSourceFeedsExcl = List("FEED TO EXCLUDE")
-    )
-    showPAAPI_ON shouldEqual List("FEED TO EXCLUDE")
-  }
 }
 
 trait searchParamsMocks {
@@ -242,7 +185,6 @@ trait searchParamsMocks {
   val emptyQueryString = Map[String, Seq[String]]()
   val featureSwitchesOn = mock[FeatureSwitchProvider]
   val showGuSuppliersFeatureOff = mock[FeatureSwitchProvider]
-  val showPAAPIFeatureOff = mock[FeatureSwitchProvider]
   val featureSwitch = FeatureSwitch(
     name = "",
     safeState = Off,
@@ -251,17 +193,7 @@ trait searchParamsMocks {
     isOn = _ => true
   )
   when(featureSwitchesOn.ShowGuSuppliers).thenReturn(featureSwitch)
-  when(featureSwitchesOn.ShowPAAPI).thenReturn(featureSwitch)
   when(showGuSuppliersFeatureOff.ShowGuSuppliers).thenReturn(
-    featureSwitch.copy(isOn = _ => false)
-  )
-  when(showGuSuppliersFeatureOff.ShowPAAPI).thenReturn(
-    featureSwitch
-  )
-  when(showPAAPIFeatureOff.ShowGuSuppliers).thenReturn(
-    featureSwitch
-  )
-  when(showPAAPIFeatureOff.ShowPAAPI).thenReturn(
     featureSwitch.copy(isOn = _ => false)
   )
 }
