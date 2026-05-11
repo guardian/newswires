@@ -7,7 +7,7 @@ recursivelyScheduleEvent();
 function recursivelyScheduleEvent() {
 	setTimeout(
 		() => {
-			const dummyEvent = createDummySQSEvent()
+			const dummyEvent = createDummySQSEvent();
 			main(dummyEvent).then(console.log).catch(console.error);
 			recursivelyScheduleEvent();
 		},

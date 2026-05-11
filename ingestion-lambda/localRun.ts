@@ -3,27 +3,31 @@ import { createDummyFeedEntry } from 'newswires-shared/localRun/exampleFeed';
 import { fileService } from 'newswires-shared/s3';
 import { main } from './src/handler';
 
-const createRandomDocsAndInsertToInMemoryStore = () => {
-	return Promise.all(
-		Array(10)
-			.fill(0)
-			.map(async (_) => {
-				const { body, externalId } = createDummyFeedEntry();
-				await fileService.putObject({
-					bucketName: '',
-					key: externalId,
-					body: JSON.stringify(body),
-				});
-				return createSQSRecord({ externalId });
-			}),
-	);
+const createRandomDocsAndInsertToInMemoryStore = async () => {
+	const records = [];
+	for (const _ of Array(10).fill(0)) {
+		const { body, externalId } = createDummyFeedEntry();
+		await fileService.putObject({
+			bucketName: '',
+			key: externalId,
+			body: JSON.stringify(body),
+		});
+		records.push(createSQSRecord({ externalId }));
+	}
+	return records;
 };
 
-run().catch((e) => console.error(e));
+void (async () => {
+	try {
+		await run();
+	} catch (err) {
+		console.log(err);
+	}
+})();
 
 async function run() {
-	let i = 0;
-	while (i < 1000) {
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- intentional polling loop
+	while (true) {
 		const records = await createRandomDocsAndInsertToInMemoryStore();
 		const event = {
 			Records: records,
@@ -35,7 +39,6 @@ async function run() {
 			);
 		}
 		await delay(5000);
-		i += 1;
 	}
 }
 
@@ -45,7 +48,7 @@ const createSQSRecord = ({ externalId }: { externalId: string }): SQSRecord => {
 	const recordThatShouldSucceed: SQSRecord = {
 		messageId: randomSqsMessageId,
 		body: JSON.stringify({ externalId, objectKey: externalId }),
-		messageAttributes:  {},
+		messageAttributes: {},
 	} as unknown as SQSRecord;
 	return recordThatShouldSucceed;
 };
