@@ -25,7 +25,7 @@ export async function putToS3AndQueueIngestion({
 		});
 		if (s3PutResult.status === 'failure') {
 			throw new Error(
-				`Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket()}"`,
+				`Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket()}: ${s3PutResult.reason}"`,
 			);
 		}
 		const message: SendMessageCommandInput = {
