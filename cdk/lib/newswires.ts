@@ -120,7 +120,7 @@ export class Newswires extends GuStack {
 				subnets: privateSubnets,
 			},
 			engine: DatabaseInstanceEngine.postgres({
-				version: PostgresEngineVersion.VER_16,
+				version: PostgresEngineVersion.VER_18,
 			}),
 			storageType: StorageType.GP3,
 			iops: 3000, // the default for gp3 - not required but nice to declare
