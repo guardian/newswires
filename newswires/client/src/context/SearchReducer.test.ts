@@ -10,6 +10,12 @@ register('Etc/GMT');
 const FIXED_TIMESTAMP = new Date('2025-01-01T02:04:00Z').getTime();
 jest.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
 
+const sampleQueryData = {
+	results: [{ ...sampleWireData }],
+	totalCount: 1,
+	countQueryCap: 100,
+};
+
 describe('SearchReducer', () => {
 	const initialState: State = {
 		status: 'loading',
@@ -22,20 +28,12 @@ describe('SearchReducer', () => {
 	const successState: State = {
 		...initialState,
 		status: 'success',
-		queryData: {
-			results: [{ ...sampleWireData }],
-			totalCount: 1,
-			countQueryCap: 100,
-		},
+		queryData: sampleQueryData,
 	};
 
 	const offlineState: State = {
 		status: 'offline',
-		queryData: {
-			results: [{ ...sampleWireData }],
-			totalCount: 1,
-			countQueryCap: 100,
-		},
+		queryData: sampleQueryData,
 		successfulQueryHistory: [],
 		error: 'Network error',
 		autoUpdate: true,
@@ -45,11 +43,7 @@ describe('SearchReducer', () => {
 
 	const errorState: State = {
 		status: 'error',
-		queryData: {
-			results: [{ ...sampleWireData }],
-			totalCount: 1,
-			countQueryCap: 100,
-		},
+		queryData: sampleQueryData,
 		successfulQueryHistory: [],
 		error: 'Fetch error',
 		autoUpdate: true,
@@ -60,7 +54,7 @@ describe('SearchReducer', () => {
 	it('should handle FETCH_SUCCESS action in loading state', () => {
 		const action: Action = {
 			type: 'FETCH_SUCCESS',
-			data: { results: [sampleWireData], totalCount: 1, countQueryCap: 100 },
+			data: sampleQueryData,
 			query: { q: 'test', collectionId: undefined, preset: undefined },
 		};
 
@@ -112,14 +106,13 @@ describe('SearchReducer', () => {
 			const action: Action = {
 				type: 'UPDATE_RESULTS',
 				data: {
+					...sampleQueryData,
 					results: [
 						{
 							...sampleWireData,
 							id: 2,
 						},
 					],
-					totalCount: 1,
-					countQueryCap: 100,
 				},
 				query: { q: 'test', collectionId: undefined, preset: undefined },
 			};
