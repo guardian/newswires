@@ -7,17 +7,18 @@ import {
 	usePrettyDuration,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useSearch } from './context/SearchContext.tsx';
-import { DEFAULT_DATE_RANGE } from './dateConstants.ts';
-import { isRestricted } from './dateHelpers.ts';
-import { presetLabel, TASTED_COLLECTION } from './presets.ts';
+import { useSearch } from '../context/SearchContext.tsx';
+import { DEFAULT_DATE_RANGE } from '../dateConstants.ts';
+import { isRestricted } from '../dateHelpers.ts';
+import { presetLabel, TASTED_COLLECTION } from '../presets.ts';
 import type {
 	DeselectableQueryKey,
 	DeselectableQueryKeyValue,
-} from './queryHelpers.ts';
-import { queryAfterDeselection } from './queryHelpers.ts';
-import type { Query, WiresQueryData } from './sharedTypes.ts';
-import { Tooltip } from './Tooltip.tsx';
+} from '../queryHelpers.ts';
+import { queryAfterDeselection } from '../queryHelpers.ts';
+import type { Query } from '../sharedTypes.ts';
+import { Tooltip } from '../Tooltip.tsx';
+import { decideSearchSummaryLabel } from './decideSearchSummaryLabel.tsx';
 
 const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	q: 'Search term',
@@ -258,27 +259,13 @@ const Summary = ({
 	);
 };
 
-function decideSearchSummaryLabel(
-	queryData: WiresQueryData | undefined,
-): string {
-	if (queryData === undefined || queryData.totalCount === 0) {
-		return 'No results found';
-	}
-	if (queryData.totalCount > queryData.countQueryCap) {
-		return `Showing ${queryData.countQueryCap}+ results`;
-	}
-	return `Showing ${Intl.NumberFormat('en-GB').format(queryData.totalCount)} result${queryData.totalCount > 1 ? 's' : ''}`;
-}
-
 export const SearchSummary = ({
 	setSideNavIsOpen,
-	queryData,
 }: {
 	setSideNavIsOpen: (isOpen: boolean) => void;
-	queryData: WiresQueryData | undefined;
 }) => {
 	const {
-		state: { status, lastUpdate },
+		state: { status, lastUpdate, queryData },
 		config,
 		openTicker,
 	} = useSearch();

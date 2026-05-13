@@ -13,7 +13,7 @@ import { sortByTimeStamp } from './context/timestamp-compare.ts';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
-import { SearchSummary } from './SearchSummary.tsx';
+import { SearchSummary } from './SearchSummary/SearchSummary.tsx';
 import type { SortBy } from './sharedTypes.ts';
 import {
 	isSortByAddedToCollectionAt,
@@ -157,10 +157,7 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 						<EuiEmptyPrompt
 							body={
 								<>
-									<SearchSummary
-										queryData={queryData}
-										setSideNavIsOpen={setSideNavIsOpen}
-									/>
+									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
 									<p>Try another search or reset filters.</p>
 								</>
 							}
@@ -177,10 +174,7 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 						<div>
 							<EuiFlexGroup css={[baseStyles, isColumn && columnStyles]}>
 								<EuiFlexItem style={{ flex: 1 }}>
-									<SearchSummary
-										queryData={queryData}
-										setSideNavIsOpen={setSideNavIsOpen}
-									/>
+									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
 								</EuiFlexItem>
 								{!isPoppedOut && (
 									<EuiFlexItem grow={false}>
