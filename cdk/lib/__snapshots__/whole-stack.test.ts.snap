@@ -3797,7 +3797,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "DeletionProtection": true,
         "EnableIAMDatabaseAuthentication": true,
         "Engine": "postgres",
-        "EngineVersion": "16",
+        "EngineVersion": "18",
         "Iops": 3000,
         "MasterUserPassword": {
           "Fn::Join": [

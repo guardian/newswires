@@ -1,8 +1,6 @@
-version: '3.0'
-
 services:
   test-db:
-    image: postgres:16.4
+    image: postgres:18.3
     container_name: newswires-test-db
     ports:
       - 55432:5432
