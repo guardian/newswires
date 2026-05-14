@@ -138,7 +138,7 @@ export const allPresets: Preset[] = [
 	{ id: topLevelPresetId, name: 'All' },
 	{ id: 'all-world', name: 'World' },
 	{ id: 'all-uk', name: 'UK' },
-	{ id: 'uk-election', name: 'UK Election' },
+	// { id: 'uk-election', name: 'UK Election' }, // UK election feed is only relevant when there's an actual election going on, so removing it from the nav for now.
 	{ id: 'all-us', name: 'US' },
 	{ id: 'world-plus-uk', name: 'World + UK' },
 	{ id: 'all-business', name: 'Business' },
