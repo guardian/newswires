@@ -13,7 +13,7 @@ import { sortByTimeStamp } from './context/timestamp-compare.ts';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { DatePicker } from './DatePicker.tsx';
 import { ScrollToTopButton } from './ScrollToTopButton.tsx';
-import { SearchSummary } from './SearchSummary.tsx';
+import { SearchSummary } from './SearchSummary/SearchSummary.tsx';
 import type { SortBy } from './sharedTypes.ts';
 import {
 	isSortByAddedToCollectionAt,

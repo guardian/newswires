@@ -1,34 +1,14 @@
 package db
 
 import conf.SearchTerm.CombinedFields
-import conf.{
-  ALL,
-  AND,
-  CategoryCodesCondition,
-  ComboTerm,
-  OR,
-  SOME,
-  SearchField,
-  SearchTerm,
-  SearchTerms,
-  SingleTerm
-}
+import conf._
 import db.CustomMappers.textArray
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import models.{
-  FilterParams,
-  FingerpostWire,
-  NextPage,
-  QueryCursor,
-  QueryParams,
-  QueryResponse,
-  SearchParams,
-  UpdateType
-}
+import io.circe.parser._
+import io.circe.{Decoder, Encoder}
+import models._
 import play.api.Logging
 import scalikejdbc._
-import io.circe.parser._
 
 import java.time.Instant
 
@@ -58,6 +38,8 @@ case class FingerpostWireEntry(
 object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
+
+  val COUNT_QUERY_CAP = 100L
 
   implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
     deriveEncoder[FingerpostWireEntry].mapJson(_.dropNullValues)
@@ -208,17 +190,23 @@ object FingerpostWireEntry
     private def exclusionCondition(
         alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
           FingerpostWireEntry
-        ], FingerpostWireEntry]
+        ], FingerpostWireEntry],
+        queryVariant: QueryVariant = PlainNot
     )(innerClause: SQLSyntax) = {
-      // unpleasant, but the sort of trick you need to pull
-      // because "NOT IN (...)" doesn't hit an index.
-      // https://stackoverflow.com/a/19364694
+      queryVariant match {
+        case NotExists =>
+          // unpleasant, but the sort of trick you need to pull
+          // because "NOT IN (...)" doesn't hit an index.
+          // https://stackoverflow.com/a/19364694
 
-      sqls"""|NOT EXISTS (
-             |  SELECT FROM ${FingerpostWireEntry as alias}
-             |  WHERE ${syn.id} = ${alias.id}
-             |    AND $innerClause
-             |)""".stripMargin
+          sqls"""|NOT EXISTS (
+                 |  SELECT FROM ${FingerpostWireEntry as alias}
+                 |  WHERE ${syn.id} = ${alias.id}
+                 |    AND $innerClause
+                 |)""".stripMargin
+
+        case PlainNot => sqls"NOT ($innerClause)"
+      }
     }
 
     private def supplierCondition(
@@ -274,11 +262,14 @@ object FingerpostWireEntry
     lazy val supplierSQL: List[String] => SQLSyntax =
       (suppliers: List[String]) => supplierCondition(syn, suppliers)
 
-    lazy val supplierExclSQL =
-      (suppliersExcl: List[String]) => {
-        val se = syntax("suppliersExcl")
-        exclusionCondition(se)(supplierCondition(se, suppliersExcl))
-      }
+    def supplierExclSQL(
+        suppliersExcl: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        supplierCondition(syn, suppliersExcl)
+      )
+    }
 
     lazy val guSourceFeedSQL: List[String] => SQLSyntax =
       (guSourceFeeds: List[String]) =>
@@ -287,16 +278,17 @@ object FingerpostWireEntry
           guSourceFeeds.map(feed => sqls"upper($feed)")
         )
 
-    lazy val guSourceFeedExclSQL =
-      (guSourceFeedsExcl: List[String]) => {
-        val gsfe = syntax("guSourceFeedExcl")
-        exclusionCondition(gsfe)(
-          sqls.in(
-            sqls"upper(${gsfe.guSourceFeed})",
-            guSourceFeedsExcl.map(feed => sqls"upper($feed)")
-          )
+    def guSourceFeedExclSQL(
+        guSourceFeedsExcl: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        sqls.in(
+          sqls"upper(${syn.guSourceFeed})",
+          guSourceFeedsExcl.map(feed => sqls"upper($feed)")
         )
-      }
+      )
+    }
 
     lazy val singleFieldSearchSQL =
       (searchTerm: SearchTerm.SingleField) =>
@@ -347,11 +339,12 @@ object FingerpostWireEntry
     lazy val keywordsSQL =
       (keywords: List[String]) => keywordCondition(syn, keywords)
 
-    lazy val keywordsExclSQL =
-      (keywords: List[String]) => {
-        val ke = syntax("keywordsExcl")
-        exclusionCondition(ke)(keywordCondition(ke, keywords))
-      }
+    def keywordsExclSQL(
+        keywords: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ): SQLSyntax = {
+      exclusionCondition(syn, queryVariant)(keywordCondition(syn, keywords))
+    }
 
     lazy val categoryCodeInclSQL =
       (categoryCodes: CategoryCodesCondition) =>
@@ -362,13 +355,14 @@ object FingerpostWireEntry
             categoryCodeAllConditions(syn, codes)
         }
 
-    lazy val categoryCodeExclSQL =
-      (categoryCodesExcl: List[String]) => {
-        val cce = syntax("categoryCodesExcl")
-        exclusionCondition(cce)(
-          categoryCodeSomeConditions(cce, categoryCodesExcl)
-        )
-      }
+    def categoryCodeExclSQL(
+        categoryCodesExcl: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        categoryCodeSomeConditions(syn, categoryCodesExcl)
+      )
+    }
 
     lazy val dataFormattingSQL =
       (hasDataFormatting: Boolean) => {
@@ -408,13 +402,14 @@ object FingerpostWireEntry
         preComputedCategoriesConditions(syn, preComputedCategories)
       }
 
-    lazy val preComputedCategoriesExclSQL =
-      (preComputedCategories: List[String]) => {
-        val pce = syntax("preComputedCategoriesExcl")
-        exclusionCondition(pce)(
-          preComputedCategoriesConditions(pce, preComputedCategories)
-        )
-      }
+    def preComputedCategoriesExclSQL(
+        preComputedCategories: List[String],
+        queryVariant: QueryVariant = PlainNot
+    ) = {
+      exclusionCondition(syn, queryVariant)(
+        preComputedCategoriesConditions(syn, preComputedCategories)
+      )
+    }
 
     lazy val collectionIdSQL = (collectionId: Int) =>
       sqls"${Collection.syn.id} = ${collectionId}"
@@ -436,7 +431,8 @@ object FingerpostWireEntry
     }
 
   private[db] def filtersBuilder(
-      filters: FilterParams
+      filters: FilterParams,
+      queryVariant: QueryVariant = PlainNot
   ): Option[SQLSyntax] = {
     val suppliersQuery: Option[SQLSyntax] = filters.suppliersIncl match {
       case Nil       => None
@@ -445,7 +441,8 @@ object FingerpostWireEntry
 
     val suppliersExclQuery: Option[SQLSyntax] = filters.suppliersExcl match {
       case Nil           => None
-      case suppliersExcl => Some(Filters.supplierExclSQL(suppliersExcl))
+      case suppliersExcl =>
+        Some(Filters.supplierExclSQL(suppliersExcl, queryVariant))
     }
 
     val searchQuery: Option[SQLSyntax] =
@@ -458,7 +455,7 @@ object FingerpostWireEntry
 
     val keywordsExclQuery = filters.keywordExcl match {
       case Nil      => None
-      case keywords => Some(Filters.keywordsExclSQL(keywords))
+      case keywords => Some(Filters.keywordsExclSQL(keywords, queryVariant))
     }
 
     val categoryCodesInclQuery = filters.categoryCodesIncl match {
@@ -470,7 +467,7 @@ object FingerpostWireEntry
     val categoryCodesExclQuery = filters.categoryCodesExcl match {
       case Nil               => None
       case categoryCodesExcl =>
-        Some(Filters.categoryCodeExclSQL(categoryCodesExcl))
+        Some(Filters.categoryCodeExclSQL(categoryCodesExcl, queryVariant))
     }
 
     val hasDataFormattingQuery = filters.hasDataFormatting match {
@@ -489,7 +486,12 @@ object FingerpostWireEntry
       filters.preComputedCategoriesExcl match {
         case Nil                  => None
         case presetCategoriesExcl =>
-          Some(Filters.preComputedCategoriesExclSQL(presetCategoriesExcl))
+          Some(
+            Filters.preComputedCategoriesExclSQL(
+              presetCategoriesExcl,
+              queryVariant
+            )
+          )
       }
 
     val collectionIdQuery = filters.collectionId match {
@@ -504,7 +506,8 @@ object FingerpostWireEntry
 
     val guSourceFeedExclQuery = filters.guSourceFeedsExcl match {
       case Nil             => None
-      case sourceFeedsExcl => Some(Filters.guSourceFeedExclSQL(sourceFeedsExcl))
+      case sourceFeedsExcl =>
+        Some(Filters.guSourceFeedExclSQL(sourceFeedsExcl, queryVariant))
     }
 
     val eventCodeQuery = filters.eventCode match {
@@ -532,9 +535,10 @@ object FingerpostWireEntry
   }
 
   private[db] def presetsBuilder(
-      presets: List[FilterParams]
+      presets: List[FilterParams],
+      queryVariant: QueryVariant = PlainNot
   ): Option[SQLSyntax] = {
-    val andClauses = presets.flatMap(filtersBuilder)
+    val andClauses = presets.flatMap(p => filtersBuilder(p, queryVariant))
     orAll(andClauses)
   }
 
@@ -558,7 +562,8 @@ object FingerpostWireEntry
       queryCursor: QueryCursor,
       queryOrdering: TimeStampColumn,
       searchPresets: List[FilterParams] = Nil,
-      negatedSearchPresets: List[FilterParams] = Nil
+      negatedSearchPresets: List[FilterParams] = Nil,
+      queryVariant: QueryVariant = PlainNot
   ): SQLSyntax = {
 
     val dataOnlyWhereClauses = queryCursorQuery(queryCursor, queryOrdering)
@@ -567,8 +572,8 @@ object FingerpostWireEntry
       searchParams.dateRange.end,
       queryOrdering
     )
-    val customSearchClauses = filtersBuilder(searchParams.filters)
-    val presetSearchClauses = presetsBuilder(searchPresets)
+    val customSearchClauses = filtersBuilder(searchParams.filters, queryVariant)
+    val presetSearchClauses = presetsBuilder(searchPresets, queryVariant)
     val negatedPresetSearchClauses =
       presetsBuilder(negatedSearchPresets).map(clause => sqls"NOT $clause")
 
@@ -647,7 +652,9 @@ object FingerpostWireEntry
   }
 
   def query(
-      queryParams: QueryParams
+      queryParams: QueryParams,
+      countQueryCap: Long = COUNT_QUERY_CAP,
+      queryVariant: QueryVariant = PlainNot
   ): QueryResponse = DB readOnly { implicit session =>
     val whereClause = buildWhereClause(
       queryParams.searchParams,
@@ -683,15 +690,18 @@ object FingerpostWireEntry
       marshallJoinedRowsToWireEntries(rows)
 
     val countQuery =
-      sql"""| SELECT COUNT(*)
-            | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
-            | LEFT JOIN ${ToolLink as ToolLink.syn}
-            |  ON ${syn.id} = ${ToolLink.syn.wireId}
-            | LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
-            |   ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
-            | LEFT JOIN ${Collection as Collection.syn}
-            |   ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
-            | WHERE $whereClause
+      sql"""| SELECT COUNT(*) FROM (
+            |   SELECT 1
+            |   FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+            |   LEFT JOIN ${ToolLink as ToolLink.syn}
+            |    ON ${syn.id} = ${ToolLink.syn.wireId}
+            |   LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+            |     ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+            |   LEFT JOIN ${Collection as Collection.syn}
+            |     ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
+            |   WHERE $whereClause
+            |   LIMIT ${countQueryCap + 1}
+            | ) AS capped
             | """.stripMargin
 
     logger.info(
@@ -710,7 +720,9 @@ object FingerpostWireEntry
 
     QueryResponse(
       results,
-      totalCount /*, keywordCounts*/
+      totalCount,
+      countQueryCap,
+      queryVariant
     )
   }
 

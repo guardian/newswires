@@ -1,6 +1,11 @@
 package models
 
-import db.{AddedToCollectionAtTime, IngestedAtTime}
+import db.{
+  AddedToCollectionAtTime,
+  FingerpostWireEntry,
+  IngestedAtTime,
+  PlainNot
+}
 import helpers.models
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -8,6 +13,17 @@ import org.scalatest.matchers.should.Matchers
 import java.time.Instant
 
 class QueryResponseSpec extends AnyFlatSpec with Matchers with models {
+
+  def queryResponseFromResultsList(
+      results: List[FingerpostWireEntry]
+  ): QueryResponse =
+    QueryResponse(
+      results = results,
+      totalCount = results.length,
+      countQueryCap = FingerpostWireEntry.COUNT_QUERY_CAP,
+      queryVariant = PlainNot
+    )
+
   behavior of "QueryResponse.display"
   it should "sort results by ingested_at in descending order when given IngestedAtTimestamp" in {
 
@@ -21,7 +37,7 @@ class QueryResponseSpec extends AnyFlatSpec with Matchers with models {
       ingestedAt = entry1.ingestedAt.plusSeconds(10)
     )
 
-    val queryResponse = QueryResponse(
+    val queryResponse = queryResponseFromResultsList(
       results = List(entry2, entry1)
     )
 
@@ -62,7 +78,7 @@ class QueryResponseSpec extends AnyFlatSpec with Matchers with models {
       ingestedAt = baseInstant
     )
 
-    val queryResponse = QueryResponse(
+    val queryResponse = queryResponseFromResultsList(
       results = List(entry2, entry1)
     )
 
@@ -85,7 +101,7 @@ class QueryResponseSpec extends AnyFlatSpec with Matchers with models {
       toolLinks = List(toolLink1, toolLink2),
       collections = Nil
     )
-    val queryResponse = QueryResponse(
+    val queryResponse = queryResponseFromResultsList(
       results = List(entry)
     )
     val displayed = QueryResponse.display(
@@ -108,7 +124,7 @@ class QueryResponseSpec extends AnyFlatSpec with Matchers with models {
       toolLinks = List(toolLink1, toolLink2),
       collections = Nil
     )
-    val queryResponse = QueryResponse(
+    val queryResponse = queryResponseFromResultsList(
       results = List(entry)
     )
     val displayed = QueryResponse.display(

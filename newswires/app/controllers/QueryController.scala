@@ -4,18 +4,11 @@ import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.pandomainauth.action.UserRequest
 import com.gu.permissions.PermissionsProvider
 import conf.{SearchPresets, SearchTerm}
-import io.circe.syntax.EncoderOps
 import db.FingerpostWireEntry._
-import models.{
-  BaseRequestParams,
-  NextPage,
-  QueryCursor,
-  QueryParams,
-  QueryResponse,
-  SearchParams
-}
 import db._
+import io.circe.syntax.EncoderOps
 import lib.Base64Encoder
+import models._
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -23,6 +16,7 @@ import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
 
 import java.time.Instant
+import scala.util.Random
 
 class QueryController(
     val controllerComponents: ControllerComponents,
@@ -54,7 +48,8 @@ class QueryController(
       hasDataFormatting: Option[Boolean],
       guSourceFeeds: List[String],
       guSourceFeedsExcl: List[String],
-      eventCode: Option[String]
+      eventCode: Option[String],
+      countQueryCap: Option[Long]
   ): Action[AnyContent] = apiAuthAction {
     implicit request: UserRequest[AnyContent] =>
       val baseParams = BaseRequestParams(
@@ -100,8 +95,17 @@ class QueryController(
         timeStampColumn = timeStampColumn
       )
 
+      val queryVariant = request.getQueryString("variant") match {
+        case Some("not_exists")        => NotExists
+        case Some("plain_not")         => PlainNot
+        case _ if Random.nextBoolean() => NotExists
+        case _                         => PlainNot
+      }
+
       val queryResponse = FingerpostWireEntry.query(
-        queryParams
+        queryParams,
+        queryVariant = queryVariant,
+        countQueryCap = countQueryCap.getOrElse(COUNT_QUERY_CAP)
       )
 
       Ok(
