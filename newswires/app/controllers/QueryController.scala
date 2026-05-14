@@ -48,7 +48,8 @@ class QueryController(
       hasDataFormatting: Option[Boolean],
       guSourceFeeds: List[String],
       guSourceFeedsExcl: List[String],
-      eventCode: Option[String]
+      eventCode: Option[String],
+      countQueryCap: Option[Long]
   ): Action[AnyContent] = apiAuthAction {
     implicit request: UserRequest[AnyContent] =>
       val baseParams = BaseRequestParams(
@@ -103,7 +104,8 @@ class QueryController(
 
       val queryResponse = FingerpostWireEntry.query(
         queryParams,
-        queryVariant = queryVariant
+        queryVariant = queryVariant,
+        countQueryCap = countQueryCap.getOrElse(COUNT_QUERY_CAP)
       )
 
       Ok(
