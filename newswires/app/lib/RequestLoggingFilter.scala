@@ -64,19 +64,22 @@ class RequestLoggingFilter(implicit
       "origin" -> originIp,
       "method" -> request.method,
       "duration" -> duration,
-      "path" -> request.path
+      "path" -> request.path,
+      "status" -> outcome.map(_.header.status).toOption.getOrElse(500),
+      "referrer" -> referer
     ) ++ queryStringMap
 
-    val optionalMarkers = Map(
-      "status" -> outcome.map(_.header.status).toOption,
-      "requestId" -> request.headers.get(RequestLoggingFilter.requestIdHeader),
-      "referrer" -> referer
-    ).collect { case (key, Some(value)) =>
-      key -> value
-    }
+    val optionalMarkers: Map[String, Option[String]] = Map(
+      "requestId" -> request.headers.get(RequestLoggingFilter.requestIdHeader)
+    )
+
+    val filteredOptionalMarkers = optionalMarkers
+      .collect { case (key, Some(value)) =>
+        key -> value
+      }
 
     val markers = MarkerContext(
-      appendEntries((mandatoryMarkers ++ optionalMarkers).asJava)
+      appendEntries((mandatoryMarkers ++ filteredOptionalMarkers).asJava)
     )
 
     outcome.fold(
@@ -84,7 +87,9 @@ class RequestLoggingFilter(implicit
         logger.info(
           s"""$originIp - "${request.method} ${request.uri} ${request.version}" ERROR "$referer" ${duration}ms"""
         )(markers)
-        logger.error(s"Error for ${request.method} ${request.uri}", throwable)
+        logger.error(s"Error for ${request.method} ${request.uri}", throwable)(
+          markers
+        )
       },
       response => {
         val length = response.header.headers.getOrElse("Content-Length", 0)
