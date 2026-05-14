@@ -283,7 +283,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 							query: currentConfig.query,
 							data,
 							startedAt,
-							isRefresh: true,
+							isRefresh: false,
 						}),
 					);
 					setHasBeenVisibleItemIds([]);
