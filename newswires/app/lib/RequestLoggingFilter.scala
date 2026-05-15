@@ -2,7 +2,7 @@ package lib
 
 import net.logstash.logback.marker.Markers.appendEntries
 import org.apache.pekko.stream.Materializer
-import play.api.mvc.{AnyContent, Filter, Request, RequestHeader, Result}
+import play.api.mvc._
 import play.api.{Logger, Logging, MarkerContext}
 
 import java.util.UUID
@@ -26,11 +26,16 @@ class RequestLoggingFilter(implicit
       next: RequestHeader => Future[Result]
   )(request: RequestHeader): Future[Result] = {
     val start = System.currentTimeMillis()
-    val withID = request.withHeaders(
-      request.headers.replace(
-        RequestLoggingFilter.requestIdHeader -> UUID.randomUUID().toString
-      )
-    )
+
+    val withID =
+      if (request.headers.hasHeader(RequestLoggingFilter.requestIdHeader))
+        request
+      else
+        request.withHeaders(
+          request.headers.replace(
+            RequestLoggingFilter.requestIdHeader -> UUID.randomUUID().toString
+          )
+        )
 
     val resultFuture = next(withID)
 
