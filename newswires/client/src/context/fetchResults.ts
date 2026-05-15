@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { pandaFetch } from '../panda-session.ts';
 import type { Config, Query, WiresQueryData } from '../sharedTypes.ts';
 import { WiresQueryResponseSchema } from '../sharedTypes.ts';
@@ -10,14 +11,17 @@ export const fetchResults = async ({
 	afterTimeStamp,
 	beforeTimeStamp,
 	abortController,
+	requestId,
 }: {
 	query: Query;
 	view: Config['view'];
 	afterTimeStamp?: string;
 	beforeTimeStamp?: string;
 	abortController?: AbortController;
-}): Promise<WiresQueryData> => {
+	requestId?: string;
+}): Promise<{ data: WiresQueryData; requestId: string }> => {
 	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
+	const requestIdToUse = requestId ?? uuidv4();
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
@@ -27,6 +31,7 @@ export const fetchResults = async ({
 	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {
 			Accept: 'application/json',
+			'x-newswires-request-id': requestIdToUse,
 		},
 		signal: abortController?.signal ?? undefined,
 	});
@@ -47,7 +52,10 @@ export const fetchResults = async ({
 		);
 	}
 	return {
-		...parseResult.data,
-		results: parseResult.data.results.map(transformWireItemQueryResult),
+		data: {
+			...parseResult.data,
+			results: parseResult.data.results.map(transformWireItemQueryResult),
+		},
+		requestId: requestIdToUse,
 	};
 };

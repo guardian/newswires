@@ -276,7 +276,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			const startedAt = performance.now();
 			refreshesSinceLastTelemetrySend.current = 0;
 			fetchResults({ query: currentConfig.query, view: currentConfig.view })
-				.then((data) => {
+				.then(({ data, requestId }) => {
 					sendTelemetryEvent(
 						'NEWSWIRES_FETCHED_RESULTS',
 						createFetchedResultsTelemetryData({
@@ -284,6 +284,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 							data,
 							startedAt,
 							isRefresh: false,
+							requestId,
 						}),
 					);
 					setHasBeenVisibleItemIds([]);
@@ -306,7 +307,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						abortController,
 						view: currentConfig.view,
 					})
-						.then((data) => {
+						.then(({ data, requestId }) => {
 							refreshesSinceLastTelemetrySend.current += 1;
 							// only send refresh telemetry events every 60s to avoid flooding the telemetry index
 							if (
@@ -321,6 +322,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 										data,
 										startedAt,
 										isRefresh: true,
+										requestId,
 									}),
 								);
 							}
@@ -493,7 +495,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			beforeTimeStamp,
 			view: currentConfig.view,
 		})
-			.then((data) => {
+			.then(({ data }) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
 
 				if (selectNextItem && data.results.length > 0) {
@@ -597,11 +599,13 @@ function createFetchedResultsTelemetryData({
 	data,
 	startedAt,
 	isRefresh,
+	requestId,
 }: {
 	query: Query;
 	data: WiresQueryData;
 	startedAt: number;
 	isRefresh: boolean;
+	requestId: string;
 }) {
 	return {
 		...Object.fromEntries(
@@ -615,6 +619,7 @@ function createFetchedResultsTelemetryData({
 		resultsIds: data.results.map((wire) => wire.id).join(','),
 		totalCount: data.totalCount,
 		isRefresh,
+		requestId,
 		...Object.fromEntries(
 			Object.entries(data.queryVariant ?? {}).map(([key, value]) => [
 				`query-variant_${key}`,

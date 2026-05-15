@@ -38,12 +38,19 @@ describe('fetchResults', () => {
 			collectionId: undefined,
 			preset: undefined,
 		};
-		await fetchResults({ query: mockQuery, view: 'feed' });
+		await fetchResults({
+			query: mockQuery,
+			view: 'feed',
+			requestId: 'abc-123',
+		});
 
 		expect(pandaFetch).toHaveBeenCalledWith(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}`,
 			{
-				headers: { Accept: 'application/json' },
+				headers: {
+					Accept: 'application/json',
+					'x-newswires-request-id': 'abc-123',
+				},
 			},
 		);
 	});
@@ -79,14 +86,13 @@ describe('fetchResults', () => {
 	});
 
 	it('should return parsed data if response is valid', async () => {
-		const result = await fetchResults({
+		const { data } = await fetchResults({
 			query: { q: 'value', collectionId: undefined, preset: undefined },
 			view: 'feed',
 		});
-		expect(result).toEqual({
-			...mockResponseData,
-			results: [...mockResponseData.results.map(transformWireItemQueryResult)],
-		});
+		expect(data.results).toEqual([
+			...mockResponseData.results.map(transformWireItemQueryResult),
+		]);
 	});
 
 	it('should append afterTimeStamp to the query if provided', async () => {
@@ -100,11 +106,9 @@ describe('fetchResults', () => {
 			view: 'feed',
 			afterTimeStamp: '2026-01-07T15:37:15Z',
 		});
-		expect(pandaFetch).toHaveBeenCalledWith(
+		const calledUrl = jest.mocked(pandaFetch).mock.calls[0][0];
+		expect(calledUrl).toBe(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&afterTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
-			expect.objectContaining({
-				headers: { Accept: 'application/json' },
-			}),
 		);
 	});
 
@@ -119,11 +123,9 @@ describe('fetchResults', () => {
 			view: 'feed',
 			beforeTimeStamp: '2026-01-07T15:37:15Z',
 		});
-		expect(pandaFetch).toHaveBeenCalledWith(
+		const calledUrl = jest.mocked(pandaFetch).mock.calls[0][0];
+		expect(calledUrl).toBe(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&beforeTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
-			expect.objectContaining({
-				headers: { Accept: 'application/json' },
-			}),
 		);
 	});
 
@@ -133,9 +135,9 @@ describe('fetchResults', () => {
 			collectionId: undefined,
 			preset: undefined,
 		};
-		const results = await fetchResults({ query: mockQuery, view: 'feed' });
-		expect(results.results).toHaveLength(1);
-		expect(results.results[0]).toEqual(
+		const { data } = await fetchResults({ query: mockQuery, view: 'feed' });
+		expect(data.results).toHaveLength(1);
+		expect(data.results[0]).toEqual(
 			transformWireItemQueryResult(sampleWireResponse),
 		);
 	});
