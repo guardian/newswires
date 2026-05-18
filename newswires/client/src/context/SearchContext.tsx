@@ -22,7 +22,7 @@ import {
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { takeWhile } from '../utils/takeWhile.ts';
-import { fetchResults } from './fetchResults.ts';
+import { fetchResults } from './fetchResults/fetchResults.ts';
 import {
 	loadOrSetInLocalStorage,
 	saveToLocalStorage,

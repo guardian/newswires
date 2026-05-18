@@ -1,10 +1,10 @@
-import { pandaFetch } from '../panda-session';
-import type { WiresQueryResponse } from '../sharedTypes.ts';
-import { EuiDateStringSchema } from '../sharedTypes.ts';
-import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
-import { paramsToQuerystring } from '../urlState.ts';
-import { fetchResults, forTesting } from './fetchResults.ts';
-import { transformWireItemQueryResult } from './transformQueryResponse.ts';
+import { pandaFetch } from '../../panda-session.ts';
+import type { WiresQueryResponse } from '../../sharedTypes.ts';
+import { EuiDateStringSchema } from '../../sharedTypes.ts';
+import { sampleWireResponse } from '../../tests/fixtures/wireData.ts';
+import { paramsToQuerystring } from '../../urlState.ts';
+import { transformWireItemQueryResult } from '../transformQueryResponse.ts';
+import { fetchResults } from './fetchResults.ts';
 
 // mock Date.now to ensure consistent test results when processing relative date ranges
 jest
@@ -17,13 +17,19 @@ const mockResponseData: WiresQueryResponse = {
 	countQueryCap: 100,
 };
 
-jest.mock('../panda-session', () => ({
+jest.mock('../../panda-session', () => ({
 	pandaFetch: jest.fn(() =>
 		Promise.resolve({
 			json: jest.fn().mockResolvedValue(mockResponseData),
 			ok: true,
 		}),
 	),
+}));
+
+const MOCK_REQUEST_ID = 'abc-123';
+
+jest.mock('./generateRequestId', () => ({
+	generateRequestId: () => MOCK_REQUEST_ID,
 }));
 
 describe('fetchResults', () => {
@@ -41,7 +47,6 @@ describe('fetchResults', () => {
 		await fetchResults({
 			query: mockQuery,
 			view: 'feed',
-			requestId: 'abc-123',
 		});
 
 		expect(pandaFetch).toHaveBeenCalledWith(
@@ -49,7 +54,7 @@ describe('fetchResults', () => {
 			{
 				headers: {
 					Accept: 'application/json',
-					'x-newswires-request-id': 'abc-123',
+					'x-newswires-request-id': MOCK_REQUEST_ID,
 				},
 			},
 		);
@@ -140,47 +145,5 @@ describe('fetchResults', () => {
 		expect(data.results[0]).toEqual(
 			transformWireItemQueryResult(sampleWireResponse),
 		);
-	});
-});
-
-describe('extractServerTiming', () => {
-	const { extractServerTiming } = forTesting;
-
-	it('should return "total" server timing value in milliseconds if header is present', () => {
-		const mockHeaders = new Headers({
-			'server-timing': 'total;dur=123.45, db;dur=67.89',
-		});
-		const serverTiming = extractServerTiming(mockHeaders);
-		expect(serverTiming).toBe(123.45);
-	});
-
-	it('should return undefined if server-timing header is not present', () => {
-		const mockHeaders = new Headers({});
-		const serverTiming = extractServerTiming(mockHeaders);
-		expect(serverTiming).toBeUndefined();
-	});
-
-	it('should return undefined if "total" timing is not present in header', () => {
-		const mockHeaders = new Headers({
-			'server-timing': 'db;dur=67.89',
-		});
-		const serverTiming = extractServerTiming(mockHeaders);
-		expect(serverTiming).toBeUndefined();
-	});
-
-	it('should return undefined if "total" timing value is not a valid number', () => {
-		const mockHeaders = new Headers({
-			'server-timing': 'total;dur=abc, db;dur=67.89',
-		});
-		const serverTiming = extractServerTiming(mockHeaders);
-		expect(serverTiming).toBeUndefined();
-	});
-
-	it('should return undefined if "total" timing value is NaN', () => {
-		const mockHeaders = new Headers({
-			'server-timing': 'total;dur=NaN, db;dur=67.89',
-		});
-		const serverTiming = extractServerTiming(mockHeaders);
-		expect(serverTiming).toBeUndefined();
 	});
 });

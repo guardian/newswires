@@ -1,10 +1,10 @@
-import { getErrorMessage } from '@guardian/libs';
-import { v4 as uuidv4 } from 'uuid';
-import { pandaFetch } from '../panda-session.ts';
-import type { Config, Query, WiresQueryData } from '../sharedTypes.ts';
-import { WiresQueryResponseSchema } from '../sharedTypes.ts';
-import { paramsToQuerystring } from '../urlState.ts';
-import { transformWireItemQueryResult } from './transformQueryResponse.ts';
+import { pandaFetch } from '../../panda-session.ts';
+import type { Config, Query, WiresQueryData } from '../../sharedTypes.ts';
+import { WiresQueryResponseSchema } from '../../sharedTypes.ts';
+import { paramsToQuerystring } from '../../urlState.ts';
+import { transformWireItemQueryResult } from '../transformQueryResponse.ts';
+import { extractServerTiming } from './extractServerTiming.ts';
+import { generateRequestId } from './generateRequestId.ts';
 
 export const fetchResults = async ({
 	query,
@@ -12,21 +12,19 @@ export const fetchResults = async ({
 	afterTimeStamp,
 	beforeTimeStamp,
 	abortController,
-	requestId,
 }: {
 	query: Query;
 	view: Config['view'];
 	afterTimeStamp?: string;
 	beforeTimeStamp?: string;
 	abortController?: AbortController;
-	requestId?: string;
 }): Promise<{
 	data: WiresQueryData;
 	requestId: string;
 	serverTiming?: number;
 }> => {
 	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
-	const requestIdToUse = requestId ?? uuidv4();
+	const requestIdToUse = generateRequestId();
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
@@ -67,29 +65,4 @@ export const fetchResults = async ({
 		requestId: requestIdToUse,
 		serverTiming,
 	};
-};
-
-function extractServerTiming(headers: Headers | undefined): number | undefined {
-	const serverTimingHeader = headers?.get('Server-Timing');
-	const serverTimingMatch = serverTimingHeader?.match(
-		/total;dur=(\d+(\.\d+)?)/,
-	);
-	try {
-		const serverTiming = serverTimingMatch
-			? Number(serverTimingMatch[1])
-			: undefined;
-		if (Number.isNaN(serverTiming)) {
-			return undefined;
-		}
-		return serverTiming;
-	} catch (e) {
-		console.error(
-			`Error extracting Server-Timing from response: ${getErrorMessage(e)}`,
-		);
-		return undefined;
-	}
-}
-
-export const forTesting = {
-	extractServerTiming,
 };
