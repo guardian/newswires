@@ -8,12 +8,9 @@ export function extractServerTiming(
 		/total;dur=(\d+(\.\d+)?)/,
 	);
 	try {
-		const serverTiming = serverTimingMatch
-			? Number(serverTimingMatch[1])
-			: undefined;
-		if (Number.isNaN(serverTiming)) {
-			return undefined;
-		}
+		if (!serverTimingMatch) return undefined;
+		const serverTiming = Number(serverTimingMatch[1]);
+		if (Number.isNaN(serverTiming)) return undefined;
 		return serverTiming;
 	} catch (e) {
 		console.error(

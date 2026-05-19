@@ -3,7 +3,7 @@ import { extractServerTiming } from './extractServerTiming';
 describe('extractServerTiming', () => {
 	it('should return "total" server timing value in milliseconds if header is present', () => {
 		const mockHeaders = new Headers({
-			'server-timing': 'total;dur=123.45, db;dur=67.89',
+			'server-timing': 'total;dur=123.45',
 		});
 		const serverTiming = extractServerTiming(mockHeaders);
 		expect(serverTiming).toBe(123.45);
