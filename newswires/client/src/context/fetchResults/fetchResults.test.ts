@@ -1,10 +1,10 @@
-import { pandaFetch } from '../panda-session';
-import type { WiresQueryResponse } from '../sharedTypes.ts';
-import { EuiDateStringSchema } from '../sharedTypes.ts';
-import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
-import { paramsToQuerystring } from '../urlState.ts';
+import { pandaFetch } from '../../panda-session.ts';
+import type { WiresQueryResponse } from '../../sharedTypes.ts';
+import { EuiDateStringSchema } from '../../sharedTypes.ts';
+import { sampleWireResponse } from '../../tests/fixtures/wireData.ts';
+import { paramsToQuerystring } from '../../urlState.ts';
+import { transformWireItemQueryResult } from '../transformQueryResponse.ts';
 import { fetchResults } from './fetchResults.ts';
-import { transformWireItemQueryResult } from './transformQueryResponse.ts';
 
 // mock Date.now to ensure consistent test results when processing relative date ranges
 jest
@@ -17,13 +17,19 @@ const mockResponseData: WiresQueryResponse = {
 	countQueryCap: 100,
 };
 
-jest.mock('../panda-session', () => ({
+jest.mock('../../panda-session', () => ({
 	pandaFetch: jest.fn(() =>
 		Promise.resolve({
 			json: jest.fn().mockResolvedValue(mockResponseData),
 			ok: true,
 		}),
 	),
+}));
+
+const MOCK_REQUEST_ID = 'abc-123';
+
+jest.mock('./generateRequestId', () => ({
+	generateRequestId: () => MOCK_REQUEST_ID,
 }));
 
 describe('fetchResults', () => {
@@ -38,12 +44,18 @@ describe('fetchResults', () => {
 			collectionId: undefined,
 			preset: undefined,
 		};
-		await fetchResults({ query: mockQuery, view: 'feed' });
+		await fetchResults({
+			query: mockQuery,
+			view: 'feed',
+		});
 
 		expect(pandaFetch).toHaveBeenCalledWith(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}`,
 			{
-				headers: { Accept: 'application/json' },
+				headers: {
+					Accept: 'application/json',
+					'x-newswires-request-id': MOCK_REQUEST_ID,
+				},
 			},
 		);
 	});
@@ -79,14 +91,13 @@ describe('fetchResults', () => {
 	});
 
 	it('should return parsed data if response is valid', async () => {
-		const result = await fetchResults({
+		const { data } = await fetchResults({
 			query: { q: 'value', collectionId: undefined, preset: undefined },
 			view: 'feed',
 		});
-		expect(result).toEqual({
-			...mockResponseData,
-			results: [...mockResponseData.results.map(transformWireItemQueryResult)],
-		});
+		expect(data.results).toEqual([
+			...mockResponseData.results.map(transformWireItemQueryResult),
+		]);
 	});
 
 	it('should append afterTimeStamp to the query if provided', async () => {
@@ -100,11 +111,9 @@ describe('fetchResults', () => {
 			view: 'feed',
 			afterTimeStamp: '2026-01-07T15:37:15Z',
 		});
-		expect(pandaFetch).toHaveBeenCalledWith(
+		const calledUrl = jest.mocked(pandaFetch).mock.calls[0][0];
+		expect(calledUrl).toBe(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&afterTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
-			expect.objectContaining({
-				headers: { Accept: 'application/json' },
-			}),
 		);
 	});
 
@@ -119,11 +128,9 @@ describe('fetchResults', () => {
 			view: 'feed',
 			beforeTimeStamp: '2026-01-07T15:37:15Z',
 		});
-		expect(pandaFetch).toHaveBeenCalledWith(
+		const calledUrl = jest.mocked(pandaFetch).mock.calls[0][0];
+		expect(calledUrl).toBe(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&beforeTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
-			expect.objectContaining({
-				headers: { Accept: 'application/json' },
-			}),
 		);
 	});
 
@@ -133,9 +140,9 @@ describe('fetchResults', () => {
 			collectionId: undefined,
 			preset: undefined,
 		};
-		const results = await fetchResults({ query: mockQuery, view: 'feed' });
-		expect(results.results).toHaveLength(1);
-		expect(results.results[0]).toEqual(
+		const { data } = await fetchResults({ query: mockQuery, view: 'feed' });
+		expect(data.results).toHaveLength(1);
+		expect(data.results[0]).toEqual(
 			transformWireItemQueryResult(sampleWireResponse),
 		);
 	});

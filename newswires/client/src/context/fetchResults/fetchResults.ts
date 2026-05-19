@@ -1,8 +1,10 @@
-import { pandaFetch } from '../panda-session.ts';
-import type { Config, Query, WiresQueryData } from '../sharedTypes.ts';
-import { WiresQueryResponseSchema } from '../sharedTypes.ts';
-import { paramsToQuerystring } from '../urlState.ts';
-import { transformWireItemQueryResult } from './transformQueryResponse.ts';
+import { pandaFetch } from '../../panda-session.ts';
+import type { Config, Query, WiresQueryData } from '../../sharedTypes.ts';
+import { WiresQueryResponseSchema } from '../../sharedTypes.ts';
+import { paramsToQuerystring } from '../../urlState.ts';
+import { transformWireItemQueryResult } from '../transformQueryResponse.ts';
+import { extractServerTiming } from './extractServerTiming.ts';
+import { generateRequestId } from './generateRequestId.ts';
 
 export const fetchResults = async ({
 	query,
@@ -16,8 +18,12 @@ export const fetchResults = async ({
 	afterTimeStamp?: string;
 	beforeTimeStamp?: string;
 	abortController?: AbortController;
-}): Promise<WiresQueryData> => {
+}): Promise<{
+	data: WiresQueryData;
+	meta: { requestId: string; serverTiming?: number };
+}> => {
 	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
+	const requestId = generateRequestId();
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
@@ -27,6 +33,7 @@ export const fetchResults = async ({
 	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {
 			Accept: 'application/json',
+			'x-newswires-request-id': requestId,
 		},
 		signal: abortController?.signal ?? undefined,
 	});
@@ -46,8 +53,17 @@ export const fetchResults = async ({
 			`Received invalid data from server: ${JSON.stringify(parseResult.error)}`,
 		);
 	}
+
+	const serverTiming = extractServerTiming(response.headers);
+
 	return {
-		...parseResult.data,
-		results: parseResult.data.results.map(transformWireItemQueryResult),
+		data: {
+			...parseResult.data,
+			results: parseResult.data.results.map(transformWireItemQueryResult),
+		},
+		meta: {
+			requestId,
+			serverTiming,
+		},
 	};
 };

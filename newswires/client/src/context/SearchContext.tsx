@@ -22,7 +22,7 @@ import {
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { takeWhile } from '../utils/takeWhile.ts';
-import { fetchResults } from './fetchResults.ts';
+import { fetchResults } from './fetchResults/fetchResults.ts';
 import {
 	loadOrSetInLocalStorage,
 	saveToLocalStorage,
@@ -276,7 +276,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			const startedAt = performance.now();
 			refreshesSinceLastTelemetrySend.current = 0;
 			fetchResults({ query: currentConfig.query, view: currentConfig.view })
-				.then((data) => {
+				.then(({ data, meta: { requestId, serverTiming } }) => {
 					sendTelemetryEvent(
 						'NEWSWIRES_FETCHED_RESULTS',
 						createFetchedResultsTelemetryData({
@@ -284,6 +284,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 							data,
 							startedAt,
 							isRefresh: false,
+							requestId,
+							serverTiming,
 						}),
 					);
 					setHasBeenVisibleItemIds([]);
@@ -306,7 +308,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						abortController,
 						view: currentConfig.view,
 					})
-						.then((data) => {
+						.then(({ data, meta: { requestId, serverTiming } }) => {
 							refreshesSinceLastTelemetrySend.current += 1;
 							// only send refresh telemetry events every 60s to avoid flooding the telemetry index
 							if (
@@ -321,6 +323,8 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 										data,
 										startedAt,
 										isRefresh: true,
+										requestId,
+										serverTiming,
 									}),
 								);
 							}
@@ -493,7 +497,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			beforeTimeStamp,
 			view: currentConfig.view,
 		})
-			.then((data) => {
+			.then(({ data }) => {
 				dispatch({ type: 'APPEND_RESULTS', data });
 
 				if (selectNextItem && data.results.length > 0) {
@@ -597,11 +601,15 @@ function createFetchedResultsTelemetryData({
 	data,
 	startedAt,
 	isRefresh,
+	requestId,
+	serverTiming,
 }: {
 	query: Query;
 	data: WiresQueryData;
 	startedAt: number;
 	isRefresh: boolean;
+	requestId: string;
+	serverTiming?: number;
 }) {
 	return {
 		...Object.fromEntries(
@@ -611,10 +619,12 @@ function createFetchedResultsTelemetryData({
 			]),
 		),
 		duration: performance.now() - startedAt,
+		...(serverTiming !== undefined ? { serverTiming } : {}),
 		resultsCount: data.results.length,
 		resultsIds: data.results.map((wire) => wire.id).join(','),
 		totalCount: data.totalCount,
 		isRefresh,
+		requestId,
 		...Object.fromEntries(
 			Object.entries(data.queryVariant ?? {}).map(([key, value]) => [
 				`query-variant_${key}`,

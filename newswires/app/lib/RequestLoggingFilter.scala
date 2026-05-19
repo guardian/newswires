@@ -39,17 +39,17 @@ class RequestLoggingFilter(implicit
 
     val resultFuture = next(withID)
 
-    resultFuture onComplete {
+    resultFuture.transform {
       case Success(response) =>
         val duration = System.currentTimeMillis() - start
         log(withID, Right(response), duration)
+        Success(response.withHeaders("Server-Timing" -> s"total;dur=$duration"))
 
       case Failure(err) =>
         val duration = System.currentTimeMillis() - start
         log(withID, Left(err), duration)
+        Failure(err)
     }
-
-    resultFuture
   }
 
   private def log(
