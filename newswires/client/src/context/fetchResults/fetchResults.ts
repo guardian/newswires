@@ -20,11 +20,10 @@ export const fetchResults = async ({
 	abortController?: AbortController;
 }): Promise<{
 	data: WiresQueryData;
-	requestId: string;
-	serverTiming?: number;
+	meta: { requestId: string; serverTiming?: number };
 }> => {
 	const endpoint = view.includes('dotcopy') ? '/api/dotcopy' : '/api/search';
-	const requestIdToUse = generateRequestId();
+	const requestId = generateRequestId();
 	const queryString = paramsToQuerystring({
 		query,
 		useAbsoluteDateTimeValues: true,
@@ -34,7 +33,7 @@ export const fetchResults = async ({
 	const response = await pandaFetch(`${endpoint}${queryString}`, {
 		headers: {
 			Accept: 'application/json',
-			'x-newswires-request-id': requestIdToUse,
+			'x-newswires-request-id': requestId,
 		},
 		signal: abortController?.signal ?? undefined,
 	});
@@ -62,7 +61,9 @@ export const fetchResults = async ({
 			...parseResult.data,
 			results: parseResult.data.results.map(transformWireItemQueryResult),
 		},
-		requestId: requestIdToUse,
-		serverTiming,
+		meta: {
+			requestId,
+			serverTiming,
+		},
 	};
 };

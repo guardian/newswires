@@ -276,7 +276,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			const startedAt = performance.now();
 			refreshesSinceLastTelemetrySend.current = 0;
 			fetchResults({ query: currentConfig.query, view: currentConfig.view })
-				.then(({ data, requestId, serverTiming }) => {
+				.then(({ data, meta: { requestId, serverTiming } }) => {
 					sendTelemetryEvent(
 						'NEWSWIRES_FETCHED_RESULTS',
 						createFetchedResultsTelemetryData({
@@ -308,7 +308,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 						abortController,
 						view: currentConfig.view,
 					})
-						.then(({ data, requestId, serverTiming }) => {
+						.then(({ data, meta: { requestId, serverTiming } }) => {
 							refreshesSinceLastTelemetrySend.current += 1;
 							// only send refresh telemetry events every 60s to avoid flooding the telemetry index
 							if (
