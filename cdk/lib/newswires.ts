@@ -456,10 +456,10 @@ export class Newswires extends GuStack {
 			type: 'String',
 		});
 
-		const scaling = {
-			minimumInstances: 1,
-			maximumInstances: 2,
-		};
+		const scaling =
+			this.stage === 'PROD'
+				? { minimumInstances: 2, maximumInstances: 4 }
+				: { minimumInstances: 1, maximumInstances: 2 };
 
 		const monitoringConfiguration: Alarms | NoMonitoring = enableMonitoring
 			? {
