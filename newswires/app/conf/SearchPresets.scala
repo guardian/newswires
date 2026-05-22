@@ -63,6 +63,7 @@ object SearchPresets {
     case "australian-rules"     => Some(SearchPreset(AustralianRules, Nil))
     case "baseball"             => Some(SearchPreset(Baseball, Nil))
     case "basketball"           => Some(SearchPreset(Basketball, Nil))
+    case "basketball-scores"    => Some(SearchPreset(BasketballScores, Nil))
     case "college-sports"       => Some(SearchPreset(CollegeSports, Nil))
     case "cricket"              => Some(SearchPreset(Cricket, Nil))
     case "cricket-scores"       => Some(SearchPreset(CricketScores, Nil))
@@ -518,12 +519,14 @@ object SearchPresets {
   private val Basketball = List(
     SearchPreset(
       REUTERS,
+      searchTerms = Some(SingleTerm(SingleField("-/RESULTS -/STANDINGS", Slug))),
       categoryCodes = Some(CategoryCodesCondition(List("N2:BASK", "subj:15008000", "subj:15008001"), SOME))
     ),
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("BASKETBALL", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA ::: List("paCat:RSR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME)),
+      categoryCodesExcl = List("paCat:RSR")
     ),
     SearchPreset(
       AAP,
@@ -536,7 +539,25 @@ object SearchPresets {
     ),
     SearchPreset(
       AP,
-      searchTerms = Some(SingleTerm(SingleField("-BKC -BKW BKN OR BKL", Slug))),
+      searchTerms = Some(SingleTerm(SingleField("AP-BKN OR AP-BKL", Slug))),
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.AP, SOME))
+    )
+  )
+
+  private val BasketballScores = List(
+    SearchPreset(
+      REUTERS,
+      searchTerms = Some(SingleTerm(SingleField("/RESULTS OR /STANDINGS", Slug))),
+      categoryCodes = Some(CategoryCodesCondition(List("N2:BASK", "subj:15008000", "subj:15008001"), SOME))
+    ),
+    SearchPreset(
+      PA,
+      searchTerms = Some(SingleTerm(SingleField("BASKETBALL", Slug))),
+      categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME))
+    ),
+    SearchPreset(
+      AP,
+      searchTerms = Some(SingleTerm(SingleField("BC-BKN OR BC-BKL", Slug))),
       categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.AP, SOME))
     )
   )
