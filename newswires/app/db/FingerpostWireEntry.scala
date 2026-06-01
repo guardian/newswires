@@ -39,7 +39,7 @@ object FingerpostWireEntry
     extends SQLSyntaxSupport[FingerpostWireEntry]
     with Logging {
 
-  val COUNT_QUERY_CAP = 100L
+  val COUNT_QUERY_CAP = 500L
 
   implicit val jsonEncoder: Encoder[FingerpostWireEntry] =
     deriveEncoder[FingerpostWireEntry].mapJson(_.dropNullValues)
