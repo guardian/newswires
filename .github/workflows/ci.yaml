@@ -28,21 +28,21 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup node for CDK
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 #v6.2.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: './package-lock.json'
           node-version-file: '.nvmrc'
 
       - name: Set up Scala CLI
-        uses: VirtusLab/scala-cli-setup@v1.13
+        uses: VirtusLab/scala-cli-setup@11ed705e608ea5f42169879153a5b34ac4c6ad10 # v1.13
 
       - name: Set up test environment
         run: ./scripts/setup-test-env.sh
 
       # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
-        uses: guardian/setup-scala@v1
+        uses: guardian/setup-scala@cc7b39e238d789370aa98fa5f07e609b6527657d # v1.1.0
 
       - name: Lint and test
         run: |
@@ -98,7 +98,7 @@ jobs:
           sbt clean scalafmtCheckAll compile test Debian/packageBin normalisePackageName
 
       - name: Upload to Riff-Raff
-        uses: guardian/actions-riff-raff@v4.3.1
+        uses: guardian/actions-riff-raff@d39172548e0d231b1394d32116644c23958c54a0 # v4.3.1
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
