@@ -54,7 +54,6 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 					customQuickSelectRender={customQuickSelectRender}
 					dateFormat={'MMM D • HH:mm'}
 					commonlyUsedRanges={timeRangeOptions()}
-					showUpdateButton={false}
 				/>
 			</div>
 		</StopShortcutPropagationWrapper>
