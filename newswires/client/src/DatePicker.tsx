@@ -39,7 +39,7 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 	);
 
 	const onRefresh = () => {
-		handleRefresh();
+		handleRefresh(config.query);
 	};
 
 	return (
