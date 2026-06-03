@@ -771,7 +771,7 @@ object SearchPresets {
     ),
     SearchPreset(
       PA,
-      searchTerms = Some(SingleTerm(SingleField("TENNIS", Slug))),
+      searchTerms = Some(SingleTerm(SingleField("TENNIS -\"ATP Challenger\"", Slug))),
       categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME))
     ),
     SearchPreset(
