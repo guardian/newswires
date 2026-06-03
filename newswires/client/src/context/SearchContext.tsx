@@ -381,9 +381,21 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'RETRY' });
 	};
 
-	const handleRefresh = (query: Query) => {
-		dispatch({ type: 'ENTER_QUERY', query });
-	};
+	const handleRefresh = useCallback(
+		(query: Query) => {
+			sendTelemetryEvent(
+				'NEWSWIRES_REFRESH',
+				Object.fromEntries(
+					Object.entries(query).map(([key, value]) => [
+						`search-query_${key}`,
+						JSON.stringify(value),
+					]),
+				),
+			);
+			dispatch({ type: 'ENTER_QUERY', query });
+		},
+		[sendTelemetryEvent],
+	);
 
 	const handleSelectItem = (item: string) => {
 		setPreviousItemId(undefined);
