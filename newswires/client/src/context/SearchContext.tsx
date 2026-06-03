@@ -143,6 +143,7 @@ export type SearchContextShape = {
 	viewedItemIds: string[];
 	handleEnterQuery: (query: Query) => void;
 	handleRetry: () => void;
+	handleRefresh: () => void;
 	handleSelectItem: (item: string) => void;
 	handleDeselectItem: () => void;
 	handleNextItem: () => Promise<void>;
@@ -380,6 +381,10 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		dispatch({ type: 'RETRY' });
 	};
 
+	const handleRefresh = () => {
+		dispatch({ type: 'ENTER_QUERY', query: currentConfig.query });
+	};
+
 	const handleSelectItem = (item: string) => {
 		setPreviousItemId(undefined);
 
@@ -567,6 +572,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				config: currentConfig,
 				state,
 				handleEnterQuery,
+				handleRefresh,
 				handleRetry,
 				handleSelectItem,
 				handleDeselectItem,
