@@ -78,6 +78,7 @@ const mockSearchContext: SearchContextShape = {
 		error: undefined,
 	},
 	handleEnterQuery: () => {},
+	handleRefresh: () => {},
 	handleRetry: () => {},
 	handleSelectItem: () => {},
 	handleDeselectItem: () => {},

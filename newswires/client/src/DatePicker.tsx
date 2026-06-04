@@ -15,7 +15,7 @@ import { timeRangeOptions } from './dateHelpers.ts';
 import { EuiDateStringSchema } from './sharedTypes.ts';
 
 export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
-	const { config, handleEnterQuery } = useSearch();
+	const { config, handleEnterQuery, handleRefresh } = useSearch();
 
 	const onTimeChange = ({ start, end }: { start: string; end: string }) => {
 		handleEnterQuery({
@@ -38,6 +38,10 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 		</>
 	);
 
+	const onRefresh = () => {
+		handleRefresh(config.query);
+	};
+
 	return (
 		<StopShortcutPropagationWrapper>
 			{/* Wrap date picker so StopShortcutPropagationWrapper can catch and stop its keyboard events */}
@@ -54,6 +58,7 @@ export const DatePicker = ({ width = 'auto' }: { width?: 'full' | 'auto' }) => {
 					customQuickSelectRender={customQuickSelectRender}
 					dateFormat={'MMM D • HH:mm'}
 					commonlyUsedRanges={timeRangeOptions()}
+					onRefresh={onRefresh}
 				/>
 			</div>
 		</StopShortcutPropagationWrapper>
