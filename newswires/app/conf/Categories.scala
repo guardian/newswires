@@ -97,7 +97,8 @@ private[conf] object CategoryCodes {
       "paCat:SSD",
       "paCat:RRD",
       "paCat:RMS",
-      "paCat:RRA"
+      "paCat:RRA",
+      "paCat:SSF"
     )
   }
 
