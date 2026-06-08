@@ -1,8 +1,8 @@
 # Newswires
 
-Newswires is The Guardian's editorial wires platform. It ingests agency content (including Reuters, AP, and Fingerpost), stores and enriches it, and serves a searchable feed to editorial users through a Guardian-owned backend and UI.
+Newswires is The Guardian's editorial wires platform. It ingests and stores agency content, and serves a searchable feed to users.
 
-<sup>Looking for the repository containing the current Fingerpost wires app? Try [editorial-wires](https://github.com/guardian/editorial-wires) instead (Guardian employees only).</sup>
+<sup>Looking for the repository containing the current Fingerpost wires? Try [editorial-wires](https://github.com/guardian/editorial-wires) instead (Guardian employees only, sorry).</sup>
 
 ## Contents
 
@@ -16,15 +16,11 @@ Newswires is The Guardian's editorial wires platform. It ingests agency content 
 
 Newswires exists to give editorial teams a modern, Guardian-controlled wires experience, while still benefiting from third-party feed integrations.
 
-Primary users are:
-
-- Editorial staff monitoring incoming agency stories
-- Product and engineering teams maintaining ingestion, search, and UI behavior
-- Operations teams responsible for reliability and deployability
+Primary users are editorial staff monitoring incoming agency stories.
 
 Core capabilities include:
 
-- Ingesting news-wire content from multiple suppliers
+- Ingesting wire content from multiple suppliers
 - Enriching and validating incoming records
 - Persisting content in PostgreSQL for filtering and search
 - Archiving raw payloads in S3 for audit and troubleshooting
@@ -36,7 +32,7 @@ External services and suppliers include:
 - Reuters and AP feed integrations (via poller lambdas)
 - AWS managed services (Lambda, SQS, SNS, S3, RDS, EC2/ALB)
 
-## 2. Getting Started
+## 2. Getting started
 
 ### Prerequisites
 
@@ -47,45 +43,37 @@ The local environment checks in `scripts/check-requirements` expect:
 - Node `v22.15.0` (from `.nvmrc`) and `npm`
 - Docker
 - nginx and dev-nginx
-- AWS CLI with an `editorial-feeds` profile
 - scala-cli
 
-You will also need appropriate AWS credentials (Janus/editorial-feeds access) for workflows that read secure config, use tunnels, or access cloud resources.
+You will also need appropriate AWS credentials (Janus/editorial-feeds access) for workflows that read secure config, use tunnels or access cloud resources.
 
-### First-Time Setup
+### First-time setup
 
-Run setup from the repository root:
+Run setup from the repository root to install dependencies and configure the local environment:
 
 ```sh
 ./scripts/setup --no-overwrite
 ```
 
-Use `--overwrite` if you explicitly want to replace existing values in `~/.gu/newswires.conf`.
+Use `--overwrite` if you explicitly want to replace existing values.
 
-Setup performs the following:
+### Run the main app
 
-- Checks required tooling and Node version
-- Configures local nginx mapping for the app
-- Ensures `~/.gu/newswires.conf` has required keys
-- Installs npm dependencies
-
-### Run the Main App
-
-Run against local Docker Postgres:
+Run against local database (requires Docker):
 
 ```sh
 ./scripts/start
 ```
 
-Run against CODE RDS (via tunnel):
+Run against CODE database:
 
 ```sh
 ./scripts/start --use-CODE
 ```
 
-Both modes require valid AWS credentials.
+Both options require valid AWS credentials and expect access to port `5432`.
 
-### Run Components Independently
+### Run components independently
 
 Fingerpost queueing lambda:
 
@@ -114,7 +102,7 @@ Recomputation lambda:
 npm run dev -w recomputation-lambda
 ```
 
-### Database and Migrations
+### Database and migrations
 
 Start local DB and apply pending migrations:
 
@@ -131,7 +119,7 @@ Useful migration commands:
 
 Equivalent targets exist for `test`, `code`, and `prod` (with appropriate connectivity).
 
-### Test, Lint, Typecheck, Build
+### Test, lint, typecheck, build
 
 At repo root:
 
@@ -151,15 +139,15 @@ npm run test:ci
 npm run build:ci
 ```
 
-### Deploy and Infrastructure
+### Deploy and infrastructure
 
 - CDK stacks are in `cdk/`
 - `cdk` synth output generates deployment artifacts and Riff-Raff config
 - CI builds all lambdas, the Play app package, and uploads to Riff-Raff
 
-## 3. How It Works
+## 3. How it works
 
-### Core Technologies
+### Core technologies
 
 - Play Framework (Scala) backend application
 - React + Vite client app (served from the Play project)
@@ -168,51 +156,75 @@ npm run build:ci
 - AWS CDK for infrastructure as code
 - npm workspaces + Lage for monorepo task orchestration
 
-### High-Level Architecture
+### High-level architecture
 
 ```mermaid
 graph TB
-       Reuters[Reuters Feed]
-       AP[AP Feed]
-       Fingerpost[Fingerpost Feed]
-       Users[Editorial Users]
+    %% External Sources
+    Reuters[Reuters Feed]
+    AP[AP Feed]
+    Fingerpost[Fingerpost Feed]
+    Users[Users]
 
-       subgraph AWS["AWS editorial-feeds"]
-              subgraph IngestionPath[Ingestion Path]
-                     ReutersPoller[Reuters Poller Lambda]
-                     APPoller[AP Poller Lambda]
-                     FingerpostSNS[Fingerpost SNS Topic]
-                     FingerpostQueueing[Fingerpost Queueing Lambda]
-                     SourceQ[/Source Queue/]
-                     Ingestion[Ingestion Lambda]
+    subgraph AWS["AWS 'editorial-feeds'"]
+        subgraph WritePath["Ingestion"]
+            %% Lambda Functions for ingestion
+            ReutersPoller[Reuters Poller Lambda]
+            APPoller[AP Poller Lambda]
+            Ingestion[Ingestion Lambda]
 
-                     ReutersPoller --> SourceQ
-                     APPoller --> SourceQ
-                     FingerpostSNS --> FingerpostQueueing
-                     FingerpostQueueing --> SourceQ
-                     SourceQ --> Ingestion
-              end
+            %% Queues and Topics
+            FingerpostSNS[Fingerpost SNS]
+            FingerpostQueueingLambda[Fingerpost Queueing Lambda]
+            SourceQ[/Source Queue/]
 
-              subgraph ReadPath[Read Path]
-                     ALB[Application Load Balancer]
-                     ASG[EC2 Auto Scaling Group - Play App]
-                     ALB --> ASG
-              end
+            %% Ingestion flows
+            ReutersPoller --> SourceQ
+            APPoller --> SourceQ
+            FingerpostQueueingLambda --> SourceQ
+            SourceQ --> Ingestion
+            Ingestion --> FeedsBucket
+        end
 
-              DB[(PostgreSQL RDS)]
-              FeedsBucket[(S3 Feeds Bucket)]
-              Cleanup[Cleanup Lambda]
+        subgraph ReadPath["User-facing app"]
+            %% Web Application
+            ASG[EC2 Auto Scaling Group]
+            ALB[Application Load Balancer]
 
-              Ingestion --> DB
-              Ingestion --> FeedsBucket
-              ASG -- read access --> DB
-              Cleanup -- scheduled deletes --> DB
-       end
+            %% Read path flows
+            ALB --> ASG
+        end
 
-       Reuters <-- polling --> ReutersPoller
-       AP <-- long polling --> APPoller
-       Fingerpost -- pushes --> FingerpostSNS
-       Users --> ALB
+        %% Shared Resources
+        FeedsBucket[(Feeds S3 Bucket)]
+        DB[(PostgreSQL RDS)]
+        Cleanup[Cleanup Lambda]
+
+        %% Shared Resource Flows
+        Ingestion --> DB
+        ASG -- "read-only access" --> DB
+        Cleanup -- "delete old stories on a schedule" --> DB
+    end
+
+    %% External Data Flows
+    Reuters <-- "fixed schedule" --> ReutersPoller
+    AP <-- "long polling" --> APPoller
+    Fingerpost -- pushes --> FingerpostSNS
+    FingerpostSNS --> FingerpostQueueingLambda
+    Users --> ALB
+
+    %% Styling
+    classDef external stroke:#f9f
+    classDef lambda stroke:#ff9
+    classDef queue stroke:#9f9
+    classDef storage stroke:#99f
+    classDef compute stroke:#f96
+
+    class Reuters,AP,Fingerpost,Users external
+    class ReutersPoller,APPoller,Ingestion,Cleanup,FingerpostQueueingLambda lambda
+    class SourceQ queue
+    class FeedsBucket,DB storage
+    class ASG,ALB compute
 ```
 
 ### Subprojects
@@ -230,7 +242,7 @@ graph TB
 - `db/`: migration scripts and database helper tooling
 - `docs/`: architecture decision records and project documentation
 
-### Key Design Concepts
+### Key design concepts
 
 - Ingestion is latency-sensitive: it is on the critical path for content availability.
 - Pollers are supplier-specific and can be fixed-frequency or long-polling.
@@ -238,16 +250,8 @@ graph TB
 - Infrastructure for poller lambdas is generated from shared config to reduce drift.
 - Monorepo structure allows coordinated type/lint/test/build workflows across services.
 
-### Things That Might Surprise New Engineers
+## 4. Useful links
 
-- `scripts/setup` requires either `--overwrite` or `--no-overwrite`.
-- Local app startup still needs AWS credentials for secure config and related integrations.
-- `scripts/start --use-CODE` and local Docker DB both expect access to port `5432`.
-- Pollers run from an interactive local harness rather than a single non-interactive command.
-
-## 4. Useful Links
-
-- [Previous project README notes](old-README.md)
 - [Architecture and project docs](docs/README.md)
 - [ADRs index](docs/adrs)
 - [Poller lambdas documentation](poller-lambdas/README.md)
@@ -255,21 +259,14 @@ graph TB
 - [Ingestion lambda documentation](ingestion-lambda/README.md)
 - [CDK infrastructure directory](cdk/README.md)
 - [Fingerpost queueing lambda notes](fingerpost-queueing-lambda/README.md)
-- [Guardian editorial-wires repository (related)](https://github.com/guardian/editorial-wires)
 - [Flyway documentation](https://documentation.red-gate.com/flyway/flyway-cli-and-api/welcome-to-flyway)
 - [ssm-scala (RDS tunnelling)](https://github.com/guardian/ssm-scala)
 
 ## 5. Terminology
 
-- **Wires**: Continuous feeds of agency content used by editorial teams.
-- **Supplier**: External content provider (for example Reuters, AP, Fingerpost).
 - **Poller Lambda**: Supplier-specific lambda that fetches content on a schedule or by long-polling.
 - **Fingerpost Queueing Lambda**: Lambda that consumes Fingerpost SNS events and enqueues messages for ingestion.
 - **Source Queue**: SQS queue consumed by the ingestion lambda as a common intake path.
-- **Ingestion Lambda**: Lambda that validates, enriches, archives, and writes content to the Newswires database.
-- **Cleanup Lambda**: Scheduled lambda that removes old records from the database.
-- **Recomputation Lambda**: Operational lambda used for one-off backfills/recomputations.
-- **CODE**: Guardian pre-production environment used for integration testing and validation.
-- **PROD**: Production environment.
-- **Riff-Raff**: Guardian deployment system used to promote built artifacts.
-- **Pan-domain auth**: Guardian authentication/session mechanism used by the app.
+- **CODE**: Pre-production environment used for integration testing and validation.
+- **Riff-Raff**: Deployment tool.
+- **Pan-domain auth**: Authentication/session mechanism used by the app.
