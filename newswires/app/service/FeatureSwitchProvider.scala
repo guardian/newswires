@@ -27,9 +27,7 @@ class FeatureSwitchProvider(stage: String) {
     FeatureSwitch(
       name = "HideMediaDirectFeeds",
       safeState = Off,
-      description =
-        "Hide media direct source feeds (PA, PA PA RACING DATA, PA DATA FORMATTING, PA PA SPORT DATA)",
-      exposeToClient = true,
+      description = "Hide media direct source feeds",
       isOn = _.getQueryString("hideMediaDirectFeeds")
         .flatMap(_.toBooleanOption)
         .getOrElse(false)
