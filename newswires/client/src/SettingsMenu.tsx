@@ -9,7 +9,10 @@ import {
 } from '@elastic/eui';
 import moment from 'moment-timezone';
 import { useState } from 'react';
-import { SHOW_GU_SUPPLIERS } from './app-configuration';
+import {
+	HIDE_MEDIA_DIRECT_FEEDS,
+	SHOW_GU_SUPPLIERS,
+} from './app-configuration';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext';
 import { useUserSettings } from './context/UserSettingsContext';
 import { useSettingsSwitches } from './SettingsSwitches.tsx';
@@ -96,6 +99,9 @@ export const SettingsMenu = () => {
 			items: [
 				{
 					name: `Show Gu suppliers: ${SHOW_GU_SUPPLIERS ? 'On' : 'Off'}`,
+				},
+				{
+					name: `Hide media direct feeds: ${HIDE_MEDIA_DIRECT_FEEDS ? 'On' : 'Off'}`,
 				},
 			],
 		},

@@ -1,5 +1,6 @@
 interface FeatureSwitches {
 	ShowGuSuppliers: boolean;
+	HideMediaDirectFeeds: boolean;
 }
 
 export interface AppConfiguration {
