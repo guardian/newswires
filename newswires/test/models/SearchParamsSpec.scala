@@ -203,6 +203,13 @@ class SearchParamsSpec extends AnyFlatSpec with models {
       guSourceFeedsExcl = List("excluded-feed")
     )
     result shouldEqual List("excluded-feed")
+
+    val result2 = SearchParams.computeGuSourceFeedExcl(
+      hideMediaDirectFeeds = true,
+      guSourceFeeds = List("some-feed"),
+      guSourceFeedsExcl = Nil
+    )
+    result2 shouldEqual Nil
   }
 
   it should "pass through guSourceFeedsExcl unchanged when guSourceFeedsExcl is non-empty" in new searchParamsMocks {
