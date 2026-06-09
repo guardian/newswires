@@ -57,7 +57,11 @@ object SearchParams {
         preComputedCategoriesExcl = Nil,
         collectionId = baseParams.maybeCollectionId,
         guSourceFeeds = baseParams.guSourceFeeds,
-        guSourceFeedsExcl = baseParams.guSourceFeedsExcl,
+        guSourceFeedsExcl = computeGuSourceFeedExcl(
+          hideMediaDirectFeeds = featureSwitch.HideMediaDirectFeeds.isOn(req),
+          guSourceFeeds = baseParams.guSourceFeeds,
+          guSourceFeedsExcl = baseParams.guSourceFeedsExcl
+        ),
         eventCode = baseParams.eventCode
       ),
       DateRange(
@@ -84,5 +88,26 @@ object SearchParams {
       query.get("supplierExcl").map(_.toList).getOrElse(Nil)
 
     dotCopyExclusion ::: guSuppliersExclusion ::: exclusionFromParams
+  }
+
+  val mediaDirectSourceFeeds = List(
+    "PA",
+    "PA PA RACING DATA",
+    "PA DATA FORMATTING",
+    "PA PA SPORT DATA"
+  )
+
+  def computeGuSourceFeedExcl(
+      hideMediaDirectFeeds: Boolean,
+      guSourceFeeds: List[String],
+      guSourceFeedsExcl: List[String]
+  ): List[String] = {
+    if (guSourceFeeds.nonEmpty || guSourceFeedsExcl.nonEmpty) {
+      guSourceFeedsExcl
+    } else if (hideMediaDirectFeeds) {
+      mediaDirectSourceFeeds
+    } else {
+      Nil
+    }
   }
 }

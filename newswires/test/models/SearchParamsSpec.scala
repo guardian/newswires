@@ -1,7 +1,7 @@
 package models
 
 import conf.SearchField.Slug
-import conf.{AND, CategoryCodesCondition, ComboTerm, OR, SOME, SearchTerm}
+import conf._
 import helpers.models
 import org.mockito.Mockito.when
 import org.scalatest.flatspec.AnyFlatSpec
@@ -178,6 +178,57 @@ class SearchParamsSpec extends AnyFlatSpec with models {
 
   behavior of "computeGuSourceFeedExcl"
 
+  it should "return empty list when hideMediaDirectFeeds is false and no guSourceFeed is explicitly set" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      hideMediaDirectFeeds = false,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = Nil
+    )
+    result shouldEqual Nil
+  }
+
+  it should "exclude media direct source feeds when hideMediaDirectFeeds is true and no guSourceFeed is explicitly set" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      hideMediaDirectFeeds = true,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = Nil
+    )
+    result shouldEqual SearchParams.mediaDirectSourceFeeds
+  }
+
+  it should "pass through guSourceFeedsExcl unchanged when guSourceFeeds is non-empty" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      hideMediaDirectFeeds = true,
+      guSourceFeeds = List("some-feed"),
+      guSourceFeedsExcl = List("excluded-feed")
+    )
+    result shouldEqual List("excluded-feed")
+
+    val result2 = SearchParams.computeGuSourceFeedExcl(
+      hideMediaDirectFeeds = true,
+      guSourceFeeds = List("some-feed"),
+      guSourceFeedsExcl = Nil
+    )
+    result2 shouldEqual Nil
+  }
+
+  it should "pass through guSourceFeedsExcl unchanged when guSourceFeedsExcl is non-empty" in new searchParamsMocks {
+    val result = SearchParams.computeGuSourceFeedExcl(
+      hideMediaDirectFeeds = true,
+      guSourceFeeds = Nil,
+      guSourceFeedsExcl = List("excluded-feed")
+    )
+    result shouldEqual List("excluded-feed")
+  }
+
+  it should "apply media direct feed exclusions via SearchParams.build when hideMediaDirectFeeds is on" in new searchParamsMocks {
+    val result = SearchParams.build(
+      emptyQueryString,
+      emptyBaseParams,
+      hideMediaDirectFeedsOn
+    )(FakeRequest())
+    result.filters.guSourceFeedsExcl shouldEqual SearchParams.mediaDirectSourceFeeds
+  }
 }
 
 trait searchParamsMocks {
@@ -185,6 +236,7 @@ trait searchParamsMocks {
   val emptyQueryString = Map[String, Seq[String]]()
   val featureSwitchesOn = mock[FeatureSwitchProvider]
   val showGuSuppliersFeatureOff = mock[FeatureSwitchProvider]
+  val hideMediaDirectFeedsOn = mock[FeatureSwitchProvider]
   val featureSwitch = FeatureSwitch(
     name = "",
     safeState = Off,
@@ -193,7 +245,15 @@ trait searchParamsMocks {
     isOn = _ => true
   )
   when(featureSwitchesOn.ShowGuSuppliers).thenReturn(featureSwitch)
+  when(featureSwitchesOn.HideMediaDirectFeeds).thenReturn(
+    featureSwitch.copy(isOn = _ => false)
+  )
   when(showGuSuppliersFeatureOff.ShowGuSuppliers).thenReturn(
     featureSwitch.copy(isOn = _ => false)
   )
+  when(showGuSuppliersFeatureOff.HideMediaDirectFeeds).thenReturn(
+    featureSwitch.copy(isOn = _ => false)
+  )
+  when(hideMediaDirectFeedsOn.ShowGuSuppliers).thenReturn(featureSwitch)
+  when(hideMediaDirectFeedsOn.HideMediaDirectFeeds).thenReturn(featureSwitch)
 }

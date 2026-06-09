@@ -29,6 +29,7 @@ const SearchTermBadgeLabelLookup: Record<DeselectableQueryKey, string> = {
 	categoryCode: 'Category',
 	categoryCodeExcl: '(NOT) Category',
 	hasDataFormatting: 'Has data formatting',
+	hideMediaDirectFeeds: 'Hide media direct feeds',
 	keyword: 'Keyword',
 	keywordExcl: '(NOT) Keyword',
 	guSourceFeed: 'Source feed',
@@ -99,6 +100,7 @@ const Summary = ({
 		categoryCode,
 		categoryCodeExcl,
 		hasDataFormatting,
+		hideMediaDirectFeeds,
 		collectionId,
 		eventCode: eventCode,
 	} = query;
@@ -132,6 +134,7 @@ const Summary = ({
 		displayGuSourceFeeds ||
 		displayExcludedGuSourceFeeds ||
 		hasDataFormatting !== undefined ||
+		hideMediaDirectFeeds !== undefined ||
 		collectionId !== undefined ||
 		eventCode !== undefined;
 
@@ -244,6 +247,14 @@ const Summary = ({
 					keyValuePair={{
 						key: 'hasDataFormatting',
 						value: hasDataFormatting ? 'true' : 'false',
+					}}
+				/>
+			)}
+			{hideMediaDirectFeeds !== undefined && (
+				<SummaryBadge
+					keyValuePair={{
+						key: 'hideMediaDirectFeeds',
+						value: hideMediaDirectFeeds ? 'true' : 'false',
 					}}
 				/>
 			)}
