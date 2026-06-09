@@ -48,6 +48,7 @@ const sampleItemData: WireData = {
 	collections: [],
 	isAlert: false,
 	isLead: false,
+	isMediaDirectItem: false,
 	ingestedAtMoment: new InstantMoment(moment('2025-02-26T09:58:22.000Z')),
 };
 
