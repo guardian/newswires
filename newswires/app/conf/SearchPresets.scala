@@ -747,7 +747,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("TENNIS", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME)),
+      categoryCodesExcl = List("paCat:RSR")
     ),
     SearchPreset(
       AFP,
@@ -812,7 +813,7 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("auto OR MOTO", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA ::: List("paCat:RSR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
     ),
     SearchPreset(
       AFP,
@@ -927,7 +928,7 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("ICEHOCKEY", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA ::: List("paCat:RSR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
     ),
     SearchPreset(
       AFP,

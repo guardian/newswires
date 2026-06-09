@@ -68,6 +68,7 @@ private[conf] object CategoryCodes {
     val PA: List[String] = List(
       "paCat:SRS", // General Sport News
       "paCat:SSS", // General Sport News
+      "paCat:RSR", // General Sport Results
       "paCat:SSO", // Soccer News
       "paCat:SCR", // Cricket News
       "paCat:SRR", // Racing News
