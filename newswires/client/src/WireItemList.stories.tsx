@@ -291,6 +291,27 @@ export const WithDataFormatting: Story = {
 	},
 };
 
+export const WithDataFormattingAndMediaDirectItemBadge: Story = {
+	args: {
+		wires: [
+			{
+				...sampleItemData,
+				hasDataFormatting: true,
+				isMediaDirectItem: true,
+			},
+			{
+				...sampleItemData,
+				hasDataFormatting: true,
+				isMediaDirectItem: true,
+				id: 67890,
+			},
+		],
+		totalCount: 1,
+		showCollectionMetadata: false,
+		showSecondaryFeedContent: false,
+	},
+};
+
 export const WithLongTitleSlugAndSubheading: Story = {
 	args: {
 		wires: [
