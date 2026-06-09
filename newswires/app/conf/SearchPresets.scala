@@ -19,7 +19,9 @@ object SearchPreset {
       keywordExcl: List[String] = Nil,
       hasDataFormatting: Option[Boolean] = None,
       preComputedCategories: List[String] = Nil,
-      preComputedCategoriesExcl: List[String] = Nil
+      preComputedCategoriesExcl: List[String] = Nil,
+      guSourceFeeds: List[String] = Nil,
+      guSourceFeedsExcl: List[String] = Nil
   ): FilterParams =
     FilterParams(
       searchTerms = searchTerms,
@@ -33,8 +35,8 @@ object SearchPreset {
       preComputedCategories = preComputedCategories,
       preComputedCategoriesExcl = preComputedCategoriesExcl,
       collectionId = None,
-      guSourceFeeds = Nil,
-      guSourceFeedsExcl = Nil,
+      guSourceFeeds = guSourceFeeds,
+      guSourceFeedsExcl = guSourceFeedsExcl,
       eventCode = None
     )
 }
