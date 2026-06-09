@@ -43,7 +43,7 @@ The local environment checks in `scripts/check-requirements` expect:
 - nginx and dev-nginx
 - scala-cli
 
-You will also need editorial feeds [Janus](https://janus.gutools.co.uk/credentials?permissionId=editorial-feeds-dev) credentials.
+You will also need `editorial-feeds` Janus credentials.
 
 ### First-time setup
 
