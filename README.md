@@ -14,9 +14,7 @@ Newswires is The Guardian's editorial wires platform. It ingests and stores agen
 
 ## 1. Introduction
 
-Newswires exists to give editorial teams a modern, Guardian-controlled wires experience, while still benefiting from third-party feed integrations.
-
-Primary users are editorial staff monitoring incoming agency stories.
+Newswires is used by Guardian journalists to access incoming agency stories.
 
 Core capabilities include:
 
@@ -38,14 +36,14 @@ External services and suppliers include:
 
 The local environment checks in `scripts/check-requirements` expect:
 
-- Java 17+ with `JAVA_HOME` set
-- `sbt`
-- Node `v22.15.0` (from `.nvmrc`) and `npm`
+- Java (see [.tool-versions](./.tool-versions)) with `JAVA_HOME` set
+- sbt
+- Node (see [.nvmrc](./.nvmrc))
 - Docker
 - nginx and dev-nginx
 - scala-cli
 
-You will also need appropriate AWS credentials (Janus/editorial-feeds access) for workflows that read secure config, use tunnels or access cloud resources.
+You will also need appropriate [Janus](https://janus.gutools.co.uk/credentials?permissionId=editorial-feeds-dev) credentials.
 
 ### First-time setup
 
@@ -55,7 +53,7 @@ Run setup from the repository root to install dependencies and configure the loc
 ./scripts/setup --no-overwrite
 ```
 
-Use `--overwrite` if you explicitly want to replace existing values.
+Use `--overwrite` if you explicitly want to replace existing config.
 
 ### Run the main app
 
@@ -110,14 +108,7 @@ Start local DB and apply pending migrations:
 ./scripts/setup-local-db.sh
 ```
 
-Useful migration commands:
-
-```sh
-./db/flyway.sc info local
-./db/flyway.sc migrate local
-```
-
-Equivalent targets exist for `test`, `code`, and `prod` (with appropriate connectivity).
+See [db/README.md](./db/README.md) for more commands.
 
 ### Test, lint, typecheck, build
 
@@ -130,20 +121,13 @@ npm run test
 npm run build
 ```
 
-CI-style workspace commands are also available:
-
-```sh
-npm run lint:ci
-npm run typecheck:ci
-npm run test:ci
-npm run build:ci
-```
+CI-style workspace commands can also be run by appending `:ci` to any of the above commands.
 
 ### Deploy and infrastructure
 
 - CDK stacks are in `cdk/`
 - `cdk` synth output generates deployment artifacts and Riff-Raff config
-- CI builds all lambdas, the Play app package, and uploads to Riff-Raff
+- CI builds all lambdas, the Play app package and uploads to Riff-Raff
 
 ## 3. How it works
 
@@ -151,7 +135,7 @@ npm run build:ci
 
 - Play Framework (Scala) backend application
 - React + Vite client app (served from the Play project)
-- TypeScript AWS Lambda services for ingestion, polling, and background tasks
+- TypeScript AWS Lambda services for ingestion, polling and background tasks
 - PostgreSQL with Flyway migrations
 - AWS CDK for infrastructure as code
 - npm workspaces + Lage for monorepo task orchestration
@@ -227,33 +211,27 @@ graph TB
     class ASG,ALB compute
 ```
 
-### Subprojects
+### Key subprojects
 
-- `newswires/`: Play backend and app packaging
-- `newswires/client`: React/Vite frontend
-- `ingestion-lambda/`: critical-path content processing + persistence
-- `poller-lambdas/`: supplier pollers + self-queueing mechanisms
-- `fingerpost-queueing-lambda/`: bridges Fingerpost SNS messages into ingestion queueing
-- `cleanup-lambda/`: scheduled deletion of old records
-- `recomputation-lambda/`: one-off/operational recomputation utility
-- `email-filter-lambda/`: email filtering workflow support
-- `shared/`: shared TS code/config used across lambdas and CDK
-- `cdk/`: AWS infrastructure definitions and synthesis
-- `db/`: migration scripts and database helper tooling
-- `docs/`: architecture decision records and project documentation
+- [newswires](./newswires): Play backend and app packaging
+- [newswires/client](./newswires/client): React/Vite frontend
+- [ingestion-lambda](./ingestion-lambda): critical-path content processing + persistence
+- [poller-lambdas](./poller-lambdas): supplier pollers + self-queueing mechanisms
+- [fingerpost-queueing-lambda](./fingerpost-queueing-lambda): bridges Fingerpost SNS messages into ingestion queueing
+- [cleanup-lambda](./cleanup-lambda): scheduled deletion of old records
+- [recomputation-lambda](./recomputation-lambda): one-off/operational recomputation utility
+- [db](./db): migration scripts and database helper tooling
 
 ### Key design concepts
 
 - Ingestion is latency-sensitive: it is on the critical path for content availability.
 - Pollers are supplier-specific and can be fixed-frequency or long-polling.
-- The service decouples from third-party UI by persisting data in first-party storage.
 - Infrastructure for poller lambdas is generated from shared config to reduce drift.
 - Monorepo structure allows coordinated type/lint/test/build workflows across services.
 
 ## 4. Useful links
 
 - [Architecture and project docs](docs/README.md)
-- [ADRs index](docs/adrs)
 - [Poller lambdas documentation](poller-lambdas/README.md)
 - [Database migrations and DB access notes](db/README.md)
 - [Ingestion lambda documentation](ingestion-lambda/README.md)
@@ -267,6 +245,5 @@ graph TB
 - **Poller Lambda**: Supplier-specific lambda that fetches content on a schedule or by long-polling.
 - **Fingerpost Queueing Lambda**: Lambda that consumes Fingerpost SNS events and enqueues messages for ingestion.
 - **Source Queue**: SQS queue consumed by the ingestion lambda as a common intake path.
-- **CODE**: Pre-production environment used for integration testing and validation.
 - **Riff-Raff**: Deployment tool.
 - **Pan-domain auth**: Authentication/session mechanism used by the app.
