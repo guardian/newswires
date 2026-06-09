@@ -6,11 +6,11 @@ Newswires is The Guardian's editorial wires platform. It ingests and stores agen
 
 ## Contents
 
-- [Introduction](#1-introduction)
-- [Getting Started](#2-getting-started)
-- [How It Works](#3-how-it-works)
-- [Useful Links](#4-useful-links)
-- [Terminology](#5-terminology)
+1. [Introduction](#1-introduction)
+2. [Getting Started](#2-getting-started)
+3. [How It Works](#3-how-it-works)
+4. [Useful Links](#4-useful-links)
+5. [Terminology](#5-terminology)
 
 ## 1. Introduction
 
@@ -43,7 +43,7 @@ The local environment checks in `scripts/check-requirements` expect:
 - nginx and dev-nginx
 - scala-cli
 
-You will also need appropriate [Janus](https://janus.gutools.co.uk/credentials?permissionId=editorial-feeds-dev) credentials.
+You will also need editorial feeds [Janus](https://janus.gutools.co.uk/credentials) credentials.
 
 ### First-time setup
 
@@ -69,7 +69,7 @@ Run against CODE database:
 ./scripts/start --use-CODE
 ```
 
-Both options require valid AWS credentials and expect access to port `5432`.
+Both options require valid Janus credentials and expect access to port `5432`.
 
 ### Run components independently
 
@@ -214,13 +214,13 @@ graph TB
 ### Key subprojects
 
 - [newswires](./newswires): Play backend and app packaging
-- [newswires/client](./newswires/client): React/Vite frontend
-- [ingestion-lambda](./ingestion-lambda): critical-path content processing + persistence
-- [poller-lambdas](./poller-lambdas): supplier pollers + self-queueing mechanisms
-- [fingerpost-queueing-lambda](./fingerpost-queueing-lambda): bridges Fingerpost SNS messages into ingestion queueing
+- [newswires/client](./newswires/client): React/Vite frontend, see [newswires/client/README.md](./newswires/client/README.md)
+- [ingestion-lambda](./ingestion-lambda): critical-path content processing + persistence, see [ingestion-lambda/README.md](ingestion-lambda/README.md)
+- [poller-lambdas](./poller-lambdas): supplier pollers + self-queueing mechanisms, see [poller-lambdas/README.md](poller-lambdas/README.md)
+- [fingerpost-queueing-lambda](./fingerpost-queueing-lambda): bridges Fingerpost SNS messages into ingestion queueing, see [fingerpost-queueing-lambda/README.md](fingerpost-queueing-lambda/README.md)
 - [cleanup-lambda](./cleanup-lambda): scheduled deletion of old records
-- [recomputation-lambda](./recomputation-lambda): one-off/operational recomputation utility
-- [db](./db): migration scripts and database helper tooling
+- [recomputation-lambda](./recomputation-lambda): one-off/operational recomputation utility, see [recomputation-lambda/README.md](./recomputation-lambda/README.md)
+- [db](./db): migration scripts and database helper tooling, see [db/README.md](db/README.md)
 
 ### Key design concepts
 
@@ -232,12 +232,8 @@ graph TB
 ## 4. Useful links
 
 - [Architecture and project docs](docs/README.md)
-- [Poller lambdas documentation](poller-lambdas/README.md)
-- [Database migrations and DB access notes](db/README.md)
-- [Ingestion lambda documentation](ingestion-lambda/README.md)
 - [CDK infrastructure directory](cdk/README.md)
-- [Fingerpost queueing lambda notes](fingerpost-queueing-lambda/README.md)
-- [Flyway documentation](https://documentation.red-gate.com/flyway/flyway-cli-and-api/welcome-to-flyway)
+- [Flyway documentation](https://documentation.red-gate.com/flyway)
 - [ssm-scala (RDS tunnelling)](https://github.com/guardian/ssm-scala)
 
 ## 5. Terminology
