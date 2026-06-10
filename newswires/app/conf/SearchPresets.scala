@@ -3,7 +3,7 @@ package conf
 import conf.SearchField.{BodyText, Headline, Slug}
 import conf.SearchTerm.SingleField
 import conf.Suppliers._
-import models.{FilterParams}
+import models.{FilterParams, SearchParams}
 
 // Increase max line length to improve readability of search presets
 // scalafmt: { maxColumn = 120 }
@@ -19,7 +19,9 @@ object SearchPreset {
       keywordExcl: List[String] = Nil,
       hasDataFormatting: Option[Boolean] = None,
       preComputedCategories: List[String] = Nil,
-      preComputedCategoriesExcl: List[String] = Nil
+      preComputedCategoriesExcl: List[String] = Nil,
+      guSourceFeeds: List[String] = Nil,
+      guSourceFeedsExcl: List[String] = Nil
   ): FilterParams =
     FilterParams(
       searchTerms = searchTerms,
@@ -33,8 +35,8 @@ object SearchPreset {
       preComputedCategories = preComputedCategories,
       preComputedCategoriesExcl = preComputedCategoriesExcl,
       collectionId = None,
-      guSourceFeeds = Nil,
-      guSourceFeedsExcl = Nil,
+      guSourceFeeds = guSourceFeeds,
+      guSourceFeedsExcl = guSourceFeedsExcl,
       eventCode = None
     )
 }
@@ -392,7 +394,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("-RUGBY -RUGBYU -RUGBYL", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.SoccerScores.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.SoccerScores.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(PA, searchTerms = Some(SingleTerm(SingleField("\"SOCCER TABULATED RESULTS\"", Slug)))),
     SearchPreset(
@@ -417,7 +420,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = None,
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.SoccerTables.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.SoccerTables.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     )
   )
   // SoccerTablesDataFormats
@@ -553,7 +557,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("BASKETBALL", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AP,
@@ -649,7 +654,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("RUGBYL -Scorer", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AFP,
@@ -659,7 +665,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("RUGBYL -SOCCER Summaries", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.RugbyScores.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.RugbyScores.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(AAP, categoryCodes = Some(CategoryCodesCondition(CategoryCodes.RugbyLeague.AAP, SOME))),
     SearchPreset(
@@ -679,12 +686,14 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("\"RUGBY UNION\" OR RUGBYU -SOCCER Summaries", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.RugbyScores.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.RugbyScores.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("\"RUGBY UNION\" OR RUGBYU -Scorer", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA ::: List("paCat:SFF"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA ::: List("paCat:SFF"), SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AFP,
@@ -704,19 +713,22 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("-SOCCER -Summaries", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.RugbyScores.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.RugbyScores.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("RUGBY", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(List("paCat:RFC"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(List("paCat:RFC"), SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       PA,
       searchTerms = Some(
         SingleTerm(SingleField("RUGBYU Scorer OR RUGBYL Scorer", Slug))
       ),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AFP,
@@ -773,7 +785,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("TENNIS -\"ATP Challenger\"", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AFP,
@@ -792,7 +805,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("CYCLING", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AFP,
@@ -813,7 +827,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("auto OR MOTO", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AFP,
@@ -928,7 +943,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("ICEHOCKEY", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Sport.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AFP,
