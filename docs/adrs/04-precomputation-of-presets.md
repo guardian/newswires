@@ -1,4 +1,4 @@
-# Precomputation of search presets
+# ADR 04: Precomputation of search presets
 
 ## Context
 
@@ -6,7 +6,7 @@ As described in the ADR on [Filter and Search](./02-filter-and-search.md), all v
 
 In order to create a more familiar and easily adoptable experience for users, we plan to recreate many of the lists/feeds that were provided by the Fingerpost UI (e.g. 'UK News', 'Cricket scores'). Under the hood, these will be saved searches which can be combined with other user-defined filters and search terms. We've sometimes referred to these internally as 'buckets', but in the UI we've gone for 'presets'.
 
-The searches underlying the familiar presets are often very complex (as they were in the Fingerpost implementation) because different agencies provide different metadata and none of them map precisely onto the categories our users are interested in.As an example, we might need to add inclusions and exclusions based on category code and 'slug' text. For example, in order to differentiate Rugby League from Rugby Union, and to differentiate rugby _stories_ from rugby _results_, we need to look for `"RUGBYL" / "RUGBYU" / "RUGBY UNION"` in the slug, and exclude any of a number of category codes which are applied to results only:
+The searches underlying the familiar presets are often very complex (as they were in the Fingerpost implementation) because different agencies provide different metadata and none of them map precisely onto the categories our users are interested in. As an example, we might need to add inclusions and exclusions based on category code and 'slug' text. For example, in order to differentiate Rugby League from Rugby Union, and to differentiate rugby _stories_ from rugby _results_, we need to look for `"RUGBYL" / "RUGBYU" / "RUGBY UNION"` in the slug, and exclude any of a number of category codes which are applied to results only:
 
 ```
 "paCat:RRG",
@@ -60,7 +60,7 @@ ORDER BY i.first_created DESC
 LIMIT 100;
 ```
 
-There are good reasons to think that this would be quicker to execute at query time than the complex queries we currently have. If it worked as expected, then it would also unlock the possibility of combining presets in a given user query (e.g. "all sports stories that aren't in the cricket presets").
+There are good reasons to think that this would be quicker to execute at query time than the complex queries we currently have. If it worked as expected, then it would also unlock the possibility of combining presets in a given user query (e.g. 'all sports stories that aren't in the cricket presets').
 
 ### Keep the preset logic in the SQL query
 

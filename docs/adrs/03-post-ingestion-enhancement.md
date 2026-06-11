@@ -1,4 +1,4 @@
-# ADR 02: Post-ingestion enhancement of wire items
+# ADR 03: Post-ingestion enhancement of wire items
 
 ## Context
 
@@ -10,7 +10,7 @@ One advantage of having our own persistent storage for wire items (see [ADR 01](
 
 Any such enhancement needs to either:
 
-1. blocks the story from being initially persisted in our database, or
+1. block the story from being initially persisted in our database, or
 2. take place in a non-blocking way, either asynchronously or triggered after ingestion
 
 ## Options
@@ -38,6 +38,6 @@ Neither (b.i) nor (b.ii) feels ideal, and either option would also introduce a d
 
 ## Decision
 
-We have decided not to do asynchronous or post-ingestion enhancements of wire items if the enhancement concerns attributes which we user for constructing live feeds. Given that, as per [the ADR on Filter and Search](./02-filter-and-search.md), we are aiming to model everything via the idea of a unified filter/search view presented to the user, this effectively means that we aren't doing asynchronous enhancement at the moment. However, there's no reason in principle why we couldn't add asynchronous enhancement in the future if we add other discovery/browsing features ('trending topics' might be a good example).
+We have decided not to do asynchronous or post-ingestion enhancements of wire items if the enhancement concerns attributes which we use for constructing live feeds. Given that, as per [the ADR on Filter and Search](./02-filter-and-search.md), we are aiming to model everything via the idea of a unified filter/search view presented to the user, this effectively means that we aren't doing asynchronous enhancement at the moment. However, there's no reason in principle why we couldn't add asynchronous enhancement in the future if we add other discovery/browsing features ('trending topics' might be a good example).
 
 At the same time, we also want to limit the amount of pre-ingestion enhancement that we're doing, because it blocks ingestion. As things stand, this is left to judgement rather than firm rules, as we don't have an SLO governing time to ingestion.
