@@ -143,11 +143,12 @@ CI-style workspace commands can also be run by appending `:ci` to any of the abo
 ### High-level architecture
 
 ```mermaid
-graph TB
+graph LR
     %% External Sources
     Reuters[Reuters Feed]
     AP[AP Feed]
     Fingerpost[Fingerpost Feed]
+    Correspondents[Correspondents aka 'dot-copy']
     Users[Users]
 
     subgraph AWS["AWS 'editorial-feeds'"]
@@ -161,13 +162,19 @@ graph TB
             FingerpostSNS[Fingerpost SNS]
             FingerpostQueueingLambda[Fingerpost Queueing Lambda]
             SourceQ[/Source Queue/]
+            SES[SES]
 
             %% Ingestion flows
             ReutersPoller --> SourceQ
+            ReutersPoller --> FeedsBucket
             APPoller --> SourceQ
+            APPoller --> FeedsBucket
             FingerpostQueueingLambda --> SourceQ
+            FingerpostQueueingLambda --> FeedsBucket
             SourceQ --> Ingestion
-            Ingestion --> FeedsBucket
+            FeedsBucket <-- reads --> Ingestion
+            SES --> FeedsBucket
+            SES --> SourceQ
         end
 
         subgraph ReadPath["User-facing app"]
@@ -195,6 +202,7 @@ graph TB
     AP <-- "long polling" --> APPoller
     Fingerpost -- pushes --> FingerpostSNS
     FingerpostSNS --> FingerpostQueueingLambda
+    Correspondents -- send email --> SES
     Users --> ALB
 
     %% Styling
