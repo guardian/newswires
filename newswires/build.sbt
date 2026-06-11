@@ -13,7 +13,7 @@ scalaVersion := "2.13.18"
 libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "11.0.0"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "19.0.0"
-libraryDependencies += "com.gu" %% "editorial-permissions-client" % "6.0.2"
+libraryDependencies += "com.gu" %% "editorial-permissions-client" % "6.0.3"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
   "org.scala-lang.modules",
   "scala-parser-combinators_2.13"
@@ -64,7 +64,13 @@ dependencyOverrides ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 )
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds", "netty-nio-client").map(
+dependencyOverrides ++= Seq(
+  "autoscaling",
+  "ec2",
+  "ssm",
+  "rds",
+  "netty-nio-client"
+).map(
   "software.amazon.awssdk" % _ % "2.46.7"
 )
 
