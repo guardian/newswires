@@ -4,7 +4,7 @@
 
 One advantage of having our own persistent storage for wire items (see [ADR 01](./01-newswires-overview.md)) is that it gives us more opportunities to enhance the metadata that's available for a given wire item. Example use-cases include:
 
-- Mapping Fingerpost's 'source feed' field [to our 'supplier' field](https://github.com/guardian/newswires/blob/9ede2e190239f087d91c7539ab6f983f1f1a1fd3/ingestion-lambda/src/processContentObject.ts#L254)
+- Mapping Fingerpost's 'source feed' field [to our 'supplier' field](https://github.com/guardian/newswires/blob/2c9a5e2c735f4455195b8d2fdd290bb18a89e6ca/ingestion-lambda/src/processContentObject.ts#L254)
 - Inferring whether a story is pertinent to the UK desk (https://github.com/guardian/newswires/pull/235)
 - Adding a TS vector index to enable better full text search
 
