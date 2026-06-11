@@ -48,6 +48,7 @@ const sampleItemData: WireData = {
 	collections: [],
 	isAlert: false,
 	isLead: false,
+	isMediaDirectItem: false,
 	ingestedAtMoment: new InstantMoment(moment('2025-02-26T09:58:22.000Z')),
 };
 
@@ -139,6 +140,27 @@ export const WithAlertLabel: Story = {
 		itemData: {
 			...sampleItemData,
 			isAlert: true,
+			content: {
+				...sampleItemData.content,
+				slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',
+			},
+		},
+		error: undefined,
+		handleDeselectItem: () => console.log('deselect clicked'),
+		handlePreviousItem: () => console.log('previous item clicked'),
+		handleNextItem: () => Promise.resolve(console.log('next item clicked')),
+		addToolLink: () => console.log('add tool link'),
+		refreshItemData: () => console.log('refresh item data'),
+	},
+};
+
+export const WithMultipleLabels: Story = {
+	args: {
+		itemData: {
+			...sampleItemData,
+			isAlert: true,
+			isLead: true,
+			isMediaDirectItem: true,
 			content: {
 				...sampleItemData.content,
 				slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',

@@ -52,6 +52,7 @@ const sampleItemData: WireData = {
 	collections: [],
 	isAlert: false,
 	isLead: false,
+	isMediaDirectItem: false,
 	ingestedAtMoment: new InstantMoment(moment(now.toISOString())),
 };
 
@@ -281,6 +282,27 @@ export const WithDataFormatting: Story = {
 			{
 				...sampleItemData,
 				hasDataFormatting: true,
+				id: 67890,
+			},
+		],
+		totalCount: 1,
+		showCollectionMetadata: false,
+		showSecondaryFeedContent: false,
+	},
+};
+
+export const WithDataFormattingAndMediaDirectItemBadge: Story = {
+	args: {
+		wires: [
+			{
+				...sampleItemData,
+				hasDataFormatting: true,
+				isMediaDirectItem: true,
+			},
+			{
+				...sampleItemData,
+				hasDataFormatting: true,
+				isMediaDirectItem: true,
 				id: 67890,
 			},
 		],
