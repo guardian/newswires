@@ -29,12 +29,12 @@ The user who has P1 open from T0 to T2 will see story S show up just after T1.
 
 What about the user who has P2 open?
 
-a. We could just say they don't get to see it in their feed, although it will naturally show if they freshly load P2 after T2, but this seems like poor service.
-b. We could load S into their feed at T2, but then where should we place it in their feed?
-i. At the top, in which case it will potentially be out of chronological order with other items (sorted by ingestion time).
-ii. In its chronological place, in which case it might not be at the top of the list, or even visible in the user's viewport at the time it loads.
+1. We could just say they don't get to see it in their feed, although it will naturally show if they freshly load P2 after T2, but this seems like poor service.
+2. We could load S into their feed at T2, but then where should we place it in their feed?
+    i. At the top, in which case it will potentially be out of chronological order with other items (sorted by ingestion time).
+    ii. In its chronological place, in which case it might not be at the top of the list, or even visible in the user's viewport at the time it loads.
 
-Neither (b.i) nor (b.ii) feels ideal, and either option would also introduce a difference between the experience of P1 and P2 which would be impossible for end-users to diagnose.
+Neither (2.i) nor (2.ii) feels ideal, and either option would also introduce a difference between the experience of P1 and P2 which would be impossible for end-users to diagnose.
 
 ## Decision
 
