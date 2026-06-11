@@ -34,7 +34,7 @@ What about the user who has P2 open?
     1. At the top, in which case it will potentially be out of chronological order with other items (sorted by ingestion time).
     2. In its chronological place, in which case it might not be at the top of the list, or even visible in the user's viewport at the time it loads.
 
-Neither (2.1) nor (2.2) feels ideal, and either option would also introduce a difference between the experience of P1 and P2 which would be impossible for end-users to diagnose.
+Neither (2.i) nor (2.ii) feels ideal, and either option would also introduce a difference between the experience of P1 and P2 which would be impossible for end-users to diagnose.
 
 ## Decision
 
