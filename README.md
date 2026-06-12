@@ -1,71 +1,147 @@
-<sup>Looking for the repository containing the current Fingerpost wires? Try [editorial-wires](https://github.com/guardian/editorial-wires) instead (Guardian employees only, sorry!)</sup>
-
 # Newswires
 
-For more details, see
+Newswires is The Guardian's editorial wires platform. It ingests and stores agency content, and serves a searchable feed to users.
 
-- [`poller-lambdas` README](poller-lambdas/README.md)
+<sup>Looking for the repository containing the current Fingerpost wires? Try [editorial-wires](https://github.com/guardian/editorial-wires) instead (Guardian employees only, sorry).</sup>
 
-## Running locally
+## Contents
 
-Before running any of the projects locally, run the setup script to check dependencies and configure the local environment:
+1. [Introduction](#1-introduction)
+2. [Getting Started](#2-getting-started)
+3. [How It Works](#3-how-it-works)
+4. [Useful Links](#4-useful-links)
+5. [Terminology](#5-terminology)
+
+## 1. Introduction
+
+Newswires is used by Guardian journalists to access incoming agency stories.
+
+Core capabilities include:
+
+- Ingesting wire content from multiple suppliers
+- Enriching and validating incoming records
+- Persisting content in PostgreSQL for filtering and search
+- Archiving raw payloads in S3 for audit and troubleshooting
+- Serving content via a Play backend and web UI
+
+External services and suppliers include:
+
+- Fingerpost feed integration (via SNS)
+- Copy filed by email from sports correspondents (ingested via AWS SES)
+- Reuters and AP feed integrations (via poller lambdas) [Not currently used in PROD]
+
+## 2. Getting started
+
+### Prerequisites
+
+The local environment checks in `scripts/check-requirements` expect:
+
+- Java (see [.tool-versions](./.tool-versions)) with `JAVA_HOME` set
+- sbt
+- Node (see [.nvmrc](./.nvmrc))
+- Docker
+- nginx and [dev-nginx](https://github.com/guardian/dev-nginx)
+- scala-cli
+- [SSM](https://github.com/guardian/ssm-scala)
+
+You will also need `editorial-feeds` Janus credentials.
+
+### First-time setup
+
+Run setup from the repository root to install dependencies and configure the local environment:
 
 ```sh
-./scripts/setup
+./scripts/setup --no-overwrite
 ```
 
-### Newswires (API and UI)
+Use `--overwrite` if you explicitly want to replace existing config.
 
-This can either be run against the CODE database, or against a local database (requires Docker). Both options currently require
-having AWS credentials configured, to allows for fetching [pan-domain-auth](https://github.com/guardian/pan-domain-authentication)
-keys and -- when run with the `--use-CODE` flag -- tunnelling to the CODE database.
+### Run the main app
 
-```sh
-# Running against the CODE db
-./scripts/start --use-CODE
-```
+Run against local database (requires Docker):
 
 ```sh
-# Running against a local db (requires Docker)
 ./scripts/start
 ```
 
-### Finger post queueing lambda
-This listens to an SNS feed from our third party service, Fingerpost and writes the raw document 
-to an s3 bucket and posts to an SQS queue.
+Run against CODE database:
 
-To run locally:
 ```sh
-docker compose up
+./scripts/start --use-CODE
+```
+
+Both options require valid Janus credentials and expect access to port `5432`.
+
+### Run components independently
+
+Fingerpost queueing lambda:
+
+```sh
+docker compose up -d
 npm run dev -w fingerpost-queueing-lambda
 ```
-In the locally run version this will generate random documents using the same schema as the data
-from Fingerpost and write to an in memory file storage and queue. 
 
-### Ingestion Lambda
-
-This reads from the queue that the Finger post queueing lambda writes to, performs some validation checks and writes to a postgres database
+Ingestion lambda:
 
 ```sh
 ./scripts/setup-local-db.sh
 npm run dev -w ingestion-lambda
 ```
 
-In the locally run version this will generate random documents and write them to a local database
-
-### Poller Lambdas
+Poller lambdas (interactive local runner):
 
 ```sh
 npm run dev -w poller-lambdas
 ```
 
-...and follow the interactive prompts for running different poller lambdas logic (including simulating the self-queuing mechanism).
+Recomputation lambda:
 
-## Adding a new poller lambda
+```sh
+./scripts/setup-local-db.sh
+npm run dev -w recomputation-lambda
+```
 
-See [poller-lambdas/README.md](poller-lambdas/README.md)
+### Database and migrations
 
-## Architecture overview
+Start local DB and apply pending migrations:
+
+```sh
+./scripts/setup-local-db.sh
+```
+
+See [db/README.md](./db/README.md) for more commands.
+
+### Test, lint, typecheck, build
+
+At repo root:
+
+```sh
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
+
+CI-style workspace commands can also be run by appending `:ci` to any of the above commands.
+
+### Deploy and infrastructure
+
+- CDK stacks are in `cdk/`
+- `cdk` synth output generates deployment artifacts and Riff-Raff config
+- CI builds all lambdas, the Play app package and uploads to Riff-Raff
+
+## 3. How it works
+
+### Core technologies
+
+- Play Framework (Scala) backend application
+- React + Vite client app (served from the Play project)
+- TypeScript AWS Lambda services for ingestion, polling and background tasks
+- PostgreSQL with Flyway migrations
+- AWS CDK for infrastructure as code
+- npm workspaces + Lage for monorepo task orchestration
+
+### High-level architecture
 
 ```mermaid
 graph TB
@@ -135,3 +211,36 @@ graph TB
     class FeedsBucket,DB storage
     class ASG,ALB compute
 ```
+
+### Key subprojects
+
+- [newswires](./newswires): Play backend and app packaging
+- [newswires/client](./newswires/client): React/Vite frontend, see [newswires/client/README.md](./newswires/client/README.md)
+- [ingestion-lambda](./ingestion-lambda): critical-path content processing + persistence, see [ingestion-lambda/README.md](ingestion-lambda/README.md)
+- [poller-lambdas](./poller-lambdas): supplier pollers + self-queueing mechanisms, see [poller-lambdas/README.md](poller-lambdas/README.md)
+- [fingerpost-queueing-lambda](./fingerpost-queueing-lambda): receives messages from Fingerpost via SNS, persists them to S3 then queues the items for processing by the ingestion lambda, see [fingerpost-queueing-lambda/README.md](fingerpost-queueing-lambda/README.md)
+- [cleanup-lambda](./cleanup-lambda): scheduled deletion of old records
+- [recomputation-lambda](./recomputation-lambda): one-off/operational recomputation utility, see [recomputation-lambda/README.md](./recomputation-lambda/README.md)
+- [db](./db): migration scripts and database helper tooling, see [db/README.md](db/README.md)
+
+### Key design concepts
+
+- Ingestion is latency-sensitive: it is on the critical path for content availability.
+- Pollers are supplier-specific and can be fixed-frequency or long-polling.
+- Infrastructure for poller lambdas is generated from shared config to reduce drift.
+- Monorepo structure allows coordinated type/lint/test/build workflows across services.
+
+## 4. Useful links
+
+- [Architecture and project docs](docs/README.md)
+- [CDK infrastructure directory](cdk/README.md)
+- [Flyway documentation](https://documentation.red-gate.com/flyway)
+- [ssm-scala (RDS tunnelling)](https://github.com/guardian/ssm-scala)
+
+## 5. Terminology
+
+- **Poller Lambda**: Supplier-specific lambda that fetches content on a schedule or by long-polling.
+- **Fingerpost Queueing Lambda**: Lambda that consumes Fingerpost SNS events and enqueues messages for ingestion.
+- **Source Queue**: SQS queue consumed by the ingestion lambda as a common intake path.
+- **Riff-Raff**: Deployment tool.
+- **Pan-domain auth**: Authentication/session mechanism used by the app.

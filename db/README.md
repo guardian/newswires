@@ -2,8 +2,7 @@
 
 This directory contains database configuration, including and especially the database migrations.
 
-Run the migrations with a scala-cli script, `flyway.sc`, which wraps the [flyway](https://documentation.red-gate.com/flyway/flyway-cli-and-api/welcome-to-flyway)
-API. Install scala-cli with Homebrew:
+Run the migrations with a scala-cli script, `flyway.sc`, which wraps the [flyway](https://documentation.red-gate.com/flyway) API. Install scala-cli with Homebrew:
 
 ```sh
 brew install Virtuslab/scala-cli/scala-cli
