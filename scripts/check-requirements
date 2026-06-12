@@ -29,8 +29,10 @@ checkRequirements() {
 
   # other
   checkRequirement nginx
+  checkRequirement dev-nginx
   checkRequirement aws
   checkRequirement scala-cli
+  checkRequirement ssm
 }
 
 checkForJavaHome() {
