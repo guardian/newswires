@@ -27,8 +27,8 @@ Core capabilities include:
 External services and suppliers include:
 
 - Fingerpost feed integration (via SNS)
-- Reuters and AP feed integrations (via poller lambdas)
-- AWS managed services (Lambda, SQS, SNS, S3, RDS, EC2/ALB)
+- Copy filed by email from sports correspondents (ingested via AWS SES)
+- Reuters and AP feed integrations (via poller lambdas) [Not currently used in PROD]
 
 ## 2. Getting started
 
@@ -40,8 +40,9 @@ The local environment checks in `scripts/check-requirements` expect:
 - sbt
 - Node (see [.nvmrc](./.nvmrc))
 - Docker
-- nginx and dev-nginx
+- nginx and [dev-nginx](https://github.com/guardian/dev-nginx)
 - scala-cli
+- [SSM](https://github.com/guardian/ssm-scala)
 
 You will also need `editorial-feeds` Janus credentials.
 
@@ -217,7 +218,7 @@ graph TB
 - [newswires/client](./newswires/client): React/Vite frontend, see [newswires/client/README.md](./newswires/client/README.md)
 - [ingestion-lambda](./ingestion-lambda): critical-path content processing + persistence, see [ingestion-lambda/README.md](ingestion-lambda/README.md)
 - [poller-lambdas](./poller-lambdas): supplier pollers + self-queueing mechanisms, see [poller-lambdas/README.md](poller-lambdas/README.md)
-- [fingerpost-queueing-lambda](./fingerpost-queueing-lambda): bridges Fingerpost SNS messages into ingestion queueing, see [fingerpost-queueing-lambda/README.md](fingerpost-queueing-lambda/README.md)
+- [fingerpost-queueing-lambda](./fingerpost-queueing-lambda): receives messages from Fingerpost via SNS, persists them to S3 then queues the items for processing by the ingestion lambda, see [fingerpost-queueing-lambda/README.md](fingerpost-queueing-lambda/README.md)
 - [cleanup-lambda](./cleanup-lambda): scheduled deletion of old records
 - [recomputation-lambda](./recomputation-lambda): one-off/operational recomputation utility, see [recomputation-lambda/README.md](./recomputation-lambda/README.md)
 - [db](./db): migration scripts and database helper tooling, see [db/README.md](db/README.md)
