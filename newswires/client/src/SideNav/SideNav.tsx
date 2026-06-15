@@ -103,7 +103,6 @@ export const SideNav = ({
 	const suppliers = useMemo(
 		() => [
 			{
-				name: "",
 				label: 'All',
 				isActive:
 					activeSuppliers.length === 0 ||
@@ -115,7 +114,6 @@ export const SideNav = ({
 				colour: 'black',
 			},
 			...recognisedSuppliers.map(({ name, label, colour }) => ({
-				name: name,
 				label: label === 'Minor' ? 'Minor agencies' : label,
 				isActive:
 					activeSuppliers.includes(name) || activeSuppliers.length === 0,
@@ -130,12 +128,13 @@ export const SideNav = ({
 	);
 
 	const supplierItems = suppliers.map(
-		({ name, label, colour, isActive, onClick }) => ({
-			id: name,
+		({ label, colour, isActive, onClick, onTickerClick }) => ({
+			id: label,
 			label,
 			onClick,
 			isActive,
 			colour,
+			onTickerClick,
 		}),
 	);
 
@@ -241,12 +240,7 @@ export const SideNav = ({
 									isActive={item.isActive}
 									isTopLevel={true}
 									handleButtonClick={item.onClick}
-									handleSecondaryActionClick={() =>
-										openTicker({
-											...config.query,
-											supplier: item.label === 'All' ? [] : [item.id],
-										})
-									}
+									handleSecondaryActionClick={item.onTickerClick}
 									arrowSide={undefined}
 									colour={item.colour}
 								/>
