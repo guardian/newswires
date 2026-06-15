@@ -103,6 +103,7 @@ export const SideNav = ({
 	const suppliers = useMemo(
 		() => [
 			{
+				name: "",
 				label: 'All',
 				isActive:
 					activeSuppliers.length === 0 ||
@@ -114,6 +115,7 @@ export const SideNav = ({
 				colour: 'black',
 			},
 			...recognisedSuppliers.map(({ name, label, colour }) => ({
+				name: name,
 				label: label === 'Minor' ? 'Minor agencies' : label,
 				isActive:
 					activeSuppliers.includes(name) || activeSuppliers.length === 0,
@@ -128,8 +130,8 @@ export const SideNav = ({
 	);
 
 	const supplierItems = suppliers.map(
-		({ label, colour, isActive, onClick }) => ({
-			id: label,
+		({ name, label, colour, isActive, onClick }) => ({
+			id: name,
 			label,
 			onClick,
 			isActive,
