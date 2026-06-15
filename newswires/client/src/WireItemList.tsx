@@ -21,7 +21,11 @@ import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
 import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
-import { AlertLabel, LeadLabel } from './WireItemLabel.tsx';
+import {
+	AlertLabel,
+	LeadLabel,
+	MediaDirectItemLabel,
+} from './WireItemLabel.tsx';
 
 export const WireItemList = ({
 	wires,
@@ -201,6 +205,7 @@ const WirePreviewCard = ({
 		hasDataFormatting,
 		isAlert,
 		isLead,
+		isMediaDirectItem,
 	} = wire;
 
 	const ref = useRef<HTMLDivElement>(null);
@@ -386,8 +391,16 @@ const WirePreviewCard = ({
 						grid-area: badges;
 						justify-self: end;
 						align-self: flex-start;
+						display: flex;
+						gap: 0.3rem;
+						align-items: center;
 					`}
 				>
+					{isMediaDirectItem && (
+						<MediaDirectItemLabel
+							hoverParentClassName={classNameForStylingLabelsOnCardHover}
+						/>
+					)}
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
