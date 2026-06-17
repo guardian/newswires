@@ -882,7 +882,8 @@ object SearchPresets {
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("GOLF", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(List("paCat:RSR"), SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AP,
