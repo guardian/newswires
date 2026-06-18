@@ -1,14 +1,13 @@
 package models
 
-import db.{FingerpostWireEntry, QueryVariant, TimeStampColumn, ToolLink}
+import db.{FingerpostWireEntry, TimeStampColumn, ToolLink}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 
 case class QueryResponse(
     results: List[FingerpostWireEntry],
     totalCount: Long,
-    countQueryCap: Long,
-    queryVariant: QueryVariant
+    countQueryCap: Long
     //      keywordCounts: Map[String, Int]
 )
 

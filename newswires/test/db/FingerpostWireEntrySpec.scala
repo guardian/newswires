@@ -786,51 +786,6 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
-  behavior of "exclusion clauses when NotExists variant is specified"
-  it should "create the correct sql snippet for suppliersExcl when NotExists variant is specified" in {
-    val supplierExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND upper(fm.supplier) in (upper(?)) )"
-    val suppliersExclSQL =
-      FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"), NotExists)
-    suppliersExclSQL should matchSqlSnippet(
-      expectedClause = supplierExclClause,
-      expectedParams = List("supplier")
-    )
-  }
-  it should "create the correct sql snippet for categoryCodesExcl when NotExists variant is specified" in {
-    val categoryExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND fm.category_codes && ? )"
-    val categoryCodesExcl =
-      FingerpostWireEntry.Filters.categoryCodeExclSQL(List("code"), NotExists)
-    categoryCodesExcl should matchSqlSnippet(
-      expectedClause = categoryExclClause,
-      expectedParams = List(List("code"))
-    )
-  }
-  it should "create the correct sql snippet for precomputedCategoriesExcl when NotExists variant is specified" in {
-    val precomputedCategoriesExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND fm.precomputed_categories && ? )"
-    val precomputedCategoriesExcl =
-      FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(
-        List("category"),
-        NotExists
-      )
-    precomputedCategoriesExcl should matchSqlSnippet(
-      expectedClause = precomputedCategoriesExclClause,
-      expectedParams = List(List("category"))
-    )
-  }
-  it should "create the correct sql snippet for keywordsExcl when NotExists variant is specified" in {
-    val keywordExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND (fm.content -> 'keywords') ??| ? )"
-    val keywordExclSQL =
-      FingerpostWireEntry.Filters.keywordsExclSQL(List("keyword"), NotExists)
-    keywordExclSQL should matchSqlSnippet(
-      expectedClause = keywordExclClause,
-      expectedParams = List(List("keyword"))
-    )
-  }
-
   behavior of "dataformatting SQL helpers"
   it should "create the correct sql snippet for hasDataFormatting set to true" in {
     val hasDataFormattingSQL =
