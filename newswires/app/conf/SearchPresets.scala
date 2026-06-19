@@ -191,7 +191,7 @@ object SearchPresets {
   private val AllUk = List(
     SearchPreset(
       PA,
-      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.UK.PA, SOME))
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.UK.PA ++ CategoryCodes.Elections.PA, SOME))
     ), // We aren't excluding CategoryCodes.World.PA because PA's still fairly UK-focused, and UK eds are used to seeing all non-sport, non-business PA content in the UK feed
     SearchPreset(MINOR_AGENCIES, categoryCodes = Some(CategoryCodesCondition(CategoryCodes.UK.MINOR_AGENCIES, SOME)))
   )
