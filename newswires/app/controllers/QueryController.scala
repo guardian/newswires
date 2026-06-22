@@ -16,7 +16,6 @@ import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
 
 import java.time.Instant
-import scala.util.Random
 
 class QueryController(
     val controllerComponents: ControllerComponents,
@@ -95,16 +94,8 @@ class QueryController(
         timeStampColumn = timeStampColumn
       )
 
-      val queryVariant = request.getQueryString("variant") match {
-        case Some("not_exists")        => NotExists
-        case Some("plain_not")         => PlainNot
-        case _ if Random.nextBoolean() => NotExists
-        case _                         => PlainNot
-      }
-
       val queryResponse = FingerpostWireEntry.query(
         queryParams,
-        queryVariant = queryVariant,
         countQueryCap = countQueryCap.getOrElse(COUNT_QUERY_CAP)
       )
 

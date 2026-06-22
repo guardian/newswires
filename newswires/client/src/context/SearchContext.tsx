@@ -643,11 +643,5 @@ function createFetchedResultsTelemetryData({
 		totalCount: data.totalCount,
 		isRefresh,
 		requestId,
-		...Object.fromEntries(
-			Object.entries(data.queryVariant ?? {}).map(([key, value]) => [
-				`query-variant_${key}`,
-				JSON.stringify(value),
-			]),
-		),
 	};
 }
