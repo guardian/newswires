@@ -622,16 +622,22 @@ object SearchPresets {
       searchTerms = Some(SingleTerm(SingleField("(OPTA)", BodyText))),
       categoryCodes = Some(CategoryCodesCondition(CategoryCodes.Cricket.REUTERS, SOME))
     ),
-    SearchPreset(PA, categoryCodes = Some(CategoryCodesCondition(CategoryCodes.CricketScores.PA, SOME))),
+    SearchPreset(
+      PA,
+      categoryCodes = Some(CategoryCodesCondition(CategoryCodes.CricketScores.PA, SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
+    ),
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("fixtures OR fixture", Headline))),
-      categoryCodes = Some(CategoryCodesCondition(List("paCat:SCR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(List("paCat:SCR"), SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       PA,
       searchTerms = Some(SingleTerm(SingleField("Summaries", Slug))),
-      categoryCodes = Some(CategoryCodesCondition(List("paCat:SCR"), SOME))
+      categoryCodes = Some(CategoryCodesCondition(List("paCat:SCR"), SOME)),
+      guSourceFeedsExcl = SearchParams.mediaDirectSourceFeeds
     ),
     SearchPreset(
       AP,
