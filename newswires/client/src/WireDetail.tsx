@@ -34,7 +34,6 @@ import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { TASTED_COLLECTION } from './presets.ts';
 import type { SupplierInfo, ToolLink, WireData } from './sharedTypes';
-import { SupplierBadge } from './SupplierBadge.tsx';
 import { AP } from './suppliers.ts';
 import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
@@ -44,6 +43,7 @@ import {
 	AlertLabel,
 	LeadLabel,
 	MediaDirectItemLabel,
+	SupplierLabel,
 } from './WireItemLabel.tsx';
 
 function TitleContentForItem({
@@ -165,7 +165,11 @@ function TitleContentForItem({
 						gap: ${theme.euiTheme.size.s};
 					`}
 				>
-					<SupplierBadge supplier={supplier} />
+					<SupplierLabel
+						supplier={supplier}
+						isPrimary={true}
+						isCondensed={false}
+					/>
 					{isMediaDirectItem && <MediaDirectItemLabel />}
 					{isAlert && <AlertLabel outlined={true} />}
 					{isLead && <LeadLabel outlined={true} />}
