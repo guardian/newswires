@@ -83,7 +83,6 @@ export const fontStyles = css`
 		margin: 0;
 		font-family: var(--euiFontFamily);
 		font-size: 1.1rem;
-		line-height: 1.5rem;
 	}
 
 	button {

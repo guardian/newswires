@@ -15,7 +15,7 @@ import {
 	EuiSwitch,
 	EuiText,
 } from '@elastic/eui';
-import { css, Global } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod/v4';
 import { STAGE } from './app-configuration.ts';
@@ -27,7 +27,7 @@ import {
 import { useSearch } from './context/SearchContext.tsx';
 import { isRestricted } from './dateHelpers.ts';
 import { DefaultLayout } from './DefaultLayout.tsx';
-import { fontStyles } from './fontStyles.ts';
+import { GlobalStyles } from './GlobalStyles.tsx';
 import { presetLabel } from './presets.ts';
 import { useSettingsSwitches } from './SettingsSwitches.tsx';
 import { TelemetryPixel } from './TelemetryPixel.tsx';
@@ -87,7 +87,7 @@ export function App() {
 
 	return (
 		<>
-			<Global styles={fontStyles} />
+			<GlobalStyles />
 			<div style={{ position: 'absolute' }}>
 				<TelemetryPixel stage={STAGE} />
 			</div>
