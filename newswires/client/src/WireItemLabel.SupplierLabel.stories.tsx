@@ -1,10 +1,10 @@
 import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { setUpIcons } from './icons';
-import { SupplierBadge } from './SupplierBadge';
 import { supplierData } from './suppliers';
+import { SupplierLabel } from './WireItemLabel';
 
-const SupplierBadgeList = ({
+const SupplierLabelList = ({
 	isPrimary,
 	isCondensed,
 }: {
@@ -12,9 +12,16 @@ const SupplierBadgeList = ({
 	isCondensed: boolean;
 }) => {
 	return (
-		<div>
+		<div
+			style={{
+				display: 'flex',
+				flexWrap: 'wrap',
+				gap: '10px',
+				padding: '10px',
+			}}
+		>
 			{supplierData.map((supplier) => (
-				<SupplierBadge
+				<SupplierLabel
 					key={supplier.name}
 					supplier={supplier}
 					isPrimary={isPrimary}
@@ -26,8 +33,8 @@ const SupplierBadgeList = ({
 };
 
 const _meta = {
-	title: 'Components/SupplierBadge',
-	component: SupplierBadgeList,
+	title: 'Components/WireItemLabel/SupplierLabel',
+	component: SupplierLabelList,
 	parameters: {
 		layout: 'padded',
 	},
@@ -35,20 +42,11 @@ const _meta = {
 	decorators: [
 		(Story) => (
 			<EuiProvider colorMode="light">
-				<div
-					style={{
-						display: 'flex',
-						flexWrap: 'wrap',
-						gap: '10px',
-						padding: '10px',
-					}}
-				>
-					<Story />
-				</div>
+				<Story />
 			</EuiProvider>
 		),
 	],
-} satisfies Meta<typeof SupplierBadgeList>;
+} satisfies Meta<typeof SupplierLabelList>;
 
 type Story = StoryObj<typeof _meta>;
 
