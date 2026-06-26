@@ -71,6 +71,7 @@ import { POLLERS_CONFIG } from 'newswires-shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';
+import { createLocalRunDeveloperPolicy } from './local-run-developer-policy';
 
 export type NewswiresProps = GuStackProps & {
 	sourceQueue: Queue;
@@ -83,7 +84,10 @@ export type NewswiresProps = GuStackProps & {
 
 export class Newswires extends GuStack {
 	constructor(scope: App, id: string, props: NewswiresProps) {
-		super(scope, id, { ...props, app: appName });
+		super(scope, id, {
+			...props,
+			app: appName,
+		});
 
 		const certificateArn = new GuParameter(this, 'CloudFrontCertificateArn', {
 			description: `The ARN of the CloudFront certificate for ${props.domainName}, for consumption by the Newswires app stack.`,
@@ -514,17 +518,15 @@ export class Newswires extends GuStack {
 			scaling,
 			applicationLogging: { enabled: true, systemdUnitName: appName },
 			imageRecipe: 'editorial-tools-jammy-java21',
-			roleConfiguration: {
-				additionalPolicies: [
-					new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
-						bucketName: panDomainSettingsBucket.valueAsString,
-					}),
-					new GuGetS3ObjectsPolicy(this, 'PermissionsCachePolicy', {
-						bucketName: permissionsBucketName.valueAsString,
-						paths: [`${this.stage}/*`],
-					}),
-				],
-			},
+			additionalPolicies: [
+				new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
+					bucketName: panDomainSettingsBucket.valueAsString,
+				}),
+				new GuGetS3ObjectsPolicy(this, 'PermissionsCachePolicy', {
+					bucketName: permissionsBucketName.valueAsString,
+					paths: [`${this.stage}/*`],
+				}),
+			],
 			instanceMetricGranularity: this.stage === 'PROD' ? '1Minute' : '5Minute',
 		});
 
@@ -578,6 +580,19 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
+
+		// Developer policy allowing engineers to run the app locally against the
+		// CODE database (./scripts/start --use-CODE). No-op outside the CODE stack (and included in TEST so we get the snapshot).
+		if (this.stage === 'CODE' || this.stage === 'TEST') {
+			createLocalRunDeveloperPolicy(
+				this,
+				this.stack,
+				appName,
+				database,
+				panDomainSettingsBucket.valueAsString,
+				permissionsBucketName.valueAsString,
+			);
+		}
 
 		if (this.stage === 'PROD' || this.stage === 'TEST') {
 			const param = new StringParameter(
