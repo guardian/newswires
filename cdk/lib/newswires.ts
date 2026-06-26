@@ -70,6 +70,7 @@ import { POLLERS_CONFIG } from 'newswires-shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';
+import { createLocalRunDeveloperPolicy } from './local-run-developer-policy';
 
 export type NewswiresProps = GuStackProps & {
 	sourceQueue: Queue;
@@ -571,6 +572,19 @@ export class Newswires extends GuStack {
 		newswiresApp.autoScalingGroup.connections.addSecurityGroup(
 			database.accessSecurityGroup,
 		);
+
+		// Developer policy allowing engineers to run the app locally against the
+		// CODE database (./scripts/start --use-CODE). No-op outside the CODE stack (and included in TEST so we get the snapshot).
+		if (this.stage === 'CODE' || this.stage === 'TEST') {
+			createLocalRunDeveloperPolicy(
+				this,
+				this.stack,
+				appName,
+				database,
+				panDomainSettingsBucket.valueAsString,
+				permissionsBucketName.valueAsString,
+			);
+		}
 
 		if (this.stage === 'PROD' || this.stage === 'TEST') {
 			const param = new StringParameter(
