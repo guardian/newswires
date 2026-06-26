@@ -309,6 +309,8 @@ const WirePreviewCard = ({
 
 	const zonedMoment = ingestedAtMoment.toZonedMoment(selectedTimezone);
 
+	const gapAfterFirstRow = showSecondaryFeedContent ? theme.euiTheme.size.s : 0;
+
 	return (
 		<Link to={id.toString()}>
 			<div
@@ -354,7 +356,7 @@ const WirePreviewCard = ({
 							: theme.euiTheme.font.weight.semiBold};
 						${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
 						font-size: 1.15rem;
-						margin-bottom: ${theme.euiTheme.size.xs};
+						margin-bottom: ${gapAfterFirstRow};
 					`}
 				>
 					{mainHeadingContent}
@@ -375,7 +377,7 @@ const WirePreviewCard = ({
 						text-align: right;
 						font-variant-numeric: tabular-nums;
 						line-break: strict;
-						margin-bottom: ${theme.euiTheme.size.xs};
+						margin-bottom: ${gapAfterFirstRow};
 					`}
 				>
 					{zonedMoment
