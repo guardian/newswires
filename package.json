@@ -34,24 +34,24 @@
 		"url": "github.com/guardian/newswires"
 	},
 	"devDependencies": {
-		"@guardian/eslint-config": "13.0.5",
+		"@guardian/eslint-config": "15.0.0",
 		"@guardian/prettier": "10.0.0",
 		"@guardian/tsconfig": "1.0.1",
 		"@types/jest": "30.0.0",
 		"@types/node": "22.15.35",
 		"@typescript-eslint/parser": "^8.49.0",
-		"esbuild": "^0.25.8",
-		"eslint": "9.39.1",
-		"eslint-plugin-prettier": "5.5.5",
+		"esbuild": "^0.28.1",
+		"eslint": "10.4.0",
+		"eslint-plugin-prettier": "5.5.6",
 		"husky": "^9.1.7",
-		"jest": "30.0.4",
-		"lage": "^2.14.15",
-		"lint-staged": "16.1.2",
-		"prettier": "3.8.1",
-		"ts-jest": "29.4.0",
-		"tsx": "^4.20.3",
+		"jest": "30.4.2",
+		"lage": "^2.15.13",
+		"lint-staged": "17.0.5",
+		"prettier": "3.8.4",
+		"ts-jest": "29.4.11",
+		"tsx": "^4.22.4",
 		"typescript": "5.9.3",
-		"vite": "^7.0.5"
+		"vite": "^8.0.14"
 	},
 	"prettier": "@guardian/prettier",
 	"lint-staged": {
@@ -62,12 +62,12 @@
 		"undici": "7.28.0"
 	},
 	"dependencies": {
-		"@aws-sdk/client-s3": "3.995.0",
-		"@guardian/libs": "^27.0.0",
-		"@sentry/react": "^10.27.0",
-		"@types/aws-lambda": "8.10.152",
-		"mailauth": "^4.13.0",
-		"node-html-parser": "7.0.1",
-		"zod": "4.0.5"
+		"@aws-sdk/client-s3": "3.1072.0",
+		"@guardian/libs": "^32.0.0",
+		"@sentry/react": "^10.58.0",
+		"@types/aws-lambda": "8.10.162",
+		"mailauth": "^4.13.3",
+		"node-html-parser": "7.1.0",
+		"zod": "4.4.3"
 	}
 }
