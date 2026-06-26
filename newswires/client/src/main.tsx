@@ -12,7 +12,6 @@ import { PageLoadTimeProvider } from './context/PageLoadTimeContext.tsx';
 import { SearchContextProvider } from './context/SearchContext.tsx';
 import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
 import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
-import './icons';
 import { createTelemetryEventSender } from './telemetry.ts';
 
 const { sendTelemetryEvent } = createTelemetryEventSender({

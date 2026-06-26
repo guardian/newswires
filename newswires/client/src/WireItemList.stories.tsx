@@ -6,7 +6,6 @@ import type { SearchContextShape } from './context/SearchContext';
 import { SearchContext } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
-import { setUpIcons } from './icons';
 import type { WireData } from './sharedTypes';
 import { reutersBrand } from './suppliers';
 import { defaultConfig } from './urlState';
@@ -552,7 +551,5 @@ export const WithCollectionMetaDataOnly: Story = {
 		showSecondaryFeedContent: false,
 	},
 };
-
-setUpIcons();
 
 export default meta;
