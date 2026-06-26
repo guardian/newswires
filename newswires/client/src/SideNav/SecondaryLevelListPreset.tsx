@@ -10,7 +10,7 @@ export const SecondaryLevelListPresetPanel = ({
 }: PanelProps) => {
 	const { config, openTicker } = useSearch();
 	return (
-		<EuiListGroup flush={true} gutterSize="none">
+		<EuiListGroup>
 			<SideNavListItem
 				label="Sport"
 				key="sports-parent-backlink"

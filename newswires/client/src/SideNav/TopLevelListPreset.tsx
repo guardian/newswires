@@ -15,7 +15,7 @@ export const TopLevelListPresetPanel = ({
 	);
 
 	return (
-		<EuiListGroup flush={true} gutterSize="none">
+		<EuiListGroup>
 			{allPresets.map((item) => (
 				<SideNavListItem
 					label={item.name}

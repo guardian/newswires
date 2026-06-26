@@ -203,7 +203,7 @@ export const SideNav = ({
 					</EuiCollapsibleNavGroup>
 					{showTastedList && (
 						<EuiCollapsibleNavGroup title="Collections">
-							<EuiListGroup flush={true} gutterSize="none">
+							<EuiListGroup>
 								<SideNavListItem
 									label={TASTED_COLLECTION.name}
 									key="tasted-collection"
@@ -232,7 +232,7 @@ export const SideNav = ({
 						</EuiCollapsibleNavGroup>
 					)}
 					<EuiCollapsibleNavGroup title={'Suppliers'}>
-						<EuiListGroup flush={true} gutterSize="none">
+						<EuiListGroup>
 							{supplierItems.map((item) => (
 								<SideNavListItem
 									key={item.id}

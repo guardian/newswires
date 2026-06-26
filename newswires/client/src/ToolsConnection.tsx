@@ -174,7 +174,7 @@ const SendOrVisitInComposerButton = ({
 			<EuiScreenReaderOnly>
 				<h1 id="composer-popover-id">Composer integration</h1>
 			</EuiScreenReaderOnly>
-			<EuiListGroup flush={true}>
+			<EuiListGroup>
 				<EuiListGroupItem label={decideIntegrationButton()}></EuiListGroupItem>
 				{errorMessages.map((errorMessage) => (
 					<EuiListGroupItem
@@ -286,7 +286,7 @@ const SendToIncopyButton = ({
 			<EuiScreenReaderOnly>
 				<h1 id="incopy-popover-id">InCopy integration</h1>
 			</EuiScreenReaderOnly>
-			<EuiListGroup flush={true}>
+			<EuiListGroup>
 				<EuiListGroupItem
 					label={
 						<EuiButton

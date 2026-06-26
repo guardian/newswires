@@ -2,7 +2,6 @@ import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
-import { setUpIcons } from './icons';
 import { SearchBox } from './SearchBox';
 
 const meta = {
@@ -34,7 +33,5 @@ export const DefaultView: Story = {
 			console.log('Search term changed to:', newQuery),
 	},
 };
-
-setUpIcons();
 
 export default meta;

@@ -1,6 +1,5 @@
 import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { setUpIcons } from './icons';
 import { SupplierBadge } from './SupplierBadge';
 import { supplierData } from './suppliers';
 
@@ -51,8 +50,6 @@ const _meta = {
 } satisfies Meta<typeof SupplierBadgeList>;
 
 type Story = StoryObj<typeof _meta>;
-
-setUpIcons();
 
 export const Default: Story = {
 	args: {

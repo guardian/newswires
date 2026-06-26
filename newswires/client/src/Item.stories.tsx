@@ -4,7 +4,6 @@ import moment from 'moment';
 import { SearchContextProvider } from './context/SearchContext';
 import { TelemetryContextProvider } from './context/TelemetryContext';
 import { UserSettingsContext } from './context/UserSettingsContext';
-import { setUpIcons } from './icons';
 import { Item } from './Item';
 import type { WireData } from './sharedTypes';
 import { reutersBrand } from './suppliers';
@@ -236,7 +235,5 @@ export const WithError: Story = {
 		refreshItemData: () => console.log('refresh item data'),
 	},
 };
-
-setUpIcons();
 
 export default meta;
