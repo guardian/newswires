@@ -1073,6 +1073,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
       "GuUnhealthyInstancesAlarm",
       "GuS3Bucket",
       "GuCname",
+      "GuDeveloperPolicyExperimental",
       "GuAllowPolicy",
       "GuGithubActionsRole",
     ],
@@ -3697,6 +3698,118 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
         "TreatMissingData": "breaching",
       },
       "Type": "AWS::CloudWatch::Alarm",
+    },
+    "NewswiresCodeLocalRunPolicy703D2604": {
+      "Properties": {
+        "Description": "Run Newswires locally against CODE DB",
+        "Path": "/developer-policy/newswires-code-local-run/",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:GetCallerIdentity",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "ssm:GetParameter",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/CODE/editorial-feeds/newswires/database/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:SendCommand",
+                "ssm:GetCommandInvocation",
+                "ssm:StartSession",
+                "ssm:TerminateSession",
+                "ssm:ResumeSession",
+                "ssm:DescribeSessions",
+                "ssm:GetConnectionStatus",
+                "ec2:DescribeInstances",
+                "ec2:CreateTags",
+                "rds:DescribeDBInstances",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "rds-db:connect",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":rds-db:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":dbuser:",
+                    {
+                      "Fn::GetAtt": [
+                        "NewswiresDBNewswires2A5A9AC6",
+                        "DbiResourceId",
+                      ],
+                    },
+                    "/postgres",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "PanDomainSettingsBucket",
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "PermissionsBucket",
+                    },
+                    "/CODE/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::ManagedPolicy",
     },
     "NewswiresCopyEmailBucketNewswires26C541A0": {
       "DeletionPolicy": "Retain",
