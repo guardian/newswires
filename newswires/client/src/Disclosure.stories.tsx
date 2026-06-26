@@ -1,7 +1,6 @@
 import { EuiProvider, EuiText } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Disclosure } from './Disclosure';
-import { setUpIcons } from './icons';
 
 const _meta = {
 	title: 'Components/Disclosure',
@@ -22,8 +21,6 @@ const _meta = {
 } satisfies Meta<typeof Disclosure>;
 
 type Story = StoryObj<typeof _meta>;
-
-setUpIcons();
 
 export const Default: Story = {
 	args: {
