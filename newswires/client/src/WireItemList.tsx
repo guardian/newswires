@@ -19,12 +19,12 @@ import { convertToLocalDate } from './dateHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
-import { SupplierBadge } from './SupplierBadge.tsx';
 import { ToolSendReport } from './ToolsConnection.tsx';
 import {
 	AlertLabel,
 	LeadLabel,
 	MediaDirectItemLabel,
+	SupplierLabel,
 } from './WireItemLabel.tsx';
 
 export const WireItemList = ({
@@ -282,9 +282,8 @@ const WirePreviewCard = ({
 	const cardGrid = css`
 		display: grid;
 		grid-column-gap: 0.3rem;
-		grid-row-gap: 0.5rem;
 		align-items: baseline;
-		grid-template-areas: 'title time time' 'title badges supplier' 'content badges supplier';
+		grid-template-areas: 'title time' 'title badges' 'content badges';
 		grid-template-columns: 1fr min-content min-content;
 		grid-template-rows: auto auto auto;
 	`;
@@ -292,7 +291,7 @@ const WirePreviewCard = ({
 	const compactCardGrid = css`
 		display: grid;
 		grid-column-gap: 0.3rem;
-		grid-template-areas: 'title badges supplier time' 'content content content content';
+		grid-template-areas: 'title badges time' 'content content content';
 		grid-template-columns: 1fr min-content min-content;
 		align-items: baseline;
 	`;
@@ -355,6 +354,7 @@ const WirePreviewCard = ({
 							: theme.euiTheme.font.weight.semiBold};
 						${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
 						font-size: 1.15rem;
+						margin-bottom: ${theme.euiTheme.size.xs};
 					`}
 				>
 					{mainHeadingContent}
@@ -375,6 +375,7 @@ const WirePreviewCard = ({
 						text-align: right;
 						font-variant-numeric: tabular-nums;
 						line-break: strict;
+						margin-bottom: ${theme.euiTheme.size.xs};
 					`}
 				>
 					{zonedMoment
@@ -390,10 +391,11 @@ const WirePreviewCard = ({
 					css={css`
 						grid-area: badges;
 						justify-self: end;
-						align-self: flex-start;
+						align-self: baseline;
 						display: flex;
 						gap: 0.3rem;
 						align-items: center;
+						justify-content: flex-end;
 					`}
 				>
 					{isMediaDirectItem && (
@@ -416,25 +418,16 @@ const WirePreviewCard = ({
 							hoverParentClassName={classNameForStylingLabelsOnCardHover}
 						/>
 					)}
-				</div>
-
-				<div
-					css={css`
-						grid-area: supplier;
-						justify-self: end;
-						align-self: flex-start;
-					`}
-				>
-					<SupplierBadge
+					<SupplierLabel
 						supplier={supplier}
 						isPrimary={!hasBeenViewed}
 						isCondensed={!showSecondaryFeedContent}
-					/>{' '}
+					/>
 				</div>
 				<div
 					css={css`
 						grid-area: content;
-						align-self: start;
+						align-self: baseline;
 					`}
 				>
 					{showSecondaryFeedContent && (

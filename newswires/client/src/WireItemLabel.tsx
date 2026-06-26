@@ -1,6 +1,8 @@
 import type { EuiIconProps } from '@elastic/eui';
 import { EuiIcon, useEuiTheme } from '@elastic/eui';
 import { css } from '@emotion/react';
+import { lightShadeOf } from './colour-utils';
+import type { SupplierInfo } from './sharedTypes';
 
 interface LabelTheme {
 	backgroundColour: string;
@@ -75,16 +77,43 @@ export const MediaDirectItemLabel = ({
 	);
 };
 
+export const SupplierLabel = ({
+	supplier,
+	isPrimary,
+	isCondensed,
+}: {
+	supplier: SupplierInfo;
+	isPrimary: boolean;
+	isCondensed: boolean;
+}) => {
+	const { colour, label, shortLabel } = supplier;
+
+	return (
+		<WireItemLabel
+			label={isCondensed ? shortLabel : label}
+			theme={{
+				backgroundColour: isPrimary ? colour : lightShadeOf(colour),
+				textColour: isPrimary ? 'white' : 'black',
+				borderColour: colour,
+			}}
+			outlined={!isPrimary}
+			rounded={'slightly'}
+		/>
+	);
+};
+
 export const WireItemLabel = ({
 	label,
 	theme: { borderColour, backgroundColour, textColour },
 	outlined,
+	rounded = 'very',
 	hoverParentClassName,
 	iconType,
 }: {
 	label: string;
 	theme: LabelTheme;
 	outlined: boolean;
+	rounded?: 'very' | 'slightly';
 	hoverParentClassName?: string;
 	iconType?: EuiIconProps['type'];
 }) => {
@@ -104,12 +133,11 @@ export const WireItemLabel = ({
 			css={[
 				hoverParentStyles,
 				css`
-					border-radius: 18px;
+					border-radius: ${rounded === 'very' ? '18px' : '4px'};
 					padding: 0 ${euiTheme.size.s};
 					border: 1px solid ${outlined ? borderColour : 'transparent'};
 					color: ${textColour};
 					background-color: ${backgroundColour};
-					line-height: 18px;
 					font-size: ${euiTheme.font.scale.s}rem;
 					display: inline-flex;
 					align-items: center;
