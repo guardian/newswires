@@ -156,7 +156,7 @@ export type WiresQueryData = {
 	};
 };
 
-export const isValidDateValue = (value: string): value is EuiDateString =>
+export const isValidDateValue = (value: string) =>
 	/^now(?:[+-]\d+[smhdwMy])*(?:\/\w+)?$/.test(value) || moment(value).isValid();
 
 export const EuiDateStringSchema = z
