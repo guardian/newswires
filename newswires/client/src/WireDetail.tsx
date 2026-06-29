@@ -29,6 +29,7 @@ import { useSearch } from './context/SearchContext.tsx';
 import { useTelemetry } from './context/TelemetryContext.tsx';
 import { useUserSettings } from './context/UserSettingsContext.tsx';
 import { convertToLocalDate, convertToLocalDateString } from './dateHelpers.ts';
+import { decideEmbargoNote } from './decideEmbargoNote.tsx';
 import { Disclosure } from './Disclosure.tsx';
 import { htmlFormatBody } from './htmlFormatHelpers.ts';
 import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
@@ -532,26 +533,6 @@ function decideEdNote({
 		return "NOTE: This item has been ingested via email, and hasn't been authenticated. Please check carefully before use, and treat it as you would a regular email.";
 	}
 	return undefined;
-}
-
-export function decideEmbargoNote({
-	status,
-	embargo,
-}: {
-	status: string | undefined;
-	embargo: string | undefined;
-}): string | undefined {
-	if (status === 'withheld' && embargo) {
-		const embargoDate = new Date(embargo);
-		if (embargoDate.toString() === 'Invalid Date') {
-			console.error(`Error parsing embargo date: ${embargo}.`);
-			return `Embargoed until ${embargo}. Note: embargo date is in an unrecognized format. Please check the date string manually and flag this issue to a developer if necessary.`;
-		} else {
-			return `Embargoed until ${embargoDate.toLocaleString(undefined, { timeZoneName: 'short' })}`;
-		}
-	} else {
-		return undefined;
-	}
 }
 
 export const WireDetail = ({

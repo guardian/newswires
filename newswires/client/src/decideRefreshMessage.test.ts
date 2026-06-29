@@ -1,4 +1,4 @@
-import { decideRefreshMessage } from './RefreshBanner';
+import { decideRefreshMessage } from './decideRefreshMessage';
 
 const timeA = new Date('2024-01-01T10:00:00.000Z');
 const timeB = new Date('2024-01-01T11:00:00.000Z');

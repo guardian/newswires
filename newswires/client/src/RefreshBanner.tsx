@@ -2,48 +2,16 @@ import { EuiHeader, useEuiTheme } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { getErrorMessage } from '@guardian/libs';
 import { useEffect, useState } from 'react';
-import z from 'zod/v4';
 import { usePageLoadTime } from './context/PageLoadTimeContext.tsx';
+import {
+	decideRefreshMessage,
+	RefreshMessageSchema,
+} from './decideRefreshMessage.tsx';
 import { pandaFetch } from './panda-session';
 
-const RefreshMessageSchema = z.union([
-	z.object({
-		message: z.string(),
-		from: z.string(),
-		until: z.string().optional(),
-	}),
-	z.object({ hasMessage: z.literal(false) }),
-]);
-
-type RefreshMessage = z.infer<typeof RefreshMessageSchema>;
-
-export function decideRefreshMessage({
-	timeThatPageWasLoaded,
-	now,
-	messageFromServer,
-}: {
-	timeThatPageWasLoaded: number;
-	now: number;
-	messageFromServer: RefreshMessage | undefined;
-}): string | undefined {
-	if (messageFromServer === undefined || 'hasMessage' in messageFromServer) {
-		return undefined;
-	}
-	const { message, from, until } = messageFromServer;
-	const fromTime = new Date(from).getTime();
-	if (
-		timeThatPageWasLoaded < fromTime &&
-		now >= fromTime &&
-		(!until || now < new Date(until).getTime())
-	) {
-		return message;
-	}
-	return undefined;
-}
-
 export const RefreshBanner = () => {
-	const [messageFromServer, setMessageFromServer] = useState<
-		RefreshMessage | undefined
+	const [userFacingMessage, setUserFacingMessage] = useState<
+		string | undefined
 	>(undefined);
 	const { euiTheme } = useEuiTheme();
 	const timeThatPageWasLoaded = usePageLoadTime();
@@ -72,7 +40,13 @@ export const RefreshBanner = () => {
 							)}`,
 						);
 					}
-					setMessageFromServer(parseResult.data);
+					setUserFacingMessage(
+						decideRefreshMessage({
+							timeThatPageWasLoaded: timeThatPageWasLoaded,
+							now: Date.now(),
+							messageFromServer: parseResult.data,
+						}),
+					);
 				})
 				.catch((e) => {
 					if (e instanceof Error && e.name === 'AbortError') {
@@ -93,15 +67,7 @@ export const RefreshBanner = () => {
 		};
 	}, [timeThatPageWasLoaded]);
 
-	const now = Date.now();
-
-	const maybeUserFacingMessage = decideRefreshMessage({
-		timeThatPageWasLoaded: timeThatPageWasLoaded,
-		now,
-		messageFromServer,
-	});
-
-	if (maybeUserFacingMessage) {
+	if (userFacingMessage) {
 		return (
 			<EuiHeader
 				position="fixed"
@@ -124,7 +90,7 @@ export const RefreshBanner = () => {
 					}
 				`}
 			>
-				<p>{maybeUserFacingMessage}</p>
+				<p>{userFacingMessage}</p>
 			</EuiHeader>
 		);
 	}

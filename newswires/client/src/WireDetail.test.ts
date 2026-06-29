@@ -1,5 +1,5 @@
+import { decideEmbargoNote } from './decideEmbargoNote';
 import { disableLogs } from './tests/testHelpers';
-import { decideEmbargoNote } from './WireDetail';
 
 describe('decideEmbargoNote', () => {
 	it('should return a note for status: "withheld" and embargo defined', () => {

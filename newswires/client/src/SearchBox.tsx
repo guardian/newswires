@@ -1,6 +1,6 @@
 import { EuiFieldSearch } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StopShortcutPropagationWrapper } from './context/KeyboardShortcutsContext.tsx';
 import { debounce } from './debounce';
 
@@ -12,13 +12,14 @@ export function SearchBox({
 	handleTextQueryChange: (newQuery: string) => void;
 }) {
 	const [inputValue, setInputValue] = useState<string>('');
-
-	useEffect(() => {
-		setInputValue(currentTextQuery);
-	}, [currentTextQuery]);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
 
 	const debouncedUpdate = useMemo(
-		() => debounce(handleTextQueryChange, 750),
+		() =>
+			debounce((newQuery: string) => {
+				handleTextQueryChange(newQuery);
+				setIsEditing(false);
+			}, 2000),
 		[handleTextQueryChange],
 	);
 
@@ -27,12 +28,19 @@ export function SearchBox({
 			<EuiFieldSearch
 				id="searchBox"
 				compressed={true}
-				value={inputValue}
+				value={isEditing ? inputValue : currentTextQuery}
 				placeholder="Search stories"
 				onChange={(e) => {
 					const newQuery = e.target.value;
 					setInputValue(newQuery);
+					setIsEditing(true);
 					debouncedUpdate(newQuery);
+				}}
+				onBlur={(e) => {
+					// cancel the debounced update and immediately update the query when the user leaves the search box
+					debouncedUpdate.cancel();
+					setIsEditing(false);
+					handleTextQueryChange(e.target.value);
 				}}
 				aria-label="search wires"
 				fullWidth={true}

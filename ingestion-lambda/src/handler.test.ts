@@ -1,5 +1,4 @@
 import type {
-	SESEvent,
 	SESEventRecord,
 	SESReceiptStatus,
 	SQSBatchResponse,
@@ -10,8 +9,8 @@ import * as loggingModule from 'newswires-shared/lambda-logging';
 import * as rdsModule from 'newswires-shared/rds';
 import { fileService } from 'newswires-shared/s3';
 import type { OperationResult } from 'newswires-shared/types';
-import type { Row, RowList } from 'postgres';
 import type postgres from 'postgres';
+import type { Row, RowList } from 'postgres';
 import { main } from './handler';
 import { sampleMimeEmailData } from './sampleMimeEmailData';
 
@@ -335,7 +334,7 @@ describe('handler.main', () => {
 
 		const passingSesEvent = {
 			Records: [createSesRecord('PASS')],
-		} as unknown as SESEvent;
+		};
 
 		const result = (await main(passingSesEvent)) as SQSBatchResponse;
 
@@ -359,7 +358,7 @@ describe('handler.main', () => {
 
 		const failingSesEvent = {
 			Records: [createSesRecord('GRAY')],
-		} as unknown as SESEvent;
+		};
 
 		const result = (await main(failingSesEvent)) as SQSBatchResponse;
 		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);

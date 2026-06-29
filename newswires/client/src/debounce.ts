@@ -2,13 +2,22 @@
 export const debounce = <F extends (...args: any[]) => void>(
 	f: F,
 	delay: number,
-): ((...args: Parameters<F>) => void) => {
+): ((...args: Parameters<F>) => void) & { cancel: () => void } => {
 	let waiting: ReturnType<typeof setTimeout> | undefined;
 
-	return (...args: Parameters<F>) => {
+	const debounced = (...args: Parameters<F>) => {
 		if (waiting !== undefined) {
 			clearTimeout(waiting);
 		}
 		waiting = setTimeout(() => f(...args), delay);
 	};
+
+	debounced.cancel = () => {
+		if (waiting !== undefined) {
+			clearTimeout(waiting);
+			waiting = undefined;
+		}
+	};
+
+	return debounced;
 };
