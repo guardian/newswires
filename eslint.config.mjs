@@ -3,7 +3,6 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default [
 	...guardian.configs.recommended,
-	...guardian.configs.jest,
 	eslintPluginPrettierRecommended,
 	{
 		rules: {

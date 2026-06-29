@@ -4,10 +4,10 @@ import {
 	timeRangeOptions,
 } from './dateHelpers.ts';
 import { EuiDateStringSchema, isValidDateValue } from './sharedTypes.ts';
-import { disableLogs } from './tests/testHelpers.ts';
+import { withSuppressMomentDeprecationWarnings } from './tests/testHelpers.ts';
 
 beforeEach(() => {
-	jest.restoreAllMocks();
+	vi.restoreAllMocks();
 });
 describe('isValidDateValue', () => {
 	['now', 'now-3h', 'now-1M-3d', 'now-2w/d'].forEach((value) => {
@@ -21,8 +21,9 @@ describe('isValidDateValue', () => {
 	});
 
 	it(`should invalidate invalid value`, () => {
-		disableLogs();
-		expect(isValidDateValue('invalid')).toBe(false);
+		withSuppressMomentDeprecationWarnings(() => {
+			expect(isValidDateValue('invalid')).toBe(false);
+		});
 	});
 });
 
@@ -86,7 +87,7 @@ describe('relativeDateRangeToAbsoluteDateRange', () => {
 	options.forEach(({ label, resolvedStart, resolvedEnd }) => {
 		it(`should resolve the "${label}" quick select option to the expected absolute date range for the point of evaluation`, () => {
 			// mock the current date to a fixed point in time to make the test deterministic
-			jest.spyOn(Date, 'now').mockReturnValue(new Date(FIXED_NOW).getTime());
+			vi.spyOn(Date, 'now').mockReturnValue(new Date(FIXED_NOW).getTime());
 			const timeRangeOption = timeRangeOptions().find(
 				(option) => option.label === label,
 			);

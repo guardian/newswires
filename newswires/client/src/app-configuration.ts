@@ -2,14 +2,14 @@ import { computeSuppliersToExclude } from './utils/supplierExclusions.ts';
 import type { AppConfiguration } from './windowConfigType';
 
 const isNode = typeof process !== 'undefined';
-const isJest = isNode && process.env.JEST_WORKER_ID !== undefined;
+const isTest = isNode && process.env.VITEST_WORKER_ID !== undefined;
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- if the code isn't running in jest, window should be defined
-if (!isJest && !window.configuration) {
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- if the code isn't running in tests, window should be defined
+if (!isTest && !window.configuration) {
 	throw new Error('window object is defined, but window.configuration is not');
 }
 
-const configLookup: AppConfiguration = isJest
+const configLookup: AppConfiguration = isTest
 	? {
 			switches: {
 				ShowGuSuppliers: false,

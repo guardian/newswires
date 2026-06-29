@@ -1,9 +1,10 @@
 import { createLogger } from 'newswires-shared/lambda-logging';
+import type { Mock } from 'vitest';
 import { apPoller } from './apPoller'; // Replace with actual path
 import { apItems, apTransformedItems } from './fixtures/apItems';
 import { parseNitfContent } from './parseNitfContent';
 
-global.fetch = jest.fn(() =>
+global.fetch = vi.fn(() =>
 	Promise.resolve({
 		json: () =>
 			Promise.resolve({
@@ -15,10 +16,10 @@ global.fetch = jest.fn(() =>
 			}),
 		ok: true,
 	}),
-) as jest.Mock;
+) as Mock;
 
-jest.mock('./parseNitfContent', () => ({
-	parseNitfContent: jest.fn(),
+vi.mock('./parseNitfContent', () => ({
+	parseNitfContent: vi.fn(),
 }));
 
 const logger = createLogger({});
@@ -29,12 +30,11 @@ describe('apPoller', () => {
 	const input = 'https://api.ap.org/media/v/content/feed?page=1';
 
 	beforeEach(() => {
-		jest.clearAllMocks();
-		jest.spyOn(console, 'log').mockImplementation(() => {});
+		vi.clearAllMocks();
 	});
 
 	it('should return an empty payload if no new items are in the feed', async () => {
-		global.fetch = jest.fn(() =>
+		global.fetch = vi.fn(() =>
 			Promise.resolve({
 				json: () =>
 					Promise.resolve({
@@ -46,7 +46,7 @@ describe('apPoller', () => {
 					}),
 				ok: true,
 			}),
-		) as jest.Mock;
+		) as Mock;
 
 		const result = await apPoller({ secret, input, logger, retryDelayMs });
 
@@ -57,7 +57,7 @@ describe('apPoller', () => {
 	});
 
 	it('should process feed items with NITF content and return payloads', async () => {
-		global.fetch = jest
+		global.fetch = vi
 			.fn()
 			.mockImplementationOnce(() =>
 				Promise.resolve({
@@ -85,7 +85,7 @@ describe('apPoller', () => {
 				}),
 			);
 
-		(parseNitfContent as jest.Mock).mockImplementation((_xmlContent) => ({
+		(parseNitfContent as Mock).mockImplementation((_xmlContent) => ({
 			byline: 'Author Name',
 			headline: 'Headline',
 			bodyContentHtml: '<p>Body content</p>',
@@ -100,7 +100,7 @@ describe('apPoller', () => {
 	});
 
 	it('should exclude items without NITF renditions', async () => {
-		global.fetch = jest.fn(() =>
+		global.fetch = vi.fn(() =>
 			Promise.resolve({
 				json: () =>
 					Promise.resolve({
@@ -119,7 +119,7 @@ describe('apPoller', () => {
 					}),
 				ok: true,
 			}),
-		) as jest.Mock;
+		) as Mock;
 
 		const result = await apPoller({ secret, input, logger, retryDelayMs });
 
@@ -130,7 +130,7 @@ describe('apPoller', () => {
 	});
 
 	it('should retry fetching the feed on transient errors', async () => {
-		const fetchMock = global.fetch as jest.Mock;
+		const fetchMock = global.fetch as Mock;
 		fetchMock
 			.mockImplementationOnce(() =>
 				Promise.resolve({
@@ -165,9 +165,9 @@ describe('apPoller', () => {
 	});
 
 	it('should eventually throw an error if the fetch request throws repeatedly', async () => {
-		global.fetch = jest.fn(() =>
+		global.fetch = vi.fn(() =>
 			Promise.reject(new Error('Network error')),
-		) as jest.Mock;
+		) as Mock;
 
 		await expect(
 			apPoller({ secret, input, logger, retryDelayMs }),
@@ -175,7 +175,7 @@ describe('apPoller', () => {
 	});
 
 	it('should eventually throw an error if the feed response contains an error message', async () => {
-		global.fetch = jest.fn(() =>
+		global.fetch = vi.fn(() =>
 			Promise.resolve({
 				json: () =>
 					Promise.resolve({
@@ -183,7 +183,7 @@ describe('apPoller', () => {
 					}),
 				ok: true,
 			}),
-		) as jest.Mock;
+		) as Mock;
 
 		await expect(
 			apPoller({ secret, input, logger, retryDelayMs }),

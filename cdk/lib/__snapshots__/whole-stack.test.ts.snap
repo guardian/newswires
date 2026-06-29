@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`createStacks should create WiresFeeds and Newswires stacks with correct properties 1`] = `
+exports[`createStacks > should create WiresFeeds and Newswires stacks with correct properties 1`] = `
 {
   "Metadata": {
     "gu:cdk:constructs": [
@@ -1013,7 +1013,7 @@ exports[`createStacks should create WiresFeeds and Newswires stacks with correct
 }
 `;
 
-exports[`createStacks should create WiresFeeds and Newswires stacks with correct properties 2`] = `
+exports[`createStacks > should create WiresFeeds and Newswires stacks with correct properties 2`] = `
 {
   "Metadata": {
     "gu:cdk:constructs": [
@@ -7111,7 +7111,7 @@ dpkg -i /newswires/newswires.deb",
 }
 `;
 
-exports[`createStacks should create WiresFeeds and Newswires stacks with correct properties 3`] = `
+exports[`createStacks > should create WiresFeeds and Newswires stacks with correct properties 3`] = `
 {
   "Metadata": {
     "gu:cdk:constructs": [],

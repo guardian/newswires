@@ -5,8 +5,8 @@
 	"scripts": {
 		"build": "tsc",
 		"typecheck": "tsc",
-		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects cdk",
-		"test-update": "jest -u",
+		"test": "vitest run --project cdk",
+		"test-update": "vitest run --project cdk -u",
 		"synth": "cdk synth --path-metadata false --version-reporting false",
 		"diff": "cdk diff --path-metadata false --version-reporting false",
 		"lint": "eslint lib/** bin/** --no-error-on-unmatched-pattern --fix",
@@ -20,16 +20,5 @@
 		"source-map-support": "0.5.21",
 		"ts-node": "^10.9.2"
 	},
-	"prettier": "@guardian/prettier",
-	"jest": {
-		"testMatch": [
-			"<rootDir>/lib/**/*.test.ts"
-		],
-		"transform": {
-			"^.+\\.tsx?$": "ts-jest"
-		},
-		"setupFilesAfterEnv": [
-			"./jest.setup.js"
-		]
-	}
+	"prettier": "@guardian/prettier"
 }

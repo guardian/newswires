@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"module": "esnext",
 		"moduleResolution": "bundler",
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"types": ["node", "vitest/globals"]
 	}
 }

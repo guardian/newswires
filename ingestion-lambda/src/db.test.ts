@@ -3,12 +3,12 @@ import * as loggingModule from 'newswires-shared/lambda-logging';
 import postgres from 'postgres';
 import { putItemToDb } from './db';
 
-jest.mock('newswires-shared/lambda-logging', () => {
+vi.mock('newswires-shared/lambda-logging', () => {
 	const logs = {
-		log: jest.fn(),
-		debug: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
+		log: vi.fn(),
+		debug: vi.fn(),
+		warn: vi.fn(),
+		error: vi.fn(),
 	};
 
 	return {
@@ -27,7 +27,7 @@ describe('putItemToDb', () => {
 	});
 
 	beforeEach(async () => {
-		jest.resetAllMocks();
+		vi.resetAllMocks();
 		await sql`DELETE FROM ${sql(DATABASE_TABLE_NAME)};`;
 	});
 

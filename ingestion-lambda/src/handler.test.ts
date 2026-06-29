@@ -10,46 +10,47 @@ import * as loggingModule from 'newswires-shared/lambda-logging';
 import * as rdsModule from 'newswires-shared/rds';
 import { fileService } from 'newswires-shared/s3';
 import type { OperationResult } from 'newswires-shared/types';
-import type { Row, RowList } from 'postgres';
 import type postgres from 'postgres';
+import type { Row, RowList } from 'postgres';
+import type { MockedFunction } from 'vitest';
 import { main } from './handler';
 import { sampleMimeEmailData } from './sampleMimeEmailData';
 
 type SuccessfulSqlInsertReturnType = RowList<Row[]> | Promise<RowList<Row[]>>;
 
 // mock the s3 sdk module
-jest.mock('newswires-shared/s3', () => ({
+vi.mock('newswires-shared/s3', () => ({
 	fileService: {
-		getObject: jest.fn(),
-		putObject: jest.fn(),
+		getObject: vi.fn(),
+		putObject: vi.fn(),
 	},
 }));
-jest.mock('newswires-shared/config', () => ({
+vi.mock('newswires-shared/config', () => ({
 	feedsBucket: () => 'test-feeds-bucket',
 	emailBucket: () => 'test-email-bucket',
 }));
 // and the postgres sql module
-jest.mock('newswires-shared/rds', () => ({
-	initialiseDbConnection: jest.fn(),
+vi.mock('newswires-shared/rds', () => ({
+	initialiseDbConnection: vi.fn(),
 }));
 // and even the lambda-logging module
-jest.mock('newswires-shared/lambda-logging', () => {
+vi.mock('newswires-shared/lambda-logging', () => {
 	const logs = {
-		log: jest.fn(),
-		debug: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
+		log: vi.fn(),
+		debug: vi.fn(),
+		warn: vi.fn(),
+		error: vi.fn(),
 	};
 
 	return {
 		createLogger: () => logs,
 	};
 });
-const mockGetObject = fileService.getObject as jest.MockedFunction<
+const mockGetObject = fileService.getObject as MockedFunction<
 	typeof fileService.getObject
 >;
 const mockInitialiseDbConnection =
-	rdsModule.initialiseDbConnection as jest.MockedFunction<
+	rdsModule.initialiseDbConnection as MockedFunction<
 		typeof rdsModule.initialiseDbConnection
 	>;
 const mockCreateLogger = loggingModule.createLogger;
@@ -92,8 +93,8 @@ function generateMockSQSRecord(
 
 describe('handler.main', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
-		jest.resetAllMocks();
+		vi.clearAllMocks();
+		vi.resetAllMocks();
 	});
 
 	it('should process SQS messages and return no batchItemFailures if everything succeeds', async () => {
@@ -106,7 +107,7 @@ describe('handler.main', () => {
 				Promise.resolve([
 					{ id: 1 },
 				] as unknown as SuccessfulSqlInsertReturnType)) as unknown as postgres.Sql,
-			closeDbConnection: jest.fn(),
+			closeDbConnection: vi.fn(),
 		});
 
 		const validSQSRecord: SQSRecord = generateMockSQSRecord({
@@ -135,7 +136,7 @@ describe('handler.main', () => {
 				Promise.resolve([
 					{ id: 1 },
 				] as unknown as SuccessfulSqlInsertReturnType)) as unknown as postgres.Sql,
-			closeDbConnection: jest.fn(),
+			closeDbConnection: vi.fn(),
 		});
 
 		// Create a valid record and a failing record (missing externalId)
@@ -166,7 +167,7 @@ describe('handler.main', () => {
 		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
 		expect(
 			(
-				mockCreateLogger({}).error as jest.MockedFn<
+				mockCreateLogger({}).error as MockedFunction<
 					loggingModule.Logger['error']
 				>
 			).mock.calls[0]?.[0].eventType,
@@ -187,7 +188,7 @@ describe('handler.main', () => {
 				Promise.resolve([
 					{ id: 1 },
 				] as unknown as SuccessfulSqlInsertReturnType)) as unknown as postgres.Sql,
-			closeDbConnection: jest.fn(),
+			closeDbConnection: vi.fn(),
 		});
 		// Mock S3 to return different responses for different keys
 		mockGetObject.mockImplementation((params) => {
@@ -225,7 +226,9 @@ describe('handler.main', () => {
 		// assert logline for ingestion failure metrics
 		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);
 		const loggedEvent = (
-			mockCreateLogger({}).error as jest.MockedFn<loggingModule.Logger['error']>
+			mockCreateLogger({}).error as MockedFunction<
+				loggingModule.Logger['error']
+			>
 		).mock.calls[0]?.[0];
 
 		expect(loggedEvent?.eventType).toBe('INGESTION_FAILURE');
@@ -252,7 +255,7 @@ describe('handler.main', () => {
 		// Mock S3 to return valid JSON for both records
 		mockGetObject.mockResolvedValue(validJsonFromSuccessfulS3);
 
-		const mockSql = jest.fn();
+		const mockSql = vi.fn();
 		mockSql
 			.mockResolvedValueOnce('table-name') // First call simulates a successful insert
 			.mockResolvedValueOnce([{ id: 1 }])
@@ -261,7 +264,7 @@ describe('handler.main', () => {
 
 		mockInitialiseDbConnection.mockResolvedValue({
 			sql: mockSql as unknown as postgres.Sql,
-			closeDbConnection: jest.fn(),
+			closeDbConnection: vi.fn(),
 		});
 
 		// Create two valid records that will both pass S3 and processing steps
@@ -325,12 +328,12 @@ describe('handler.main', () => {
 			body: sampleMimeEmailData,
 		});
 
-		const mockSql = jest.fn();
+		const mockSql = vi.fn();
 		mockSql.mockResolvedValue([{ id: 1 }]);
 
 		mockInitialiseDbConnection.mockResolvedValue({
 			sql: mockSql as unknown as postgres.Sql,
-			closeDbConnection: jest.fn(),
+			closeDbConnection: vi.fn(),
 		});
 
 		const passingSesEvent = {
@@ -349,12 +352,12 @@ describe('handler.main', () => {
 			body: sampleMimeEmailData,
 		});
 
-		const mockSql = jest.fn();
+		const mockSql = vi.fn();
 		mockSql.mockResolvedValue([{ id: 1 }]);
 
 		mockInitialiseDbConnection.mockResolvedValue({
 			sql: mockSql as unknown as postgres.Sql,
-			closeDbConnection: jest.fn(),
+			closeDbConnection: vi.fn(),
 		});
 
 		const failingSesEvent = {
@@ -378,16 +381,18 @@ describe('handler.main', () => {
 		const mockSQSEvent: SQSEvent = {
 			Records: [validSQSRecord],
 		};
-		const mockSql = jest.fn();
+		const mockSql = vi.fn();
 		mockInitialiseDbConnection.mockResolvedValue({
 			sql: mockSql as unknown as postgres.Sql,
-			closeDbConnection: jest.fn(),
+			closeDbConnection: vi.fn(),
 		});
 		const result = await main(mockSQSEvent);
 
 		expect(mockCreateLogger({}).debug).toHaveBeenCalledTimes(1);
 		const loggedEvent = (
-			mockCreateLogger({}).debug as jest.MockedFn<loggingModule.Logger['debug']>
+			mockCreateLogger({}).debug as MockedFunction<
+				loggingModule.Logger['debug']
+			>
 		).mock.calls[0]?.[0];
 		expect(loggedEvent?.eventType).toBe('INGESTION_HEARTBEAT');
 		expect(result?.batchItemFailures.length).toBe(0);
