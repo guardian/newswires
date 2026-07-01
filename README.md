@@ -148,7 +148,7 @@ graph LR
     Reuters[Reuters Feed]
     AP[AP Feed]
     Fingerpost[Fingerpost Feed]
-    Correspondents[Correspondents aka 'dot-copy']
+    Correspondents[Correspondents ('dot-copy')]
     Users[Users]
 
     subgraph AWS["AWS 'editorial-feeds'"]
@@ -193,7 +193,7 @@ graph LR
 
         %% Shared Resource Flows
         Ingestion --> DB
-        ASG -- "read-only access" --> DB
+        ASG -- "reads" --> DB
         Cleanup -- "delete old stories on a schedule" --> DB
     end
 
