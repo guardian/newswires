@@ -148,7 +148,7 @@ graph LR
     Reuters[Reuters Feed]
     AP[AP Feed]
     Fingerpost[Fingerpost Feed]
-    Correspondents[Correspondents ('dot-copy')]
+    Correspondents["Correspondents ('dot-copy')"]
     Users[Users]
 
     subgraph AWS["AWS 'editorial-feeds'"]
