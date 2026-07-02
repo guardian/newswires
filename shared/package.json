@@ -7,13 +7,10 @@
 	},
 	"scripts": {
 		"typecheck": "tsc -noEmit",
-		"pretest": "cd ../ && ./scripts/setup-test-env.sh",
-		"test": "jest --detectOpenHandles --config ../jest.config.js --selectProjects shared",
+		"test": "vitest run --project shared",
 		"lint": "eslint src/** --no-error-on-unmatched-pattern --fix",
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
-	"dependencies": {
-	},
-	"devDependencies": {
-	}
+	"dependencies": {},
+	"devDependencies": {}
 }

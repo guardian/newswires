@@ -1,11 +1,10 @@
 import { act, render } from '@testing-library/react';
+import type { Mock } from 'vitest';
 import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
-import { disableLogs, flushPendingPromises } from '../tests/testHelpers.ts';
+import { flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
 import { TelemetryContextProvider } from './TelemetryContext.tsx';
-
-jest.useFakeTimers();
 
 const mockResponseData: WiresQueryResponse = {
 	results: [],
@@ -13,18 +12,18 @@ const mockResponseData: WiresQueryResponse = {
 	countQueryCap: 100,
 };
 
-global.fetch = jest.fn(() =>
+global.fetch = vi.fn(() =>
 	Promise.resolve({
 		json: () => Promise.resolve(mockResponseData),
-		ok: () => true,
+		ok: true,
 	}),
-) as jest.Mock;
+) as Mock;
 
 describe('SearchContext', () => {
-	let mockSendTelemetryEvent: jest.Mock;
+	let mockSendTelemetryEvent: Mock;
 
 	const renderWithContext = async () => {
-		mockSendTelemetryEvent = jest.fn();
+		mockSendTelemetryEvent = vi.fn();
 
 		const contextRef = { current: null as SearchContextShape | null };
 
@@ -50,10 +49,9 @@ describe('SearchContext', () => {
 	};
 
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 		localStorage.clear();
-		disableLogs();
-		window.open = jest.fn();
+		window.open = vi.fn();
 	});
 
 	it('should fetch data and initialise the state', async () => {
@@ -89,6 +87,8 @@ describe('SearchContext', () => {
 		act(() => {
 			contextRef.current?.handleEnterQuery(q);
 		});
+
+		await flushPendingPromises();
 
 		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
 			'NEWSWIRES_ENTER_SEARCH',
@@ -157,21 +157,24 @@ describe('SearchContext', () => {
 	});
 
 	it('should trigger periodic fetch calls', async () => {
-		const contextRef = await renderWithContext();
+		vi.useFakeTimers();
+		try {
+			const contextRef = await renderWithContext();
 
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
+			if (!contextRef.current) {
+				throw new Error('Context ref was null after render.');
+			}
+
+			expect(global.fetch).toHaveBeenCalledTimes(1);
+
+			await act(async () => {
+				await vi.advanceTimersByTimeAsync(6000);
+			});
+
+			expect(global.fetch).toHaveBeenCalledTimes(2);
+		} finally {
+			vi.useRealTimers();
 		}
-
-		expect(global.fetch).toHaveBeenCalledTimes(1);
-
-		act(() => {
-			jest.advanceTimersByTime(6000);
-		});
-
-		await flushPendingPromises();
-
-		expect(global.fetch).toHaveBeenCalledTimes(2);
 	});
 
 	it('should add item ids to the view history on item navigation', async () => {

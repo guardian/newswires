@@ -8,7 +8,7 @@ register('Etc/GMT');
 
 // mock date.now to return a fixed timestamp for consistent test results
 const FIXED_TIMESTAMP = new Date('2025-01-01T02:04:00Z').getTime();
-jest.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
+vi.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
 
 const sampleQueryData = {
 	results: [{ ...sampleWireData }],

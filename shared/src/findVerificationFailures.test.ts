@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 import type { SESMail, SESReceipt } from 'aws-lambda';
+import type { Mock, MockedFunction } from 'vitest';
 import { findVerificationFailures } from './findVerificationFailures';
 import { fileService } from './s3';
 
-jest.mock('./s3', () => ({
+vi.mock('./s3', () => ({
 	fileService: {
-		getObject: jest.fn(),
-		putObject: jest.fn(),
+		getObject: vi.fn(),
+		putObject: vi.fn(),
 	},
 }));
 
@@ -24,7 +25,7 @@ describe('findVerificationFailures', () => {
 			messageId: '',
 		},
 	};
-	const mockGetFromS3 = fileService.getObject as jest.MockedFunction<
+	const mockGetFromS3 = fileService.getObject as MockedFunction<
 		typeof fileService.getObject
 	>;
 	it('should return `pass: true` and empty failedChecks for all PASS verdicts', async () => {
@@ -61,7 +62,7 @@ describe('findVerificationFailures', () => {
 	// This test requires a fully logged email to be included. We don't want to commit one to this public repo,
 	// but it's handy to use this to debug, so it's left here commented out in case it's useful in the future.
 	it.skip('should run mail verification for mail which failed spf ONLY', async () => {
-		(mockGetFromS3 as jest.Mock).mockResolvedValueOnce({
+		(mockGetFromS3 as Mock).mockResolvedValueOnce({
 			status: 'success',
 			body: readFileSync('path/to/test-file'), // <-- replace with path to your mail file
 		});

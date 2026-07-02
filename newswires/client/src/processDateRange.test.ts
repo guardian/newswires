@@ -4,16 +4,16 @@ import { EuiDateStringSchema } from './sharedTypes.ts';
 import { processDateRange } from './urlState';
 
 beforeEach(() => {
-	jest.restoreAllMocks();
+	vi.restoreAllMocks();
 });
 
 describe('processDateRange', () => {
 	describe('when useAbsoluteDateTimeValues is true', () => {
 		describe('when dateRange is provided', () => {
 			it('should convert relative dates to ISO-formatted absolute UTC dates', () => {
-				jest
-					.spyOn(Date, 'now')
-					.mockReturnValue(new Date('2024-02-24T16:17:36.295Z').getTime());
+				vi.spyOn(Date, 'now').mockReturnValue(
+					new Date('2024-02-24T16:17:36.295Z').getTime(),
+				);
 
 				const dateRange = {
 					start: EuiDateStringSchema.parse('now-3d/d'),

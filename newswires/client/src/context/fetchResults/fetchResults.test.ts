@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { pandaFetch } from '../../panda-session.ts';
 import type { WiresQueryResponse } from '../../sharedTypes.ts';
 import { EuiDateStringSchema } from '../../sharedTypes.ts';
@@ -7,9 +8,9 @@ import { transformWireItemQueryResult } from '../transformQueryResponse.ts';
 import { fetchResults } from './fetchResults.ts';
 
 // mock Date.now to ensure consistent test results when processing relative date ranges
-jest
-	.spyOn(Date, 'now')
-	.mockReturnValue(new Date('2024-02-24T16:15:00.000Z').getTime());
+vi.spyOn(Date, 'now').mockReturnValue(
+	new Date('2024-02-24T16:15:00.000Z').getTime(),
+);
 
 const mockResponseData: WiresQueryResponse = {
 	results: [sampleWireResponse],
@@ -17,10 +18,10 @@ const mockResponseData: WiresQueryResponse = {
 	countQueryCap: 100,
 };
 
-jest.mock('../../panda-session', () => ({
-	pandaFetch: jest.fn(() =>
+vi.mock('../../panda-session', () => ({
+	pandaFetch: vi.fn(() =>
 		Promise.resolve({
-			json: jest.fn().mockResolvedValue(mockResponseData),
+			json: vi.fn().mockResolvedValue(mockResponseData),
 			ok: true,
 		}),
 	),
@@ -28,13 +29,13 @@ jest.mock('../../panda-session', () => ({
 
 const MOCK_REQUEST_ID = 'abc-123';
 
-jest.mock('./generateRequestId', () => ({
+vi.mock('./generateRequestId', () => ({
 	generateRequestId: () => MOCK_REQUEST_ID,
 }));
 
 describe('fetchResults', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	it('should call pandaFetch with correct URL and headers', async () => {
@@ -61,8 +62,8 @@ describe('fetchResults', () => {
 	});
 
 	it('should throw an error if response is not ok', async () => {
-		(pandaFetch as jest.Mock).mockResolvedValueOnce({
-			json: jest.fn().mockResolvedValue({
+		(pandaFetch as Mock).mockResolvedValueOnce({
+			json: vi.fn().mockResolvedValue({
 				error: { exception: { description: 'Error occurred' } },
 			}),
 			ok: false,
@@ -77,8 +78,8 @@ describe('fetchResults', () => {
 	});
 
 	it('should throw an error if response data is invalid', async () => {
-		(pandaFetch as jest.Mock).mockResolvedValueOnce({
-			json: jest.fn().mockResolvedValue({ invalidData: true }),
+		(pandaFetch as Mock).mockResolvedValueOnce({
+			json: vi.fn().mockResolvedValue({ invalidData: true }),
 			ok: true,
 		});
 
@@ -111,7 +112,7 @@ describe('fetchResults', () => {
 			view: 'feed',
 			afterTimeStamp: '2026-01-07T15:37:15Z',
 		});
-		const calledUrl = jest.mocked(pandaFetch).mock.calls[0][0];
+		const calledUrl = vi.mocked(pandaFetch).mock.calls[0][0];
 		expect(calledUrl).toBe(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&afterTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
 		);
@@ -128,7 +129,7 @@ describe('fetchResults', () => {
 			view: 'feed',
 			beforeTimeStamp: '2026-01-07T15:37:15Z',
 		});
-		const calledUrl = jest.mocked(pandaFetch).mock.calls[0][0];
+		const calledUrl = vi.mocked(pandaFetch).mock.calls[0][0];
 		expect(calledUrl).toBe(
 			`/api/search${paramsToQuerystring({ query: mockQuery, useAbsoluteDateTimeValues: true })}&beforeTimeStamp=${encodeURIComponent('2026-01-07T15:37:15Z')}`,
 		);

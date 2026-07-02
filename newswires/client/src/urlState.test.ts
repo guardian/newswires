@@ -1,5 +1,5 @@
 import { EuiDateStringSchema } from './sharedTypes.ts';
-import { disableLogs } from './tests/testHelpers.ts';
+import { withSuppressMomentDeprecationWarnings } from './tests/testHelpers.ts';
 import {
 	defaultQuery,
 	exportedForTestingOnly,
@@ -15,12 +15,11 @@ function makeFakeLocation(url: string): { pathname: string; search: string } {
 
 // mock Date.now to return a fixed timestamp so that tests involving relative dates are deterministic
 const FIXED_TIMESTAMP = new Date('2025-02-21T12:00:00Z').getTime();
-jest.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
 
 describe('urlToConfig', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
-		disableLogs();
+		vi.restoreAllMocks();
+		vi.spyOn(Date, 'now').mockImplementation(() => FIXED_TIMESTAMP);
 	});
 
 	it('parses ticker path into config', () => {
@@ -215,16 +214,18 @@ describe('urlToConfig', () => {
 
 	it('replaces invalid dates on date math range with default value', () => {
 		const url = makeFakeLocation('/feed?q=abc&start=now%2Fd&end=invalid');
-		const config = urlToConfig(url);
-		expect(config).toEqual({
-			view: 'feed',
-			query: {
-				...defaultQuery,
-				q: 'abc',
-				start: 'now/d',
-				end: 'now',
-			},
-			ticker: false,
+		withSuppressMomentDeprecationWarnings(() => {
+			const config = urlToConfig(url);
+			expect(config).toEqual({
+				view: 'feed',
+				query: {
+					...defaultQuery,
+					q: 'abc',
+					start: 'now/d',
+					end: 'now',
+				},
+				ticker: false,
+			});
 		});
 	});
 
@@ -271,7 +272,7 @@ describe('urlToConfig', () => {
 
 describe('configToUrl', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	it('converts config to querystring', () => {
@@ -498,7 +499,7 @@ describe('configToUrl', () => {
 
 describe('paramsToQuerystring', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	it('converts text search param to querystring', () => {
