@@ -206,11 +206,11 @@ export const WithDateOlderThan24Hours: Story = {
 		wires: [
 			{
 				...sampleItemData,
-				ingestedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 48 hours ago
+				ingestedAtMoment: new InstantMoment(moment().subtract(48, 'hours')),
 			},
 			{
 				...sampleItemData,
-				ingestedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 48 hours ago
+				ingestedAtMoment: new InstantMoment(moment().subtract(48, 'hours')), // 48 hours ago
 				id: 67890,
 			},
 		],
