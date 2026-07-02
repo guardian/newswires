@@ -1,6 +1,5 @@
 import { EuiProvider } from '@elastic/eui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { setUpIcons } from './icons';
 import { AlertLabel, LeadLabel } from './WireItemLabel';
 
 const ItemTypeLabel = ({ labelType }: { labelType: 'lead' | 'alert' }) => {
@@ -44,8 +43,6 @@ const _meta = {
 } satisfies Meta<typeof ItemTypeLabel>;
 
 type Story = StoryObj<typeof _meta>;
-
-setUpIcons();
 
 export const Lead: Story = {
 	args: {

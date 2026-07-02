@@ -27,7 +27,7 @@ export const StageDisplayBanner = () => {
 							: euiTheme.colors.danger};
 						color: ${stage === 'DEV'
 							? euiTheme.colors.textHeading
-							: euiTheme.colors.ghost};
+							: euiTheme.colors.textGhost};
 						padding: 10px;
 						top: 10px;
 						bottom: 10px;
