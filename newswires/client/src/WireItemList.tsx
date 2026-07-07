@@ -20,11 +20,7 @@ import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
 import { ToolSendReport } from './ToolsConnection.tsx';
-import {
-	AlertLabel,
-	LeadLabel,
-	SupplierLabel,
-} from './WireItemLabel.tsx';
+import { AlertLabel, LeadLabel, SupplierLabel } from './WireItemLabel.tsx';
 
 export const WireItemList = ({
 	wires,

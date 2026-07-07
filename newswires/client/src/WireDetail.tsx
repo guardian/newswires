@@ -39,11 +39,7 @@ import { ToolsConnection, ToolSendReport } from './ToolsConnection.tsx';
 import { Tooltip } from './Tooltip.tsx';
 import { configToUrl } from './urlState.ts';
 import type { InstantMoment } from './utils/date/InstantMoment.ts';
-import {
-	AlertLabel,
-	LeadLabel,
-	SupplierLabel,
-} from './WireItemLabel.tsx';
+import { AlertLabel, LeadLabel, SupplierLabel } from './WireItemLabel.tsx';
 
 function TitleContentForItem({
 	slug,
