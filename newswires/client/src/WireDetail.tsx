@@ -42,7 +42,6 @@ import type { InstantMoment } from './utils/date/InstantMoment.ts';
 import {
 	AlertLabel,
 	LeadLabel,
-	MediaDirectItemLabel,
 	SupplierLabel,
 } from './WireItemLabel.tsx';
 
@@ -55,7 +54,6 @@ function TitleContentForItem({
 	wordCount,
 	isAlert,
 	isLead,
-	isMediaDirectItem,
 }: {
 	slug?: string;
 	subhead?: string;
@@ -65,7 +63,6 @@ function TitleContentForItem({
 	wordCount: number;
 	isAlert: boolean;
 	isLead: boolean;
-	isMediaDirectItem: boolean;
 }) {
 	const theme = useEuiTheme();
 	const MAX_SUBHEAD_LENGTH = 250;
@@ -170,7 +167,6 @@ function TitleContentForItem({
 						isPrimary={true}
 						isCondensed={false}
 					/>
-					{isMediaDirectItem && <MediaDirectItemLabel />}
 					{isAlert && <AlertLabel outlined={true} />}
 					{isLead && <LeadLabel outlined={true} />}
 				</div>
@@ -745,7 +741,6 @@ export const WireDetail = ({
 				wordCount={wordCount}
 				isAlert={wire.isAlert}
 				isLead={wire.isLead}
-				isMediaDirectItem={wire.isMediaDirectItem}
 			/>
 			<EuiSpacer size="s" />
 			{isShowingJson ? (

@@ -47,7 +47,6 @@ const sampleItemData: WireData = {
 	collections: [],
 	isAlert: false,
 	isLead: false,
-	isMediaDirectItem: false,
 	ingestedAtMoment: new InstantMoment(moment('2025-02-26T09:58:22.000Z')),
 };
 
@@ -159,7 +158,6 @@ export const WithMultipleLabels: Story = {
 			...sampleItemData,
 			isAlert: true,
 			isLead: true,
-			isMediaDirectItem: true,
 			content: {
 				...sampleItemData.content,
 				slug: 'SAMPLE-WIRE-WITH-EXTRA-LONG-HEADLINE AND-SUBHEAD-With-no-breaks-to-test-overflow-handling-in-the-UI',

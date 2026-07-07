@@ -56,27 +56,6 @@ export const AlertLabel = ({
 	);
 };
 
-export const MediaDirectItemLabel = ({
-	hoverParentClassName,
-}: {
-	hoverParentClassName?: string;
-}) => {
-	const { euiTheme } = useEuiTheme();
-	const leadLabelTheme = {
-		backgroundColour: euiTheme.colors.backgroundBaseSubdued,
-		textColour: euiTheme.colors.textSubdued,
-		borderColour: euiTheme.colors.textSubdued,
-	};
-	return (
-		<WireItemLabel
-			label={'MD'}
-			hoverParentClassName={hoverParentClassName}
-			theme={leadLabelTheme}
-			outlined={true}
-		/>
-	);
-};
-
 export const SupplierLabel = ({
 	supplier,
 	isPrimary,
