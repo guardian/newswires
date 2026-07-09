@@ -1,5 +1,4 @@
 import type {
-	SESEvent,
 	SESEventRecord,
 	SESReceiptStatus,
 	SQSBatchResponse,
@@ -338,7 +337,7 @@ describe('handler.main', () => {
 
 		const passingSesEvent = {
 			Records: [createSesRecord('PASS')],
-		} as unknown as SESEvent;
+		};
 
 		const result = (await main(passingSesEvent)) as SQSBatchResponse;
 
@@ -362,7 +361,7 @@ describe('handler.main', () => {
 
 		const failingSesEvent = {
 			Records: [createSesRecord('GRAY')],
-		} as unknown as SESEvent;
+		};
 
 		const result = (await main(failingSesEvent)) as SQSBatchResponse;
 		expect(mockCreateLogger({}).error).toHaveBeenCalledTimes(1);

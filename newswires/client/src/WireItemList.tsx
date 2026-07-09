@@ -329,12 +329,14 @@ const WirePreviewCard = ({
 						border-left: 4px solid
 							${selected ? theme.euiTheme.colors.primary : 'transparent'};
 						border-bottom: 1px solid ${theme.euiTheme.colors.mediumShade};
-						${id.toString() === previousItemId
-							? css`
-									animation: ${borderFade(theme.euiTheme.colors.primary)} 0.6s
-										ease-out forwards;
-								`
-							: null}
+						${
+							id.toString() === previousItemId
+								? css`
+										animation: ${borderFade(theme.euiTheme.colors.primary)} 0.6s
+											ease-out forwards;
+									`
+								: null
+						}
 						padding: 0.5rem;
 						box-sizing: content-box;
 						color: ${theme.euiTheme.colors.text};
@@ -351,9 +353,11 @@ const WirePreviewCard = ({
 			>
 				<h3
 					css={css`
-						font-weight: ${hasBeenViewed
-							? theme.euiTheme.font.weight.medium
-							: theme.euiTheme.font.weight.semiBold};
+						font-weight: ${
+							hasBeenViewed
+								? theme.euiTheme.font.weight.medium
+								: theme.euiTheme.font.weight.semiBold
+						};
 						${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
 						font-size: 1.15rem;
 						margin-bottom: ${gapAfterFirstRow};
@@ -370,9 +374,11 @@ const WirePreviewCard = ({
 					css={css`
 						grid-area: time;
 						padding-left: 5px;
-						font-weight: ${hasBeenViewed
-							? theme.euiTheme.font.weight.light
-							: theme.euiTheme.font.weight.regular};
+						font-weight: ${
+							hasBeenViewed
+								? theme.euiTheme.font.weight.light
+								: theme.euiTheme.font.weight.regular
+						};
 						justify-self: end;
 						text-align: right;
 						font-variant-numeric: tabular-nums;
@@ -436,9 +442,11 @@ const WirePreviewCard = ({
 						<div
 							css={css`
 								${hasBeenViewed ? 'color:rgba(29, 42, 62,.8)' : ''};
-								font-weight: ${hasBeenViewed
-									? theme.euiTheme.font.weight.light
-									: theme.euiTheme.font.weight.regular};
+								font-weight: ${
+									hasBeenViewed
+										? theme.euiTheme.font.weight.light
+										: theme.euiTheme.font.weight.regular
+								};
 							`}
 						>
 							<MaybeSecondaryCardContent {...content} highlight={highlight} />

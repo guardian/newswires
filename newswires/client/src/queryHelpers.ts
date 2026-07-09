@@ -16,8 +16,7 @@ type DateRangeKeyValuePair = {
 };
 
 export type DeselectableQueryKeyValue =
-	| QueryKeyValuePair
-	| DateRangeKeyValuePair;
+	QueryKeyValuePair | DateRangeKeyValuePair;
 
 export type DeselectableQueryKey = DeselectableQueryKeyValue['key'];
 

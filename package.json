@@ -33,13 +33,13 @@
 		"url": "github.com/guardian/newswires"
 	},
 	"devDependencies": {
-		"@guardian/eslint-config": "15.0.0",
+		"@guardian/eslint-config": "13.0.5",
 		"@guardian/prettier": "10.0.0",
 		"@guardian/tsconfig": "1.0.1",
 		"@types/node": "22.15.35",
 		"@typescript-eslint/parser": "^8.49.0",
 		"esbuild": "^0.28.1",
-		"eslint": "10.4.1",
+		"eslint": "9.39.4",
 		"eslint-plugin-prettier": "5.5.6",
 		"husky": "^9.1.7",
 		"lage": "^2.15.16",
@@ -51,7 +51,6 @@
 	},
 	"prettier": "@guardian/prettier",
 	"overrides": {
-		"eslint": "10.4.1",
 		"fast-xml-parser": "5.5.8",
 		"undici": "7.28.0"
 	},
@@ -60,6 +59,7 @@
 		"@guardian/libs": "^32.0.0",
 		"@sentry/react": "^10.62.0",
 		"@types/aws-lambda": "8.10.162",
+		"jsdom": "^29.1.1",
 		"mailauth": "^4.13.3",
 		"node-html-parser": "7.1.0",
 		"zod": "4.4.3"
