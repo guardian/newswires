@@ -43,13 +43,9 @@ export const queryAfterDeselection = (
 		};
 	}
 	if (
-		[
-			'hasDataFormatting',
-			'start',
-			'end',
-			'collectionId',
-			'eventCode',
-		].includes(key)
+		['hasDataFormatting', 'start', 'end', 'collectionId', 'eventCode'].includes(
+			key,
+		)
 	) {
 		return { ...query, [key]: undefined };
 	}
