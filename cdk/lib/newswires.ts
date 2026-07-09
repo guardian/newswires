@@ -20,6 +20,7 @@ import {
 } from '@guardian/cdk/lib/constructs/iam';
 import { GuLambdaFunction } from '@guardian/cdk/lib/constructs/lambda';
 import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3';
+import { GuEmailIdentity } from '@guardian/cdk/lib/constructs/ses';
 import type { App } from 'aws-cdk-lib';
 import { aws_logs, Duration } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
@@ -77,6 +78,7 @@ export type NewswiresProps = GuStackProps & {
 	domainName: string;
 	enableMonitoring: boolean;
 	alarmSnsTopic: Topic;
+	emailDomainName: string;
 };
 
 export class Newswires extends GuStack {
@@ -90,7 +92,7 @@ export class Newswires extends GuStack {
 			type: 'String',
 		});
 
-		const { domainName, enableMonitoring } = props;
+		const { domainName, emailDomainName, enableMonitoring } = props;
 
 		const vpc = GuVpc.fromIdParameter(this, 'VPC');
 
@@ -177,6 +179,11 @@ export class Newswires extends GuStack {
 		props.sourceQueue.grantSendMessages(fingerpostQueueingLambda);
 
 		feedsBucket.grantWrite(fingerpostQueueingLambda);
+
+		new GuEmailIdentity(this, 'IncomingCopyEmailIdentity', {
+			domainName: emailDomainName,
+			app: appName,
+		});
 
 		const incomingEmailAddress = new GuStringParameter(
 			this,

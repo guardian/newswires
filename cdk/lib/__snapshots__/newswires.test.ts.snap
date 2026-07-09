@@ -13,6 +13,10 @@ exports[`The Newswires stack > matches the snapshot 1`] = `
       "GuS3Bucket",
       "GuDistributionBucketParameter",
       "GuLambdaFunction",
+      "GuEmailIdentity",
+      "GuCname",
+      "GuCname",
+      "GuCname",
       "GuStringParameter",
       "GuLambdaFunction",
       "GuLambdaFunction",
@@ -726,6 +730,72 @@ exports[`The Newswires stack > matches the snapshot 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
+    "EmailIdentityDkimnewswires0": {
+      "Properties": {
+        "Name": {
+          "Fn::GetAtt": [
+            "IncomingCopyEmailIdentityNewswires5C4AE3F8",
+            "DkimDNSTokenName1",
+          ],
+        },
+        "RecordType": "CNAME",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "IncomingCopyEmailIdentityNewswires5C4AE3F8",
+              "DkimDNSTokenValue1",
+            ],
+          },
+        ],
+        "Stage": "TEST",
+        "TTL": 3600,
+      },
+      "Type": "Guardian::DNS::RecordSet",
+    },
+    "EmailIdentityDkimnewswires1": {
+      "Properties": {
+        "Name": {
+          "Fn::GetAtt": [
+            "IncomingCopyEmailIdentityNewswires5C4AE3F8",
+            "DkimDNSTokenName2",
+          ],
+        },
+        "RecordType": "CNAME",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "IncomingCopyEmailIdentityNewswires5C4AE3F8",
+              "DkimDNSTokenValue2",
+            ],
+          },
+        ],
+        "Stage": "TEST",
+        "TTL": 3600,
+      },
+      "Type": "Guardian::DNS::RecordSet",
+    },
+    "EmailIdentityDkimnewswires2": {
+      "Properties": {
+        "Name": {
+          "Fn::GetAtt": [
+            "IncomingCopyEmailIdentityNewswires5C4AE3F8",
+            "DkimDNSTokenName3",
+          ],
+        },
+        "RecordType": "CNAME",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "IncomingCopyEmailIdentityNewswires5C4AE3F8",
+              "DkimDNSTokenValue3",
+            ],
+          },
+        ],
+        "Stage": "TEST",
+        "TTL": 3600,
+      },
+      "Type": "Guardian::DNS::RecordSet",
+    },
     "FingerpostQueueingLambdaTEST60860D74": {
       "DependsOn": [
         "FingerpostQueueingLambdaTESTServiceRoleDefaultPolicy50D0B801",
@@ -1361,6 +1431,34 @@ exports[`The Newswires stack > matches the snapshot 1`] = `
         "TreatMissingData": "notBreaching",
       },
       "Type": "AWS::CloudWatch::Alarm",
+    },
+    "IncomingCopyEmailIdentityNewswires5C4AE3F8": {
+      "Properties": {
+        "EmailIdentity": "emails.newswires.TEST.dev-gutools.co.uk",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "newswires",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::SES::EmailIdentity",
     },
     "IngestionLambdaTESTAllowSes499F8EFF": {
       "Properties": {

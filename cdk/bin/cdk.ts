@@ -22,6 +22,7 @@ type SharedStackProps = {
 	stack: string;
 	stage: string;
 	domainName: string;
+	emailDomainName: string;
 	enableMonitoring: boolean;
 };
 
@@ -30,6 +31,7 @@ export function createStacks({
 	stack,
 	stage,
 	domainName,
+	emailDomainName,
 	enableMonitoring,
 }: SharedStackProps) {
 	const wiresFeedsStack = new WiresFeeds(app, `WiresFeeds-${stage}`, {
@@ -43,6 +45,7 @@ export function createStacks({
 		stack,
 		stage,
 		domainName,
+		emailDomainName,
 		enableMonitoring,
 		sourceQueue: wiresFeedsStack.sourceQueue,
 		fingerpostQueue: wiresFeedsStack.fingerpostQueue,
@@ -74,6 +77,7 @@ createStacks({
 	stack: STACK,
 	stage: 'CODE',
 	domainName: 'newswires.code.dev-gutools.co.uk',
+	emailDomainName: 'editorial-wires-email.code.dev-gutools.co.uk',
 	enableMonitoring: false,
 });
 createStacks({
@@ -81,6 +85,7 @@ createStacks({
 	stack: STACK,
 	stage: 'PROD',
 	domainName: 'newswires.gutools.co.uk',
+	emailDomainName: 'editorial-wires-email.gutools.co.uk',
 	enableMonitoring: true,
 });
 

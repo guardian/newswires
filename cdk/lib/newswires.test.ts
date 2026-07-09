@@ -34,6 +34,7 @@ describe('The Newswires stack', () => {
 			stack: 'editorial-feeds',
 			stage: 'TEST',
 			domainName: 'newswires.TEST.dev-gutools.co.uk',
+			emailDomainName: 'emails.newswires.TEST.dev-gutools.co.uk',
 			enableMonitoring: true,
 			fingerpostQueue: mockFingerpostQueue,
 			sourceQueue: mockSourceQueue,
