@@ -45,7 +45,6 @@ export const queryAfterDeselection = (
 	if (
 		[
 			'hasDataFormatting',
-			'hideMediaDirectFeeds',
 			'start',
 			'end',
 			'collectionId',
