@@ -16,6 +16,7 @@ const mockResponseData: WiresQueryResponse = {
 	results: [sampleWireResponse],
 	totalCount: 0,
 	countQueryCap: 100,
+	queryTimestamp: '2024-02-24T16:15:00.000Z',
 };
 
 vi.mock('../../panda-session', () => ({

@@ -70,6 +70,7 @@ const mockSearchContext: SearchContextShape = {
 			results: [],
 			totalCount: 0,
 			countQueryCap: 100,
+			queryTimestamp: '2024-01-01T00:00:00.000Z',
 		},
 		successfulQueryHistory: [],
 		autoUpdate: false,

@@ -786,8 +786,9 @@ export const WireDetail = ({
 											>
 												<span
 													css={css`
-														color: ${theme.euiTheme.colors
-															.backgroundFilledAccent};
+														color: ${
+															theme.euiTheme.colors.backgroundFilledAccent
+														};
 													`}
 												>
 													<EuiIcon type={CollectionsIcon} size="original" />
