@@ -101,6 +101,9 @@ export const WiresQueryResponseSchema = z.object({
 			description: z.string(),
 		})
 		.optional(),
+	// The database's clock time when this query ran, used as the cursor for the
+	// next poll so that polling doesn't depend on the client/server clock.
+	queryTimestamp: z.string(),
 	// keywordCounts: z.record(z.string(), z.number()),
 });
 
@@ -153,6 +156,7 @@ export type WiresQueryData = {
 		name: string;
 		description: string;
 	};
+	queryTimestamp: string;
 };
 
 export const isValidDateValue = (value: string) =>
