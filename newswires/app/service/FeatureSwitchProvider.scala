@@ -23,19 +23,8 @@ class FeatureSwitchProvider(stage: String) {
       isOn = _ => stage.toUpperCase() != "PROD"
     )
 
-  val HideMediaDirectFeeds: FeatureSwitch =
-    FeatureSwitch(
-      name = "HideMediaDirectFeeds",
-      safeState = Off,
-      description = "Hide media direct source feeds",
-      isOn = _.getQueryString("hideMediaDirectFeeds")
-        .flatMap(_.toBooleanOption)
-        .getOrElse(false)
-    )
-
   private val switches = List(
-    ShowGuSuppliers,
-    HideMediaDirectFeeds
+    ShowGuSuppliers
   )
   def clientSideSwitchStates(request: Request[_]): Map[String, Boolean] =
     switches.filter(_.exposeToClient).map(s => s.name -> s.isOn(request)).toMap

@@ -13,7 +13,6 @@ const configLookup: AppConfiguration = isTest
 	? {
 			switches: {
 				ShowGuSuppliers: false,
-				HideMediaDirectFeeds: false,
 			},
 			stage: 'test',
 			sendTelemetryAsDev: true,
@@ -22,8 +21,6 @@ const configLookup: AppConfiguration = isTest
 	: window.configuration;
 
 export const SHOW_GU_SUPPLIERS = configLookup.switches.ShowGuSuppliers;
-export const HIDE_MEDIA_DIRECT_FEEDS =
-	configLookup.switches.HideMediaDirectFeeds;
 
 /**
  * The list of suppliers to exclude from the list of 'recognised suppliers' that
