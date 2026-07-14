@@ -51,6 +51,5 @@ export const sampleWireData: WireData = {
 	hasDataFormatting: false,
 	isAlert: false,
 	isLead: false,
-	isMediaDirectItem: false,
 	ingestedAtMoment: new InstantMoment(moment(sampleWireResponse.ingestedAt)),
 };

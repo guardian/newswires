@@ -143,7 +143,6 @@ export type WireData = Omit<WireDataFromAPI, 'supplier'> & {
 	ingestedAtMoment: InstantMoment;
 	isAlert: boolean;
 	isLead: boolean;
-	isMediaDirectItem: boolean;
 };
 
 export type WiresQueryData = {

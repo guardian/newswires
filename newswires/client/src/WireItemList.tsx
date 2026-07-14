@@ -20,12 +20,7 @@ import { CollectionsIcon } from './icons/CollectionsIcon.tsx';
 import { Link } from './Link.tsx';
 import type { WireData } from './sharedTypes.ts';
 import { ToolSendReport } from './ToolsConnection.tsx';
-import {
-	AlertLabel,
-	LeadLabel,
-	MediaDirectItemLabel,
-	SupplierLabel,
-} from './WireItemLabel.tsx';
+import { AlertLabel, LeadLabel, SupplierLabel } from './WireItemLabel.tsx';
 
 export const WireItemList = ({
 	wires,
@@ -205,7 +200,6 @@ const WirePreviewCard = ({
 		hasDataFormatting,
 		isAlert,
 		isLead,
-		isMediaDirectItem,
 	} = wire;
 
 	const ref = useRef<HTMLDivElement>(null);
@@ -400,11 +394,6 @@ const WirePreviewCard = ({
 						justify-content: flex-end;
 					`}
 				>
-					{isMediaDirectItem && (
-						<MediaDirectItemLabel
-							hoverParentClassName={classNameForStylingLabelsOnCardHover}
-						/>
-					)}
 					{hasDataFormatting && (
 						<EuiIcon type="visTable" size="m" title="Has data formatting" />
 					)}
