@@ -1,4 +1,5 @@
 import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
+import { UnknownRiffRaffProjectName } from '@guardian/cdk/lib/riff-raff-yaml-file/types';
 import { App } from 'aws-cdk-lib';
 import 'source-map-support/register';
 import { STACK } from 'newswires-shared/constants';
@@ -94,13 +95,15 @@ export const riffraff = new RiffRaffYamlFile(app);
 const pollerLambdaIds = (Object.keys(POLLERS_CONFIG) as PollerId[]).map(
 	pollerIdToLambdaAppName,
 );
-riffraff.riffRaffYaml.deployments.forEach((deployment) => {
-	if (
-		deployment.type === 'aws-lambda' &&
-		pollerLambdaIds.includes(deployment.app)
-	) {
-		deployment.contentDirectory = 'poller-lambdas';
-	}
-});
+riffraff.configuration
+	.get(UnknownRiffRaffProjectName)
+	?.deployments.forEach((deployment) => {
+		if (
+			deployment.type === 'aws-lambda' &&
+			pollerLambdaIds.includes(deployment.app)
+		) {
+			deployment.contentDirectory = 'poller-lambdas';
+		}
+	});
 
 riffraff.synth();
