@@ -1,8 +1,7 @@
-import { act, render } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import type { Mock } from 'vitest';
 import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
 import { flushPendingPromises } from '../tests/testHelpers.ts';
-import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
 import { TelemetryContextProvider } from './TelemetryContext.tsx';
 
@@ -25,27 +24,17 @@ describe('SearchContext', () => {
 	const renderWithContext = async () => {
 		mockSendTelemetryEvent = vi.fn();
 
-		const contextRef = { current: null as SearchContextShape | null };
-
-		const TestComponent: React.FC = () => {
-			// eslint-disable-next-line react-hooks/immutability -- this isn't a 'real' component or ref, we're just using this to get access to the context value in our tests
-			contextRef.current = useSearch();
-			return null;
-		};
-
-		act(() => {
-			render(
+		const { result } = renderHook(() => useSearch(), {
+			wrapper: ({ children }) => (
 				<TelemetryContextProvider sendTelemetryEvent={mockSendTelemetryEvent}>
-					<SearchContextProvider>
-						<TestComponent />
-					</SearchContextProvider>
-				</TelemetryContextProvider>,
-			);
+					<SearchContextProvider>{children}</SearchContextProvider>
+				</TelemetryContextProvider>
+			),
 		});
 
 		await flushPendingPromises();
 
-		return contextRef;
+		return result;
 	};
 
 	beforeEach(() => {
@@ -56,10 +45,6 @@ describe('SearchContext', () => {
 
 	it('should fetch data and initialise the state', async () => {
 		const contextRef = await renderWithContext();
-
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
 
 		expect(contextRef.current.state.autoUpdate).toEqual(true);
 		expect(contextRef.current.state.status).toEqual('success');
@@ -73,9 +58,6 @@ describe('SearchContext', () => {
 
 	it('should handle search query', async () => {
 		const contextRef = await renderWithContext();
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
 
 		const q: Query = {
 			q: 'text search term',
@@ -85,7 +67,7 @@ describe('SearchContext', () => {
 		};
 
 		act(() => {
-			contextRef.current?.handleEnterQuery(q);
+			contextRef.current.handleEnterQuery(q);
 		});
 
 		await flushPendingPromises();
@@ -102,9 +84,6 @@ describe('SearchContext', () => {
 
 	it('should handle ticker', async () => {
 		const contextRef = await renderWithContext();
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
 
 		const expectedUrl = '/ticker/feed?q=text+search+term&supplier=A&supplier=B';
 		const expectedWindowFeatures =
@@ -118,7 +97,7 @@ describe('SearchContext', () => {
 		};
 
 		act(() => {
-			contextRef.current?.openTicker(q);
+			contextRef.current.openTicker(q);
 		});
 
 		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
@@ -139,14 +118,10 @@ describe('SearchContext', () => {
 	it('should toggle the auto update flag', async () => {
 		const contextRef = await renderWithContext();
 
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
-
 		expect(contextRef.current.state.autoUpdate).toBe(true);
 
 		act(() => {
-			contextRef.current?.toggleAutoUpdate();
+			contextRef.current.toggleAutoUpdate();
 		});
 
 		expect(mockSendTelemetryEvent).toHaveBeenCalledWith(
@@ -159,11 +134,7 @@ describe('SearchContext', () => {
 	it('should trigger periodic fetch calls', async () => {
 		vi.useFakeTimers();
 		try {
-			const contextRef = await renderWithContext();
-
-			if (!contextRef.current) {
-				throw new Error('Context ref was null after render.');
-			}
+			await renderWithContext();
 
 			expect(global.fetch).toHaveBeenCalledTimes(1);
 
@@ -180,14 +151,10 @@ describe('SearchContext', () => {
 	it('should add item ids to the view history on item navigation', async () => {
 		const contextRef = await renderWithContext();
 
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
-
 		expect(contextRef.current.viewedItemIds).toEqual([]);
 
 		act(() => {
-			contextRef.current?.handleSelectItem('111');
+			contextRef.current.handleSelectItem('111');
 		});
 
 		expect(contextRef.current.viewedItemIds).toEqual(['111']);
@@ -196,14 +163,10 @@ describe('SearchContext', () => {
 	it('should store the view history in local storage', async () => {
 		const contextRef = await renderWithContext();
 
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
-
 		expect(contextRef.current.viewedItemIds).toEqual([]);
 
 		act(() => {
-			contextRef.current?.handleSelectItem('111');
+			contextRef.current.handleSelectItem('111');
 		});
 
 		expect(contextRef.current.viewedItemIds).toEqual(['111']);
@@ -212,30 +175,22 @@ describe('SearchContext', () => {
 		// Re-render the component
 		const newContextRef = await renderWithContext();
 
-		if (!newContextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
-
 		expect(newContextRef.current.viewedItemIds).toEqual(['111']);
 	});
 
 	it('should deduplicate item ids in the view history', async () => {
 		const contextRef = await renderWithContext();
 
-		if (!contextRef.current) {
-			throw new Error('Context ref was null after render.');
-		}
-
 		expect(contextRef.current.viewedItemIds).toEqual([]);
 
 		act(() => {
-			contextRef.current?.handleSelectItem('1');
+			contextRef.current.handleSelectItem('1');
 		});
 		act(() => {
-			contextRef.current?.handleSelectItem('2');
+			contextRef.current.handleSelectItem('2');
 		});
 		act(() => {
-			contextRef.current?.handleSelectItem('1');
+			contextRef.current.handleSelectItem('1');
 		});
 
 		expect(contextRef.current.viewedItemIds).toEqual(['1', '2']);

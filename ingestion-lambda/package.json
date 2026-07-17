@@ -12,14 +12,14 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
-		"@aws-sdk/rds-signer": "3.995.0",
-		"compromise": "^14.14.4",
+		"@aws-sdk/rds-signer": "3.1077.0",
+		"compromise": "^14.15.1",
 		"mailparser": "3.9.12",
-		"postgres": "3.4.7",
+		"postgres": "3.4.9",
 		"newswires-shared": "*"
 	},
 	"devDependencies": {
 		"@types/mailparser": "3.4.6",
-		"lorem-ipsum": "2.0.8"
+		"lorem-ipsum": "3.0.0"
 	}
 }
