@@ -165,9 +165,7 @@ describe('apPoller', () => {
 	});
 
 	it('should eventually throw an error if the fetch request throws repeatedly', async () => {
-		global.fetch = vi.fn(() =>
-			Promise.reject(new Error('Network error')),
-		) as Mock;
+		global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
 
 		await expect(
 			apPoller({ secret, input, logger, retryDelayMs }),
