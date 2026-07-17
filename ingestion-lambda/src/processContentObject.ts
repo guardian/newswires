@@ -10,6 +10,7 @@ import {
 	dedupeStrings,
 	inferGBCategoryFromText,
 	inferGeographicalCategoriesFromText,
+	inferObituaryCategoryFromText,
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
@@ -81,6 +82,7 @@ export function processCategoryCodes({
 }) {
 	const catCodes: string[] = priority === '1' ? ['HIGH_PRIORITY'] : [];
 	const regionCodes = inferGeographicalCategoriesFromText(bodyText);
+	const obituaryCodes = inferObituaryCategoryFromText(bodyText);
 
 	switch (supplier) {
 		case 'REUTERS': {
@@ -92,6 +94,7 @@ export function processCategoryCodes({
 				...extractedDestinationCodes,
 				...processReutersTopicCodes(subjectCodes, extractedDestinationCodes),
 				...regionCodes,
+				...obituaryCodes,
 				...remapReutersCountryCodes(subjectCodes),
 			];
 		}
@@ -100,29 +103,34 @@ export function processCategoryCodes({
 				...catCodes,
 				...processFingerpostAPCategoryCodes(subjectCodes),
 				...regionCodes,
+				...obituaryCodes,
 			];
 		case 'AAP':
 			return [
 				...catCodes,
 				...processFingerpostAAPCategoryCodes(subjectCodes),
 				...regionCodes,
+				...obituaryCodes,
 			];
 		case 'AFP':
 			return [
 				...catCodes,
 				...processFingerpostAFPCategoryCodes(subjectCodes, maybeHeadline),
 				...regionCodes,
+				...obituaryCodes,
 			];
 		case 'PA':
 			return [
 				...catCodes,
 				...processFingerpostPACategoryCodes(subjectCodes, maybeMediaCatCode),
+				...obituaryCodes,
 			];
 		case 'MINOR_AGENCIES': {
 			const updatedSubjectCodes = [
 				...subjectCodes,
 				...catCodes,
 				...regionCodes,
+				...obituaryCodes,
 				...inferGBCategoryFromText(bodyText),
 			];
 			return updatedSubjectCodes.filter((_) => _.length > 0);
@@ -132,6 +140,7 @@ export function processCategoryCodes({
 				...catCodes,
 				...processUnknownFingerpostCategoryCodes(subjectCodes, supplier),
 				...regionCodes,
+				...obituaryCodes,
 			];
 	}
 }

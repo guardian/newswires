@@ -1,6 +1,7 @@
 import {
 	inferGBCategoryFromText,
 	inferGeographicalCategoriesFromText,
+	inferObituaryCategoryFromText,
 	processFingerpostAAPCategoryCodes,
 	processFingerpostAFPCategoryCodes,
 	processFingerpostAPCategoryCodes,
@@ -390,6 +391,34 @@ describe('processCategoryCodes', () => {
 				bodyText: content,
 			}),
 		).toEqual([]);
+	});
+});
+
+describe('inferObituaryCategoryFromText', () => {
+	it('should return an empty array when no content is provided', () => {
+		expect(inferObituaryCategoryFromText(undefined)).toEqual([]);
+		expect(inferObituaryCategoryFromText('')).toEqual([]);
+	});
+
+	it.each([
+		'A has died at the age of 82.',
+		'B died at age 95, family confirms.',
+		'C died aged 67 after',
+		'D dies at age 88 in Los Angeles.',
+		'E dies aged 79.',
+	])('should return gu:obits when the text contains "%s"', (content) => {
+		expect(inferObituaryCategoryFromText(content)).toEqual(['gu:obits']);
+	});
+
+	it('should be case-insensitive', () => {
+		expect(inferObituaryCategoryFromText('X HAS DIED SUDDENLY.')).toEqual([
+			'gu:obits',
+		]);
+	});
+
+	it('should return an empty array when no obituary phrase is present', () => {
+		const content = 'The quick brown fox jumped over the lazy dog.';
+		expect(inferObituaryCategoryFromText(content)).toEqual([]);
 	});
 });
 
