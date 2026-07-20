@@ -243,6 +243,21 @@ export function inferGBCategoryFromText(content: string | undefined): string[] {
 	); /** @todo we should be able to remove the type predicate after we upgrade TS to 5.6 */
 }
 
+const obituaryPhrasesRexExp =
+	/has died|died at age|died aged|dies at age|dies aged/i;
+
+export function inferObituaryCategoryFromText(
+	content: string | undefined,
+): string[] {
+	if (!content) {
+		return [];
+	}
+
+	const hasObituaryPhrase = obituaryPhrasesRexExp.test(content);
+
+	return hasObituaryPhrase ? ['gu:obits'] : [];
+}
+
 export function inferGeographicalCategoriesFromText(
 	content: string | undefined,
 ): string[] {
