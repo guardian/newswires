@@ -1,7 +1,6 @@
 import { RiffRaffYamlFile } from '@guardian/cdk/lib/riff-raff-yaml-file';
 import { UnknownRiffRaffProjectName } from '@guardian/cdk/lib/riff-raff-yaml-file/types';
 import { App } from 'aws-cdk-lib';
-import 'source-map-support/register';
 import { STACK } from 'newswires-shared/constants';
 import type { PollerId } from 'newswires-shared/pollers';
 import {

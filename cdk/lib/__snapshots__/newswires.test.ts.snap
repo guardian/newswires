@@ -64,6 +64,7 @@ exports[`The Newswires stack > matches the snapshot 1`] = `
       "GuUnhealthyInstancesAlarm",
       "GuS3Bucket",
       "GuCname",
+      "GuDeveloperPolicyExperimental",
       "GuAllowPolicy",
       "GuGithubActionsRole",
     ],
@@ -2782,6 +2783,284 @@ exports[`The Newswires stack > matches the snapshot 1`] = `
         "TreatMissingData": "breaching",
       },
       "Type": "AWS::CloudWatch::Alarm",
+    },
+    "NewswiresCodeLocalRunPolicy703D2604": {
+      "Properties": {
+        "Description": "Run Newswires locally against CODE DB",
+        "Path": "/developer-policy/guardian/newswires/editorial-feeds/TEST/newswires-local-run-against-code-db/",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ssm:GetParameter",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ssm:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/CODE/editorial-feeds/newswires/database/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ec2:DescribeInstances",
+                "rds:DescribeDBInstances",
+                "ssm:GetCommandInvocation",
+                "ssm:GetConnectionStatus",
+                "ssm:DescribeSessions",
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestedRegion": "eu-west-1",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "ssm:SendCommand",
+              "Condition": {
+                "StringEquals": {
+                  "ssm:resourceTag/App": "newswires",
+                  "ssm:resourceTag/Stack": "editorial-feeds",
+                  "ssm:resourceTag/Stage": "CODE",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ec2:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":instance/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "ssm:SendCommand",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ssm:eu-west-1::document/AWS-RunShellScript",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "ssm:StartSession",
+              "Condition": {
+                "StringEquals": {
+                  "ssm:resourceTag/App": "newswires",
+                  "ssm:resourceTag/Stack": "editorial-feeds",
+                  "ssm:resourceTag/Stage": "CODE",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ec2:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":instance/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "ssm:StartSession",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":ssm:eu-west-1::document/AWS-StartPortForwardingSessionToRemoteHost",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":ssm:eu-west-1::document/AWS-StartSSHSession",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":ssm:eu-west-1::document/SSM-SessionManagerRunShell",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "ssm:TerminateSession",
+                "ssm:ResumeSession",
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestedRegion": "eu-west-1",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "ec2:CreateTags",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ec2:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":instance/*",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "rds-db:connect",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":rds-db:eu-west-1:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":dbuser:",
+                    {
+                      "Fn::GetAtt": [
+                        "NewswiresDBNewswires2A5A9AC6",
+                        "DbiResourceId",
+                      ],
+                    },
+                    "/postgres",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Ref": "PanDomainSettingsBucket",
+                      },
+                      "/local.dev-gutools.co.uk.settings",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Ref": "PanDomainSettingsBucket",
+                      },
+                      "/local.dev-gutools.co.uk.settings.public",
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Ref": "PanDomainSettingsBucket",
+                      },
+                      "/pan-domain-auth-*.p12",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "PermissionsBucket",
+                    },
+                    "/CODE/permissions.json",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::ManagedPolicy",
     },
     "NewswiresCopyEmailBucketNewswires26C541A0": {
       "DeletionPolicy": "Retain",
