@@ -147,7 +147,7 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 			)}
 			{(status == 'success' || status == 'offline') &&
 				queryData.results.length === 0 && (
-					<>
+					<EuiFlexGroup direction="column">
 						<EuiFlexGroup>
 							<EuiFlexItem style={{ flex: 1 }}></EuiFlexItem>
 							<EuiFlexItem grow={false}>
@@ -155,10 +155,22 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 							</EuiFlexItem>
 						</EuiFlexGroup>
 						<EuiEmptyPrompt
+							css={css`
+								h2 {
+									font-size: 1.5rem;
+									margin-block: 0.5rem !important;
+								}
+							`}
 							body={
 								<>
 									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
-									<p>Try another search or reset filters.</p>
+									<p
+										css={css`
+											padding-top: 20px;
+										`}
+									>
+										Try another search or reset filters.
+									</p>
 								</>
 							}
 							color="subdued"
@@ -166,7 +178,7 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 							title={<h2>No results match your search criteria</h2>}
 							titleSize="s"
 						/>
-					</>
+					</EuiFlexGroup>
 				)}
 			{(status == 'success' || status == 'offline') &&
 				queryData.results.length > 0 && (
