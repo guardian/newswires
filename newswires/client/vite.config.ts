@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => ({
 	base: '/assets',
 	server: {
 		origin: 'https://newswires.local.dev-gutools.co.uk',
+		strictPort: true,
 		hmr: {
 			protocol: 'wss',
 			host: 'hmr.newswires.local.dev-gutools.co.uk',
