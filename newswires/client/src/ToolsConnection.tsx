@@ -260,6 +260,17 @@ const SendToIncopyButton = ({
 	addToolLink: (toolLink: ToolLink) => void;
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [errorMessages, setErrorMessages] = useState<
+		Array<{ reason: string; timestamp: moment.Moment }>
+	>([]);
+	const { sendTelemetryEvent } = useTelemetry();
+
+	const reportError = useCallback((errorMessage: string) => {
+		setErrorMessages((prevReports) => [
+			...prevReports.filter((_) => _.reason !== errorMessage),
+			{ reason: errorMessage, timestamp: moment.utc() },
+		]);
+	}, []);
 
 	const incopyButton = (
 		<EuiButtonIcon
@@ -292,22 +303,50 @@ const SendToIncopyButton = ({
 						<EuiButton
 							iconType={SendIcon}
 							onClick={() =>
-								void sendToIncopy(itemData.id).then(() => {
-									addToolLink({
-										// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
-										id: Math.floor(Math.random() * 0xfffffffff),
-										wireId: itemData.id,
-										tool: 'incopy',
-										sentBy: 'you',
-										sentAt: new Date().toISOString(),
-									});
-								})
+								void sendToIncopy(itemData.id)
+									.then(() => {
+										addToolLink({
+											// we don't know the actual id, so guess a random number unlikely to conflict, until we refresh and load data from server
+											id: Math.floor(Math.random() * 0xfffffffff),
+											wireId: itemData.id,
+											tool: 'incopy',
+											sentBy: 'you',
+											sentAt: new Date().toISOString(),
+										});
+										setErrorMessages([]);
+										sendTelemetryEvent('NEWSWIRES_SEND_TO_INCOPY', {
+											itemId: itemData.id,
+											status: 'success',
+										});
+									})
+									.catch((cause: unknown) => {
+										reportError(getErrorMessage(cause));
+										sendTelemetryEvent('NEWSWIRES_SEND_TO_INCOPY', {
+											itemId: itemData.id,
+											status: 'failed',
+										});
+									})
 							}
 						>
 							Send to InCopy
 						</EuiButton>
 					}
 				></EuiListGroupItem>
+				{errorMessages.map((errorMessage) => (
+					<EuiListGroupItem
+						key={errorMessage.timestamp.format()}
+						icon={<EuiIcon type="warning" color="danger" />}
+						label={
+							<EuiText size="xs" color="danger">
+								Error: {errorMessage.reason}{' '}
+								<Tooltip tooltipContent={errorMessage.timestamp.format()}>
+									{errorMessage.timestamp.fromNow()}
+								</Tooltip>
+							</EuiText>
+						}
+						wrapText={true}
+					/>
+				))}
 				{toolLinks.map((toolLink) => (
 					<EuiListGroupItem
 						icon={<EuiIcon type="clockCounter" />}

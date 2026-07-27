@@ -8,8 +8,11 @@ export const sendToIncopy = async (wireId: number) => {
 	});
 
 	if (!response.ok) {
+		const serverMessage = await response.text().catch(() => undefined);
 		throw new Error(
-			'Failed to import wire to Incopy - please try again later and report this error if it continues',
+			serverMessage?.trim()
+				? serverMessage
+				: 'Failed to import wire to Incopy - please try again later and report this error if it continues',
 		);
 	}
 
