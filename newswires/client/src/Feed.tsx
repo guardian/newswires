@@ -4,6 +4,8 @@ import {
 	EuiFlexItem,
 	EuiLoadingLogo,
 	EuiPageTemplate,
+	EuiText,
+	useEuiTheme,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
@@ -66,6 +68,8 @@ function decideSortFunction(sortBy: SortBy): WireSortingFunction {
 }
 
 export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
+	const { euiTheme } = useEuiTheme();
+
 	const { state, config } = useSearch();
 	const { status, queryData } = state;
 
@@ -154,30 +158,25 @@ export const Feed = ({ containerRef, setSideNavIsOpen }: FeedProps) => {
 								<DatePicker />
 							</EuiFlexItem>
 						</EuiFlexGroup>
-						<EuiEmptyPrompt
+						<EuiFlexGroup
+							direction="column"
+							justifyContent="center"
 							css={css`
-								h2 {
-									font-size: 1.5rem;
-									margin-block: 0.5rem !important;
-								}
+								background-color: ${euiTheme.colors.backgroundBaseSubdued};
+								border-radius: ${euiTheme.border.radius.medium};
+								padding: ${euiTheme.size.l};
+								max-width: 580px;
+								align-self: center;
 							`}
-							body={
-								<>
-									<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
-									<p
-										css={css`
-											padding-top: 20px;
-										`}
-									>
-										Try another search or reset filters.
-									</p>
-								</>
-							}
-							color="subdued"
-							layout="horizontal"
-							title={<h2>No results match your search criteria</h2>}
-							titleSize="s"
-						/>
+						>
+							<EuiText size="s">
+								<h2>No results match your search criteria</h2>
+							</EuiText>
+							<SearchSummary setSideNavIsOpen={setSideNavIsOpen} />
+							<EuiText color="subdued" component="p">
+								Try another search or reset filters.
+							</EuiText>
+						</EuiFlexGroup>
 					</EuiFlexGroup>
 				)}
 			{(status == 'success' || status == 'offline') &&
