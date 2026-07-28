@@ -74,8 +74,8 @@ export function createLocalRunDeveloperPolicy(
 			 * Purpose — account-wide discovery / status actions.
 			 * Rationale for scope: AWS does not support resource-level
 			 * permissions for these, so they can only be granted on `*`. We
-			 * narrow them instead with a region condition, since all of the
-			 * relevant resources are in eu-west-1.
+			 * restrict requests to the stack's regional endpoint, since all of
+			 * the relevant resources are in eu-west-1.
 			 */
 			new PolicyStatement({
 				effect: Effect.ALLOW,
@@ -125,19 +125,32 @@ export function createLocalRunDeveloperPolicy(
 				],
 			}),
 			/**
-			 * Purpose: Let a developer resume / close sessions.
-			 * Rationale for scope: Ideally this would be
-			 * scoped to the caller's own sessions (`session/${aws:username}-*`),
-			 * but developers reach CODE via Janus assumed-role credentials, for
-			 * which `${aws:username}` is empty and `${aws:userid}` (role-id:
-			 * session-name) does not match the `<session-name>-<random>` session
-			 * ARN. There is no policy variable that reconstructs the session id
-			 * under federated access, so — as Guardian's own Janus `ssm-sessions`
-			 * policy does — we grant these on all sessions, bounded by region.
+			 * Purpose: Let a developer close sessions they started. Session
+			 * Manager applies `aws:ssmmessages:session-id` to each session; for
+			 * an assumed role its value starts with `${aws:userid}`, so this works
+			 * for Janus credentials without reconstructing the session ARN.
 			 */
 			new PolicyStatement({
 				effect: Effect.ALLOW,
-				actions: ['ssm:TerminateSession', 'ssm:ResumeSession'],
+				actions: ['ssm:TerminateSession'],
+				resources: ['*'],
+				conditions: {
+					StringEquals: { 'aws:RequestedRegion': region },
+					StringLike: {
+						'ssm:resourceTag/aws:ssmmessages:session-id': '${aws:userid}*',
+					},
+				},
+			}),
+			/**
+			 * ResumeSession supports session resources, but an assumed role's
+			 * `${aws:userid}` does not match the session ARN. AWS documents the
+			 * system-tag ownership condition above for TerminateSession only, so
+			 * resume remains available for sessions through the stack's regional
+			 * endpoint.
+			 */
+			new PolicyStatement({
+				effect: Effect.ALLOW,
+				actions: ['ssm:ResumeSession'],
 				resources: ['*'],
 				conditions: {
 					StringEquals: { 'aws:RequestedRegion': region },
