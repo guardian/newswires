@@ -14,9 +14,9 @@
 	"dependencies": {
 		"@aws-sdk/rds-signer": "3.995.0",
 		"compromise": "^14.14.4",
-		"mailparser": "3.9.12",
-		"postgres": "3.4.7",
-		"newswires-shared": "*"
+		"mailparser": "^3.9.14",
+		"newswires-shared": "*",
+		"postgres": "3.4.7"
 	},
 	"devDependencies": {
 		"@types/mailparser": "3.4.6",
