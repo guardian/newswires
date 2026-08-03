@@ -11,6 +11,7 @@ if docker compose -f docker-compose.test.yml ps | grep -q "newswires-test-db.*Up
   fi
 else
     echo "🔧 Starting test database..."
+    docker compose -f docker-compose.test.yml down -v --remove-orphans
     docker compose -f docker-compose.test.yml up -d --wait
     echo "🚀 Applying migrations..."
     yes | ./db/flyway.sc migrate test
