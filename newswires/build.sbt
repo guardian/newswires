@@ -49,7 +49,7 @@ buildInfoKeys := Seq[BuildInfoKey](
 )
 
 val jacksonVersion = "2.21.4"
-val jacksonAnnotationVersion = "2.21"
+val jacksonAnnotationVersion = "2.22"
 
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core",
@@ -64,7 +64,13 @@ dependencyOverrides ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 )
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds", "netty-nio-client").map(
+dependencyOverrides ++= Seq(
+  "autoscaling",
+  "ec2",
+  "ssm",
+  "rds",
+  "netty-nio-client"
+).map(
   "software.amazon.awssdk" % _ % "2.49.5"
 )
 
