@@ -23,8 +23,8 @@ libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.11"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "3.0.0"
-libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
-libraryDependencies += "io.circe" %% "circe-parser" % "0.14.15"
+libraryDependencies += "io.circe" %% "circe-generic" % "0.14.16"
+libraryDependencies += "io.circe" %% "circe-parser" % "0.14.16"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
@@ -64,7 +64,13 @@ dependencyOverrides ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 )
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds", "netty-nio-client").map(
+dependencyOverrides ++= Seq(
+  "autoscaling",
+  "ec2",
+  "ssm",
+  "rds",
+  "netty-nio-client"
+).map(
   "software.amazon.awssdk" % _ % "2.49.5"
 )
 
