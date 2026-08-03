@@ -65,7 +65,7 @@ dependencyOverrides ++= Seq(
 )
 
 dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds", "netty-nio-client").map(
-  "software.amazon.awssdk" % _ % "2.46.7"
+  "software.amazon.awssdk" % _ % "2.49.5"
 )
 
 // needed to parse conditional statements in `logback.xml`
