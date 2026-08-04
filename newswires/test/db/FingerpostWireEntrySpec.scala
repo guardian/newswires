@@ -267,7 +267,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      sqls"$customParamsClause and (($preset1Clause)) and  (NOT ($preset2Clause))",
+      sqls"$customParamsClause and (($preset1Clause)) and  ((($preset2Clause)) IS NOT TRUE)",
       List(
         "supplier1",
         List("N2:GB"),
@@ -294,7 +294,25 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
     whereClause should matchSqlSnippet(
       expectedClause =
-        "NOT (NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND upper(fm_excl.supplier) in (upper(?)) ))",
+        "((NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND upper(fm_excl.supplier) in (upper(?)) ))) IS NOT TRUE",
+      expectedParams = List("supplier")
+    )
+  }
+
+  it should "keep NULL rows for inclusion filters in a negated preset regardless of variant" in {
+    val negatedPreset =
+      emptyFilterParams.copy(suppliersIncl = List("supplier"))
+
+    val whereClause = FingerpostWireEntry.buildWhereClause(
+      emptySearchParams,
+      emptyQueryCursor,
+      defaultOrdering,
+      negatedSearchPresets = List(negatedPreset),
+      queryVariant = NotExists
+    )
+
+    whereClause should matchSqlSnippet(
+      expectedClause = "(( upper(fm.supplier) in (upper(?)))) IS NOT TRUE",
       expectedParams = List("supplier")
     )
   }

@@ -584,7 +584,9 @@ object FingerpostWireEntry
     val presetSearchClauses = presetsBuilder(searchPresets, queryVariant)
     val negatedPresetSearchClauses =
       presetsBuilder(negatedSearchPresets, queryVariant).map(clause =>
-        sqls"NOT $clause"
+        // `IS NOT TRUE` (not a plain `NOT`) so rows where the preset condition
+        // is NULL are kept, consistent with the exclusion-filter semantics.
+        sqls"($clause) IS NOT TRUE"
       )
 
     val allClauses = List(
