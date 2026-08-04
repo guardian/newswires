@@ -213,7 +213,7 @@ object FingerpostWireEntry
                  |    AND ${innerClause(exclSyn)}
                  |)""".stripMargin
 
-        case PlainNot => sqls"NOT (${innerClause(syn)})"
+        case PlainNot => sqls"(${innerClause(syn)}) IS NOT TRUE"
       }
     }
 

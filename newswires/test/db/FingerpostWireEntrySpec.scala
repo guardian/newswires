@@ -618,7 +618,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for suppliersExcl" in {
     val supplierExclClause =
-      "NOT ( upper(fm.supplier) in (upper(?)))"
+      "( upper(fm.supplier) in (upper(?))) IS NOT TRUE"
     val suppliersExclSQL =
       FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"))
     suppliersExclSQL should matchSqlSnippet(
@@ -652,7 +652,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for categoryCodesExcl" in {
     val categoryExclClause =
-      "NOT (fm.category_codes && ?)"
+      "(fm.category_codes && ?) IS NOT TRUE"
 
     val categoryCodesExcl =
       FingerpostWireEntry.Filters.categoryCodeExclSQL(List("code"))
@@ -674,7 +674,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct sql snippet for precomputedCategoriesExcl" in {
     val precomputedCategoriesExclClause =
-      "NOT (fm.precomputed_categories && ?)"
+      "(fm.precomputed_categories && ?) IS NOT TRUE"
 
     val precomputedCategoriesExcl =
       FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(List("category"))
@@ -777,12 +777,22 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for keywordExcl" in {
     val keywordExclClause =
-      "NOT ((fm.content -> 'keywords') ??| ?)"
+      "((fm.content -> 'keywords') ??| ?) IS NOT TRUE"
     val keywordExclSQL =
       FingerpostWireEntry.Filters.keywordsExclSQL(List("keyword"))
     keywordExclSQL should matchSqlSnippet(
       expectedClause = keywordExclClause,
       expectedParams = List(List("keyword"))
+    )
+  }
+
+  it should "retain null or missing values with the PlainNot variant" in {
+    val suppliersExclSQL =
+      FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"), PlainNot)
+
+    suppliersExclSQL should matchSqlSnippet(
+      expectedClause = "( upper(fm.supplier) in (upper(?))) IS NOT TRUE",
+      expectedParams = List("supplier")
     )
   }
 
