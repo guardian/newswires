@@ -583,7 +583,9 @@ object FingerpostWireEntry
     val customSearchClauses = filtersBuilder(searchParams.filters, queryVariant)
     val presetSearchClauses = presetsBuilder(searchPresets, queryVariant)
     val negatedPresetSearchClauses =
-      presetsBuilder(negatedSearchPresets).map(clause => sqls"NOT $clause")
+      presetsBuilder(negatedSearchPresets, queryVariant).map(clause =>
+        sqls"NOT $clause"
+      )
 
     val allClauses = List(
       dateRangeQuery,
@@ -678,7 +680,8 @@ object FingerpostWireEntry
       searchPresets =
         queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
       negatedSearchPresets =
-        queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil)
+        queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil),
+      queryVariant = queryVariant
     )
 
     val start = System.currentTimeMillis()

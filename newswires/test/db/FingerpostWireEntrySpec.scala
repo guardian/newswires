@@ -280,6 +280,25 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
+  it should "apply the selected query variant to negated presets" in {
+    val negatedPreset =
+      emptyFilterParams.copy(suppliersExcl = List("supplier"))
+
+    val whereClause = FingerpostWireEntry.buildWhereClause(
+      emptySearchParams,
+      emptyQueryCursor,
+      defaultOrdering,
+      negatedSearchPresets = List(negatedPreset),
+      queryVariant = NotExists
+    )
+
+    whereClause should matchSqlSnippet(
+      expectedClause =
+        "NOT (NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND upper(fm_excl.supplier) in (upper(?)) ))",
+      expectedParams = List("supplier")
+    )
+  }
+
   behavior of "FingerpostWireEntry.buildSearchQuery"
 
   val emptyQueryParams = QueryParams(
