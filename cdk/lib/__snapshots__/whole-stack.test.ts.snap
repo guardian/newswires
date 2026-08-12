@@ -3952,10 +3952,20 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
               ],
             },
             {
-              "Action": [
-                "ssm:TerminateSession",
-                "ssm:ResumeSession",
-              ],
+              "Action": "ssm:TerminateSession",
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestedRegion": "eu-west-1",
+                },
+                "StringLike": {
+                  "ssm:resourceTag/aws:ssmmessages:session-id": "\${aws:userid}*",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "ssm:ResumeSession",
               "Condition": {
                 "StringEquals": {
                   "aws:RequestedRegion": "eu-west-1",
