@@ -1,7 +1,8 @@
 @import play.api.libs.json.Json
 
-@(config: ClientConfig)
+@import views.html.helper.CSPNonce
+@(config: ClientConfig)(implicit request: RequestHeader)
 
-<script>
+<script @CSPNonce.attr>
     window.configuration = @Html(Json.stringify(Json.toJson(config)))
 </script>

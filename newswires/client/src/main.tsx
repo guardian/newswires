@@ -1,3 +1,5 @@
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
 import * as Sentry from '@sentry/react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -23,9 +25,20 @@ const { sendTelemetryEvent } = createTelemetryEventSender({
 const toolsDomain = window.location.hostname.substring(
 	window.location.hostname.indexOf('.'),
 );
+
+const maybeCspNonce = document
+	.querySelector('meta[property="csp-nonce"]')
+	?.getAttribute('nonce');
+
 const script = document.createElement('script');
+if (maybeCspNonce) script.nonce = maybeCspNonce;
 script.src = `https://pinboard${toolsDomain}/pinboard.loader.js`;
 document.head.appendChild(script);
+
+const customCache = createCache({
+	key: 'css',
+	nonce: maybeCspNonce ?? 'MISSING',
+});
 
 // Ignore these errors
 // https://docs.sentry.io/platforms/javascript/#decluttering-sentry
@@ -40,16 +53,18 @@ Sentry.init({
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<PageLoadTimeProvider>
-			<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
-				<UserSettingsContextProvider>
-					<SearchContextProvider>
-						<KeyboardShortcutsProvider>
-							<App />
-						</KeyboardShortcutsProvider>
-					</SearchContextProvider>
-				</UserSettingsContextProvider>
-			</TelemetryContextProvider>
-		</PageLoadTimeProvider>
+		<CacheProvider value={customCache}>
+			<PageLoadTimeProvider>
+				<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
+					<UserSettingsContextProvider>
+						<SearchContextProvider>
+							<KeyboardShortcutsProvider>
+								<App />
+							</KeyboardShortcutsProvider>
+						</SearchContextProvider>
+					</UserSettingsContextProvider>
+				</TelemetryContextProvider>
+			</PageLoadTimeProvider>
+		</CacheProvider>
 	</StrictMode>,
 );

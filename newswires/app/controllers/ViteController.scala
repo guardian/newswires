@@ -10,7 +10,7 @@ import play.api.mvc._
 import play.api.{Configuration, Mode}
 import play.filters.csrf.CSRFAddToken
 import service.FeatureSwitchProvider
-import views.html.helper.CSRF
+import views.html.helper.{CSPNonce, CSRF}
 
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
@@ -69,6 +69,12 @@ class ViteController(
         .replaceAll("@csrf\\.value", csrf.value)
     }
 
+    def injectCsp[A](body: String)(implicit request: Request[A]): String = {
+      val cspNonce = CSPNonce()
+
+      body.replaceAll("@csp\\.nonce", cspNonce)
+    }
+
     def injectClientConfig(
         body: String
     ): String = {
@@ -94,9 +100,9 @@ class ViteController(
       )
     }
 
-    val withInjectedCsrf = injectCsrf(html)(request)
-    injectClientConfig(withInjectedCsrf)
-
+    val withInjectedCsrf = injectCsrf(html)
+    val withInjectedScriptNonce = injectCsp(withInjectedCsrf)
+    injectClientConfig(withInjectedScriptNonce)
   }
 
   def item(id: String): Action[AnyContent] = index
