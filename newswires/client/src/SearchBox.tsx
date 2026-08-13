@@ -28,7 +28,7 @@ export function SearchBox({
 				id="searchBox"
 				compressed={true}
 				value={inputValue}
-				placeholder="Search stories"
+				placeholder="Press '/' to search"
 				onChange={(e) => {
 					const newQuery = e.target.value;
 					setInputValue(newQuery);
