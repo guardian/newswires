@@ -47,7 +47,7 @@ export function KeyboardShortcutsProvider({
 
 	const handleShortcutKeyUp = useCallback(
 		async (event: KeyboardEvent): Promise<void> => {
-			const key = event.key;
+			const { key, metaKey } = event;
 
 			if (!isKeyWithShortcut(key)) {
 				return;
@@ -72,10 +72,11 @@ export function KeyboardShortcutsProvider({
 						handleDeselectItem();
 						break;
 					case 'ArrowLeft':
-						handlePreviousItem();
+						if (!metaKey) handlePreviousItem();
 						break;
 					case 'ArrowRight':
-						return await handleNextItem();
+						if (!metaKey) return await handleNextItem();
+						break;
 				}
 			}
 		},
