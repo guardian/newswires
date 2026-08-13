@@ -53,8 +53,9 @@
 	"overrides": {
 		"eslint": "9.39.1",
 		"fast-xml-parser": "5.5.8",
-		"undici": "^7.29.0",
-		"nodemailer": "9.0.3"
+		"nanoid": "^5.0.9",
+		"nodemailer": "9.0.3",
+		"undici": "^7.29.0"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.995.0",
