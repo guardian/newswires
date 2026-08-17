@@ -2,7 +2,7 @@ import type { KeyboardEventHandler } from 'react';
 import { cloneElement, createContext, useCallback, useContext } from 'react';
 import { useSearch } from './SearchContext';
 
-const keysWithShortcuts = ['ArrowLeft', 'ArrowRight', 'Escape'] as const;
+const keysWithShortcuts = ['ArrowLeft', 'ArrowRight', 'Escape', '/'] as const;
 
 type KeyWithShortcut = (typeof keysWithShortcuts)[number];
 
@@ -47,7 +47,7 @@ export function KeyboardShortcutsProvider({
 
 	const handleShortcutKeyUp = useCallback(
 		async (event: KeyboardEvent): Promise<void> => {
-			const key = event.key;
+			const { key, metaKey } = event;
 
 			if (!isKeyWithShortcut(key)) {
 				return;
@@ -66,16 +66,21 @@ export function KeyboardShortcutsProvider({
 				return;
 			}
 
-			if (view == 'item') {
-				switch (key) {
-					case 'Escape':
-						handleDeselectItem();
-						break;
-					case 'ArrowLeft':
-						handlePreviousItem();
-						break;
-					case 'ArrowRight':
-						return await handleNextItem();
+			if (key === '/' && !metaKey) {
+				const searchBox = document.getElementById('searchBox');
+				if (searchBox) {
+					searchBox.focus();
+				}
+				return;
+			}
+
+			if (view === 'item') {
+				if (key === 'Escape') {
+					handleDeselectItem();
+				} else if (key === 'ArrowLeft' && !metaKey) {
+					handlePreviousItem();
+				} else if (key === 'ArrowRight' && !metaKey) {
+					await handleNextItem();
 				}
 			}
 		},
