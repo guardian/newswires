@@ -74,7 +74,7 @@ export function KeyboardShortcutsProvider({
 				return;
 			}
 
-			if (view == 'item') {
+			if (view === 'item') {
 				if (key === 'Escape') {
 					handleDeselectItem();
 				} else if (key === 'ArrowLeft' && !metaKey) {
