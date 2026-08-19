@@ -12,6 +12,7 @@ export function SearchBox({
 	handleTextQueryChange: (newQuery: string) => void;
 }) {
 	const [inputValue, setInputValue] = useState<string>('');
+	const [isFocused, setFocused] = useState<boolean>(false);
 
 	useEffect(() => {
 		setInputValue(currentTextQuery);
@@ -28,12 +29,14 @@ export function SearchBox({
 				id="searchBox"
 				compressed={true}
 				value={inputValue}
-				placeholder="Press '/' to search"
+				placeholder={isFocused ? '' : "Press '/' to search"}
 				onChange={(e) => {
 					const newQuery = e.target.value;
 					setInputValue(newQuery);
 					debouncedUpdate(newQuery);
 				}}
+				onFocus={() => setFocused(true)}
+				onBlur={() => setFocused(false)}
 				aria-label="search wires"
 				fullWidth={true}
 				css={css`
