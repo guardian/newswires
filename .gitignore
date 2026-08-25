@@ -22,3 +22,4 @@ vite.config.d.ts
 .bsp
 .metals
 .scala-build/
+/src/lexicons
