@@ -128,6 +128,7 @@ export type SupplierName =
 	| 'GUREUTERS'
 	| 'MINOR_AGENCIES'
 	| 'UNAUTHED_EMAIL_FEED'
+	| 'BLUESKY'
 	| 'UNKNOWN';
 
 export type SupplierInfo = {

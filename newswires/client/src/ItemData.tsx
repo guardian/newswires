@@ -1,5 +1,6 @@
 import { getErrorMessage } from '@guardian/libs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { isBlueskyWireData } from './context/blueskyToWireData.ts';
 import { fetchToolLink } from './context/fetchToolLinks.ts';
 import { useSearch } from './context/SearchContext.tsx';
 import { transformWireItemQueryResult } from './context/transformQueryResponse.ts';
@@ -9,11 +10,18 @@ import type { ToolLink } from './sharedTypes';
 import { type WireData, WireDataFromAPISchema } from './sharedTypes';
 
 export const ItemData = ({ id }: { id: string }) => {
-	const { handleDeselectItem, handlePreviousItem, handleNextItem, config } =
+	const { handleDeselectItem, handlePreviousItem, handleNextItem, config, state } =
 		useSearch();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);
+
+	// Bluesky posts only live in the client-side feed, so read them from state
+	// rather than fetching from the wires API (which wouldn't know about them).
+	const blueskyItem = useMemo(() => {
+		const match = state.queryData?.results.find((r) => r.id.toString() === id);
+		return match && isBlueskyWireData(match) ? match : undefined;
+	}, [state.queryData, id]);
 
 	const addToolLink = useCallback(
 		(toolLink: ToolLink) => {
@@ -59,10 +67,19 @@ export const ItemData = ({ id }: { id: string }) => {
 	}, [id, config.query.q]);
 
 	useEffect(() => {
+		if (blueskyItem) {
+			setItemData(blueskyItem);
+			setError(undefined);
+			return;
+		}
 		fetchItemData();
-	}, [id, config.query.q, fetchItemData]);
+	}, [id, config.query.q, fetchItemData, blueskyItem]);
 
 	useEffect(() => {
+		// Bluesky posts have no tool links to poll for.
+		if (blueskyItem) {
+			return;
+		}
 		const intervalId = setInterval(() => {
 			fetchToolLink(id)
 				.then((toolLinks) => {
@@ -78,7 +95,7 @@ export const ItemData = ({ id }: { id: string }) => {
 		return () => {
 			clearInterval(intervalId);
 		};
-	}, [id, setItemData]);
+	}, [id, setItemData, blueskyItem]);
 
 	return (
 		<Item

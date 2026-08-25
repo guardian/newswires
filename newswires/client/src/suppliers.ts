@@ -41,6 +41,12 @@ export const supplierData: SupplierInfo[] = [
 		shortLabel: 'Dotcopy',
 		colour: '#808080',
 	},
+	{
+		name: 'BLUESKY',
+		label: 'Bluesky',
+		shortLabel: 'Bsky',
+		colour: '#1185fe',
+	},
 ] as const;
 
 export const UNKNOWN_SUPPLIER: SupplierInfo = {

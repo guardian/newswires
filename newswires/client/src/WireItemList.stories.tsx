@@ -92,6 +92,13 @@ const mockSearchContext: SearchContextShape = {
 	openTicker: () => {},
 	unseenWiresFromTopOfList: 0,
 	hasBeenVisibleCallback: () => {},
+	blueskyFeed: {
+		posts: [],
+		status: 'loading',
+		error: undefined,
+		lastUpdated: undefined,
+		refresh: () => {},
+	},
 };
 
 const userSettings = (showSecondaryFeedContent: boolean) => ({

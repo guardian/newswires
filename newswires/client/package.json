@@ -17,6 +17,7 @@
 	},
 	"prettier": "@guardian/prettier",
 	"dependencies": {
+		"@atproto/lex": "^0.3.6",
 		"@elastic/datemath": "5.0.3",
 		"@elastic/eui": "116.1.0",
 		"@emotion/css": "11.13.5",

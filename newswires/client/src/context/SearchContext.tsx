@@ -22,6 +22,9 @@ import {
 import { recognisedSuppliers } from '../suppliers.ts';
 import { configToUrl, defaultConfig, urlToConfig } from '../urlState.ts';
 import { takeWhile } from '../utils/takeWhile.ts';
+import type { BlueskyFeedState } from './BlueskyFeedContext.tsx';
+import { useBlueskyFeedContext } from './BlueskyFeedContext.tsx';
+import { blueskyPostToWireData } from './blueskyToWireData.ts';
 import { fetchResults } from './fetchResults/fetchResults.ts';
 import {
 	loadOrSetInLocalStorage,
@@ -155,12 +158,14 @@ export type SearchContextShape = {
 	toggleSupplier: (supplier: string) => void;
 	hasBeenVisibleCallback: (id: number) => void;
 	unseenWiresFromTopOfList: number;
+	blueskyFeed: BlueskyFeedState;
 };
 export const SearchContext: Context<SearchContextShape | null> =
 	createContext<SearchContextShape | null>(null);
 
 export function SearchContextProvider({ children }: PropsWithChildren) {
 	const { sendTelemetryEvent } = useTelemetry();
+	const blueskyFeed = useBlueskyFeedContext();
 
 	const [previousItemId, setPreviousItemId] = useState<string | undefined>(
 		undefined,
@@ -209,6 +214,19 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 			state.queryData?.results ?? [],
 		).length;
 	}, [state.queryData, hasBeenVisibleItemIds]);
+
+	// Merge the Bluesky posts into the wire results, sorted newest-first so
+	// prev/next navigation matches Feed's default ordering.
+	const stateWithBlueskyPosts: State = useMemo(() => {
+		if (!state.queryData || blueskyFeed.posts.length === 0) {
+			return state;
+		}
+		const blueskyResults = blueskyFeed.posts.map(blueskyPostToWireData);
+		const results = [...state.queryData.results, ...blueskyResults].sort(
+			(a, b) => b.ingestedAt.localeCompare(a.ingestedAt),
+		);
+		return { ...state, queryData: { ...state.queryData, results } };
+	}, [state, blueskyFeed.posts]);
 
 	function handleFetchError(error: ErrorEvent) {
 		if (error instanceof Error && error.name === 'AbortError') {
@@ -432,7 +450,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	};
 
 	const handleNextItem = async () => {
-		const results = state.queryData?.results;
+		const results = stateWithBlueskyPosts.queryData?.results;
 		const currentItemId = currentConfig.itemId;
 
 		if (!results || !currentItemId) {
@@ -458,7 +476,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 	};
 
 	const handlePreviousItem = () => {
-		const results = state.queryData?.results;
+		const results = stateWithBlueskyPosts.queryData?.results;
 		const currentItemId = currentConfig.itemId;
 		if (!results || !currentItemId) {
 			return;
@@ -582,7 +600,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		<SearchContext.Provider
 			value={{
 				config: currentConfig,
-				state,
+				state: stateWithBlueskyPosts,
 				handleEnterQuery,
 				handleRefresh,
 				handleRetry,
@@ -599,6 +617,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 				openTicker,
 				hasBeenVisibleCallback,
 				unseenWiresFromTopOfList,
+				blueskyFeed,
 			}}
 		>
 			{children}

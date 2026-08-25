@@ -7,6 +7,7 @@ import {
 	STAGE,
 } from './app-configuration.ts';
 import { App } from './App.tsx';
+import { BlueskyFeedProvider } from './context/BlueskyFeedContext.tsx';
 import { KeyboardShortcutsProvider } from './context/KeyboardShortcutsContext.tsx';
 import { PageLoadTimeProvider } from './context/PageLoadTimeContext.tsx';
 import { SearchContextProvider } from './context/SearchContext.tsx';
@@ -43,11 +44,13 @@ createRoot(document.getElementById('root')!).render(
 		<PageLoadTimeProvider>
 			<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
 				<UserSettingsContextProvider>
-					<SearchContextProvider>
-						<KeyboardShortcutsProvider>
-							<App />
-						</KeyboardShortcutsProvider>
-					</SearchContextProvider>
+					<BlueskyFeedProvider username="theguardian.com">
+						<SearchContextProvider>
+							<KeyboardShortcutsProvider>
+								<App />
+							</KeyboardShortcutsProvider>
+						</SearchContextProvider>
+					</BlueskyFeedProvider>
 				</UserSettingsContextProvider>
 			</TelemetryContextProvider>
 		</PageLoadTimeProvider>
