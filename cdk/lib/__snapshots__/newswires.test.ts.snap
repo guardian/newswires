@@ -827,7 +827,7 @@ exports[`The Newswires stack > matches the snapshot 1`] = `
         },
         "Handler": "handler.main",
         "LoggingConfig": {
-          "LogFormat": "JSON",
+          "LogFormat": "Text",
         },
         "MemorySize": 512,
         "Role": {

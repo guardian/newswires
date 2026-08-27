@@ -1840,7 +1840,7 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
         },
         "Handler": "handler.main",
         "LoggingConfig": {
-          "LogFormat": "JSON",
+          "LogFormat": "Text",
         },
         "MemorySize": 512,
         "Role": {
