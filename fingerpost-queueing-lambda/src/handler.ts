@@ -11,6 +11,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 				const logger = createLogger({ sqsMessageId });
 				logger.log({ message: 'Processing SQS message' });
 				const externalId = messageAttributes['Message-Id']?.stringValue;
+
 				const hasExternalId = externalId && externalId.trim().length > 0;
 				const objectKey = hasExternalId
 					? `${externalId}.json`
@@ -25,6 +26,25 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 				});
 
 				if (hasExternalId) {
+					const splitTotalString =
+						messageAttributes['Message-Split-Total']?.stringValue;
+					const splitTotal = splitTotalString
+						? Number(splitTotalString)
+						: undefined;
+					if (splitTotal && splitTotal > 1) {
+						logger.error({
+							message: `Failed to parse the story`,
+							eventType: 'FINGERPOST_QUEUEING_LAMBDA_MESSAGE_TOO_LARGE_ERROR',
+							sqsMessageId,
+							externalId,
+						});
+						await fileService.putObject({
+							bucketName: feedsBucket(),
+							key: `fingerpost-unprocessable/${externalId}.json`,
+							body,
+						});
+						return undefined;
+					}
 					const putToS3Result = await putToS3AndQueueIngestion({
 						externalId,
 						keyPrefix: 'fingerpost-queueing-lambda',
