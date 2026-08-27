@@ -64,8 +64,14 @@ dependencyOverrides ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 )
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds", "netty-nio-client").map(
-  "software.amazon.awssdk" % _ % "2.49.5"
+dependencyOverrides ++= Seq(
+  "autoscaling",
+  "ec2",
+  "ssm",
+  "rds",
+  "netty-nio-client"
+).map(
+  "software.amazon.awssdk" % _ % "2.49.6"
 )
 
 // needed to parse conditional statements in `logback.xml`
