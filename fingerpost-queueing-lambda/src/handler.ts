@@ -33,7 +33,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						: undefined;
 					if (splitTotal && splitTotal > 1) {
 						logger.error({
-							message: `Failed to parse the story`,
+							message: `Unable to process message from fingerpost`,
 							eventType: 'FINGERPOST_QUEUEING_LAMBDA_MESSAGE_TOO_LARGE_ERROR',
 							sqsMessageId,
 							externalId,
