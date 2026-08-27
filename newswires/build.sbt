@@ -22,7 +22,7 @@ libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
 // rest of app still uses jackson 2.x... hold off for now if possible
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.7.12"
-libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "4.0.1"
+libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "4.3.0"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.15"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.15"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
@@ -64,8 +64,14 @@ dependencyOverrides ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 )
 
-dependencyOverrides ++= Seq("autoscaling", "ec2", "ssm", "rds", "netty-nio-client").map(
-  "software.amazon.awssdk" % _ % "2.49.5"
+dependencyOverrides ++= Seq(
+  "autoscaling",
+  "ec2",
+  "ssm",
+  "rds",
+  "netty-nio-client"
+).map(
+  "software.amazon.awssdk" % _ % "2.49.6"
 )
 
 // needed to parse conditional statements in `logback.xml`
