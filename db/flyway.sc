@@ -8,7 +8,7 @@
 //> using dep org.postgresql:postgresql:42.7.5
 //> using dep software.amazon.awssdk:rds:2.44.14
 //> using dep software.amazon.awssdk:secretsmanager:2.44.14
-//> using dep software.amazon.awssdk:ssm:2.44.4
+//> using dep software.amazon.awssdk:ssm:2.44.14
 
 import java.nio.file.Path
 import software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequest
