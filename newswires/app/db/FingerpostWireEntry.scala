@@ -65,6 +65,11 @@ object FingerpostWireEntry
     )
   val syn = this.syntax("fm")
 
+  // A distinct alias used inside `NOT EXISTS (...)` exclusion subqueries, so
+  // that the correlation to the outer row (`syn.id = exclSyn.id`) is preserved
+  // rather than collapsing to `fm.id = fm.id`.
+  private val exclSyn = this.syntax("fm_excl")
+
   private lazy val selectAllStatement = sqls"""
     |   ${FingerpostWireEntry.syn.result.id},
     |   ${FingerpostWireEntry.syn.result.externalId},
@@ -188,24 +193,27 @@ object FingerpostWireEntry
 
   object Filters {
     private def exclusionCondition(
-        alias: QuerySQLSyntaxProvider[SQLSyntaxSupport[
-          FingerpostWireEntry
-        ], FingerpostWireEntry],
         queryVariant: QueryVariant = PlainNot
-    )(innerClause: SQLSyntax) = {
+    )(
+        innerClause: QuerySQLSyntaxProvider[SQLSyntaxSupport[
+          FingerpostWireEntry
+        ], FingerpostWireEntry] => SQLSyntax
+    ) = {
       queryVariant match {
         case NotExists =>
           // unpleasant, but the sort of trick you need to pull
           // because "NOT IN (...)" doesn't hit an index.
           // https://stackoverflow.com/a/19364694
-
+          // The subquery must use a distinct alias (`exclSyn`) so the
+          // correlation `syn.id = exclSyn.id` genuinely references the outer
+          // row
           sqls"""|NOT EXISTS (
-                 |  SELECT FROM ${FingerpostWireEntry as alias}
-                 |  WHERE ${syn.id} = ${alias.id}
-                 |    AND $innerClause
+                 |  SELECT FROM ${FingerpostWireEntry as exclSyn}
+                 |  WHERE ${syn.id} = ${exclSyn.id}
+                 |    AND ${innerClause(exclSyn)}
                  |)""".stripMargin
 
-        case PlainNot => sqls"NOT ($innerClause)"
+        case PlainNot => sqls"(${innerClause(syn)}) IS NOT TRUE"
       }
     }
 
@@ -266,8 +274,8 @@ object FingerpostWireEntry
         suppliersExcl: List[String],
         queryVariant: QueryVariant = PlainNot
     ) = {
-      exclusionCondition(syn, queryVariant)(
-        supplierCondition(syn, suppliersExcl)
+      exclusionCondition(queryVariant)(
+        supplierCondition(_, suppliersExcl)
       )
     }
 
@@ -282,9 +290,9 @@ object FingerpostWireEntry
         guSourceFeedsExcl: List[String],
         queryVariant: QueryVariant = PlainNot
     ) = {
-      exclusionCondition(syn, queryVariant)(
+      exclusionCondition(queryVariant)(alias =>
         sqls.in(
-          sqls"upper(${syn.guSourceFeed})",
+          sqls"upper(${alias.guSourceFeed})",
           guSourceFeedsExcl.map(feed => sqls"upper($feed)")
         )
       )
@@ -343,7 +351,7 @@ object FingerpostWireEntry
         keywords: List[String],
         queryVariant: QueryVariant = PlainNot
     ): SQLSyntax = {
-      exclusionCondition(syn, queryVariant)(keywordCondition(syn, keywords))
+      exclusionCondition(queryVariant)(keywordCondition(_, keywords))
     }
 
     lazy val categoryCodeInclSQL =
@@ -359,8 +367,8 @@ object FingerpostWireEntry
         categoryCodesExcl: List[String],
         queryVariant: QueryVariant = PlainNot
     ) = {
-      exclusionCondition(syn, queryVariant)(
-        categoryCodeSomeConditions(syn, categoryCodesExcl)
+      exclusionCondition(queryVariant)(
+        categoryCodeSomeConditions(_, categoryCodesExcl)
       )
     }
 
@@ -406,8 +414,8 @@ object FingerpostWireEntry
         preComputedCategories: List[String],
         queryVariant: QueryVariant = PlainNot
     ) = {
-      exclusionCondition(syn, queryVariant)(
-        preComputedCategoriesConditions(syn, preComputedCategories)
+      exclusionCondition(queryVariant)(
+        preComputedCategoriesConditions(_, preComputedCategories)
       )
     }
 
@@ -575,7 +583,11 @@ object FingerpostWireEntry
     val customSearchClauses = filtersBuilder(searchParams.filters, queryVariant)
     val presetSearchClauses = presetsBuilder(searchPresets, queryVariant)
     val negatedPresetSearchClauses =
-      presetsBuilder(negatedSearchPresets).map(clause => sqls"NOT $clause")
+      presetsBuilder(negatedSearchPresets, queryVariant).map(clause =>
+        // `IS NOT TRUE` (not a plain `NOT`) so rows where the preset condition
+        // is NULL are kept, consistent with the exclusion-filter semantics.
+        sqls"($clause) IS NOT TRUE"
+      )
 
     val allClauses = List(
       dateRangeQuery,
@@ -623,11 +635,11 @@ object FingerpostWireEntry
       .toList
   }
 
-  private[db] def buildSearchQuery(
+  private[db] def buildSearchQuerySyntax(
       queryParams: QueryParams,
       whereClause: SQLSyntax,
       pageSize: Int = 30
-  ): SQL[Nothing, NoExtractor] = {
+  ): SQLSyntax = {
     val effectivePageSize = clamp(0, pageSize, 250)
 
     val maybeAfterTimeStamp = queryParams.queryCursor.maybeAfterTimeStamp
@@ -637,7 +649,7 @@ object FingerpostWireEntry
     val orderByClause =
       sqls"ORDER BY ${queryParams.timeStampColumn.columnName} ${decideSortDirection(maybeAfterTimeStamp)}"
 
-    sql"""| SELECT ${FingerpostWireEntry.selectAllStatement}, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}, $highlightsClause
+    sqls"""| SELECT ${FingerpostWireEntry.selectAllStatement}, ${ToolLink.syn.result.*}, ${Collection.selectAllStatement}, ${WireEntryForCollection.selectAllStatement}, $highlightsClause
           | FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
           | LEFT JOIN ${ToolLink as ToolLink.syn}
           |  ON ${syn.id} = ${ToolLink.syn.wireId}
@@ -651,6 +663,13 @@ object FingerpostWireEntry
           | """.stripMargin
   }
 
+  private[db] def buildSearchQuery(
+      queryParams: QueryParams,
+      whereClause: SQLSyntax,
+      pageSize: Int = 30
+  ): SQL[Nothing, NoExtractor] =
+    sql"${buildSearchQuerySyntax(queryParams, whereClause, pageSize)}"
+
   def query(
       queryParams: QueryParams,
       countQueryCap: Long = COUNT_QUERY_CAP,
@@ -663,7 +682,8 @@ object FingerpostWireEntry
       searchPresets =
         queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
       negatedSearchPresets =
-        queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil)
+        queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil),
+      queryVariant = queryVariant
     )
 
     val start = System.currentTimeMillis()
@@ -724,6 +744,59 @@ object FingerpostWireEntry
       countQueryCap,
       queryVariant
     )
+  }
+
+  def explainQuery(
+      queryParams: QueryParams,
+      countQueryCap: Long = COUNT_QUERY_CAP,
+      queryVariant: QueryVariant = PlainNot
+  ): String = DB readOnly { implicit session =>
+    val whereClause = buildWhereClause(
+      queryParams.searchParams,
+      queryParams.queryCursor,
+      queryOrdering = queryParams.timeStampColumn,
+      searchPresets =
+        queryParams.searchPreset.map(_.searchParams).getOrElse(Nil),
+      negatedSearchPresets =
+        queryParams.searchPreset.map(_.negatedSearchParams).getOrElse(Nil),
+      queryVariant = queryVariant
+    )
+
+    val querySyntax = buildSearchQuerySyntax(
+      queryParams = queryParams,
+      whereClause = whereClause,
+      pageSize = queryParams.pageSize
+    )
+
+    val countQuerySyntax =
+      sqls"""| SELECT COUNT(*) FROM (
+             |   SELECT 1
+             |   FROM ${FingerpostWireEntry as FingerpostWireEntry.syn}
+             |   LEFT JOIN ${ToolLink as ToolLink.syn}
+             |    ON ${syn.id} = ${ToolLink.syn.wireId}
+             |   LEFT JOIN ${WireEntryForCollection as WireEntryForCollection.syn}
+             |     ON ${WireEntryForCollection.syn.wireEntryId} = ${syn.id}
+             |   LEFT JOIN ${Collection as Collection.syn}
+             |     ON ${Collection.syn.id} = ${WireEntryForCollection.syn.collectionId}
+             |   WHERE $whereClause
+             |   LIMIT ${countQueryCap + 1}
+             | ) AS capped
+             | """.stripMargin
+
+    def explain(label: String, querySyntax: SQLSyntax): String = {
+      val explainQuery =
+        sql"EXPLAIN (ANALYZE, BUFFERS, VERBOSE, SETTINGS, WAL) $querySyntax"
+      logger.info(
+        s"EXPLAIN $label: ${explainQuery.statement}; PARAMS: ${explainQuery.parameters}"
+      )
+      val plan = explainQuery.map(_.string(1)).list().mkString("\n")
+      s"=== $label ===\n$plan"
+    }
+
+    List(
+      explain("SEARCH QUERY", querySyntax),
+      explain("COUNT QUERY", countQuerySyntax)
+    ).mkString("\n\n")
   }
 
   def getKeywords(

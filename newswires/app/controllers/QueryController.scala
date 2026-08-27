@@ -16,6 +16,7 @@ import play.api.{Configuration, Logging}
 import service.FeatureSwitchProvider
 
 import java.time.Instant
+import scala.util.Random
 
 class QueryController(
     val controllerComponents: ControllerComponents,
@@ -32,6 +33,77 @@ class QueryController(
       paramName: String
   ): List[String] =
     request.getQueryString(paramName).map(_.split(",").toList).getOrElse(Nil)
+
+  private def buildQueryParams(
+      maybeFreeTextQuery: Option[String],
+      keywords: List[String],
+      suppliers: List[String],
+      categoryCode: List[String],
+      categoryCodeExcl: List[String],
+      maybeCollectionId: Option[Int],
+      maybeStart: Option[String],
+      maybeEnd: Option[String],
+      maybeBeforeTimeStamp: Option[String],
+      maybeAfterTimeStamp: Option[String],
+      hasDataFormatting: Option[Boolean],
+      guSourceFeeds: List[String],
+      guSourceFeedsExcl: List[String],
+      eventCode: Option[String]
+  )(implicit
+      request: UserRequest[AnyContent]
+  ): (QueryParams, TimeStampColumn, QueryVariant) = {
+    val baseParams = BaseRequestParams(
+      maybeFreeTextQuery = maybeFreeTextQuery,
+      keywords = keywords,
+      suppliers = suppliers,
+      categoryCode = categoryCode,
+      categoryCodeExcl = categoryCodeExcl,
+      maybeCollectionId = maybeCollectionId,
+      maybeStart = maybeStart,
+      maybeEnd = maybeEnd,
+      maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+      maybeAfterTimeStamp = maybeAfterTimeStamp,
+      hasDataFormatting = hasDataFormatting,
+      guSourceFeeds = guSourceFeeds,
+      guSourceFeedsExcl = guSourceFeedsExcl,
+      eventCode = eventCode
+    )
+    val searchParams =
+      SearchParams.build(
+        request.queryString,
+        baseParams,
+        featureSwitchProvider
+      )
+
+    val searchPreset = request
+      .getQueryString("preset")
+      .flatMap(SearchPresets.get)
+
+    val timeStampColumn = maybeCollectionId match {
+      case Some(id) => AddedToCollectionAtTime(id)
+      case None     => IngestedAtTime
+    }
+    val queryParams = QueryParams(
+      searchParams = searchParams,
+      searchPreset = searchPreset,
+      maybeSearchTerm = baseParams.textForHighlighting,
+      queryCursor = QueryCursor(
+        maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+        maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_))
+      ),
+      pageSize = 30,
+      timeStampColumn = timeStampColumn
+    )
+
+    val queryVariant = request.getQueryString("variant") match {
+      case Some("not_exists")        => NotExists
+      case Some("plain_not")         => PlainNot
+      case _ if Random.nextBoolean() => NotExists
+      case _                         => PlainNot
+    }
+
+    (queryParams, timeStampColumn, queryVariant)
+  }
 
   def query(
       maybeFreeTextQuery: Option[String],
@@ -51,7 +123,7 @@ class QueryController(
       countQueryCap: Option[Long]
   ): Action[AnyContent] = apiAuthAction {
     implicit request: UserRequest[AnyContent] =>
-      val baseParams = BaseRequestParams(
+      val (queryParams, timeStampColumn, queryVariant) = buildQueryParams(
         maybeFreeTextQuery = maybeFreeTextQuery,
         keywords = keywords,
         suppliers = suppliers,
@@ -67,37 +139,6 @@ class QueryController(
         guSourceFeedsExcl = guSourceFeedsExcl,
         eventCode = eventCode
       )
-      val searchParams =
-        SearchParams.build(
-          request.queryString,
-          baseParams,
-          featureSwitchProvider
-        )
-
-      val searchPreset = request
-        .getQueryString("preset")
-        .flatMap(SearchPresets.get)
-
-      val timeStampColumn = maybeCollectionId match {
-        case Some(id) => AddedToCollectionAtTime(id)
-        case None     => IngestedAtTime
-      }
-      val queryParams = QueryParams(
-        searchParams = searchParams,
-        searchPreset = searchPreset,
-        maybeSearchTerm = baseParams.textForHighlighting,
-        queryCursor = QueryCursor(
-          maybeBeforeTimeStamp = maybeBeforeTimeStamp,
-          maybeAfterTimeStamp = maybeAfterTimeStamp.map(NextPage(_))
-        ),
-        pageSize = 30,
-        timeStampColumn = timeStampColumn
-      )
-
-      val queryVariant = request.getQueryString("variant") match {
-        case Some("not_exists") => NotExists
-        case _                  => PlainNot
-      }
 
       val queryResponse = FingerpostWireEntry.query(
         queryParams,
@@ -111,6 +152,55 @@ class QueryController(
           .asJson
           .spaces2
       )
+  }
+
+  def explain(
+      maybeFreeTextQuery: Option[String],
+      keywords: List[String],
+      suppliers: List[String],
+      categoryCode: List[String],
+      categoryCodeExcl: List[String],
+      maybeCollectionId: Option[Int],
+      maybeStart: Option[String],
+      maybeEnd: Option[String],
+      maybeBeforeTimeStamp: Option[String],
+      maybeAfterTimeStamp: Option[String],
+      hasDataFormatting: Option[Boolean],
+      guSourceFeeds: List[String],
+      guSourceFeedsExcl: List[String],
+      eventCode: Option[String],
+      countQueryCap: Option[Long]
+  ): Action[AnyContent] = apiAuthAction {
+    implicit request: UserRequest[AnyContent] =>
+      configuration.get[String]("stage") match {
+        case "dev" =>
+          val (queryParams, _, queryVariant) = buildQueryParams(
+            maybeFreeTextQuery = maybeFreeTextQuery,
+            keywords = keywords,
+            suppliers = suppliers,
+            categoryCode = categoryCode,
+            categoryCodeExcl = categoryCodeExcl,
+            maybeCollectionId = maybeCollectionId,
+            maybeStart = maybeStart,
+            maybeEnd = maybeEnd,
+            maybeBeforeTimeStamp = maybeBeforeTimeStamp,
+            maybeAfterTimeStamp = maybeAfterTimeStamp,
+            hasDataFormatting = hasDataFormatting,
+            guSourceFeeds = guSourceFeeds,
+            guSourceFeedsExcl = guSourceFeedsExcl,
+            eventCode = eventCode
+          )
+
+          val queryPlan = FingerpostWireEntry.explainQuery(
+            queryParams,
+            queryVariant = queryVariant,
+            countQueryCap = countQueryCap.getOrElse(COUNT_QUERY_CAP)
+          )
+
+          Ok(queryPlan).as("text/plain")
+        case _ =>
+          Forbidden("Explain query is only available in dev stage")
+      }
   }
 
   def keywords(
