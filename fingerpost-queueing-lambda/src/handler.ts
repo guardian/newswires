@@ -44,22 +44,23 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							body,
 						});
 						return undefined;
+					} else {
+						const putToS3Result = await putToS3AndQueueIngestion({
+							externalId,
+							keyPrefix: 'fingerpost-queueing-lambda',
+							body,
+						});
+						if (putToS3Result.status === 'success') {
+							return undefined; // We only return batchItemFailures for failed messages
+						}
+						logger.error({
+							message: `Failed to put object to S3 and queue ingestion for externalId "${externalId}" with sqsMessageId ${sqsMessageId}.`,
+							eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_AND_QUEUE_FAILURE',
+							sqsMessageId,
+							externalId,
+							reason: putToS3Result.reason,
+						});
 					}
-					const putToS3Result = await putToS3AndQueueIngestion({
-						externalId,
-						keyPrefix: 'fingerpost-queueing-lambda',
-						body,
-					});
-					if (putToS3Result.status === 'success') {
-						return undefined; // We only return batchItemFailures for failed messages
-					}
-					logger.error({
-						message: `Failed to put object to S3 and queue ingestion for externalId "${externalId}" with sqsMessageId ${sqsMessageId}.`,
-						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_AND_QUEUE_FAILURE',
-						sqsMessageId,
-						externalId,
-						reason: putToS3Result.reason,
-					});
 				} else {
 					logger.warn({
 						message: `Message with sqsMessageId ${sqsMessageId} has no externalId. Saved to ${objectKey} but not sending to ingestion queue.`,
