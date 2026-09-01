@@ -33,15 +33,15 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						: undefined;
 					if (splitTotal && splitTotal > 1) {
 						logger.error({
-							message: `Unable to process message from fingerpost`,
-							eventType: 'FINGERPOST_QUEUEING_LAMBDA_MESSAGE_TOO_LARGE_ERROR',
+							message: `Unable to process message from fingerpost because story is split over multiple SNS messages`,
+							eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
 							sqsMessageId,
 							externalId,
-							s3Key: `fingerpost-unprocessable/${externalId}.json`,
+							s3Key: `GuFileTooLarge/${externalId}.json`,
 						});
 						await fileService.putObject({
 							bucketName: feedsBucket(),
-							key: `fingerpost-unprocessable/${externalId}.json`,
+							key: `GuFileTooLarge/${externalId}.json`,
 							body,
 						});
 						return undefined;
@@ -56,7 +56,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 						}
 						logger.error({
 							message: `Failed to put object to S3 and queue ingestion for externalId "${externalId}" with sqsMessageId ${sqsMessageId}.`,
-							eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_AND_QUEUE_FAILURE',
+							eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
 							sqsMessageId,
 							externalId,
 							reason: putToS3Result.reason,
@@ -79,7 +79,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 					}
 					logger.error({
 						message: `Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket()}" for message with sqsMessageId ${sqsMessageId}.`,
-						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_FAILURE',
+						eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
 						sqsMessageId,
 						objectKey,
 						reason: putToS3Result.reason,
