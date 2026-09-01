@@ -37,6 +37,7 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 							eventType: 'FINGERPOST_QUEUEING_LAMBDA_MESSAGE_TOO_LARGE_ERROR',
 							sqsMessageId,
 							externalId,
+							s3Key: `fingerpost-unprocessable/${externalId}.json`,
 						});
 						await fileService.putObject({
 							bucketName: feedsBucket(),
