@@ -30,6 +30,7 @@ describe('validate', () => {
 		expect(result).toEqual({
 			status: 'success',
 			externalId: 'external-1',
+			sqsMessageId: 'sqs-1',
 		});
 	});
 
@@ -40,6 +41,7 @@ describe('validate', () => {
 			status: 'failure',
 			reason: 'Message with sqsMessageId sqs-2 has no externalId. ',
 			s3Key: 'GuMissingExternalId/sqs-2.json',
+			sqsMessageId: 'sqs-2',
 		});
 	});
 
@@ -53,6 +55,7 @@ describe('validate', () => {
 			status: 'failure',
 			reason: 'Message with sqsMessageId sqs-3 has no externalId. ',
 			s3Key: 'GuMissingExternalId/sqs-3.json',
+			sqsMessageId: 'sqs-3',
 		});
 	});
 
@@ -67,6 +70,7 @@ describe('validate', () => {
 			reason:
 				'Message with sqsMessageId sqs-4 is split over several SNS messages',
 			s3Key: 'GuFileTooLarge/external-4.json',
+			sqsMessageId: 'sqs-4',
 		});
 	});
 
@@ -79,6 +83,7 @@ describe('validate', () => {
 		expect(result).toEqual({
 			status: 'success',
 			externalId: 'external-5',
+			sqsMessageId: 'sqs-5',
 		});
 	});
 });
