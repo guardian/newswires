@@ -131,4 +131,10 @@ export type BatchItemFailure = OperationFailure & {
 	s3Key?: string;
 };
 
+export type S3Failure = OperationFailure & {
+	s3Key?: string;
+};
+
+export type S3OperationResult<T> = S3Failure | OperationSuccess<T>;
+
 export type BatchItemResult = BaseOperationSuccess | BatchItemFailure;

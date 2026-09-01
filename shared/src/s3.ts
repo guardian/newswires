@@ -7,7 +7,7 @@ import {
 import { getErrorMessage } from '@guardian/libs';
 import { appConfig } from './config';
 import { createLogger } from './lambda-logging';
-import type { OperationResult } from './types';
+import type { S3OperationResult } from './types';
 
 const { appMode, awsConfig } = appConfig;
 
@@ -22,14 +22,14 @@ interface FileService {
 		bucketName: string;
 		key: string;
 		body: string | Buffer;
-	}): Promise<OperationResult<{ response: PutObjectCommandOutput }>>;
+	}): Promise<S3OperationResult<{ response: PutObjectCommandOutput }>>;
 	getObject({
 		bucketName,
 		key,
 	}: {
 		bucketName: string;
 		key: string;
-	}): Promise<OperationResult<{ body: string; lastModified?: Date }>>;
+	}): Promise<S3OperationResult<{ body: string; lastModified?: Date }>>;
 }
 
 class S3Service implements FileService {
@@ -47,7 +47,7 @@ class S3Service implements FileService {
 		bucketName: string;
 		key: string;
 		body: string | Buffer;
-	}): Promise<OperationResult<{ response: PutObjectCommandOutput }>> {
+	}): Promise<S3OperationResult<{ response: PutObjectCommandOutput }>> {
 		const command = new PutObjectCommand({
 			Bucket: bucketName,
 			Key: key,
@@ -65,6 +65,7 @@ class S3Service implements FileService {
 			return {
 				status: 'failure',
 				reason: getErrorMessage(caught),
+				s3Key: key,
 			};
 		}
 	}
@@ -75,7 +76,7 @@ class S3Service implements FileService {
 	}: {
 		bucketName: string;
 		key: string;
-	}): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
+	}): Promise<S3OperationResult<{ body: string; lastModified?: Date }>> {
 		logger.log({
 			message: `Getting object from S3 bucket "${bucketName}" with key "${key}"`,
 			key,
@@ -96,12 +97,14 @@ class S3Service implements FileService {
 				return {
 					status: 'failure',
 					reason: 'No body found in S3 response',
+					s3Key: key,
 				};
 			}
 		} catch (caught) {
 			return {
 				status: 'failure',
 				reason: getErrorMessage(caught),
+				s3Key: key,
 			};
 		}
 	}
@@ -122,7 +125,7 @@ class InMemoryFileService implements FileService {
 		bucketName: string;
 		key: string;
 		body: string | Buffer;
-	}): Promise<OperationResult<{ response: PutObjectCommandOutput }>> {
+	}): Promise<S3OperationResult<{ response: PutObjectCommandOutput }>> {
 		const now = new Date();
 		const bodyStr = typeof body === 'string' ? body : body.toString();
 		this.store.set(key, { body: bodyStr, lastModified: now });
@@ -143,7 +146,7 @@ class InMemoryFileService implements FileService {
 	}: {
 		bucketName: string;
 		key: string;
-	}): Promise<OperationResult<{ body: string; lastModified?: Date }>> {
+	}): Promise<S3OperationResult<{ body: string; lastModified?: Date }>> {
 		logger.log({
 			message: `Getting object from InMemory bucket "${bucketName}" with key "${key}"`,
 			key,
@@ -160,6 +163,7 @@ class InMemoryFileService implements FileService {
 			return Promise.resolve({
 				status: 'failure',
 				reason: 'No body found in InMemoryFileService store',
+				s3Key: key,
 			});
 		}
 	}

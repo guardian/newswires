@@ -107,9 +107,9 @@ describe('handler.main', () => {
 
 		expect(result.batchItemFailures).toEqual([]);
 		expect(mockPutToS3AndQueueIngestion).not.toHaveBeenCalled();
-		expect(mockLogger.warn).toHaveBeenCalledWith(
+		expect(mockLogger.error).toHaveBeenCalledWith(
 			expect.objectContaining({
-				eventType: 'FINGERPOST_QUEUEING_LAMBDA_NO_EXTERNAL_ID',
+				eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
 			}),
 		);
 		expect(mockPutObject).toHaveBeenCalledWith({
@@ -144,6 +144,7 @@ describe('handler.main', () => {
 		mockPutToS3AndQueueIngestion.mockResolvedValue({
 			status: 'failure',
 			reason: 'Test failure',
+			s3Key: 'key',
 		});
 
 		const result = await main(createSqsEvent(validRecord));
@@ -155,8 +156,9 @@ describe('handler.main', () => {
 			expect.objectContaining({
 				eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
 				sqsMessageId: validRecord.messageId,
-				externalId: validRecord.externalId,
+				message: 'Failed to process message with sqsMessageId sqs-1.',
 				reason: 'Test failure',
+				s3Key: 'key',
 			}),
 		);
 	});
@@ -164,6 +166,7 @@ describe('handler.main', () => {
 		mockPutObject.mockResolvedValue({
 			status: 'failure',
 			reason: 'Test failure',
+			s3Key: 'key',
 		});
 
 		const result = await main(createSqsEvent(noExternalId));
