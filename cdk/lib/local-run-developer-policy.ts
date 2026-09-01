@@ -144,21 +144,6 @@ export function createLocalRunDeveloperPolicy(
 				},
 			}),
 			/**
-			 * ssm-scala tags the instance ('tainted') to record who accessed it.
-			 * Can potentially be removed once ssm-scala is deprecated.
-			 * */
-			new PolicyStatement({
-				effect: Effect.ALLOW,
-				actions: ['ec2:CreateTags'],
-				resources: [
-					scope.formatArn({
-						service: 'ec2',
-						resource: 'instance',
-						resourceName: '*',
-					}),
-				],
-			}),
-			/**
 			 * Purpose: Allow the developer to connect to the CODE RDS instance
 			 * Rationale for scope: The RDS DB user ARN is unique to the instance
 			 * and the user, so this is already scoped to the correct instance.

@@ -15,7 +15,7 @@ Then you can inspect the state of the database, and run any pending migrations, 
 ./flyway.sc migrate local   # to run all pending migrations
 ```
 
-Change the `local` in the above commands for `code` or `prod` to run against the remote databases. Remember you'll need to have set up a tunnel to connect to those databases using [ssm-scala](https://github.com/guardian/ssm-scala).
+Change the `local` in the above commands for `code` or `prod` to run against the remote databases. Remember you'll need to have set up a tunnel to connect to those databases using the repository's `rds-tunnel.sh` script.
 
 The local migrations are run as part of the start script.
 
@@ -25,7 +25,12 @@ Create an SSH tunnel from your local machine to the AWS RDS instance
 (needs [Janus](https://janus.gutools.co.uk/credentials?permissionId=editorial-feeds-dev) credentials):
 
 ```bash
-ssm ssh -t newswires,CODE -p editorial-feeds -x --newest --rds-tunnel 5432:newswires,CODE;
+../scripts/rds-tunnel.sh \
+	--app newswires \
+	--stack editorial-feeds \
+	--stage CODE \
+	--region eu-west-1 \
+	--profile editorial-feeds;
 ```
 
 Use the AWS CLI to create a DB auth token that can be used as the Postgres user password:

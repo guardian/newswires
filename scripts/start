@@ -7,9 +7,12 @@ red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
 
 AWS_PROFILE='editorial-feeds'
+AWS_REGION='eu-west-1'
+STACK='editorial-feeds'
 POSTGRES_PORT='5432'
 APP_NAME='newswires'
-EXISTING_TUNNELS=$(ps -ef | grep ssh | grep ${POSTGRES_PORT} | grep -v grep || true)
+TUNNEL_GREP_PATTERN="AWS-StartPortForwardingSessionToRemoteHost.*localPortNumber.*$POSTGRES_PORT"
+EXISTING_TUNNELS=$(pgrep -f "$TUNNEL_GREP_PATTERN" || true)
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=${DIR}/..
@@ -49,7 +52,14 @@ tunnelToAwsDb() {
     if [[ -n $EXISTING_TUNNELS ]]; then
       echo "RE-USING EXISTING TUNNEL TO CODE POSTGRES (on port ${POSTGRES_PORT})"
     else
-      ssm ssh -t ${APP_NAME},CODE -p ${AWS_PROFILE} -x --newest --rds-tunnel ${POSTGRES_PORT}:${APP_NAME},CODE
+      "$DIR/rds-tunnel.sh" \
+        --app "$APP_NAME" \
+        --stack "$STACK" \
+        --stage CODE \
+        --region "$AWS_REGION" \
+        --profile "$AWS_PROFILE" \
+        --local-port "$POSTGRES_PORT" \
+        --background
       echo "TUNNEL ESTABLISHED TO CODE POSTGRES (on port ${POSTGRES_PORT})"
     fi
 }
@@ -57,8 +67,7 @@ tunnelToAwsDb() {
 startDockerContainers() {
   if [[ $EXISTING_TUNNELS ]]; then
     echo "KILLING EXISTING TUNNEL TO CODE POSTGRES (on port ${POSTGRES_PORT})"
-    # shellcheck disable=SC2046
-    kill $(echo "${EXISTING_TUNNELS}" | awk '{print $2}')
+    pkill -f "$TUNNEL_GREP_PATTERN"
   fi
   docker compose up -d --wait
   echo "Applying database migrations if necessary..."
