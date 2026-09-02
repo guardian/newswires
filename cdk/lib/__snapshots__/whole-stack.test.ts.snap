@@ -3965,26 +3965,6 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
               "Resource": "*",
             },
             {
-              "Action": "ec2:CreateTags",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":ec2:eu-west-1:",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":instance/*",
-                  ],
-                ],
-              },
-            },
-            {
               "Action": "rds-db:connect",
               "Effect": "Allow",
               "Resource": {

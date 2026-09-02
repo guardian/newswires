@@ -2952,26 +2952,6 @@ exports[`The Newswires stack > matches the snapshot 1`] = `
               "Resource": "*",
             },
             {
-              "Action": "ec2:CreateTags",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":ec2:eu-west-1:",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":instance/*",
-                  ],
-                ],
-              },
-            },
-            {
               "Action": "rds-db:connect",
               "Effect": "Allow",
               "Resource": {

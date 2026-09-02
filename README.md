@@ -42,7 +42,7 @@ The local environment checks in `scripts/check-requirements` expect:
 - Docker
 - nginx and [dev-nginx](https://github.com/guardian/dev-nginx)
 - scala-cli
-- [SSM](https://github.com/guardian/ssm-scala)
+- [AWS session-manager-plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
 
 You will also need `editorial-feeds` Janus credentials.
 
@@ -243,7 +243,6 @@ graph LR
 - [Architecture and project docs](docs/README.md)
 - [CDK infrastructure directory](cdk/README.md)
 - [Flyway documentation](https://documentation.red-gate.com/flyway)
-- [ssm-scala (RDS tunnelling)](https://github.com/guardian/ssm-scala)
 
 ## 5. Terminology
 
