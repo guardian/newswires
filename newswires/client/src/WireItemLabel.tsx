@@ -120,6 +120,7 @@ export const WireItemLabel = ({
 					color: ${textColour};
 					background-color: ${backgroundColour};
 					font-size: ${euiTheme.font.scale.s}rem;
+					white-space: nowrap;
 					display: inline-flex;
 					align-items: center;
 					gap: ${euiTheme.size.xs};
