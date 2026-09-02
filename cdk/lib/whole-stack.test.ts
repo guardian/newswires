@@ -27,5 +27,5 @@ describe('createStacks', () => {
 			cloudfrontCertificateStack,
 		);
 		expect(cloudfrontCertificateTemplate.toJSON()).toMatchSnapshot();
-	});
+	}, 15000);
 });

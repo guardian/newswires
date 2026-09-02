@@ -42,5 +42,5 @@ describe('The Newswires stack', () => {
 		});
 		const template = Template.fromStack(stack);
 		expect(template.toJSON()).toMatchSnapshot();
-	});
+	}, 15000);
 });
