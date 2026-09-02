@@ -98,7 +98,7 @@ jobs:
           sbt clean scalafmtCheckAll compile test Debian/packageBin normalisePackageName
 
       - name: Upload to Riff-Raff
-        uses: guardian/actions-riff-raff@f0806aac5659b052afe2416f5d35723448e7807f # v4.3.3
+        uses: guardian/actions-riff-raff@ab360a150e2540439f7f675c37d170a2fd6c8604 # v4.3.4
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
