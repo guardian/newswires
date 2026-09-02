@@ -1,8 +1,55 @@
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import { feedsBucket } from 'newswires-shared/config';
+import type { Logger } from 'newswires-shared/lambda-logging';
 import { createLogger } from 'newswires-shared/lambda-logging';
 import { putToS3AndQueueIngestion } from 'newswires-shared/putToS3AndQueueIngestion';
 import { fileService } from 'newswires-shared/s3';
+import { validate } from './message-validator';
+
+async function processRecord(
+	validationResult:
+		| {
+				status: 'success';
+				externalId: string;
+				sqsMessageId: string;
+		  }
+		| {
+				status: 'failure';
+				sqsMessageId: string;
+				message: string;
+				reason: string;
+				s3Key: string;
+		  },
+	body: string,
+	logger: Logger,
+) {
+	if (validationResult.status === 'success') {
+		logger.log({
+			message: `Processing message with sqsMessageId ${validationResult.sqsMessageId} and externalId ${validationResult.externalId}`,
+			eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING',
+			sqsMessageId: validationResult.sqsMessageId,
+			externalId: validationResult.externalId,
+		});
+		return await putToS3AndQueueIngestion({
+			externalId: validationResult.externalId,
+			keyPrefix: 'fingerpost-queueing-lambda',
+			body,
+		});
+	} else {
+		logger.error({
+			message: validationResult.message,
+			eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
+			reason: validationResult.reason,
+			sqsMessageId: validationResult.sqsMessageId,
+			s3Key: validationResult.s3Key,
+		});
+		return await fileService.putObject({
+			bucketName: feedsBucket(),
+			key: validationResult.s3Key,
+			body,
+		});
+	}
+}
 
 export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 	const results = await Promise.all(
@@ -10,60 +57,18 @@ export const main = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 			async ({ messageId: sqsMessageId, messageAttributes, body }) => {
 				const logger = createLogger({ sqsMessageId });
 				logger.log({ message: 'Processing SQS message' });
-				const externalId = messageAttributes['Message-Id']?.stringValue;
-				const hasExternalId = externalId && externalId.trim().length > 0;
-				const objectKey = hasExternalId
-					? `${externalId}.json`
-					: `GuMissingExternalId/${sqsMessageId}.json`;
-
-				logger.log({
-					message: `Processing message with sqsMessageId ${sqsMessageId} and externalId ${externalId}`,
-					eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING',
-					sqsMessageId,
-					objectKey,
-					externalId,
-				});
-
-				if (hasExternalId) {
-					const putToS3Result = await putToS3AndQueueIngestion({
-						externalId,
-						keyPrefix: 'fingerpost-queueing-lambda',
-						body,
-					});
-					if (putToS3Result.status === 'success') {
-						return undefined; // We only return batchItemFailures for failed messages
-					}
-					logger.error({
-						message: `Failed to put object to S3 and queue ingestion for externalId "${externalId}" with sqsMessageId ${sqsMessageId}.`,
-						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_AND_QUEUE_FAILURE',
-						sqsMessageId,
-						externalId,
-						reason: putToS3Result.reason,
-					});
-				} else {
-					logger.warn({
-						message: `Message with sqsMessageId ${sqsMessageId} has no externalId. Saved to ${objectKey} but not sending to ingestion queue.`,
-						eventType: 'FINGERPOST_QUEUEING_LAMBDA_NO_EXTERNAL_ID',
-						sqsMessageId,
-						objectKey,
-					});
-					const putToS3Result = await fileService.putObject({
-						bucketName: feedsBucket(),
-						key: objectKey,
-						body,
-					});
-					if (putToS3Result.status === 'success') {
-						return undefined; // We only return batchItemFailures for failed messages
-					}
-					logger.error({
-						message: `Failed to put object to S3 with key "${objectKey}" in bucket "${feedsBucket()}" for message with sqsMessageId ${sqsMessageId}.`,
-						eventType: 'FINGERPOST_QUEUEING_LAMBDA_S3_FAILURE',
-						sqsMessageId,
-						objectKey,
-						reason: putToS3Result.reason,
-					});
+				const validationResult = validate(sqsMessageId, messageAttributes);
+				const response = await processRecord(validationResult, body, logger);
+				if (response.status === 'success') {
+					return undefined; // We only return batchItemFailures for failed messages
 				}
-
+				logger.error({
+					message: `Failed to process message with sqsMessageId ${sqsMessageId}.`,
+					eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
+					sqsMessageId,
+					s3Key: response.s3Key,
+					reason: response.reason,
+				});
 				return { itemIdentifier: sqsMessageId };
 			},
 		),

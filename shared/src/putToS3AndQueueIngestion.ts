@@ -15,7 +15,9 @@ export async function putToS3AndQueueIngestion({
 	externalId: string;
 	keyPrefix: string;
 	body: string;
-}): Promise<{ status: 'success' } | { status: 'failure'; reason: string }> {
+}): Promise<
+	{ status: 'success' } | { status: 'failure'; reason: string; s3Key: string }
+> {
 	const objectKey = `${keyPrefix}/${externalId}.json`;
 	try {
 		const s3PutResult = await fileService.putObject({
@@ -53,6 +55,7 @@ export async function putToS3AndQueueIngestion({
 		return {
 			status: 'failure',
 			reason: `Error when trying to put to S3 and queue the ingestion Lambda: ${getErrorMessage(error)}.`,
+			s3Key: objectKey,
 		};
 	}
 }

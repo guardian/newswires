@@ -161,6 +161,7 @@ export class Newswires extends GuStack {
 					FEEDS_BUCKET_NAME: feedsBucket.bucketName,
 					INGESTION_LAMBDA_QUEUE_URL: props.sourceQueue.queueUrl,
 				},
+				loggingFormat: LoggingFormat.TEXT,
 			},
 		);
 
