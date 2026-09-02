@@ -135,6 +135,10 @@ export function urlToConfig(location: {
 	const urlSearchParams = new URLSearchParams(location.search);
 
 	const query = searchParamsToQuery(urlSearchParams);
+	const blueskyAccountParam = urlSearchParams.get('blueskyAccount')?.trim();
+	const blueskyAccount = blueskyAccountParam?.length
+		? blueskyAccountParam
+		: undefined;
 
 	/**
 	 * Remove leading `/` and split by `/` to get path segments, e.g.:
@@ -152,13 +156,37 @@ export function urlToConfig(location: {
 
 	try {
 		if (viewSegments[0] === 'item' && viewSegments.length === 2) {
-			return { ticker, view: 'item', itemId: viewSegments[1], query };
+			return {
+				ticker,
+				view: 'item',
+				itemId: viewSegments[1],
+				query,
+				blueskyAccount,
+			};
 		} else if (viewSegments[0] === 'dotcopy' && viewSegments.length === 1) {
-			return { ticker, view: 'dotcopy', itemId: undefined, query };
+			return {
+				ticker,
+				view: 'dotcopy',
+				itemId: undefined,
+				query,
+				blueskyAccount,
+			};
 		} else if (viewSegments[0] === 'dotcopy') {
-			return { ticker, view: 'dotcopy/item', itemId: viewSegments[2], query };
+			return {
+				ticker,
+				view: 'dotcopy/item',
+				itemId: viewSegments[2],
+				query,
+				blueskyAccount,
+			};
 		} else {
-			return { ticker, view: 'feed', itemId: undefined, query };
+			return {
+				ticker,
+				view: 'feed',
+				itemId: undefined,
+				query,
+				blueskyAccount,
+			};
 		}
 	} catch (e) {
 		const errorMessage = getErrorMessage(e);
@@ -169,17 +197,31 @@ export function urlToConfig(location: {
 	}
 }
 
+const configToQuerystring = (config: Config): string => {
+	const params = new URLSearchParams(
+		paramsToQuerystring({
+			query: config.query,
+			useAbsoluteDateTimeValues: false,
+		}),
+	);
+	if (config.blueskyAccount) {
+		params.set('blueskyAccount', config.blueskyAccount);
+	}
+	const querystring = params.toString();
+	return querystring ? `?${querystring}` : '';
+};
+
 export const configToUrl = (config: Config): string => {
-	const { view, query, itemId } = config;
+	const { view, itemId } = config;
 	switch (view) {
 		case 'feed':
-			return `${config.ticker ? '/ticker' : ''}/feed${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
+			return `${config.ticker ? '/ticker' : ''}/feed${configToQuerystring(config)}`;
 		case 'item':
-			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
+			return `${config.ticker ? '/ticker' : ''}/item/${itemId}${configToQuerystring(config)}`;
 		case 'dotcopy':
-			return `${config.ticker ? '/ticker' : ''}/dotcopy${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
+			return `${config.ticker ? '/ticker' : ''}/dotcopy${configToQuerystring(config)}`;
 		case 'dotcopy/item':
-			return `${config.ticker ? '/ticker' : ''}/dotcopy/item/${itemId}${paramsToQuerystring({ query, useAbsoluteDateTimeValues: false })}`;
+			return `${config.ticker ? '/ticker' : ''}/dotcopy/item/${itemId}${configToQuerystring(config)}`;
 	}
 };
 

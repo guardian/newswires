@@ -12,6 +12,7 @@ import getAuthorFeed from '../../../../src/lexicons/app/bsky/feed/getAuthorFeed.
 
 const PUBLIC_BSKY_API = 'https://public.api.bsky.app';
 const DEFAULT_POLL_INTERVAL_MS = 30_000;
+const DEFAULT_BLUESKY_ACCOUNT = 'theguardian.com';
 
 export type BlueskyFeedStatus = 'loading' | 'success' | 'error';
 
@@ -105,8 +106,11 @@ export function BlueskyFeedProvider({
 	username,
 	pollIntervalMs,
 	children,
-}: PropsWithChildren<{ username: string; pollIntervalMs?: number }>) {
-	const feed = useBlueskyFeed(username, pollIntervalMs);
+}: PropsWithChildren<{ username?: string; pollIntervalMs?: number }>) {
+	const feed = useBlueskyFeed(
+		username ?? DEFAULT_BLUESKY_ACCOUNT,
+		pollIntervalMs,
+	);
 	return (
 		<BlueskyFeedContext.Provider value={feed}>
 			{children}

@@ -42,6 +42,17 @@ describe('urlToConfig', () => {
 		});
 	});
 
+	it('parses the client-only Bluesky account', () => {
+		const url = makeFakeLocation('/feed?q=abc&blueskyAccount=theguardian.com');
+		const config = urlToConfig(url);
+		expect(config).toEqual({
+			view: 'feed',
+			query: { ...defaultQuery, q: 'abc' },
+			ticker: false,
+			blueskyAccount: 'theguardian.com',
+		});
+	});
+
 	it('parses empty querystring into default query', () => {
 		const url = makeFakeLocation('/feed');
 		const config = urlToConfig(url);
@@ -290,6 +301,15 @@ describe('configToUrl', () => {
 		};
 		const url = configToUrl(config);
 		expect(url).toBe('/feed?q=abc&supplier=REUTERS');
+	});
+
+	it('keeps the client-only Bluesky account in the browser URL', () => {
+		const config = {
+			...defaultConfig,
+			blueskyAccount: 'theguardian.com',
+		};
+
+		expect(configToUrl(config)).toBe('/feed?blueskyAccount=theguardian.com');
 	});
 
 	it('converts ticker config to querystring', () => {

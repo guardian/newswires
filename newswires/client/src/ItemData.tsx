@@ -10,8 +10,13 @@ import type { ToolLink } from './sharedTypes';
 import { type WireData, WireDataFromAPISchema } from './sharedTypes';
 
 export const ItemData = ({ id }: { id: string }) => {
-	const { handleDeselectItem, handlePreviousItem, handleNextItem, config, state } =
-		useSearch();
+	const {
+		handleDeselectItem,
+		handlePreviousItem,
+		handleNextItem,
+		config,
+		state,
+	} = useSearch();
 
 	const [itemData, setItemData] = useState<WireData | undefined>(undefined);
 	const [error, setError] = useState<string | undefined>(undefined);

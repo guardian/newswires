@@ -14,12 +14,17 @@ import { SearchContextProvider } from './context/SearchContext.tsx';
 import { TelemetryContextProvider } from './context/TelemetryContext.tsx';
 import { UserSettingsContextProvider } from './context/UserSettingsContext.tsx';
 import { createTelemetryEventSender } from './telemetry.ts';
+import { urlToConfig } from './urlState.ts';
 
 const { sendTelemetryEvent } = createTelemetryEventSender({
 	stage: STAGE,
 	sendTelemetryAsDev: SEND_TELEMETRY_AS_DEV,
 	gitCommitId: GIT_COMMIT_ID,
 });
+
+const blueskyAccount: string | undefined = urlToConfig(
+	window.location,
+).blueskyAccount;
 
 const toolsDomain = window.location.hostname.substring(
 	window.location.hostname.indexOf('.'),
@@ -44,7 +49,7 @@ createRoot(document.getElementById('root')!).render(
 		<PageLoadTimeProvider>
 			<TelemetryContextProvider sendTelemetryEvent={sendTelemetryEvent}>
 				<UserSettingsContextProvider>
-					<BlueskyFeedProvider username="theguardian.com">
+					<BlueskyFeedProvider username={blueskyAccount}>
 						<SearchContextProvider>
 							<KeyboardShortcutsProvider>
 								<App />

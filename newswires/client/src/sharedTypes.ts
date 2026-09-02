@@ -206,24 +206,28 @@ export const ConfigSchema = z.discriminatedUnion('view', [
 		query: QuerySchema,
 		itemId: z.undefined(),
 		ticker: z.boolean(),
+		blueskyAccount: z.string().optional(),
 	}),
 	z.object({
 		view: z.literal('item'),
 		query: QuerySchema,
 		itemId: z.string(),
 		ticker: z.boolean(),
+		blueskyAccount: z.string().optional(),
 	}),
 	z.object({
 		view: z.literal('dotcopy'),
 		query: QuerySchema,
 		itemId: z.undefined(),
 		ticker: z.boolean(),
+		blueskyAccount: z.string().optional(),
 	}),
 	z.object({
 		view: z.literal('dotcopy/item'),
 		query: QuerySchema,
 		itemId: z.string(),
 		ticker: z.boolean(),
+		blueskyAccount: z.string().optional(),
 	}),
 ]);
 export type Config = z.infer<typeof ConfigSchema>;
