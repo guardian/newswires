@@ -5,7 +5,13 @@ export function validate(
 	messageAttributes: SQSMessageAttributes,
 ):
 	| { status: 'success'; externalId: string; sqsMessageId: string }
-	| { status: 'failure'; reason: string; s3Key: string; sqsMessageId: string } {
+	| {
+			status: 'failure';
+			message: string;
+			reason: string;
+			s3Key: string;
+			sqsMessageId: string;
+	  } {
 	const externalId = messageAttributes['Message-Id']?.stringValue;
 
 	const hasExternalId = externalId && externalId.trim().length > 0;
@@ -13,7 +19,8 @@ export function validate(
 	if (!hasExternalId) {
 		return {
 			status: 'failure',
-			reason: `Message with sqsMessageId ${sqsMessageId} has no externalId. `,
+			message: `Message with sqsMessageId ${sqsMessageId} has no externalId. `,
+			reason: 'no external id found',
 			s3Key: `GuMissingExternalId/${sqsMessageId}.json`,
 			sqsMessageId,
 		};
@@ -26,7 +33,8 @@ export function validate(
 	if (splitTotal && splitTotal > 1) {
 		return {
 			status: 'failure',
-			reason: `Message with sqsMessageId ${sqsMessageId} is split over several SNS messages`,
+			message: `Message with sqsMessageId ${sqsMessageId} is split over several SNS messages`,
+			reason: 'file too large',
 			s3Key: `GuFileTooLarge/${externalId}.json`,
 			sqsMessageId,
 		};

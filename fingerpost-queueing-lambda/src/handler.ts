@@ -16,6 +16,7 @@ async function processRecord(
 		| {
 				status: 'failure';
 				sqsMessageId: string;
+				message: string;
 				reason: string;
 				s3Key: string;
 		  },
@@ -36,8 +37,9 @@ async function processRecord(
 		});
 	} else {
 		logger.error({
-			message: validationResult.reason,
+			message: validationResult.message,
 			eventType: 'FINGERPOST_QUEUEING_LAMBDA_PROCESSING_ERROR',
+			reason: validationResult.reason,
 			sqsMessageId: validationResult.sqsMessageId,
 			s3Key: validationResult.s3Key,
 		});

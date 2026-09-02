@@ -27,7 +27,7 @@ describe('validate', () => {
 			createMessageAttributes({ externalId: 'external-1' }),
 		);
 
-		expect(result).toEqual({
+		expect(result).toStrictEqual({
 			status: 'success',
 			externalId: 'external-1',
 			sqsMessageId: 'sqs-1',
@@ -37,9 +37,10 @@ describe('validate', () => {
 	it('returns failure when Message-Id is missing', () => {
 		const result = validate('sqs-2', createMessageAttributes({}));
 
-		expect(result).toEqual({
+		expect(result).toStrictEqual({
 			status: 'failure',
-			reason: 'Message with sqsMessageId sqs-2 has no externalId. ',
+			message: 'Message with sqsMessageId sqs-2 has no externalId. ',
+			reason: 'no external id found',
 			s3Key: 'GuMissingExternalId/sqs-2.json',
 			sqsMessageId: 'sqs-2',
 		});
@@ -51,9 +52,10 @@ describe('validate', () => {
 			createMessageAttributes({ externalId: '   ' }),
 		);
 
-		expect(result).toEqual({
+		expect(result).toStrictEqual({
 			status: 'failure',
-			reason: 'Message with sqsMessageId sqs-3 has no externalId. ',
+			message: 'Message with sqsMessageId sqs-3 has no externalId. ',
+			reason: 'no external id found',
 			s3Key: 'GuMissingExternalId/sqs-3.json',
 			sqsMessageId: 'sqs-3',
 		});
@@ -65,10 +67,11 @@ describe('validate', () => {
 			createMessageAttributes({ externalId: 'external-4', splitTotal: '2' }),
 		);
 
-		expect(result).toEqual({
+		expect(result).toStrictEqual({
 			status: 'failure',
-			reason:
+			message:
 				'Message with sqsMessageId sqs-4 is split over several SNS messages',
+			reason: 'file too large',
 			s3Key: 'GuFileTooLarge/external-4.json',
 			sqsMessageId: 'sqs-4',
 		});
@@ -80,7 +83,7 @@ describe('validate', () => {
 			createMessageAttributes({ externalId: 'external-5', splitTotal: '1' }),
 		);
 
-		expect(result).toEqual({
+		expect(result).toStrictEqual({
 			status: 'success',
 			externalId: 'external-5',
 			sqsMessageId: 'sqs-5',
