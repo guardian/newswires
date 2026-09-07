@@ -1,2 +1,6 @@
 java corretto-21.0.9.10.1
+sbt 1
+github:VirtusLab/scala-cli 1
 node 22.15.0
+aqua:aws/aws-cli 2.33.20
+github:guardian/devenv 20260721-123412

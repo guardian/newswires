@@ -17,7 +17,8 @@ LOCAL_TUNNEL_PORT=39474
 POSTGRES_PORT=5432
 
 APP_NAME='newswires'
-TUNNEL_GREP_PATTERN="ssh.* -L $LOCAL_TUNNEL_PORT:editorial-feeds"
+STACK='editorial-feeds'
+TUNNEL_GREP_PATTERN="AWS-StartPortForwardingSessionToRemoteHost.*localPortNumber.*$LOCAL_TUNNEL_PORT"
 EXISTING_TUNNELS="$(pgrep -f "$TUNNEL_GREP_PATTERN" || true)"
 
 if [ "$1" == PROD ]; then
@@ -51,7 +52,14 @@ openTunnel() {
   if [[ -n "$EXISTING_TUNNELS" ]]; then
     closeTunnels
   fi
-  ssm ssh -t $APP_NAME,$STAGE -p $AWS_PROFILE -x --newest --rds-tunnel $LOCAL_TUNNEL_PORT:$APP_NAME,$STAGE
+  "$(dirname "$0")/rds-tunnel.sh" \
+    --app "$APP_NAME" \
+    --stack "$STACK" \
+    --stage "$STAGE" \
+    --region "$AWS_REGION" \
+    --profile "$AWS_PROFILE" \
+    --local-port "$LOCAL_TUNNEL_PORT" \
+    --background
 
   if ! lsof -i :${LOCAL_TUNNEL_PORT} >/dev/null; then
     echo -e "${red}No database connection available on port ${LOCAL_TUNNEL_PORT} - something's gone wrong! ${plain}"

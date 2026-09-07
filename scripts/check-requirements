@@ -32,7 +32,7 @@ checkRequirements() {
   checkRequirement dev-nginx
   checkRequirement aws
   checkRequirement scala-cli
-  checkRequirement ssm
+  checkRequirement session-manager-plugin
 }
 
 checkForJavaHome() {
