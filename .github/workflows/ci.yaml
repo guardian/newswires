@@ -42,7 +42,7 @@ jobs:
 
       # See https://github.com/guardian/setup-scala
       - name: Setup Java and sbt
-        uses: guardian/setup-scala@cc7b39e238d789370aa98fa5f07e609b6527657d # v1.1.0
+        uses: guardian/setup-scala@ac4ece07deb7cef715b8c975d4b8c77109c89ce8 # v1.1.3
 
       - name: Lint and test
         run: |
