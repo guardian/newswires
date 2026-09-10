@@ -71,7 +71,7 @@ dependencyOverrides ++= Seq(
   "rds",
   "netty-nio-client"
 ).map(
-  "software.amazon.awssdk" % _ % "2.49.5"
+  "software.amazon.awssdk" % _ % "2.54.13"
 )
 
 // needed to parse conditional statements in `logback.xml`
