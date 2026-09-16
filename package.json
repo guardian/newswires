@@ -54,7 +54,7 @@
 		"eslint": "9.39.1",
 		"fast-xml-parser": "5.5.8",
 		"nanoid": "^5.0.9",
-		"nodemailer": "9.0.3",
+		"nodemailer": "9.1.0",
 		"undici": "^7.29.0"
 	},
 	"dependencies": {
