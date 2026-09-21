@@ -13,7 +13,7 @@ scalaVersion := "2.13.18"
 libraryDependencies += ws
 libraryDependencies += "com.gu" %% "simple-configuration-ssm" % "13.0.1"
 libraryDependencies += "com.gu" %% "pan-domain-auth-play_3-0" % "22.0.0"
-libraryDependencies += "com.gu" %% "editorial-permissions-client" % "6.0.3"
+libraryDependencies += "com.gu" %% "editorial-permissions-client" % "8.0.0"
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
   "org.scala-lang.modules",
   "scala-parser-combinators_2.13"
