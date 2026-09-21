@@ -2,8 +2,6 @@
 
 Newswires is The Guardian's editorial wires platform. It ingests and stores agency content, and serves a searchable feed to users.
 
-<sup>Looking for the repository containing the current Fingerpost wires? Try [editorial-wires](https://github.com/guardian/editorial-wires) instead (Guardian employees only, sorry).</sup>
-
 ## Contents
 
 1. [Introduction](#1-introduction)
