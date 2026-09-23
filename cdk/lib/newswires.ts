@@ -615,8 +615,8 @@ export class Newswires extends GuStack {
 					}),
 				],
 				condition: {
-					githubOrganisation: 'guardian',
-					repositories: 'newswires:*',
+					githubOrganisation: 'guardian@164318',
+					repositories: 'newswires@848364842:*',
 				},
 			});
 		}
