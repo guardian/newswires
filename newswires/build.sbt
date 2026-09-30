@@ -48,7 +48,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   }))
 )
 
-val jacksonVersion = "2.21.5"
+val jacksonVersion = "2.21.6"
 val jacksonAnnotationVersion = "2.22"
 
 dependencyOverrides ++= Seq(
