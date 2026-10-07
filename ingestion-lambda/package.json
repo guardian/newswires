@@ -14,12 +14,12 @@
 	"dependencies": {
 		"@aws-sdk/rds-signer": "3.995.0",
 		"compromise": "^14.14.4",
-		"mailparser": "^3.9.20",
+		"mailparser": "^3.9.31",
 		"newswires-shared": "*",
 		"postgres": "3.4.7"
 	},
 	"devDependencies": {
-		"@types/mailparser": "3.4.6",
+		"@types/mailparser": "3.9.0",
 		"lorem-ipsum": "2.0.8"
 	}
 }
