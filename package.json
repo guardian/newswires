@@ -45,7 +45,7 @@
 		"lage": "^2.14.15",
 		"prettier": "3.8.1",
 		"tsx": "^4.20.3",
-		"typescript": "5.9.3",
+		"typescript": "7.0.2",
 		"vite": "7.0.5",
 		"vitest": "4.1.9"
 	},
