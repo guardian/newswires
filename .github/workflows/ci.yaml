@@ -35,7 +35,7 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Set up Scala CLI
-        uses: VirtusLab/scala-cli-setup@d320e01a605bf27128a5657575382668f83ef34e # v1.14.0
+        uses: VirtusLab/scala-cli-setup@3f5bf11a33bb88343238780c18257c8fa43789e1 # v1.18.0
 
       - name: Set up test environment
         run: ./scripts/setup-test-env.sh
