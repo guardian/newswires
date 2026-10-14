@@ -10,6 +10,7 @@ import play.api.mvc.EssentialFilter
 import play.api.routing.Router
 import play.api.{BuiltInComponentsFromContext, Logging, Mode}
 import play.filters.HttpFiltersComponents
+import play.filters.csp.CSPComponents
 import play.filters.gzip.GzipFilter
 import router.Routes
 import service.FeatureSwitchProvider
@@ -23,10 +24,18 @@ class AppComponents(context: Context)
     with HttpFiltersComponents
     with AssetsComponents
     with AhcWSComponents
+    with CSPComponents
     with Logging {
 
+  // CSP filter only on in deployed environments (CODE & PROD)
+  private val maybeCspFilter =
+    if (context.environment.mode == Mode.Prod) Some(cspFilter) else None
+
   override def httpFilters: Seq[EssentialFilter] =
-    super.httpFilters ++ Seq(new GzipFilter, new RequestLoggingFilter)
+    super.httpFilters ++ Seq(
+      new GzipFilter,
+      new RequestLoggingFilter
+    ) ++ maybeCspFilter
 
   private val v2Region = Region.EU_WEST_1
 

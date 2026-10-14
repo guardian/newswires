@@ -24,6 +24,10 @@ export default defineConfig(({ mode }) => ({
 		},
 	},
 	base: '/assets',
+	html: {
+		// placeholder value which will be replaced by Play ViteController
+		cspNonce: '@csp.nonce',
+	},
 	server: {
 		origin: 'https://newswires.local.dev-gutools.co.uk',
 		strictPort: true,
