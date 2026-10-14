@@ -1,6 +1,7 @@
 import { act, render } from '@testing-library/react';
 import type { Mock } from 'vitest';
 import type { Query, WiresQueryResponse } from '../sharedTypes.ts';
+import { sampleWireResponse } from '../tests/fixtures/wireData.ts';
 import { flushPendingPromises } from '../tests/testHelpers.ts';
 import type { SearchContextShape } from './SearchContext.tsx';
 import { SearchContextProvider, useSearch } from './SearchContext.tsx';
@@ -10,6 +11,7 @@ const mockResponseData: WiresQueryResponse = {
 	results: [],
 	totalCount: 0,
 	countQueryCap: 100,
+	queryTimestamp: '2024-01-01T00:00:00.000Z',
 };
 
 global.fetch = vi.fn(() =>
@@ -67,6 +69,7 @@ describe('SearchContext', () => {
 			results: [],
 			totalCount: 0,
 			countQueryCap: 100,
+			queryTimestamp: '2024-01-01T00:00:00.000Z',
 		});
 		expect(contextRef.current.state.successfulQueryHistory).toEqual([]);
 	});
@@ -239,5 +242,88 @@ describe('SearchContext', () => {
 		});
 
 		expect(contextRef.current.viewedItemIds).toEqual(['1', '2']);
+	});
+
+	it('should not let loadMoreResults change the afterTimeStamp used by the next poll', async () => {
+		const initialQueryTimestamp = '2025-06-01T00:00:00.000Z';
+		const loadMoreQueryTimestamp = '2025-06-02T00:00:00.000Z';
+
+		const originalFetch = global.fetch;
+
+		global.fetch = vi.fn((url: string) => {
+			const body: WiresQueryResponse = url.includes('beforeTimeStamp')
+				? {
+						results: [
+							{
+								...sampleWireResponse,
+								id: 2,
+								ingestedAt: '2024-12-31T00:00:00Z',
+							},
+						],
+						totalCount: 2,
+						countQueryCap: 100,
+						queryTimestamp: loadMoreQueryTimestamp,
+					}
+				: {
+						results: [
+							{
+								...sampleWireResponse,
+								id: 1,
+								ingestedAt: '2025-01-01T00:00:00Z',
+							},
+						],
+						totalCount: 1,
+						countQueryCap: 100,
+						queryTimestamp: initialQueryTimestamp,
+					};
+			return Promise.resolve({
+				json: () => Promise.resolve(body),
+				ok: true,
+			});
+		}) as Mock;
+
+		vi.useFakeTimers();
+		try {
+			const contextRef = await renderWithContext();
+			if (!contextRef.current) {
+				throw new Error('Context ref was null after render.');
+			}
+			await flushPendingPromises();
+
+			// the poll cursor is seeded from the initial fetch's queryTimestamp
+			expect(contextRef.current.state.queryData?.queryTimestamp).toBe(
+				initialQueryTimestamp,
+			);
+
+			// load more (older) results in between polls
+			await act(async () => {
+				await contextRef.current?.loadMoreResults();
+			});
+
+			// loading older results must not move the poll cursor forward
+			expect(contextRef.current.state.queryData?.queryTimestamp).toBe(
+				initialQueryTimestamp,
+			);
+
+			// trigger the next poll
+			await act(async () => {
+				await vi.advanceTimersByTimeAsync(6000);
+			});
+
+			const pollAfterTimeStamps = (global.fetch as Mock).mock.calls
+				.map((call: unknown[]) => call[0] as string)
+				.filter((url: string) => url.includes('afterTimeStamp'))
+				.map((url: string) =>
+					new URL(url, 'http://localhost').searchParams.get('afterTimeStamp'),
+				);
+
+			expect(pollAfterTimeStamps.length).toBeGreaterThan(0);
+			pollAfterTimeStamps.forEach((afterTimeStamp: string | null) => {
+				expect(afterTimeStamp).toBe(initialQueryTimestamp);
+			});
+		} finally {
+			vi.useRealTimers();
+			global.fetch = originalFetch;
+		}
 	});
 });

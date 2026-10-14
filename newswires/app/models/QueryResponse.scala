@@ -4,11 +4,14 @@ import db.{FingerpostWireEntry, QueryVariant, TimeStampColumn, ToolLink}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 
+import java.time.Instant
+
 case class QueryResponse(
     results: List[FingerpostWireEntry],
     totalCount: Long,
     countQueryCap: Long,
-    queryVariant: QueryVariant
+    queryVariant: QueryVariant,
+    queryTimestamp: Instant
     //      keywordCounts: Map[String, Int]
 )
 

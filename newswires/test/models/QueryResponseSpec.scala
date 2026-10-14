@@ -21,7 +21,8 @@ class QueryResponseSpec extends AnyFlatSpec with Matchers with models {
       results = results,
       totalCount = results.length,
       countQueryCap = FingerpostWireEntry.COUNT_QUERY_CAP,
-      queryVariant = PlainNot
+      queryVariant = PlainNot,
+      queryTimestamp = Instant.ofEpochMilli(0)
     )
 
   behavior of "QueryResponse.display"
