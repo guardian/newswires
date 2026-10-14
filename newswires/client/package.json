@@ -31,7 +31,7 @@
 		"zod": "4.6.5"
 	},
 	"devDependencies": {
-		"@guardian/prettier": "11.0.0",
+		"@guardian/prettier": "8.0.1",
 		"@storybook/react-vite": "10.6.1",
 		"@testing-library/react": "16.3.3",
 		"@types/react": "^18.3.3",
@@ -40,12 +40,12 @@
 		"@vitejs/plugin-react": "6.1.1",
 		"eslint-import-resolver-typescript": "4.4.5",
 		"eslint-plugin-react": "7.37.5",
-		"eslint-plugin-react-hooks": "^7.0.1",
+		"eslint-plugin-react-hooks": "7.0.1",
 		"eslint-plugin-react-refresh": "^0.5.7",
 		"eslint-plugin-storybook": "10.6.1",
 		"globals": "^17.12.0",
 		"jsdom": "^30.0.1",
-		"prettier": "^3.9.9",
+		"prettier": "^3.6.2",
 		"storybook": "10.6.1",
 		"timezone-mock": "^1.4.3",
 		"vite-plugin-checker": "^0.14.5"
