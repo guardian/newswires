@@ -267,7 +267,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
       )
 
     whereClause should matchSqlSnippet(
-      sqls"$customParamsClause and (($preset1Clause)) and  (NOT ($preset2Clause))",
+      sqls"$customParamsClause and (($preset1Clause)) and  ((($preset2Clause)) IS NOT TRUE)",
       List(
         "supplier1",
         List("N2:GB"),
@@ -277,6 +277,43 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
         "soccer",
         "AFP"
       )
+    )
+  }
+
+  it should "apply the selected query variant to negated presets" in {
+    val negatedPreset =
+      emptyFilterParams.copy(suppliersExcl = List("supplier"))
+
+    val whereClause = FingerpostWireEntry.buildWhereClause(
+      emptySearchParams,
+      emptyQueryCursor,
+      defaultOrdering,
+      negatedSearchPresets = List(negatedPreset),
+      queryVariant = NotExists
+    )
+
+    whereClause should matchSqlSnippet(
+      expectedClause =
+        "((NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND upper(fm_excl.supplier) in (upper(?)) ))) IS NOT TRUE",
+      expectedParams = List("supplier")
+    )
+  }
+
+  it should "keep NULL rows for inclusion filters in a negated preset regardless of variant" in {
+    val negatedPreset =
+      emptyFilterParams.copy(suppliersIncl = List("supplier"))
+
+    val whereClause = FingerpostWireEntry.buildWhereClause(
+      emptySearchParams,
+      emptyQueryCursor,
+      defaultOrdering,
+      negatedSearchPresets = List(negatedPreset),
+      queryVariant = NotExists
+    )
+
+    whereClause should matchSqlSnippet(
+      expectedClause = "(( upper(fm.supplier) in (upper(?)))) IS NOT TRUE",
+      expectedParams = List("supplier")
     )
   }
 
@@ -618,7 +655,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for suppliersExcl" in {
     val supplierExclClause =
-      "NOT ( upper(fm.supplier) in (upper(?)))"
+      "( upper(fm.supplier) in (upper(?))) IS NOT TRUE"
     val suppliersExclSQL =
       FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"))
     suppliersExclSQL should matchSqlSnippet(
@@ -652,7 +689,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for categoryCodesExcl" in {
     val categoryExclClause =
-      "NOT (fm.category_codes && ?)"
+      "(fm.category_codes && ?) IS NOT TRUE"
 
     val categoryCodesExcl =
       FingerpostWireEntry.Filters.categoryCodeExclSQL(List("code"))
@@ -674,7 +711,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct sql snippet for precomputedCategoriesExcl" in {
     val precomputedCategoriesExclClause =
-      "NOT (fm.precomputed_categories && ?)"
+      "(fm.precomputed_categories && ?) IS NOT TRUE"
 
     val precomputedCategoriesExcl =
       FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(List("category"))
@@ -777,7 +814,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
 
   it should "create the correct sql snippet for keywordExcl" in {
     val keywordExclClause =
-      "NOT ((fm.content -> 'keywords') ??| ?)"
+      "((fm.content -> 'keywords') ??| ?) IS NOT TRUE"
     val keywordExclSQL =
       FingerpostWireEntry.Filters.keywordsExclSQL(List("keyword"))
     keywordExclSQL should matchSqlSnippet(
@@ -786,10 +823,20 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
     )
   }
 
+  it should "retain null or missing values with the PlainNot variant" in {
+    val suppliersExclSQL =
+      FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"), PlainNot)
+
+    suppliersExclSQL should matchSqlSnippet(
+      expectedClause = "( upper(fm.supplier) in (upper(?))) IS NOT TRUE",
+      expectedParams = List("supplier")
+    )
+  }
+
   behavior of "exclusion clauses when NotExists variant is specified"
   it should "create the correct sql snippet for suppliersExcl when NotExists variant is specified" in {
     val supplierExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND upper(fm.supplier) in (upper(?)) )"
+      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND upper(fm_excl.supplier) in (upper(?)) )"
     val suppliersExclSQL =
       FingerpostWireEntry.Filters.supplierExclSQL(List("supplier"), NotExists)
     suppliersExclSQL should matchSqlSnippet(
@@ -799,7 +846,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct sql snippet for categoryCodesExcl when NotExists variant is specified" in {
     val categoryExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND fm.category_codes && ? )"
+      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND fm_excl.category_codes && ? )"
     val categoryCodesExcl =
       FingerpostWireEntry.Filters.categoryCodeExclSQL(List("code"), NotExists)
     categoryCodesExcl should matchSqlSnippet(
@@ -809,7 +856,7 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct sql snippet for precomputedCategoriesExcl when NotExists variant is specified" in {
     val precomputedCategoriesExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND fm.precomputed_categories && ? )"
+      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND fm_excl.precomputed_categories && ? )"
     val precomputedCategoriesExcl =
       FingerpostWireEntry.Filters.preComputedCategoriesExclSQL(
         List("category"),
@@ -822,12 +869,22 @@ class FingerpostWireEntrySpec extends AnyFlatSpec with Matchers with models {
   }
   it should "create the correct sql snippet for keywordsExcl when NotExists variant is specified" in {
     val keywordExclClause =
-      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm WHERE fm.id = fm.id AND (fm.content -> 'keywords') ??| ? )"
+      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND (fm_excl.content -> 'keywords') ??| ? )"
     val keywordExclSQL =
       FingerpostWireEntry.Filters.keywordsExclSQL(List("keyword"), NotExists)
     keywordExclSQL should matchSqlSnippet(
       expectedClause = keywordExclClause,
       expectedParams = List(List("keyword"))
+    )
+  }
+  it should "create the correct sql snippet for guSourceFeedExcl when NotExists variant is specified" in {
+    val guSourceFeedExclClause =
+      "NOT EXISTS ( SELECT FROM fingerpost_wire_entry fm_excl WHERE fm.id = fm_excl.id AND upper(fm_excl.gu_source_feed) in (upper(?)) )"
+    val guSourceFeedExclSQL =
+      FingerpostWireEntry.Filters.guSourceFeedExclSQL(List("feed"), NotExists)
+    guSourceFeedExclSQL should matchSqlSnippet(
+      expectedClause = guSourceFeedExclClause,
+      expectedParams = List("feed")
     )
   }
 
