@@ -395,7 +395,7 @@ const WirePreviewCard = ({
 					`}
 				>
 					{hasDataFormatting && (
-						<EuiIcon type="visTable" size="m" title="Has data formatting" />
+						<EuiIcon type="table" size="m" title="Has data formatting" />
 					)}
 					{isAlert && (
 						<AlertLabel

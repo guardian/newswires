@@ -298,7 +298,7 @@ export const SearchSummary = ({
 							margin-right: 4px;
 						`}
 						aria-label="Open new ticker in popout"
-						iconType={'popout'}
+						iconType={'external'}
 						color={'primary'}
 						onClick={() => openTicker(config.query)}
 					/>

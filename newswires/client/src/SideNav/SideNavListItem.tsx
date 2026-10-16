@@ -109,7 +109,7 @@ export const SideNavListItem = ({
 						css={css`
 							grid-column: leftArrow;
 						`}
-						type={'arrowLeft'}
+						type={'chevronSingleLeft'}
 						onClick={handleArrowClick}
 					/>
 				)}
@@ -143,7 +143,7 @@ export const SideNavListItem = ({
 						css={css`
 							grid-column: leftArrow;
 						`}
-						type={'arrowRight'}
+						type={'chevronSingleRight'}
 						onClick={handleArrowClick}
 					/>
 				)}
@@ -154,7 +154,7 @@ export const SideNavListItem = ({
 						handleSecondaryActionClick();
 					}}
 					className="secondary-action-button"
-					iconType="popout"
+					iconType="external"
 					size="xs"
 					aria-label={`open ${label} ticker`}
 					css={css`

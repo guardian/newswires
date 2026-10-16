@@ -262,11 +262,7 @@ function CategoryCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 					color={isSelected ? 'primary' : 'accent'}
 					onClick={(e: React.MouseEvent) => handleCategoryClick(item.code, e)}
 					iconType={
-						isSelected
-							? 'check'
-							: isAltPressed
-								? 'minusInCircle'
-								: 'plusInCircle'
+						isSelected ? 'check' : isAltPressed ? 'minusCircle' : 'plusCircle'
 					}
 					aria-label="Toggle selection"
 				/>
@@ -343,7 +339,7 @@ function GeographyCodeTable({ categoryCodes }: { categoryCodes: string[] }) {
 				<EuiButtonIcon
 					color={isSelected ? 'primary' : 'accent'}
 					onClick={() => handleCategoryClick(item.code)}
-					iconType={isSelected ? 'check' : 'plusInCircle'}
+					iconType={isSelected ? 'check' : 'plusCircle'}
 					aria-label="Toggle selection"
 				/>
 			),
@@ -664,7 +660,7 @@ export const WireDetail = ({
 					position={isSmallScreen ? 'right' : 'top'}
 				>
 					<EuiButtonIcon
-						iconType="arrowLeft"
+						iconType="chevronSingleLeft"
 						onClick={handlePreviousItem}
 						aria-label="Previous story"
 						disabled={isFirst}
@@ -675,7 +671,7 @@ export const WireDetail = ({
 				) : (
 					<Tooltip tooltipContent="Next story">
 						<EuiButtonIcon
-							iconType="arrowRight"
+							iconType="chevronSingleRight"
 							onClick={() => {
 								void handleNextItem();
 							}}
