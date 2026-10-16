@@ -63,7 +63,6 @@
 		"@types/aws-lambda": "8.10.164",
 		"mailauth": "^7.1.0",
 		"node-html-parser": "9.0.4",
-		"zod": "4.6.5",
-		"@elastic/eui": "116.1.0"
+		"zod": "4.6.5"
 	}
 }
