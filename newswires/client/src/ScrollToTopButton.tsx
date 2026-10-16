@@ -119,7 +119,7 @@ export const ScrollToTopButton = ({
 
 			{visible && (
 				<EuiButton
-					iconType="arrowUp"
+					iconType="chevronSingleUp"
 					onClick={scrollToTop}
 					size="m"
 					color="primary"

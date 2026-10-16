@@ -38,7 +38,7 @@ export const Disclosure = ({
 		>
 			<details open={defaultOpen}>
 				<summary>
-					<EuiIcon className={'disclosure-arrow'} type="arrowRight" />
+					<EuiIcon className={'disclosure-arrow'} type="chevronSingleRight" />
 					<span>{title}</span>
 				</summary>
 				<div
