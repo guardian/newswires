@@ -14,8 +14,8 @@
 		"newswires-shared": "*"
 	},
 	"devDependencies": {
-		"@aws-sdk/client-secrets-manager": "3.1147.0",
-		"@aws-sdk/client-sqs": "3.1147.0",
+		"@aws-sdk/client-secrets-manager": "3.1148.0",
+		"@aws-sdk/client-sqs": "3.1148.0",
 		"@types/prompts": "^2.0.14",
 		"prompts": "^2.4.2"
 	}
