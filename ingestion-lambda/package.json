@@ -12,9 +12,9 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
-		"@aws-sdk/rds-signer": "3.1147.0",
+		"@aws-sdk/rds-signer": "3.1149.0",
 		"compromise": "^14.18.0",
-		"mailparser": "^3.9.31",
+		"mailparser": "^3.9.38",
 		"newswires-shared": "*",
 		"postgres": "3.4.9"
 	},
