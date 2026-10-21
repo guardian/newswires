@@ -28,6 +28,8 @@ libraryDependencies += "io.circe" %% "circe-parser" % "0.14.16"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
+// A transient dependency added to evict vulnerable versions
+libraryDependencies += "at.yawk.lz4" % "lz4-java" % "1.11.4"
 
 lazy val root = (project in file(".")).enablePlugins(
   PlayScala,
