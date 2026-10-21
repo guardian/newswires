@@ -9,7 +9,7 @@
 		"lint:ci": "eslint src/** --no-error-on-unmatched-pattern"
 	},
 	"dependencies": {
-		"@aws-sdk/rds-signer": "3.1147.0",
+		"@aws-sdk/rds-signer": "3.1151.0",
 		"newswires-shared": "*",
 		"postgres": "3.4.9"
 	},
