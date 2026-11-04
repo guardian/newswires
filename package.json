@@ -53,16 +53,15 @@
 	"overrides": {
 		"eslint": "9.39.1",
 		"fast-xml-parser": "5.5.8",
-		"nanoid": "^5.0.9",
-		"undici": "^7.30.0"
+		"nanoid": "^5.0.9"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.1147.0",
 		"@guardian/libs": "32.0.0",
 		"@sentry/react": "^10.76.1",
 		"@types/aws-lambda": "8.10.164",
-		"mailauth": "^7.1.0",
+		"mailauth": "^8.0.4",
 		"node-html-parser": "9.0.4",
-		"zod": "4.6.5"
+		"zod": "4.6.7"
 	}
 }
