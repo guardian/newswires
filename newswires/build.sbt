@@ -63,7 +63,9 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion) ++ Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion,
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
+  // override transitive guava to evict vulnerable versions
+  "com.google.guava" % "guava" % "33.7.2-jre"
 )
 
 dependencyOverrides ++= Seq(
