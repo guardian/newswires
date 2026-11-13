@@ -3,12 +3,10 @@ package conf
 private[conf] object CategoryCodes {
   object World {
     val REUTERS: List[String] = List("REUTERS:WORLD")
-    val AFP: List[String] = List("afpCat:SPO")
     val AP: List[String] = List("apCat:i", "apCat:a", "apCat:w")
     val PA: List[String] = List(
       "paCat:OOO" // 'Foreign news' (PA is UK-based)
     )
-    val AAP: List[String] = Categories.sportsRelatedNewsCodes
   }
 
   object US {
