@@ -83,6 +83,10 @@ function appendQueryData(
 		return {
 			...newData,
 			totalCount: existing.totalCount,
+			// Keep the existing poll cursor: appended pages are older items, so
+			// advancing to the load-more request's timestamp could skip newer items
+			// that arrived at the top of the list since the last poll.
+			queryTimestamp: existing.queryTimestamp,
 			results: [...existing.results, ...dedupedNewItems],
 		};
 	} else {

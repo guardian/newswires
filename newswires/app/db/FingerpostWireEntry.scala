@@ -656,6 +656,16 @@ object FingerpostWireEntry
       countQueryCap: Long = COUNT_QUERY_CAP,
       queryVariant: QueryVariant = PlainNot
   ): QueryResponse = DB readOnly { implicit session =>
+    /** 
+      Capture the database's current time before running the query, so callers
+      can poll for items that appear at or after this point without relying on
+      the client or server clock matching the database clock. Capturing it
+      before the query means any item ingested while the query runs will still
+      be picked up on the next poll (deduplicated client-side).
+     */
+    val queryTimestamp: Instant =
+      sql"SELECT now()".map(_.zonedDateTime(1).toInstant).single().get
+
     val whereClause = buildWhereClause(
       queryParams.searchParams,
       queryParams.queryCursor,
@@ -722,7 +732,8 @@ object FingerpostWireEntry
       results,
       totalCount,
       countQueryCap,
-      queryVariant
+      queryVariant,
+      queryTimestamp
     )
   }
 

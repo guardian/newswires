@@ -112,9 +112,9 @@ export const WireItemLabel = ({
 			css={[
 				hoverParentStyles,
 				css`
-					border-radius: ${rounded === 'very'
-						? euiTheme.size.m
-						: euiTheme.size.xxs};
+					border-radius: ${
+						rounded === 'very' ? euiTheme.size.m : euiTheme.size.xxs
+					};
 					padding: 0 ${euiTheme.size.s};
 					border: 1px solid ${outlined ? borderColour : 'transparent'};
 					color: ${textColour};

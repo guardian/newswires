@@ -10,6 +10,7 @@ describe('decideSearchSummaryLabel', () => {
 				totalCount: 1,
 				countQueryCap: 100,
 				results: [],
+				queryTimestamp: '2024-01-01T00:00:00.000Z',
 			}),
 		).toContain('1 result');
 	});
@@ -19,6 +20,7 @@ describe('decideSearchSummaryLabel', () => {
 				totalCount: 0,
 				countQueryCap: 100,
 				results: [],
+				queryTimestamp: '2024-01-01T00:00:00.000Z',
 			}),
 		).toContain('No results');
 	});
@@ -28,6 +30,7 @@ describe('decideSearchSummaryLabel', () => {
 				totalCount: 150,
 				countQueryCap: 100,
 				results: [],
+				queryTimestamp: '2024-01-01T00:00:00.000Z',
 			}),
 		).toContain('100+ results');
 	});
@@ -37,6 +40,7 @@ describe('decideSearchSummaryLabel', () => {
 				totalCount: 50,
 				countQueryCap: 100,
 				results: [],
+				queryTimestamp: '2024-01-01T00:00:00.000Z',
 			}),
 		).toContain('50 results');
 	});

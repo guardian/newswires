@@ -29,10 +29,7 @@ import {
 } from './localStorage.tsx';
 import { safeReducer, SearchReducer } from './SearchReducer.ts';
 import { useTelemetry } from './TelemetryContext.tsx';
-import {
-	getEarliestTimeStamp,
-	getLatestTimeStamp,
-} from './timestamp-compare.ts';
+import { getEarliestTimeStamp } from './timestamp-compare.ts';
 
 export type SearchHistory = {
 	query: Query;
@@ -74,11 +71,7 @@ type OfflineState = BaseState & {
 };
 
 export type State =
-	| InitialisedState
-	| LoadingState
-	| SuccessState
-	| ErrorState
-	| OfflineState;
+	InitialisedState | LoadingState | SuccessState | ErrorState | OfflineState;
 
 type Enter = {
 	type: 'ENTER_QUERY';
@@ -298,10 +291,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		if (state.status === 'success' || state.status === 'offline') {
 			pollingInterval = setInterval(() => {
 				if (state.autoUpdate) {
-					const afterTimeStamp = getLatestTimeStamp(
-						state.queryData.results,
-						state.sortBy,
-					);
+					const afterTimeStamp = state.queryData.queryTimestamp;
 					const startedAt = performance.now();
 					fetchResults({
 						query: currentConfig.query,
@@ -353,6 +343,7 @@ export function SearchContextProvider({ children }: PropsWithChildren) {
 		state.autoUpdate,
 		currentConfig.query,
 		state.queryData?.results,
+		state.queryData?.queryTimestamp,
 		sendTelemetryEvent,
 		currentConfig.view,
 		state.sortBy,

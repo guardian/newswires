@@ -14,6 +14,7 @@ const sampleQueryData = {
 	results: [{ ...sampleWireData }],
 	totalCount: 1,
 	countQueryCap: 100,
+	queryTimestamp: '2025-01-01T02:04:00Z',
 };
 
 describe('SearchReducer', () => {
@@ -147,6 +148,7 @@ describe('SearchReducer', () => {
 						],
 						totalCount: 2,
 						countQueryCap: 100,
+						queryTimestamp: '2025-01-01T02:04:00Z',
 					},
 				};
 
@@ -167,6 +169,7 @@ describe('SearchReducer', () => {
 						],
 						totalCount: 2,
 						countQueryCap: 100,
+						queryTimestamp: '2025-01-01T02:04:00Z',
 					},
 					query: {
 						q: 'test',
@@ -224,6 +227,7 @@ describe('SearchReducer', () => {
 						],
 						totalCount: 2,
 						countQueryCap: 100,
+						queryTimestamp: '2025-01-01T02:04:00Z',
 					},
 				};
 
@@ -256,6 +260,7 @@ describe('SearchReducer', () => {
 						],
 						totalCount: 2,
 						countQueryCap: 100,
+						queryTimestamp: '2025-01-01T02:04:00Z',
 					},
 					query: {
 						q: 'test',
@@ -293,6 +298,7 @@ describe('SearchReducer', () => {
 					results: [itemOne],
 					totalCount: 1,
 					countQueryCap: 100,
+					queryTimestamp: '2025-01-01T02:04:00Z',
 				},
 			};
 
@@ -302,6 +308,7 @@ describe('SearchReducer', () => {
 					results: [itemOne, itemTwo],
 					totalCount: 2,
 					countQueryCap: 100,
+					queryTimestamp: '2025-01-01T02:04:00Z',
 				},
 				query: {
 					q: 'test',
@@ -334,6 +341,7 @@ describe('SearchReducer', () => {
 				results: [{ ...sampleWireData, id: 2 }],
 				totalCount: 2,
 				countQueryCap: 100,
+				queryTimestamp: '2025-01-01T02:04:00Z',
 			},
 		};
 
@@ -343,6 +351,7 @@ describe('SearchReducer', () => {
 				results: [{ ...sampleWireData, id: 1 }],
 				totalCount: 1,
 				countQueryCap: 100,
+				queryTimestamp: '2025-01-01T02:04:00Z',
 			},
 		};
 
@@ -368,6 +377,7 @@ describe('SearchReducer', () => {
 				results: [{ ...sampleWireData, id: 2 }],
 				totalCount: 2,
 				countQueryCap: 100,
+				queryTimestamp: '2025-01-01T02:04:00Z',
 			},
 		};
 
@@ -380,6 +390,7 @@ describe('SearchReducer', () => {
 				],
 				totalCount: 2,
 				countQueryCap: 100,
+				queryTimestamp: '2025-01-01T02:04:00Z',
 			},
 		};
 
