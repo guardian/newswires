@@ -34,6 +34,10 @@ updates:
         exclude-patterns:
           - '@guardian/cdk'
           - 'typescript'
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
     cooldown:
       default-days: 7
       semver-major-days: 30
