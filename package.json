@@ -58,7 +58,7 @@
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.1166.0",
 		"@guardian/libs": "32.0.0",
-		"@sentry/react": "^10.76.1",
+		"@sentry/react": "^11.8.0",
 		"@types/aws-lambda": "8.10.164",
 		"mailauth": "^8.0.4",
 		"node-html-parser": "9.0.7",
