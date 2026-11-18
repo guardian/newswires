@@ -37,16 +37,16 @@
 		"@guardian/prettier": "10.0.0",
 		"@guardian/tsconfig": "2.0.0",
 		"@types/node": "22.15.35",
-		"@typescript-eslint/parser": "^8.49.0",
+		"@typescript-eslint/parser": "^8.72.2",
 		"esbuild": "^0.28.2",
 		"eslint": "9.39.1",
-		"eslint-plugin-prettier": "5.5.6",
+		"eslint-plugin-prettier": "5.5.7",
 		"husky": "^9.1.7",
-		"lage": "^2.17.0",
-		"prettier": "3.8.1",
+		"lage": "^2.17.1",
+		"prettier": "3.9.10",
 		"tsx": "^4.23.15",
 		"typescript": "5.9.3",
-		"vite": "8.3.0",
+		"vite": "8.3.8",
 		"vitest": "4.1.9"
 	},
 	"prettier": "@guardian/prettier",
@@ -56,12 +56,12 @@
 		"nanoid": "^5.0.9"
 	},
 	"dependencies": {
-		"@aws-sdk/client-s3": "3.1147.0",
+		"@aws-sdk/client-s3": "3.1166.0",
 		"@guardian/libs": "32.0.0",
 		"@sentry/react": "^10.76.1",
 		"@types/aws-lambda": "8.10.164",
 		"mailauth": "^8.0.4",
-		"node-html-parser": "9.0.4",
+		"node-html-parser": "9.0.7",
 		"zod": "4.6.7"
 	}
 }
