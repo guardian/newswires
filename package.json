@@ -47,7 +47,7 @@
 		"tsx": "^4.23.15",
 		"typescript": "5.9.3",
 		"vite": "8.3.8",
-		"vitest": "4.1.9"
+		"vitest": "5.0.5"
 	},
 	"prettier": "@guardian/prettier",
 	"overrides": {
