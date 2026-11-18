@@ -80,9 +80,9 @@ export const SideNavListItem = ({
 				margin-bottom: ${euiTheme.size.xs};
 				border-radius: ${euiTheme.size.xs};
 				transition: background-color 0.2s ease;
-				background-color: ${isActive
-					? euiTheme.colors.backgroundBasePrimary
-					: 'transparent'};
+				background-color: ${
+					isActive ? euiTheme.colors.backgroundBasePrimary : 'transparent'
+				};
 
 				&:hover .secondary-action-button,
 				&:focus-within .secondary-action-button {
