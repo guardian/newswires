@@ -22,12 +22,14 @@ export const StageDisplayBanner = () => {
 				<EuiHeader
 					position="fixed"
 					css={css`
-						background-color: ${stage === 'DEV'
-							? euiTheme.colors.warning
-							: euiTheme.colors.danger};
-						color: ${stage === 'DEV'
-							? euiTheme.colors.textHeading
-							: euiTheme.colors.textGhost};
+						background-color: ${
+							stage === 'DEV' ? euiTheme.colors.warning : euiTheme.colors.danger
+						};
+						color: ${
+							stage === 'DEV'
+								? euiTheme.colors.textHeading
+								: euiTheme.colors.textGhost
+						};
 						padding: 10px;
 						top: 10px;
 						bottom: 10px;

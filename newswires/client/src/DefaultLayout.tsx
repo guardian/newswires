@@ -133,7 +133,7 @@ export function DefaultLayout() {
 										aria-label="New ticker"
 										display="base"
 										size="s"
-										iconType={'popout'}
+										iconType={'external'}
 										onClick={() => openTicker(config.query)}
 									/>
 								</Tooltip>
@@ -141,7 +141,7 @@ export function DefaultLayout() {
 							<EuiShowFor sizes={['m', 'l', 'xl']}>
 								<EuiButton
 									size="s"
-									iconType={'popout'}
+									iconType={'external'}
 									onClick={() => openTicker(config.query)}
 								>
 									New ticker

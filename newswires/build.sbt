@@ -21,13 +21,15 @@ libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "4.3.5" exclude (
 // be careful upgrading logstash-logback-encoder: 9.0 upgrades to jackson 3.x, but
 // rest of app still uses jackson 2.x... hold off for now if possible
 libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
-libraryDependencies += "org.postgresql" % "postgresql" % "42.7.12"
+libraryDependencies += "org.postgresql" % "postgresql" % "42.7.14"
 libraryDependencies += "software.amazon.jdbc" % "aws-advanced-jdbc-wrapper" % "4.3.0"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.16"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.16"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % "test"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
+// A transient dependency added to evict vulnerable versions
+libraryDependencies += "at.yawk.lz4" % "lz4-java" % "1.11.4"
 
 lazy val root = (project in file(".")).enablePlugins(
   PlayScala,
@@ -61,7 +63,9 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.module" %% "jackson-module-scala"
 ).map(_ % jacksonVersion) ++ Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonAnnotationVersion,
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0"
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
+  // override transitive guava to evict vulnerable versions
+  "com.google.guava" % "guava" % "33.7.2-jre"
 )
 
 dependencyOverrides ++= Seq(

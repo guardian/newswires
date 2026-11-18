@@ -80,9 +80,9 @@ export const SideNavListItem = ({
 				margin-bottom: ${euiTheme.size.xs};
 				border-radius: ${euiTheme.size.xs};
 				transition: background-color 0.2s ease;
-				background-color: ${isActive
-					? euiTheme.colors.backgroundBasePrimary
-					: 'transparent'};
+				background-color: ${
+					isActive ? euiTheme.colors.backgroundBasePrimary : 'transparent'
+				};
 
 				&:hover .secondary-action-button,
 				&:focus-within .secondary-action-button {
@@ -109,7 +109,7 @@ export const SideNavListItem = ({
 						css={css`
 							grid-column: leftArrow;
 						`}
-						type={'arrowLeft'}
+						type={'chevronSingleLeft'}
 						onClick={handleArrowClick}
 					/>
 				)}
@@ -143,7 +143,7 @@ export const SideNavListItem = ({
 						css={css`
 							grid-column: leftArrow;
 						`}
-						type={'arrowRight'}
+						type={'chevronSingleRight'}
 						onClick={handleArrowClick}
 					/>
 				)}
@@ -154,7 +154,7 @@ export const SideNavListItem = ({
 						handleSecondaryActionClick();
 					}}
 					className="secondary-action-button"
-					iconType="popout"
+					iconType="external"
 					size="xs"
 					aria-label={`open ${label} ticker`}
 					css={css`

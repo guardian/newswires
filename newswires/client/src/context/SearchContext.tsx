@@ -74,11 +74,7 @@ type OfflineState = BaseState & {
 };
 
 export type State =
-	| InitialisedState
-	| LoadingState
-	| SuccessState
-	| ErrorState
-	| OfflineState;
+	InitialisedState | LoadingState | SuccessState | ErrorState | OfflineState;
 
 type Enter = {
 	type: 'ENTER_QUERY';
