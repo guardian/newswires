@@ -71,6 +71,7 @@ import { POLLERS_CONFIG } from 'newswires-shared/pollers';
 import { appName, LAMBDA_ARCHITECTURE, LAMBDA_RUNTIME } from './constants';
 import { GuDatabase } from './constructs/database';
 import { PollerLambda } from './constructs/pollerLambda';
+import { NewswiresWaf } from './constructs/waf';
 import { createLocalRunDeveloperPolicy } from './local-run-developer-policy';
 
 export type NewswiresProps = GuStackProps & {
@@ -83,11 +84,15 @@ export type NewswiresProps = GuStackProps & {
 };
 
 export class Newswires extends GuStack {
+	private appScope: App;
+
 	constructor(scope: App, id: string, props: NewswiresProps) {
 		super(scope, id, {
 			...props,
 			app: appName,
 		});
+
+		this.appScope = scope;
 
 		const certificateArn = new GuParameter(this, 'CloudFrontCertificateArn', {
 			description: `The ARN of the CloudFront certificate for ${props.domainName}, for consumption by the Newswires app stack.`,
@@ -551,6 +556,17 @@ export class Newswires extends GuStack {
 			certificateArn.valueAsString,
 		);
 
+		// Create WAF in log-only mode (monitoring mode = true)
+		const newswiresWaf = new NewswiresWaf(
+			this.appScope,
+			`NewswiresWaf-${this.stage}`,
+			{
+				stack: this.stack,
+				stage: this.stage,
+				monitoringMode: true, // Log-only mode - no blocking
+			},
+		);
+
 		const newswiresCloudFrontDistro = new Distribution(
 			this,
 			`newswires-cloudfront-distro-${this.stage}`,
@@ -566,6 +582,7 @@ export class Newswires extends GuStack {
 				logBucket: cloudFrontLogsBucket,
 				certificate: cloudfrontCertificate,
 				domainNames: [domainName],
+				webAclId: newswiresWaf.webAclArn, // Attach WAF to CloudFront
 			},
 		);
 
