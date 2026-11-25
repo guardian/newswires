@@ -7533,3 +7533,113 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
   },
 }
 `;
+
+exports[`createStacks > should create WiresFeeds and Newswires stacks with correct properties 4`] = `
+{
+  "Metadata": {
+    "gu:cdk:constructs": [],
+    "gu:cdk:version": "TEST",
+  },
+  "Outputs": {
+    "WebAclArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "WebAcl",
+          "Arn",
+        ],
+      },
+    },
+  },
+  "Resources": {
+    "WebAcl": {
+      "Properties": {
+        "DefaultAction": {
+          "Allow": {},
+        },
+        "Name": "newswires-waf-TEST",
+        "Rules": [
+          {
+            "Name": "AWSManagedRulesCommonRuleGroup",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 1,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesCommonRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWSManagedRulesCommonRuleGroupMetrics",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWSManagedRulesKnownBadInputsRuleGroup",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 2,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesKnownBadInputsRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWSManagedRulesKnownBadInputsRuleGroupMetrics",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Action": {
+              "Count": {},
+            },
+            "Name": "RateLimitRule",
+            "Priority": 3,
+            "Statement": {
+              "RateBasedStatement": {
+                "AggregateKeyType": "IP",
+                "Limit": 2000,
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "RateLimitRuleMetrics",
+              "SampledRequestsEnabled": true,
+            },
+          },
+        ],
+        "Scope": "CLOUDFRONT",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VisibilityConfig": {
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": "newswires-waf-TEST",
+          "SampledRequestsEnabled": true,
+        },
+      },
+      "Type": "AWS::WAFv2::WebACL",
+    },
+  },
+}
+`;

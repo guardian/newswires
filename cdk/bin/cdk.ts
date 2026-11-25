@@ -38,7 +38,6 @@ export function createStacks({
 	const wafStack = new NewswiresWaf(app, `NewswiresWaf-${stage}`, {
 		stack,
 		stage,
-		monitoringMode: true, // Always use log-only mode
 	});
 
 	const wiresFeedsStack = new WiresFeeds(app, `WiresFeeds-${stage}`, {

@@ -23,9 +23,6 @@ describe('createStacks', () => {
 			...stackProps,
 		});
 
-		// Verify WAF stack is created but don't snapshot it (snapshot compatibility)
-		expect(wafStack).toBeDefined();
-
 		const wiresFeedsTemplate = Template.fromStack(wiresFeedsStack);
 		expect(wiresFeedsTemplate.toJSON()).toMatchSnapshot();
 		const newswiresTemplate = Template.fromStack(newswiresStack);
@@ -34,5 +31,7 @@ describe('createStacks', () => {
 			cloudfrontCertificateStack,
 		);
 		expect(cloudfrontCertificateTemplate.toJSON()).toMatchSnapshot();
+		const wafTemplate = Template.fromStack(wafStack);
+		expect(wafTemplate.toJSON()).toMatchSnapshot();
 	}, 15000);
 });
