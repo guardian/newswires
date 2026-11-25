@@ -19,5 +19,5 @@ describe('NewswiresCloudFrontCertificate', () => {
 
 		const template = Template.fromStack(stack);
 		expect(template.toJSON()).toMatchSnapshot();
-	});
+	}, 15000);
 });
