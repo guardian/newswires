@@ -1018,6 +1018,7 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
   "Metadata": {
     "gu:cdk:constructs": [
       "GuParameter",
+      "GuParameter",
       "GuVpcParameter",
       "GuSubnetListParameter",
       "GuSecurityGroup",
@@ -1115,6 +1116,11 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
     "CloudFrontCertificateArn": {
       "Default": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
       "Description": "The ARN of the CloudFront certificate for newswires.TEST.dev-gutools.co.uk, for consumption by the Newswires app stack.",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "CloudFrontWebAclArn": {
+      "Default": "/TEST/editorial-feeds/newswires/cloudfront/webAclArn",
+      "Description": "The ARN of the WAF web ACL (from the NewswiresWaf stack in us-east-1) to attach to the CloudFront distribution for newswires.TEST.dev-gutools.co.uk.",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "DistributionBucketName": {
@@ -6577,6 +6583,9 @@ dpkg -i /newswires/newswires.deb",
             },
             "MinimumProtocolVersion": "TLSv1.2_2021",
             "SslSupportMethod": "sni-only",
+          },
+          "WebACLId": {
+            "Ref": "CloudFrontWebAclArn",
           },
         },
         "Tags": [

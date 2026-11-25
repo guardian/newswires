@@ -96,6 +96,13 @@ export class Newswires extends GuStack {
 			type: 'String',
 		});
 
+		const webAclArn = new GuParameter(this, 'CloudFrontWebAclArn', {
+			description: `The ARN of the WAF web ACL (from the NewswiresWaf stack in us-east-1) to attach to the CloudFront distribution for ${props.domainName}.`,
+			fromSSM: true,
+			default: `/${this.stage}/${this.stack}/${appName}/cloudfront/webAclArn`,
+			type: 'String',
+		});
+
 		const { domainName, emailDomainName, enableMonitoring } = props;
 
 		const vpc = GuVpc.fromIdParameter(this, 'VPC');
@@ -566,6 +573,7 @@ export class Newswires extends GuStack {
 				logBucket: cloudFrontLogsBucket,
 				certificate: cloudfrontCertificate,
 				domainNames: [domainName],
+				webAclId: webAclArn.valueAsString,
 			},
 		);
 
