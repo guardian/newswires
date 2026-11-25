@@ -286,6 +286,18 @@ deployments:
     dependencies:
       - cfn-eu-west-1-editorial-feeds-newswires
     contentDirectory: newswires
+  cfn-us-east-1-editorial-feeds-newswires-waf:
+    type: cloud-formation
+    regions:
+      - us-east-1
+    stacks:
+      - editorial-feeds
+    app: newswires-waf
+    contentDirectory: cdk.out
+    parameters:
+      templateStagePaths:
+        CODE: NewswiresWaf-CODE.template.json
+        PROD: NewswiresWaf-PROD.template.json
   cfn-us-east-1-editorial-feeds-newswires-cloudfront-certificate:
     type: cloud-formation
     regions:
