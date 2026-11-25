@@ -14,10 +14,17 @@ describe('createStacks', () => {
 			enableMonitoring: true,
 		};
 
-		const { wiresFeedsStack, newswiresStack, cloudfrontCertificateStack } =
-			createStacks({
-				...stackProps,
-			});
+		const {
+			wafStack,
+			wiresFeedsStack,
+			newswiresStack,
+			cloudfrontCertificateStack,
+		} = createStacks({
+			...stackProps,
+		});
+
+		// Verify WAF stack is created but don't snapshot it (snapshot compatibility)
+		expect(wafStack).toBeDefined();
 
 		const wiresFeedsTemplate = Template.fromStack(wiresFeedsStack);
 		expect(wiresFeedsTemplate.toJSON()).toMatchSnapshot();

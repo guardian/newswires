@@ -7,6 +7,18 @@ allowedStages:
   - CODE
   - PROD
 deployments:
+  cfn-us-east-1-editorial-feeds-newswires-waf:
+    type: cloud-formation
+    regions:
+      - us-east-1
+    stacks:
+      - editorial-feeds
+    app: newswires-waf
+    contentDirectory: cdk.out
+    parameters:
+      templateStagePaths:
+        CODE: NewswiresWaf-CODE.template.json
+        PROD: NewswiresWaf-PROD.template.json
   cfn-eu-west-1-editorial-feeds-wires-feeds:
     type: cloud-formation
     regions:
@@ -159,6 +171,7 @@ deployments:
       - asg-upload-eu-west-1-editorial-feeds-newswires
       - cfn-eu-west-1-editorial-feeds-wires-feeds
       - cfn-us-east-1-editorial-feeds-newswires-cloudfront-certificate
+      - cfn-us-east-1-editorial-feeds-newswires-waf
   lambda-update-eu-west-1-editorial-feeds-fingerpost-queueing-lambda:
     type: aws-lambda
     stacks:
