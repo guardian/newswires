@@ -36,7 +36,7 @@ The local environment checks in `scripts/check-requirements` expect:
 
 - Java (see [.tool-versions](./.tool-versions)) with `JAVA_HOME` set
 - sbt
-- Node (see [.nvmrc](./.nvmrc))
+- Node (see [.tool-versions](./.tool-versions))
 - Docker
 - nginx and [dev-nginx](https://github.com/guardian/dev-nginx)
 - scala-cli
