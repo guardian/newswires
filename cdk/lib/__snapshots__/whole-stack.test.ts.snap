@@ -7587,8 +7587,42 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
       "Type": "AWS::Logs::LogGroup",
       "UpdateReplacePolicy": "Retain",
     },
+    "WafLogGroupPolicyResourcePolicyC1E6FF66": {
+      "Properties": {
+        "PolicyDocument": {
+          "Fn::Join": [
+            "",
+            [
+              "{"Statement":[{"Action":["logs:CreateLogStream","logs:PutLogEvents"],"Condition":{"StringEquals":{"aws:SourceAccount":"",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ""},"ArnLike":{"aws:SourceArn":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":logs:us-east-1:",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":*"}},"Effect":"Allow","Principal":{"Service":"delivery.logs.amazonaws.com"},"Resource":"",
+              {
+                "Fn::GetAtt": [
+                  "WafLogGroupDFDE65B0",
+                  "Arn",
+                ],
+              },
+              ""}],"Version":"2012-10-17"}",
+            ],
+          ],
+        },
+        "PolicyName": "NewswiresWafTESTWafLogGroupPolicy6BE1C9D1",
+      },
+      "Type": "AWS::Logs::ResourcePolicy",
+    },
     "WafLogging": {
       "DependsOn": [
+        "WafLogGroupPolicyResourcePolicyC1E6FF66",
         "WafLogGroupDFDE65B0",
       ],
       "Properties": {

@@ -1,5 +1,6 @@
 import { GuStack, type GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { type App, ArnFormat, CfnOutput } from 'aws-cdk-lib';
+import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { CfnLoggingConfiguration, CfnWebACL } from 'aws-cdk-lib/aws-wafv2';
 
@@ -91,6 +92,22 @@ export class NewswiresWaf extends GuStack {
 			retention: RetentionDays.THREE_MONTHS,
 		});
 
+		// Grant WAF's log delivery service write access up front, so WAF doesn't
+		// have to create a resource policy at deploy time (which needs logs:PutResourcePolicy)
+		const { policyDependable } = logGroup.addToResourcePolicy(
+			new PolicyStatement({
+				principals: [new ServicePrincipal('delivery.logs.amazonaws.com')],
+				actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
+				resources: [logGroup.logGroupArn],
+				conditions: {
+					StringEquals: { 'aws:SourceAccount': this.account },
+					ArnLike: {
+						'aws:SourceArn': this.formatArn({ service: 'logs', resource: '*' }),
+					},
+				},
+			}),
+		);
+
 		const loggingConfiguration = new CfnLoggingConfiguration(
 			this,
 			'WafLogging',
@@ -112,6 +129,9 @@ export class NewswiresWaf extends GuStack {
 			},
 		);
 		loggingConfiguration.node.addDependency(logGroup);
+		if (policyDependable) {
+			loggingConfiguration.node.addDependency(policyDependable);
+		}
 
 		// The Newswires stack (eu-west-1) cannot reference this us-east-1 stack directly.
 		// Copy this value into SSM in eu-west-1 at /<STAGE>/editorial-feeds/newswires/cloudfront/webAclArn
