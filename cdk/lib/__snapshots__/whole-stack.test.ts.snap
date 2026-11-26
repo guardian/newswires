@@ -7560,6 +7560,77 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
     },
   },
   "Resources": {
+    "WafLogGroupDFDE65B0": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "LogGroupName": "aws-waf-logs-newswires-TEST",
+        "RetentionInDays": 90,
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "WafLogging": {
+      "DependsOn": [
+        "WafLogGroupDFDE65B0",
+      ],
+      "Properties": {
+        "LogDestinationConfigs": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":logs:us-east-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":log-group:aws-waf-logs-newswires-TEST",
+              ],
+            ],
+          },
+        ],
+        "RedactedFields": [
+          {
+            "SingleHeader": {
+              "Name": "cookie",
+            },
+          },
+          {
+            "SingleHeader": {
+              "Name": "authorization",
+            },
+          },
+        ],
+        "ResourceArn": {
+          "Fn::GetAtt": [
+            "WebAcl",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::WAFv2::LoggingConfiguration",
+    },
     "WebAcl": {
       "Properties": {
         "DefaultAction": {

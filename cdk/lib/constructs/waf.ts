@@ -1,6 +1,7 @@
 import { GuStack, type GuStackProps } from '@guardian/cdk/lib/constructs/core';
-import { type App, CfnOutput } from 'aws-cdk-lib';
-import { CfnWebACL } from 'aws-cdk-lib/aws-wafv2';
+import { type App, ArnFormat, CfnOutput } from 'aws-cdk-lib';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { CfnLoggingConfiguration, CfnWebACL } from 'aws-cdk-lib/aws-wafv2';
 
 const managedRuleGroups = [
 	'AWSManagedRulesCommonRuleSet',
@@ -38,6 +39,9 @@ const countManagedRuleGroup = (
  * Rules included (all in COUNT/log-only mode):
  * - AWS managed rule groups (same baseline as other editorial tools, e.g. Media Atom Maker)
  * - Rate limiting (2000 requests per 5 minutes per IP)
+ *
+ * Full request logs are written to the CloudWatch log group
+ * `aws-waf-logs-newswires-<STAGE>` in us-east-1.
  */
 export class NewswiresWaf extends GuStack {
 	public readonly webAcl: CfnWebACL;
@@ -79,6 +83,35 @@ export class NewswiresWaf extends GuStack {
 				},
 			],
 		});
+
+		// WAF requires the log group name to start with `aws-waf-logs-`
+		const logGroupName = `aws-waf-logs-newswires-${this.stage}`;
+		const logGroup = new LogGroup(this, 'WafLogGroup', {
+			logGroupName,
+			retention: RetentionDays.THREE_MONTHS,
+		});
+
+		const loggingConfiguration = new CfnLoggingConfiguration(
+			this,
+			'WafLogging',
+			{
+				resourceArn: this.webAcl.attrArn,
+				// WAF rejects the `:*`-suffixed ARN that LogGroup.logGroupArn resolves to
+				logDestinationConfigs: [
+					this.formatArn({
+						service: 'logs',
+						resource: 'log-group',
+						resourceName: logGroupName,
+						arnFormat: ArnFormat.COLON_RESOURCE_NAME,
+					}),
+				],
+				redactedFields: [
+					{ singleHeader: { Name: 'cookie' } },
+					{ singleHeader: { Name: 'authorization' } },
+				],
+			},
+		);
+		loggingConfiguration.node.addDependency(logGroup);
 
 		// The Newswires stack (eu-west-1) cannot reference this us-east-1 stack directly.
 		// Copy this value into SSM in eu-west-1 at /<STAGE>/editorial-feeds/newswires/cloudfront/webAclArn
