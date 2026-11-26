@@ -2,6 +2,9 @@
 
 set -e
 
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="${DIR}/.."
+
 red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
 
@@ -47,10 +50,16 @@ checkForJavaHome() {
 }
 
 checkNodeVersion() {
-  runningNodeVersion=$(node -v)
-  requiredNodeVersion=$(cat "$ROOT_DIR/.nvmrc")
+  runningNodeVersion=$(node -p 'process.versions.node')
+  requiredNodeVersion=$(awk '$1 == "node" { print $2; exit }' "$ROOT_DIR/.tool-versions")
 
-  if [ "$runningNodeVersion" != "$requiredNodeVersion" ]; then
+  if [[ -z "$requiredNodeVersion" ]]; then
+    echo -e "${red}No Node version specified in $ROOT_DIR/.tool-versions.${plain}"
+    exit 1
+  fi
+
+  if [[ "$runningNodeVersion" != "$requiredNodeVersion" &&
+        "$runningNodeVersion" != "$requiredNodeVersion".* ]]; then
     echo -e "${red}Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}.${plain}"
     exit 1
   fi
