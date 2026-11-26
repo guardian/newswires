@@ -125,6 +125,7 @@ export class NewswiresWaf extends GuStack {
 				redactedFields: [
 					{ singleHeader: { Name: 'cookie' } },
 					{ singleHeader: { Name: 'authorization' } },
+					{ singleHeader: { Name: 'csrf-token' } },
 				],
 			},
 		);

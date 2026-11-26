@@ -7655,6 +7655,11 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
               "Name": "authorization",
             },
           },
+          {
+            "SingleHeader": {
+              "Name": "csrf-token",
+            },
+          },
         ],
         "ResourceArn": {
           "Fn::GetAtt": [
