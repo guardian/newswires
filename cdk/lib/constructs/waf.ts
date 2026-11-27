@@ -4,6 +4,8 @@ import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { CfnLoggingConfiguration, CfnWebACL } from 'aws-cdk-lib/aws-wafv2';
 
+const redactedHeaders = ['authorization', 'cookie', 'csrf-token'];
+
 const managedRuleGroups = [
 	'AWSManagedRulesCommonRuleSet',
 	'AWSManagedRulesKnownBadInputsRuleSet',
@@ -64,6 +66,13 @@ export class NewswiresWaf extends GuStack {
 				metricName: `newswires-waf-${this.stage}`,
 				sampledRequestsEnabled: true,
 			},
+			// Masks auth/session headers in both WAF logs and sampled requests
+			dataProtectionConfig: {
+				dataProtections: redactedHeaders.map((header) => ({
+					action: 'SUBSTITUTION',
+					field: { fieldType: 'SINGLE_HEADER', fieldKeys: [header] },
+				})),
+			},
 			rules: [
 				...managedRuleGroups.map(countManagedRuleGroup),
 				{
@@ -89,7 +98,7 @@ export class NewswiresWaf extends GuStack {
 		const logGroupName = `aws-waf-logs-newswires-${this.stage}`;
 		const logGroup = new LogGroup(this, 'WafLogGroup', {
 			logGroupName,
-			retention: RetentionDays.THREE_MONTHS,
+			retention: RetentionDays.TWO_WEEKS,
 		});
 
 		// Grant WAF's log delivery service write access up front, so WAF doesn't
@@ -121,11 +130,6 @@ export class NewswiresWaf extends GuStack {
 						resourceName: logGroupName,
 						arnFormat: ArnFormat.COLON_RESOURCE_NAME,
 					}),
-				],
-				redactedFields: [
-					{ singleHeader: { Name: 'cookie' } },
-					{ singleHeader: { Name: 'authorization' } },
-					{ singleHeader: { Name: 'csrf-token' } },
 				],
 			},
 		);

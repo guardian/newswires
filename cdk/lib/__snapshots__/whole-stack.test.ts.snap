@@ -7564,7 +7564,7 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
       "DeletionPolicy": "Retain",
       "Properties": {
         "LogGroupName": "aws-waf-logs-newswires-TEST",
-        "RetentionInDays": 90,
+        "RetentionInDays": 14,
         "Tags": [
           {
             "Key": "gu:cdk:version",
@@ -7644,23 +7644,6 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
             ],
           },
         ],
-        "RedactedFields": [
-          {
-            "SingleHeader": {
-              "Name": "cookie",
-            },
-          },
-          {
-            "SingleHeader": {
-              "Name": "authorization",
-            },
-          },
-          {
-            "SingleHeader": {
-              "Name": "csrf-token",
-            },
-          },
-        ],
         "ResourceArn": {
           "Fn::GetAtt": [
             "WebAcl",
@@ -7672,6 +7655,37 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
     },
     "WebAcl": {
       "Properties": {
+        "DataProtectionConfig": {
+          "DataProtections": [
+            {
+              "Action": "SUBSTITUTION",
+              "Field": {
+                "FieldKeys": [
+                  "authorization",
+                ],
+                "FieldType": "SINGLE_HEADER",
+              },
+            },
+            {
+              "Action": "SUBSTITUTION",
+              "Field": {
+                "FieldKeys": [
+                  "cookie",
+                ],
+                "FieldType": "SINGLE_HEADER",
+              },
+            },
+            {
+              "Action": "SUBSTITUTION",
+              "Field": {
+                "FieldKeys": [
+                  "csrf-token",
+                ],
+                "FieldType": "SINGLE_HEADER",
+              },
+            },
+          ],
+        },
         "DefaultAction": {
           "Allow": {},
         },
