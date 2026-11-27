@@ -7559,7 +7559,7 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
         "Name": "newswires-waf-TEST",
         "Rules": [
           {
-            "Name": "AWSManagedRulesCommonRuleGroup",
+            "Name": "AWS-AWSManagedRulesCommonRuleSet",
             "OverrideAction": {
               "Count": {},
             },
@@ -7572,12 +7572,12 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
             },
             "VisibilityConfig": {
               "CloudWatchMetricsEnabled": true,
-              "MetricName": "AWSManagedRulesCommonRuleGroupMetrics",
+              "MetricName": "AWS-AWSManagedRulesCommonRuleSet",
               "SampledRequestsEnabled": true,
             },
           },
           {
-            "Name": "AWSManagedRulesKnownBadInputsRuleGroup",
+            "Name": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
             "OverrideAction": {
               "Count": {},
             },
@@ -7590,7 +7590,97 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
             },
             "VisibilityConfig": {
               "CloudWatchMetricsEnabled": true,
-              "MetricName": "AWSManagedRulesKnownBadInputsRuleGroupMetrics",
+              "MetricName": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesAdminProtectionRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 3,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesAdminProtectionRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesAdminProtectionRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesAmazonIpReputationList",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 4,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesAmazonIpReputationList",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesAmazonIpReputationList",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesAnonymousIpList",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 5,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesAnonymousIpList",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesAnonymousIpList",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesLinuxRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 6,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesLinuxRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesLinuxRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesUnixRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 7,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesUnixRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesUnixRuleSet",
               "SampledRequestsEnabled": true,
             },
           },
@@ -7599,7 +7689,7 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
               "Count": {},
             },
             "Name": "RateLimitRule",
-            "Priority": 3,
+            "Priority": 8,
             "Statement": {
               "RateBasedStatement": {
                 "AggregateKeyType": "IP",

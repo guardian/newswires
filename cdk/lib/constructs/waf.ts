@@ -2,12 +2,41 @@ import { GuStack, type GuStackProps } from '@guardian/cdk/lib/constructs/core';
 import { type App, CfnOutput } from 'aws-cdk-lib';
 import { CfnWebACL } from 'aws-cdk-lib/aws-wafv2';
 
+const managedRuleGroups = [
+	'AWSManagedRulesCommonRuleSet',
+	'AWSManagedRulesKnownBadInputsRuleSet',
+	'AWSManagedRulesAdminProtectionRuleSet',
+	'AWSManagedRulesAmazonIpReputationList',
+	'AWSManagedRulesAnonymousIpList',
+	'AWSManagedRulesLinuxRuleSet',
+	'AWSManagedRulesUnixRuleSet',
+];
+
+const countManagedRuleGroup = (
+	name: string,
+	index: number,
+): CfnWebACL.RuleProperty => ({
+	name: `AWS-${name}`,
+	priority: index + 1,
+	overrideAction: { count: {} },
+	statement: {
+		managedRuleGroupStatement: {
+			vendorName: 'AWS',
+			name,
+		},
+	},
+	visibilityConfig: {
+		cloudWatchMetricsEnabled: true,
+		metricName: `AWS-${name}`,
+		sampledRequestsEnabled: true,
+	},
+});
+
 /**
  * AWS WAF Web ACL for Newswires CloudFront distribution.
  *
  * Rules included (all in COUNT/log-only mode):
- * - AWS Managed Rules - Common Rule Group (SQL injection, XSS, etc.)
- * - AWS Managed Rules - Known Bad Inputs
+ * - AWS managed rule groups (same baseline as other editorial tools, e.g. Media Atom Maker)
  * - Rate limiting (2000 requests per 5 minutes per IP)
  */
 export class NewswiresWaf extends GuStack {
@@ -31,41 +60,10 @@ export class NewswiresWaf extends GuStack {
 				sampledRequestsEnabled: true,
 			},
 			rules: [
-				{
-					name: 'AWSManagedRulesCommonRuleGroup',
-					priority: 1,
-					overrideAction: { count: {} },
-					statement: {
-						managedRuleGroupStatement: {
-							vendorName: 'AWS',
-							name: 'AWSManagedRulesCommonRuleSet',
-						},
-					},
-					visibilityConfig: {
-						cloudWatchMetricsEnabled: true,
-						metricName: 'AWSManagedRulesCommonRuleGroupMetrics',
-						sampledRequestsEnabled: true,
-					},
-				},
-				{
-					name: 'AWSManagedRulesKnownBadInputsRuleGroup',
-					priority: 2,
-					overrideAction: { count: {} },
-					statement: {
-						managedRuleGroupStatement: {
-							vendorName: 'AWS',
-							name: 'AWSManagedRulesKnownBadInputsRuleSet',
-						},
-					},
-					visibilityConfig: {
-						cloudWatchMetricsEnabled: true,
-						metricName: 'AWSManagedRulesKnownBadInputsRuleGroupMetrics',
-						sampledRequestsEnabled: true,
-					},
-				},
+				...managedRuleGroups.map(countManagedRuleGroup),
 				{
 					name: 'RateLimitRule',
-					priority: 3,
+					priority: managedRuleGroups.length + 1,
 					action: { count: {} },
 					statement: {
 						rateBasedStatement: {
