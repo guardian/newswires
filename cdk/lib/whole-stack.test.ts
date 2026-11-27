@@ -14,10 +14,14 @@ describe('createStacks', () => {
 			enableMonitoring: true,
 		};
 
-		const { wiresFeedsStack, newswiresStack, cloudfrontCertificateStack } =
-			createStacks({
-				...stackProps,
-			});
+		const {
+			wafStack,
+			wiresFeedsStack,
+			newswiresStack,
+			cloudfrontCertificateStack,
+		} = createStacks({
+			...stackProps,
+		});
 
 		const wiresFeedsTemplate = Template.fromStack(wiresFeedsStack);
 		expect(wiresFeedsTemplate.toJSON()).toMatchSnapshot();
@@ -27,5 +31,7 @@ describe('createStacks', () => {
 			cloudfrontCertificateStack,
 		);
 		expect(cloudfrontCertificateTemplate.toJSON()).toMatchSnapshot();
+		const wafTemplate = Template.fromStack(wafStack);
+		expect(wafTemplate.toJSON()).toMatchSnapshot();
 	}, 15000);
 });

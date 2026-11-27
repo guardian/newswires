@@ -1018,6 +1018,7 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
   "Metadata": {
     "gu:cdk:constructs": [
       "GuParameter",
+      "GuParameter",
       "GuVpcParameter",
       "GuSubnetListParameter",
       "GuSecurityGroup",
@@ -1115,6 +1116,11 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
     "CloudFrontCertificateArn": {
       "Default": "/TEST/editorial-feeds/newswires/cloudfront/certificateArn",
       "Description": "The ARN of the CloudFront certificate for newswires.TEST.dev-gutools.co.uk, for consumption by the Newswires app stack.",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "CloudFrontWebAclArn": {
+      "Default": "/TEST/editorial-feeds/newswires/cloudfront/webAclArn",
+      "Description": "The ARN of the WAF web ACL (from the NewswiresWaf stack in us-east-1) to attach to the CloudFront distribution for newswires.TEST.dev-gutools.co.uk.",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "DistributionBucketName": {
@@ -6578,6 +6584,9 @@ dpkg -i /newswires/newswires.deb",
             "MinimumProtocolVersion": "TLSv1.2_2021",
             "SslSupportMethod": "sni-only",
           },
+          "WebACLId": {
+            "Ref": "CloudFrontWebAclArn",
+          },
         },
         "Tags": [
           {
@@ -7529,6 +7538,330 @@ exports[`createStacks > should create WiresFeeds and Newswires stacks with corre
         "ValidationMethod": "DNS",
       },
       "Type": "AWS::CertificateManager::Certificate",
+    },
+  },
+}
+`;
+
+exports[`createStacks > should create WiresFeeds and Newswires stacks with correct properties 4`] = `
+{
+  "Metadata": {
+    "gu:cdk:constructs": [],
+    "gu:cdk:version": "TEST",
+  },
+  "Outputs": {
+    "WebAclArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "WebAcl",
+          "Arn",
+        ],
+      },
+    },
+  },
+  "Resources": {
+    "WafLogGroupDFDE65B0": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "LogGroupName": "aws-waf-logs-newswires-TEST",
+        "RetentionInDays": 14,
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "WafLogGroupPolicyResourcePolicyC1E6FF66": {
+      "Properties": {
+        "PolicyDocument": {
+          "Fn::Join": [
+            "",
+            [
+              "{"Statement":[{"Action":["logs:CreateLogStream","logs:PutLogEvents"],"Condition":{"StringEquals":{"aws:SourceAccount":"",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ""},"ArnLike":{"aws:SourceArn":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":logs:us-east-1:",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":*"}},"Effect":"Allow","Principal":{"Service":"delivery.logs.amazonaws.com"},"Resource":"",
+              {
+                "Fn::GetAtt": [
+                  "WafLogGroupDFDE65B0",
+                  "Arn",
+                ],
+              },
+              ""}],"Version":"2012-10-17"}",
+            ],
+          ],
+        },
+        "PolicyName": "NewswiresWafTESTWafLogGroupPolicy6BE1C9D1",
+      },
+      "Type": "AWS::Logs::ResourcePolicy",
+    },
+    "WafLogging": {
+      "DependsOn": [
+        "WafLogGroupPolicyResourcePolicyC1E6FF66",
+        "WafLogGroupDFDE65B0",
+      ],
+      "Properties": {
+        "LogDestinationConfigs": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":logs:us-east-1:",
+                {
+                  "Ref": "AWS::AccountId",
+                },
+                ":log-group:aws-waf-logs-newswires-TEST",
+              ],
+            ],
+          },
+        ],
+        "ResourceArn": {
+          "Fn::GetAtt": [
+            "WebAcl",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::WAFv2::LoggingConfiguration",
+    },
+    "WebAcl": {
+      "Properties": {
+        "DataProtectionConfig": {
+          "DataProtections": [
+            {
+              "Action": "SUBSTITUTION",
+              "Field": {
+                "FieldKeys": [
+                  "authorization",
+                ],
+                "FieldType": "SINGLE_HEADER",
+              },
+            },
+            {
+              "Action": "SUBSTITUTION",
+              "Field": {
+                "FieldKeys": [
+                  "cookie",
+                ],
+                "FieldType": "SINGLE_HEADER",
+              },
+            },
+            {
+              "Action": "SUBSTITUTION",
+              "Field": {
+                "FieldKeys": [
+                  "csrf-token",
+                ],
+                "FieldType": "SINGLE_HEADER",
+              },
+            },
+          ],
+        },
+        "DefaultAction": {
+          "Allow": {},
+        },
+        "Name": "newswires-waf-TEST",
+        "Rules": [
+          {
+            "Name": "AWS-AWSManagedRulesCommonRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 1,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesCommonRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesCommonRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 2,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesKnownBadInputsRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesAdminProtectionRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 3,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesAdminProtectionRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesAdminProtectionRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesAmazonIpReputationList",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 4,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesAmazonIpReputationList",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesAmazonIpReputationList",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesAnonymousIpList",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 5,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesAnonymousIpList",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesAnonymousIpList",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesLinuxRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 6,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesLinuxRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesLinuxRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWS-AWSManagedRulesUnixRuleSet",
+            "OverrideAction": {
+              "Count": {},
+            },
+            "Priority": 7,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWSManagedRulesUnixRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesUnixRuleSet",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Action": {
+              "Count": {},
+            },
+            "Name": "RateLimitRule",
+            "Priority": 8,
+            "Statement": {
+              "RateBasedStatement": {
+                "AggregateKeyType": "IP",
+                "Limit": 2000,
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "RateLimitRuleMetrics",
+              "SampledRequestsEnabled": true,
+            },
+          },
+        ],
+        "Scope": "CLOUDFRONT",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/newswires",
+          },
+          {
+            "Key": "Stack",
+            "Value": "editorial-feeds",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "VisibilityConfig": {
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": "newswires-waf-TEST",
+          "SampledRequestsEnabled": true,
+        },
+      },
+      "Type": "AWS::WAFv2::WebACL",
     },
   },
 }

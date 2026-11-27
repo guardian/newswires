@@ -8,6 +8,7 @@ import {
 	POLLERS_CONFIG,
 } from 'newswires-shared/pollers';
 import { NewswiresCloudfrontCertificate } from '../lib/cloudfront-certificate';
+import { NewswiresWaf } from '../lib/constructs/waf';
 import { Newswires } from '../lib/newswires';
 import { WiresFeeds } from '../lib/wires-feeds';
 
@@ -34,6 +35,11 @@ export function createStacks({
 	emailDomainName,
 	enableMonitoring,
 }: SharedStackProps) {
+	const wafStack = new NewswiresWaf(app, `NewswiresWaf-${stage}`, {
+		stack,
+		stage,
+	});
+
 	const wiresFeedsStack = new WiresFeeds(app, `WiresFeeds-${stage}`, {
 		env,
 		stack,
@@ -64,8 +70,10 @@ export function createStacks({
 
 	newswiresStack.addDependency(wiresFeedsStack);
 	newswiresStack.addDependency(cloudfrontCertificateStack);
+	newswiresStack.addDependency(wafStack);
 
 	return {
+		wafStack,
 		wiresFeedsStack,
 		newswiresStack,
 		cloudfrontCertificateStack,
